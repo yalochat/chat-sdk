@@ -1,0 +1,33 @@
+name: chat_flutter_sdk
+description: "Official Yalo Flutter chat SDK"
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: ^3.9.2
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  web: ^1.0.0
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: ai.yalo.chat_flutter_sdk
+        pluginClass: ChatFlutterSdkPlugin
+      ios:
+        pluginClass: ChatFlutterSdkPlugin
+      web:
+        pluginClass: ChatFlutterSdkWeb
+        fileName: chat_flutter_sdk_web.dart
