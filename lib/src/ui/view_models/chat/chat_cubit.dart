@@ -23,6 +23,11 @@ class ChatCubit extends Cubit<ChatState> {
   }
 
   void addMessage() {
-    emit(state.copyWith(messages: [...state.messages, state.userMessage]));
+    emit(
+      state.copyWith(
+        messages: [...state.messages, state.userMessage],
+        userMessage: '',
+      ),
+    );
   }
 }

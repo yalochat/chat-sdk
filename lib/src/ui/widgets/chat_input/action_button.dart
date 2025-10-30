@@ -7,19 +7,12 @@ import '../../view_models/chat/chat_cubit.dart';
 import '../../view_models/chat/chat_state.dart';
 import '../../view_models/theme/theme_cubit.dart';
 
-class ActionButton extends StatefulWidget {
+class ActionButton extends StatelessWidget {
   const ActionButton({super.key});
-  @override
-  State<ActionButton> createState() => _ActionButtonState();
-}
-
-class _ActionButtonState extends State<ActionButton> {
-  late TextEditingController _textEditingController;
 
   void _handleSendMessage(BuildContext context) {
     final chatCubit = context.read<ChatCubit>();
     chatCubit.addMessage();
-    _textEditingController.clear();
   }
 
   @override

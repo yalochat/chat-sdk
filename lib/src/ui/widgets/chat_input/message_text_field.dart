@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,21 +35,23 @@ class _MessageTextFieldState extends State<MessageTextField> {
     return Container(
       constraints: BoxConstraints(maxHeight: 120),
       child: Scrollbar(
-        child: BlocSelector<ChatCubit, ChatState, String>(
-          selector: (state) => state.userMessage,
-          builder: (context, userMessage) {
-            return TextField(
-              controller: _textEditingController,
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: chatThemeState.chatTheme.hintTextStyle,
-                border: InputBorder.none,
-              ),
-              onChanged: (message) => _handleOnMessageChange(context, message),
-              keyboardType: TextInputType.multiline,
-              maxLines: null,
-            );
+        child: BlocListener<ChatCubit, ChatState>(
+          listenWhen: (previous, current) =>
+              previous.userMessage != current.userMessage,
+          listener: (context, chatState) {
+            _textEditingController.text = chatState.userMessage;
           },
+          child: TextField(
+            controller: _textEditingController,
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              hintStyle: chatThemeState.chatTheme.hintTextStyle,
+              border: InputBorder.none,
+            ),
+            onChanged: (message) => _handleOnMessageChange(context, message),
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+          ),
         ),
       ),
     );
