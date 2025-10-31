@@ -1,18 +1,25 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/widgets/chat_input/action_button.dart';
-import 'package:chat_flutter_sdk/src/ui/widgets/chat_input/attachment_button.dart';
-import 'package:chat_flutter_sdk/src/ui/widgets/chat_input/camera_button.dart';
-import 'package:chat_flutter_sdk/src/ui/widgets/chat_input/message_text_field.dart';
+import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../view_models/theme/theme_cubit.dart';
+import 'action_button.dart';
+import 'attachment_button.dart';
+import 'camera_button.dart';
+import 'message_text_field.dart';
 
 class ChatInputContainer extends StatelessWidget {
   final String hintText;
-  const ChatInputContainer({super.key, this.hintText = ""});
+  final bool showCameraButton;
+  final bool showAttachmentButton;
+  const ChatInputContainer({
+    super.key,
+    this.hintText = "",
+    this.showCameraButton = true,
+    this.showAttachmentButton = true,
+  });
 
   @override
   Widget build(BuildContext context) {

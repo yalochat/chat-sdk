@@ -1,24 +1,25 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../view_models/chat/chat_cubit.dart';
-import '../../view_models/chat/chat_state.dart';
-import '../../view_models/theme/theme_cubit.dart';
+import '../../../theme/view_models/theme_cubit.dart';
+import '../../view_models/chat_bloc.dart';
+import '../../view_models/chat_state.dart';
 
 class ActionButton extends StatelessWidget {
   const ActionButton({super.key});
 
   void _handleSendMessage(BuildContext context) {
-    final chatCubit = context.read<ChatCubit>();
-    chatCubit.addMessage();
+    final chatBloc = context.read<ChatBloc>();
+    chatBloc.add(ChatSendMessage());
   }
 
   @override
   Widget build(BuildContext context) {
     final chatThemeState = context.watch<ChatThemeCubit>();
-    return BlocSelector<ChatCubit, ChatState, String>(
+    return BlocSelector<ChatBloc, ChatState, String>(
       selector: (state) => state.userMessage,
       builder: (context, userMessage) {
         return IconButton.filled(

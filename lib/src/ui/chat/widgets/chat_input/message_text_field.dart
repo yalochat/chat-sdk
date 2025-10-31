@@ -1,11 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../view_models/chat/chat_cubit.dart';
-import '../../view_models/chat/chat_state.dart';
-import '../../view_models/theme/theme_cubit.dart';
+import '../../../theme/view_models/theme_cubit.dart';
+import '../../view_models/chat_bloc.dart';
+import '../../view_models/chat_state.dart';
 
 class MessageTextField extends StatefulWidget {
   final String hintText;
@@ -25,8 +26,8 @@ class _MessageTextFieldState extends State<MessageTextField> {
   }
 
   void _handleOnMessageChange(BuildContext context, String message) {
-    final chatCubit = context.read<ChatCubit>();
-    chatCubit.updateUserMessage(message);
+    final chatBloc = context.read<ChatBloc>();
+    chatBloc.add(ChatUpdateUserMessage(value: message));
   }
 
   @override
@@ -35,7 +36,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
     return Container(
       constraints: BoxConstraints(maxHeight: 120),
       child: Scrollbar(
-        child: BlocListener<ChatCubit, ChatState>(
+        child: BlocListener<ChatBloc, ChatState>(
           listenWhen: (previous, current) =>
               previous.userMessage != current.userMessage,
           listener: (context, chatState) {
