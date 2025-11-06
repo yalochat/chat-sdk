@@ -1,12 +1,33 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+
+import 'package:chat_flutter_sdk/ui/chat/widgets/chat.dart';
+import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-import 'package:flutter/services.dart';
-import 'package:chat_flutter_sdk/chat_flutter_sdk.dart';
+import 'package:go_router/go_router.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MaterialApp.router(routerConfig: router));
+
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (_, _) => MyApp(),
+      routes: <RouteBase>[
+        GoRoute(
+          path: 'chat',
+          builder: (_, _) {
+            return const Chat(
+              title: "Chat test",
+              flowKey: "1230487123041234",
+              theme: ChatTheme.defaultTheme(),
+            );
+          },
+        ),
+      ],
+    ),
+  ],
+);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -16,46 +37,23 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _chatFlutterSdkPlugin = ChatFlutterSdk();
-
   @override
   void initState() {
     super.initState();
-    initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _chatFlutterSdkPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+  void _handleChatClick(BuildContext context) {
+    context.go("/chat");
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+        body: Center(child: Text("Sample application for chat")),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _handleChatClick(context),
+          child: const Icon(Icons.message),
         ),
       ),
     );

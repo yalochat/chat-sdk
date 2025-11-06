@@ -14,11 +14,16 @@ dependencies:
     sdk: flutter
   web: ^1.0.0
   plugin_platform_interface: ^2.0.2
+  flutter_bloc: ^9.1.1
+  provider: ^6.1.5+1
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  test: ^1.26.2
+  bloc_test: ^10.0.0
 
 flutter:
   plugin:
