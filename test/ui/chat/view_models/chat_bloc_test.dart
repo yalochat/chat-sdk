@@ -2,6 +2,7 @@
 
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -31,15 +32,36 @@ void main() {
 
     group('typing states', () {
       blocTest<ChatBloc, ChatState>(
-        'should emit isSystemTypingMessage to true when the bloc reports that the system is writing',
+        'should emit isSystemTypingMessage to true and chat status Typing... when the bloc reports that the system is writing with a status message',
+        build: () => chatBloc,
+        act: (bloc) => bloc.add(ChatStartTyping(chatStatus: 'Typing...')),
+        expect: () => [
+          isA<ChatState>()
+              .having(
+                (state) => state.isSystemTypingMessage,
+                'isSystemTypingMessage',
+                equals(true),
+              )
+              .having(
+                (state) => state.chatStatus,
+                'chatStatus',
+                equals('Typing...'),
+              ),
+        ],
+      );
+
+      blocTest<ChatBloc, ChatState>(
+        'should emit isSystemTypingMessage to true with empty status when the bloc reports that the system is writing without status message',
         build: () => chatBloc,
         act: (bloc) => bloc.add(ChatStartTyping()),
         expect: () => [
-          isA<ChatState>().having(
-            (state) => state.isSystemTypingMessage,
-            'isSystemTypingMessage',
-            equals(true),
-          ),
+          isA<ChatState>()
+              .having(
+                (state) => state.isSystemTypingMessage,
+                'isSystemTypingMessage',
+                equals(true),
+              )
+              .having((state) => state.chatStatus, 'chatStatus', equals('')),
         ],
       );
 
@@ -49,18 +71,20 @@ void main() {
         seed: () => chatBloc.state.copyWith(isSystemTypingMessage: true),
         act: (bloc) => bloc.add(ChatStopTyping()),
         expect: () => [
-          isA<ChatState>().having(
-            (state) => state.isSystemTypingMessage,
-            'isSystemTypingMessage',
-            equals(false),
-          ),
+          isA<ChatState>()
+              .having(
+                (state) => state.isSystemTypingMessage,
+                'isSystemTypingMessage',
+                equals(false),
+              )
+              .having((state) => state.chatStatus, 'chatStatus', equals('')),
         ],
       );
     });
 
     group('sending messages', () {
       blocTest<ChatBloc, ChatState>(
-        'should send message and clear user message',
+        'should send message and clear user message when the message array is empty',
         build: () => chatBloc,
         seed: () => chatBloc.state.copyWith(userMessage: 'Test message'),
         act: (bloc) => bloc.add(ChatSendMessage()),
@@ -70,45 +94,59 @@ void main() {
               .having(
                 (state) => state.messages,
                 'messages',
-                contains('Test message'),
+                contains(
+                  ChatMessage(
+                    role: MessageRole.user,
+                    messageType: MessageType.text,
+                    textMessage: 'Test message',
+                  ),
+                ),
               ),
         ],
       );
 
       blocTest<ChatBloc, ChatState>(
-        'should append a message to the end of a message array',
+        'should append a message to the end of a message array when already has messages',
         build: () => chatBloc,
         seed: () => chatBloc.state.copyWith(
           userMessage: 'Test message',
-          messages: ['Test 1', 'test2', 'test4'],
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 1',
+            ),
+            ChatMessage(
+              role: MessageRole.system,
+              messageType: MessageType.text,
+              textMessage: 'Test 2',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 3',
+            ),
+          ],
         ),
         act: (bloc) => bloc.add(ChatSendMessage()),
         expect: () => [
           isA<ChatState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
               .having(
-                (state) => state.messages,
-                'messages',
-                equals(['Test 1', 'test2', 'test4', 'Test message']),
-              ),
-        ],
-      );
-
-      blocTest<ChatBloc, ChatState>(
-        'should append a message to the end of a message array',
-        build: () => chatBloc,
-        seed: () => chatBloc.state.copyWith(
-          userMessage: 'Test message',
-          messages: ['Test 1', 'test2', 'test4'],
-        ),
-        act: (bloc) => bloc.add(ChatSendMessage()),
-        expect: () => [
-          isA<ChatState>()
-              .having((state) => state.userMessage, 'userMessage', equals(''))
+                (state) => state.messages.length,
+                'messages length',
+                equals(4),
+              )
               .having(
-                (state) => state.messages,
-                'messages',
-                equals(['Test 1', 'test2', 'test4', 'Test message']),
+                (state) => state.messages[state.messages.length - 1],
+                'last inserted message',
+                equals(
+                  ChatMessage(
+                    role: MessageRole.user,
+                    messageType: MessageType.text,
+                    textMessage: 'Test message',
+                  ),
+                ),
               ),
         ],
       );
@@ -118,16 +156,43 @@ void main() {
         build: () => chatBloc,
         seed: () => chatBloc.state.copyWith(
           userMessage: '        Test message        ',
-          messages: ['Test 1', 'test2', 'test4'],
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 1',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 2',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 3',
+            ),
+          ],
         ),
         act: (bloc) => bloc.add(ChatSendMessage()),
         expect: () => [
           isA<ChatState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
               .having(
-                (state) => state.messages,
-                'messages',
-                equals(['Test 1', 'test2', 'test4', 'Test message']),
+                (state) => state.messages.length,
+                'messages length',
+                equals(4),
+              )
+              .having(
+                (state) => state.messages[state.messages.length - 1],
+                'last inserted message',
+                equals(
+                  ChatMessage(
+                    role: MessageRole.user,
+                    messageType: MessageType.text,
+                    textMessage: 'Test message',
+                  ),
+                ),
               ),
         ],
       );
@@ -137,7 +202,23 @@ void main() {
         build: () => chatBloc,
         seed: () => chatBloc.state.copyWith(
           userMessage: '',
-          messages: ['Test 1', 'test2', 'test4'],
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 1',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 2',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 3',
+            ),
+          ],
         ),
         act: (bloc) => bloc.add(ChatSendMessage()),
         expect: () => [],
@@ -148,7 +229,23 @@ void main() {
         build: () => chatBloc,
         seed: () => chatBloc.state.copyWith(
           userMessage: '                     ',
-          messages: ['Test 1', 'test2', 'test4'],
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 1',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 2',
+            ),
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'Test 3',
+            ),
+          ],
         ),
         act: (bloc) => bloc.add(ChatSendMessage()),
         expect: () => [],
@@ -182,7 +279,15 @@ void main() {
       blocTest<ChatBloc, ChatState>(
         'should emit empty messages when chat cleared',
         build: () => chatBloc,
-        seed: () => chatBloc.state.copyWith(messages: ["Test"]),
+        seed: () => chatBloc.state.copyWith(
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'test',
+            ),
+          ],
+        ),
         act: (bloc) => bloc.add(ChatClearMessages()),
         expect: () => [
           isA<ChatState>().having(
@@ -197,8 +302,7 @@ void main() {
         'should not emit if the messages were already empty',
         build: () => chatBloc,
         act: (bloc) => bloc.add(ChatClearMessages()),
-        expect: () => [
-        ],
+        expect: () => [],
       );
     });
   });

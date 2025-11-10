@@ -14,7 +14,7 @@ class Chat extends StatelessWidget {
   final PreferredSizeWidget? appBar;
 
 
-  final String title;
+  final String name;
   final String flowKey;
   final String hintText;
   final bool showCameraButton;
@@ -23,7 +23,7 @@ class Chat extends StatelessWidget {
 
   const Chat({
     super.key,
-    required this.title,
+    required this.name,
     required this.flowKey,
     this.hintText = "Type a message",
     this.showCameraButton = true,
@@ -35,14 +35,12 @@ class Chat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: chatProviders(theme),
+      providers: chatProviders(theme, name),
       child: BlocBuilder<ChatThemeCubit, ChatTheme>(
         builder: (context, chatTheme) {
           return Scaffold(
             backgroundColor: chatTheme.backgroundColor,
-            appBar: appBar ?? ChatAppBar(
-              title: title,
-            ),
+            appBar: appBar ?? ChatAppBar(),
             body: SafeArea(
               child: Column(children: [
                   Expanded(

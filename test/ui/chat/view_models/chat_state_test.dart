@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
 import 'package:test/test.dart';
 
@@ -19,12 +20,24 @@ void main() {
 
     test("should have same hashcodes since objects are equal", () {
       var chatState = ChatState(
-        messages: ["TEEEEEST"],
+        messages: [
+          ChatMessage(
+            role: MessageRole.user,
+            messageType: MessageType.text,
+            textMessage: 'teeeest',
+          ),
+        ],
         isConnected: true,
         isUserRecordingAudio: true,
       );
       var newChatState = ChatState(
-        messages: ["TEEEEEST"],
+        messages: [
+          ChatMessage(
+            role: MessageRole.user,
+            messageType: MessageType.text,
+            textMessage: 'teeeest',
+          ),
+        ],
         isConnected: true,
         isUserRecordingAudio: true,
       );
@@ -35,12 +48,24 @@ void main() {
       "should have different hashCodes because the objects are different",
       () {
         var chatState = ChatState(
-          messages: ["TEEEST2"],
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'teeeest',
+            ),
+          ],
           isConnected: true,
           isUserRecordingAudio: true,
         );
         var newChatState = ChatState(
-          messages: ["TEEEEEST"],
+          messages: [
+            ChatMessage(
+              role: MessageRole.user,
+              messageType: MessageType.text,
+              textMessage: 'teeeest2',
+            ),
+          ],
           isConnected: true,
           isUserRecordingAudio: true,
         );

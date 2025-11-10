@@ -18,7 +18,7 @@ final router = GoRouter(
           path: 'chat',
           builder: (_, _) {
             return const Chat(
-              title: "Chat test",
+              name: "Chat test",
               flowKey: "1230487123041234",
               theme: ChatTheme(),
             );

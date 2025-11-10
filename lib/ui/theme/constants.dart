@@ -10,6 +10,7 @@ abstract final class SdkConstants {
 
   static const double titleFontSize = 18;
   static const double statusFontSize = 12;
+  static const double statusHeight = 20;
 
   static const double imageIconSize = 50;
 }

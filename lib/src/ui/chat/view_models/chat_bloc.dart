@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'chat_event.dart';
@@ -7,12 +8,14 @@ import 'chat_state.dart';
 
 /// A Bloc for managing the chat state
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  ChatBloc()
+  final String name;
+  ChatBloc({this.name = ''})
     : super(
         ChatState(
           isConnected: false,
           isUserRecordingAudio: false,
           isSystemTypingMessage: false,
+          chatTitle: name,
         ),
       ) {
     on<ChatStartTyping>(_handleStartTyping);
@@ -24,13 +27,18 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _handleStartTyping(ChatStartTyping event, Emitter<ChatState> emit) {
     if (!state.isSystemTypingMessage) {
-      emit(state.copyWith(isSystemTypingMessage: true));
+      emit(
+        state.copyWith(
+          isSystemTypingMessage: true,
+          chatStatus: event.chatStatus,
+        ),
+      );
     }
   }
 
   void _handleStopTyping(ChatStopTyping event, Emitter<ChatState> emit) {
     if (state.isSystemTypingMessage) {
-      emit(state.copyWith(isSystemTypingMessage: false));
+      emit(state.copyWith(isSystemTypingMessage: false, chatStatus: ''));
     }
   }
 
@@ -49,7 +57,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     emit(
       state.copyWith(
-        messages: [...state.messages, trimmedMessage],
+        messages: [
+          ...state.messages,
+          ChatMessage(
+            role: MessageRole.user,
+            messageType: MessageType.text,
+            textMessage: trimmedMessage,
+          ),
+        ],
         userMessage: '',
       ),
     );

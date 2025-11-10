@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_title.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
@@ -7,8 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  const ChatAppBar({super.key, required this.title});
+  const ChatAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +30,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               SizedBox(width: SdkConstants.rowItemSpace),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(fontSize: SdkConstants.titleFontSize, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Tomando pedido...',
-                      style: TextStyle(fontSize: SdkConstants.statusFontSize),
-                    ),
-                  ],
-                ),
+                child: ChatTitle()
               ),
             ],
           ),

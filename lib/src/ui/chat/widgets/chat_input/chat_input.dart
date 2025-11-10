@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'action_button.dart';
-import 'attachment_button.dart';
 import 'camera_button.dart';
 import 'message_text_field.dart';
 
