@@ -34,6 +34,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
   Widget build(BuildContext context) {
     final chatThemeState = context.watch<ChatThemeCubit>();
     return Container(
+      color: chatThemeState.state.inputTextFieldColor,
       constraints: BoxConstraints(maxHeight: 120),
       child: Scrollbar(
         child: BlocListener<ChatBloc, ChatState>(
@@ -48,6 +49,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
               hintText: widget.hintText,
               hintStyle: chatThemeState.chatTheme.hintTextStyle,
               border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
             ),
             onChanged: (message) => _handleOnMessageChange(context, message),
             keyboardType: TextInputType.multiline,

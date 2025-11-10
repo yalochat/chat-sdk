@@ -26,6 +26,8 @@ dev_dependencies:
   bloc_test: ^10.0.0
 
 flutter:
+  assets:
+    - assets/images/
   plugin:
     platforms:
       android:

@@ -20,7 +20,7 @@ final router = GoRouter(
             return const Chat(
               title: "Chat test",
               flowKey: "1230487123041234",
-              theme: ChatTheme.defaultTheme(),
+              theme: ChatTheme(),
             );
           },
         ),

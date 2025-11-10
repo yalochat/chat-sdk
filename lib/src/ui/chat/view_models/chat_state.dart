@@ -12,9 +12,9 @@ class ChatState {
   ChatState({
     this.messages = const <String>[],
     this.userMessage = "",
-    required this.isConnected,
-    required this.isSystemTypingMessage,
-    required this.isUserRecordingAudio,
+    this.isConnected = false,
+    this.isSystemTypingMessage = false,
+    this.isUserRecordingAudio = false,
   });
 
   ChatState copyWith({
@@ -28,7 +28,8 @@ class ChatState {
       messages: messages ?? this.messages,
       userMessage: userMessage ?? this.userMessage,
       isConnected: isConnected ?? this.isConnected,
-      isSystemTypingMessage: isSystemTypingMessage ?? this.isSystemTypingMessage,
+      isSystemTypingMessage:
+          isSystemTypingMessage ?? this.isSystemTypingMessage,
       isUserRecordingAudio: isUserRecordingAudio ?? this.isUserRecordingAudio,
     );
   }
@@ -39,10 +40,10 @@ class ChatState {
     if (other is! ChatState) return false;
 
     return listEquals(messages, other.messages) &&
-    userMessage == other.userMessage &&
-    isConnected == other.isConnected &&
-    isSystemTypingMessage == other.isSystemTypingMessage &&
-    isUserRecordingAudio == other.isUserRecordingAudio;
+        userMessage == other.userMessage &&
+        isConnected == other.isConnected &&
+        isSystemTypingMessage == other.isSystemTypingMessage &&
+        isUserRecordingAudio == other.isUserRecordingAudio;
   }
 
   @override
@@ -53,5 +54,4 @@ class ChatState {
     isSystemTypingMessage,
     isUserRecordingAudio,
   );
-
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
+import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,7 +37,7 @@ class ActionButton extends StatelessWidget {
           style: IconButton.styleFrom(
             backgroundColor: chatThemeState.chatTheme.sendButtonColor,
             foregroundColor: chatThemeState.chatTheme.sendButtonStyle,
-            padding: EdgeInsets.all(12),
+            padding: EdgeInsets.all(SdkConstants.iconButtonPadding),
           ),
         );
       },
