@@ -9,9 +9,10 @@ import 'chat_state.dart';
 
 /// A Bloc for managing the chat state
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
+  final Clock clock;
   final String name;
-  ChatBloc({this.name = ''})
-    : super(
+  ChatBloc({this.name = '', Clock? clock})
+    : clock = clock ?? Clock(), super(
         ChatState(
           isConnected: false,
           isUserRecordingAudio: false,

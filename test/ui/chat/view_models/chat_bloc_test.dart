@@ -78,158 +78,137 @@ void main() {
     });
 
     group('sending messages', () {
-      var fixedNow = Clock.fixed(DateTime.now());
+      var fixedClock = Clock.fixed(DateTime.now());
       blocTest<ChatBloc, ChatState>(
         'should send message and clear user message when the message array is empty',
-        build: () => withClock(fixedNow, () => ChatBloc()),
+        build: () => ChatBloc(clock: fixedClock),
         seed: () => ChatState(userMessage: 'Test message'),
-        act: (bloc) => withClock(fixedNow, () {
-          bloc.add(ChatSendMessage());
-        }),
-        expect: () => withClock(
-          fixedNow,
-          () => [
-            isA<ChatState>()
-                .having((state) => state.userMessage, 'userMessage', equals(''))
-                .having(
-                  (state) => state.messages,
-                  'messages',
-                  contains(
-                    ChatMessage(
-                      id: 0,
-                      role: MessageRole.user,
-                      type: MessageType.text,
-                      text: 'Test message',
-                      timestamp: clock.now(),
-                    ),
+        act: (bloc) => bloc.add(ChatSendMessage()),
+        expect: () => [
+          isA<ChatState>()
+              .having((state) => state.userMessage, 'userMessage', equals(''))
+              .having(
+                (state) => state.messages,
+                'messages',
+                contains(
+                  ChatMessage(
+                    id: 0,
+                    role: MessageRole.user,
+                    type: MessageType.text,
+                    text: 'Test message',
+                    timestamp: fixedClock.now(),
                   ),
                 ),
-          ],
-        ),
+              ),
+        ],
       );
 
       blocTest<ChatBloc, ChatState>(
         'should append a message to the end of a message array when already has messages',
-        build: () => withClock(fixedNow, () => ChatBloc()),
-        seed: () => withClock(
-          fixedNow,
-          () => ChatState(
-            userMessage: 'Test message',
-            messages: [
-              ChatMessage(
-                id: 0,
-                role: MessageRole.user,
-                type: MessageType.text,
-                text: 'Test 1',
-                timestamp: clock.now(),
-              ),
-              ChatMessage(
-                id: 1,
-                role: MessageRole.system,
-                type: MessageType.text,
-                text: 'Test 2',
-                timestamp: clock.now(),
-              ),
-              ChatMessage(
-                id: 2,
-                role: MessageRole.user,
-                type: MessageType.text,
-                text: 'Test 3',
-                timestamp: clock.now(),
-              ),
-            ],
-          ),
-        ),
-        act: (bloc) => withClock(fixedNow, () {
-          bloc.add(ChatSendMessage());
-        }),
-        expect: () => withClock(
-          fixedNow,
-          () => [
-            isA<ChatState>()
-                .having((state) => state.userMessage, 'userMessage', equals(''))
-                .having(
-                  (state) => state.messages.length,
-                  'messages length',
-                  equals(4),
-                )
-                .having(
-                  (state) => state.messages[state.messages.length - 1],
-                  'last inserted message',
-                  equals(
-                    ChatMessage(
-                      id: 3,
-                      role: MessageRole.user,
-                      type: MessageType.text,
-                      text: 'Test message',
-                      timestamp: clock.now(),
-                    ),
-                  ),
-                ),
+        build: () => ChatBloc(clock: fixedClock),
+        seed: () => ChatState(
+          userMessage: 'Test message',
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              text: 'Test 1',
+              timestamp: fixedClock.now(),
+            ),
+            ChatMessage(
+              id: 1,
+              role: MessageRole.system,
+              type: MessageType.text,
+              text: 'Test 2',
+              timestamp: fixedClock.now(),
+            ),
+            ChatMessage(
+              id: 2,
+              role: MessageRole.user,
+              type: MessageType.text,
+              text: 'Test 3',
+              timestamp: fixedClock.now(),
+            ),
           ],
         ),
+        act: (bloc) => bloc.add(ChatSendMessage()),
+        expect: () => [
+          isA<ChatState>()
+              .having((state) => state.userMessage, 'userMessage', equals(''))
+              .having(
+                (state) => state.messages.length,
+                'messages length',
+                equals(4),
+              )
+              .having(
+                (state) => state.messages[state.messages.length - 1],
+                'last inserted message',
+                equals(
+                  ChatMessage(
+                    id: 3,
+                    role: MessageRole.user,
+                    type: MessageType.text,
+                    text: 'Test message',
+                    timestamp: fixedClock.now(),
+                  ),
+                ),
+              ),
+        ],
       );
 
       blocTest<ChatBloc, ChatState>(
         'should append a trimmed message to the end of a message list if it contains spaces on both ends',
-        build: () => withClock(fixedNow, () => ChatBloc()),
-        seed: () => withClock(
-          fixedNow,
-          () => ChatState(
-            userMessage: '        Test message        ',
-            messages: [
-              ChatMessage(
-                id: 0,
-                role: MessageRole.user,
-                type: MessageType.text,
-                text: 'Test 1',
-                timestamp: clock.now(),
-              ),
-              ChatMessage(
-                id: 1,
-                role: MessageRole.user,
-                type: MessageType.text,
-                text: 'Test 2',
-                timestamp: clock.now(),
-              ),
-              ChatMessage(
-                id: 2,
-                role: MessageRole.user,
-                type: MessageType.text,
-                text: 'Test 3',
-                timestamp: clock.now(),
-              ),
-            ],
-          ),
-        ),
-        act: (bloc) => withClock(fixedNow, () {
-          bloc.add(ChatSendMessage());
-        }),
-        expect: () => withClock(
-          fixedNow,
-          () => [
-            isA<ChatState>()
-                .having((state) => state.userMessage, 'userMessage', equals(''))
-                .having(
-                  (state) => state.messages.length,
-                  'messages length',
-                  equals(4),
-                )
-                .having(
-                  (state) => state.messages[state.messages.length - 1],
-                  'last inserted message',
-                  equals(
-                    ChatMessage(
-                      id: 3,
-                      role: MessageRole.user,
-                      type: MessageType.text,
-                      text: 'Test message',
-                      timestamp: clock.now(),
-                    ),
-                  ),
-                ),
+        build: () => ChatBloc(clock: fixedClock),
+        seed: () => ChatState(
+          userMessage: '        Test message        ',
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              text: 'Test 1',
+              timestamp: clock.now(),
+            ),
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              text: 'Test 2',
+              timestamp: clock.now(),
+            ),
+            ChatMessage(
+              id: 2,
+              role: MessageRole.user,
+              type: MessageType.text,
+              text: 'Test 3',
+              timestamp: clock.now(),
+            ),
           ],
         ),
+        act: (bloc) => bloc.add(ChatSendMessage()),
+        expect: () => [
+          isA<ChatState>()
+              .having((state) => state.userMessage, 'userMessage', equals(''))
+              .having(
+                (state) => state.messages.length,
+                'messages length',
+                equals(4),
+              )
+              .having(
+                (state) => state.messages[state.messages.length - 1],
+                'last inserted message',
+                equals(
+                  ChatMessage(
+                    id: 3,
+                    role: MessageRole.user,
+                    type: MessageType.text,
+                    text: 'Test message',
+                    timestamp: fixedClock.now(),
+                  ),
+                ),
+              ),
+        ],
       );
 
       blocTest<ChatBloc, ChatState>(
