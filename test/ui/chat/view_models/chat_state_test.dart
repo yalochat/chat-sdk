@@ -2,6 +2,7 @@
 
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:clock/clock.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -18,41 +19,17 @@ void main() {
       expect(newChatState, isNot(equals(chatState)));
     });
 
-    test("should have same hashcodes since objects are equal", () {
-      var chatState = ChatState(
-        messages: [
-          ChatMessage(
-            role: MessageRole.user,
-            messageType: MessageType.text,
-            textMessage: 'teeeest',
-          ),
-        ],
-        isConnected: true,
-        isUserRecordingAudio: true,
-      );
-      var newChatState = ChatState(
-        messages: [
-          ChatMessage(
-            role: MessageRole.user,
-            messageType: MessageType.text,
-            textMessage: 'teeeest',
-          ),
-        ],
-        isConnected: true,
-        isUserRecordingAudio: true,
-      );
-      expect(newChatState.hashCode, equals(chatState.hashCode));
-    });
-
     test(
-      "should have different hashCodes because the objects are different",
-      () {
+      "should have same hashcodes since objects are equal",
+      () => withClock(Clock.fixed(DateTime.now()), () {
         var chatState = ChatState(
           messages: [
             ChatMessage(
+              id: 0,
               role: MessageRole.user,
-              messageType: MessageType.text,
-              textMessage: 'teeeest',
+              type: MessageType.text,
+              text: 'teeeest',
+              timestamp: clock.now()
             ),
           ],
           isConnected: true,
@@ -61,9 +38,44 @@ void main() {
         var newChatState = ChatState(
           messages: [
             ChatMessage(
+              id: 0,
               role: MessageRole.user,
-              messageType: MessageType.text,
-              textMessage: 'teeeest2',
+              type: MessageType.text,
+              text: 'teeeest',
+              timestamp: clock.now()
+            ),
+          ],
+          isConnected: true,
+          isUserRecordingAudio: true,
+        );
+        expect(newChatState.hashCode, equals(chatState.hashCode));
+      }),
+    );
+
+    test(
+      "should have different hashCodes because the objects are different",
+      () {
+        var chatState = ChatState(
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              text: 'teeeest',
+              timestamp: clock.now()
+            ),
+          ],
+          isConnected: true,
+          isUserRecordingAudio: true,
+        );
+        var newChatState = ChatState(
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              timestamp: clock.now(),
+              text: 'teeeest2',
             ),
           ],
           isConnected: true,

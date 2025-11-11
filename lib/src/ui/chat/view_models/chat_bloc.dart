@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
+import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'chat_event.dart';
@@ -54,15 +55,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   void _handleSendMessage(ChatSendMessage event, Emitter<ChatState> emit) {
     final String trimmedMessage = state.userMessage.trim();
     if (trimmedMessage.isEmpty) return;
-
     emit(
       state.copyWith(
         messages: [
           ...state.messages,
           ChatMessage(
+            id: state.messages.length,
             role: MessageRole.user,
-            messageType: MessageType.text,
-            textMessage: trimmedMessage,
+            type: MessageType.text,
+            text: trimmedMessage,
+            timestamp: clock.now(),
           ),
         ],
         userMessage: '',
