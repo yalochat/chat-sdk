@@ -43,20 +43,6 @@ void main() {
         expect(chatMessage1, isNot(equals(chatMessage2)));
       },
     );
-    test('should return correctly the toString value', () {
-      final fixedTimestamp = DateTime(2025, 1, 1, 1);
-      final chatMessage = ChatMessage(
-        id: 0,
-        role: MessageRole.user,
-        type: MessageType.text,
-        timestamp: fixedTimestamp,
-      );
-      expect(
-        chatMessage.toString(),
-        equals(
-          'ChatMessage(id: 0, role: USER, text: "", type: text, status: MessageStatus.inProgress, timestamp: $fixedTimestamp)',
-        ),
-      );
-    });
+
   });
 }

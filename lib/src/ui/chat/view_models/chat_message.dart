@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:equatable/equatable.dart';
+
 enum MessageRole {
   user(role: 'USER'),
   system(role: 'SYSTEM'),
@@ -21,7 +23,7 @@ enum MessageType {
 
 enum MessageStatus { delivered, read, error, sent, inProgress }
 
-class ChatMessage {
+class ChatMessage extends Equatable {
   final int id;
   final MessageRole role;
   final String text;
@@ -29,7 +31,7 @@ class ChatMessage {
   final MessageStatus status;
   final DateTime timestamp;
 
-  ChatMessage({
+  const ChatMessage({
     required this.id,
     required this.role,
     required this.type,
@@ -39,26 +41,7 @@ class ChatMessage {
   });
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is ChatMessage &&
-        other.id == id &&
-        other.role == role &&
-        other.text == text &&
-        other.type == type &&
-        other.status == status &&
-        other.timestamp == timestamp;
-  }
-
-  @override
-  int get hashCode {
-    return Object.hash(id, role, text, type, status, timestamp);
-  }
-
-  @override
-  String toString() {
-    return 'ChatMessage(id: $id, role: ${role.role}, text: "$text", type: ${type.type}, status: $status, timestamp: $timestamp)';
-  }
+  List<Object?> get props => [id, role, text, type, status, timestamp];
 }
 
 

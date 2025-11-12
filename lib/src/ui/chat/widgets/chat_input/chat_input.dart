@@ -1,5 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
@@ -10,16 +13,37 @@ import 'action_button.dart';
 import 'camera_button.dart';
 import 'message_text_field.dart';
 
-class ChatInput extends StatelessWidget {
+class ChatInput extends StatefulWidget {
   final String hintText;
   final bool showCameraButton;
-  final bool showAttachmentButton;
   const ChatInput({
     super.key,
-    this.hintText = "",
+    this.hintText = '',
     this.showCameraButton = true,
-    this.showAttachmentButton = true,
   });
+
+  @override
+  State<ChatInput> createState() => _ChatInputState();
+}
+
+class _ChatInputState extends State<ChatInput> {
+  late TextEditingController _textEditingController;
+
+  @override
+  void initState() {
+    super.initState();
+    _textEditingController = TextEditingController();
+  }
+
+  void _handleSendMessage(BuildContext context) {
+    final chatBloc = context.read<ChatBloc>();
+    chatBloc.add(ChatSendMessage());
+  }
+
+  void _handleOnMessageChange(BuildContext context, String message) {
+    final chatBloc = context.read<ChatBloc>();
+    chatBloc.add(ChatUpdateUserMessage(value: message));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +70,23 @@ class ChatInput extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       SizedBox(width: SdkConstants.rowItemSpace * 3),
-                      Expanded(child: MessageTextField(hintText: hintText)),
-                      CameraButton(),
+                      Expanded(
+                        child: BlocListener<ChatBloc, ChatState>(
+                          listenWhen: (previous, current) =>
+                              previous.userMessage != current.userMessage,
+                          listener: (context, chatState) {
+                            _textEditingController.text = chatState.userMessage;
+                          },
+                          child: MessageTextField(
+                            key: const Key('MessageTextField'),
+                            hintText: widget.hintText,
+                            controller: _textEditingController,
+                            onChanged: (value) => _handleOnMessageChange(context, value),
+                          ),
+                        ),
+                      ),
+                      if (widget.showCameraButton)
+                      CameraButton(key: const Key('CameraButton')),
                     ],
                   ),
                 ),
@@ -57,12 +96,27 @@ class ChatInput extends StatelessWidget {
                   left: SdkConstants.rowItemSpace,
                   right: SdkConstants.rowItemSpace,
                 ),
-                child: ActionButton(),
+                child: BlocSelector<ChatBloc, ChatState, String>(
+                  selector: (state) => state.userMessage,
+                  builder: (context, userMessage) {
+                    return ActionButton(
+                      key: const Key('ActionButton'),
+                      userMessage: userMessage,
+                      onPressed: () => _handleSendMessage(context),
+                    );
+                  },
+                ),
               ),
             ],
           ),
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
   }
 }

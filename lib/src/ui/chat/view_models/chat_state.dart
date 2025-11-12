@@ -1,10 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
-import 'package:flutter/foundation.dart';
+import 'package:equatable/equatable.dart';
 
 
-class ChatState {
+class ChatState extends Equatable {
   final List<ChatMessage> messages;
   final String userMessage;
   final bool isConnected;
@@ -13,7 +13,7 @@ class ChatState {
   final String chatTitle;
   final String chatStatus;
 
-  ChatState({
+  const ChatState({
     this.messages = const <ChatMessage>[],
     this.userMessage = "",
     this.isConnected = false,
@@ -45,27 +45,5 @@ class ChatState {
   }
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! ChatState) return false;
-
-    return listEquals(messages, other.messages) &&
-        userMessage == other.userMessage &&
-        isConnected == other.isConnected &&
-        isSystemTypingMessage == other.isSystemTypingMessage &&
-        isUserRecordingAudio == other.isUserRecordingAudio &&
-        chatTitle == other.chatTitle &&
-        chatStatus == other.chatStatus;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    Object.hashAll(messages),
-    userMessage,
-    isConnected,
-    isSystemTypingMessage,
-    isUserRecordingAudio,
-    chatTitle,
-    chatStatus,
-  );
+  List<Object?> get props => [messages, userMessage, isConnected, isSystemTypingMessage, isUserRecordingAudio, chatTitle, chatStatus];
 }

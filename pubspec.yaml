@@ -19,6 +19,8 @@ dependencies:
   sqflite: ^2.4.2
   path: ^1.9.1
   clock: ^1.1.2
+  mocktail: ^1.0.4
+  equatable: ^2.0.7
 
 
 dev_dependencies:
