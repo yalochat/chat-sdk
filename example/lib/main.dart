@@ -17,10 +17,12 @@ final router = GoRouter(
         GoRoute(
           path: 'chat',
           builder: (_, _) {
-            return const Chat(
+            return Chat(
               name: "Chat test",
               flowKey: "1230487123041234",
               theme: ChatTheme(),
+              onShopPressed: () {},
+              onCartPressed: () {},
             );
           },
         ),

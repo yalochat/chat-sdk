@@ -9,16 +9,16 @@ import 'package:chat_flutter_sdk/ui/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-
 class Chat extends StatelessWidget {
   final PreferredSizeWidget? appBar;
-
 
   final String name;
   final String flowKey;
   final String hintText;
   final bool showCameraButton;
   final bool showAttachmentButton;
+  final VoidCallback? onShopPressed;
+  final VoidCallback? onCartPressed;
   final ChatTheme theme;
 
   const Chat({
@@ -29,6 +29,8 @@ class Chat extends StatelessWidget {
     this.showCameraButton = true,
     this.showAttachmentButton = true,
     this.appBar,
+    this.onShopPressed,
+    this.onCartPressed,
     this.theme = const ChatTheme(),
   });
 
@@ -40,19 +42,24 @@ class Chat extends StatelessWidget {
         builder: (context, chatTheme) {
           return Scaffold(
             backgroundColor: chatTheme.backgroundColor,
-            appBar: appBar ?? ChatAppBar(),
+            appBar:
+                appBar ??
+                ChatAppBar(
+                  onShopPressed: onShopPressed,
+                  onCartPressed: onCartPressed,
+                ),
             body: SafeArea(
-              child: Column(children: [
+              child: Column(
+                children: [
                   Expanded(
-                    child: Container(
-                      color: SdkColors.backgroundColorLight,
-                    ),
+                    child: Container(color: SdkColors.backgroundColorLight),
                   ),
-                  ChatInput(hintText: hintText)]
+                  ChatInput(hintText: hintText),
+                ],
               ),
             ),
           );
-        }
+        },
       ),
     );
   }
