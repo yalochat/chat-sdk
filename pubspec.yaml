@@ -16,6 +16,11 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   flutter_bloc: ^9.1.1
   provider: ^6.1.5+1
+  sqflite: ^2.4.2
+  path: ^1.9.1
+  clock: ^1.1.2
+  mocktail: ^1.0.4
+  equatable: ^2.0.7
 
 
 dev_dependencies:
@@ -26,6 +31,8 @@ dev_dependencies:
   bloc_test: ^10.0.0
 
 flutter:
+  assets:
+    - assets/images/
   plugin:
     platforms:
       android:

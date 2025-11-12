@@ -1,0 +1,70 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
+import 'package:test/test.dart';
+
+void main() {
+  group(ChatEvent, () {
+    group('ChatStartTyping', () {
+
+      test('should support equality comparison', () {
+        final event1 = ChatStartTyping(chatStatus: 'typing');
+        final event2 = ChatStartTyping(chatStatus: 'typing');
+        final event3 = ChatStartTyping(chatStatus: 'different');
+
+        expect(event1, equals(event2));
+        expect(event1, isNot(equals(event3)));
+      });
+    });
+
+    group('ChatStopTyping', () {
+
+      test('should support equality comparison', () {
+        final event1 = ChatStopTyping();
+        final event2 = ChatStopTyping();
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group('ChatUpdateUserMessage', () {
+
+      test('should support equality comparison', () {
+        const event1 = ChatUpdateUserMessage(value: 'message');
+        const event2 = ChatUpdateUserMessage(value: 'message');
+        const event3 = ChatUpdateUserMessage(value: 'different message');
+
+        expect(event1, equals(event2));
+        expect(event1, isNot(equals(event3)));
+      });
+
+      test('should handle empty string value', () {
+        const event = ChatUpdateUserMessage(value: '');
+
+        expect(event.value, equals(''));
+        expect(event.props, equals(['']));
+      });
+    });
+
+    group('ChatSendMessage', () {
+
+      test('should support equality comparison', () {
+        final event1 = ChatSendMessage();
+        final event2 = ChatSendMessage();
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group('ChatClearMessages', () {
+
+      test('should support equality comparison', () {
+        final event1 = ChatClearMessages();
+        final event2 = ChatClearMessages();
+
+        expect(event1, equals(event2));
+      });
+    });
+
+  });
+}

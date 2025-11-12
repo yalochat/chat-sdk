@@ -1,19 +1,40 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:equatable/equatable.dart';
+
 sealed class ChatEvent {
   const ChatEvent();
 }
 
-final class ChatStartTyping extends ChatEvent {}
+final class ChatStartTyping extends ChatEvent with EquatableMixin {
+  final String chatStatus;
 
-final class ChatStopTyping extends ChatEvent {}
+  ChatStartTyping({this.chatStatus = ''});
 
-final class ChatUpdateUserMessage extends ChatEvent {
+  @override
+  List<Object?> get props => [chatStatus];
+}
+
+final class ChatStopTyping extends ChatEvent with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}
+
+final class ChatUpdateUserMessage extends ChatEvent with EquatableMixin {
   final String value;
 
   const ChatUpdateUserMessage({required this.value});
+
+  @override
+  List<Object?> get props => [value];
 }
 
-final class ChatSendMessage extends ChatEvent {}
+final class ChatSendMessage extends ChatEvent with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}
 
-final class ChatClearMessages extends ChatEvent {}
+final class ChatClearMessages extends ChatEvent with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}

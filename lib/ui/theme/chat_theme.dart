@@ -1,44 +1,57 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'colors.dart';
 
 class ChatTheme {
-  final Color? backgroundColor;
-  final Color? userMessageColor;
-  final Color? systemMessageColor;
-  final Color? sendButtonColor;
-  final Color? sendButtonStyle;
-  final TextStyle? userMessageTextStyle;
-  final TextStyle? systemMessageTextStyle;
-  final TextStyle? hintTextStyle;
-  final Icon sendButtonIcon = const Icon(Icons.send, key: Key("sendButtonIcon"));
-  final Icon recordAudioIcon = const Icon(Icons.mic, key: Key("recordAudioIcon"));
+  final Color backgroundColor;
+  final Color appBarBackgroundColor;
+  final Color userMessageColor;
+  final Color systemMessageColor;
+  final Color inputTextFieldColor;
+  final Color inputTextFieldBorderColor;
+  final Color sendButtonColor;
+  final Color sendButtonStyle;
+  final TextStyle userMessageTextStyle;
+  final TextStyle systemMessageTextStyle;
+  final TextStyle hintTextStyle;
+
+  final AssetImage chatIconImage;
+  final Icon sendButtonIcon;
+  final Icon recordAudioIcon;
+  final Icon shopIcon;
+  final Icon cartIcon;
 
   const ChatTheme({
-    this.backgroundColor,
-    this.userMessageColor,
-    this.systemMessageColor,
-    this.sendButtonColor,
-    this.sendButtonStyle,
-    this.userMessageTextStyle,
-    this.systemMessageTextStyle,
-    this.hintTextStyle,
+    this.backgroundColor = SdkColors.backgroundColorLight,
+    this.appBarBackgroundColor = SdkColors.appBarBackgroundColorLight,
+    this.userMessageColor = SdkColors.userMessageColorLight,
+    this.systemMessageColor = SdkColors.systemMessageColorLight,
+    this.inputTextFieldColor = SdkColors.inputTextFieldColorLight,
+    this.inputTextFieldBorderColor = SdkColors.inputTextFieldBorderColorLight,
+    this.sendButtonColor = SdkColors.sendButtonColorLight,
+    this.sendButtonStyle = SdkColors.sendButtonTextColorLight,
+    this.userMessageTextStyle = const TextStyle(
+      color: SdkColors.userMessageColorLight,
+    ),
+    this.systemMessageTextStyle = const TextStyle(
+      color: SdkColors.systemMessageColorLight,
+    ),
+    this.hintTextStyle = const TextStyle(color: SdkColors.hintColorLight),
+    this.chatIconImage = const AssetImage(
+      'assets/images/oris-icon.png',
+      package: 'chat_flutter_sdk',
+    ),
+    this.sendButtonIcon = const Icon(
+      Icons.send_outlined,
+      key: Key("sendButtonIcon"),
+    ),
+    this.recordAudioIcon = const Icon(
+      Icons.mic_none,
+      key: Key("recordAudioIcon"),
+    ),
+    this.shopIcon = const Icon(Icons.storefront, color: Colors.black),
+    this.cartIcon = const Icon(Icons.shopping_cart_outlined, color: Colors.black),
   });
-
-  const factory ChatTheme.defaultTheme() = _DefaultTheme;
-}
-
-class _DefaultTheme extends ChatTheme {
-  const _DefaultTheme()
-    : super(
-        backgroundColor: SdkColors.backgroundColorLight,
-        userMessageColor: SdkColors.userMessageColorLight,
-        systemMessageColor: SdkColors.systemMessageColorLight,
-        sendButtonColor: SdkColors.sendButtonColorLight,
-        sendButtonStyle: SdkColors.sendButtonTextColorLight,
-        hintTextStyle: const TextStyle(color: SdkColors.hintColorLight),
-      );
 }
