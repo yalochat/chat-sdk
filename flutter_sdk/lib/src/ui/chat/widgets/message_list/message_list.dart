@@ -21,6 +21,7 @@ class MessageList extends StatelessWidget {
           child: ListView.builder(
             itemCount: messages.length,
             itemBuilder: (context, index) {
+              return Container();
             },
           ),
         );
