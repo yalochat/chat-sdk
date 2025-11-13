@@ -18,16 +18,16 @@ class MessageTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chatThemeState = context.watch<ChatThemeCubit>();
+    final chatThemeCubit = context.watch<ChatThemeCubit>();
     return Container(
-      color: chatThemeState.state.inputTextFieldColor,
+      color: chatThemeCubit.state.inputTextFieldColor,
       constraints: BoxConstraints(maxHeight: 120),
       child: Scrollbar(
         child: TextField(
           controller: controller,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: chatThemeState.chatTheme.hintTextStyle,
+            hintStyle: chatThemeCubit.chatTheme.hintTextStyle,
             border: InputBorder.none,
             contentPadding: EdgeInsets.zero,
           ),
