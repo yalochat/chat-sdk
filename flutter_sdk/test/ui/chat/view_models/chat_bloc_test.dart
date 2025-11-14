@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/data/services/message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -118,7 +118,7 @@ void main() {
             ),
             ChatMessage(
               id: 1,
-              role: MessageRole.system,
+              role: MessageRole.assistant,
               type: MessageType.text,
               text: 'Test 2',
               timestamp: fixedClock.now(),

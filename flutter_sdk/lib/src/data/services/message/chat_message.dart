@@ -4,7 +4,6 @@ import 'package:equatable/equatable.dart';
 
 enum MessageRole {
   user(role: 'USER'),
-  system(role: 'SYSTEM'),
   assistant(role: 'ASSISTANT');
 
   final String role;

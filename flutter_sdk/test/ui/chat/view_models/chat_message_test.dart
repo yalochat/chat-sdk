@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
+import 'package:chat_flutter_sdk/src/data/services/message/chat_message.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -35,7 +35,7 @@ void main() {
         );
         final chatMessage2 = ChatMessage(
           id: 0,
-          role: MessageRole.system,
+          role: MessageRole.assistant,
           type: MessageType.text,
           timestamp: fixedTimestamp,
         );
