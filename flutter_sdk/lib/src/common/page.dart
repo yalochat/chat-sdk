@@ -5,14 +5,18 @@ import 'package:equatable/equatable.dart';
 class PageInfo extends Equatable {
   final int? total;
   final int? totalPages;
-  final int page;
-  final int pageSize;
+  final int? page;
+  final int? cursor;
+  final int? nextCursor;
+  final int? pageSize;
 
   const PageInfo({
     this.total,
     this.totalPages,
-    required this.page,
-    required this.pageSize,
+    this.page,
+    this.cursor,
+    this.nextCursor,
+    this.pageSize,
   });
 
   @override

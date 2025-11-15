@@ -1,0 +1,23 @@
+
+CREATE TABLE chat_message (
+  id INTEGER PRIMARY KEY,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  type TEXT NOT NULL,
+  status TEXT NOT NULL,
+  timestamp INTEGER NOT NULL
+);
+
+
+getMessagesPage:
+   SELECT
+      id,
+      role,
+      content,
+      type,
+      status,
+      timestamp
+    FROM chat_message
+    WHERE id > ?
+    ORDER BY id DESC
+    LIMIT ?;

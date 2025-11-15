@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/data/services/message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -63,7 +63,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             id: state.messages.length,
             role: MessageRole.user,
             type: MessageType.text,
-            text: trimmedMessage,
+            content: trimmedMessage,
             timestamp: _clock.now(),
           ),
         ],

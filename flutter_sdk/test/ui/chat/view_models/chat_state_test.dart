@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/data/services/message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
 import 'package:clock/clock.dart';
 import 'package:test/test.dart';
@@ -28,7 +28,7 @@ void main() {
               id: 0,
               role: MessageRole.user,
               type: MessageType.text,
-              text: 'teeeest',
+              content: 'teeeest',
               timestamp: clock.now()
             ),
           ],
@@ -41,7 +41,7 @@ void main() {
               id: 0,
               role: MessageRole.user,
               type: MessageType.text,
-              text: 'teeeest',
+              content: 'teeeest',
               timestamp: clock.now()
             ),
           ],
@@ -61,7 +61,7 @@ void main() {
               id: 0,
               role: MessageRole.user,
               type: MessageType.text,
-              text: 'teeeest',
+              content: 'teeeest',
               timestamp: clock.now()
             ),
           ],
@@ -75,7 +75,7 @@ void main() {
               role: MessageRole.user,
               type: MessageType.text,
               timestamp: clock.now(),
-              text: 'teeeest2',
+              content: 'teeeest2',
             ),
           ],
           isConnected: true,
