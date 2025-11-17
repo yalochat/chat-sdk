@@ -1,29 +1,48 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/common/page.dart';
+import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
+import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
+    hide ChatMessage;
 
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
+import 'package:drift/drift.dart';
 
 import 'chat_message_repository.dart';
 
-class MessageRepositoryLocal extends MessageRepository {
+class ChatMessageRepositoryLocal extends ChatMessageRepository {
   final db.DatabaseService _databaseService;
 
-  MessageRepositoryLocal({required db.DatabaseService localDatabaseService})
+  ChatMessageRepositoryLocal({required db.DatabaseService localDatabaseService})
     : _databaseService = localDatabaseService;
 
   @override
-  Future<Result<Page<ChatMessage>>> getChatMessagePage(
-    int cursor,
+  Future<Result<Page<ChatMessage>>> getChatMessagePageDesc(
+    int? cursor,
     int pageSize,
   ) async {
+    if (cursor != null && cursor < 0) {
+      return Result.error(RangeException('Invalid cursor value', cursor, 0));
+    }
+    if (pageSize < 0) {
+      return Result.error(
+        RangeException('Invalid pageSize value', pageSize, 0),
+      );
+    }
     try {
-      var results = await _databaseService
-          .getMessagesPage(cursor, pageSize)
-          .get();
+      List<ChatMessageData> results;
+      if (cursor == null) {
+        results = await _databaseService
+            .getMessagesFirstPage(pageSize + 1)
+            .get();
+      } else {
+        results = await _databaseService
+            .getMessagesPage(cursor, pageSize + 1)
+            .get();
+      }
 
       var data = results
           .map(
@@ -45,8 +64,9 @@ class MessageRepositoryLocal extends MessageRepository {
           .toList();
 
       int? nextCursor;
-      if (data.isNotEmpty) {
-        nextCursor = data.last.id;
+      if (data.isNotEmpty && data.length > pageSize) {
+        data.removeLast();
+        nextCursor = data[data.length - 1].id;
       }
       return Result.ok(
         Page(
@@ -58,18 +78,19 @@ class MessageRepositoryLocal extends MessageRepository {
           ),
         ),
       );
-    } catch (e) {
-      return Result.error(e as Exception);
+    } on Exception catch (e) {
+      return Result.error(e);
     }
   }
 
   @override
-  Future<Result<ChatMessage>> insertMessage(ChatMessage message) async {
+  Future<Result<ChatMessage>> insertChatMessage(ChatMessage message) async {
     try {
       var resultId = await _databaseService
           .into(_databaseService.chatMessage)
           .insert(
             db.ChatMessageCompanion.insert(
+              id: message.id == null ? Value.absent() : Value(message.id!),
               role: message.role.role,
               content: message.content,
               type: message.type.type,
@@ -78,8 +99,8 @@ class MessageRepositoryLocal extends MessageRepository {
             ),
           );
       return Result.ok(message.copyWith(id: resultId));
-    } catch (e) {
-      return Result.error(e as Exception);
+    } on Exception catch (e) {
+      return Result.error(e);
     }
   }
 }

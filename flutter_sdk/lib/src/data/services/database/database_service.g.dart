@@ -398,10 +398,18 @@ abstract class _$DatabaseService extends GeneratedDatabase {
   _$DatabaseService(QueryExecutor e) : super(e);
   $DatabaseServiceManager get managers => $DatabaseServiceManager(this);
   late final ChatMessage chatMessage = ChatMessage(this);
-  Selectable<ChatMessageData> getMessagesPage(int var1, int var2) {
+  Selectable<ChatMessageData> getMessagesFirstPage(int limit) {
     return customSelect(
-      'SELECT id, role, content, type, status, timestamp FROM chat_message WHERE id > ?1 ORDER BY id DESC LIMIT ?2',
-      variables: [Variable<int>(var1), Variable<int>(var2)],
+      'SELECT id, role, content, type, status, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
+      variables: [Variable<int>(limit)],
+      readsFrom: {chatMessage},
+    ).asyncMap(chatMessage.mapFromRow);
+  }
+
+  Selectable<ChatMessageData> getMessagesPage(int cursor, int limit) {
+    return customSelect(
+      'SELECT id, role, content, type, status, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
+      variables: [Variable<int>(cursor), Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
   }

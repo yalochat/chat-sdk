@@ -20,7 +20,7 @@ class PageInfo extends Equatable {
   });
 
   @override
-  List<Object?> get props => [total, totalPages, page, pageSize];
+  List<Object?> get props => [total, totalPages, page, pageSize, cursor, nextCursor];
 }
 
 class Page<T> extends Equatable {

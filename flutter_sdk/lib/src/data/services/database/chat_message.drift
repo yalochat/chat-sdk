@@ -9,7 +9,7 @@ CREATE TABLE chat_message (
 );
 
 
-getMessagesPage:
+getMessagesFirstPage(REQUIRED :limit AS INTEGER):
    SELECT
       id,
       role,
@@ -18,6 +18,19 @@ getMessagesPage:
       status,
       timestamp
     FROM chat_message
-    WHERE id > ?
     ORDER BY id DESC
-    LIMIT ?;
+    LIMIT :limit;
+
+
+getMessagesPage(REQUIRED :cursor AS INTEGER, REQUIRED :limit AS INTEGER):
+   SELECT
+      id,
+      role,
+      content,
+      type,
+      status,
+      timestamp
+    FROM chat_message
+    WHERE id < :cursor
+    ORDER BY id DESC
+    LIMIT :limit;
