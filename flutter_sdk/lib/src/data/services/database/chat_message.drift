@@ -1,0 +1,36 @@
+
+CREATE TABLE chat_message (
+  id INTEGER PRIMARY KEY,
+  role TEXT NOT NULL,
+  content TEXT NOT NULL,
+  type TEXT NOT NULL,
+  status TEXT NOT NULL,
+  timestamp INTEGER NOT NULL
+);
+
+
+getMessagesFirstPage(REQUIRED :limit AS INTEGER):
+   SELECT
+      id,
+      role,
+      content,
+      type,
+      status,
+      timestamp
+    FROM chat_message
+    ORDER BY id DESC
+    LIMIT :limit;
+
+
+getMessagesPage(REQUIRED :cursor AS INTEGER, REQUIRED :limit AS INTEGER):
+   SELECT
+      id,
+      role,
+      content,
+      type,
+      status,
+      timestamp
+    FROM chat_message
+    WHERE id < :cursor
+    ORDER BY id DESC
+    LIMIT :limit;

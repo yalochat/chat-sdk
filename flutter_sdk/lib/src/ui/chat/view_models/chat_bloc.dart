@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,10 +9,9 @@ import 'chat_state.dart';
 
 /// A Bloc for managing the chat state
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  final Clock clock;
-  final String name;
-  ChatBloc({this.name = '', Clock? clock})
-    : clock = clock ?? Clock(), super(
+  final Clock _clock;
+  ChatBloc({String name = '', Clock? clock})
+    : _clock = clock ?? Clock(), super(
         ChatState(
           isConnected: false,
           isUserRecordingAudio: false,
@@ -64,8 +63,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             id: state.messages.length,
             role: MessageRole.user,
             type: MessageType.text,
-            text: trimmedMessage,
-            timestamp: clock.now(),
+            content: trimmedMessage,
+            timestamp: _clock.now(),
           ),
         ],
         userMessage: '',

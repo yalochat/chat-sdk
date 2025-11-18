@@ -1,0 +1,34 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+
+import 'package:equatable/equatable.dart';
+
+class PageInfo extends Equatable {
+  final int? total;
+  final int? totalPages;
+  final int? page;
+  final int? cursor;
+  final int? nextCursor;
+  final int? pageSize;
+
+  const PageInfo({
+    this.total,
+    this.totalPages,
+    this.page,
+    this.cursor,
+    this.nextCursor,
+    this.pageSize,
+  });
+
+  @override
+  List<Object?> get props => [total, totalPages, page, pageSize, cursor, nextCursor];
+}
+
+class Page<T> extends Equatable {
+  final List<T> data;
+  final PageInfo? pageInfo;
+
+  const Page({required this.data, required this.pageInfo});
+
+  @override
+  List<Object?> get props => [data, pageInfo];
+}

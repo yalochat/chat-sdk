@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
 
-void main() => runApp(MaterialApp.router(routerConfig: router));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MaterialApp.router(routerConfig: router));
+}
 
 final router = GoRouter(
   routes: [
