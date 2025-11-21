@@ -32,7 +32,7 @@ void main() {
             ChatState(
               userMessage: 'Teeest message',
               chatTitle: 'Test',
-              chatStatus: 'status',
+              chatStatusText: 'status',
             ),
           );
 
@@ -71,7 +71,7 @@ void main() {
           ChatState(
             userMessage: 'Teeest message',
             chatTitle: 'Test',
-            chatStatus: '',
+            chatStatusText: '',
           ),
         );
 

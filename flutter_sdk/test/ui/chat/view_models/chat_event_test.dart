@@ -8,9 +8,9 @@ void main() {
     group('ChatStartTyping', () {
 
       test('should support equality comparison', () {
-        final event1 = ChatStartTyping(chatStatus: 'typing');
-        final event2 = ChatStartTyping(chatStatus: 'typing');
-        final event3 = ChatStartTyping(chatStatus: 'different');
+        final event1 = ChatStartTyping(chatStatusText: 'typing');
+        final event2 = ChatStartTyping(chatStatusText: 'typing');
+        final event3 = ChatStartTyping(chatStatusText: 'different');
 
         expect(event1, equals(event2));
         expect(event1, isNot(equals(event3)));

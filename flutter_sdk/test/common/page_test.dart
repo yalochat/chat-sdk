@@ -26,8 +26,8 @@ void main() {
       });
 
       test('should not be equal when properties differ', () {
-        const pageInfo1 = PageInfo(total: 100, page: 1);
-        const pageInfo2 = PageInfo(total: 100, page: 2);
+        const pageInfo1 = PageInfo(total: 100, page: 1, pageSize: 30);
+        const pageInfo2 = PageInfo(total: 100, page: 2, pageSize: 30);
 
         expect(pageInfo1, isNot(equals(pageInfo2)));
       });
@@ -40,7 +40,7 @@ void main() {
 
     group('equality', () {
       test('should be equal when data and pageInfo match', () {
-        const pageInfo = PageInfo(total: 2, page: 1);
+        const pageInfo = PageInfo(total: 2, page: 1, pageSize: 30);
         const page1 = Page<String>(
           data: ['a', 'b'],
           pageInfo: pageInfo,
@@ -55,7 +55,7 @@ void main() {
       });
 
       test('should not be equal when data differs', () {
-        const pageInfo = PageInfo(total: 2, page: 1);
+        const pageInfo = PageInfo(total: 2, page: 1, pageSize: 30);
         const page1 = Page<String>(
           data: ['a', 'b'],
           pageInfo: pageInfo,
@@ -71,11 +71,11 @@ void main() {
       test('should not be equal when pageInfo differs', () {
         const page1 = Page<String>(
           data: ['a', 'b'],
-          pageInfo: PageInfo(total: 2, page: 1),
+          pageInfo: PageInfo(total: 2, page: 1, pageSize: 30),
         );
         const page2 = Page<String>(
           data: ['a', 'b'],
-          pageInfo: PageInfo(total: 2, page: 2),
+          pageInfo: PageInfo(total: 2, page: 2, pageSize: 30),
         );
 
         expect(page1, isNot(equals(page2)));

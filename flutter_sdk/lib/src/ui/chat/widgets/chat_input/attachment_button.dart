@@ -8,12 +8,12 @@ class AttachmentButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () => _handleAttachment(context),
+      onPressed: () => _handleAttachment(),
       icon: const Icon(Icons.attach_file),
     );
   }
 
-  void _handleAttachment(BuildContext context) {
+  void _handleAttachment() {
     // Attachment logic
   }
 }
