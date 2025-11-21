@@ -39,12 +39,12 @@ class _MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    return BlocSelector<ChatBloc, ChatState, (List<ChatMessage>, bool, int)>(
+    return BlocSelector<ChatBloc, ChatState, (List<ChatMessage>, bool)>(
       // Subscribe to messageListVersion to detect changes in state.messages
       selector: (state) =>
-          (state.messages, state.isLoading, state.messageListVersion),
+          (state.messages, state.isLoading),
       builder: (context, state) {
-        final (messages, isLoading, _) = state;
+        final (messages, isLoading) = state;
         return Container(
           color: chatThemeCubit.chatTheme.backgroundColor,
           padding: EdgeInsets.only(bottom: SdkConstants.messageListPadding),

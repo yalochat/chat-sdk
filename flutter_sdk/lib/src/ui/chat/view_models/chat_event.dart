@@ -14,7 +14,7 @@ final class ChatLoadMessages extends ChatEvent with EquatableMixin {
 
   const ChatLoadMessages({this.direction = PageDirection.initial});
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [direction];
 }
 
 // Event that is emitted when the agent starts typing

@@ -5,8 +5,17 @@ import 'package:test/test.dart';
 
 void main() {
   group(ChatEvent, () {
-    group('ChatStartTyping', () {
+    group('ChatLoadMessages', () {
+      test('should support equality comparision', () {
+        final event1 = ChatLoadMessages();
+        final event2 = ChatLoadMessages(direction: PageDirection.initial);
+        final event3 = ChatLoadMessages(direction: PageDirection.next);
 
+        expect(event1, equals(event2));
+        expect(event3, isNot(equals(event1)));
+      });
+    });
+    group('ChatStartTyping', () {
       test('should support equality comparison', () {
         final event1 = ChatStartTyping(chatStatusText: 'typing');
         final event2 = ChatStartTyping(chatStatusText: 'typing');
@@ -18,7 +27,6 @@ void main() {
     });
 
     group('ChatStopTyping', () {
-
       test('should support equality comparison', () {
         final event1 = ChatStopTyping();
         final event2 = ChatStopTyping();
@@ -28,7 +36,6 @@ void main() {
     });
 
     group('ChatUpdateUserMessage', () {
-
       test('should support equality comparison', () {
         const event1 = ChatUpdateUserMessage(value: 'message');
         const event2 = ChatUpdateUserMessage(value: 'message');
@@ -47,7 +54,6 @@ void main() {
     });
 
     group('ChatSendMessage', () {
-
       test('should support equality comparison', () {
         final event1 = ChatSendMessage();
         final event2 = ChatSendMessage();
@@ -57,7 +63,6 @@ void main() {
     });
 
     group('ChatClearMessages', () {
-
       test('should support equality comparison', () {
         final event1 = ChatClearMessages();
         final event2 = ChatClearMessages();
@@ -65,6 +70,5 @@ void main() {
         expect(event1, equals(event2));
       });
     });
-
   });
 }

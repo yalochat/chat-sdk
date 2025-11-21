@@ -8,8 +8,6 @@ enum ChatStatus { initial, success, failure, offline, failedMessageSent }
 
 class ChatState extends Equatable {
   final List<ChatMessage> messages;
-  // Message list version is used to prevent big copyWiths in Bloc regarding message list.
-  final int messageListVersion;
   final String userMessage;
   final bool isConnected;
   final bool isLoading;
@@ -22,7 +20,6 @@ class ChatState extends Equatable {
 
   ChatState({
     List<ChatMessage>? messages,
-    this.messageListVersion = 0,
     this.userMessage = "",
     this.isConnected = false,
     this.isLoading = false,
@@ -40,7 +37,6 @@ class ChatState extends Equatable {
 
   ChatState copyWith({
     List<ChatMessage>? messages,
-    int? messageListVersion,
     String? userMessage,
     bool? isConnected,
     bool? isLoading,
@@ -53,7 +49,6 @@ class ChatState extends Equatable {
   }) {
     return ChatState(
       messages: messages ?? this.messages,
-      messageListVersion: messageListVersion ?? this.messageListVersion,
       userMessage: userMessage ?? this.userMessage,
       isConnected: isConnected ?? this.isConnected,
       isLoading: isLoading ?? this.isLoading,
@@ -71,12 +66,12 @@ class ChatState extends Equatable {
   List<Object?> get props => [
     messages,
     userMessage,
-    messageListVersion,
     isConnected,
     isLoading,
     isSystemTypingMessage,
     isUserRecordingAudio,
     chatTitle,
+    chatStatus,
     chatStatusText,
     pageInfo,
   ];
