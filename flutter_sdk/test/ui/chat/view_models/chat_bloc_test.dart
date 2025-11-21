@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
@@ -15,6 +16,18 @@ class ChatMessageRepositoryMock extends Mock implements ChatMessageRepository {}
 void main() {
   group(ChatBloc, () {
     late ChatMessageRepository chatMessageRepository;
+
+    setUpAll(() {
+      registerFallbackValue(
+        ChatMessage(
+          id: 0,
+          role: MessageRole.user,
+          type: MessageType.text,
+          content: 'Test message',
+          timestamp: clock.now(),
+        ),
+      );
+    });
 
     setUp(() {
       chatMessageRepository = ChatMessageRepositoryMock();
@@ -105,6 +118,17 @@ void main() {
         ),
         seed: () => ChatState(userMessage: 'Test message'),
         act: (bloc) {
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage(
+                id: 1,
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
           bloc.add(ChatSendMessage());
         },
         expect: () => [
@@ -115,7 +139,7 @@ void main() {
                 'messages',
                 contains(
                   ChatMessage(
-                    id: 0,
+                    id: 1,
                     role: MessageRole.user,
                     type: MessageType.text,
                     content: 'Test message',
@@ -127,7 +151,7 @@ void main() {
       );
 
       blocTest<ChatBloc, ChatState>(
-        'should append a message to the end of a message array when already has messages',
+        'should append a message to the start of a message array when already has messages',
         build: () => ChatBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
@@ -136,29 +160,42 @@ void main() {
           userMessage: 'Test message',
           messages: [
             ChatMessage(
-              id: 0,
+              id: 3,
               role: MessageRole.user,
               type: MessageType.text,
-              content: 'Test 1',
+              content: 'Test 3',
               timestamp: fixedClock.now(),
             ),
             ChatMessage(
-              id: 1,
+              id: 2,
               role: MessageRole.assistant,
               type: MessageType.text,
               content: 'Test 2',
               timestamp: fixedClock.now(),
             ),
             ChatMessage(
-              id: 2,
+              id: 1,
               role: MessageRole.user,
               type: MessageType.text,
-              content: 'Test 3',
+              content: 'Test 1',
               timestamp: fixedClock.now(),
             ),
           ],
         ),
-        act: (bloc) => bloc.add(ChatSendMessage()),
+        act: (bloc) {
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage(
+                id: 4,
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
+          bloc.add(ChatSendMessage());
+        },
         expect: () => [
           isA<ChatState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
@@ -168,11 +205,11 @@ void main() {
                 equals(4),
               )
               .having(
-                (state) => state.messages[state.messages.length - 1],
+                (state) => state.messages[0],
                 'last inserted message',
                 equals(
                   ChatMessage(
-                    id: 3,
+                    id: 4,
                     role: MessageRole.user,
                     type: MessageType.text,
                     content: 'Test message',
@@ -184,7 +221,7 @@ void main() {
       );
 
       blocTest<ChatBloc, ChatState>(
-        'should append a trimmed message to the end of a message list if it contains spaces on both ends',
+        'should append a trimmed message to the start of a message list if it contains spaces on both ends',
         build: () => ChatBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
@@ -193,21 +230,21 @@ void main() {
           userMessage: '        Test message        ',
           messages: [
             ChatMessage(
-              id: 0,
+              id: 3,
               role: MessageRole.user,
               type: MessageType.text,
               content: 'Test 1',
               timestamp: clock.now(),
             ),
             ChatMessage(
-              id: 1,
+              id: 2,
               role: MessageRole.user,
               type: MessageType.text,
               content: 'Test 2',
               timestamp: clock.now(),
             ),
             ChatMessage(
-              id: 2,
+              id: 1,
               role: MessageRole.user,
               type: MessageType.text,
               content: 'Test 3',
@@ -215,7 +252,20 @@ void main() {
             ),
           ],
         ),
-        act: (bloc) => bloc.add(ChatSendMessage()),
+        act: (bloc) {
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage(
+                id: 4,
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
+          bloc.add(ChatSendMessage());
+        },
         expect: () => [
           isA<ChatState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
@@ -225,11 +275,11 @@ void main() {
                 equals(4),
               )
               .having(
-                (state) => state.messages[state.messages.length - 1],
+                (state) => state.messages[0],
                 'last inserted message',
                 equals(
                   ChatMessage(
-                    id: 3,
+                    id: 4,
                     role: MessageRole.user,
                     type: MessageType.text,
                     content: 'Test message',
