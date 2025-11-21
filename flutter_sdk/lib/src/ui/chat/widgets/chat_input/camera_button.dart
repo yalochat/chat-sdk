@@ -7,12 +7,12 @@ class CameraButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      onPressed: () => _handleCamera(context),
+      onPressed: () => _handleCamera(),
       icon: const Icon(Icons.photo_camera),
     );
   }
 
-  void _handleCamera(BuildContext context) {
+  void _handleCamera() {
     // Attachment logic
   }
 }

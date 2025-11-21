@@ -6,7 +6,6 @@ import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/chat_input.dart'
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/message_list.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
-import 'package:chat_flutter_sdk/ui/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,30 +36,33 @@ class Chat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: chatProviders(theme, name),
-      child: BlocBuilder<ChatThemeCubit, ChatTheme>(
-        builder: (context, chatTheme) {
-          return Scaffold(
-            backgroundColor: chatTheme.backgroundColor,
-            appBar:
-                appBar ??
-                ChatAppBar(
-                  onShopPressed: onShopPressed,
-                  onCartPressed: onCartPressed,
-                ),
-            body: SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: MessageList(),
+    return MultiRepositoryProvider(
+      providers: repositoryProviders(),
+      child: MultiBlocProvider(
+        providers: chatProviders(theme, name),
+        child: BlocBuilder<ChatThemeCubit, ChatTheme>(
+          builder: (context, chatTheme) {
+            return Scaffold(
+              backgroundColor: chatTheme.backgroundColor,
+              appBar:
+                  appBar ??
+                  ChatAppBar(
+                    onShopPressed: onShopPressed,
+                    onCartPressed: onCartPressed,
                   ),
-                  ChatInput(hintText: hintText),
-                ],
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: MessageList(),
+                    ),
+                    ChatInput(hintText: hintText),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

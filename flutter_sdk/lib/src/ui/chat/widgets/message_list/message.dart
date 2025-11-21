@@ -3,13 +3,18 @@
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:flutter/widgets.dart';
 
+import 'user_message.dart';
+
 class Message extends StatelessWidget {
   final ChatMessage messageToRender;
   const Message({super.key, required this.messageToRender});
 
   @override
   Widget build(BuildContext context) {
-
-    throw UnimplementedError();
+    if (messageToRender.role == MessageRole.user) {
+      return UserMessage(content: messageToRender.content);
+    } else {
+      throw UnimplementedError('Message not supported');
+    }
   }
 }

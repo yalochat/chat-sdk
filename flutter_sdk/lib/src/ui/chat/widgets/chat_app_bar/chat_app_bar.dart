@@ -35,7 +35,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               SizedBox(width: SdkConstants.rowItemSpace),
               Expanded(
                 child: BlocSelector<ChatBloc, ChatState, (String, String)>(
-                  selector: (state) => (state.chatTitle, state.chatStatus),
+                  selector: (state) => (state.chatTitle, state.chatStatusText),
                   builder: (context, state) {
                     return ChatTitle(title: state.$1, status: state.$2);
                   },

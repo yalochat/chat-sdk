@@ -9,7 +9,8 @@ abstract final class SdkColors {
   static const Color inputTextFieldBorderColorLight = Color(0xFFE8E8E8);
   static const Color inputTextFieldColorLight = Color(0xFFFFFFFF);
   static const Color hintColorLight = Color(0xFFBEBEBE);
-  static const Color userMessageColorLight = Color(0xFFEFF4FF);
+  static const Color userMessageColorLight = Color(0xFFF9FAFC);
+  static const Color userMessageTextColorLight = Color(0xFF000000);
   static const Color systemMessageColorLight = Color(0xFF151515);
   static const Color sendButtonColorLight = Color(0xFF2207F1);
   static const Color sendButtonTextColorLight = Color(0xFFEFF4FF);

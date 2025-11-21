@@ -35,18 +35,17 @@ class _ChatInputState extends State<ChatInput> {
     _textEditingController = TextEditingController();
   }
 
-  void _handleSendMessage(BuildContext context) {
-    final chatBloc = context.read<ChatBloc>();
+  void _handleSendMessage(ChatBloc chatBloc) {
     chatBloc.add(ChatSendMessage());
   }
 
-  void _handleOnMessageChange(BuildContext context, String message) {
-    final chatBloc = context.read<ChatBloc>();
+  void _handleOnMessageChange(ChatBloc chatBloc, String message) {
     chatBloc.add(ChatUpdateUserMessage(value: message));
   }
 
   @override
   Widget build(BuildContext context) {
+    final chatBloc = context.read<ChatBloc>();
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (context, chatTheme) {
         return Container(
@@ -81,12 +80,13 @@ class _ChatInputState extends State<ChatInput> {
                             key: const Key('MessageTextField'),
                             hintText: widget.hintText,
                             controller: _textEditingController,
-                            onChanged: (value) => _handleOnMessageChange(context, value),
+                            onChanged: (value) =>
+                                _handleOnMessageChange(chatBloc, value),
                           ),
                         ),
                       ),
                       if (widget.showCameraButton)
-                      CameraButton(key: const Key('CameraButton')),
+                        CameraButton(key: const Key('CameraButton')),
                     ],
                   ),
                 ),
@@ -102,7 +102,7 @@ class _ChatInputState extends State<ChatInput> {
                     return ActionButton(
                       key: const Key('ActionButton'),
                       userMessage: userMessage,
-                      onPressed: () => _handleSendMessage(context),
+                      onPressed: () => _handleSendMessage(chatBloc),
                     );
                   },
                 ),

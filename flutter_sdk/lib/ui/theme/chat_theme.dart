@@ -33,7 +33,7 @@ class ChatTheme {
     this.sendButtonColor = SdkColors.sendButtonColorLight,
     this.sendButtonStyle = SdkColors.sendButtonTextColorLight,
     this.userMessageTextStyle = const TextStyle(
-      color: SdkColors.userMessageColorLight,
+      color: SdkColors.userMessageTextColorLight,
     ),
     this.systemMessageTextStyle = const TextStyle(
       color: SdkColors.systemMessageColorLight,
