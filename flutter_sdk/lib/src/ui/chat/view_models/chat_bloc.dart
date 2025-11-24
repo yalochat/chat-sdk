@@ -4,6 +4,7 @@ import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/ui/theme/constants.dart' show SdkConstants;
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,6 +19,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
     String name = '',
     required ChatMessageRepository chatMessageRepository,
+    int pageSize = SdkConstants.defaultPageSize,
     Clock? clock,
   }) : _clock = clock ?? Clock(),
        _chatMessageRepository = chatMessageRepository,
@@ -27,6 +29,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
            isUserRecordingAudio: false,
            isSystemTypingMessage: false,
            chatTitle: name,
+           pageInfo: PageInfo(pageSize: pageSize),
          ),
        ) {
     on<ChatLoadMessages>(_handleFetchMessages);
@@ -38,8 +41,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Event that handles the pagination of messages
-  // NOTE: In order to detect changes to the messages list one must be
-  // subscribed to the messageListVersion state field.
   Future<void> _handleFetchMessages(
     ChatLoadMessages event,
     Emitter<ChatState> emit,
@@ -63,13 +64,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         .getChatMessagePageDesc(cursor, state.pageInfo.pageSize);
     switch (newMessages) {
       case Ok<Page<ChatMessage>>():
-        // Prevent big copies in bloc, the list version should trigger the widgets rebuild
-        state.messages.addAll(newMessages.result.data);
         emit(
           state.copyWith(
             chatStatus: ChatStatus.success,
-            messages: state.messages,
-            messageListVersion: state.messageListVersion + 1,
+            // FIXME: Create a new way to track big message list copies
+            messages: [...state.messages, ...newMessages.result.data],
             isLoading: false,
             pageInfo: newMessages.result.pageInfo.copyWith(
               prevCursor: state.pageInfo.cursor,
@@ -131,11 +130,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     switch (result) {
       case Ok<ChatMessage>():
-        state.messages.insert(0, result.result);
         emit(
           state.copyWith(
-            messages: state.messages,
-            messageListVersion: state.messageListVersion + 1,
+            // FIXME: Create a new way to track big message list copies
+            messages: [result.result, ...state.messages],
             userMessage: '',
             chatStatusText: 'Typing...',
           ),

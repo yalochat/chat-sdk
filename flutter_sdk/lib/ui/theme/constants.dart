@@ -9,6 +9,8 @@ abstract final class SdkConstants {
   static const double messagePadding = 16;
   static const double appBarPreferredSize = 64;
 
+  static const int defaultPageSize = 30;
+
   static const double messageListPadding = 8;
   static const double messageListMargin = 16;
   static const double messageBorderRadius = 16;
