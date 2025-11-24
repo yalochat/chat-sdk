@@ -49,12 +49,13 @@ class _MessageListState extends State<MessageList> {
           color: chatThemeCubit.chatTheme.backgroundColor,
           padding: EdgeInsets.only(bottom: SdkConstants.messageListPadding),
           child: ListView.builder(
+            key: Key('chat_messages'),
             reverse: true,
             itemCount: messages.length + (isLoading ? 1 : 0),
             controller: _scrollController,
             itemBuilder: (context, index) {
               if (index == messages.length) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: CircularProgressIndicator(key: const Key('loading_spinner')));
               }
               return Container(
                 margin: EdgeInsets.only(top: SdkConstants.messageListMargin),
