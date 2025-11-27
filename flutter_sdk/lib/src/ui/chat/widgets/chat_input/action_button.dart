@@ -15,10 +15,7 @@ class ActionButton extends StatelessWidget {
   const ActionButton({super.key});
 
   void _handleProcessMessage(ChatBloc chatBloc) {
-    if (chatBloc.state.isUserRecordingAudio) {
-      chatBloc.add(ChatStopRecording());
-      chatBloc.add(ChatSendMessage());
-    } else if (chatBloc.state.userMessage.isEmpty &&
+    if (chatBloc.state.userMessage.isEmpty &&
         !chatBloc.state.isUserRecordingAudio) {
       chatBloc.add(ChatStartRecording());
     } else {

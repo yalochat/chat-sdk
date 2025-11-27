@@ -16,10 +16,6 @@ class UserAudioMessage extends StatelessWidget {
 
   void _handlePlayMessage(ChatBloc bloc) {
     if (bloc.state.playingMessage != null &&
-        bloc.state.playingMessage!.id != message.id) {
-      bloc.add(ChatStopAudio());
-      bloc.add(ChatPlayAudio(message: message));
-    } else if (bloc.state.playingMessage != null &&
         bloc.state.playingMessage!.id == message.id) {
       bloc.add(ChatStopAudio());
     } else {

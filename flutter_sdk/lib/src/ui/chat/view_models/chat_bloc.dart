@@ -204,6 +204,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             isUserRecordingAudio: true,
             audioFileName: audioStreamResult.result,
             userMessage: '',
+            amplitudeIndex: state.amplitudes.length - 1,
+            amplitudes: List<double>.filled(
+              _amplitudeDataPoints,
+              _defaultAmplitude,
+            ),
+            amplitudesFilePreview: List<double>.filled(
+              _amplitudeDataPoints,
+              _defaultAmplitude,
+            ),
+            millisecondsRecording: 0,
           ),
         );
         break;
@@ -226,29 +236,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final result = await _audioRepository.stopRecording();
     switch (result) {
       case Ok():
-        emit(
-          state.copyWith(
-            isUserRecordingAudio: false,
-            millisecondsRecording: 0,
-            audioFileName: '',
-            amplitudeIndex: state.amplitudes.length - 1,
-            amplitudes: List<double>.filled(
-              _amplitudeDataPoints,
-              _defaultAmplitude,
-            ),
-          ),
-        );
+        emit(state.copyWith(isUserRecordingAudio: false, audioFileName: ''));
         break;
       case Error():
         break;
     }
   }
 
-  // Handles the event when an audio is played
+  // Handles the event when an audio is played, stops all other audios from playing first (if there's any)
   Future<void> _handlePlayAudio(
     ChatPlayAudio event,
     Emitter<ChatState> emit,
   ) async {
+    if (state.playingMessage != null) {
+      emit(state.copyWith(playingMessage: () => null));
+    }
     emit(state.copyWith(playingMessage: () => event.message));
   }
 
@@ -270,6 +272,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     late ChatMessage messageToInsert;
     if (state.isUserRecordingAudio) {
+      final result = await _audioRepository.stopRecording();
+      switch (result) {
+        case Ok():
+          emit(state.copyWith(isUserRecordingAudio: false, audioFileName: ''));
+          break;
+        case Error():
+          break;
+      }
       messageToInsert = ChatMessage(
         role: MessageRole.user,
         type: MessageType.voice,
