@@ -1,7 +1,11 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository_file.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository_local.dart';
+import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
+import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_record.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     show DatabaseService;
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
@@ -27,6 +31,16 @@ List<SingleChildWidget> repositoryProviders() {
       ),
       dispose: (_, databaseService) => databaseService.close(),
     ),
+    Provider<AudioService>(
+      create: (_) => AudioServiceRecord(),
+      dispose: (_, audioService) => audioService.dispose(),
+    ),
+    RepositoryProvider<AudioRepository>(
+      create: (context) => AudioRepositoryFile(
+        context.read<AudioService>(),
+        getApplicationSupportDirectory,
+      ),
+    ),
     RepositoryProvider<ChatMessageRepository>(
       create: (context) => ChatMessageRepositoryLocal(
         localDatabaseService: context.read<DatabaseService>(),
@@ -38,10 +52,14 @@ List<SingleChildWidget> repositoryProviders() {
 List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
   return [
     BlocProvider<ChatBloc>(
-      create: (context) => ChatBloc(
-        name: name,
-        chatMessageRepository: context.read<ChatMessageRepository>(),
-      )..add(ChatLoadMessages(direction: PageDirection.initial)),
+      create: (context) =>
+          ChatBloc(
+              name: name,
+              chatMessageRepository: context.read<ChatMessageRepository>(),
+              audioRepository: context.read<AudioRepository>(),
+            )
+            ..add(ChatLoadMessages(direction: PageDirection.initial))
+            ..add(ChatAmplitudeSubscribe()),
     ),
     BlocProvider<ChatThemeCubit>(
       create: (context) => ChatThemeCubit(chatTheme: theme),

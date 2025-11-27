@@ -2,6 +2,8 @@
 
 import 'package:equatable/equatable.dart';
 
+final class Unit {}
+
 // A class to represent results from repositories and services
 sealed class Result<T> {
   const Result();

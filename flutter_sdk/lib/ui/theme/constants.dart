@@ -9,12 +9,19 @@ abstract final class SdkConstants {
   static const double messagePadding = 16;
   static const double appBarPreferredSize = 64;
 
+  static const double maxChatInputSize = 120;
+  static const double preferredWaveRecorderHeight = 48;
+
   static const int defaultPageSize = 30;
 
   static const double messageListPadding = 8;
   static const double messageListMargin = 16;
   static const double messageBorderRadius = 16;
 
+  // Sound related constants
+  static const double soundBarsRadius = 15;
+  static const double messageWaveformWidth = 200;
+  static const double messageWaveformHeight = 40;
   static const double titleFontSize = 18;
   static const double statusFontSize = 12;
   static const double statusHeight = 20;

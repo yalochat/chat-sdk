@@ -5,6 +5,9 @@ CREATE TABLE chat_message (
   content TEXT NOT NULL,
   type TEXT NOT NULL,
   status TEXT NOT NULL,
+  file_name TEXT,
+  amplitudes TEXT,
+  duration INTEGER,
   timestamp INTEGER NOT NULL
 );
 
@@ -16,6 +19,9 @@ getMessagesFirstPage(REQUIRED :limit AS INTEGER):
       content,
       type,
       status,
+      file_name,
+      amplitudes,
+      duration,
       timestamp
     FROM chat_message
     ORDER BY id DESC
@@ -29,6 +35,9 @@ getMessagesPage(REQUIRED :cursor AS INTEGER, REQUIRED :limit AS INTEGER):
       content,
       type,
       status,
+      file_name,
+      amplitudes,
+      duration,
       timestamp
     FROM chat_message
     WHERE id < :cursor

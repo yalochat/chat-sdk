@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:convert';
+
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
@@ -58,6 +60,13 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
               status: MessageStatus.values.firstWhere(
                 (status) => status.status == data.status,
               ),
+              fileName: data.fileName,
+              amplitudes: data.amplitudes != null
+                  ? (jsonDecode(data.amplitudes!) as List)
+                        .map((e) => e as double)
+                        .toList()
+                  : null,
+              duration: data.duration,
               timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
             ),
           )
@@ -95,6 +104,15 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
               content: message.content,
               type: message.type.type,
               status: message.status.status,
+              fileName: message.fileName == null
+                  ? Value.absent()
+                  : Value(message.fileName),
+              amplitudes: message.amplitudes == null
+                  ? Value.absent()
+                  : Value(jsonEncode(message.amplitudes)),
+              duration: message.duration == null
+                  ? Value.absent()
+                  : Value(message.duration),
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),
           );
