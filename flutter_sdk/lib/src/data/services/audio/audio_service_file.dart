@@ -1,18 +1,19 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/permission_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:record/record.dart';
 
 import 'audio_service.dart';
 
-class AudioServiceRecord implements AudioService {
+class AudioServiceFile implements AudioService {
   final AudioRecorder _recorder;
+  final AudioPlayer _player;
 
-  AudioServiceRecord([
-    AudioRecorder? recorder,
-
-  ]) : _recorder = recorder ?? AudioRecorder();
+  AudioServiceFile([AudioRecorder? recorder, AudioPlayer? player])
+    : _recorder = recorder ?? AudioRecorder(),
+      _player = player ?? AudioPlayer();
 
   @override
   Future<Result<Unit>> record(String path, AudioEncoding encoding) async {
@@ -23,10 +24,7 @@ class AudioServiceRecord implements AudioService {
       AudioEncoding.wav => AudioEncoder.wav,
     };
     try {
-      await _recorder.start(
-        RecordConfig(encoder: encoder),
-        path: path,
-      );
+      await _recorder.start(RecordConfig(encoder: encoder), path: path);
       return Result.ok(Unit());
     } on Exception catch (e) {
       return Result.error(e);
@@ -34,7 +32,7 @@ class AudioServiceRecord implements AudioService {
   }
 
   @override
-  Future<Result<Unit>> stop() async {
+  Future<Result<Unit>> stopRecord() async {
     try {
       await _recorder.stop();
       return Result.ok(Unit());
@@ -50,5 +48,25 @@ class AudioServiceRecord implements AudioService {
   @override
   Future<void> dispose() async {
     await _recorder.dispose();
+  }
+
+  @override
+  Future<Result<Unit>> playAudio(String path) async {
+    try {
+      await _player.play(DeviceFileSource(path));
+      return Result.ok(Unit());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<Unit>> pauseAudio() async {
+    try {
+      await _player.pause();
+      return Result.ok(Unit());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 }

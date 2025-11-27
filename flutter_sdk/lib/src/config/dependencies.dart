@@ -5,7 +5,7 @@ import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository_fi
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
-import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_record.dart';
+import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     show DatabaseService;
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
@@ -32,7 +32,7 @@ List<SingleChildWidget> repositoryProviders() {
       dispose: (_, databaseService) => databaseService.close(),
     ),
     Provider<AudioService>(
-      create: (_) => AudioServiceRecord(),
+      create: (_) => AudioServiceFile(),
       dispose: (_, audioService) => audioService.dispose(),
     ),
     RepositoryProvider<AudioRepository>(

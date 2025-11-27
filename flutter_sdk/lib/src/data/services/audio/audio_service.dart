@@ -8,9 +8,13 @@ enum AudioEncoding { wav }
 abstract class AudioService {
   Future<Result<Unit>> record(String path, AudioEncoding encoding);
 
-  Future<Result<Unit>> stop();
+  Future<Result<Unit>> stopRecord();
 
   Stream<double> getAmplitudeStream(Duration duration);
+
+  Future<Result<Unit>> playAudio(String path);
+
+  Future<Result<Unit>> pauseAudio();
 
   Future<void> dispose();
 }

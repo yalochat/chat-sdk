@@ -23,7 +23,8 @@ class AudioRepositoryFile implements AudioRepository {
   Future<Result<String>> recordAudio() async {
     final directory = await _directory();
 
-    var audioName = Uuid()..v4();
+    var uuid = Uuid();
+    var audioName = uuid.v4();
     var fileName = '${directory.path}/$audioName.wav';
 
     final result = await _audioService.record(fileName, AudioEncoding.wav);
@@ -34,11 +35,17 @@ class AudioRepositoryFile implements AudioRepository {
   }
 
   @override
-  Future<Result<Unit>> stopRecording() async => _audioService.stop();
+  Future<Result<Unit>> stopRecording() async => _audioService.stopRecord();
 
   @override
   Stream<double> getAmplitudes(Duration duration) => _audioService
       .getAmplitudeStream(duration)
       .map((amp) => amp.isInfinite ? -160.0 : amp)
       .asBroadcastStream();
+
+  @override
+  Future<Result<Unit>> playAudio(String path) => _audioService.playAudio(path);
+
+  @override
+  Future<Result<Unit>> pauseAudio() => _audioService.pauseAudio();
 }

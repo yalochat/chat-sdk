@@ -9,5 +9,9 @@ abstract class AudioRepository {
 
   Stream<double> getAmplitudes(Duration duration);
 
+  Future<Result<Unit>> playAudio(String path);
+
+  Future<Result<Unit>> pauseAudio();
+
   Future<Result<Unit>> stopRecording();
 }

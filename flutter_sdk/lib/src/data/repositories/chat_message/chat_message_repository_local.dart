@@ -12,11 +12,14 @@ import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
 import 'package:drift/drift.dart';
+import 'package:logging/logging.dart';
 
 import 'chat_message_repository.dart';
 
 class ChatMessageRepositoryLocal extends ChatMessageRepository {
   final db.DatabaseService _databaseService;
+
+  final Logger log = Logger('ChatMessageRepository');
 
   ChatMessageRepositoryLocal({required db.DatabaseService localDatabaseService})
     : _databaseService = localDatabaseService;
@@ -26,6 +29,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
     int? cursor,
     int pageSize,
   ) async {
+    log.info('Fetching message page cursor: $cursor, pageSize: $pageSize');
     if (cursor != null && cursor < 0) {
       return Result.error(RangeException('Invalid cursor value', cursor, 0));
     }
@@ -77,6 +81,9 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
         data.removeLast();
         nextCursor = data[data.length - 1].id;
       }
+      log.info(
+        'Message page successfully fetched: $cursor, pageSize: $pageSize',
+      );
       return Result.ok(
         Page(
           data: data,
@@ -88,6 +95,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
         ),
       );
     } on Exception catch (e) {
+      log.severe('Unable to fetch message page', e);
       return Result.error(e);
     }
   }
@@ -95,6 +103,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
   @override
   Future<Result<ChatMessage>> insertChatMessage(ChatMessage message) async {
     try {
+      log.info('Inserting message: $message');
       var resultId = await _databaseService
           .into(_databaseService.chatMessage)
           .insert(
@@ -116,8 +125,10 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),
           );
+      log.info('Message inserted successfully message with id $resultId');
       return Result.ok(message.copyWith(id: resultId));
     } on Exception catch (e) {
+      log.severe('Unable to insert message $message');
       return Result.error(e);
     }
   }

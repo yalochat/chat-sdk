@@ -1,12 +1,19 @@
-// Copyright (c) Yalochat, Inc. All rights reserved.
+// Copyright (c) Yalochat, Inc. All rights
 
 import 'package:chat_flutter_sdk/ui/chat/widgets/chat.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 
 void main() {
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    debugPrint(
+      '${record.level.name}: ${record.time}: ${record.message} ${record.error ?? ''}',
+    );
+  });
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp.router(routerConfig: router));
 }

@@ -10,6 +10,7 @@ import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logging/logging.dart';
 
 import 'chat_event.dart';
 import 'chat_state.dart';
@@ -22,6 +23,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final Clock _clock;
   final ChatMessageRepository _chatMessageRepository;
   final AudioRepository _audioRepository;
+  final Logger log = Logger('ChatViewModel');
 
   ChatBloc({
     String name = '',
@@ -175,7 +177,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             state.millisecondsRecording + _recordTickMs;
         assert(
           millisecondsRecording % _recordTickMs == 0,
-          'Millisecons must be a multiple of _recordTickMs',
+          'Milliseconds must be a multiple of _recordTickMs',
         );
         return state.copyWith(
           // Create an animation of the waves sliding.
@@ -196,9 +198,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatStartRecording event,
     Emitter<ChatState> emit,
   ) async {
+    log.info('Trying to record audio');
     final audioStreamResult = await _audioRepository.recordAudio();
     switch (audioStreamResult) {
       case Ok():
+        log.info(
+          'Audio started successfully with file ${audioStreamResult.result}',
+        );
         emit(
           state.copyWith(
             isUserRecordingAudio: true,
@@ -236,7 +242,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     final result = await _audioRepository.stopRecording();
     switch (result) {
       case Ok():
-        emit(state.copyWith(isUserRecordingAudio: false, audioFileName: ''));
+        emit(state.copyWith(isUserRecordingAudio: false));
         break;
       case Error():
         break;
@@ -248,10 +254,38 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatPlayAudio event,
     Emitter<ChatState> emit,
   ) async {
-    if (state.playingMessage != null) {
-      emit(state.copyWith(playingMessage: () => null));
+    if (event.message.type != MessageType.voice ||
+        event.message.fileName == null || event.message.fileName == '') {
+      log.warning(
+        'No message was played because a non voice message was passed',
+      );
+      return;
     }
-    emit(state.copyWith(playingMessage: () => event.message));
+
+    log.info('Trying to play audio ${event.message.fileName}');
+    if (state.playingMessage != null) {
+      log.info('Stopping currently playing message');
+      final resultPause = await _audioRepository.pauseAudio();
+      switch (resultPause) {
+        case Ok():
+          log.info('Pause previous audio succeeded');
+          emit(state.copyWith(playingMessage: () => null));
+          break;
+        case Error():
+          log.severe('Unable to stop audio from playing', resultPause.error);
+          break;
+      }
+    }
+    final result = await _audioRepository.playAudio(event.message.fileName!);
+    switch (result) {
+      case Ok():
+        log.info('Playing audio succeeded');
+        emit(state.copyWith(playingMessage: () => event.message));
+        break;
+      case Error():
+        log.severe('Unable to play audio', result.error);
+        break;
+    }
   }
 
   // Handles the event when a user stops a voice note play
@@ -259,7 +293,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatStopAudio event,
     Emitter<ChatState> emit,
   ) async {
-    emit(state.copyWith(playingMessage: () => null));
+    final result = await _audioRepository.pauseAudio();
+    switch (result) {
+      case Ok():
+        log.info('Audio stopped correctly');
+        emit(state.copyWith(playingMessage: () => null));
+        break;
+      case Error():
+        log.severe('Unable to stop audio', result.error);
+        break;
+    }
   }
 
   // Handles the event when the user sends a message
@@ -273,13 +316,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     late ChatMessage messageToInsert;
     if (state.isUserRecordingAudio) {
       final result = await _audioRepository.stopRecording();
-      switch (result) {
-        case Ok():
-          emit(state.copyWith(isUserRecordingAudio: false, audioFileName: ''));
-          break;
-        case Error():
-          break;
-      }
       messageToInsert = ChatMessage(
         role: MessageRole.user,
         type: MessageType.voice,
@@ -287,6 +323,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         fileName: state.audioFileName,
         amplitudes: state.amplitudesFilePreview,
       );
+      switch (result) {
+        case Ok():
+          emit(state.copyWith(isUserRecordingAudio: false, audioFileName: ''));
+          break;
+        case Error():
+          break;
+      }
     } else {
       messageToInsert = ChatMessage(
         role: MessageRole.user,

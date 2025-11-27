@@ -16,9 +16,12 @@ enum ChatStatus {
 class ChatState extends Equatable {
   final List<ChatMessage> messages;
 
-  // Amplitudes that are shown to the during a recording session
+  // Amplitudes that are shown to the user during a recording
+  // session as a scrolling drawing
   final List<double> amplitudes;
-  // Its the preview of the whole recording that will be stored in the DB
+
+  // The preview of the whole recording that will be stored in the DB
+  // and be rendered in the message list
   final List<double> amplitudesFilePreview;
   final int millisecondsRecording;
   final int amplitudeIndex;
@@ -92,7 +95,9 @@ class ChatState extends Equatable {
       isSystemTypingMessage:
           isSystemTypingMessage ?? this.isSystemTypingMessage,
       isUserRecordingAudio: isUserRecordingAudio ?? this.isUserRecordingAudio,
-      playingMessage: playingMessage != null ? playingMessage() : this.playingMessage,
+      playingMessage: playingMessage != null
+          ? playingMessage()
+          : this.playingMessage,
       chatTitle: chatTitle ?? this.chatTitle,
       chatStatus: chatStatus ?? this.chatStatus,
       chatStatusText: chatStatusText ?? this.chatStatusText,
