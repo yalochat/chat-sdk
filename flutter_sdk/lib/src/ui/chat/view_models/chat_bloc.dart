@@ -249,7 +249,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatPlayAudio event,
     Emitter<ChatState> emit,
   ) async {
-    emit(state.copyWith(playingMessage: event.message));
+    emit(state.copyWith(playingMessage: () => event.message));
   }
 
   // Handles the event when a user stops a voice note play
@@ -257,7 +257,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     ChatStopAudio event,
     Emitter<ChatState> emit,
   ) async {
-    emit(state.copyWith(playingMessage: null));
+    emit(state.copyWith(playingMessage: () => null));
   }
 
   // Handles the event when the user sends a message

@@ -71,7 +71,7 @@ class ChatState extends Equatable {
     bool? isLoading,
     bool? isSystemTypingMessage,
     bool? isUserRecordingAudio,
-    ChatMessage? playingMessage,
+    ChatMessage? Function()? playingMessage,
     String? chatTitle,
     ChatStatus? chatStatus,
     String? chatStatusText,
@@ -92,7 +92,7 @@ class ChatState extends Equatable {
       isSystemTypingMessage:
           isSystemTypingMessage ?? this.isSystemTypingMessage,
       isUserRecordingAudio: isUserRecordingAudio ?? this.isUserRecordingAudio,
-      playingMessage: playingMessage ?? this.playingMessage,
+      playingMessage: playingMessage != null ? playingMessage() : this.playingMessage,
       chatTitle: chatTitle ?? this.chatTitle,
       chatStatus: chatStatus ?? this.chatStatus,
       chatStatusText: chatStatusText ?? this.chatStatusText,

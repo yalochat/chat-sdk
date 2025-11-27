@@ -18,7 +18,7 @@ class UserAudioMessage extends StatelessWidget {
     if (bloc.state.playingMessage != null &&
         bloc.state.playingMessage!.id != message.id) {
       bloc.add(ChatStopAudio());
-      //bloc.add(ChatPlayAudio(message: message));
+      bloc.add(ChatPlayAudio(message: message));
     } else if (bloc.state.playingMessage != null &&
         bloc.state.playingMessage!.id == message.id) {
       bloc.add(ChatStopAudio());
@@ -46,8 +46,6 @@ class UserAudioMessage extends StatelessWidget {
         BlocSelector<ChatBloc, ChatState, ChatMessage?>(
           selector: (state) => state.playingMessage,
           builder: (context, playingMessage) {
-            print('playyying');
-            print(playingMessage);
             return IconButton(
               onPressed: () {
                 _handlePlayMessage(chatBloc);
