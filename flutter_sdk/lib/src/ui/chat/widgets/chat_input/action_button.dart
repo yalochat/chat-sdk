@@ -43,7 +43,7 @@ class ActionButton extends StatelessWidget {
       }
 
       audioBloc.add(AudioStopRecording());
-      messageBloc.add(ChatSendMessage(chatMessage: messageToSend));
+      messageBloc.add(ChatSendMessage(message: messageToSend));
     }
   }
 

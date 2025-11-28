@@ -131,7 +131,16 @@ void main() {
               ),
             ),
           );
-          bloc.add(ChatSendMessage());
+          bloc.add(
+            ChatSendMessage(
+              message: ChatMessage(
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
         },
         expect: () => [
           isA<MessagesState>()
@@ -196,7 +205,16 @@ void main() {
               ),
             ),
           );
-          bloc.add(ChatSendMessage());
+          bloc.add(
+            ChatSendMessage(
+              message: ChatMessage(
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
         },
         expect: () => [
           isA<MessagesState>()
@@ -266,7 +284,16 @@ void main() {
               ),
             ),
           );
-          bloc.add(ChatSendMessage());
+          bloc.add(
+            ChatSendMessage(
+              message: ChatMessage(
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
         },
         expect: () => [
           isA<MessagesState>()
@@ -329,7 +356,16 @@ void main() {
             (_) async =>
                 Result.error(RangeException('Range exception', -1, 2, 3)),
           );
-          bloc.add(ChatSendMessage());
+          bloc.add(
+            ChatSendMessage(
+              message: ChatMessage(
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
         },
         expect: () => [
           isA<MessagesState>()
@@ -395,7 +431,16 @@ void main() {
             ),
           ],
         ),
-        act: (bloc) => bloc.add(ChatSendMessage()),
+        act: (bloc) => bloc.add(
+          ChatSendMessage(
+            message: ChatMessage(
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test message',
+              timestamp: fixedClock.now(),
+            ),
+          ),
+        ),
         expect: () => [],
       );
 
@@ -428,7 +473,16 @@ void main() {
             ),
           ],
         ),
-        act: (bloc) => bloc.add(ChatSendMessage()),
+        act: (bloc) => bloc.add(
+          ChatSendMessage(
+            message: ChatMessage(
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test message',
+              timestamp: fixedClock.now(),
+            ),
+          ),
+        ),
         expect: () => [],
       );
     });
@@ -502,8 +556,10 @@ void main() {
 
       blocTest<MessagesBloc, MessagesState>(
         'should fetch next page of messages until there are no more pages from repository and set them up correctly',
-        build: () =>
-            MessagesBloc(chatMessageRepository: chatMessageRepository, pageSize: 3),
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          pageSize: 3,
+        ),
         act: (bloc) {
           final pageSize = 3;
           when(

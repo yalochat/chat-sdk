@@ -1,28 +1,28 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:clock/clock.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group(ChatState, () {
+  group(MessagesState, () {
     test("should return true because states are equal with default values", () {
-      var chatState = ChatState();
-      var newChatState = ChatState();
-      expect(newChatState, equals(chatState));
+      var chatState = MessagesState();
+      var newMessagesState = MessagesState();
+      expect(newMessagesState, equals(chatState));
     });
 
     test("should return false because states are not equal", () {
-      var chatState = ChatState();
-      var newChatState = ChatState(isConnected: true);
-      expect(newChatState, isNot(equals(chatState)));
+      var chatState = MessagesState();
+      var newMessagesState = MessagesState(isConnected: true);
+      expect(newMessagesState, isNot(equals(chatState)));
     });
 
     test(
       "should have same hashcodes since objects are equal",
       () => withClock(Clock.fixed(DateTime.now()), () {
-        var chatState = ChatState(
+        var chatState = MessagesState(
           messages: [
             ChatMessage(
               id: 0,
@@ -33,9 +33,8 @@ void main() {
             ),
           ],
           isConnected: true,
-          isUserRecordingAudio: true,
         );
-        var newChatState = ChatState(
+        var newMessagesState = MessagesState(
           messages: [
             ChatMessage(
               id: 0,
@@ -46,16 +45,15 @@ void main() {
             ),
           ],
           isConnected: true,
-          isUserRecordingAudio: true,
         );
-        expect(newChatState.hashCode, equals(chatState.hashCode));
+        expect(newMessagesState.hashCode, equals(chatState.hashCode));
       }),
     );
 
     test(
       "should have different hashCodes because the objects are different",
       () {
-        var chatState = ChatState(
+        var chatState = MessagesState(
           messages: [
             ChatMessage(
               id: 0,
@@ -66,9 +64,8 @@ void main() {
             ),
           ],
           isConnected: true,
-          isUserRecordingAudio: true,
         );
-        var newChatState = ChatState(
+        var newMessagesState = MessagesState(
           messages: [
             ChatMessage(
               id: 0,
@@ -79,9 +76,8 @@ void main() {
             ),
           ],
           isConnected: true,
-          isUserRecordingAudio: true,
         );
-        expect(newChatState.hashCode, isNot(equals(chatState.hashCode)));
+        expect(newMessagesState.hashCode, isNot(equals(chatState.hashCode)));
       },
     );
   });

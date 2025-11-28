@@ -1,27 +1,41 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/chat_input.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState> implements MessagesBloc {}
+class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
+    implements MessagesBloc {
+  @override
+  Clock get blocClock => Clock.fixed(clock.now());
+}
+
+class MockAudioBloc extends MockBloc<AudioEvent, AudioState>
+    implements AudioBloc {}
 
 void main() {
   group(ChatInput, () {
     late ChatThemeCubit chatThemeCubit;
     late MessagesBloc messagesBloc;
+    late AudioBloc audioBloc;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
       messagesBloc = MockMessagesBloc();
+      audioBloc = MockAudioBloc();
     });
 
     group('send message', () {
@@ -32,6 +46,8 @@ void main() {
             () => messagesBloc.state,
           ).thenReturn(MessagesState(userMessage: 'Teeest message'));
 
+          when(() => audioBloc.state).thenReturn(AudioState());
+
           await tester.pumpWidget(
             MultiBlocProvider(
               providers: [
@@ -39,6 +55,7 @@ void main() {
                   create: (context) => chatThemeCubit,
                 ),
                 BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+                BlocProvider<AudioBloc>(create: (context) => audioBloc),
               ],
               child: const TestWidget(hintText: 'test', showCameraButton: true),
             ),
@@ -50,7 +67,18 @@ void main() {
           expect(actionButtonFinder, findsOneWidget);
           await tester.tap(actionButtonFinder);
           await tester.pump();
-          verify(() => messagesBloc.add(ChatSendMessage())).called(1);
+          verify(
+            () => messagesBloc.add(
+              ChatSendMessage(
+                message: ChatMessage(
+                  role: MessageRole.user,
+                  type: MessageType.text,
+                  content: 'Teeest message',
+                  timestamp: messagesBloc.blocClock.now(),
+                ),
+              ),
+            ),
+          ).called(1);
         },
       );
 
@@ -65,7 +93,10 @@ void main() {
               MessagesState(userMessage: 'test 1'),
             ]),
           );
-          when(() => messagesBloc.state).thenReturn(MessagesState(userMessage: ''));
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: ''));
+          when(() => audioBloc.state).thenReturn(AudioState());
 
           await tester.pumpWidget(
             MultiBlocProvider(
@@ -74,6 +105,7 @@ void main() {
                   create: (context) => chatThemeCubit,
                 ),
                 BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+                BlocProvider<AudioBloc>(create: (context) => audioBloc),
               ],
               child: const TestWidget(hintText: 'test', showCameraButton: true),
             ),
@@ -103,13 +135,17 @@ void main() {
       testWidgets('should offer to record audio when the message is empty', (
         tester,
       ) async {
-        when(() => messagesBloc.state).thenReturn(MessagesState(userMessage: ''));
+        when(
+          () => messagesBloc.state,
+        ).thenReturn(MessagesState(userMessage: ''));
+        when(() => audioBloc.state).thenReturn(AudioState());
 
         await tester.pumpWidget(
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
               BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+              BlocProvider<AudioBloc>(create: (context) => audioBloc),
             ],
             child: const TestWidget(hintText: 'test', showCameraButton: true),
           ),
@@ -128,12 +164,14 @@ void main() {
     group('attach image', () {
       testWidgets('should attach an image', (tester) async {
         when(() => messagesBloc.state).thenReturn(MessagesState());
+        when(() => audioBloc.state).thenReturn(AudioState());
 
         await tester.pumpWidget(
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
               BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+              BlocProvider<AudioBloc>(create: (context) => audioBloc),
             ],
             child: const TestWidget(hintText: 'test', showCameraButton: true),
           ),
@@ -149,6 +187,7 @@ void main() {
         'should not find the camera button when showCameraButton is false',
         (tester) async {
           when(() => messagesBloc.state).thenReturn(MessagesState());
+          when(() => audioBloc.state).thenReturn(AudioState());
           await tester.pumpWidget(
             MultiBlocProvider(
               providers: [
@@ -156,6 +195,7 @@ void main() {
                   create: (context) => chatThemeCubit,
                 ),
                 BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+                BlocProvider<AudioBloc>(create: (context) => audioBloc),
               ],
               child: const TestWidget(
                 hintText: 'test',
