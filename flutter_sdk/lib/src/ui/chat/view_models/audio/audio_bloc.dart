@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
 
@@ -40,6 +40,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     on<AudioStopRecording>(_handleStopRecording);
   }
 
+  // Handles the event when an audio has been played completely
   Future<void> _handleAudioCompletedSubscribe(
     AudioCompletedSubscribe event,
     Emitter<AudioState> emit,
@@ -96,6 +97,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     }
   }
 
+  // Handles the event to stop recording
   Future<void> _handleStopRecording(
     AudioStopRecording event,
     Emitter<AudioState> emit,
@@ -127,7 +129,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     }
   }
 
-  // Method that compresses the amplitudes to fixed size array keeping only maximumsg
+  // Method that compresses the amplitudes to fixed size array keeping only maximums
   List<double> _calculateAmplitudeFilePreview(
     double newPoint,
     int totalSamples,
@@ -152,6 +154,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     return result;
   }
 
+  // Subscribes to amplitude stream when a user starts recording
   Future<void> _onAmplitudeSubscribe(
     AudioAmplitudeSubscribe event,
     Emitter<AudioState> emit,
@@ -185,6 +188,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     );
   }
 
+  // Handles the event to start a recording session
   Future<void> _handleStartRecording(
     AudioStartRecording event,
     Emitter<AudioState> emit,
