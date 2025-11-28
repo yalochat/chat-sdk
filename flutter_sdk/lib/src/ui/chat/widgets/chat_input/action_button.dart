@@ -36,7 +36,7 @@ class ActionButton extends StatelessWidget {
       } else {
         messageToSend = ChatMessage(
           role: MessageRole.user,
-          type: MessageType.voice,
+          type: MessageType.text,
           content: messageBloc.state.userMessage,
           timestamp: messageBloc.blocClock.now(),
         );
