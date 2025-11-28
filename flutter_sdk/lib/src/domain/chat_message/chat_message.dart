@@ -40,6 +40,12 @@ class ChatMessage extends Equatable {
   final MessageStatus status;
   final DateTime timestamp;
 
+  // Audio messages fields
+  final String? fileName;
+  final List<double>? amplitudes;
+  // Audio duration in ms
+  final int? duration;
+
   const ChatMessage({
     this.id,
     required this.role,
@@ -47,16 +53,32 @@ class ChatMessage extends Equatable {
     required this.timestamp,
     this.content = '',
     this.status = MessageStatus.inProgress,
+    this.fileName,
+    this.amplitudes,
+    this.duration,
   });
+
+  const ChatMessage.audio({
+    this.id,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    required this.fileName,
+    required this.amplitudes,
+    required this.duration,
+  }) : type = MessageType.voice, content = '';
 
   // Creates a copy of a chat message
   ChatMessage copyWith({
-      int? id,
-      MessageRole? role,
-      String? content,
-      MessageType? type,
-      MessageStatus? status,
-      DateTime? timestamp,
+    int? id,
+    MessageRole? role,
+    String? content,
+    MessageType? type,
+    MessageStatus? status,
+    String? fileName,
+    List<double>? amplitudes,
+    int? duration,
+    DateTime? timestamp,
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -64,11 +86,24 @@ class ChatMessage extends Equatable {
       content: content ?? this.content,
       type: type ?? this.type,
       status: status ?? this.status,
+      fileName: fileName ?? this.fileName,
+      amplitudes: amplitudes ?? this.amplitudes,
+      duration: duration ?? this.duration,
       timestamp: timestamp ?? this.timestamp,
     );
   }
 
   // Equatable props array
   @override
-  List<Object?> get props => [id, role, content, type, status, timestamp];
+  List<Object?> get props => [
+    id,
+    role,
+    content,
+    type,
+    status,
+    fileName,
+    amplitudes,
+    duration,
+    timestamp,
+  ];
 }

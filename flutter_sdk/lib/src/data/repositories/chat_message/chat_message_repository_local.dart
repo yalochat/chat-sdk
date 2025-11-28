@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:convert';
+
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
@@ -10,11 +12,14 @@ import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
 import 'package:drift/drift.dart';
+import 'package:logging/logging.dart';
 
 import 'chat_message_repository.dart';
 
 class ChatMessageRepositoryLocal extends ChatMessageRepository {
   final db.DatabaseService _databaseService;
+
+  final Logger log = Logger('ChatMessageRepository');
 
   ChatMessageRepositoryLocal({required db.DatabaseService localDatabaseService})
     : _databaseService = localDatabaseService;
@@ -24,6 +29,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
     int? cursor,
     int pageSize,
   ) async {
+    log.info('Fetching message page cursor: $cursor, pageSize: $pageSize');
     if (cursor != null && cursor < 0) {
       return Result.error(RangeException('Invalid cursor value', cursor, 0));
     }
@@ -58,6 +64,13 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
               status: MessageStatus.values.firstWhere(
                 (status) => status.status == data.status,
               ),
+              fileName: data.fileName,
+              amplitudes: data.amplitudes != null
+                  ? (jsonDecode(data.amplitudes!) as List)
+                        .map((e) => e as double)
+                        .toList()
+                  : null,
+              duration: data.duration,
               timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
             ),
           )
@@ -68,6 +81,9 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
         data.removeLast();
         nextCursor = data[data.length - 1].id;
       }
+      log.info(
+        'Message page successfully fetched: $cursor, pageSize: $pageSize',
+      );
       return Result.ok(
         Page(
           data: data,
@@ -79,6 +95,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
         ),
       );
     } on Exception catch (e) {
+      log.severe('Unable to fetch message page', e);
       return Result.error(e);
     }
   }
@@ -86,6 +103,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
   @override
   Future<Result<ChatMessage>> insertChatMessage(ChatMessage message) async {
     try {
+      log.info('Inserting message: $message');
       var resultId = await _databaseService
           .into(_databaseService.chatMessage)
           .insert(
@@ -95,11 +113,22 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
               content: message.content,
               type: message.type.type,
               status: message.status.status,
+              fileName: message.fileName == null
+                  ? Value.absent()
+                  : Value(message.fileName),
+              amplitudes: message.amplitudes == null
+                  ? Value.absent()
+                  : Value(jsonEncode(message.amplitudes)),
+              duration: message.duration == null
+                  ? Value.absent()
+                  : Value(message.duration),
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),
           );
+      log.info('Message inserted successfully message with id $resultId');
       return Result.ok(message.copyWith(id: resultId));
     } on Exception catch (e) {
+      log.severe('Unable to insert message $message');
       return Result.error(e);
     }
   }

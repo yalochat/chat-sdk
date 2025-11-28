@@ -1,9 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/message.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
@@ -30,7 +30,7 @@ class _MessageListState extends State<MessageList> {
   void _handleControllerNotification() {
     if (_scrollController.position.pixels >
         _scrollController.position.maxScrollExtent * 0.8) {
-      context.read<ChatBloc>().add(
+      context.read<MessagesBloc>().add(
         ChatLoadMessages(direction: PageDirection.next),
       );
     }
@@ -39,7 +39,7 @@ class _MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    return BlocSelector<ChatBloc, ChatState, (List<ChatMessage>, bool)>(
+    return BlocSelector<MessagesBloc, MessagesState, (List<ChatMessage>, bool)>(
       // Subscribe to messageListVersion to detect changes in state.messages
       selector: (state) =>
           (state.messages, state.isLoading),

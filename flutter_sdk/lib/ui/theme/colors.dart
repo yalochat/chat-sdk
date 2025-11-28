@@ -14,4 +14,7 @@ abstract final class SdkColors {
   static const Color systemMessageColorLight = Color(0xFF151515);
   static const Color sendButtonColorLight = Color(0xFF2207F1);
   static const Color sendButtonTextColorLight = Color(0xFFEFF4FF);
+  static const Color waveColorLight = Color(0xFF5C5EE8);
+  static const Color timerColoLight = Color(0xFF7C8086);
+  static const Color messageControlIconColor = Color(0xFF7C8086);
 }

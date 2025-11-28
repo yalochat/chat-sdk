@@ -4,29 +4,30 @@ import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart' show SdkConstants;
+import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logging/logging.dart';
 
-import 'chat_event.dart';
-import 'chat_state.dart';
+import 'messages_event.dart';
+import 'messages_state.dart';
 
 /// A Bloc for managing the chat state of the Chat Widget of the SDK.
-class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  final Clock _clock;
+class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
+  final Clock blocClock;
   final ChatMessageRepository _chatMessageRepository;
+  final Logger log = Logger('ChatViewModel');
 
-  ChatBloc({
+  MessagesBloc({
     String name = '',
     required ChatMessageRepository chatMessageRepository,
     int pageSize = SdkConstants.defaultPageSize,
     Clock? clock,
-  }) : _clock = clock ?? Clock(),
+  }) : blocClock = clock ?? Clock(),
        _chatMessageRepository = chatMessageRepository,
        super(
-         ChatState(
+         MessagesState(
            isConnected: false,
-           isUserRecordingAudio: false,
            isSystemTypingMessage: false,
            chatTitle: name,
            pageInfo: PageInfo(pageSize: pageSize),
@@ -43,7 +44,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   // Event that handles the pagination of messages
   Future<void> _handleFetchMessages(
     ChatLoadMessages event,
-    Emitter<ChatState> emit,
+    Emitter<MessagesState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
 
@@ -83,7 +84,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Handles the event when the assistant starts typing.
-  void _handleStartTyping(ChatStartTyping event, Emitter<ChatState> emit) {
+  void _handleStartTyping(ChatStartTyping event, Emitter<MessagesState> emit) {
     if (!state.isSystemTypingMessage) {
       emit(
         state.copyWith(
@@ -95,7 +96,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Handles the event when the assistant stops typing.
-  void _handleStopTyping(ChatStopTyping event, Emitter<ChatState> emit) {
+  void _handleStopTyping(ChatStopTyping event, Emitter<MessagesState> emit) {
     if (state.isSystemTypingMessage) {
       emit(state.copyWith(isSystemTypingMessage: false, chatStatusText: ''));
     }
@@ -104,7 +105,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   // Handles the event to update the user message
   void _handleUpdateUserMessage(
     ChatUpdateUserMessage event,
-    Emitter<ChatState> emit,
+    Emitter<MessagesState> emit,
   ) {
     if (event.value != state.userMessage) {
       emit(state.copyWith(userMessage: event.value));
@@ -114,18 +115,13 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   // Handles the event when the user sends a message
   Future<void> _handleSendMessage(
     ChatSendMessage event,
-    Emitter<ChatState> emit,
+    Emitter<MessagesState> emit,
   ) async {
     final String trimmedMessage = state.userMessage.trim();
-    if (trimmedMessage.isEmpty) return;
-    ChatMessage messageToInsert = ChatMessage(
-      role: MessageRole.user,
-      type: MessageType.text,
-      content: trimmedMessage,
-      timestamp: _clock.now(),
-    );
+    if (event.chatMessage.type == MessageType.text && trimmedMessage.isEmpty) return;
+
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
-      messageToInsert,
+      event.chatMessage,
     );
 
     switch (result) {
@@ -135,7 +131,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             // FIXME: Create a new way to track big message list copies
             messages: [result.result, ...state.messages],
             userMessage: '',
-            chatStatusText: 'Typing...',
           ),
         );
         break;
@@ -146,7 +141,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   }
 
   // Handles the event to clear messages.
-  void _handleClearMessages(ChatClearMessages event, Emitter<ChatState> emit) {
+  void _handleClearMessages(ChatClearMessages event, Emitter<MessagesState> emit) {
     if (state.messages.isEmpty) return;
     emit(state.copyWith(messages: []));
     // TODO: Add the repository to clear messages

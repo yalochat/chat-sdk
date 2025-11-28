@@ -12,9 +12,9 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (messageToRender.role == MessageRole.user) {
-      return UserMessage(content: messageToRender.content);
+      return UserMessage(message: messageToRender);
     } else {
-      throw UnimplementedError('Message not supported');
+      throw UnimplementedError();
     }
   }
 }
