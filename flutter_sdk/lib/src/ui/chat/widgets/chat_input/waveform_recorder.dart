@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
@@ -15,16 +15,16 @@ import 'waveform_painter.dart';
 class WaveformRecorder extends StatelessWidget {
   const WaveformRecorder({super.key});
 
-  void _handleOnCancel(ChatBloc bloc) {
-    bloc.add(ChatStopRecording());
+  void _handleOnCancel(AudioBloc bloc) {
+    bloc.add(AudioStopRecording());
   }
 
   @override
   Widget build(BuildContext context) {
-    final chatBloc = context.read<ChatBloc>();
+    final chatBloc = context.read<AudioBloc>();
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (context, chatTheme) {
-        return BlocSelector<ChatBloc, ChatState, (List<double>, int)>(
+        return BlocSelector<AudioBloc, AudioState, (List<double>, int)>(
           selector: (state) => (state.amplitudes, state.millisecondsRecording),
           builder: (context, state) {
             final (amplitudes, millisecondsRecording) = state;

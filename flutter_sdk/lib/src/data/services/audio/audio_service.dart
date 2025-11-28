@@ -14,6 +14,8 @@ abstract class AudioService {
 
   Future<Result<Unit>> playAudio(String path);
 
+  Stream<void> onAudioCompleted();
+
   Future<Result<Unit>> pauseAudio();
 
   Future<void> dispose();

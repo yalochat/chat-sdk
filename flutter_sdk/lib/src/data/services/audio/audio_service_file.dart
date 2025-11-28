@@ -69,4 +69,7 @@ class AudioServiceFile implements AudioService {
       return Result.error(e);
     }
   }
+
+  @override
+  Stream<void> onAudioCompleted() => _player.onPlayerComplete;
 }

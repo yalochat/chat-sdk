@@ -1,9 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_app_bar.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
@@ -12,24 +12,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockChatBloc extends MockBloc<ChatEvent, ChatState> implements ChatBloc {}
+class MockChatBloc extends MockBloc<MessagesEvent, MessagesState> implements MessagesBloc {}
 
 void main() {
   group(ChatAppBar, () {
     late ChatThemeCubit chatThemeCubit;
-    late ChatBloc chatBloc;
+    late MessagesBloc messagesBloc;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
-      chatBloc = MockChatBloc();
+      messagesBloc = MockChatBloc();
     });
 
     group('chat title', () {
       testWidgets(
         'should display title text, subtitle, shop and cart icon buttons when the onPressed handlers are set',
         (tester) async {
-          when(() => chatBloc.state).thenReturn(
-            ChatState(
+          when(() => messagesBloc.state).thenReturn(
+            MessagesState(
               userMessage: 'Teeest message',
               chatTitle: 'Test',
               chatStatusText: 'status',
@@ -42,7 +42,7 @@ void main() {
                 BlocProvider<ChatThemeCubit>(
                   create: (context) => chatThemeCubit,
                 ),
-                BlocProvider<ChatBloc>(create: (context) => chatBloc),
+                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
               ],
               child: TestWidget(onShopPressed: () {}, onCartPressed: () {}),
             ),
@@ -67,8 +67,8 @@ void main() {
       testWidgets('should display only title text when theres no status', (
         tester,
       ) async {
-        when(() => chatBloc.state).thenReturn(
-          ChatState(
+        when(() => messagesBloc.state).thenReturn(
+          MessagesState(
             userMessage: 'Teeest message',
             chatTitle: 'Test',
             chatStatusText: '',
@@ -79,7 +79,7 @@ void main() {
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<ChatBloc>(create: (context) => chatBloc),
+              BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
             ],
             child: TestWidget(onShopPressed: () {}, onCartPressed: () {}),
           ),

@@ -1,9 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_painter.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
@@ -14,18 +14,18 @@ class UserAudioMessage extends StatelessWidget {
   final ChatMessage message;
   const UserAudioMessage({super.key, required this.message});
 
-  void _handlePlayMessage(ChatBloc bloc) {
+  void _handlePlayMessage(AudioBloc bloc) {
     if (bloc.state.playingMessage != null &&
         bloc.state.playingMessage!.id == message.id) {
-      bloc.add(ChatStopAudio());
+      bloc.add(AudioStop());
     } else {
-      bloc.add(ChatPlayAudio(message: message));
+      bloc.add(AudioPlay(message: message));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final chatBloc = context.read<ChatBloc>();
+    final chatBloc = context.read<AudioBloc>();
     final chatThemeCubit = context.watch<ChatThemeCubit>();
     assert(
       message.amplitudes != null && message.amplitudes!.isNotEmpty,
@@ -39,7 +39,7 @@ class UserAudioMessage extends StatelessWidget {
 
     return Row(
       children: [
-        BlocSelector<ChatBloc, ChatState, ChatMessage?>(
+        BlocSelector<AudioBloc, AudioState, ChatMessage?>(
           selector: (state) => state.playingMessage,
           builder: (context, playingMessage) {
             return IconButton(

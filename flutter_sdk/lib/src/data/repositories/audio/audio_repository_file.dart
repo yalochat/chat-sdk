@@ -48,4 +48,7 @@ class AudioRepositoryFile implements AudioRepository {
 
   @override
   Future<Result<Unit>> pauseAudio() => _audioService.pauseAudio();
+
+  @override
+  Stream<void> onAudioCompleted() => _audioService.onAudioCompleted();
 }

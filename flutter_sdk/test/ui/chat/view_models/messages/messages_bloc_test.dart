@@ -5,9 +5,9 @@ import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,7 +17,7 @@ import 'package:mocktail/mocktail.dart';
 class ChatMessageRepositoryMock extends Mock implements ChatMessageRepository {}
 
 void main() {
-  group(ChatBloc, () {
+  group(MessagesBloc, () {
     late ChatMessageRepository chatMessageRepository;
 
     setUpAll(() {
@@ -38,11 +38,10 @@ void main() {
 
     test('should have initial state with sane defaults', () {
       expect(
-        ChatBloc(chatMessageRepository: chatMessageRepository).state,
+        MessagesBloc(chatMessageRepository: chatMessageRepository).state,
         equals(
-          ChatState(
+          MessagesState(
             isConnected: false,
-            isUserRecordingAudio: false,
             isSystemTypingMessage: false,
             messages: const [],
             userMessage: '',
@@ -52,12 +51,12 @@ void main() {
     });
 
     group('typing states', () {
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit isSystemTypingMessage to true and chat status Typing... when the bloc reports that the system is writing with a status message',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
         act: (bloc) => bloc.add(ChatStartTyping(chatStatusText: 'Typing...')),
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.isSystemTypingMessage,
                 'isSystemTypingMessage',
@@ -71,12 +70,12 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit isSystemTypingMessage to true with empty status when the bloc reports that the system is writing without status message',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
         act: (bloc) => bloc.add(ChatStartTyping()),
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.isSystemTypingMessage,
                 'isSystemTypingMessage',
@@ -90,13 +89,13 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit isSystemTypingMessage to false when the bloc reports that the system is not writing',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
-        seed: () => ChatState(isSystemTypingMessage: true),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(isSystemTypingMessage: true),
         act: (bloc) => bloc.add(ChatStopTyping()),
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.isSystemTypingMessage,
                 'isSystemTypingMessage',
@@ -113,13 +112,13 @@ void main() {
 
     group('sending messages', () {
       var fixedClock = Clock.fixed(DateTime.now());
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should send message and clear user message when the message array is empty',
-        build: () => ChatBloc(
+        build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
         ),
-        seed: () => ChatState(userMessage: 'Test message'),
+        seed: () => MessagesState(userMessage: 'Test message'),
         act: (bloc) {
           when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
             (_) async => Result.ok(
@@ -135,7 +134,7 @@ void main() {
           bloc.add(ChatSendMessage());
         },
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
               .having(
                 (state) => state.messages,
@@ -153,13 +152,13 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should append a message to the start of a message array when already has messages',
-        build: () => ChatBloc(
+        build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
         ),
-        seed: () => ChatState(
+        seed: () => MessagesState(
           userMessage: 'Test message',
           messages: [
             ChatMessage(
@@ -200,7 +199,7 @@ void main() {
           bloc.add(ChatSendMessage());
         },
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
               .having(
                 (state) => state.messages.length,
@@ -223,13 +222,13 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should append a trimmed message to the start of a message list if it contains spaces on both ends',
-        build: () => ChatBloc(
+        build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
         ),
-        seed: () => ChatState(
+        seed: () => MessagesState(
           userMessage: '        Test message        ',
           messages: [
             ChatMessage(
@@ -270,7 +269,7 @@ void main() {
           bloc.add(ChatSendMessage());
         },
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having((state) => state.userMessage, 'userMessage', equals(''))
               .having(
                 (state) => state.messages.length,
@@ -293,13 +292,13 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit an error when the insertion of the message fails',
-        build: () => ChatBloc(
+        build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
         ),
-        seed: () => ChatState(
+        seed: () => MessagesState(
           userMessage: 'Test message',
           messages: [
             ChatMessage(
@@ -333,7 +332,7 @@ void main() {
           bloc.add(ChatSendMessage());
         },
         expect: () => [
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.userMessage,
                 'userMessage',
@@ -367,10 +366,10 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit nothing when adding empty messages to the message list',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
-        seed: () => ChatState(
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
           userMessage: '',
           messages: [
             ChatMessage(
@@ -400,10 +399,10 @@ void main() {
         expect: () => [],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit nothing when messages consists only of spaces',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
-        seed: () => ChatState(
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
           userMessage: '                     ',
           messages: [
             ChatMessage(
@@ -436,9 +435,9 @@ void main() {
 
     group('fetch messages', () {
       var fixedClock = Clock.fixed(DateTime.now());
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should fetch messages from repository and set them up correctly',
-        build: () => ChatBloc(
+        build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
         ),
@@ -481,12 +480,12 @@ void main() {
           bloc.add(ChatLoadMessages(direction: PageDirection.initial));
         },
         expect: () => [
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.isLoading,
             'is loading',
             equals(true),
           ),
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.messages.length,
                 'message count',
@@ -501,10 +500,10 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should fetch next page of messages until there are no more pages from repository and set them up correctly',
         build: () =>
-            ChatBloc(chatMessageRepository: chatMessageRepository, pageSize: 3),
+            MessagesBloc(chatMessageRepository: chatMessageRepository, pageSize: 3),
         act: (bloc) {
           final pageSize = 3;
           when(
@@ -578,12 +577,12 @@ void main() {
           bloc.add(ChatLoadMessages(direction: PageDirection.next));
         },
         expect: () => [
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.isLoading,
             'is loading',
             equals(true),
           ),
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.messages.length,
                 'message count',
@@ -595,12 +594,12 @@ void main() {
                 equals(ChatStatus.success),
               )
               .having((state) => state.isLoading, 'loading', equals(false)),
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.isLoading,
             'is loading',
             equals(true),
           ),
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.messages.length,
                 'message count',
@@ -612,12 +611,12 @@ void main() {
                 equals(ChatStatus.success),
               )
               .having((state) => state.isLoading, 'loading', equals(false)),
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.isLoading,
             'loading',
             equals(true),
           ),
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.isLoading,
             'loading',
             equals(false),
@@ -625,9 +624,9 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit a failure state when the message repository fails',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
         act: (bloc) {
           when(
             () => chatMessageRepository.getChatMessagePageDesc(
@@ -641,12 +640,12 @@ void main() {
           bloc.add(ChatLoadMessages());
         },
         expect: () => [
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.isLoading,
             'loading',
             equals(true),
           ),
-          isA<ChatState>()
+          isA<MessagesState>()
               .having(
                 (state) => state.chatStatus,
                 'chat status',
@@ -658,12 +657,12 @@ void main() {
     });
 
     group('update message', () {
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should update the user message if is different from current',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
         act: (bloc) => bloc.add(ChatUpdateUserMessage(value: 'tres')),
         expect: () => [
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.userMessage,
             'userMessage',
             equals('tres'),
@@ -671,20 +670,20 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should not emit if the user message is the same as the old one',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
-        seed: () => ChatState(userMessage: 'tres'),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(userMessage: 'tres'),
         act: (bloc) => bloc.add(ChatUpdateUserMessage(value: 'tres')),
         expect: () => [],
       );
     });
 
     group('clear messages', () {
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should emit empty messages when chat cleared',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
-        seed: () => ChatState(
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
           messages: [
             ChatMessage(
               id: 0,
@@ -711,7 +710,7 @@ void main() {
         ),
         act: (bloc) => bloc.add(ChatClearMessages()),
         expect: () => [
-          isA<ChatState>().having(
+          isA<MessagesState>().having(
             (state) => state.messages,
             'messages',
             equals([]),
@@ -719,9 +718,9 @@ void main() {
         ],
       );
 
-      blocTest<ChatBloc, ChatState>(
+      blocTest<MessagesBloc, MessagesState>(
         'should not emit if the messages were already empty',
-        build: () => ChatBloc(chatMessageRepository: chatMessageRepository),
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
         act: (bloc) => bloc.add(ChatClearMessages()),
         expect: () => [],
       );

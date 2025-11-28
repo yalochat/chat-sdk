@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,15 +24,15 @@ class _MessageTextFieldState extends State<MessageTextField> {
     _textEditingController = TextEditingController();
   }
 
-  void _handleOnMessageChange(ChatBloc chatBloc, String message) {
+  void _handleOnMessageChange(MessagesBloc chatBloc, String message) {
     chatBloc.add(ChatUpdateUserMessage(value: message));
   }
 
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    final chatBloc = context.read<ChatBloc>();
-    return BlocListener<ChatBloc, ChatState>(
+    final chatBloc = context.read<MessagesBloc>();
+    return BlocListener<MessagesBloc, MessagesState>(
       listenWhen: (previous, current) =>
           previous.userMessage != current.userMessage,
       listener: (context, chatState) {

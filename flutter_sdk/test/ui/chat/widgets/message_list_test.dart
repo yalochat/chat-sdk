@@ -2,9 +2,9 @@
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/message_list.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
@@ -14,22 +14,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockChatBloc extends MockBloc<ChatEvent, ChatState> implements ChatBloc {}
+class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState> implements MessagesBloc {}
 
 void main() {
   group(MessageList, () {
     late ChatThemeCubit chatThemeCubit;
-    late ChatBloc chatBloc;
+    late MessagesBloc chatBloc;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
-      chatBloc = MockChatBloc();
+      chatBloc = MockMessagesBloc();
     });
 
     group('user messages', () {
       testWidgets('should render user messages correctly', (tester) async {
         when(() => chatBloc.state).thenReturn(
-          ChatState(
+          MessagesState(
             messages: [
               ChatMessage(
                 id: 1,
@@ -45,7 +45,7 @@ void main() {
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<ChatBloc>(create: (context) => chatBloc),
+              BlocProvider<MessagesBloc>(create: (context) => chatBloc),
             ],
             child: const TestWidget(),
           ),
@@ -59,7 +59,7 @@ void main() {
         'should render a lot of user messages correctly and be scrollable to the top',
         (tester) async {
           when(() => chatBloc.state).thenReturn(
-            ChatState(
+            MessagesState(
               messages: [
                 for (int i = 0; i < 100; i++)
                   ChatMessage(
@@ -78,7 +78,7 @@ void main() {
                 BlocProvider<ChatThemeCubit>(
                   create: (context) => chatThemeCubit,
                 ),
-                BlocProvider<ChatBloc>(create: (context) => chatBloc),
+                BlocProvider<MessagesBloc>(create: (context) => chatBloc),
               ],
               child: const TestWidget(),
             ),
@@ -100,14 +100,14 @@ void main() {
       ) async {
         when(
           () => chatBloc.state,
-        ).thenReturn(ChatState(isLoading: true, messages: [
+        ).thenReturn(MessagesState(isLoading: true, messages: [
             ],
           ));
         await tester.pumpWidget(
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<ChatBloc>(create: (context) => chatBloc),
+              BlocProvider<MessagesBloc>(create: (context) => chatBloc),
             ],
             child: const TestWidget(),
           ),

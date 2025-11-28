@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_title.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
@@ -34,7 +34,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               SizedBox(width: SdkConstants.rowItemSpace),
               Expanded(
-                child: BlocSelector<ChatBloc, ChatState, (String, String)>(
+                child: BlocSelector<MessagesBloc, MessagesState, (String, String)>(
                   selector: (state) => (state.chatTitle, state.chatStatusText),
                   builder: (context, state) {
                     return ChatTitle(title: state.$1, status: state.$2);

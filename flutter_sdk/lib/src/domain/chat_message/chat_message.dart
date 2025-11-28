@@ -58,6 +58,16 @@ class ChatMessage extends Equatable {
     this.duration,
   });
 
+  const ChatMessage.audio({
+    this.id,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    required this.fileName,
+    required this.amplitudes,
+    required this.duration,
+  }) : type = MessageType.voice, content = '';
+
   // Creates a copy of a chat message
   ChatMessage copyWith({
     int? id,

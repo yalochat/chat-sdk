@@ -1,9 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/chat_input.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
@@ -12,16 +12,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockChatBloc extends MockBloc<ChatEvent, ChatState> implements ChatBloc {}
+class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState> implements MessagesBloc {}
 
 void main() {
   group(ChatInput, () {
     late ChatThemeCubit chatThemeCubit;
-    late ChatBloc chatBloc;
+    late MessagesBloc messagesBloc;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
-      chatBloc = MockChatBloc();
+      messagesBloc = MockMessagesBloc();
     });
 
     group('send message', () {
@@ -29,8 +29,8 @@ void main() {
         'should send message correctly when clicking the action button while userMessage is not empty',
         (tester) async {
           when(
-            () => chatBloc.state,
-          ).thenReturn(ChatState(userMessage: 'Teeest message'));
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: 'Teeest message'));
 
           await tester.pumpWidget(
             MultiBlocProvider(
@@ -38,7 +38,7 @@ void main() {
                 BlocProvider<ChatThemeCubit>(
                   create: (context) => chatThemeCubit,
                 ),
-                BlocProvider<ChatBloc>(create: (context) => chatBloc),
+                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
               ],
               child: const TestWidget(hintText: 'test', showCameraButton: true),
             ),
@@ -50,7 +50,7 @@ void main() {
           expect(actionButtonFinder, findsOneWidget);
           await tester.tap(actionButtonFinder);
           await tester.pump();
-          verify(() => chatBloc.add(ChatSendMessage())).called(1);
+          verify(() => messagesBloc.add(ChatSendMessage())).called(1);
         },
       );
 
@@ -58,14 +58,14 @@ void main() {
         'should change from record audio icon to send message icon when a message is written',
         (tester) async {
           whenListen(
-            chatBloc,
-            Stream<ChatState>.fromIterable([
-              ChatState(),
-              ChatState(userMessage: 'test'),
-              ChatState(userMessage: 'test 1'),
+            messagesBloc,
+            Stream<MessagesState>.fromIterable([
+              MessagesState(),
+              MessagesState(userMessage: 'test'),
+              MessagesState(userMessage: 'test 1'),
             ]),
           );
-          when(() => chatBloc.state).thenReturn(ChatState(userMessage: ''));
+          when(() => messagesBloc.state).thenReturn(MessagesState(userMessage: ''));
 
           await tester.pumpWidget(
             MultiBlocProvider(
@@ -73,7 +73,7 @@ void main() {
                 BlocProvider<ChatThemeCubit>(
                   create: (context) => chatThemeCubit,
                 ),
-                BlocProvider<ChatBloc>(create: (context) => chatBloc),
+                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
               ],
               child: const TestWidget(hintText: 'test', showCameraButton: true),
             ),
@@ -93,7 +93,7 @@ void main() {
           );
           expect(actionButtonSendFinder, findsOneWidget);
           verify(
-            () => chatBloc.add(ChatUpdateUserMessage(value: 'test 1')),
+            () => messagesBloc.add(ChatUpdateUserMessage(value: 'test 1')),
           ).called(1);
         },
       );
@@ -103,13 +103,13 @@ void main() {
       testWidgets('should offer to record audio when the message is empty', (
         tester,
       ) async {
-        when(() => chatBloc.state).thenReturn(ChatState(userMessage: ''));
+        when(() => messagesBloc.state).thenReturn(MessagesState(userMessage: ''));
 
         await tester.pumpWidget(
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<ChatBloc>(create: (context) => chatBloc),
+              BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
             ],
             child: const TestWidget(hintText: 'test', showCameraButton: true),
           ),
@@ -127,13 +127,13 @@ void main() {
 
     group('attach image', () {
       testWidgets('should attach an image', (tester) async {
-        when(() => chatBloc.state).thenReturn(ChatState());
+        when(() => messagesBloc.state).thenReturn(MessagesState());
 
         await tester.pumpWidget(
           MultiBlocProvider(
             providers: [
               BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<ChatBloc>(create: (context) => chatBloc),
+              BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
             ],
             child: const TestWidget(hintText: 'test', showCameraButton: true),
           ),
@@ -148,14 +148,14 @@ void main() {
       testWidgets(
         'should not find the camera button when showCameraButton is false',
         (tester) async {
-          when(() => chatBloc.state).thenReturn(ChatState());
+          when(() => messagesBloc.state).thenReturn(MessagesState());
           await tester.pumpWidget(
             MultiBlocProvider(
               providers: [
                 BlocProvider<ChatThemeCubit>(
                   create: (context) => chatThemeCubit,
                 ),
-                BlocProvider<ChatBloc>(create: (context) => chatBloc),
+                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
               ],
               child: const TestWidget(
                 hintText: 'test',

@@ -13,5 +13,7 @@ abstract class AudioRepository {
 
   Future<Result<Unit>> pauseAudio();
 
+  Stream<void> onAudioCompleted();
+
   Future<Result<Unit>> stopRecording();
 }

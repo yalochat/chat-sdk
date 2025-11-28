@@ -1,7 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_state.dart';
+
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_recorder.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
@@ -46,7 +47,7 @@ class ChatInput extends StatelessWidget {
                       color: chatTheme.inputTextFieldBorderColor,
                     ),
                   ),
-                  child: BlocSelector<ChatBloc, ChatState, bool>(
+                  child: BlocSelector<AudioBloc, AudioState, bool>(
                     selector: (state) => state.isUserRecordingAudio,
                     builder: (context, isUserRecordingAudio) {
                       return Row(
