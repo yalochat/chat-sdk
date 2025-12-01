@@ -58,7 +58,7 @@ void main() {
           content: 'Test content',
           timestamp: clock.now(),
         );
-        ChatMessage voiceMessage = ChatMessage.audio(
+        ChatMessage voiceMessage = ChatMessage.voice(
           role: MessageRole.user,
           timestamp: clock.now(),
           fileName: 'test.wav',

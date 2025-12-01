@@ -1,10 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'dart:math';
-
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
 
@@ -12,26 +12,33 @@ import 'audio_event.dart';
 import 'audio_state.dart';
 
 class AudioBloc extends Bloc<AudioEvent, AudioState> {
-  static const int _recordTickMs = 45;
-  static const int _amplitudeDataPoints = 48;
-  static const double _defaultAmplitude = -30;
+  @visibleForTesting
+  static const int recordTickMs = 45;
+  @visibleForTesting
+  static const int amplitudeDataPoints = 48;
+  @visibleForTesting
+  static const double defaultAmplitude = -30;
   final AudioRepository _audioRepository;
+  final AudioProcessingUseCase _audioUseCase;
   final Logger log = Logger('AudioViewModel');
-  AudioBloc({required AudioRepository audioRepository})
-    : _audioRepository = audioRepository,
-      super(
-        AudioState(
-          amplitudes: List<double>.filled(
-            _amplitudeDataPoints,
-            _defaultAmplitude,
-          ),
-          amplitudesFilePreview: List<double>.filled(
-            _amplitudeDataPoints,
-            _defaultAmplitude,
-          ),
-          amplitudeIndex: _amplitudeDataPoints - 1,
-        ),
-      ) {
+  AudioBloc({
+    required AudioRepository audioRepository,
+    AudioProcessingUseCase? audioUseCase,
+  }) : _audioRepository = audioRepository,
+       _audioUseCase = audioUseCase ?? AudioProcessingUseCase(),
+       super(
+         AudioState(
+           amplitudes: List<double>.filled(
+             amplitudeDataPoints,
+             defaultAmplitude,
+           ),
+           amplitudesFilePreview: List<double>.filled(
+             amplitudeDataPoints,
+             defaultAmplitude,
+           ),
+           amplitudeIndex: amplitudeDataPoints - 1,
+         ),
+       ) {
     on<AudioCompletedSubscribe>(_handleAudioCompletedSubscribe);
     on<AudioPlay>(_handlePlayAudio);
     on<AudioStop>(_handleStopAudio);
@@ -52,7 +59,10 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
       stream,
       onData: (_) {
         log.fine('Audio completion event received');
-        return state.copyWith(playingMessage: () => null);
+        return state.copyWith(
+          playingMessage: () => null,
+          audioStatus: AudioStatus.initial,
+        );
       },
     );
   }
@@ -78,10 +88,16 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
       switch (resultPause) {
         case Ok():
           log.info('Pause previous audio succeeded');
-          emit(state.copyWith(playingMessage: () => null));
+          emit(
+            state.copyWith(
+              playingMessage: () => null,
+              audioStatus: AudioStatus.audioPaused,
+            ),
+          );
           break;
         case Error():
           log.severe('Unable to stop audio from playing', resultPause.error);
+          emit(state.copyWith(audioStatus: AudioStatus.errorStoppingAudio));
           break;
       }
     }
@@ -89,10 +105,16 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     switch (result) {
       case Ok():
         log.info('Playing audio succeeded');
-        emit(state.copyWith(playingMessage: () => event.message));
+        emit(
+          state.copyWith(
+            playingMessage: () => event.message,
+            audioStatus: AudioStatus.playingAudio,
+          ),
+        );
         break;
       case Error():
         log.severe('Unable to play audio', result.error);
+        emit(state.copyWith(audioStatus: AudioStatus.errorPlayingAudio));
         break;
     }
   }
@@ -102,12 +124,21 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     AudioStopRecording event,
     Emitter<AudioState> emit,
   ) async {
+    log.info('Stopping recording');
     final result = await _audioRepository.stopRecording();
     switch (result) {
       case Ok():
-        emit(state.copyWith(isUserRecordingAudio: false));
+        log.info('Recording stopped successfully');
+        emit(
+          state.copyWith(
+            isUserRecordingAudio: false,
+            audioStatus: AudioStatus.initial,
+          ),
+        );
         break;
       case Error():
+        log.info('Unable to stop recording');
+        emit(state.copyWith(audioStatus: AudioStatus.errorStoppingRecording));
         break;
     }
   }
@@ -121,37 +152,18 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     switch (result) {
       case Ok():
         log.info('Audio stopped correctly');
-        emit(state.copyWith(playingMessage: () => null));
+        emit(
+          state.copyWith(
+            playingMessage: () => null,
+            audioStatus: AudioStatus.initial,
+          ),
+        );
         break;
       case Error():
         log.severe('Unable to stop audio', result.error);
+        emit(state.copyWith(audioStatus: AudioStatus.errorStoppingAudio));
         break;
     }
-  }
-
-  // Method that compresses the amplitudes to fixed size array keeping only maximums
-  List<double> _calculateAmplitudeFilePreview(
-    double newPoint,
-    int totalSamples,
-    List<double> amplitudePreview,
-  ) {
-    final result = [...amplitudePreview];
-    final totalBins = amplitudePreview.length;
-    if (totalSamples <= totalBins) {
-      result[totalSamples - 1] = newPoint;
-    } else {
-      var targetBin = totalSamples % totalBins;
-      for (var i = targetBin; i < result.length - 1; i++) {
-        if (i == targetBin) {
-          result[i] = max(result[i], result[i + 1]);
-        } else {
-          result[i] = result[i + 1];
-        }
-      }
-      result.last = newPoint;
-    }
-
-    return result;
   }
 
   // Subscribes to amplitude stream when a user starts recording
@@ -160,28 +172,31 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     Emitter<AudioState> emit,
   ) async {
     final amplitudesStream = _audioRepository.getAmplitudes(
-      Duration(milliseconds: _recordTickMs),
+      Duration(milliseconds: recordTickMs),
     );
+
     await emit.forEach(
       amplitudesStream,
       onData: (data) {
         assert(!data.isInfinite, 'no infinity values allowed');
         final maxPoints = state.amplitudes.length;
         final millisecondsRecording =
-            state.millisecondsRecording + _recordTickMs;
+            state.millisecondsRecording + recordTickMs;
         assert(
-          millisecondsRecording % _recordTickMs == 0,
+          millisecondsRecording % recordTickMs == 0,
           'Milliseconds must be a multiple of _recordTickMs',
         );
+        final wavePreview = _audioUseCase.compressWaveformForPreview(
+          data,
+          millisecondsRecording ~/ recordTickMs,
+          state.amplitudesFilePreview,
+        );
+
         return state.copyWith(
           // Create an animation of the waves sliding.
           amplitudes: state.amplitudes.sublist(1)..add(data),
           amplitudeIndex: (state.amplitudeIndex - 1) % maxPoints,
-          amplitudesFilePreview: _calculateAmplitudeFilePreview(
-            data,
-            millisecondsRecording ~/ _recordTickMs,
-            state.amplitudesFilePreview,
-          ),
+          amplitudesFilePreview: wavePreview,
           millisecondsRecording: millisecondsRecording,
         );
       },
@@ -206,22 +221,24 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
             audioFileName: audioStreamResult.result,
             amplitudeIndex: state.amplitudes.length - 1,
             amplitudes: List<double>.filled(
-              _amplitudeDataPoints,
-              _defaultAmplitude,
+              amplitudeDataPoints,
+              defaultAmplitude,
             ),
             amplitudesFilePreview: List<double>.filled(
-              _amplitudeDataPoints,
-              _defaultAmplitude,
+              amplitudeDataPoints,
+              defaultAmplitude,
             ),
             millisecondsRecording: 0,
           ),
         );
         break;
       case Error():
+        log.severe('Unable to start audio recording', audioStreamResult.error);
         emit(
           state.copyWith(
             audioFileName: '',
             isUserRecordingAudio: false,
+            audioStatus: AudioStatus.errorRecordingAudio,
           ),
         );
         break;

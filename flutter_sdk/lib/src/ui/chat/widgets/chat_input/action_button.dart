@@ -26,7 +26,7 @@ class ActionButton extends StatelessWidget {
     } else {
       ChatMessage messageToSend;
       if (isUserRecordingAudio) {
-        messageToSend = ChatMessage.audio(
+        messageToSend = ChatMessage.voice(
           role: MessageRole.user,
           timestamp: messageBloc.blocClock.now(),
           fileName: audioBloc.state.audioFileName,
