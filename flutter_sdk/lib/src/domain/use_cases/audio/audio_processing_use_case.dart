@@ -3,10 +3,13 @@
 import 'dart:math';
 
 
+// Use case that contains business logic that can be
+// reused in multiple view models.
 class AudioProcessingUseCase {
-
-  // Receives a new point to add to amplitudePreview
-  // and recompresses the waveform for the message preview
+  // Receives a new point to add to amplitudePreview,
+  // recompresses the waveform creating a new waveform preview.
+  //
+  // Only tries to preserve the maximum data points of the waveform.
   List<double> compressWaveformForPreview(
     double newPoint,
     int totalSamples,

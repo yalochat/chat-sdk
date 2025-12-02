@@ -20,7 +20,7 @@ import 'package:mocktail/mocktail.dart';
 class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
     implements MessagesBloc {
   @override
-  Clock get blocClock => Clock.fixed(clock.now());
+  Clock get blocClock => Clock.fixed(DateTime(2025));
 }
 
 class MockAudioBloc extends MockBloc<AudioEvent, AudioState>
@@ -132,33 +132,92 @@ void main() {
     });
 
     group('record audio', () {
-      testWidgets('should offer to record audio when the message is empty', (
-        tester,
-      ) async {
-        when(
-          () => messagesBloc.state,
-        ).thenReturn(MessagesState(userMessage: ''));
-        when(() => audioBloc.state).thenReturn(AudioState());
+      testWidgets(
+        'should emit a start recording event when the user clicks the microphone icon',
+        (tester) async {
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: ''));
+          when(() => audioBloc.state).thenReturn(AudioState());
 
-        await tester.pumpWidget(
-          MultiBlocProvider(
-            providers: [
-              BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-              BlocProvider<AudioBloc>(create: (context) => audioBloc),
-            ],
-            child: const TestWidget(hintText: 'test', showCameraButton: true),
-          ),
-        );
-        final actionButtonFinder = find.byIcon(
-          chatThemeCubit.state.recordAudioIcon.icon!,
-        );
+          await tester.pumpWidget(
+            MultiBlocProvider(
+              providers: [
+                BlocProvider<ChatThemeCubit>(
+                  create: (context) => chatThemeCubit,
+                ),
+                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+                BlocProvider<AudioBloc>(create: (context) => audioBloc),
+              ],
+              child: const TestWidget(hintText: 'test', showCameraButton: true),
+            ),
+          );
+          final actionButtonFinder = find.byIcon(
+            chatThemeCubit.state.recordAudioIcon.icon!,
+          );
+          expect(actionButtonFinder, findsOneWidget);
+          await tester.tap(actionButtonFinder);
+          await tester.pumpAndSettle();
+          verify(() => audioBloc.add(AudioStartRecording())).called(1);
+        },
+      );
 
-        expect(actionButtonFinder, findsOneWidget);
-        // TODO: Test record audio here
-        // await tester.tap(actionButtonFinder);
-        // await tester.pump();
-      });
+      testWidgets(
+        'should show the waveform recorder when the user is recording audio, clicking the send icon emits stop recording and send message',
+        (tester) async {
+          final List<double>mockAmplitudes = [-30, 0, 0, -30];
+          final List<double> mockPreview = [-30, 0, 0, -30];
+          final mockDuration = 3;
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: ''));
+          when(() => audioBloc.state).thenReturn(
+            AudioState(
+              isUserRecordingAudio: true,
+              amplitudes: mockAmplitudes,
+              amplitudesFilePreview: mockPreview,
+              millisecondsRecording: mockDuration,
+            ),
+          );
+
+          await tester.pumpWidget(
+            MultiBlocProvider(
+              providers: [
+                BlocProvider<ChatThemeCubit>(
+                  create: (context) => chatThemeCubit,
+                ),
+                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+                BlocProvider<AudioBloc>(create: (context) => audioBloc),
+              ],
+              child: const TestWidget(hintText: 'test', showCameraButton: true),
+            ),
+          );
+          final waveformFinder = find.byKey(const Key('WaveformRecorder'));
+          expect(waveformFinder, findsOneWidget);
+
+          final actionButtonFinder = find.byIcon(
+            chatThemeCubit.state.sendButtonIcon.icon!,
+          );
+          expect(actionButtonFinder, findsOneWidget);
+          await tester.tap(actionButtonFinder);
+          await tester.pumpAndSettle();
+          verify(() => audioBloc.add(AudioStopRecording())).called(1);
+          verify(
+            () => messagesBloc.add(
+              ChatSendMessage(
+                message: ChatMessage.voice(
+                  id: null,
+                  fileName: '',
+                  role: MessageRole.user,
+                  amplitudes: mockPreview,
+                  duration: mockDuration,
+                  timestamp: messagesBloc.blocClock.now(),
+                ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('attach image', () {

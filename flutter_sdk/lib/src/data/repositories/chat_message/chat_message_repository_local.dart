@@ -103,7 +103,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
   @override
   Future<Result<ChatMessage>> insertChatMessage(ChatMessage message) async {
     try {
-      log.info('Inserting message: $message');
+      log.info('Inserting message: ${message.type}');
       var resultId = await _databaseService
           .into(_databaseService.chatMessage)
           .insert(

@@ -7,11 +7,10 @@ import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart'
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
+import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../theme/view_models/theme_cubit.dart';
 
 enum ButtonAction { send, recordAudio }
 
