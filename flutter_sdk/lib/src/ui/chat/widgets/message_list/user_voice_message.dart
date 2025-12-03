@@ -10,9 +10,9 @@ import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class UserAudioMessage extends StatelessWidget {
+class UserVoiceMessage extends StatelessWidget {
   final ChatMessage message;
-  const UserAudioMessage({super.key, required this.message});
+  const UserVoiceMessage({super.key, required this.message});
 
   void _handlePlayMessage(AudioBloc bloc) {
     if (bloc.state.playingMessage != null &&
@@ -43,6 +43,7 @@ class UserAudioMessage extends StatelessWidget {
           selector: (state) => state.playingMessage,
           builder: (context, playingMessage) {
             return IconButton(
+              key: const Key('voice-message-play-icon'),
               onPressed: () {
                 _handlePlayMessage(chatBloc);
               },

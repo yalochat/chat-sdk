@@ -1,7 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
@@ -9,24 +14,45 @@ import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/message_list.d
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:clock/clock.dart';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:provider/single_child_widget.dart';
 
-class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState> implements MessagesBloc {}
+class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
+    implements MessagesBloc {}
+
+class MockAudioBloc extends MockBloc<AudioEvent, AudioState>
+    implements AudioBloc {}
 
 void main() {
   group(MessageList, () {
     late ChatThemeCubit chatThemeCubit;
     late MessagesBloc chatBloc;
+    late AudioBloc audioBloc;
+    late List<SingleChildWidget> blocs;
+    late StreamController<AudioState> audioStreamController;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
       chatBloc = MockMessagesBloc();
+      audioBloc = MockAudioBloc();
+      audioStreamController = StreamController();
+      blocs = [
+        BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
+        BlocProvider<MessagesBloc>(create: (context) => chatBloc),
+        BlocProvider<AudioBloc>(create: (context) => audioBloc),
+      ];
     });
 
-    group('user messages', () {
+    tearDown(() {
+      audioStreamController.close();
+    });
+
+    group('user text messages', () {
       testWidgets('should render user messages correctly', (tester) async {
         when(() => chatBloc.state).thenReturn(
           MessagesState(
@@ -41,15 +67,7 @@ void main() {
             ],
           ),
         );
-        await tester.pumpWidget(
-          MultiBlocProvider(
-            providers: [
-              BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<MessagesBloc>(create: (context) => chatBloc),
-            ],
-            child: const TestWidget(),
-          ),
-        );
+        await tester.pumpWidget(TestWidget(blocs: blocs));
 
         final messageFinder = find.text('user message test');
         expect(messageFinder, findsOneWidget);
@@ -72,20 +90,12 @@ void main() {
               ],
             ),
           );
-          await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider<ChatThemeCubit>(
-                  create: (context) => chatThemeCubit,
-                ),
-                BlocProvider<MessagesBloc>(create: (context) => chatBloc),
-              ],
-              child: const TestWidget(),
-            ),
-          );
+          await tester.pumpWidget(TestWidget(blocs: blocs));
 
           final listFinder = find.byType(Scrollable);
-          final listItemFinder = find.byKey(ValueKey<int?>(100));
+          final listItemFinder = find.byKey(
+            ValueKey<String>('message-item-100'),
+          );
           await tester.scrollUntilVisible(
             listItemFinder,
             500,
@@ -103,34 +113,134 @@ void main() {
         ).thenReturn(MessagesState(isLoading: true, messages: [
             ],
           ));
-        await tester.pumpWidget(
-          MultiBlocProvider(
-            providers: [
-              BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<MessagesBloc>(create: (context) => chatBloc),
-            ],
-            child: const TestWidget(),
-          ),
-        );
+        await tester.pumpWidget(TestWidget(blocs: blocs));
 
         final loaderFind = find.byKey(const Key('loading_spinner'));
         expect(loaderFind, findsOneWidget);
       });
     });
+
+    group('user voice messages', () {
+      testWidgets('should display user voice messages correctly', (
+        tester,
+      ) async {
+        final Random random = Random();
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              for (int i = 0; i < 100; i++)
+                ChatMessage.voice(
+                  id: i + 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  fileName: 'file-$i.wav',
+                  amplitudes: [
+                    for (int i = 0; i < 100; i++)
+                      -160.0 + random.nextDouble() * 160.0,
+                  ],
+                  duration: random.nextInt(500),
+                ),
+              ChatMessage(
+                id: 0,
+                role: MessageRole.user,
+                type: MessageType.text,
+                timestamp: clock.now(),
+                content: 'user message test 0',
+              ),
+            ],
+          ),
+        );
+        when(() => audioBloc.state).thenReturn(AudioState());
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        final listFinder = find.byType(Scrollable);
+        final listItemFinder = find.byKey(ValueKey<String>('message-item-100'));
+        await tester.scrollUntilVisible(
+          listItemFinder,
+          500,
+          scrollable: listFinder.first,
+        );
+        expect(listItemFinder, findsOneWidget);
+      });
+
+      testWidgets(
+        'should play the audio correctly, show the pause icon after it and then be able to pause it',
+        (tester) async {
+          final Random random = Random();
+          List<ChatMessage> messages = [
+            ChatMessage.voice(
+              id: 1,
+              role: MessageRole.user,
+              timestamp: clock.now(),
+              fileName: 'file-1.wav',
+              amplitudes: [
+                for (int i = 0; i < 100; i++)
+                  -160.0 + random.nextDouble() * 160.0,
+              ],
+              duration: random.nextInt(500),
+            ),
+            ChatMessage.voice(
+              id: 2,
+              role: MessageRole.user,
+              timestamp: clock.now(),
+              fileName: 'file-1.wav',
+              amplitudes: [
+                for (int i = 0; i < 100; i++)
+                  -160.0 + random.nextDouble() * 160,
+              ],
+              duration: random.nextInt(500),
+            ),
+          ];
+          when(
+            () => chatBloc.state,
+          ).thenReturn(MessagesState(messages: messages));
+
+          final audioStream = audioStreamController.stream.asBroadcastStream();
+          whenListen(audioBloc, audioStream, initialState: AudioState());
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          final messageItem = find.byKey(ValueKey<String>('message-item-1'));
+          final playMessageFinder = find.descendant(
+            of: messageItem,
+            matching: find.byIcon(chatThemeCubit.chatTheme.playAudioIcon.icon!),
+          );
+          expect(playMessageFinder, findsOneWidget);
+          await tester.tap(playMessageFinder);
+          audioStreamController.sink.add(AudioState(playingMessage: messages[0]));
+          await tester.pumpAndSettle(Duration(milliseconds: 1));
+          verify(
+            () => audioBloc.add(AudioPlay(message: messages[0])),
+          ).called(1);
+          final pauseButtonFinder = find.descendant(
+            of: messageItem,
+            matching: find.byIcon(chatThemeCubit.state.pauseAudioIcon.icon!),
+          );
+          expect(pauseButtonFinder, findsOneWidget);
+          await tester.tap(pauseButtonFinder);
+          audioStreamController.sink.add(AudioState(playingMessage: null));
+          await tester.pumpAndSettle(Duration(milliseconds: 1));
+          verify(() => audioBloc.add(AudioStop())).called(1);
+        },
+      );
+    });
   });
 }
 
 class TestWidget extends StatelessWidget {
-  const TestWidget({super.key});
+  final List<SingleChildWidget> blocs;
+  const TestWidget({super.key, required this.blocs});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Test Widget',
-      home: Scaffold(
-        appBar: AppBar(title: Text('Test')),
-        body: SafeArea(
-          child: Column(children: [Expanded(child: MessageList())]),
+      home: MultiBlocProvider(
+        providers: blocs,
+        child: Scaffold(
+          appBar: AppBar(title: Text('Test')),
+          body: SafeArea(
+            child: Column(children: [Expanded(child: MessageList())]),
+          ),
         ),
       ),
     );

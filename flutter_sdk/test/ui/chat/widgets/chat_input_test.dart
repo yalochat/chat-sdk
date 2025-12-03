@@ -1,10 +1,15 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
@@ -16,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:provider/single_child_widget.dart';
 
 class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
     implements MessagesBloc {
@@ -26,16 +32,34 @@ class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
 class MockAudioBloc extends MockBloc<AudioEvent, AudioState>
     implements AudioBloc {}
 
+class MockImageBloc extends MockBloc<ImageEvent, ImageState>
+    implements ImageBloc {}
+
 void main() {
   group(ChatInput, () {
     late ChatThemeCubit chatThemeCubit;
     late MessagesBloc messagesBloc;
     late AudioBloc audioBloc;
+    late ImageBloc imageBloc;
+    late List<SingleChildWidget> blocs;
+    late StreamController<AudioState> audioStreamController;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
       messagesBloc = MockMessagesBloc();
       audioBloc = MockAudioBloc();
+      imageBloc = MockImageBloc();
+      audioStreamController = StreamController();
+      blocs = [
+        BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
+        BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
+        BlocProvider<AudioBloc>(create: (context) => audioBloc),
+        BlocProvider<ImageBloc>(create: (context) => imageBloc),
+      ];
+    });
+
+    tearDown(() {
+      audioStreamController.close();
     });
 
     group('send message', () {
@@ -47,18 +71,10 @@ void main() {
           ).thenReturn(MessagesState(userMessage: 'Teeest message'));
 
           when(() => audioBloc.state).thenReturn(AudioState());
+          when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider<ChatThemeCubit>(
-                  create: (context) => chatThemeCubit,
-                ),
-                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-                BlocProvider<AudioBloc>(create: (context) => audioBloc),
-              ],
-              child: const TestWidget(hintText: 'test', showCameraButton: true),
-            ),
+            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
           );
           final actionButtonFinder = find.byIcon(
             chatThemeCubit.state.sendButtonIcon.icon!,
@@ -97,18 +113,10 @@ void main() {
             () => messagesBloc.state,
           ).thenReturn(MessagesState(userMessage: ''));
           when(() => audioBloc.state).thenReturn(AudioState());
+          when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider<ChatThemeCubit>(
-                  create: (context) => chatThemeCubit,
-                ),
-                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-                BlocProvider<AudioBloc>(create: (context) => audioBloc),
-              ],
-              child: const TestWidget(hintText: 'test', showCameraButton: true),
-            ),
+            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
           );
           final actionButtonFinder = find.byIcon(
             chatThemeCubit.state.recordAudioIcon.icon!,
@@ -139,18 +147,10 @@ void main() {
             () => messagesBloc.state,
           ).thenReturn(MessagesState(userMessage: ''));
           when(() => audioBloc.state).thenReturn(AudioState());
+          when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider<ChatThemeCubit>(
-                  create: (context) => chatThemeCubit,
-                ),
-                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-                BlocProvider<AudioBloc>(create: (context) => audioBloc),
-              ],
-              child: const TestWidget(hintText: 'test', showCameraButton: true),
-            ),
+            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
           );
           final actionButtonFinder = find.byIcon(
             chatThemeCubit.state.recordAudioIcon.icon!,
@@ -165,7 +165,7 @@ void main() {
       testWidgets(
         'should show the waveform recorder when the user is recording audio, clicking the send icon emits stop recording and send message',
         (tester) async {
-          final List<double>mockAmplitudes = [-30, 0, 0, -30];
+          final List<double> mockAmplitudes = [-30, 0, 0, -30];
           final List<double> mockPreview = [-30, 0, 0, -30];
           final mockDuration = 3;
           when(
@@ -179,18 +179,10 @@ void main() {
               millisecondsRecording: mockDuration,
             ),
           );
+          when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider<ChatThemeCubit>(
-                  create: (context) => chatThemeCubit,
-                ),
-                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-                BlocProvider<AudioBloc>(create: (context) => audioBloc),
-              ],
-              child: const TestWidget(hintText: 'test', showCameraButton: true),
-            ),
+            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
           );
           final waveformFinder = find.byKey(const Key('WaveformRecorder'));
           expect(waveformFinder, findsOneWidget);
@@ -218,22 +210,72 @@ void main() {
           ).called(1);
         },
       );
+
+      testWidgets(
+        'should animate the waveform when new data points are added and be able to cancel the recording successfully',
+        (tester) async {
+          final mockDuration = 3;
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: ''));
+
+          final events = [
+            AudioState(
+              isUserRecordingAudio: true,
+              amplitudes: [-30, 0, -30, -20],
+              amplitudesFilePreview: [-30, 0, -30, -20],
+              millisecondsRecording: mockDuration + 1,
+            ),
+            AudioState(
+              isUserRecordingAudio: true,
+              amplitudes: [-30, -30, -20, -10],
+              amplitudesFilePreview: [-30, -30, -20, -10],
+              millisecondsRecording: mockDuration + 2,
+            ),
+          ];
+          final stateStream = audioStreamController.stream;
+          whenListen(
+            audioBloc,
+            stateStream,
+            initialState: AudioState(
+              isUserRecordingAudio: true,
+              amplitudes: [-30, 0, 0, -30],
+              amplitudesFilePreview: [-30, 0, 0, -30],
+              millisecondsRecording: mockDuration,
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+
+          await tester.pumpWidget(
+            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
+          );
+          audioStreamController.sink.add(events[0]);
+          await tester.pumpAndSettle(Duration(milliseconds: 1));
+          audioStreamController.sink.add(events[1]);
+          await tester.pumpAndSettle(Duration(milliseconds: 1));
+          final waveformFinder = find.byKey(const Key('WaveformRecorder'));
+          expect(waveformFinder, findsOneWidget);
+
+          final cancelButtonFinder = find.byIcon(
+            chatThemeCubit.state.cancelRecordingIcon.icon!,
+          );
+          expect(cancelButtonFinder, findsOneWidget);
+          await tester.tap(cancelButtonFinder);
+          await tester.pumpAndSettle();
+
+          verify(() => audioBloc.add(AudioStopRecording())).called(1);
+        },
+      );
     });
 
     group('attach image', () {
       testWidgets('should attach an image', (tester) async {
         when(() => messagesBloc.state).thenReturn(MessagesState());
         when(() => audioBloc.state).thenReturn(AudioState());
+        when(() => imageBloc.state).thenReturn(ImageState());
 
         await tester.pumpWidget(
-          MultiBlocProvider(
-            providers: [
-              BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
-              BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-              BlocProvider<AudioBloc>(create: (context) => audioBloc),
-            ],
-            child: const TestWidget(hintText: 'test', showCameraButton: true),
-          ),
+          TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
         );
         final cameraButtonFinder = find.byKey(const Key('CameraButton'));
 
@@ -247,20 +289,9 @@ void main() {
         (tester) async {
           when(() => messagesBloc.state).thenReturn(MessagesState());
           when(() => audioBloc.state).thenReturn(AudioState());
+          when(() => imageBloc.state).thenReturn(ImageState());
           await tester.pumpWidget(
-            MultiBlocProvider(
-              providers: [
-                BlocProvider<ChatThemeCubit>(
-                  create: (context) => chatThemeCubit,
-                ),
-                BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
-                BlocProvider<AudioBloc>(create: (context) => audioBloc),
-              ],
-              child: const TestWidget(
-                hintText: 'test',
-                showCameraButton: false,
-              ),
-            ),
+            TestWidget(hintText: 'test', showCameraButton: false, blocs: blocs),
           );
           final cameraButtonFinder = find.byKey(const Key('CameraButton'));
 
@@ -274,24 +305,32 @@ void main() {
 class TestWidget extends StatelessWidget {
   final String hintText;
   final bool showCameraButton;
+  final List<SingleChildWidget> blocs;
   const TestWidget({
     super.key,
     required this.hintText,
     required this.showCameraButton,
+    required this.blocs,
   });
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Test Widget',
-      home: Scaffold(
-        appBar: AppBar(title: Text('Test')),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(child: Container()),
-              ChatInput(hintText: hintText, showCameraButton: showCameraButton),
-            ],
+      home: MultiBlocProvider(
+        providers: blocs,
+        child: Scaffold(
+          appBar: AppBar(title: Text('Test')),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Expanded(child: Container()),
+                ChatInput(
+                  hintText: hintText,
+                  showCameraButton: showCameraButton,
+                ),
+              ],
+            ),
           ),
         ),
       ),

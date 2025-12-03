@@ -41,8 +41,7 @@ class _MessageListState extends State<MessageList> {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
     return BlocSelector<MessagesBloc, MessagesState, (List<ChatMessage>, bool)>(
       // Subscribe to messageListVersion to detect changes in state.messages
-      selector: (state) =>
-          (state.messages, state.isLoading),
+      selector: (state) => (state.messages, state.isLoading),
       builder: (context, state) {
         final (messages, isLoading) = state;
         return Container(
@@ -55,12 +54,20 @@ class _MessageListState extends State<MessageList> {
             controller: _scrollController,
             itemBuilder: (context, index) {
               if (index == messages.length) {
-                return Center(child: CircularProgressIndicator(key: const Key('loading_spinner')));
+                return Center(
+                  child: CircularProgressIndicator(
+                    key: const Key('loading_spinner'),
+                  ),
+                );
               }
+              assert(
+                messages[index].id != null,
+                'Message id must not be null in order to render',
+              );
               return Container(
                 margin: EdgeInsets.only(top: SdkConstants.messageListMargin),
                 child: Message(
-                  key: ValueKey(messages[index].id),
+                  key: ValueKey('message-item-${messages[index].id}'),
                   messageToRender: messages[index],
                 ),
               );
