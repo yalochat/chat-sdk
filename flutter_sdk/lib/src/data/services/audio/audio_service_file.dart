@@ -48,6 +48,7 @@ class AudioServiceFile implements AudioService {
   @override
   Future<void> dispose() async {
     await _recorder.dispose();
+    await _player.dispose();
   }
 
   @override
