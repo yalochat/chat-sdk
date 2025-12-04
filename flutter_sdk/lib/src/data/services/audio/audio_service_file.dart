@@ -18,7 +18,7 @@ class AudioServiceFile implements AudioService {
   @override
   Future<Result<Unit>> record(String path, AudioEncoding encoding) async {
     if (!(await _recorder.hasPermission())) {
-      Result.error(PermissionException('recording'));
+      return Result.error(PermissionException('recording'));
     }
     final encoder = switch (encoding) {
       AudioEncoding.wav => AudioEncoder.wav,
@@ -48,6 +48,7 @@ class AudioServiceFile implements AudioService {
   @override
   Future<void> dispose() async {
     await _recorder.dispose();
+    await _player.dispose();
   }
 
   @override

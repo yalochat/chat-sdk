@@ -3,7 +3,7 @@
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -118,10 +118,10 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     Emitter<MessagesState> emit,
   ) async {
     final String trimmedMessage = state.userMessage.trim();
-    if (event.chatMessage.type == MessageType.text && trimmedMessage.isEmpty) return;
+    if (event.message.type == MessageType.text && trimmedMessage.isEmpty) return;
 
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
-      event.chatMessage,
+      event.message,
     );
 
     switch (result) {

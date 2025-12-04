@@ -58,7 +58,7 @@ class ChatMessage extends Equatable {
     this.duration,
   });
 
-  const ChatMessage.audio({
+  const ChatMessage.voice({
     this.id,
     required this.role,
     required this.timestamp,

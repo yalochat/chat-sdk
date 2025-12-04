@@ -1,17 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
+import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../theme/view_models/theme_cubit.dart';
 
 enum ButtonAction { send, recordAudio }
 
@@ -26,7 +25,7 @@ class ActionButton extends StatelessWidget {
     } else {
       ChatMessage messageToSend;
       if (isUserRecordingAudio) {
-        messageToSend = ChatMessage.audio(
+        messageToSend = ChatMessage.voice(
           role: MessageRole.user,
           timestamp: messageBloc.blocClock.now(),
           fileName: audioBloc.state.audioFileName,
@@ -36,14 +35,14 @@ class ActionButton extends StatelessWidget {
       } else {
         messageToSend = ChatMessage(
           role: MessageRole.user,
-          type: MessageType.voice,
+          type: MessageType.text,
           content: messageBloc.state.userMessage,
           timestamp: messageBloc.blocClock.now(),
         );
       }
 
       audioBloc.add(AudioStopRecording());
-      messageBloc.add(ChatSendMessage(chatMessage: messageToSend));
+      messageBloc.add(ChatSendMessage(message: messageToSend));
     }
   }
 

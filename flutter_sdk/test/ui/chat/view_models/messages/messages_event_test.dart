@@ -1,10 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/chat_event.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:clock/clock.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group(ChatEvent, () {
+  group(MessagesEvent, () {
     group('ChatLoadMessages', () {
       test('should support equality comparision', () {
         final event1 = ChatLoadMessages();
@@ -55,8 +57,14 @@ void main() {
 
     group('ChatSendMessage', () {
       test('should support equality comparison', () {
-        final event1 = ChatSendMessage();
-        final event2 = ChatSendMessage();
+        final chatMessage = ChatMessage(
+          id: 1,
+          role: MessageRole.user,
+          type: MessageType.text,
+          timestamp: clock.now(),
+        );
+        final event1 = ChatSendMessage(message: chatMessage);
+        final event2 = ChatSendMessage(message: chatMessage);
 
         expect(event1, equals(event2));
       });

@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_recorder.dart';
@@ -56,7 +55,9 @@ class ChatInput extends StatelessWidget {
                           SizedBox(width: SdkConstants.rowItemSpace * 3),
                           Expanded(
                             child: isUserRecordingAudio
-                                ? WaveformRecorder()
+                                ? WaveformRecorder(
+                                    key: const Key('WaveformRecorder'),
+                                  )
                                 : MessageTextField(
                                     key: const Key('MessageTextField'),
                                     hintText: hintText,
@@ -75,9 +76,7 @@ class ChatInput extends StatelessWidget {
                   left: SdkConstants.rowItemSpace,
                   right: SdkConstants.rowItemSpace,
                 ),
-                child: ActionButton(
-                  key: const Key('ActionButton'),
-                ),
+                child: ActionButton(key: const Key('ActionButton')),
               ),
             ],
           ),

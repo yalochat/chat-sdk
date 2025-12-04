@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/user_audio_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/user_voice_message.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ class UserMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
+    assert(message.role == MessageRole.user, 'UserMessage can only render messages with role user');
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -30,7 +31,7 @@ class UserMessage extends StatelessWidget {
               message.content,
               style: chatThemeCubit.chatTheme.userMessageTextStyle,
             ),
-            MessageType.voice => UserAudioMessage(message: message),
+            MessageType.voice => UserVoiceMessage(message: message),
             _ => Container(),
           },
         ),

@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class MessagesEvent {
@@ -47,11 +47,11 @@ final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
 
 // Event that is emitted when the user sends a messages
 final class ChatSendMessage extends MessagesEvent with EquatableMixin {
-  final ChatMessage chatMessage;
+  final ChatMessage message;
 
-  ChatSendMessage({required this.chatMessage});
+  ChatSendMessage({required this.message});
   @override
-  List<Object?> get props => [chatMessage];
+  List<Object?> get props => [message];
 }
 
 // Event that is emitted to clear the messages

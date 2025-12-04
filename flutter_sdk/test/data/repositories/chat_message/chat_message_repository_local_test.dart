@@ -7,7 +7,7 @@ import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     hide ChatMessage;
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -58,17 +58,27 @@ void main() {
           content: 'Test content',
           timestamp: clock.now(),
         );
+        ChatMessage voiceMessage = ChatMessage.voice(
+          role: MessageRole.user,
+          timestamp: clock.now(),
+          fileName: 'test.wav',
+          amplitudes: [2.0, 3.0],
+          duration: 300,
+        );
         await chatRepository.insertChatMessage(message);
         await chatRepository.insertChatMessage(message);
-        await chatRepository.insertChatMessage(message);
-        await chatRepository.insertChatMessage(message);
+        await chatRepository.insertChatMessage(voiceMessage);
+        await chatRepository.insertChatMessage(voiceMessage);
 
         var results = await chatRepository.getChatMessagePageDesc(null, 5);
         expect(results, isA<Ok<Page<ChatMessage>>>());
 
         var resultPage = (results as Ok<Page<ChatMessage>>).result;
         expect(resultPage.data.length, equals(4));
-        expect(resultPage.pageInfo, equals(PageInfo(cursor: null, pageSize: 5)));
+        expect(
+          resultPage.pageInfo,
+          equals(PageInfo(cursor: null, pageSize: 5)),
+        );
       },
       tags: ['integration'],
     );
@@ -121,27 +131,31 @@ void main() {
       );
     }, tags: ['integration']);
 
-  test('should return the last page correctly without a nextCursor', () async {
-      ChatMessage message = ChatMessage(
-        role: MessageRole.user,
-        type: MessageType.text,
-        content: 'Test content',
-        timestamp: clock.now(),
-      );
-      await chatRepository.insertChatMessage(message);
-      await chatRepository.insertChatMessage(message);
-      await chatRepository.insertChatMessage(message);
-      await chatRepository.insertChatMessage(message);
+    test(
+      'should return the last page correctly without a nextCursor',
+      () async {
+        ChatMessage message = ChatMessage(
+          role: MessageRole.user,
+          type: MessageType.text,
+          content: 'Test content',
+          timestamp: clock.now(),
+        );
+        await chatRepository.insertChatMessage(message);
+        await chatRepository.insertChatMessage(message);
+        await chatRepository.insertChatMessage(message);
+        await chatRepository.insertChatMessage(message);
 
-      var results = await chatRepository.getChatMessagePageDesc(2, 1);
-      expect(results, isA<Ok<Page<ChatMessage>>>());
-      var resultPage = (results as Ok<Page<ChatMessage>>).result;
-      expect(resultPage.data.length, equals(1));
-      expect(
-        resultPage.pageInfo,
-        equals(PageInfo(cursor: 2, pageSize: 1, nextCursor: null)),
-      );
-    }, tags: ['integration']);
+        var results = await chatRepository.getChatMessagePageDesc(2, 1);
+        expect(results, isA<Ok<Page<ChatMessage>>>());
+        var resultPage = (results as Ok<Page<ChatMessage>>).result;
+        expect(resultPage.data.length, equals(1));
+        expect(
+          resultPage.pageInfo,
+          equals(PageInfo(cursor: 2, pageSize: 1, nextCursor: null)),
+        );
+      },
+      tags: ['integration'],
+    );
 
     test(
       'should throw an error if the cursor or page size is negative when getting messages',

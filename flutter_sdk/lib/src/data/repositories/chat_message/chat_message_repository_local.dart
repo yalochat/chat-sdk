@@ -8,7 +8,7 @@ import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     hide ChatMessage;
 
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
 import 'package:drift/drift.dart';
@@ -103,7 +103,7 @@ class ChatMessageRepositoryLocal extends ChatMessageRepository {
   @override
   Future<Result<ChatMessage>> insertChatMessage(ChatMessage message) async {
     try {
-      log.info('Inserting message: $message');
+      log.info('Inserting message: ${message.type}');
       var resultId = await _databaseService
           .into(_databaseService.chatMessage)
           .insert(

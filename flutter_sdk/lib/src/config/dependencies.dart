@@ -4,12 +4,17 @@ import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.da
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository_file.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository_local.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
+import 'package:chat_flutter_sdk/src/data/services/camera/camera_service.dart';
+import 'package:chat_flutter_sdk/src/data/services/camera/camera_service_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     show DatabaseService;
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
@@ -36,6 +41,13 @@ List<SingleChildWidget> repositoryProviders() {
     Provider<AudioService>(
       create: (_) => AudioServiceFile(),
       dispose: (_, audioService) => audioService.dispose(),
+    ),
+    Provider<CameraService>(create: (_) => CameraServiceFile()),
+    RepositoryProvider<ImageRepository>(
+      create: (context) => ImageRepositoryFile(
+        context.read<CameraService>(),
+        getApplicationSupportDirectory,
+      ),
     ),
     RepositoryProvider<AudioRepository>(
       create: (context) => AudioRepositoryFile(
@@ -64,6 +76,9 @@ List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
           AudioBloc(audioRepository: context.read<AudioRepository>())
             ..add(AudioAmplitudeSubscribe())
             ..add(AudioCompletedSubscribe()),
+    ),
+    BlocProvider<ImageBloc>(
+      create: (context) => ImageBloc(imageRepository: context.read<ImageRepository>()),
     ),
     BlocProvider<ChatThemeCubit>(
       create: (context) => ChatThemeCubit(chatTheme: theme),

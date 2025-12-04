@@ -1,11 +1,21 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/chat_message/chat_message.dart'
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart'
     show ChatMessage;
 import 'package:equatable/equatable.dart';
 
-final class AudioState extends Equatable {
+enum AudioStatus {
+  errorStoppingAudio,
+  errorPlayingAudio,
+  errorStoppingRecording,
+  errorRecordingAudio,
+  recordingAudio,
+  playingAudio,
+  audioPaused,
+  initial,
+}
 
+final class AudioState extends Equatable {
   // Amplitudes that are shown to the user during a recording
   // session as a scrolling drawing
   final List<double> amplitudes;
@@ -17,6 +27,8 @@ final class AudioState extends Equatable {
   final int amplitudeIndex;
   final String audioFileName;
   final bool isUserRecordingAudio;
+  final AudioStatus audioStatus;
+
   final ChatMessage? playingMessage;
 
   AudioState({
@@ -27,6 +39,7 @@ final class AudioState extends Equatable {
     this.audioFileName = '',
     this.isUserRecordingAudio = false,
     this.playingMessage,
+    this.audioStatus = AudioStatus.initial,
   }) : amplitudes = amplitudes ?? <double>[],
        amplitudesFilePreview = amplitudesFilePreview ?? <double>[];
 
@@ -38,6 +51,7 @@ final class AudioState extends Equatable {
     String? audioFileName,
     bool? isUserRecordingAudio,
     ChatMessage? Function()? playingMessage,
+    AudioStatus? audioStatus,
   }) {
     return AudioState(
       amplitudes: amplitudes ?? this.amplitudes,
@@ -51,6 +65,7 @@ final class AudioState extends Equatable {
       playingMessage: playingMessage != null
           ? playingMessage()
           : this.playingMessage,
+      audioStatus: audioStatus ?? this.audioStatus,
     );
   }
 
@@ -63,5 +78,6 @@ final class AudioState extends Equatable {
     audioFileName,
     isUserRecordingAudio,
     playingMessage,
+    audioStatus,
   ];
 }

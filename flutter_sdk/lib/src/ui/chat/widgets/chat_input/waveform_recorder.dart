@@ -43,7 +43,10 @@ class WaveformRecorder extends StatelessWidget {
                 Expanded(
                   child: CustomPaint(
                     painter: WaveformPainter(amplitudes, chatTheme.waveColor),
-                    child: SizedBox(width: double.infinity, height: SdkConstants.preferredWaveRecorderHeight),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: SdkConstants.preferredWaveRecorderHeight,
+                    ),
                   ),
                 ),
                 IconButton(

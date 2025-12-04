@@ -12,19 +12,21 @@ import 'audio_repository.dart';
 class AudioRepositoryFile implements AudioRepository {
   final AudioService _audioService;
   final Future<Directory> Function() _directory;
+  final Uuid _uuid;
 
   AudioRepositoryFile(
     AudioService audioService,
     Future<Directory> Function() directory,
+    [Uuid? uuid]
   ) : _audioService = audioService,
-      _directory = directory;
+      _directory = directory,
+      _uuid = uuid ?? Uuid();
 
   @override
   Future<Result<String>> recordAudio() async {
     final directory = await _directory();
 
-    var uuid = Uuid();
-    var audioName = uuid.v4();
+    var audioName = _uuid.v4();
     var fileName = '${directory.path}/$audioName.wav';
 
     final result = await _audioService.record(fileName, AudioEncoding.wav);
