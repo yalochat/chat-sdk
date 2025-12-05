@@ -14,29 +14,40 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
   ImageBloc({required ImageRepository imageRepository})
     : _imageRepository = imageRepository,
       super(ImageState()) {
-    on<ImagePick>(_handleImagePick);
+    on<ImagePickFromCamera>(_handleImagePickCamera);
+    on<ImagePickFromGallery>(_handleImagePickGallery);
     on<ImageRemove>(_handleImageRemove);
   }
 
   Future<void> _handleImagePick(
-    ImagePick event,
+    ImagePickSource source,
     Emitter<ImageState> emit,
   ) async {
-    final result = await _imageRepository.pickImage();
+    final result = await _imageRepository.pickImage(source);
     switch (result) {
       case Ok():
         log.info('Image picked successfully with file name ${result.result}');
-        emit(state.copyWith(pickedImage: result.result));
+        emit(state.copyWith(pickedImage: () => result.result));
         break;
       case Error():
         break;
     }
   }
 
+  Future<void> _handleImagePickCamera(
+    ImagePickFromCamera event,
+    Emitter<ImageState> emit,
+  ) => _handleImagePick(ImagePickSource.camera, emit);
+
+  Future<void> _handleImagePickGallery(
+    ImagePickFromGallery event,
+    Emitter<ImageState> emit,
+  ) => _handleImagePick(ImagePickSource.gallery, emit);
+
   Future<void> _handleImageRemove(
     ImageRemove event,
     Emitter<ImageState> emit,
   ) async {
-    emit(state.copyWith(pickedImage: ''));
+    emit(state.copyWith(pickedImage: () => null));
   }
 }

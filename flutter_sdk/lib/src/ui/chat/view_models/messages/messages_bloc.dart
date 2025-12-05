@@ -159,9 +159,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
       ChatMessage.voice(
         role: MessageRole.user,
         timestamp: blocClock.now(),
-        fileName: event.fileName,
-        amplitudes: event.amplitudes,
-        duration: event.duration,
+        fileName: event.audioData.fileName,
+        amplitudes: event.audioData.amplitudesFilePreview,
+        duration: event.audioData.duration,
       ),
     );
     switch (result) {
@@ -170,7 +170,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         emit(state.copyWith(messages: [result.result, ...state.messages]));
         break;
       case Error<ChatMessage>():
-        log.info('Failed to insert voice message', result.error);
+        log.severe('Failed to insert voice message', result.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
         break;
     }
@@ -187,16 +187,16 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         role: MessageRole.user,
         timestamp: blocClock.now(),
         content: event.text,
-        fileName: event.fileName,
+        fileName: event.imageData.path,
       ),
     );
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Image message inserted successfully, id ${result.result.id}');
-        emit(state.copyWith(messages: [result.result, ...state.messages]));
+        emit(state.copyWith(messages: [result.result, ...state.messages], userMessage: ''));
         break;
       case Error<ChatMessage>():
-        log.info('Failed to insert voice message', result.error);
+        log.severe('Failed to insert voice message', result.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
         break;
     }

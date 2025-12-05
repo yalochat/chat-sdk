@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
-import 'package:clock/clock.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -67,14 +67,10 @@ void main() {
     group('ChatSendVoiceMessage', () {
       test('should support equality comparison', () {
         final event1 = ChatSendVoiceMessage(
-          amplitudes: [],
-          fileName: '',
-          duration: 3,
+          audioData: AudioData()
         );
         final event2 = ChatSendVoiceMessage(
-          amplitudes: [],
-          fileName: '',
-          duration: 3,
+          audioData: AudioData(),
         );
 
         expect(event1, equals(event2));
@@ -83,8 +79,8 @@ void main() {
 
     group('ChatSendImageMessage', () {
       test('should support equality comparison', () {
-        final event1 = ChatSendImageMessage(fileName: '', text: '');
-        final event2 = ChatSendImageMessage(fileName: '', text: '');
+        final event1 = ChatSendImageMessage(imageData: ImageData(), text: '');
+        final event2 = ChatSendImageMessage(imageData: ImageData(), text: '');
 
         expect(event1, equals(event2));
       });

@@ -50,6 +50,7 @@ class _MessageListState extends State<MessageList> {
           child: ListView.builder(
             key: Key('chat_messages'),
             reverse: true,
+            cacheExtent: SdkConstants.chatCacheExtent,
             itemCount: messages.length + (isLoading ? 1 : 0),
             controller: _scrollController,
             itemBuilder: (context, index) {

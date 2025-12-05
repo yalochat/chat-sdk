@@ -4,7 +4,9 @@ import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
@@ -476,9 +478,11 @@ void main() {
           );
           bloc.add(
             ChatSendVoiceMessage(
-              amplitudes: [-13, -10, 0.0],
-              fileName: 'test.wav',
-              duration: 3,
+              audioData: AudioData(
+                amplitudesFilePreview: [-13, -10, 0.0],
+                fileName: 'test.wav',
+                duration: 3,
+              ),
             ),
           );
         },
@@ -521,9 +525,11 @@ void main() {
           ).thenAnswer((_) async => Result.error(Exception('test error')));
           bloc.add(
             ChatSendVoiceMessage(
-              amplitudes: [-13, -10, 0.0],
-              fileName: 'test.wav',
-              duration: 3,
+              audioData: AudioData(
+                amplitudesFilePreview: [-13, -10, 0.0],
+                fileName: 'test.wav',
+                duration: 3,
+              ),
             ),
           );
         },
@@ -577,7 +583,7 @@ void main() {
               ),
             ),
           );
-          bloc.add(ChatSendImageMessage(fileName: 'test.jpg', text: 'test'));
+          bloc.add(ChatSendImageMessage(imageData: ImageData(path: 'test.jpg'), text: 'test'));
         },
         expect: () => [
           isA<MessagesState>().having(
@@ -615,7 +621,7 @@ void main() {
           when(
             () => chatMessageRepository.insertChatMessage(any()),
           ).thenAnswer((_) async => Result.error(Exception('test error')));
-          bloc.add(ChatSendImageMessage(fileName: 'test.wav', text: 'teeest'));
+          bloc.add(ChatSendImageMessage(imageData: ImageData(path: 'test.jpg'), text: 'teeest'));
         },
         expect: () => [
           isA<MessagesState>().having(

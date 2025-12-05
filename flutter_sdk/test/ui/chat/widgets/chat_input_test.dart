@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -175,10 +175,12 @@ void main() {
           when(() => audioBloc.state).thenReturn(
             AudioState(
               isUserRecordingAudio: true,
-              amplitudes: mockAmplitudes,
-              amplitudesFilePreview: mockPreview,
-              millisecondsRecording: mockDuration,
-              audioFileName: 'test.wav',
+              audioData: AudioData(
+                amplitudes: mockAmplitudes,
+                amplitudesFilePreview: mockPreview,
+                duration: mockDuration,
+                fileName: 'test.wav',
+              ),
             ),
           );
           when(() => imageBloc.state).thenReturn(ImageState());
@@ -203,9 +205,11 @@ void main() {
           verify(
             () => messagesBloc.add(
               ChatSendVoiceMessage(
-                amplitudes: [-30, 0, 0, -30],
-                fileName: 'test.wav',
-                duration: 3,
+                audioData: AudioData(
+                  amplitudesFilePreview: [-30, 0, 0, -30],
+                  fileName: 'test.wav',
+                  duration: 3,
+                ),
               ),
             ),
           ).called(1);
@@ -223,15 +227,19 @@ void main() {
           final events = [
             AudioState(
               isUserRecordingAudio: true,
-              amplitudes: [-30, 0, -30, -20],
-              amplitudesFilePreview: [-30, 0, -30, -20],
-              millisecondsRecording: mockDuration + 1,
+              audioData: AudioData(
+                amplitudes: [-30, 0, -30, -20],
+                amplitudesFilePreview: [-30, 0, -30, -20],
+                duration: mockDuration + 1,
+              ),
             ),
             AudioState(
               isUserRecordingAudio: true,
-              amplitudes: [-30, -30, -20, -10],
-              amplitudesFilePreview: [-30, -30, -20, -10],
-              millisecondsRecording: mockDuration + 2,
+              audioData: AudioData(
+                amplitudes: [-30, -30, -20, -10],
+                amplitudesFilePreview: [-30, -30, -20, -10],
+                duration: mockDuration + 2,
+              ),
             ),
           ];
           final stateStream = audioStreamController.stream;
@@ -240,9 +248,11 @@ void main() {
             stateStream,
             initialState: AudioState(
               isUserRecordingAudio: true,
-              amplitudes: [-30, 0, 0, -30],
-              amplitudesFilePreview: [-30, 0, 0, -30],
-              millisecondsRecording: mockDuration,
+              audioData: AudioData(
+                amplitudes: [-30, 0, 0, -30],
+                amplitudesFilePreview: [-30, 0, 0, -30],
+                duration: mockDuration,
+              ),
             ),
           );
           when(() => imageBloc.state).thenReturn(ImageState());

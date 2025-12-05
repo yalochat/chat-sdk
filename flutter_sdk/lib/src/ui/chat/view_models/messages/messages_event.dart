@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class MessagesEvent {
@@ -52,30 +54,22 @@ final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
   List<Object?> get props => [];
 }
 
-
 // Event to send a voice message
 final class ChatSendVoiceMessage extends MessagesEvent with EquatableMixin {
-  final List<double> amplitudes;
-  final String fileName;
-  final int duration;
-  ChatSendVoiceMessage({
-    required this.amplitudes,
-    required this.fileName,
-    required this.duration,
-  });
+  final AudioData audioData;
+  ChatSendVoiceMessage({required this.audioData});
   @override
-  List<Object?> get props => [amplitudes, fileName, duration];
+  List<Object?> get props => [audioData];
 }
-
 
 // Event to send a image message
 final class ChatSendImageMessage extends MessagesEvent with EquatableMixin {
-  final String fileName;
+  final ImageData imageData;
   final String text;
 
-  ChatSendImageMessage({required this.fileName, required this.text});
+  ChatSendImageMessage({required this.imageData, required this.text});
   @override
-  List<Object?> get props => [fileName, text];
+  List<Object?> get props => [imageData, text];
 }
 
 // Event that is emitted to clear the messages

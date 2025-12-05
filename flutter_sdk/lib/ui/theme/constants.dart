@@ -2,9 +2,12 @@
 
 // Provides all SDK margins and paddings default values
 abstract final class SdkConstants {
+  // Pixels to cache in the list view
+  static const double chatCacheExtent = 2000;
   static const double iconButtonPadding = 12;
   static const double inputBorderRadius = 25;
   static const double rowItemSpace = 8;
+  static const double columnItemSpace = 8;
   static const double inputPadding = 6;
   static const double messagePadding = 16;
   static const double appBarPreferredSize = 64;
@@ -13,6 +16,7 @@ abstract final class SdkConstants {
   static const double preferredWaveRecorderHeight = 48;
 
   static const int defaultPageSize = 30;
+  static const double pickerButtonRadius = 12;
 
   static const double messageListPadding = 8;
   static const double messageListMargin = 16;

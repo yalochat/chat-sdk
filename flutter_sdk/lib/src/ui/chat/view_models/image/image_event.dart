@@ -4,7 +4,12 @@ import 'package:equatable/equatable.dart';
 
 sealed class ImageEvent {}
 
-final class ImagePick extends ImageEvent with EquatableMixin {
+final class ImagePickFromCamera extends ImageEvent with EquatableMixin {
+  @override
+  List<Object?> get props => [];
+}
+
+final class ImagePickFromGallery extends ImageEvent with EquatableMixin {
   @override
   List<Object?> get props => [];
 }

@@ -2,7 +2,6 @@
 
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart';
 
 import 'camera_service.dart';
 
@@ -11,17 +10,28 @@ class CameraServiceFile implements CameraService {
 
   CameraServiceFile({ImagePicker? picker}) : _picker = picker ?? ImagePicker();
   @override
-  Future<Result<String>> pickImage(String prefix) async {
-    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+  Future<Result<XFile?>> pickImage(ImageSource source) async {
+    final XFile? photo = await _picker.pickImage(source: source, imageQuality: 90);
     if (photo == null) {
-      return Result.error(Exception('User cancelled image'));
+      return Result.ok(photo);
     }
-
-    final fileExtension = extension(photo.path);
     try {
-      final fileName = '$prefix$fileExtension';
-      await photo.saveTo(fileName);
-      return Result.ok(fileName);
+      return Result.ok(photo);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<Unit>> deleteImage(String path) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Result<Unit>> saveImage(String path, XFile file) async {
+    try {
+      await file.saveTo(path);
+      return Result.ok(Unit());
     } on Exception catch (e) {
       return Result.error(e);
     }

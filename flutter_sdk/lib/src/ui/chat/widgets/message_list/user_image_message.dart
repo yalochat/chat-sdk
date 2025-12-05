@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart'
     show ChatThemeCubit;
+import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,13 +24,18 @@ class UserImageMessage extends StatelessWidget {
     File imageFile = File(message.fileName!);
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Flexible(
-          child: FittedBox(
-            fit: BoxFit.cover,
-            child: Image.file(imageFile)
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(SdkConstants.messageBorderRadius),
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: Image.file(imageFile)
+            ),
           ),
         ),
+        SizedBox(height: SdkConstants.columnItemSpace),
         if (message.content.isNotEmpty)
         SelectableText(
           message.content,
