@@ -45,13 +45,37 @@ final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
   List<Object?> get props => [value];
 }
 
-// Event that is emitted when the user sends a messages
-final class ChatSendMessage extends MessagesEvent with EquatableMixin {
-  final ChatMessage message;
-
-  ChatSendMessage({required this.message});
+// Event to send a text message
+final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
+  ChatSendTextMessage();
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [];
+}
+
+
+// Event to send a voice message
+final class ChatSendVoiceMessage extends MessagesEvent with EquatableMixin {
+  final List<double> amplitudes;
+  final String fileName;
+  final int duration;
+  ChatSendVoiceMessage({
+    required this.amplitudes,
+    required this.fileName,
+    required this.duration,
+  });
+  @override
+  List<Object?> get props => [amplitudes, fileName, duration];
+}
+
+
+// Event to send a image message
+final class ChatSendImageMessage extends MessagesEvent with EquatableMixin {
+  final String fileName;
+  final String text;
+
+  ChatSendImageMessage({required this.fileName, required this.text});
+  @override
+  List<Object?> get props => [fileName, text];
 }
 
 // Event that is emitted to clear the messages

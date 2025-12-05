@@ -38,6 +38,7 @@ class UserVoiceMessage extends StatelessWidget {
     );
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         BlocSelector<AudioBloc, AudioState, ChatMessage?>(
           selector: (state) => state.playingMessage,

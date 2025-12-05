@@ -40,8 +40,11 @@ class ChatMessage extends Equatable {
   final MessageStatus status;
   final DateTime timestamp;
 
-  // Audio messages fields
+  // Attached file name to resource of the message
+  // for images the image file path, and for audios the audio path
   final String? fileName;
+
+  // Audio amplitudes preview
   final List<double>? amplitudes;
   // Audio duration in ms
   final int? duration;
@@ -58,6 +61,17 @@ class ChatMessage extends Equatable {
     this.duration,
   });
 
+  const ChatMessage.text({
+    this.id,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    required this.content,
+  }) : type = MessageType.text,
+       amplitudes = null,
+       fileName = null,
+       duration = null;
+
   const ChatMessage.voice({
     this.id,
     required this.role,
@@ -66,7 +80,19 @@ class ChatMessage extends Equatable {
     required this.fileName,
     required this.amplitudes,
     required this.duration,
-  }) : type = MessageType.voice, content = '';
+  }) : type = MessageType.voice,
+       content = '';
+
+  const ChatMessage.image({
+    this.id,
+    required this.role,
+    required this.timestamp,
+    required this.fileName,
+    this.status = MessageStatus.inProgress,
+    this.content = '',
+  }) : type = MessageType.image,
+       amplitudes = null,
+       duration = null;
 
   // Creates a copy of a chat message
   ChatMessage copyWith({

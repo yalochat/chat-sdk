@@ -37,7 +37,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     on<ChatStartTyping>(_handleStartTyping);
     on<ChatStopTyping>(_handleStopTyping);
     on<ChatUpdateUserMessage>(_handleUpdateUserMessage);
-    on<ChatSendMessage>(_handleSendMessage);
+    on<ChatSendTextMessage>(_handleSendTextMessage);
+    on<ChatSendVoiceMessage>(_handleSendVoiceMessage);
+    on<ChatSendImageMessage>(_handleSendImageMessage);
     on<ChatClearMessages>(_handleClearMessages);
   }
 
@@ -112,20 +114,26 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     }
   }
 
-  // Handles the event when the user sends a message
-  Future<void> _handleSendMessage(
-    ChatSendMessage event,
+  // Handles the event when the user sends a text message
+  Future<void> _handleSendTextMessage(
+    ChatSendTextMessage event,
     Emitter<MessagesState> emit,
   ) async {
+    log.info('Inserting text message');
     final String trimmedMessage = state.userMessage.trim();
-    if (event.message.type == MessageType.text && trimmedMessage.isEmpty) return;
+    if (trimmedMessage.isEmpty) return;
 
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
-      event.message,
+      ChatMessage.text(
+        role: MessageRole.user,
+        content: trimmedMessage,
+        timestamp: blocClock.now(),
+      ),
     );
 
     switch (result) {
       case Ok<ChatMessage>():
+        log.info('Text message inserted successfully, id ${result.result.id}');
         emit(
           state.copyWith(
             // FIXME: Create a new way to track big message list copies
@@ -135,13 +143,70 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         );
         break;
       case Error<ChatMessage>():
+        log.severe('Unable to insert text message', result.error);
+        emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
+        break;
+    }
+  }
+
+  // Handles sending voice messages
+  Future<void> _handleSendVoiceMessage(
+    ChatSendVoiceMessage event,
+    Emitter<MessagesState> emit,
+  ) async {
+    log.info('Inserting voice message');
+    Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
+      ChatMessage.voice(
+        role: MessageRole.user,
+        timestamp: blocClock.now(),
+        fileName: event.fileName,
+        amplitudes: event.amplitudes,
+        duration: event.duration,
+      ),
+    );
+    switch (result) {
+      case Ok<ChatMessage>():
+        log.info('Voice message inserted successfully, id ${result.result.id}');
+        emit(state.copyWith(messages: [result.result, ...state.messages]));
+        break;
+      case Error<ChatMessage>():
+        log.info('Failed to insert voice message', result.error);
+        emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
+        break;
+    }
+  }
+
+  // Handles sending image messages
+  Future<void> _handleSendImageMessage(
+    ChatSendImageMessage event,
+    Emitter<MessagesState> emit,
+  ) async {
+    log.info('Inserting image message');
+    Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
+      ChatMessage.image(
+        role: MessageRole.user,
+        timestamp: blocClock.now(),
+        content: event.text,
+        fileName: event.fileName,
+      ),
+    );
+    switch (result) {
+      case Ok<ChatMessage>():
+        log.info('Image message inserted successfully, id ${result.result.id}');
+        emit(state.copyWith(messages: [result.result, ...state.messages]));
+        break;
+      case Error<ChatMessage>():
+        log.info('Failed to insert voice message', result.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
         break;
     }
   }
 
   // Handles the event to clear messages.
-  void _handleClearMessages(ChatClearMessages event, Emitter<MessagesState> emit) {
+  void _handleClearMessages(
+    ChatClearMessages event,
+    Emitter<MessagesState> emit,
+  ) {
     if (state.messages.isEmpty) return;
     emit(state.copyWith(messages: []));
     // TODO: Add the repository to clear messages

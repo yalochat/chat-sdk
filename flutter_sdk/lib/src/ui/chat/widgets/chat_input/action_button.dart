@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -17,32 +16,24 @@ enum ButtonAction { send, recordAudio }
 class ActionButton extends StatelessWidget {
   const ActionButton({super.key});
 
-  void _handleProcessMessage(MessagesBloc messageBloc, AudioBloc audioBloc) {
+  void _handleProcessMessage(MessagesBloc messagesBloc, AudioBloc audioBloc) {
     bool isUserRecordingAudio = audioBloc.state.isUserRecordingAudio;
-    String userMessage = messageBloc.state.userMessage;
+    String userMessage = messagesBloc.state.userMessage;
     if (userMessage.isEmpty && !isUserRecordingAudio) {
       audioBloc.add(AudioStartRecording());
     } else {
-      ChatMessage messageToSend;
+      audioBloc.add(AudioStopRecording());
       if (isUserRecordingAudio) {
-        messageToSend = ChatMessage.voice(
-          role: MessageRole.user,
-          timestamp: messageBloc.blocClock.now(),
-          fileName: audioBloc.state.audioFileName,
-          amplitudes: audioBloc.state.amplitudesFilePreview,
-          duration: audioBloc.state.millisecondsRecording,
+        messagesBloc.add(
+          ChatSendVoiceMessage(
+            amplitudes: audioBloc.state.amplitudesFilePreview,
+            fileName: audioBloc.state.audioFileName,
+            duration: audioBloc.state.millisecondsRecording,
+          ),
         );
       } else {
-        messageToSend = ChatMessage(
-          role: MessageRole.user,
-          type: MessageType.text,
-          content: messageBloc.state.userMessage,
-          timestamp: messageBloc.blocClock.now(),
-        );
+        messagesBloc.add(ChatSendTextMessage());
       }
-
-      audioBloc.add(AudioStopRecording());
-      messageBloc.add(ChatSendMessage(message: messageToSend));
     }
   }
 

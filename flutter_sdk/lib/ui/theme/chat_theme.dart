@@ -27,6 +27,7 @@ class ChatTheme {
   final Icon cancelRecordingIcon;
   final Icon playAudioIcon;
   final Icon pauseAudioIcon;
+  final Icon attachIcon;
 
   const ChatTheme({
     this.backgroundColor = SdkColors.backgroundColorLight,
@@ -73,6 +74,10 @@ class ChatTheme {
     ),
     this.pauseAudioIcon = const Icon(
       Icons.pause_rounded,
+      color: SdkColors.messageControlIconColor,
+    ),
+    this.attachIcon = const Icon(
+      Icons.add,
       color: SdkColors.messageControlIconColor,
     ),
   });

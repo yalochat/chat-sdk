@@ -113,7 +113,7 @@ void main() {
     group('sending messages', () {
       var fixedClock = Clock.fixed(DateTime.now());
       blocTest<MessagesBloc, MessagesState>(
-        'should send message and clear user message when the message array is empty',
+        'should send a text message and clear user message when the message array is empty',
         build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           clock: fixedClock,
@@ -131,16 +131,7 @@ void main() {
               ),
             ),
           );
-          bloc.add(
-            ChatSendMessage(
-              message: ChatMessage(
-                role: MessageRole.user,
-                type: MessageType.text,
-                content: 'Test message',
-                timestamp: fixedClock.now(),
-              ),
-            ),
-          );
+          bloc.add(ChatSendTextMessage());
         },
         expect: () => [
           isA<MessagesState>()
@@ -205,16 +196,7 @@ void main() {
               ),
             ),
           );
-          bloc.add(
-            ChatSendMessage(
-              message: ChatMessage(
-                role: MessageRole.user,
-                type: MessageType.text,
-                content: 'Test message',
-                timestamp: fixedClock.now(),
-              ),
-            ),
-          );
+          bloc.add(ChatSendTextMessage());
         },
         expect: () => [
           isA<MessagesState>()
@@ -284,16 +266,7 @@ void main() {
               ),
             ),
           );
-          bloc.add(
-            ChatSendMessage(
-              message: ChatMessage(
-                role: MessageRole.user,
-                type: MessageType.text,
-                content: 'Test message',
-                timestamp: fixedClock.now(),
-              ),
-            ),
-          );
+          bloc.add(ChatSendTextMessage());
         },
         expect: () => [
           isA<MessagesState>()
@@ -356,16 +329,7 @@ void main() {
             (_) async =>
                 Result.error(RangeException('Range exception', -1, 2, 3)),
           );
-          bloc.add(
-            ChatSendMessage(
-              message: ChatMessage(
-                role: MessageRole.user,
-                type: MessageType.text,
-                content: 'Test message',
-                timestamp: fixedClock.now(),
-              ),
-            ),
-          );
+          bloc.add(ChatSendTextMessage());
         },
         expect: () => [
           isA<MessagesState>()
@@ -431,16 +395,7 @@ void main() {
             ),
           ],
         ),
-        act: (bloc) => bloc.add(
-          ChatSendMessage(
-            message: ChatMessage(
-              role: MessageRole.user,
-              type: MessageType.text,
-              content: 'Test message',
-              timestamp: fixedClock.now(),
-            ),
-          ),
-        ),
+        act: (bloc) => bloc.add(ChatSendTextMessage()),
         expect: () => [],
       );
 
@@ -473,17 +428,202 @@ void main() {
             ),
           ],
         ),
-        act: (bloc) => bloc.add(
-          ChatSendMessage(
-            message: ChatMessage(
+        act: (bloc) => bloc.add(ChatSendTextMessage()),
+        expect: () => [],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should add a voice message successfully',
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
+          userMessage: '                     ',
+          messages: [
+            ChatMessage(
+              id: 0,
               role: MessageRole.user,
               type: MessageType.text,
-              content: 'Test message',
-              timestamp: fixedClock.now(),
+              content: 'Test 1',
+              timestamp: clock.now(),
+            ),
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 2',
+              timestamp: clock.now(),
+            ),
+            ChatMessage(
+              id: 2,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 3',
+              timestamp: clock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage.voice(
+                id: 3,
+                role: MessageRole.user,
+                timestamp: fixedClock.now(),
+                fileName: 'test.wav',
+                amplitudes: [-13, -10, 0.0],
+                duration: 3,
+              ),
+            ),
+          );
+          bloc.add(
+            ChatSendVoiceMessage(
+              amplitudes: [-13, -10, 0.0],
+              fileName: 'test.wav',
+              duration: 3,
+            ),
+          );
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages[0],
+            'last inserted message',
+            equals(
+              ChatMessage.voice(
+                id: 3,
+                role: MessageRole.user,
+                timestamp: fixedClock.now(),
+                fileName: 'test.wav',
+                amplitudes: [-13, -10, 0.0],
+                duration: 3,
+              ),
             ),
           ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should emit an error when voice message insertion fails',
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
+          userMessage: '                     ',
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 1',
+              timestamp: clock.now(),
+            ),
+          ],
         ),
-        expect: () => [],
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.insertChatMessage(any()),
+          ).thenAnswer((_) async => Result.error(Exception('test error')));
+          bloc.add(
+            ChatSendVoiceMessage(
+              amplitudes: [-13, -10, 0.0],
+              fileName: 'test.wav',
+              duration: 3,
+            ),
+          );
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.chatStatus,
+            'chat status',
+            equals(ChatStatus.failedMessageSent),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should add a image message successfully',
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
+          userMessage: '                     ',
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 1',
+              timestamp: clock.now(),
+            ),
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 2',
+              timestamp: clock.now(),
+            ),
+            ChatMessage(
+              id: 2,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 3',
+              timestamp: clock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage.image(
+                id: 3,
+                role: MessageRole.user,
+                timestamp: fixedClock.now(),
+                content: 'test',
+                fileName: 'test.jpg',
+              ),
+            ),
+          );
+          bloc.add(ChatSendImageMessage(fileName: 'test.jpg', text: 'test'));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages[0],
+            'last inserted message',
+            equals(
+              ChatMessage.image(
+                id: 3,
+                role: MessageRole.user,
+                timestamp: fixedClock.now(),
+                content: 'test',
+                fileName: 'test.jpg',
+              ),
+            ),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should emit an error when image message insertion fails',
+        build: () => MessagesBloc(chatMessageRepository: chatMessageRepository),
+        seed: () => MessagesState(
+          userMessage: '                     ',
+          messages: [
+            ChatMessage(
+              id: 0,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Test 1',
+              timestamp: clock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.insertChatMessage(any()),
+          ).thenAnswer((_) async => Result.error(Exception('test error')));
+          bloc.add(ChatSendImageMessage(fileName: 'test.wav', text: 'teeest'));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.chatStatus,
+            'chat status',
+            equals(ChatStatus.failedMessageSent),
+          ),
+        ],
       );
     });
 

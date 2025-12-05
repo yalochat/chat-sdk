@@ -55,16 +55,36 @@ void main() {
       });
     });
 
-    group('ChatSendMessage', () {
+    group('ChatSendTextMessage', () {
       test('should support equality comparison', () {
-        final chatMessage = ChatMessage(
-          id: 1,
-          role: MessageRole.user,
-          type: MessageType.text,
-          timestamp: clock.now(),
+        final event1 = ChatSendTextMessage();
+        final event2 = ChatSendTextMessage();
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group('ChatSendVoiceMessage', () {
+      test('should support equality comparison', () {
+        final event1 = ChatSendVoiceMessage(
+          amplitudes: [],
+          fileName: '',
+          duration: 3,
         );
-        final event1 = ChatSendMessage(message: chatMessage);
-        final event2 = ChatSendMessage(message: chatMessage);
+        final event2 = ChatSendVoiceMessage(
+          amplitudes: [],
+          fileName: '',
+          duration: 3,
+        );
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group('ChatSendImageMessage', () {
+      test('should support equality comparison', () {
+        final event1 = ChatSendImageMessage(fileName: '', text: '');
+        final event2 = ChatSendImageMessage(fileName: '', text: '');
 
         expect(event1, equals(event2));
       });
