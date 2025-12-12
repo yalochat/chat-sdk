@@ -3,6 +3,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
@@ -386,9 +387,8 @@ void main() {
           audioUseCase: audioUseCase,
         ),
         seed: () => AudioState(
-          amplitudes: [-30, -30],
+          audioData: AudioData(amplitudes: [-30, -30], duration: 0),
           amplitudeIndex: 2,
-          millisecondsRecording: 0,
         ),
         act: (bloc) {
           Stream<double> amplitudeStream = Stream.fromIterable([
@@ -408,22 +408,28 @@ void main() {
         },
         expect: () => [
           AudioState(
-            amplitudes: [-30, -3.0],
             amplitudeIndex: 1,
-            amplitudesFilePreview: [-3.0, -160.0],
-            millisecondsRecording: AudioBloc.recordTickMs,
+            audioData: AudioData(
+              amplitudes: [-30, -3.0],
+              amplitudesFilePreview: [-3.0, -160.0],
+              duration: AudioBloc.recordTickMs,
+            ),
           ),
           AudioState(
-            amplitudes: [-3.0, -160.0],
             amplitudeIndex: 0,
-            amplitudesFilePreview: [-3.0, -160.0],
-            millisecondsRecording: AudioBloc.recordTickMs * 2,
+            audioData: AudioData(
+              amplitudes: [-3.0, -160.0],
+              amplitudesFilePreview: [-3.0, -160.0],
+              duration: AudioBloc.recordTickMs * 2,
+            ),
           ),
           AudioState(
-            amplitudes: [-160.0, -6.9],
             amplitudeIndex: 1,
-            amplitudesFilePreview: [-3.0, -160.0],
-            millisecondsRecording: AudioBloc.recordTickMs * 3,
+            audioData: AudioData(
+              amplitudes: [-160.0, -6.9],
+              amplitudesFilePreview: [-3.0, -160.0],
+              duration: AudioBloc.recordTickMs * 3,
+            ),
           ),
         ],
       );
@@ -443,17 +449,19 @@ void main() {
         expect: () => [
           AudioState(
             isUserRecordingAudio: true,
-            audioFileName: 'test-file-name.wav',
             amplitudeIndex: AudioBloc.amplitudeDataPoints - 1,
-            amplitudes: List<double>.filled(
-              AudioBloc.amplitudeDataPoints,
-              AudioBloc.defaultAmplitude,
+            audioData: AudioData(
+              fileName: 'test-file-name.wav',
+              amplitudes: List<double>.filled(
+                AudioBloc.amplitudeDataPoints,
+                AudioBloc.defaultAmplitude,
+              ),
+              amplitudesFilePreview: List<double>.filled(
+                AudioBloc.amplitudeDataPoints,
+                AudioBloc.defaultAmplitude,
+              ),
+              duration: 0,
             ),
-            amplitudesFilePreview: List<double>.filled(
-              AudioBloc.amplitudeDataPoints,
-              AudioBloc.defaultAmplitude,
-            ),
-            millisecondsRecording: 0,
           ),
         ],
       );

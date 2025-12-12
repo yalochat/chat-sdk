@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class MessagesEvent {
@@ -45,13 +47,29 @@ final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
   List<Object?> get props => [value];
 }
 
-// Event that is emitted when the user sends a messages
-final class ChatSendMessage extends MessagesEvent with EquatableMixin {
-  final ChatMessage message;
-
-  ChatSendMessage({required this.message});
+// Event to send a text message
+final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
+  ChatSendTextMessage();
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [];
+}
+
+// Event to send a voice message
+final class ChatSendVoiceMessage extends MessagesEvent with EquatableMixin {
+  final AudioData audioData;
+  ChatSendVoiceMessage({required this.audioData});
+  @override
+  List<Object?> get props => [audioData];
+}
+
+// Event to send a image message
+final class ChatSendImageMessage extends MessagesEvent with EquatableMixin {
+  final ImageData imageData;
+  final String text;
+
+  ChatSendImageMessage({required this.imageData, required this.text});
+  @override
+  List<Object?> get props => [imageData, text];
 }
 
 // Event that is emitted to clear the messages

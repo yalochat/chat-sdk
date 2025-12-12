@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -24,13 +25,12 @@ class WaveformRecorder extends StatelessWidget {
     final chatBloc = context.read<AudioBloc>();
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (context, chatTheme) {
-        return BlocSelector<AudioBloc, AudioState, (List<double>, int)>(
-          selector: (state) => (state.amplitudes, state.millisecondsRecording),
-          builder: (context, state) {
-            final (amplitudes, millisecondsRecording) = state;
-            final minutes = millisecondsRecording ~/ 1000 ~/ 60;
+        return BlocSelector<AudioBloc, AudioState, AudioData>(
+          selector: (state) => state.audioData,
+          builder: (context, audioData) {
+            final minutes = audioData.duration  ~/ 1000 ~/ 60;
             final seconds =
-                (millisecondsRecording - (minutes * 1000 * 60)) ~/ 1000;
+                (audioData.duration - (minutes * 1000 * 60)) ~/ 1000;
             final minutesFormatted = minutes.toString().padLeft(2, '0');
             final secondsFormatted = seconds.toString().padLeft(2, '0');
             return Row(
@@ -42,7 +42,7 @@ class WaveformRecorder extends StatelessWidget {
                 SizedBox(width: SdkConstants.rowItemSpace),
                 Expanded(
                   child: CustomPaint(
-                    painter: WaveformPainter(amplitudes, chatTheme.waveColor),
+                    painter: WaveformPainter(audioData.amplitudes, chatTheme.waveColor),
                     child: SizedBox(
                       width: double.infinity,
                       height: SdkConstants.preferredWaveRecorderHeight,

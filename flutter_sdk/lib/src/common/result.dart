@@ -2,7 +2,10 @@
 
 import 'package:equatable/equatable.dart';
 
-final class Unit {}
+final class Unit extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 // A class to represent results from repositories and services
 sealed class Result<T> {

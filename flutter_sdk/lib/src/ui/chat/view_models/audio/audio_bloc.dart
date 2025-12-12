@@ -2,6 +2,7 @@
 
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
 import 'package:flutter/widgets.dart';
@@ -28,13 +29,15 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
        _audioUseCase = audioUseCase ?? AudioProcessingUseCase(),
        super(
          AudioState(
-           amplitudes: List<double>.filled(
-             amplitudeDataPoints,
-             defaultAmplitude,
-           ),
-           amplitudesFilePreview: List<double>.filled(
-             amplitudeDataPoints,
-             defaultAmplitude,
+           audioData: AudioData(
+             amplitudes: List<double>.filled(
+               amplitudeDataPoints,
+               defaultAmplitude,
+             ),
+             amplitudesFilePreview: List<double>.filled(
+               amplitudeDataPoints,
+               defaultAmplitude,
+             ),
            ),
            amplitudeIndex: amplitudeDataPoints - 1,
          ),
@@ -179,9 +182,8 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
       amplitudesStream,
       onData: (data) {
         assert(!data.isInfinite, 'no infinity values allowed');
-        final maxPoints = state.amplitudes.length;
-        final millisecondsRecording =
-            state.millisecondsRecording + recordTickMs;
+        final maxPoints = state.audioData.amplitudes.length;
+        final millisecondsRecording = state.audioData.duration + recordTickMs;
         assert(
           millisecondsRecording % recordTickMs == 0,
           'Milliseconds must be a multiple of _recordTickMs',
@@ -189,15 +191,17 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
         final wavePreview = _audioUseCase.compressWaveformForPreview(
           data,
           millisecondsRecording ~/ recordTickMs,
-          state.amplitudesFilePreview,
+          state.audioData.amplitudesFilePreview,
         );
 
         return state.copyWith(
+          audioData: state.audioData.copyWith(
+            amplitudes: state.audioData.amplitudes.sublist(1)..add(data),
+            amplitudesFilePreview: wavePreview,
+            duration: millisecondsRecording,
+          ),
           // Create an animation of the waves sliding.
-          amplitudes: state.amplitudes.sublist(1)..add(data),
           amplitudeIndex: (state.amplitudeIndex - 1) % maxPoints,
-          amplitudesFilePreview: wavePreview,
-          millisecondsRecording: millisecondsRecording,
         );
       },
     );
@@ -218,17 +222,19 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
         emit(
           state.copyWith(
             isUserRecordingAudio: true,
-            audioFileName: audioStreamResult.result,
-            amplitudeIndex: state.amplitudes.length - 1,
-            amplitudes: List<double>.filled(
-              amplitudeDataPoints,
-              defaultAmplitude,
+            audioData: AudioData(
+              fileName: audioStreamResult.result,
+              amplitudes: List<double>.filled(
+                amplitudeDataPoints,
+                defaultAmplitude,
+              ),
+              amplitudesFilePreview: List<double>.filled(
+                amplitudeDataPoints,
+                defaultAmplitude,
+              ),
+              duration: 0,
             ),
-            amplitudesFilePreview: List<double>.filled(
-              amplitudeDataPoints,
-              defaultAmplitude,
-            ),
-            millisecondsRecording: 0,
+            amplitudeIndex: state.audioData.amplitudes.length - 1,
           ),
         );
         break;
@@ -236,7 +242,6 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
         log.severe('Unable to start audio recording', audioStreamResult.error);
         emit(
           state.copyWith(
-            audioFileName: '',
             isUserRecordingAudio: false,
             audioStatus: AudioStatus.errorRecordingAudio,
           ),

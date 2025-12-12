@@ -1,19 +1,131 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/picker_button.dart';
+import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
+import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AttachmentButton extends StatelessWidget {
+class AttachmentButton extends StatefulWidget {
   const AttachmentButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: () => _handleAttachment(),
-      icon: const Icon(Icons.attach_file),
-    );
+  State<AttachmentButton> createState() => _AttachmentButtonState();
+}
+
+class _AttachmentButtonState extends State<AttachmentButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController animationController;
+
+  @override
+  void initState() {
+    final imageBloc = context.read<ImageBloc>();
+    animationController = BottomSheet.createAnimationController(this);
+    animationController.addStatusListener((status) {
+      if (status.isDismissed) {
+        imageBloc.add(ImageShowPreview());
+      }
+    });
+    super.initState();
   }
 
-  void _handleAttachment() {
-    // Attachment logic
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final imageBloc = context.read<ImageBloc>();
+    return BlocBuilder<ChatThemeCubit, ChatTheme>(
+      builder: (parentContext, chatTheme) {
+        return IconButton(
+          onPressed: () {
+            if (imageBloc.state.pickedImage != null) {
+              imageBloc.add(ImageHidePreview());
+            }
+            showModalBottomSheet(
+              context: parentContext,
+              transitionAnimationController: animationController,
+              builder: (BuildContext context) {
+                return BlocProvider.value(
+                  value: BlocProvider.of<ChatThemeCubit>(parentContext),
+                  child: Container(
+                    height: MediaQuery.sizeOf(context).height * 0.25,
+                    padding: EdgeInsets.all(SdkConstants.messageListMargin),
+                    decoration: BoxDecoration(
+                      color: chatTheme.attachmentPickerBackgroundColor,
+                      borderRadius: BorderRadiusGeometry.circular(
+                        SdkConstants.pickerButtonRadius,
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Send an image',
+                                  style: chatTheme.modalHeaderStyle,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: chatTheme.closeModalIcon,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: SdkConstants.columnItemSpace * 3),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: PickerButton(
+                                    key: const Key('CameraPickerButton'),
+                                    icon: chatTheme.cameraIcon,
+                                    onPressed: () {
+                                      imageBloc.add(ImagePickFromCamera());
+                                      Navigator.pop(context);
+                                    },
+                                    text: 'Take a photo',
+                                  ),
+                                ),
+                                SizedBox(height: SdkConstants.columnItemSpace),
+                                Expanded(
+                                  flex: 1,
+                                  child: PickerButton(
+                                    key: const Key('GalleryPickerButton'),
+                                    icon: chatTheme.galleryIcon,
+                                    onPressed: () {
+                                      imageBloc.add(ImagePickFromGallery());
+                                      Navigator.pop(context);
+                                    },
+                                    text: 'Choose from gallery',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          icon: chatTheme.attachIcon,
+        );
+      },
+    );
   }
 }

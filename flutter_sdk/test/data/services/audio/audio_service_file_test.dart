@@ -5,9 +5,9 @@ import 'package:chat_flutter_sdk/src/common/exceptions/permission_exception.dart
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:record/record.dart';
-import 'package:test/test.dart';
 
 class MockAudioRecorder extends Mock implements AudioRecorder {}
 
@@ -162,10 +162,10 @@ void main() {
       });
     });
 
-    test('should create a service with default parameters', () {
+    testWidgets('should create a service with default parameters', (tester) async {
       final service = AudioServiceFile();
       expect(service, isA<AudioServiceFile>());
       service.dispose();
-    });
+    }, tags:['integration']);
   });
 }

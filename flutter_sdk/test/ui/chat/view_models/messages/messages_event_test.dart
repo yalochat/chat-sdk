@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
-import 'package:clock/clock.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -55,16 +55,32 @@ void main() {
       });
     });
 
-    group('ChatSendMessage', () {
+    group('ChatSendTextMessage', () {
       test('should support equality comparison', () {
-        final chatMessage = ChatMessage(
-          id: 1,
-          role: MessageRole.user,
-          type: MessageType.text,
-          timestamp: clock.now(),
+        final event1 = ChatSendTextMessage();
+        final event2 = ChatSendTextMessage();
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group('ChatSendVoiceMessage', () {
+      test('should support equality comparison', () {
+        final event1 = ChatSendVoiceMessage(
+          audioData: AudioData()
         );
-        final event1 = ChatSendMessage(message: chatMessage);
-        final event2 = ChatSendMessage(message: chatMessage);
+        final event2 = ChatSendVoiceMessage(
+          audioData: AudioData(),
+        );
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group('ChatSendImageMessage', () {
+      test('should support equality comparison', () {
+        final event1 = ChatSendImageMessage(imageData: ImageData(path: '', mimeType: ''), text: '');
+        final event2 = ChatSendImageMessage(imageData: ImageData(path: '', mimeType: ''), text: '');
 
         expect(event1, equals(event2));
       });

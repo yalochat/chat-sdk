@@ -7,6 +7,9 @@ import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dar
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
@@ -28,11 +31,15 @@ class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
 class MockAudioBloc extends MockBloc<AudioEvent, AudioState>
     implements AudioBloc {}
 
+class MockImageBloc extends MockBloc<ImageEvent, ImageState>
+    implements ImageBloc {}
+
 void main() {
   group(MessageList, () {
     late ChatThemeCubit chatThemeCubit;
     late MessagesBloc chatBloc;
     late AudioBloc audioBloc;
+    late ImageBloc imageBloc;
     late List<SingleChildWidget> blocs;
     late StreamController<AudioState> audioStreamController;
 
@@ -40,11 +47,13 @@ void main() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
       chatBloc = MockMessagesBloc();
       audioBloc = MockAudioBloc();
+      imageBloc = MockImageBloc();
       audioStreamController = StreamController();
       blocs = [
         BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
         BlocProvider<MessagesBloc>(create: (context) => chatBloc),
         BlocProvider<AudioBloc>(create: (context) => audioBloc),
+        BlocProvider<ImageBloc>(create: (context) => imageBloc),
       ];
     });
 
@@ -206,7 +215,9 @@ void main() {
           );
           expect(playMessageFinder, findsOneWidget);
           await tester.tap(playMessageFinder);
-          audioStreamController.sink.add(AudioState(playingMessage: messages[0]));
+          audioStreamController.sink.add(
+            AudioState(playingMessage: messages[0]),
+          );
           await tester.pumpAndSettle(Duration(milliseconds: 1));
           verify(
             () => audioBloc.add(AudioPlay(message: messages[0])),
@@ -222,6 +233,61 @@ void main() {
           verify(() => audioBloc.add(AudioStop())).called(1);
         },
       );
+    });
+
+    group('image messages', () {
+      testWidgets(
+        'should render a image message correctly without content text',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.image(
+                  id: 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  content: '',
+                  fileName: 'images/test-image.png',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          final imageFinder = find.byType(Image);
+              expect(imageFinder, findsOneWidget);
+          final textFinder = find.text('');
+          expect(textFinder, isNot(findsOneWidget));
+        },
+      );
+
+      testWidgets('should render a image message correctly with content text', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.image(
+                id: 1,
+                role: MessageRole.user,
+                timestamp: clock.now(),
+                content: 'test content',
+                fileName: 'images/test-image.png',
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+        final imageFinder = find.byType(Image);
+        expect(imageFinder, findsOneWidget);
+        final textFinder = find.text('test content');
+        expect(textFinder, findsOneWidget);
+      });
     });
   });
 }

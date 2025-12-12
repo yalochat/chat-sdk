@@ -3,7 +3,8 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -43,6 +44,7 @@ void main() {
     late ImageBloc imageBloc;
     late List<SingleChildWidget> blocs;
     late StreamController<AudioState> audioStreamController;
+    late StreamController<ImageState> imageStreamController;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
@@ -50,6 +52,7 @@ void main() {
       audioBloc = MockAudioBloc();
       imageBloc = MockImageBloc();
       audioStreamController = StreamController();
+      imageStreamController = StreamController();
       blocs = [
         BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
         BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
@@ -74,7 +77,11 @@ void main() {
           when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
           );
           final actionButtonFinder = find.byIcon(
             chatThemeCubit.state.sendButtonIcon.icon!,
@@ -83,18 +90,7 @@ void main() {
           expect(actionButtonFinder, findsOneWidget);
           await tester.tap(actionButtonFinder);
           await tester.pump();
-          verify(
-            () => messagesBloc.add(
-              ChatSendMessage(
-                message: ChatMessage(
-                  role: MessageRole.user,
-                  type: MessageType.text,
-                  content: 'Teeest message',
-                  timestamp: messagesBloc.blocClock.now(),
-                ),
-              ),
-            ),
-          ).called(1);
+          verify(() => messagesBloc.add(ChatSendTextMessage())).called(1);
         },
       );
 
@@ -116,7 +112,11 @@ void main() {
           when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
           );
           final actionButtonFinder = find.byIcon(
             chatThemeCubit.state.recordAudioIcon.icon!,
@@ -150,7 +150,11 @@ void main() {
           when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
           );
           final actionButtonFinder = find.byIcon(
             chatThemeCubit.state.recordAudioIcon.icon!,
@@ -174,15 +178,22 @@ void main() {
           when(() => audioBloc.state).thenReturn(
             AudioState(
               isUserRecordingAudio: true,
-              amplitudes: mockAmplitudes,
-              amplitudesFilePreview: mockPreview,
-              millisecondsRecording: mockDuration,
+              audioData: AudioData(
+                amplitudes: mockAmplitudes,
+                amplitudesFilePreview: mockPreview,
+                duration: mockDuration,
+                fileName: 'test.wav',
+              ),
             ),
           );
           when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
           );
           final waveformFinder = find.byKey(const Key('WaveformRecorder'));
           expect(waveformFinder, findsOneWidget);
@@ -196,14 +207,12 @@ void main() {
           verify(() => audioBloc.add(AudioStopRecording())).called(1);
           verify(
             () => messagesBloc.add(
-              ChatSendMessage(
-                message: ChatMessage.voice(
-                  id: null,
-                  fileName: '',
-                  role: MessageRole.user,
-                  amplitudes: mockPreview,
-                  duration: mockDuration,
-                  timestamp: messagesBloc.blocClock.now(),
+              ChatSendVoiceMessage(
+                audioData: AudioData(
+                  amplitudes: mockAmplitudes,
+                  amplitudesFilePreview: mockPreview,
+                  fileName: 'test.wav',
+                  duration: 3,
                 ),
               ),
             ),
@@ -222,15 +231,19 @@ void main() {
           final events = [
             AudioState(
               isUserRecordingAudio: true,
-              amplitudes: [-30, 0, -30, -20],
-              amplitudesFilePreview: [-30, 0, -30, -20],
-              millisecondsRecording: mockDuration + 1,
+              audioData: AudioData(
+                amplitudes: [-30, 0, -30, -20],
+                amplitudesFilePreview: [-30, 0, -30, -20],
+                duration: mockDuration + 1,
+              ),
             ),
             AudioState(
               isUserRecordingAudio: true,
-              amplitudes: [-30, -30, -20, -10],
-              amplitudesFilePreview: [-30, -30, -20, -10],
-              millisecondsRecording: mockDuration + 2,
+              audioData: AudioData(
+                amplitudes: [-30, -30, -20, -10],
+                amplitudesFilePreview: [-30, -30, -20, -10],
+                duration: mockDuration + 2,
+              ),
             ),
           ];
           final stateStream = audioStreamController.stream;
@@ -239,15 +252,21 @@ void main() {
             stateStream,
             initialState: AudioState(
               isUserRecordingAudio: true,
-              amplitudes: [-30, 0, 0, -30],
-              amplitudesFilePreview: [-30, 0, 0, -30],
-              millisecondsRecording: mockDuration,
+              audioData: AudioData(
+                amplitudes: [-30, 0, 0, -30],
+                amplitudesFilePreview: [-30, 0, 0, -30],
+                duration: mockDuration,
+              ),
             ),
           );
           when(() => imageBloc.state).thenReturn(ImageState());
 
           await tester.pumpWidget(
-            TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
           );
           audioStreamController.sink.add(events[0]);
           await tester.pumpAndSettle(Duration(milliseconds: 1));
@@ -269,33 +288,229 @@ void main() {
     });
 
     group('attach image', () {
-      testWidgets('should attach an image', (tester) async {
-        when(() => messagesBloc.state).thenReturn(MessagesState());
-        when(() => audioBloc.state).thenReturn(AudioState());
-        when(() => imageBloc.state).thenReturn(ImageState());
-
-        await tester.pumpWidget(
-          TestWidget(hintText: 'test', showCameraButton: true, blocs: blocs),
-        );
-        final cameraButtonFinder = find.byKey(const Key('CameraButton'));
-
-        expect(cameraButtonFinder, findsOneWidget);
-        await tester.tap(cameraButtonFinder);
-        await tester.pump();
-        // TODO: verify camera handler
-      });
       testWidgets(
-        'should not find the camera button when showCameraButton is false',
+        'should attach an image from camera and display a preview of it, then remove it because the user cancelled it',
+        (tester) async {
+          when(() => messagesBloc.state).thenReturn(MessagesState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          final initialState = ImageState();
+          final stateStream = imageStreamController.stream;
+          whenListen(imageBloc, stateStream, initialState: initialState);
+
+          await tester.pumpWidget(
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
+          );
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
+
+          expect(attachmentButtonFinder, findsOneWidget);
+          await tester.tap(attachmentButtonFinder);
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
+          final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
+          expect(cameraPickerButton, findsOneWidget);
+          expect(galleryPickerButton, findsOneWidget);
+
+          await tester.tap(cameraPickerButton);
+          verify(() => imageBloc.add(ImagePickFromCamera())).called(1);
+
+          imageStreamController.sink.add(
+            initialState.copyWith(
+              pickedImage: () => ImageData(
+                path: 'images/test-image.png',
+                mimeType: 'image/png',
+              ),
+            ),
+          );
+
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          final previewFinder = find.byKey(Key('ImagePreview'));
+          expect(previewFinder, findsOneWidget);
+
+          final trashButtonFinder = find.byIcon(
+            chatThemeCubit.chatTheme.trashIcon.icon!,
+          );
+
+          expect(trashButtonFinder, findsOneWidget);
+          await tester.tap(trashButtonFinder);
+          verify(() => imageBloc.add(ImageCancelPick())).called(1);
+          imageStreamController.sink.add(
+            initialState.copyWith(pickedImage: () => null),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          expect(find.byKey(Key('ImagePreview')), isNot(findsOneWidget));
+        },
+      );
+
+      testWidgets(
+        'should attach an image from gallery and display a preview of it, then send it correctly, all in portrait mode',
+        (tester) async {
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: 'test'));
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          tester.view.physicalSize = const Size(600, 800);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(() {
+            tester.view.resetPhysicalSize();
+          });
+
+          final initialState = ImageState();
+          final stateStream = imageStreamController.stream;
+          whenListen(imageBloc, stateStream, initialState: initialState);
+
+          await tester.pumpWidget(
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
+          );
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
+
+          expect(attachmentButtonFinder, findsOneWidget);
+          await tester.tap(attachmentButtonFinder);
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
+          final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
+          expect(cameraPickerButton, findsOneWidget);
+          expect(galleryPickerButton, findsOneWidget);
+
+          await tester.tap(galleryPickerButton);
+          verify(() => imageBloc.add(ImagePickFromGallery())).called(1);
+
+          imageStreamController.sink.add(
+            initialState.copyWith(
+              pickedImage: () => ImageData(
+                path: 'images/test-image.png',
+                mimeType: 'image/png',
+              ),
+            ),
+          );
+
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          final previewFinder = find.byKey(Key('ImagePreview'));
+          expect(previewFinder, findsOneWidget);
+
+          final sendButton = find.byIcon(
+            chatThemeCubit.chatTheme.sendButtonIcon.icon!,
+          );
+
+          expect(sendButton, findsOneWidget);
+          await tester.tap(sendButton);
+          verify(() => imageBloc.add(ImageHidePreview())).called(1);
+          verify(
+            () => messagesBloc.add(
+              ChatSendImageMessage(
+                imageData: ImageData(
+                  path: 'images/test-image.png',
+                  mimeType: 'image/png',
+                ),
+                text: 'test',
+              ),
+            ),
+          ).called(1);
+          imageStreamController.sink.add(
+            initialState.copyWith(pickedImage: () => null),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          expect(find.byKey(Key('ImagePreview')), isNot(findsOneWidget));
+        },
+      );
+
+      testWidgets(
+        'should hide the image preview when the picker is opened again, close the picker when the exit button is pressed, the image preview should be shown after close',
+        (tester) async {
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: 'test'));
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          final initialState = ImageState();
+          final stateStream = imageStreamController.stream;
+          whenListen(imageBloc, stateStream, initialState: initialState);
+          await tester.pumpWidget(
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
+          );
+
+          final imageDataStub = ImageData(
+            path: 'images/test-image.png',
+            mimeType: 'image/png',
+          );
+          imageStreamController.sink.add(
+            ImageState(pickedImage: imageDataStub),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final initPreviewFinder = find.byKey(Key('ImagePreview'));
+          expect(initPreviewFinder, findsOneWidget);
+
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
+
+          expect(attachmentButtonFinder, findsOneWidget);
+          await tester.tap(attachmentButtonFinder);
+          verify(() => imageBloc.add(ImageHidePreview())).called(1);
+          imageStreamController.sink.add(ImageState());
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final imagePreviewFinder = find.byKey(Key('ImagePreview'));
+          expect(imagePreviewFinder, isNot(findsOneWidget));
+
+          final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
+          final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
+          final exitButton = find.byIcon(
+            chatThemeCubit.chatTheme.closeModalIcon.icon!,
+          );
+          expect(cameraPickerButton, findsOneWidget);
+          expect(galleryPickerButton, findsOneWidget);
+          expect(exitButton, findsOneWidget);
+
+          await tester.tap(exitButton);
+          imageStreamController.sink.add(
+            ImageState(pickedImage: imageDataStub),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          verify(() => imageBloc.add(ImageShowPreview())).called(1);
+          final previewFinder = find.byKey(Key('ImagePreview'));
+          expect(previewFinder, findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'should not find the attachment button when showAttachmentButton is false',
         (tester) async {
           when(() => messagesBloc.state).thenReturn(MessagesState());
           when(() => audioBloc.state).thenReturn(AudioState());
           when(() => imageBloc.state).thenReturn(ImageState());
           await tester.pumpWidget(
-            TestWidget(hintText: 'test', showCameraButton: false, blocs: blocs),
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: false,
+              blocs: blocs,
+            ),
           );
-          final cameraButtonFinder = find.byKey(const Key('CameraButton'));
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
 
-          expect(cameraButtonFinder, isNot(findsOneWidget));
+          expect(attachmentButtonFinder, isNot(findsOneWidget));
         },
       );
     });
@@ -304,12 +519,12 @@ void main() {
 
 class TestWidget extends StatelessWidget {
   final String hintText;
-  final bool showCameraButton;
+  final bool showAttachmentButton;
   final List<SingleChildWidget> blocs;
   const TestWidget({
     super.key,
     required this.hintText,
-    required this.showCameraButton,
+    required this.showAttachmentButton,
     required this.blocs,
   });
 
@@ -327,7 +542,7 @@ class TestWidget extends StatelessWidget {
                 Expanded(child: Container()),
                 ChatInput(
                   hintText: hintText,
-                  showCameraButton: showCameraButton,
+                  showAttachmentButton: showAttachmentButton,
                 ),
               ],
             ),

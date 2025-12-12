@@ -15,7 +15,6 @@ class Chat extends StatelessWidget {
   final String name;
   final String flowKey;
   final String hintText;
-  final bool showCameraButton;
   final bool showAttachmentButton;
   final VoidCallback? onShopPressed;
   final VoidCallback? onCartPressed;
@@ -26,7 +25,6 @@ class Chat extends StatelessWidget {
     required this.name,
     required this.flowKey,
     this.hintText = "Type a message",
-    this.showCameraButton = true,
     this.showAttachmentButton = true,
     this.appBar,
     this.onShopPressed,
@@ -56,7 +54,7 @@ class Chat extends StatelessWidget {
                     Expanded(
                       child: MessageList(),
                     ),
-                    ChatInput(hintText: hintText),
+                    ChatInput(hintText: hintText, showAttachmentButton:  showAttachmentButton),
                   ],
                 ),
               ),

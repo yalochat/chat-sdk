@@ -1,11 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/image_preview.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,37 +37,23 @@ class _MessageTextFieldState extends State<MessageTextField> {
       listener: (context, chatState) {
         _textEditingController.text = chatState.userMessage;
       },
-      child: BlocSelector<ImageBloc, ImageState, String>(
-        selector: (state) => state.pickedImage,
-        builder: (context, pickedImage) {
-          return Container(
-            color: chatThemeCubit.state.inputTextFieldColor,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: Scrollbar(
-                    child: TextField(
-                      controller: _textEditingController,
-                      decoration: InputDecoration(
-                        hintText: widget.hintText,
-                        hintStyle: chatThemeCubit.chatTheme.hintTextStyle,
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      onChanged: (value) =>
-                          _handleOnMessageChange(chatBloc, value),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                    ),
-                  ),
-                ),
-                if (pickedImage.isNotEmpty) ImagePreview(imagePath: pickedImage),
-              ],
+      child: Container(
+        color: chatThemeCubit.state.inputTextFieldColor,
+        child: Scrollbar(
+          child: TextField(
+            controller: _textEditingController,
+            decoration: InputDecoration(
+              hintText: widget.hintText,
+              hintStyle: chatThemeCubit.chatTheme.hintTextStyle,
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
             ),
-          );
-        },
+            onChanged: (value) =>
+                _handleOnMessageChange(chatBloc, value),
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+          ),
+        ),
       ),
     );
   }
