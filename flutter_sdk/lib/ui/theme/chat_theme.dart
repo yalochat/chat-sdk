@@ -34,6 +34,7 @@ class ChatTheme {
   final Icon attachIcon;
   final Icon cameraIcon;
   final Icon galleryIcon;
+  final Icon trashIcon;
 
   const ChatTheme({
     this.backgroundColor = SdkColors.backgroundColorLight,
@@ -104,6 +105,10 @@ class ChatTheme {
     this.galleryIcon = const Icon(
       Icons.insert_photo,
       color: SdkColors.messageControlIconColor,
+    ),
+    this.trashIcon = const Icon(
+      Icons.delete_outline,
+      color: SdkColors.iconWithBackdropColorLight,
     ),
   });
 }

@@ -20,4 +20,5 @@ abstract final class SdkColors {
   static const Color timerColoLight = Color(0xFF7C8086);
   static const Color messageControlIconColor = Color(0xFF7C8086);
   static const Color attachmentPickerBackgroundColorLight = Color(0xFFFFFFFF);
+  static const Color iconWithBackdropColorLight = Color(0xFFFFFFFF);
 }

@@ -69,6 +69,7 @@ List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
       create: (context) => MessagesBloc(
         name: name,
         chatMessageRepository: context.read<ChatMessageRepository>(),
+        imageRepository: context.read<ImageRepository>(),
       )..add(ChatLoadMessages(direction: PageDirection.initial)),
     ),
     BlocProvider<AudioBloc>(

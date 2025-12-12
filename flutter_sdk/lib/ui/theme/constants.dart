@@ -17,6 +17,8 @@ abstract final class SdkConstants {
 
   static const int defaultPageSize = 30;
   static const double pickerButtonRadius = 12;
+  static const double imagePreviewBorderRadius = 12;
+  static const double imagePreviewIconSize = 32;
 
   static const double messageListPadding = 8;
   static const double messageListMargin = 16;
@@ -31,4 +33,7 @@ abstract final class SdkConstants {
   static const double statusHeight = 20;
 
   static const double imageIconSize = 50;
+
+  // Compression constants
+  static const int imageQuality = 90;
 }

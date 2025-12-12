@@ -34,7 +34,7 @@ class ActionButton extends StatelessWidget {
       messagesBloc.add(
         ChatSendImageMessage(imageData: pickedImage, text: userMessage),
       );
-      imageBloc.add(ImageRemove());
+      imageBloc.add(ImageHidePreview());
     } else {
       audioBloc.add(AudioStopRecording());
       if (isUserRecordingAudio) {

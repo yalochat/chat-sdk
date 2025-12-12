@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -43,6 +44,7 @@ void main() {
     late ImageBloc imageBloc;
     late List<SingleChildWidget> blocs;
     late StreamController<AudioState> audioStreamController;
+    late StreamController<ImageState> imageStreamController;
 
     setUp(() {
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
@@ -50,6 +52,7 @@ void main() {
       audioBloc = MockAudioBloc();
       imageBloc = MockImageBloc();
       audioStreamController = StreamController();
+      imageStreamController = StreamController();
       blocs = [
         BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
         BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
@@ -206,7 +209,8 @@ void main() {
             () => messagesBloc.add(
               ChatSendVoiceMessage(
                 audioData: AudioData(
-                  amplitudesFilePreview: [-30, 0, 0, -30],
+                  amplitudes: mockAmplitudes,
+                  amplitudesFilePreview: mockPreview,
                   fileName: 'test.wav',
                   duration: 3,
                 ),
@@ -284,27 +288,211 @@ void main() {
     });
 
     group('attach image', () {
-      testWidgets('should attach an image', (tester) async {
-        when(() => messagesBloc.state).thenReturn(MessagesState());
-        when(() => audioBloc.state).thenReturn(AudioState());
-        when(() => imageBloc.state).thenReturn(ImageState());
+      testWidgets(
+        'should attach an image from camera and display a preview of it, then remove it because the user cancelled it',
+        (tester) async {
+          when(() => messagesBloc.state).thenReturn(MessagesState());
+          when(() => audioBloc.state).thenReturn(AudioState());
 
-        await tester.pumpWidget(
-          TestWidget(
-            hintText: 'test',
-            showAttachmentButton: true,
-            blocs: blocs,
-          ),
-        );
-        final attachmentButtonFinder = find.byKey(
-          const Key('AttachmentButton'),
-        );
+          final initialState = ImageState();
+          final stateStream = imageStreamController.stream;
+          whenListen(imageBloc, stateStream, initialState: initialState);
 
-        expect(attachmentButtonFinder, findsOneWidget);
-        await tester.tap(attachmentButtonFinder);
-        await tester.pump();
-        // TODO: verify camera handler
-      });
+          await tester.pumpWidget(
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
+          );
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
+
+          expect(attachmentButtonFinder, findsOneWidget);
+          await tester.tap(attachmentButtonFinder);
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
+          final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
+          expect(cameraPickerButton, findsOneWidget);
+          expect(galleryPickerButton, findsOneWidget);
+
+          await tester.tap(cameraPickerButton);
+          verify(() => imageBloc.add(ImagePickFromCamera())).called(1);
+
+          imageStreamController.sink.add(
+            initialState.copyWith(
+              pickedImage: () => ImageData(
+                path: 'images/test-image.png',
+                mimeType: 'image/png',
+              ),
+            ),
+          );
+
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          final previewFinder = find.byKey(Key('ImagePreview'));
+          expect(previewFinder, findsOneWidget);
+
+          final trashButtonFinder = find.byIcon(
+            chatThemeCubit.chatTheme.trashIcon.icon!,
+          );
+
+          expect(trashButtonFinder, findsOneWidget);
+          await tester.tap(trashButtonFinder);
+          verify(() => imageBloc.add(ImageCancelPick())).called(1);
+          imageStreamController.sink.add(
+            initialState.copyWith(pickedImage: () => null),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          expect(find.byKey(Key('ImagePreview')), isNot(findsOneWidget));
+        },
+      );
+
+      testWidgets(
+        'should attach an image from gallery and display a preview of it, then send it correctly, all in portrait mode',
+        (tester) async {
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: 'test'));
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          tester.view.physicalSize = const Size(600, 800);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(() {
+            tester.view.resetPhysicalSize();
+          });
+
+          final initialState = ImageState();
+          final stateStream = imageStreamController.stream;
+          whenListen(imageBloc, stateStream, initialState: initialState);
+
+          await tester.pumpWidget(
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
+          );
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
+
+          expect(attachmentButtonFinder, findsOneWidget);
+          await tester.tap(attachmentButtonFinder);
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
+          final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
+          expect(cameraPickerButton, findsOneWidget);
+          expect(galleryPickerButton, findsOneWidget);
+
+          await tester.tap(galleryPickerButton);
+          verify(() => imageBloc.add(ImagePickFromGallery())).called(1);
+
+          imageStreamController.sink.add(
+            initialState.copyWith(
+              pickedImage: () => ImageData(
+                path: 'images/test-image.png',
+                mimeType: 'image/png',
+              ),
+            ),
+          );
+
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          final previewFinder = find.byKey(Key('ImagePreview'));
+          expect(previewFinder, findsOneWidget);
+
+          final sendButton = find.byIcon(
+            chatThemeCubit.chatTheme.sendButtonIcon.icon!,
+          );
+
+          expect(sendButton, findsOneWidget);
+          await tester.tap(sendButton);
+          verify(() => imageBloc.add(ImageHidePreview())).called(1);
+          verify(
+            () => messagesBloc.add(
+              ChatSendImageMessage(
+                imageData: ImageData(
+                  path: 'images/test-image.png',
+                  mimeType: 'image/png',
+                ),
+                text: 'test',
+              ),
+            ),
+          ).called(1);
+          imageStreamController.sink.add(
+            initialState.copyWith(pickedImage: () => null),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          expect(find.byKey(Key('ImagePreview')), isNot(findsOneWidget));
+        },
+      );
+
+      testWidgets(
+        'should hide the image preview when the picker is opened again, close the picker when the exit button is pressed, the image preview should be shown after close',
+        (tester) async {
+          when(
+            () => messagesBloc.state,
+          ).thenReturn(MessagesState(userMessage: 'test'));
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          final initialState = ImageState();
+          final stateStream = imageStreamController.stream;
+          whenListen(imageBloc, stateStream, initialState: initialState);
+          await tester.pumpWidget(
+            TestWidget(
+              hintText: 'test',
+              showAttachmentButton: true,
+              blocs: blocs,
+            ),
+          );
+
+          final imageDataStub = ImageData(
+            path: 'images/test-image.png',
+            mimeType: 'image/png',
+          );
+          imageStreamController.sink.add(
+            ImageState(pickedImage: imageDataStub),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final initPreviewFinder = find.byKey(Key('ImagePreview'));
+          expect(initPreviewFinder, findsOneWidget);
+
+          final attachmentButtonFinder = find.byKey(
+            const Key('AttachmentButton'),
+          );
+
+          expect(attachmentButtonFinder, findsOneWidget);
+          await tester.tap(attachmentButtonFinder);
+          verify(() => imageBloc.add(ImageHidePreview())).called(1);
+          imageStreamController.sink.add(ImageState());
+          await tester.pumpAndSettle(Duration(seconds: 1));
+
+          final imagePreviewFinder = find.byKey(Key('ImagePreview'));
+          expect(imagePreviewFinder, isNot(findsOneWidget));
+
+          final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
+          final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
+          final exitButton = find.byIcon(
+            chatThemeCubit.chatTheme.closeModalIcon.icon!,
+          );
+          expect(cameraPickerButton, findsOneWidget);
+          expect(galleryPickerButton, findsOneWidget);
+          expect(exitButton, findsOneWidget);
+
+          await tester.tap(exitButton);
+          imageStreamController.sink.add(
+            ImageState(pickedImage: imageDataStub),
+          );
+          await tester.pumpAndSettle(Duration(seconds: 1));
+          verify(() => imageBloc.add(ImageShowPreview())).called(1);
+          final previewFinder = find.byKey(Key('ImagePreview'));
+          expect(previewFinder, findsOneWidget);
+        },
+      );
+
       testWidgets(
         'should not find the attachment button when showAttachmentButton is false',
         (tester) async {

@@ -37,7 +37,13 @@ void main() {
       xFile = MockXFile();
       when(() => uuid.v4()).thenReturn('test-uuid');
       when(() => xFile.path).thenReturn('test/test.png');
+      when(() => xFile.mimeType).thenReturn('image/png');
     });
+
+    setUpAll(() {
+      registerFallbackValue(XFile('test-path'));
+    });
+
     group('pick image', () {
       test('should pick an image with the camera service', () async {
         when(
@@ -51,14 +57,29 @@ void main() {
         final result = await imageRepository.pickImage(ImagePickSource.camera);
         expect(
           result,
-          Result.ok(
+          Result<ImageData?>.ok(
             ImageData(
               path: 'test/test.png',
               bytes: Uint8List.fromList([2, 3, 4]),
+              mimeType: 'image/png',
             ),
           ),
         );
       });
+
+      test(
+        'should return a null value when the user does not select an image',
+        () async {
+          when(
+            () => cameraService.pickImage(ImageSource.camera),
+          ).thenAnswer((_) async => Result.ok(null));
+
+          final result = await imageRepository.pickImage(
+            ImagePickSource.camera,
+          );
+          expect(result, Result<ImageData?>.ok(null));
+        },
+      );
 
       test(
         'should return an error when the mime type is unsupported',
@@ -76,7 +97,14 @@ void main() {
           final result = await imageRepository.pickImage(
             ImagePickSource.camera,
           );
-          expect(result, Result<ImageData?>.error(FormatException("mime type not supported, received 'application/json'")));
+          expect(
+            result,
+            isA<Error<ImageData?>>().having(
+              (s) => s.error,
+              'error',
+              isA<FormatException>(),
+            ),
+          );
         },
       );
 
@@ -96,24 +124,111 @@ void main() {
       );
     });
 
+    group('save image', () {
+      test(
+        'should save the file correctly when the image data is valid',
+        () async {
+          ImageData stubImageData = ImageData(
+            path: 'test.png',
+            mimeType: 'image/png',
+          );
+
+          when(
+            () => cameraService.saveImage('test/test-uuid.png', any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          final result = await imageRepository.saveImage(stubImageData);
+          expect(
+            result,
+            equals(
+              Result.ok(
+                ImageData(path: 'test/test-uuid.png', mimeType: 'image/png'),
+              ),
+            ),
+          );
+        },
+      );
+
+      test('should return an error when saving the image fails', () async {
+        ImageData stubImageData = ImageData(
+          path: 'test.png',
+          mimeType: 'image/png',
+        );
+
+        when(
+          () => cameraService.saveImage('test/test-uuid.png', any()),
+        ).thenAnswer((_) async => Result.error(Exception('test error')));
+
+        final result = await imageRepository.saveImage(stubImageData);
+        expect(
+          result,
+          isA<Error<ImageData>>().having(
+            (s) => s.error,
+            'error',
+            isA<Exception>(),
+          ),
+        );
+      });
+
+      test('should return an error when the mime type is not valid', () async {
+        ImageData stubImageData = ImageData(path: 'test.png', mimeType: '');
+
+        final result = await imageRepository.saveImage(stubImageData);
+        expect(
+          result,
+          isA<Error<ImageData>>().having(
+            (s) => s.error,
+            'error',
+            isA<FormatException>(),
+          ),
+        );
+      });
+
+      test('should return an error when the path is not valid', () async {
+        ImageData stubImageData = ImageData(
+          path: 'test',
+          mimeType: 'image/png',
+        );
+
+        final result = await imageRepository.saveImage(stubImageData);
+        expect(
+          result,
+          isA<Error<ImageData>>().having(
+            (s) => s.error,
+            'error',
+            isA<FormatException>(),
+          ),
+        );
+      });
+    });
+
     group('delete image', () {
       test('should delete the image file', () async {
+        ImageData stubImageData = ImageData(
+          path: 'test.png',
+          mimeType: 'image/png',
+        );
         when(
-          () => cameraService.deleteImage('test-path'),
+          () => cameraService.deleteImage(any()),
         ).thenAnswer((_) async => Result.ok(Unit()));
 
-        final result = await imageRepository.deleteImage('test-path');
+        final result = await imageRepository.deleteImage(stubImageData);
         expect(result, Result.ok(Unit()));
       });
+
       test(
         'should return an error when it fails to pick an image with the camera service',
         () async {
+          ImageData stubImageData = ImageData(
+            path: 'test.png',
+            mimeType: 'image/png',
+          );
           final error = Exception('test error');
           when(
-            () => cameraService.deleteImage('test-path'),
+            () => cameraService.deleteImage(any()),
           ).thenAnswer((_) async => Result<Unit>.error(error));
 
-          final result = await imageRepository.deleteImage('test-path');
+          final result = await imageRepository.deleteImage(stubImageData);
           expect(result, Result<Unit>.error(error));
         },
       );

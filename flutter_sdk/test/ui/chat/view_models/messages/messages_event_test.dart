@@ -79,8 +79,8 @@ void main() {
 
     group('ChatSendImageMessage', () {
       test('should support equality comparison', () {
-        final event1 = ChatSendImageMessage(imageData: ImageData(), text: '');
-        final event2 = ChatSendImageMessage(imageData: ImageData(), text: '');
+        final event1 = ChatSendImageMessage(imageData: ImageData(path: '', mimeType: ''), text: '');
+        final event2 = ChatSendImageMessage(imageData: ImageData(path: '', mimeType: ''), text: '');
 
         expect(event1, equals(event2));
       });

@@ -7,6 +7,7 @@ import 'package:chat_flutter_sdk/src/data/services/camera/camera_service.dart';
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
+import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 
 import 'image_repository.dart';
@@ -16,6 +17,8 @@ class ImageRepositoryFile implements ImageRepository {
   final Future<Directory> Function() _directory;
   final Uuid _uuid;
   final Logger log = Logger('ImageRepositoryFile');
+
+  final allowedMimeTypes = ['image/png', 'image/jpeg'];
 
   ImageRepositoryFile(
     CameraService cameraService,
@@ -45,7 +48,7 @@ class ImageRepositoryFile implements ImageRepository {
         }
 
         final mimeType = result.result!.mimeType;
-        if (mimeType != 'image/jpeg' || mimeType != 'image/png') {
+        if (!allowedMimeTypes.contains(mimeType)) {
           return Result.error(
             FormatException("mime type not supported, received '$mimeType'"),
           );
@@ -55,6 +58,7 @@ class ImageRepositoryFile implements ImageRepository {
           ImageData(
             path: result.result!.path,
             bytes: await result.result!.readAsBytes(),
+            mimeType: mimeType!,
           ),
         );
       case Error():
@@ -64,6 +68,43 @@ class ImageRepositoryFile implements ImageRepository {
   }
 
   @override
-  Future<Result<Unit>> deleteImage(String path) =>
-      _cameraService.deleteImage(path);
+  Future<Result<ImageData>> saveImage(ImageData imageData) async {
+    final ext = extension(imageData.path);
+    if (ext.isEmpty || imageData.mimeType.isEmpty) {
+      return Result.error(
+        FormatException('file name does not contain an extension or mime type'),
+      );
+    }
+    final directory = await _directory();
+    final fileName = '${directory.path}/${_uuid.v4()}$ext';
+    final file = XFile(imageData.path, mimeType: imageData.mimeType);
+
+    log.info('Saving image data to file $fileName');
+    final result = await _cameraService.saveImage(fileName, file);
+
+    switch (result) {
+      case Ok():
+        log.info('File saved successfully');
+        return Result.ok(imageData.copyWith(path: fileName));
+      case Error():
+        log.severe('Unable to save file', result.error);
+        return Result.error(result.error);
+    }
+  }
+
+  @override
+  Future<Result<Unit>> deleteImage(ImageData imageData) async {
+    log.info('Deleting image data');
+    final file = XFile(imageData.path, mimeType: imageData.mimeType);
+    final result = await _cameraService.deleteImage(file);
+
+    switch (result) {
+      case Ok():
+        log.info('Image data deleted successfully');
+        return Result.ok(Unit());
+      case Error():
+        log.severe('Unable to delete image data', result.error);
+        return Result.error(result.error);
+    }
+  }
 }

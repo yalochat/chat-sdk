@@ -3,7 +3,9 @@
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,15 +18,18 @@ import 'messages_state.dart';
 class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
   final Clock blocClock;
   final ChatMessageRepository _chatMessageRepository;
+  final ImageRepository _imageRepository;
   final Logger log = Logger('ChatViewModel');
 
   MessagesBloc({
     String name = '',
     required ChatMessageRepository chatMessageRepository,
+    required ImageRepository imageRepository,
     int pageSize = SdkConstants.defaultPageSize,
     Clock? clock,
   }) : blocClock = clock ?? Clock(),
        _chatMessageRepository = chatMessageRepository,
+       _imageRepository = imageRepository,
        super(
          MessagesState(
            isConnected: false,
@@ -182,21 +187,61 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     Emitter<MessagesState> emit,
   ) async {
     log.info('Inserting image message');
+    ImageData imageToInsert;
+    final imageData = await _imageRepository.saveImage(event.imageData);
+    switch (imageData) {
+      case Ok():
+        log.info('Image saved successfully');
+        imageToInsert = imageData.result;
+        break;
+      case Error():
+        log.severe('Unable to permanently store image', imageData.error);
+        emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
+        return;
+    }
+
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
       ChatMessage.image(
         role: MessageRole.user,
         timestamp: blocClock.now(),
         content: event.text,
-        fileName: event.imageData.path,
+        fileName: imageToInsert.path,
       ),
     );
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Image message inserted successfully, id ${result.result.id}');
-        emit(state.copyWith(messages: [result.result, ...state.messages], userMessage: ''));
+        emit(
+          state.copyWith(
+            messages: [result.result, ...state.messages],
+            userMessage: '',
+          ),
+        );
+        // free space from temporal space
+        final deleteTmpImage = await _imageRepository.deleteImage(
+          event.imageData,
+        );
+        switch (deleteTmpImage) {
+          case Ok():
+            log.info('Image removed from cache');
+            break;
+          case Error():
+            log.severe('Unable to clean image from cache');
+        }
         break;
       case Error<ChatMessage>():
         log.severe('Failed to insert voice message', result.error);
+        final deleteImageRes = await _imageRepository.deleteImage(
+          imageToInsert,
+        );
+        switch (deleteImageRes) {
+          case Ok():
+            log.info('Reverted storage from image');
+            break;
+          case Error():
+            log.severe('Unable to delete image from disk, leaking memory');
+            break;
+        }
         emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
         break;
     }

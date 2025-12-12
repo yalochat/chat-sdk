@@ -9,8 +9,34 @@ import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AttachmentButton extends StatelessWidget {
+class AttachmentButton extends StatefulWidget {
   const AttachmentButton({super.key});
+
+  @override
+  State<AttachmentButton> createState() => _AttachmentButtonState();
+}
+
+class _AttachmentButtonState extends State<AttachmentButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController animationController;
+
+  @override
+  void initState() {
+    final imageBloc = context.read<ImageBloc>();
+    animationController = BottomSheet.createAnimationController(this);
+    animationController.addStatusListener((status) {
+      if (status.isDismissed) {
+        imageBloc.add(ImageShowPreview());
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,17 +45,23 @@ class AttachmentButton extends StatelessWidget {
       builder: (parentContext, chatTheme) {
         return IconButton(
           onPressed: () {
+            if (imageBloc.state.pickedImage != null) {
+              imageBloc.add(ImageHidePreview());
+            }
             showModalBottomSheet(
               context: parentContext,
+              transitionAnimationController: animationController,
               builder: (BuildContext context) {
                 return BlocProvider.value(
                   value: BlocProvider.of<ChatThemeCubit>(parentContext),
                   child: Container(
-                    height: 275,
+                    height: MediaQuery.sizeOf(context).height * 0.25,
                     padding: EdgeInsets.all(SdkConstants.messageListMargin),
                     decoration: BoxDecoration(
                       color: chatTheme.attachmentPickerBackgroundColor,
-                      borderRadius: BorderRadiusGeometry.circular(12),
+                      borderRadius: BorderRadiusGeometry.circular(
+                        SdkConstants.pickerButtonRadius,
+                      ),
                     ),
                     child: SafeArea(
                       child: Column(
@@ -50,7 +82,7 @@ class AttachmentButton extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: 26),
+                          SizedBox(height: SdkConstants.columnItemSpace * 3),
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,6 +90,7 @@ class AttachmentButton extends StatelessWidget {
                                 Expanded(
                                   flex: 1,
                                   child: PickerButton(
+                                    key: const Key('CameraPickerButton'),
                                     icon: chatTheme.cameraIcon,
                                     onPressed: () {
                                       imageBloc.add(ImagePickFromCamera());
@@ -66,15 +99,15 @@ class AttachmentButton extends StatelessWidget {
                                     text: 'Take a photo',
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                SizedBox(height: SdkConstants.columnItemSpace),
                                 Expanded(
                                   flex: 1,
                                   child: PickerButton(
+                                    key: const Key('GalleryPickerButton'),
                                     icon: chatTheme.galleryIcon,
                                     onPressed: () {
                                       imageBloc.add(ImagePickFromGallery());
                                       Navigator.pop(context);
-                                      ;
                                     },
                                     text: 'Choose from gallery',
                                   ),

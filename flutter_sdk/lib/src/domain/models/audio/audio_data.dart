@@ -33,5 +33,5 @@ class AudioData extends Equatable {
   }
 
   @override
-  List<Object?> get props => [fileName, amplitudes, duration];
+  List<Object?> get props => [fileName, amplitudes, duration, amplitudesFilePreview];
 }

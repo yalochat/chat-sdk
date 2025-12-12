@@ -8,5 +8,7 @@ enum ImagePickSource { gallery, camera }
 abstract class ImageRepository {
   Future<Result<ImageData?>> pickImage(ImagePickSource source);
 
-  Future<Result<Unit>> deleteImage(String path);
+  Future<Result<ImageData>> saveImage(ImageData imageData);
+
+  Future<Result<Unit>> deleteImage(ImageData imageData);
 }
