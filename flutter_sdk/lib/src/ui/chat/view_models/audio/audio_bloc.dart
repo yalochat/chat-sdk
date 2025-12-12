@@ -14,7 +14,7 @@ import 'audio_state.dart';
 
 class AudioBloc extends Bloc<AudioEvent, AudioState> {
   @visibleForTesting
-  static const int recordTickMs = 45;
+  static const int recordTickMs = 25;
   @visibleForTesting
   static const int amplitudeDataPoints = 48;
   @visibleForTesting

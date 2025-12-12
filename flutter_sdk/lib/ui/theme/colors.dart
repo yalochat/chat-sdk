@@ -12,6 +12,7 @@ abstract final class SdkColors {
   static const Color pickerButtonBorderColor = Color(0xFFE6E6E6);
   static const Color userMessageColorLight = Color(0xFFF9FAFC);
   static const Color userMessageTextColorLight = Color(0xFF000000);
+  static const Color assistantMessageTextColorLight = Color(0xFF000000);
   static const Color modalHeaderColorLight = Color(0xFF010101);
   static const Color systemMessageColorLight = Color(0xFF151515);
   static const Color sendButtonColorLight = Color(0xFF2207F1);

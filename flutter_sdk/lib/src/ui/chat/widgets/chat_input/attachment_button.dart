@@ -52,10 +52,12 @@ class _AttachmentButtonState extends State<AttachmentButton>
               context: parentContext,
               transitionAnimationController: animationController,
               builder: (BuildContext context) {
+                final orientation = MediaQuery.orientationOf(context);
+                final size = MediaQuery.sizeOf(context);
                 return BlocProvider.value(
                   value: BlocProvider.of<ChatThemeCubit>(parentContext),
                   child: Container(
-                    height: MediaQuery.sizeOf(context).height * 0.25,
+                    height: orientation == Orientation.portrait ?  size.height * 0.25 : size.height * 0.5,
                     padding: EdgeInsets.all(SdkConstants.messageListMargin),
                     decoration: BoxDecoration(
                       color: chatTheme.attachmentPickerBackgroundColor,

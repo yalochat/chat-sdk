@@ -18,7 +18,7 @@ class UserImageMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(
       message.type == MessageType.image && message.fileName != null,
-      'UserImageMessage is only able to render image messages without empty fileName',
+      'UserImageMessage is only able to render image messages with non-empty fileName',
     );
     final chatThemeCubit = context.watch<ChatThemeCubit>();
     File imageFile = File(message.fileName!);

@@ -75,7 +75,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         emit(
           state.copyWith(
             chatStatus: ChatStatus.success,
-            // FIXME: Create a new way to track big message list copies
+            // FIXME: Create a new way to add messages preventing big copies
             messages: [...state.messages, ...newMessages.result.data],
             isLoading: false,
             pageInfo: newMessages.result.pageInfo.copyWith(

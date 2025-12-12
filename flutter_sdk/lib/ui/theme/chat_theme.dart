@@ -18,6 +18,7 @@ class ChatTheme {
   final Color attachmentPickerBackgroundColor;
   final TextStyle modalHeaderStyle;
   final TextStyle userMessageTextStyle;
+  final TextStyle assistantMessageTextStyle;
   final TextStyle systemMessageTextStyle;
   final TextStyle hintTextStyle;
   final TextStyle timerTextStyle;
@@ -50,6 +51,10 @@ class ChatTheme {
     this.waveColor = SdkColors.waveColorLight,
     this.userMessageTextStyle = const TextStyle(
       color: SdkColors.userMessageTextColorLight,
+    ),
+    this.assistantMessageTextStyle = const TextStyle(
+      color: SdkColors.assistantMessageTextColorLight,
+      fontSize: SdkConstants.titleFontSize,
     ),
     this.systemMessageTextStyle = const TextStyle(
       color: SdkColors.systemMessageColorLight,
