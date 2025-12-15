@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/l10n/yalo_sdk_localizations.g.dart';
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -18,13 +19,8 @@ import 'attachment_button.dart';
 import 'message_text_field.dart';
 
 class ChatInput extends StatefulWidget {
-  final String hintText;
   final bool showAttachmentButton;
-  const ChatInput({
-    super.key,
-    this.hintText = '',
-    this.showAttachmentButton = true,
-  });
+  const ChatInput({super.key, this.showAttachmentButton = true});
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -49,7 +45,10 @@ class _ChatInputState extends State<ChatInput> {
                 link: _layerLink,
                 targetAnchor: Alignment.topLeft,
                 followerAnchor: Alignment.bottomLeft,
-                child: ImagePreview(key: Key('ImagePreview'), imagePath: pickedImage.path),
+                child: ImagePreview(
+                  key: Key('ImagePreview'),
+                  imagePath: pickedImage.path,
+                ),
               ),
             ),
           ),
@@ -77,6 +76,7 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
+    final translations = context.read<YaloSdkLocalizations>();
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (context, chatTheme) {
         return BlocListener<ImageBloc, ImageState>(
@@ -125,7 +125,7 @@ class _ChatInputState extends State<ChatInput> {
                                       )
                                     : MessageTextField(
                                         key: const Key('MessageTextField'),
-                                        hintText: widget.hintText,
+                                        hintText: translations.typeMessage,
                                       ),
                               ),
                               if (widget.showAttachmentButton &&

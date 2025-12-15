@@ -16,7 +16,7 @@ import 'package:logging/logging.dart';
 
 import 'chat_message_repository.dart';
 
-class ChatMessageRepositoryLocal extends ChatMessageRepository {
+final class ChatMessageRepositoryLocal extends ChatMessageRepository {
   final db.DatabaseService _databaseService;
 
   final Logger log = Logger('ChatMessageRepository');

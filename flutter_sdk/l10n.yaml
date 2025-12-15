@@ -1,0 +1,4 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: yalo_sdk_localizations.g.dart
+output-class: YaloSdkLocalizations

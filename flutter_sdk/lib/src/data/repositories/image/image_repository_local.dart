@@ -12,15 +12,15 @@ import 'package:uuid/uuid.dart';
 
 import 'image_repository.dart';
 
-class ImageRepositoryFile implements ImageRepository {
+final class ImageRepositoryLocal implements ImageRepository {
   final CameraService _cameraService;
   final Future<Directory> Function() _directory;
   final Uuid _uuid;
-  final Logger log = Logger('ImageRepositoryFile');
+  final Logger log = Logger('ImageRepositoryLocal');
 
   final allowedMimeTypes = ['image/png', 'image/jpeg'];
 
-  ImageRepositoryFile(
+  ImageRepositoryLocal(
     CameraService cameraService,
     Future<Directory> Function() directory, [
     Uuid? uuid,

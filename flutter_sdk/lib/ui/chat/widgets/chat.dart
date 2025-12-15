@@ -14,7 +14,6 @@ class Chat extends StatelessWidget {
 
   final String name;
   final String flowKey;
-  final String hintText;
   final bool showAttachmentButton;
   final VoidCallback? onShopPressed;
   final VoidCallback? onCartPressed;
@@ -24,7 +23,6 @@ class Chat extends StatelessWidget {
     super.key,
     required this.name,
     required this.flowKey,
-    this.hintText = "Type a message",
     this.showAttachmentButton = true,
     this.appBar,
     this.onShopPressed,
@@ -35,7 +33,7 @@ class Chat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
-      providers: repositoryProviders(),
+      providers: repositoryProviders(context),
       child: MultiBlocProvider(
         providers: chatProviders(theme, name),
         child: BlocBuilder<ChatThemeCubit, ChatTheme>(
@@ -54,7 +52,7 @@ class Chat extends StatelessWidget {
                     Expanded(
                       child: MessageList(),
                     ),
-                    ChatInput(hintText: hintText, showAttachmentButton:  showAttachmentButton),
+                    ChatInput(showAttachmentButton:  showAttachmentButton),
                   ],
                 ),
               ),

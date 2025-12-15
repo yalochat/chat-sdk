@@ -23,7 +23,7 @@ class ChatTheme {
   final TextStyle hintTextStyle;
   final TextStyle timerTextStyle;
 
-  final AssetImage chatIconImage;
+  final ImageProvider? chatIconImage;
   final Icon sendButtonIcon;
   final Icon recordAudioIcon;
   final Icon shopIcon;
@@ -66,10 +66,7 @@ class ChatTheme {
     ),
     this.hintTextStyle = const TextStyle(color: SdkColors.hintColorLight),
     this.timerTextStyle = const TextStyle(color: SdkColors.timerColoLight),
-    this.chatIconImage = const AssetImage(
-      'assets/images/oris-icon.png',
-      package: 'chat_flutter_sdk',
-    ),
+    this.chatIconImage,
     this.sendButtonIcon = const Icon(
       Icons.send_outlined,
       key: Key("sendButtonIcon"),

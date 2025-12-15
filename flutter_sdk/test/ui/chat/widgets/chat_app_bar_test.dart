@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:io';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
@@ -12,7 +14,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockChatBloc extends MockBloc<MessagesEvent, MessagesState> implements MessagesBloc {}
+class MockChatBloc extends MockBloc<MessagesEvent, MessagesState>
+    implements MessagesBloc {}
 
 void main() {
   group(ChatAppBar, () {
@@ -20,7 +23,12 @@ void main() {
     late MessagesBloc messagesBloc;
 
     setUp(() {
-      chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
+      final imageFile = File('images/test-image.png');
+      chatThemeCubit = ChatThemeCubit(
+        chatTheme: ChatTheme(
+          chatIconImage: FileImage(imageFile),
+        ),
+      );
       messagesBloc = MockChatBloc();
     });
 
