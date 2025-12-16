@@ -9,12 +9,12 @@ import 'audio_repository.dart';
 
 // Implementation of an audio repository, stores audio data in files and provides
 // a stream for live drawing
-class AudioRepositoryFile implements AudioRepository {
+final class AudioRepositoryLocal implements AudioRepository {
   final AudioService _audioService;
   final Future<Directory> Function() _directory;
   final Uuid _uuid;
 
-  AudioRepositoryFile(
+  AudioRepositoryLocal(
     AudioService audioService,
     Future<Directory> Function() directory,
     [Uuid? uuid]

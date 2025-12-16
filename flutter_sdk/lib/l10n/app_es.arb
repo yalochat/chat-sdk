@@ -1,0 +1,12 @@
+{
+  "typeMessage": "Escribe un mensaje",
+  "sendImage": "Envía una imágen",
+  "takePhoto": "Tomar foto",
+  "@takePhoto": {
+    "description": "Botón para tomar una foto"
+  },
+  "chooseFromGallery": "Subir desde galería",
+  "@chooseFromGallery": {
+    "description": "Botón para subir desde galería"
+  }
+}

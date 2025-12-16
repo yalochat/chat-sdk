@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository_file.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository_local.dart';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,10 +13,10 @@ class MockAudioService extends Mock implements AudioService {}
 class MockUuid extends Mock implements Uuid {}
 
 void main() {
-  group(AudioRepositoryFile, () {
+  group(AudioRepositoryLocal, () {
     late MockAudioService mockAudioService;
     late MockUuid mockUuid;
-    late AudioRepositoryFile repository;
+    late AudioRepositoryLocal repository;
     late Future<Directory> Function() directoryProvider;
 
     setUpAll(() {
@@ -28,7 +28,7 @@ void main() {
       mockUuid = MockUuid();
       directoryProvider = () async => Directory('/test/path');
 
-      repository = AudioRepositoryFile(
+      repository = AudioRepositoryLocal(
         mockAudioService,
         directoryProvider,
         mockUuid,
@@ -212,8 +212,8 @@ void main() {
     });
 
     test('should create default Uuid when null is provided', () {
-      final repo = AudioRepositoryFile(mockAudioService, directoryProvider);
-      expect(repo, isA<AudioRepositoryFile>());
+      final repo = AudioRepositoryLocal(mockAudioService, directoryProvider);
+      expect(repo, isA<AudioRepositoryLocal>());
     });
   });
 }

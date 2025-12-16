@@ -30,7 +30,11 @@ final router = GoRouter(
             return Chat(
               name: "Chat test",
               flowKey: "1230487123041234",
-              theme: ChatTheme(),
+              theme: ChatTheme(
+                chatIconImage: const AssetImage(
+                  'assets/images/oris-icon.png',
+                ),
+              ),
               onShopPressed: () {},
               onCartPressed: () {},
             );
@@ -56,6 +60,11 @@ class _MyAppState extends State<MyApp> {
 
   void _handleChatClick(BuildContext context) {
     context.go("/chat");
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

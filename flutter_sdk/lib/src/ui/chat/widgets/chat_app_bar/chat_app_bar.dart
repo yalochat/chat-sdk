@@ -22,13 +22,14 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           backgroundColor: chatTheme.appBarBackgroundColor,
           title: Row(
             children: [
+              if (chatTheme.chatIconImage != null)
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image(
                     width: SdkConstants.imageIconSize,
                     height: SdkConstants.imageIconSize,
-                    image: chatTheme.chatIconImage,
+                    image: chatTheme.chatIconImage!,
                   ),
                 ),
               ),

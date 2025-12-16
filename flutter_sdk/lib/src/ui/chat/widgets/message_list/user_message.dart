@@ -21,11 +21,15 @@ class UserMessage extends StatelessWidget {
       'UserMessage can only render messages with role user',
     );
     final chatThemeCubit = context.watch<ChatThemeCubit>();
+    final size = MediaQuery.sizeOf(context);
     return Flexible(
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
-            constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.8),
+            constraints: BoxConstraints(
+              maxWidth: constraints.maxWidth * 0.8,
+              maxHeight: size.height * 0.5,
+            ),
             padding: EdgeInsets.all(SdkConstants.messagePadding),
             decoration: BoxDecoration(
               color: chatThemeCubit.chatTheme.userMessageColor,
@@ -37,6 +41,7 @@ class UserMessage extends StatelessWidget {
               MessageType.text => SelectableText(
                 message.content,
                 style: chatThemeCubit.chatTheme.userMessageTextStyle,
+                textAlign: TextAlign.left,
               ),
               MessageType.voice => UserVoiceMessage(message: message),
               MessageType.image => UserImageMessage(message: message),

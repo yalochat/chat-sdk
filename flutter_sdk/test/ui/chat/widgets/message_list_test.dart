@@ -235,7 +235,7 @@ void main() {
       );
     });
 
-    group('image messages', () {
+    group('user image messages', () {
       testWidgets(
         'should render a image message correctly without content text',
         (tester) async {
@@ -257,7 +257,7 @@ void main() {
 
           await tester.pumpWidget(TestWidget(blocs: blocs));
           final imageFinder = find.byType(Image);
-              expect(imageFinder, findsOneWidget);
+          expect(imageFinder, findsOneWidget);
           final textFinder = find.text('');
           expect(textFinder, isNot(findsOneWidget));
         },
@@ -286,6 +286,33 @@ void main() {
         final imageFinder = find.byType(Image);
         expect(imageFinder, findsOneWidget);
         final textFinder = find.text('test content');
+        expect(textFinder, findsOneWidget);
+      });
+    });
+
+    group('assistant text messages', () {
+      testWidgets('should render a assistant text message correctly', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 8,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content:
+                    'This is a very large assistant message designed just for testing the widget of yalo\'s flutter SDK',
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        final textFinder = find.textContaining(r'large assistant');
         expect(textFinder, findsOneWidget);
       });
     });

@@ -3,6 +3,8 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:chat_flutter_sdk/l10n/yalo_sdk_localizations.g.dart';
+import 'package:chat_flutter_sdk/l10n/yalo_sdk_localizations_en.g.dart';
 import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
@@ -22,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 class MockMessagesBloc extends MockBloc<MessagesEvent, MessagesState>
@@ -54,6 +57,7 @@ void main() {
       audioStreamController = StreamController();
       imageStreamController = StreamController();
       blocs = [
+        Provider<YaloSdkLocalizations>(create: (context) => YaloSdkLocalizationsEn()),
         BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
         BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
         BlocProvider<AudioBloc>(create: (context) => audioBloc),
@@ -541,7 +545,6 @@ class TestWidget extends StatelessWidget {
               children: [
                 Expanded(child: Container()),
                 ChatInput(
-                  hintText: hintText,
                   showAttachmentButton: showAttachmentButton,
                 ),
               ],
