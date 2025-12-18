@@ -84,7 +84,10 @@ class _AttachmentButtonState extends State<AttachmentButton>
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                icon: chatTheme.closeModalIcon,
+                                icon: Icon(
+                                  chatTheme.closeModalIcon,
+                                  color: chatTheme.closeModalIconColor,
+                                ),
                               ),
                             ],
                           ),
@@ -97,7 +100,10 @@ class _AttachmentButtonState extends State<AttachmentButton>
                                   flex: 1,
                                   child: PickerButton(
                                     key: const Key('CameraPickerButton'),
-                                    icon: chatTheme.cameraIcon,
+                                    icon: Icon(
+                                      chatTheme.cameraIcon,
+                                      color: chatTheme.cameraIconColor,
+                                    ),
                                     onPressed: () {
                                       imageBloc.add(ImagePickFromCamera());
                                       Navigator.pop(context);
@@ -110,7 +116,10 @@ class _AttachmentButtonState extends State<AttachmentButton>
                                   flex: 1,
                                   child: PickerButton(
                                     key: const Key('GalleryPickerButton'),
-                                    icon: chatTheme.galleryIcon,
+                                    icon: Icon(
+                                      chatTheme.galleryIcon,
+                                      color: chatTheme.galleryIconColor,
+                                    ),
                                     onPressed: () {
                                       imageBloc.add(ImagePickFromGallery());
                                       Navigator.pop(context);
@@ -129,7 +138,7 @@ class _AttachmentButtonState extends State<AttachmentButton>
               },
             );
           },
-          icon: chatTheme.attachIcon,
+          icon: Icon(chatTheme.attachIcon, color: chatTheme.attachIconColor),
         );
       },
     );

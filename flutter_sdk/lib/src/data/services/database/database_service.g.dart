@@ -88,6 +88,17 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
+  static const VerificationMeta _productsMeta = const VerificationMeta(
+    'products',
+  );
+  late final GeneratedColumn<String> products = GeneratedColumn<String>(
+    'products',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   static const VerificationMeta _timestampMeta = const VerificationMeta(
     'timestamp',
   );
@@ -109,6 +120,7 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     fileName,
     amplitudes,
     duration,
+    products,
     timestamp,
   ];
   @override
@@ -176,6 +188,12 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         duration.isAcceptableOrUnknown(data['duration']!, _durationMeta),
       );
     }
+    if (data.containsKey('products')) {
+      context.handle(
+        _productsMeta,
+        products.isAcceptableOrUnknown(data['products']!, _productsMeta),
+      );
+    }
     if (data.containsKey('timestamp')) {
       context.handle(
         _timestampMeta,
@@ -225,6 +243,10 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         DriftSqlType.int,
         data['${effectivePrefix}duration'],
       ),
+      products: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}products'],
+      ),
       timestamp: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}timestamp'],
@@ -250,6 +272,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   final String? fileName;
   final String? amplitudes;
   final int? duration;
+  final String? products;
   final int timestamp;
   const ChatMessageData({
     required this.id,
@@ -260,6 +283,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     this.fileName,
     this.amplitudes,
     this.duration,
+    this.products,
     required this.timestamp,
   });
   @override
@@ -278,6 +302,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     }
     if (!nullToAbsent || duration != null) {
       map['duration'] = Variable<int>(duration);
+    }
+    if (!nullToAbsent || products != null) {
+      map['products'] = Variable<String>(products);
     }
     map['timestamp'] = Variable<int>(timestamp);
     return map;
@@ -299,6 +326,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       duration: duration == null && nullToAbsent
           ? const Value.absent()
           : Value(duration),
+      products: products == null && nullToAbsent
+          ? const Value.absent()
+          : Value(products),
       timestamp: Value(timestamp),
     );
   }
@@ -317,6 +347,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       fileName: serializer.fromJson<String?>(json['file_name']),
       amplitudes: serializer.fromJson<String?>(json['amplitudes']),
       duration: serializer.fromJson<int?>(json['duration']),
+      products: serializer.fromJson<String?>(json['products']),
       timestamp: serializer.fromJson<int>(json['timestamp']),
     );
   }
@@ -332,6 +363,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       'file_name': serializer.toJson<String?>(fileName),
       'amplitudes': serializer.toJson<String?>(amplitudes),
       'duration': serializer.toJson<int?>(duration),
+      'products': serializer.toJson<String?>(products),
       'timestamp': serializer.toJson<int>(timestamp),
     };
   }
@@ -345,6 +377,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     Value<String?> fileName = const Value.absent(),
     Value<String?> amplitudes = const Value.absent(),
     Value<int?> duration = const Value.absent(),
+    Value<String?> products = const Value.absent(),
     int? timestamp,
   }) => ChatMessageData(
     id: id ?? this.id,
@@ -355,6 +388,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     fileName: fileName.present ? fileName.value : this.fileName,
     amplitudes: amplitudes.present ? amplitudes.value : this.amplitudes,
     duration: duration.present ? duration.value : this.duration,
+    products: products.present ? products.value : this.products,
     timestamp: timestamp ?? this.timestamp,
   );
   ChatMessageData copyWithCompanion(ChatMessageCompanion data) {
@@ -369,6 +403,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           ? data.amplitudes.value
           : this.amplitudes,
       duration: data.duration.present ? data.duration.value : this.duration,
+      products: data.products.present ? data.products.value : this.products,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
     );
   }
@@ -384,6 +419,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           ..write('fileName: $fileName, ')
           ..write('amplitudes: $amplitudes, ')
           ..write('duration: $duration, ')
+          ..write('products: $products, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
@@ -399,6 +435,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     fileName,
     amplitudes,
     duration,
+    products,
     timestamp,
   );
   @override
@@ -413,6 +450,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           other.fileName == this.fileName &&
           other.amplitudes == this.amplitudes &&
           other.duration == this.duration &&
+          other.products == this.products &&
           other.timestamp == this.timestamp);
 }
 
@@ -425,6 +463,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
   final Value<String?> fileName;
   final Value<String?> amplitudes;
   final Value<int?> duration;
+  final Value<String?> products;
   final Value<int> timestamp;
   const ChatMessageCompanion({
     this.id = const Value.absent(),
@@ -435,6 +474,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     this.fileName = const Value.absent(),
     this.amplitudes = const Value.absent(),
     this.duration = const Value.absent(),
+    this.products = const Value.absent(),
     this.timestamp = const Value.absent(),
   });
   ChatMessageCompanion.insert({
@@ -446,6 +486,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     this.fileName = const Value.absent(),
     this.amplitudes = const Value.absent(),
     this.duration = const Value.absent(),
+    this.products = const Value.absent(),
     required int timestamp,
   }) : role = Value(role),
        content = Value(content),
@@ -461,6 +502,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     Expression<String>? fileName,
     Expression<String>? amplitudes,
     Expression<int>? duration,
+    Expression<String>? products,
     Expression<int>? timestamp,
   }) {
     return RawValuesInsertable({
@@ -472,6 +514,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
       if (fileName != null) 'file_name': fileName,
       if (amplitudes != null) 'amplitudes': amplitudes,
       if (duration != null) 'duration': duration,
+      if (products != null) 'products': products,
       if (timestamp != null) 'timestamp': timestamp,
     });
   }
@@ -485,6 +528,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     Value<String?>? fileName,
     Value<String?>? amplitudes,
     Value<int?>? duration,
+    Value<String?>? products,
     Value<int>? timestamp,
   }) {
     return ChatMessageCompanion(
@@ -496,6 +540,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
       fileName: fileName ?? this.fileName,
       amplitudes: amplitudes ?? this.amplitudes,
       duration: duration ?? this.duration,
+      products: products ?? this.products,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -527,6 +572,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     if (duration.present) {
       map['duration'] = Variable<int>(duration.value);
     }
+    if (products.present) {
+      map['products'] = Variable<String>(products.value);
+    }
     if (timestamp.present) {
       map['timestamp'] = Variable<int>(timestamp.value);
     }
@@ -544,6 +592,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
           ..write('fileName: $fileName, ')
           ..write('amplitudes: $amplitudes, ')
           ..write('duration: $duration, ')
+          ..write('products: $products, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
@@ -556,7 +605,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
   late final ChatMessage chatMessage = ChatMessage(this);
   Selectable<ChatMessageData> getMessagesFirstPage(int limit) {
     return customSelect(
-      'SELECT id, role, content, type, status, file_name, amplitudes, duration, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
+      'SELECT id, role, content, type, status, file_name, amplitudes, duration, products, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
       variables: [Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
@@ -564,7 +613,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
 
   Selectable<ChatMessageData> getMessagesPage(int cursor, int limit) {
     return customSelect(
-      'SELECT id, role, content, type, status, file_name, amplitudes, duration, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
+      'SELECT id, role, content, type, status, file_name, amplitudes, duration, products, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
       variables: [Variable<int>(cursor), Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
@@ -587,6 +636,7 @@ typedef $ChatMessageCreateCompanionBuilder =
       Value<String?> fileName,
       Value<String?> amplitudes,
       Value<int?> duration,
+      Value<String?> products,
       required int timestamp,
     });
 typedef $ChatMessageUpdateCompanionBuilder =
@@ -599,6 +649,7 @@ typedef $ChatMessageUpdateCompanionBuilder =
       Value<String?> fileName,
       Value<String?> amplitudes,
       Value<int?> duration,
+      Value<String?> products,
       Value<int> timestamp,
     });
 
@@ -648,6 +699,11 @@ class $ChatMessageFilterComposer
 
   ColumnFilters<int> get duration => $composableBuilder(
     column: $table.duration,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get products => $composableBuilder(
+    column: $table.products,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -706,6 +762,11 @@ class $ChatMessageOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get products => $composableBuilder(
+    column: $table.products,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get timestamp => $composableBuilder(
     column: $table.timestamp,
     builder: (column) => ColumnOrderings(column),
@@ -746,6 +807,9 @@ class $ChatMessageAnnotationComposer
 
   GeneratedColumn<int> get duration =>
       $composableBuilder(column: $table.duration, builder: (column) => column);
+
+  GeneratedColumn<String> get products =>
+      $composableBuilder(column: $table.products, builder: (column) => column);
 
   GeneratedColumn<int> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
@@ -790,6 +854,7 @@ class $ChatMessageTableManager
                 Value<String?> fileName = const Value.absent(),
                 Value<String?> amplitudes = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
+                Value<String?> products = const Value.absent(),
                 Value<int> timestamp = const Value.absent(),
               }) => ChatMessageCompanion(
                 id: id,
@@ -800,6 +865,7 @@ class $ChatMessageTableManager
                 fileName: fileName,
                 amplitudes: amplitudes,
                 duration: duration,
+                products: products,
                 timestamp: timestamp,
               ),
           createCompanionCallback:
@@ -812,6 +878,7 @@ class $ChatMessageTableManager
                 Value<String?> fileName = const Value.absent(),
                 Value<String?> amplitudes = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
+                Value<String?> products = const Value.absent(),
                 required int timestamp,
               }) => ChatMessageCompanion.insert(
                 id: id,
@@ -822,6 +889,7 @@ class $ChatMessageTableManager
                 fileName: fileName,
                 amplitudes: amplitudes,
                 duration: duration,
+                products: products,
                 timestamp: timestamp,
               ),
           withReferenceMapper: (p0) => p0

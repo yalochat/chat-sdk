@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/domain/product/product.dart';
 import 'package:equatable/equatable.dart';
 
 enum MessageRole {
@@ -14,7 +15,13 @@ enum MessageRole {
 enum MessageType {
   text('text'),
   image('image'),
-  voice('voice');
+  voice('voice'),
+  product('product'),
+  productCarousel('productCarousel'),
+  promotion('promotion'),
+  quickReply('quickReply'),
+
+  unknown('unknown');
 
   final String type;
   const MessageType(this.type);
@@ -49,6 +56,9 @@ class ChatMessage extends Equatable {
   // Audio duration in ms
   final int? duration;
 
+  // Products linked to the chat message
+  final List<Product> products;
+
   const ChatMessage({
     this.id,
     required this.role,
@@ -59,6 +69,7 @@ class ChatMessage extends Equatable {
     this.fileName,
     this.amplitudes,
     this.duration,
+    this.products = const [],
   });
 
   const ChatMessage.text({
@@ -70,7 +81,8 @@ class ChatMessage extends Equatable {
   }) : type = MessageType.text,
        amplitudes = null,
        fileName = null,
-       duration = null;
+       duration = null,
+       products = const [];
 
   const ChatMessage.voice({
     this.id,
@@ -81,6 +93,7 @@ class ChatMessage extends Equatable {
     required this.amplitudes,
     required this.duration,
   }) : type = MessageType.voice,
+       products = const [],
        content = '';
 
   const ChatMessage.image({
@@ -91,6 +104,19 @@ class ChatMessage extends Equatable {
     this.status = MessageStatus.inProgress,
     this.content = '',
   }) : type = MessageType.image,
+       amplitudes = null,
+       duration = null,
+       products = const [];
+
+  const ChatMessage.product({
+    this.id,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    this.products = const [],
+  }) : type = MessageType.product,
+       content = '',
+       fileName = '',
        amplitudes = null,
        duration = null;
 
@@ -104,6 +130,7 @@ class ChatMessage extends Equatable {
     String? fileName,
     List<double>? amplitudes,
     int? duration,
+    List<Product>? products,
     DateTime? timestamp,
   }) {
     return ChatMessage(
@@ -115,6 +142,7 @@ class ChatMessage extends Equatable {
       fileName: fileName ?? this.fileName,
       amplitudes: amplitudes ?? this.amplitudes,
       duration: duration ?? this.duration,
+      products: products ?? this.products,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -130,6 +158,7 @@ class ChatMessage extends Equatable {
     fileName,
     amplitudes,
     duration,
+    products,
     timestamp,
   ];
 }

@@ -1,5 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:convert';
+
+import 'package:chat_flutter_sdk/domain/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/common/page.dart';
@@ -210,6 +213,80 @@ void main() {
         } catch (e) {
           expect(e, isA<Exception>());
         }
+      },
+      tags: ['integration'],
+    );
+
+    test('should update a chat message correctly', () async {
+      ChatMessage message = ChatMessage.product(
+        role: MessageRole.user,
+        timestamp: clock.now(),
+      );
+      var result = await chatRepository.insertChatMessage(message);
+      expect(result, isA<Ok<ChatMessage>>());
+      var okRes = result as Ok<ChatMessage>;
+      expect(okRes.result.id, equals(1));
+
+      ChatMessage newMessage = okRes.result.copyWith(
+        products: [
+          Product(
+            sku: '123',
+            name: 'Test',
+            price: 300,
+            unitName: 'box',
+            unitNamePlural: 'boxes',
+          ),
+        ],
+      );
+
+      final updateRes = await chatRepository.replaceChatMessage(newMessage);
+      expect(
+        updateRes,
+        isA<Ok<bool>>().having((s) => s.result, 'value', equals(true)),
+      );
+
+      final actualRes = await (databaseService.select(
+        databaseService.chatMessage,
+      )..where((m) => m.id.equals(1))).getSingle();
+
+      final List<Product> products = actualRes.products != null
+          ? (jsonDecode(actualRes.products!) as List)
+                .map((e) => Product.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : [];
+
+      expect(products.length, equals(1));
+      expect(
+        products[0],
+        equals(
+          Product(
+            sku: '123',
+            name: 'Test',
+            price: 300,
+            unitName: 'box',
+            unitNamePlural: 'boxes',
+          ),
+        ),
+      );
+    }, tags: ['integration']);
+
+    test(
+      'should return a format exception when the messages does not contain an id',
+      () async {
+        ChatMessage message = ChatMessage.product(
+          role: MessageRole.user,
+          timestamp: clock.now(),
+        );
+
+        final updateRes = await chatRepository.replaceChatMessage(message);
+        expect(
+          updateRes,
+          isA<Error<bool>>().having(
+            (s) => s.error,
+            'error',
+            isA<FormatException>(),
+          ),
+        );
       },
       tags: ['integration'],
     );

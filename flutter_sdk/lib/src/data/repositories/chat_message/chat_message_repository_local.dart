@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:chat_flutter_sdk/domain/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
@@ -23,6 +24,51 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
 
   ChatMessageRepositoryLocal({required db.DatabaseService localDatabaseService})
     : _databaseService = localDatabaseService;
+
+  ChatMessageData _convertMessageToMessageData(ChatMessage message) {
+    assert(message.id != null, 'Message id must not be null');
+    return ChatMessageData(
+      id: message.id!,
+      role: message.role.role,
+      content: message.content,
+      type: message.type.type,
+      status: message.status.status,
+      fileName: message.fileName,
+      amplitudes: message.amplitudes == null
+          ? null
+          : jsonEncode(message.amplitudes),
+      duration: message.duration,
+      products: message.products.isEmpty
+          ? null
+          : jsonEncode(message.products.map((p) => p.toJson()).toList()),
+      timestamp: message.timestamp.millisecondsSinceEpoch,
+    );
+  }
+
+  ChatMessage _convertMessageDataToChatMessage(ChatMessageData data) {
+    return ChatMessage(
+      id: data.id,
+      role: MessageRole.values.firstWhere((role) => role.role == data.role),
+      content: data.content,
+      type: MessageType.values.firstWhere((type) => type.type == data.type),
+      status: MessageStatus.values.firstWhere(
+        (status) => status.status == data.status,
+      ),
+      fileName: data.fileName,
+      amplitudes: data.amplitudes != null
+          ? (jsonDecode(data.amplitudes!) as List)
+                .map((e) => e as double)
+                .toList()
+          : null,
+      duration: data.duration,
+      products: data.products != null
+          ? (jsonDecode(data.products!) as List)
+                .map((e) => Product.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : [],
+      timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
+    );
+  }
 
   @override
   Future<Result<Page<ChatMessage>>> getChatMessagePageDesc(
@@ -50,30 +96,8 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
             .get();
       }
 
-      var data = results
-          .map(
-            (data) => ChatMessage(
-              id: data.id,
-              role: MessageRole.values.firstWhere(
-                (role) => role.role == data.role,
-              ),
-              content: data.content,
-              type: MessageType.values.firstWhere(
-                (type) => type.type == data.type,
-              ),
-              status: MessageStatus.values.firstWhere(
-                (status) => status.status == data.status,
-              ),
-              fileName: data.fileName,
-              amplitudes: data.amplitudes != null
-                  ? (jsonDecode(data.amplitudes!) as List)
-                        .map((e) => e as double)
-                        .toList()
-                  : null,
-              duration: data.duration,
-              timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
-            ),
-          )
+      final data = results
+          .map((data) => _convertMessageDataToChatMessage(data))
           .toList();
 
       int? nextCursor;
@@ -104,7 +128,7 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
   Future<Result<ChatMessage>> insertChatMessage(ChatMessage message) async {
     try {
       log.info('Inserting message: ${message.type}');
-      var resultId = await _databaseService
+      final resultId = await _databaseService
           .into(_databaseService.chatMessage)
           .insert(
             db.ChatMessageCompanion.insert(
@@ -122,6 +146,13 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
               duration: message.duration == null
                   ? Value.absent()
                   : Value(message.duration),
+              products: message.products.isEmpty
+                  ? Value.absent()
+                  : Value(
+                      jsonEncode(
+                        message.products.map((p) => p.toJson()).toList(),
+                      ),
+                    ),
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),
           );
@@ -129,6 +160,26 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
       return Result.ok(message.copyWith(id: resultId));
     } on Exception catch (e) {
       log.severe('Unable to insert message $message');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<bool>> replaceChatMessage(ChatMessage message) async {
+    if (message.id == null) {
+      return Result.error(
+        FormatException('Message must contain an id to replace'),
+      );
+    }
+    try {
+      log.info('Updating message with id ${message.id}');
+      final result = await _databaseService
+          .update(_databaseService.chatMessage)
+          .replace(_convertMessageToMessageData(message));
+      log.info('Replace operation succeeded');
+      return Result.ok(result);
+    } on Exception catch (e) {
+      log.severe('Unable to update message $message');
       return Result.error(e);
     }
   }

@@ -49,8 +49,14 @@ class UserVoiceMessage extends StatelessWidget {
                 _handlePlayMessage(chatBloc);
               },
               icon: playingMessage != null && playingMessage.id == message.id
-                  ? chatThemeCubit.chatTheme.pauseAudioIcon
-                  : chatThemeCubit.chatTheme.playAudioIcon,
+                  ? Icon(
+                      chatThemeCubit.state.pauseAudioIcon,
+                      color: chatThemeCubit.state.pauseAudioIconColor,
+                    )
+                  : Icon(
+                      chatThemeCubit.chatTheme.playAudioIcon,
+                      color: chatThemeCubit.state.playAudioIconColor,
+                    ),
             );
           },
         ),

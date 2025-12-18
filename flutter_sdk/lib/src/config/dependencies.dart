@@ -8,6 +8,8 @@ import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository_local.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_fake.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/camera/camera_service.dart';
@@ -50,6 +52,9 @@ List<SingleChildWidget> repositoryProviders(BuildContext context) {
 
     Provider<YaloSdkLocalizations>(create: (_) => localizations),
     Provider<CameraService>(create: (_) => CameraServiceFile()),
+    RepositoryProvider<YaloMessageRepository>(
+      create: (context) => YaloMessageRepositoryFake(),
+    ),
     RepositoryProvider<ImageRepository>(
       create: (context) => ImageRepositoryLocal(
         context.read<CameraService>(),
@@ -73,11 +78,16 @@ List<SingleChildWidget> repositoryProviders(BuildContext context) {
 List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
   return [
     BlocProvider<MessagesBloc>(
-      create: (context) => MessagesBloc(
-        name: name,
-        chatMessageRepository: context.read<ChatMessageRepository>(),
-        imageRepository: context.read<ImageRepository>(),
-      )..add(ChatLoadMessages(direction: PageDirection.initial)),
+      create: (context) =>
+          MessagesBloc(
+              name: name,
+              chatMessageRepository: context.read<ChatMessageRepository>(),
+              imageRepository: context.read<ImageRepository>(),
+              yaloMessageRepository: context.read<YaloMessageRepository>(),
+            )
+            ..add(ChatLoadMessages(direction: PageDirection.initial))
+            ..add(ChatSubscribeToEvents())
+            ..add(ChatSubscribeToMessages()),
     ),
     BlocProvider<AudioBloc>(
       create: (context) =>

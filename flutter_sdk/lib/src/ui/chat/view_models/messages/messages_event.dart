@@ -1,7 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:equatable/equatable.dart';
 
@@ -10,6 +9,8 @@ sealed class MessagesEvent {
 }
 
 enum PageDirection { initial, next }
+
+enum UnitType { unit, subunit }
 
 // Event that should be called to load messages in the chat
 final class ChatLoadMessages extends MessagesEvent with EquatableMixin {
@@ -20,18 +21,14 @@ final class ChatLoadMessages extends MessagesEvent with EquatableMixin {
   List<Object?> get props => [direction];
 }
 
-// Event that is emitted when the agent starts typing
-final class ChatStartTyping extends MessagesEvent with EquatableMixin {
-  final String chatStatusText;
-
-  ChatStartTyping({this.chatStatusText = ''});
-
+// Event that is emitted to subscribe to yalo messages events
+final class ChatSubscribeToEvents extends MessagesEvent with EquatableMixin {
   @override
-  List<Object?> get props => [chatStatusText];
+  List<Object?> get props => [];
 }
 
-// Event that is emitted when the agent stops typing
-final class ChatStopTyping extends MessagesEvent with EquatableMixin {
+// Event that is emitted to subscribe to yalo messages messages
+final class ChatSubscribeToMessages extends MessagesEvent with EquatableMixin {
   @override
   List<Object?> get props => [];
 }
@@ -45,6 +42,24 @@ final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
 
   @override
   List<Object?> get props => [value];
+}
+
+// Event to add a quantity to a product
+final class ChatUpdateProductQuantity extends MessagesEvent with EquatableMixin {
+  final int messageId;
+  final int productIndex;
+  final UnitType unitType;
+  final double quantity;
+
+  ChatUpdateProductQuantity({
+    required this.messageId,
+    required this.productIndex,
+    required this.unitType,
+    required this.quantity,
+  });
+
+  @override
+  List<Object?> get props => [messageId, productIndex, unitType, quantity];
 }
 
 // Event to send a text message

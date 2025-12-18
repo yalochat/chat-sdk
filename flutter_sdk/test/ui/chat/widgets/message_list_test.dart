@@ -127,6 +127,31 @@ void main() {
         final loaderFind = find.byKey(const Key('loading_spinner'));
         expect(loaderFind, findsOneWidget);
       });
+
+      testWidgets(
+        'should throw an unimplemented error when a unsupported user message is received',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage(
+                  id: 8,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  content:
+                      'This is a very large assistant message designed just for testing the widget of yalo\'s flutter SDK',
+                  type: MessageType.unknown,
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          expect(tester.takeException(), isA<UnimplementedError>());
+        },
+      );
     });
 
     group('user voice messages', () {
@@ -211,7 +236,7 @@ void main() {
           final messageItem = find.byKey(ValueKey<String>('message-item-1'));
           final playMessageFinder = find.descendant(
             of: messageItem,
-            matching: find.byIcon(chatThemeCubit.chatTheme.playAudioIcon.icon!),
+            matching: find.byIcon(chatThemeCubit.chatTheme.playAudioIcon),
           );
           expect(playMessageFinder, findsOneWidget);
           await tester.tap(playMessageFinder);
@@ -224,7 +249,7 @@ void main() {
           ).called(1);
           final pauseButtonFinder = find.descendant(
             of: messageItem,
-            matching: find.byIcon(chatThemeCubit.state.pauseAudioIcon.icon!),
+            matching: find.byIcon(chatThemeCubit.state.pauseAudioIcon),
           );
           expect(pauseButtonFinder, findsOneWidget);
           await tester.tap(pauseButtonFinder);
@@ -315,6 +340,31 @@ void main() {
         final textFinder = find.textContaining(r'large assistant');
         expect(textFinder, findsOneWidget);
       });
+
+      testWidgets(
+        'should throw an unimplemented error when a unsupported assistant message is received',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  content:
+                      'This is a very large assistant message designed just for testing the widget of yalo\'s flutter SDK',
+                  type: MessageType.unknown,
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          expect(tester.takeException(), isA<UnimplementedError>());
+        },
+      );
     });
   });
 }

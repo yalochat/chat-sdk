@@ -88,7 +88,7 @@ void main() {
             ),
           );
           final actionButtonFinder = find.byIcon(
-            chatThemeCubit.state.sendButtonIcon.icon!,
+            chatThemeCubit.state.sendButtonIcon,
           );
 
           expect(actionButtonFinder, findsOneWidget);
@@ -123,7 +123,7 @@ void main() {
             ),
           );
           final actionButtonFinder = find.byIcon(
-            chatThemeCubit.state.recordAudioIcon.icon!,
+            chatThemeCubit.state.recordAudioIcon,
           );
           final textFieldFinder = find.byKey(const Key('MessageTextField'));
 
@@ -133,7 +133,7 @@ void main() {
           await tester.enterText(textFieldFinder, 'test 1');
           await tester.pumpAndSettle();
           final actionButtonSendFinder = find.byIcon(
-            chatThemeCubit.state.sendButtonIcon.icon!,
+            chatThemeCubit.state.sendButtonIcon,
           );
           expect(actionButtonSendFinder, findsOneWidget);
           verify(
@@ -161,7 +161,7 @@ void main() {
             ),
           );
           final actionButtonFinder = find.byIcon(
-            chatThemeCubit.state.recordAudioIcon.icon!,
+            chatThemeCubit.state.recordAudioIcon,
           );
           expect(actionButtonFinder, findsOneWidget);
           await tester.tap(actionButtonFinder);
@@ -203,7 +203,7 @@ void main() {
           expect(waveformFinder, findsOneWidget);
 
           final actionButtonFinder = find.byIcon(
-            chatThemeCubit.state.sendButtonIcon.icon!,
+            chatThemeCubit.state.sendButtonIcon,
           );
           expect(actionButtonFinder, findsOneWidget);
           await tester.tap(actionButtonFinder);
@@ -280,7 +280,7 @@ void main() {
           expect(waveformFinder, findsOneWidget);
 
           final cancelButtonFinder = find.byIcon(
-            chatThemeCubit.state.cancelRecordingIcon.icon!,
+            chatThemeCubit.state.cancelRecordingIcon,
           );
           expect(cancelButtonFinder, findsOneWidget);
           await tester.tap(cancelButtonFinder);
@@ -339,7 +339,7 @@ void main() {
           expect(previewFinder, findsOneWidget);
 
           final trashButtonFinder = find.byIcon(
-            chatThemeCubit.chatTheme.trashIcon.icon!,
+            chatThemeCubit.chatTheme.trashIcon,
           );
 
           expect(trashButtonFinder, findsOneWidget);
@@ -408,7 +408,7 @@ void main() {
           expect(previewFinder, findsOneWidget);
 
           final sendButton = find.byIcon(
-            chatThemeCubit.chatTheme.sendButtonIcon.icon!,
+            chatThemeCubit.chatTheme.sendButtonIcon,
           );
 
           expect(sendButton, findsOneWidget);
@@ -480,7 +480,7 @@ void main() {
           final cameraPickerButton = find.byKey(Key('CameraPickerButton'));
           final galleryPickerButton = find.byKey(Key('GalleryPickerButton'));
           final exitButton = find.byIcon(
-            chatThemeCubit.chatTheme.closeModalIcon.icon!,
+            chatThemeCubit.chatTheme.closeModalIcon,
           );
           expect(cameraPickerButton, findsOneWidget);
           expect(galleryPickerButton, findsOneWidget);

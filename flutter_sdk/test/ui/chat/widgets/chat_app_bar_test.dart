@@ -56,11 +56,11 @@ void main() {
             ),
           );
           final shopIconFinder = find.byIcon(
-            chatThemeCubit.state.shopIcon.icon!,
+            chatThemeCubit.state.shopIcon,
           );
 
           final cartIconFinder = find.byIcon(
-            chatThemeCubit.state.cartIcon.icon!,
+            chatThemeCubit.state.cartIcon,
           );
 
           final titleTextFinder = find.text('Test');
@@ -92,9 +92,9 @@ void main() {
             child: TestWidget(onShopPressed: () {}, onCartPressed: () {}),
           ),
         );
-        final shopIconFinder = find.byIcon(chatThemeCubit.state.shopIcon.icon!);
+        final shopIconFinder = find.byIcon(chatThemeCubit.state.shopIcon);
 
-        final cartIconFinder = find.byIcon(chatThemeCubit.state.cartIcon.icon!);
+        final cartIconFinder = find.byIcon(chatThemeCubit.state.cartIcon);
 
         final titleTextFinder = find.text('Test');
         final subtitleFinder = find.text('status');

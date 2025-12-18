@@ -9,7 +9,10 @@ import 'user_message.dart';
 
 class Message extends StatelessWidget {
   final ChatMessage messageToRender;
-  const Message({super.key, required this.messageToRender});
+  const Message({
+    super.key,
+    required this.messageToRender,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,9 @@ class Message extends StatelessWidget {
           SizedBox(width: SdkConstants.rowItemSpace),
         switch (messageToRender.role) {
           MessageRole.user => UserMessage(message: messageToRender),
-          MessageRole.assistant => AssistantMessage(message: messageToRender),
+          MessageRole.assistant => AssistantMessage(
+            message: messageToRender,
+          ),
         },
         if (messageToRender.role == MessageRole.user)
           SizedBox(width: SdkConstants.rowItemSpace),

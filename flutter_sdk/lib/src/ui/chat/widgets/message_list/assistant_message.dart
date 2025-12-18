@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/assistant_product_message.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AssistantMessage extends StatelessWidget {
   final ChatMessage message;
-  const AssistantMessage({super.key, required this.message});
+  const AssistantMessage({
+    super.key,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +25,24 @@ class AssistantMessage extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
-            constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.8),
+            constraints: BoxConstraints(maxWidth: constraints.maxWidth),
             padding: EdgeInsets.all(SdkConstants.messagePadding),
             child: switch (message.type) {
-              MessageType.text => SelectableText(
-                message.content,
-                style: chatThemeCubit.chatTheme.assistantMessageTextStyle,
-                textAlign: TextAlign.left,
+              MessageType.text => Container(
+                constraints: BoxConstraints(
+                  maxWidth: constraints.maxWidth * 0.9,
+                ),
+                child: SelectableText(
+                  message.content,
+                  style: chatThemeCubit.chatTheme.assistantMessageTextStyle,
+                  textAlign: TextAlign.left,
+                ),
               ),
-              _ => throw UnimplementedError('Unimplemented assistant message type ${message.type}'),
+              MessageType.product => AssistantProductMessage(message: message),
+              // FIXME: Instead of throwing a special message could be rendered
+              _ => throw UnimplementedError(
+                'Unimplemented assistant message type ${message.type}',
+              ),
             },
           );
         },

@@ -87,9 +87,9 @@ class ActionButton extends StatelessWidget {
                         },
                     child: switch (action) {
                       ButtonAction.send =>
-                        chatThemeCubit.chatTheme.sendButtonIcon,
+                        Icon(chatThemeCubit.chatTheme.sendButtonIcon),
                       ButtonAction.recordAudio =>
-                        chatThemeCubit.chatTheme.recordAudioIcon,
+                        Icon(chatThemeCubit.chatTheme.recordAudioIcon),
                     },
                   ),
                   style: IconButton.styleFrom(
