@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 
-import 'package:chat_flutter_sdk/domain/product/product.dart';
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';

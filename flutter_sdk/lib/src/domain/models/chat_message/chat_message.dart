@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/domain/product/product.dart';
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:equatable/equatable.dart';
 
 enum MessageRole {

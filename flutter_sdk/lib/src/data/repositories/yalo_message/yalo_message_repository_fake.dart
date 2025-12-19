@@ -2,7 +2,7 @@
 
 import 'dart:async';
 
-import 'package:chat_flutter_sdk/domain/product/product.dart';
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';

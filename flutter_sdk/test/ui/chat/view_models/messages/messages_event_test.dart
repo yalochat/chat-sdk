@@ -87,6 +87,43 @@ void main() {
       });
     });
 
+    group(ChatUpdateProductQuantity, () {
+      test('should support equality comparison', () {
+        final event1 = ChatUpdateProductQuantity(
+          messageId: 1,
+          productSku: '123',
+          unitType: UnitType.unit,
+          quantity: 3,
+        );
+        final event2 = ChatUpdateProductQuantity(
+          messageId: 1,
+          productSku: '123',
+          unitType: UnitType.unit,
+          quantity: 3,
+        );
+        final event3 = ChatUpdateProductQuantity(
+          messageId: 3,
+          productSku: '123',
+          unitType: UnitType.unit,
+          quantity: 3,
+        );
+
+        expect(event1, equals(event2));
+        expect(event3, isNot(equals(event2)));
+      });
+    });
+
+    group(ChatToggleMessageExpand, () {
+      test('should support equality comparison', () {
+        final event1 = ChatToggleMessageExpand(messageId: 1);
+        final event2 = ChatToggleMessageExpand(messageId: 1);
+        final event3 = ChatToggleMessageExpand(messageId: 3);
+
+        expect(event1, equals(event2));
+        expect(event3, isNot(equals(event2)));
+      });
+    });
+
     group(ChatClearMessages, () {
       test('should support equality comparison', () {
         final event1 = ChatClearMessages();

@@ -69,7 +69,7 @@ final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
   ChatToggleMessageExpand({required this.messageId});
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [messageId];
 }
 
 // Event to send a text message

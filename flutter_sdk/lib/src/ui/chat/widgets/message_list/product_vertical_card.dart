@@ -2,7 +2,7 @@
 
 import 'dart:io';
 
-import 'package:chat_flutter_sdk/domain/product/product.dart';
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/format.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';

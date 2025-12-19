@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/common/format.dart';
+import 'package:chat_flutter_sdk/src/common/translation.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/picker_button.dart';

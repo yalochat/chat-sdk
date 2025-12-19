@@ -2,7 +2,7 @@
 
 import 'dart:math';
 
-import 'package:chat_flutter_sdk/src/common/format.dart';
+import 'package:chat_flutter_sdk/src/common/translation.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
