@@ -45,21 +45,31 @@ final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
 }
 
 // Event to add a quantity to a product
-final class ChatUpdateProductQuantity extends MessagesEvent with EquatableMixin {
+final class ChatUpdateProductQuantity extends MessagesEvent
+    with EquatableMixin {
   final int messageId;
-  final int productIndex;
+  final String productSku;
   final UnitType unitType;
   final double quantity;
 
   ChatUpdateProductQuantity({
     required this.messageId,
-    required this.productIndex,
+    required this.productSku,
     required this.unitType,
     required this.quantity,
   });
 
   @override
-  List<Object?> get props => [messageId, productIndex, unitType, quantity];
+  List<Object?> get props => [messageId, productSku, unitType, quantity];
+}
+
+final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
+  final int messageId;
+
+  ChatToggleMessageExpand({required this.messageId});
+
+  @override
+  List<Object?> get props => [];
 }
 
 // Event to send a text message

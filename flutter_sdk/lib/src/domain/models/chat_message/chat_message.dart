@@ -59,6 +59,10 @@ class ChatMessage extends Equatable {
   // Products linked to the chat message
   final List<Product> products;
 
+  // Used to indicate if the expanded version of a message should be displayed
+  // this should not be persisted in DB
+  final bool expand;
+
   const ChatMessage({
     this.id,
     required this.role,
@@ -70,6 +74,7 @@ class ChatMessage extends Equatable {
     this.amplitudes,
     this.duration,
     this.products = const [],
+    this.expand = false,
   });
 
   const ChatMessage.text({
@@ -82,7 +87,8 @@ class ChatMessage extends Equatable {
        amplitudes = null,
        fileName = null,
        duration = null,
-       products = const [];
+       products = const [],
+       expand = false;
 
   const ChatMessage.voice({
     this.id,
@@ -94,7 +100,8 @@ class ChatMessage extends Equatable {
     required this.duration,
   }) : type = MessageType.voice,
        products = const [],
-       content = '';
+       content = '',
+       expand = false;
 
   const ChatMessage.image({
     this.id,
@@ -106,7 +113,8 @@ class ChatMessage extends Equatable {
   }) : type = MessageType.image,
        amplitudes = null,
        duration = null,
-       products = const [];
+       products = const [],
+       expand = false;
 
   const ChatMessage.product({
     this.id,
@@ -114,7 +122,21 @@ class ChatMessage extends Equatable {
     required this.timestamp,
     this.status = MessageStatus.inProgress,
     this.products = const [],
+    this.expand = false,
   }) : type = MessageType.product,
+       content = '',
+       fileName = '',
+       amplitudes = null,
+       duration = null;
+
+  const ChatMessage.carousel({
+    this.id,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    this.products = const [],
+    this.expand = false,
+  }) : type = MessageType.productCarousel,
        content = '',
        fileName = '',
        amplitudes = null,
@@ -131,6 +153,7 @@ class ChatMessage extends Equatable {
     List<double>? amplitudes,
     int? duration,
     List<Product>? products,
+    bool? expand,
     DateTime? timestamp,
   }) {
     return ChatMessage(
@@ -143,6 +166,7 @@ class ChatMessage extends Equatable {
       amplitudes: amplitudes ?? this.amplitudes,
       duration: duration ?? this.duration,
       products: products ?? this.products,
+      expand: expand ?? this.expand,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -159,6 +183,7 @@ class ChatMessage extends Equatable {
     amplitudes,
     duration,
     products,
+    expand,
     timestamp,
   ];
 }

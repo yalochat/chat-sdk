@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/l10n/yalo_sdk_localizations.g.dart';
+import 'package:chat_flutter_sdk/src/common/format.dart';
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -76,7 +76,6 @@ class _ChatInputState extends State<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    final translations = context.read<YaloSdkLocalizations>();
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (context, chatTheme) {
         return BlocListener<ImageBloc, ImageState>(
@@ -125,7 +124,7 @@ class _ChatInputState extends State<ChatInput> {
                                       )
                                     : MessageTextField(
                                         key: const Key('MessageTextField'),
-                                        hintText: translations.typeMessage,
+                                        hintText: context.translate.typeMessage,
                                       ),
                               ),
                               if (widget.showAttachmentButton &&

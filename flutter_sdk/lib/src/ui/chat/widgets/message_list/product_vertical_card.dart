@@ -16,10 +16,10 @@ import 'image_placeholder.dart';
 import 'numeric_text_field.dart';
 import 'product_message_price.dart';
 
-class ProductExpandedCard extends StatelessWidget {
+class ProductVerticalCard extends StatelessWidget {
   final ChatMessage message;
   final Product product;
-  const ProductExpandedCard({
+  const ProductVerticalCard({
     super.key,
     required this.message,
     required this.product,
@@ -49,34 +49,36 @@ class ProductExpandedCard extends StatelessWidget {
     final subunitsText = product.subunits > 1
         ? product.subunitNamePlural
         : product.subunitName;
-    return Row(
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Expanded(
-          flex: 2,
+        Flexible(
+          flex: 1,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               SdkConstants.productImageBorderRadius,
             ),
-            child: productImage,
+            child: AspectRatio(aspectRatio: 4.0 / 3.0, child: productImage),
           ),
         ),
-        SizedBox(width: SdkConstants.rowItemSpace),
-        Expanded(
-          flex: 4,
+        SizedBox(width: SdkConstants.columnItemSpace),
+        Flexible(
+          flex: 1,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(product.name, style: chatThemeCubit.state.productTitleStyle),
-              Text(
-                '${context.formatNumber(product.subunits)} $subunitsText',
-                style: chatThemeCubit.state.productSubunitsStyle,
-              ),
               ProductMessagePrice(
                 price: product.price,
                 salePrice: product.salePrice,
                 pricePerSubunit: product.price / product.subunits,
               ),
+              Text(
+                '${context.formatNumber(product.subunits)} $subunitsText',
+                style: chatThemeCubit.state.productSubunitsStyle,
+              ),
+              Text(product.name, style: chatThemeCubit.state.productTitleStyle),
               NumericTextField(
                 value: product.unitsAdded,
                 unitName: product.unitName,
@@ -85,7 +87,7 @@ class ProductExpandedCard extends StatelessWidget {
                   messagesBloc.add(
                     ChatUpdateProductQuantity(
                       messageId: message.id!,
-                      productIndex: 0,
+                      productSku: product.sku,
                       unitType: UnitType.unit,
                       quantity: product.unitsAdded + product.unitStep,
                     ),
@@ -95,7 +97,7 @@ class ProductExpandedCard extends StatelessWidget {
                   messagesBloc.add(
                     ChatUpdateProductQuantity(
                       messageId: message.id!,
-                      productIndex: 0,
+                      productSku: product.sku,
                       unitType: UnitType.unit,
                       quantity: product.unitsAdded - product.unitStep,
                     ),
@@ -105,7 +107,7 @@ class ProductExpandedCard extends StatelessWidget {
                   messagesBloc.add(
                     ChatUpdateProductQuantity(
                       messageId: message.id!,
-                      productIndex: 0,
+                      productSku: product.sku,
                       unitType: UnitType.unit,
                       quantity: value,
                     ),
@@ -122,7 +124,7 @@ class ProductExpandedCard extends StatelessWidget {
                     messagesBloc.add(
                       ChatUpdateProductQuantity(
                         messageId: message.id!,
-                        productIndex: 0,
+                        productSku: product.sku,
                         unitType: UnitType.subunit,
                         quantity: product.subunitsAdded + product.subunitStep,
                       ),
@@ -132,7 +134,7 @@ class ProductExpandedCard extends StatelessWidget {
                     messagesBloc.add(
                       ChatUpdateProductQuantity(
                         messageId: message.id!,
-                        productIndex: 0,
+                        productSku: product.sku,
                         unitType: UnitType.subunit,
                         quantity: product.subunitsAdded - product.subunitStep,
                       ),
@@ -142,7 +144,7 @@ class ProductExpandedCard extends StatelessWidget {
                     messagesBloc.add(
                       ChatUpdateProductQuantity(
                         messageId: message.id!,
-                        productIndex: 0,
+                        productSku: product.sku,
                         unitType: UnitType.subunit,
                         quantity: value,
                       ),

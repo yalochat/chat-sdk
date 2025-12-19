@@ -9,10 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AssistantMessage extends StatelessWidget {
   final ChatMessage message;
-  const AssistantMessage({
-    super.key,
-    required this.message,
-  });
+  const AssistantMessage({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +35,14 @@ class AssistantMessage extends StatelessWidget {
                   textAlign: TextAlign.left,
                 ),
               ),
-              MessageType.product => AssistantProductMessage(message: message),
+              MessageType.product => AssistantProductMessage(
+                message: message,
+                direction: Axis.vertical,
+              ),
+              MessageType.productCarousel => AssistantProductMessage(
+                message: message,
+                direction: Axis.horizontal,
+              ),
               // FIXME: Instead of throwing a special message could be rendered
               _ => throw UnimplementedError(
                 'Unimplemented assistant message type ${message.type}',

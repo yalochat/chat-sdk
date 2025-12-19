@@ -54,7 +54,8 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     on<ChatSendVoiceMessage>(_handleSendVoiceMessage);
     on<ChatSendImageMessage>(_handleSendImageMessage);
     on<ChatClearMessages>(_handleClearMessages);
-    on<ChatUpdateProductQuantity>(handleUpdateProductQuantity);
+    on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
+    on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
   }
 
   // Event that handles the pagination of messages
@@ -319,7 +320,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
   }
 
   // Handles the event to update product quantity.
-  void handleUpdateProductQuantity(
+  void _handleUpdateProductQuantity(
     ChatUpdateProductQuantity event,
     Emitter<MessagesState> emit,
   ) async {
@@ -332,18 +333,20 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
 
     ChatMessage messageToUpdate = state.messages[messageIndex];
     assert(
-      event.productIndex >= 0 &&
-          event.productIndex < messageToUpdate.products.length,
+      event.productSku != '',
       'Invalid product index, index must be in range from 0 to ${messageToUpdate.products.length - 1} inclusive',
     );
 
-    final product = messageToUpdate.products[event.productIndex];
+    final productIndex = messageToUpdate.products.indexWhere(
+      (p) => p.sku == event.productSku,
+    );
+    final product = messageToUpdate.products[productIndex];
 
     List<Product> newProducts = [...messageToUpdate.products];
 
     switch (event.unitType) {
       case UnitType.unit:
-        newProducts[event.productIndex] = product.copyWith(
+        newProducts[productIndex] = product.copyWith(
           unitsAdded: max(event.quantity, 0),
         );
         break;
@@ -351,7 +354,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         final subunitsAdded = max(event.quantity, 0);
         final subunitsMod = subunitsAdded % product.subunits;
         final extraUnits = subunitsAdded ~/ product.subunits;
-        newProducts[event.productIndex] = product.copyWith(
+        newProducts[productIndex] = product.copyWith(
           unitsAdded: product.unitsAdded + extraUnits,
           subunitsAdded: subunitsMod,
         );
@@ -367,11 +370,40 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     );
     switch (updateResult) {
       case Ok():
-        log.info('Message updated successfully, result: ${updateResult.result}');
+        log.info(
+          'Message updated successfully, result: ${updateResult.result}',
+        );
         emit(state.copyWith(messages: newMessages));
       case Error():
         log.info('Unable to update message', updateResult.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedToUpdateMessage));
     }
+  }
+
+  // Handles toggle expand for messages
+  void _handleToggleMessageExpand(
+    ChatToggleMessageExpand event,
+    Emitter<MessagesState> emit,
+  ) {
+    log.info('Expanding message with id ${event.messageId}');
+
+    final messageIndex = state.messages.indexWhere(
+      (m) => m.id == event.messageId,
+    );
+
+    if (messageIndex == -1) {
+      log.warning('No msesage with id ${event.messageId} found');
+      return;
+    }
+
+    final message = state.messages[messageIndex];
+
+    final ChatMessage updatedMessage = message.copyWith(
+      expand: !message.expand,
+    );
+    List<ChatMessage> newMessages = [...state.messages];
+    newMessages[messageIndex] = updatedMessage;
+    log.info('Message expanded successfully');
+    emit(state.copyWith(messages: newMessages));
   }
 }

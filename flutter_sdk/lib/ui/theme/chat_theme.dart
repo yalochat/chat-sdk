@@ -45,6 +45,7 @@ class ChatTheme {
   final TextStyle productPriceStyle;
   final TextStyle productSalePriceStrikeStyle;
   final TextStyle pricePerSubunitStyle;
+  final TextStyle expandControlsStyle;
 
   final ImageProvider? chatIconImage;
   final IconData sendButtonIcon;
@@ -133,6 +134,11 @@ class ChatTheme {
     this.pricePerSubunitStyle = const TextStyle(
       color: SdkColors.pricePerUnitColorLight,
     ),
+    this.expandControlsStyle = const TextStyle(
+      color: SdkColors.expandControlColorLight,
+    ),
+
+    // Icons
     this.chatIconImage,
     this.sendButtonIcon = Icons.send_outlined,
     this.recordAudioIcon = Icons.mic_none,

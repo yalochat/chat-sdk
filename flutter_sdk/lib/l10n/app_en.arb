@@ -8,5 +8,7 @@
   "chooseFromGallery": "Choose from gallery",
   "@chooseFromGallery": {
     "description": "A button to take a photo from the gallery"
-  }
+  },
+  "showMore": "Show more",
+  "showLess": "Show less"
 }

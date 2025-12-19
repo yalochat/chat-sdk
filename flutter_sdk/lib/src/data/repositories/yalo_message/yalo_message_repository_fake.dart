@@ -41,7 +41,7 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
         ChatMessage.text(
           role: MessageRole.assistant,
           timestamp: _clock.now(),
-          content: 'This is a mocked assistant message 🤖',
+          content: 'This is a mocked product assistant message 🤖',
         ),
       );
       _messagesStreamController.add(
@@ -58,9 +58,69 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
               subunits: 24,
               subunitName: 'unit',
               subunitNamePlural: 'units',
-              imagesUrl: [
-              ],
+              imagesUrl: [],
             ),
+          ],
+          timestamp: _clock.now(),
+        ),
+      );
+
+      _messagesStreamController.sink.add(
+        ChatMessage.text(
+          role: MessageRole.assistant,
+          timestamp: _clock.now(),
+          content: 'This is a mocked product list assistant message 🤖',
+        ),
+      );
+
+      _messagesStreamController.add(
+        ChatMessage.product(
+          role: MessageRole.assistant,
+          products: [
+            for (var i = 0; i < 5; i++)
+              Product(
+                sku: '$i',
+                name: 'Testing product $i',
+                price: 300.0 + i.toDouble(),
+                salePrice: 270.0 + i.toDouble(),
+                unitName: 'box',
+                unitNamePlural: 'boxes',
+                subunits: 5 + i.toDouble(),
+                subunitName: 'unit',
+                subunitNamePlural: 'units',
+                imagesUrl: [
+                ],
+              ),
+          ],
+          timestamp: _clock.now(),
+        ),
+      );
+      _messagesStreamController.sink.add(
+        ChatMessage.text(
+          role: MessageRole.assistant,
+          timestamp: _clock.now(),
+          content: 'This is a mocked carousel assistant message 🤖',
+        ),
+      );
+
+      _messagesStreamController.add(
+        ChatMessage.carousel(
+          role: MessageRole.assistant,
+          products: [
+            for (var i = 0; i < 5; i++)
+              Product(
+                sku: '$i',
+                name: 'Testing product carousel $i',
+                price: 300.0 + i.toDouble(),
+                salePrice: 270.0 + i.toDouble(),
+                unitName: 'box',
+                unitNamePlural: 'boxes',
+                subunits: 5 + i.toDouble(),
+                subunitName: 'unit',
+                subunitNamePlural: 'units',
+                imagesUrl: [
+                ],
+              ),
           ],
           timestamp: _clock.now(),
         ),

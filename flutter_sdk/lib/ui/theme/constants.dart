@@ -30,6 +30,7 @@ abstract final class SdkConstants {
 
   // product messages constants
   static const double productImageBorderRadius = 2;
+  static const int collapsedListMaxItems = 3;
 
   // Sound related constants
   static const double soundBarsRadius = 15;
