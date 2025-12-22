@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 import 'constants.dart';
 
+// A class to customize the branding of the chat screen
 class ChatTheme {
   final Color backgroundColor;
   final Color cardBackgroundColor;
@@ -157,4 +158,8 @@ class ChatTheme {
     this.addIcon = Icons.add,
     this.removeIcon = Icons.remove,
   });
+
+  factory ChatTheme.fromThemeData(ThemeData themedata) {
+    return ChatTheme();
+  }
 }
