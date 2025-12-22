@@ -51,8 +51,6 @@ class _NumericTextFieldState extends State<NumericTextField> {
   @override
   void initState() {
     _textEditingController = TextEditingController();
-    _textEditingController.text =
-        '${context.formatNumber(widget.value)} ${widget.unitName}';
     _focusNode = FocusNode();
 
     _focusNode.addListener(_handleFocus);
