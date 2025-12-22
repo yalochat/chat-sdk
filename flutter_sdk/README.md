@@ -122,7 +122,7 @@ Check out the `/example` folder for a complete implementation example.
 ```bash
 cd example
 flutter run
-```bash
+```
 
 ## Requirements
 
