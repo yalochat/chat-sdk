@@ -124,6 +124,18 @@ abstract class YaloSdkLocalizations {
   /// In en, this message translates to:
   /// **'Choose from gallery'**
   String get chooseFromGallery;
+
+  /// No description provided for @showMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get showMore;
+
+  /// No description provided for @showLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get showLess;
 }
 
 class _YaloSdkLocalizationsDelegate

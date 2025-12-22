@@ -19,7 +19,15 @@ abstract final class SdkColors {
   static const Color sendButtonTextColorLight = Color(0xFFEFF4FF);
   static const Color waveColorLight = Color(0xFF5C5EE8);
   static const Color timerColoLight = Color(0xFF7C8086);
-  static const Color messageControlIconColor = Color(0xFF7C8086);
+  static const Color messageControlIconColorLight = Color(0xFF7C8086);
   static const Color attachmentPickerBackgroundColorLight = Color(0xFFFFFFFF);
   static const Color iconWithBackdropColorLight = Color(0xFFFFFFFF);
+  static const Color productCardSubtitleColorLight = Color(0xFF334155);
+  static const Color priceColorLight = Color(0xFF186C54);
+  static const Color discountBackgroundColorLight = Color(0xFFECFDF5);
+  static const Color discountStrikeColorLight = Color(0xFF0B996D);
+  static const Color pricePerUnitColorLight = Color(0xFF334155);
+  static const Color cardBorderColorLight = Color(0xFFDDE4EC);
+  static const Color imagePlaceHolderColorLight = Color(0xFFF9FAFC);
+  static const Color expandControlColorLight = Color(0xFF2207F1);
 }

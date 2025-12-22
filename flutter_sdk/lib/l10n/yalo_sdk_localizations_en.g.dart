@@ -19,4 +19,10 @@ class YaloSdkLocalizationsEn extends YaloSdkLocalizations {
 
   @override
   String get chooseFromGallery => 'Choose from gallery';
+
+  @override
+  String get showMore => 'Show more';
+
+  @override
+  String get showLess => 'Show less';
 }

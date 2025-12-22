@@ -33,6 +33,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  json_annotation: ^4.9.0
 
 
 dev_dependencies:
@@ -42,7 +43,8 @@ dev_dependencies:
   test: ^1.26.2
   bloc_test: ^10.0.0
   drift_dev: ^2.29.0
-  build_runner: ^2.7.1
+  build_runner: ^2.10.4
+  json_serializable: ^6.11.2
 
 flutter:
   generate: true

@@ -45,6 +45,11 @@ class UserMessage extends StatelessWidget {
               ),
               MessageType.voice => UserVoiceMessage(message: message),
               MessageType.image => UserImageMessage(message: message),
+
+              // FIXME: Instead of throwing a special message could be rendered
+              _ => throw UnimplementedError(
+                'Unimplemented user message type ${message.type}',
+              ),
             },
           );
         },

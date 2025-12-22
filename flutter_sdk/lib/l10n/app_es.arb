@@ -8,5 +8,7 @@
   "chooseFromGallery": "Subir desde galería",
   "@chooseFromGallery": {
     "description": "Botón para subir desde galería"
-  }
+  },
+  "showMore": "Ver más",
+  "showLess": "Ver menos"
 }

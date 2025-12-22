@@ -39,11 +39,10 @@ class _MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    return BlocSelector<MessagesBloc, MessagesState, (List<ChatMessage>, bool)>(
-      // Subscribe to messageListVersion to detect changes in state.messages
-      selector: (state) => (state.messages, state.isLoading),
+    return BlocSelector<MessagesBloc, MessagesState, (int, bool)>(
+      selector: (state) => (state.messages.length, state.isLoading),
       builder: (context, state) {
-        final (messages, isLoading) = state;
+        final (length, isLoading) = state;
         return Container(
           color: chatThemeCubit.chatTheme.backgroundColor,
           padding: EdgeInsets.only(bottom: SdkConstants.messageListPadding),
@@ -51,25 +50,30 @@ class _MessageListState extends State<MessageList> {
             key: Key('chat_messages'),
             reverse: true,
             cacheExtent: SdkConstants.chatCacheExtent,
-            itemCount: messages.length + (isLoading ? 1 : 0),
+            itemCount: length + (isLoading ? 1 : 0),
             controller: _scrollController,
             itemBuilder: (context, index) {
-              if (index == messages.length) {
+              if (index == length) {
                 return Center(
                   child: CircularProgressIndicator(
                     key: const Key('loading_spinner'),
                   ),
                 );
               }
-              assert(
-                messages[index].id != null,
-                'Message id must not be null in order to render',
-              );
               return Container(
                 margin: EdgeInsets.only(top: SdkConstants.messageListMargin),
-                child: Message(
-                  key: ValueKey('message-item-${messages[index].id}'),
-                  messageToRender: messages[index],
+                child: BlocSelector<MessagesBloc, MessagesState, ChatMessage>(
+                  selector: (state) => state.messages[index],
+                  builder: (context, message) {
+                    assert(
+                      message.id != null,
+                      'Message id must not be null in order to render',
+                    );
+                    return Message(
+                      key: ValueKey('message-item-${message.id}'),
+                      messageToRender: message,
+                    );
+                  },
                 ),
               );
             },

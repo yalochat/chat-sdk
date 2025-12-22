@@ -11,6 +11,8 @@ enum ChatStatus {
   offline,
   failedMessageSent,
   failedRecordMessage,
+  failedToReceiveMessage,
+  failedToUpdateMessage,
 }
 
 class MessagesState extends Equatable {

@@ -25,7 +25,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               if (chatTheme.chatIconImage != null)
               Center(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(SdkConstants.chatImageBorderRadius),
                   child: Image(
                     width: SdkConstants.imageIconSize,
                     height: SdkConstants.imageIconSize,
@@ -46,10 +46,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           actions: [
             if (onShopPressed != null)
-            IconButton(icon: chatTheme.shopIcon, onPressed: onShopPressed),
+            IconButton(icon: Icon(chatTheme.shopIcon, color: chatTheme.actionIconColor), onPressed: onShopPressed),
 
             if (onCartPressed != null)
-            IconButton(icon: chatTheme.cartIcon, onPressed: onCartPressed),
+            IconButton(icon: Icon(chatTheme.cartIcon, color: chatTheme.actionIconColor), onPressed: onCartPressed),
           ],
         );
       },

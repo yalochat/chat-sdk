@@ -19,8 +19,8 @@ class _MessageTextFieldState extends State<MessageTextField> {
   late TextEditingController _textEditingController;
   @override
   void initState() {
-    super.initState();
     _textEditingController = TextEditingController();
+    super.initState();
   }
 
   void _handleOnMessageChange(MessagesBloc chatBloc, String message) {
@@ -48,8 +48,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
             ),
-            onChanged: (value) =>
-                _handleOnMessageChange(chatBloc, value),
+            onChanged: (value) => _handleOnMessageChange(chatBloc, value),
             keyboardType: TextInputType.multiline,
             maxLines: null,
           ),

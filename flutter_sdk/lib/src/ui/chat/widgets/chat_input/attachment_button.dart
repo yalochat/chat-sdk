@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/l10n/yalo_sdk_localizations.g.dart';
+import 'package:chat_flutter_sdk/src/common/translation.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/picker_button.dart';
@@ -42,7 +42,6 @@ class _AttachmentButtonState extends State<AttachmentButton>
   @override
   Widget build(BuildContext context) {
     final imageBloc = context.read<ImageBloc>();
-    final translations = context.read<YaloSdkLocalizations>();
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (parentContext, chatTheme) {
         return IconButton(
@@ -76,7 +75,7 @@ class _AttachmentButtonState extends State<AttachmentButton>
                             children: [
                               Expanded(
                                 child: Text(
-                                  translations.sendImage,
+                                  context.translate.sendImage,
                                   style: chatTheme.modalHeaderStyle,
                                 ),
                               ),
@@ -84,7 +83,10 @@ class _AttachmentButtonState extends State<AttachmentButton>
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
-                                icon: chatTheme.closeModalIcon,
+                                icon: Icon(
+                                  chatTheme.closeModalIcon,
+                                  color: chatTheme.closeModalIconColor,
+                                ),
                               ),
                             ],
                           ),
@@ -97,12 +99,15 @@ class _AttachmentButtonState extends State<AttachmentButton>
                                   flex: 1,
                                   child: PickerButton(
                                     key: const Key('CameraPickerButton'),
-                                    icon: chatTheme.cameraIcon,
+                                    icon: Icon(
+                                      chatTheme.cameraIcon,
+                                      color: chatTheme.cameraIconColor,
+                                    ),
                                     onPressed: () {
                                       imageBloc.add(ImagePickFromCamera());
                                       Navigator.pop(context);
                                     },
-                                    text: translations.takePhoto,
+                                    text: context.translate.takePhoto,
                                   ),
                                 ),
                                 SizedBox(height: SdkConstants.columnItemSpace),
@@ -110,12 +115,15 @@ class _AttachmentButtonState extends State<AttachmentButton>
                                   flex: 1,
                                   child: PickerButton(
                                     key: const Key('GalleryPickerButton'),
-                                    icon: chatTheme.galleryIcon,
+                                    icon: Icon(
+                                      chatTheme.galleryIcon,
+                                      color: chatTheme.galleryIconColor,
+                                    ),
                                     onPressed: () {
                                       imageBloc.add(ImagePickFromGallery());
                                       Navigator.pop(context);
                                     },
-                                    text: translations.chooseFromGallery,
+                                    text: context.translate.chooseFromGallery,
                                   ),
                                 ),
                               ],
@@ -129,7 +137,7 @@ class _AttachmentButtonState extends State<AttachmentButton>
               },
             );
           },
-          icon: chatTheme.attachIcon,
+          icon: Icon(chatTheme.attachIcon, color: chatTheme.attachIconColor),
         );
       },
     );

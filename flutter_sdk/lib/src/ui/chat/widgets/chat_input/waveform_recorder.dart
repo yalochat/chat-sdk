@@ -50,7 +50,7 @@ class WaveformRecorder extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: chatTheme.cancelRecordingIcon,
+                  icon: Icon(chatTheme.cancelRecordingIcon, color: chatTheme.cancelRecordingIconColor),
                   onPressed: () => _handleOnCancel(chatBloc),
                 ),
               ],

@@ -17,27 +17,26 @@ void main() {
         expect(event3, isNot(equals(event1)));
       });
     });
-    group('ChatStartTyping', () {
-      test('should support equality comparison', () {
-        final event1 = ChatStartTyping(chatStatusText: 'typing');
-        final event2 = ChatStartTyping(chatStatusText: 'typing');
-        final event3 = ChatStartTyping(chatStatusText: 'different');
 
-        expect(event1, equals(event2));
-        expect(event1, isNot(equals(event3)));
-      });
-    });
-
-    group('ChatStopTyping', () {
+    group(ChatSubscribeToEvents, () {
       test('should support equality comparison', () {
-        final event1 = ChatStopTyping();
-        final event2 = ChatStopTyping();
+        final event1 = ChatSubscribeToEvents();
+        final event2 = ChatSubscribeToEvents();
 
         expect(event1, equals(event2));
       });
     });
 
-    group('ChatUpdateUserMessage', () {
+    group(ChatSubscribeToMessages, () {
+      test('should support equality comparison', () {
+        final event1 = ChatSubscribeToMessages();
+        final event2 = ChatSubscribeToMessages();
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group(ChatUpdateUserMessage, () {
       test('should support equality comparison', () {
         const event1 = ChatUpdateUserMessage(value: 'message');
         const event2 = ChatUpdateUserMessage(value: 'message');
@@ -55,7 +54,7 @@ void main() {
       });
     });
 
-    group('ChatSendTextMessage', () {
+    group(ChatSendTextMessage, () {
       test('should support equality comparison', () {
         final event1 = ChatSendTextMessage();
         final event2 = ChatSendTextMessage();
@@ -64,29 +63,68 @@ void main() {
       });
     });
 
-    group('ChatSendVoiceMessage', () {
+    group(ChatSendVoiceMessage, () {
       test('should support equality comparison', () {
-        final event1 = ChatSendVoiceMessage(
-          audioData: AudioData()
+        final event1 = ChatSendVoiceMessage(audioData: AudioData());
+        final event2 = ChatSendVoiceMessage(audioData: AudioData());
+
+        expect(event1, equals(event2));
+      });
+    });
+
+    group(ChatSendImageMessage, () {
+      test('should support equality comparison', () {
+        final event1 = ChatSendImageMessage(
+          imageData: ImageData(path: '', mimeType: ''),
+          text: '',
         );
-        final event2 = ChatSendVoiceMessage(
-          audioData: AudioData(),
+        final event2 = ChatSendImageMessage(
+          imageData: ImageData(path: '', mimeType: ''),
+          text: '',
         );
 
         expect(event1, equals(event2));
       });
     });
 
-    group('ChatSendImageMessage', () {
+    group(ChatUpdateProductQuantity, () {
       test('should support equality comparison', () {
-        final event1 = ChatSendImageMessage(imageData: ImageData(path: '', mimeType: ''), text: '');
-        final event2 = ChatSendImageMessage(imageData: ImageData(path: '', mimeType: ''), text: '');
+        final event1 = ChatUpdateProductQuantity(
+          messageId: 1,
+          productSku: '123',
+          unitType: UnitType.unit,
+          quantity: 3,
+        );
+        final event2 = ChatUpdateProductQuantity(
+          messageId: 1,
+          productSku: '123',
+          unitType: UnitType.unit,
+          quantity: 3,
+        );
+        final event3 = ChatUpdateProductQuantity(
+          messageId: 3,
+          productSku: '123',
+          unitType: UnitType.unit,
+          quantity: 3,
+        );
 
         expect(event1, equals(event2));
+        expect(event3, isNot(equals(event2)));
       });
     });
 
-    group('ChatClearMessages', () {
+    group(ChatToggleMessageExpand, () {
+      test('should support equality comparison', () {
+        final event1 = ChatToggleMessageExpand(messageId: 1);
+        final event2 = ChatToggleMessageExpand(messageId: 1);
+        final event3 = ChatToggleMessageExpand(messageId: 3);
+
+        expect(event1, equals(event2));
+        expect(event3, isNot(equals(event2)));
+      });
+    });
+
+    group(ChatClearMessages, () {
       test('should support equality comparison', () {
         final event1 = ChatClearMessages();
         final event2 = ChatClearMessages();
