@@ -1,5 +1,7 @@
 # Yalo Chat SDK
 
+![Yalo](https://cdn.prod.website-files.com/6864212f89b49a1b6c4568db/6864ded3363f8aff1d64389c_Logo-white.svg)
+
 A cross-platform UI package for easy integration of Android, iOS, and web applications with Yalo's chat services.
 
 ## Features
