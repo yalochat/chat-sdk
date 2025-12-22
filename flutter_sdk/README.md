@@ -1,5 +1,7 @@
 ![Yalo](https://cdn.prod.website-files.com/6864212f89b49a1b6c4568db/6864ded3363f8aff1d64389c_Logo-white.svg)
 
+# Chat Flutter SDK
+
 A Flutter package providing a complete chat UI solution for integrating with Yalo's messaging platform.
 
 ![Flutter SDK](./docs/images/chat-preview.png)
@@ -66,6 +68,7 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chat(
+      client: yaloChatClient,
       theme: ChatTheme(),
     );
   }
@@ -78,11 +81,11 @@ class ChatScreen extends StatelessWidget {
 
 If you want your agent to be able to execute tools inside your app,
 like retrieving information already calculated by your app, or execute
-custom code please refer to the (tool execution documentation)[./docs/tool-execution.md]
+custom code please refer to the [tool execution documentation](./docs/tool-execution.md)
 
 ### Logging
 
-Yalo Flutter SDK uses the (logging)[https://pub.dev/packages/logging]
+Yalo Flutter SDK uses the [logging](https://pub.dev/packages/logging)
 package so you can enable logging by just defining a root logger like
 the following
 
