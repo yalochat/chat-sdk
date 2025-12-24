@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
@@ -794,7 +795,7 @@ void main() {
     });
 
     group('fetch messages', () {
-      var fixedClock = Clock.fixed(DateTime.now());
+      final fixedClock = Clock.fixed(DateTime.now());
       blocTest<MessagesBloc, MessagesState>(
         'should fetch messages from repository and set them up correctly',
         build: () => MessagesBloc(
@@ -1175,6 +1176,351 @@ void main() {
               )
               .having((s) => s.chatStatusText, 'chat status text', equals('')),
         ],
+      );
+    });
+
+    group('update product quantity', () {
+      final fixedClock = Clock.fixed(DateTime.now());
+      blocTest<MessagesBloc, MessagesState>(
+        'should update a product unit quantity correctly',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.unit,
+              quantity: 3,
+            ),
+          );
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages,
+            'messages',
+            contains(
+              ChatMessage.product(
+                id: 3,
+                role: MessageRole.assistant,
+                timestamp: fixedClock.now(),
+                products: [
+                  Product(
+                    sku: '123',
+                    name: 'test',
+                    price: 30.0,
+                    subunits: 24,
+                    unitName: 'box',
+                    unitsAdded: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should update a product subunit quantity correctly and also a unit quantity',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.unit,
+              quantity: 3,
+            ),
+          );
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.subunit,
+              quantity: 2,
+            ),
+          );
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages,
+            'messages',
+            contains(
+              ChatMessage.product(
+                id: 3,
+                role: MessageRole.assistant,
+                timestamp: fixedClock.now(),
+                products: [
+                  Product(
+                    sku: '123',
+                    name: 'test',
+                    price: 30.0,
+                    subunits: 24,
+                    unitName: 'box',
+                    unitsAdded: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          isA<MessagesState>().having(
+            (state) => state.messages,
+            'messages',
+            contains(
+              ChatMessage.product(
+                id: 3,
+                role: MessageRole.assistant,
+                timestamp: fixedClock.now(),
+                products: [
+                  Product(
+                    sku: '123',
+                    name: 'test',
+                    price: 30.0,
+                    subunits: 24,
+                    unitName: 'box',
+                    unitsAdded: 3,
+                    subunitsAdded: 2,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should add a unit if the subunits exceed subunits per unit',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.subunit,
+              quantity: 25,
+            ),
+          );
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages,
+            'messages',
+            contains(
+              ChatMessage.product(
+                id: 3,
+                role: MessageRole.assistant,
+                timestamp: fixedClock.now(),
+                products: [
+                  Product(
+                    sku: '123',
+                    name: 'test',
+                    price: 30.0,
+                    subunits: 24,
+                    unitName: 'box',
+                    unitsAdded: 1,
+                    subunitsAdded: 1,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should emit an failed to update message error when the repository fails to update',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.error(Exception('test error')));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.subunit,
+              quantity: 25,
+            ),
+          );
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.chatStatus,
+            'chat status',
+            ChatStatus.failedToUpdateMessage,
+          ),
+        ],
+      );
+    });
+
+    group('toggle message expand', () {
+      blocTest<MessagesBloc, MessagesState>(
+        'should correctly toggle expanded to true and false in a existing message',
+        build: () => bloc,
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: clock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          bloc.add(ChatToggleMessageExpand(messageId: 3));
+          bloc.add(ChatToggleMessageExpand(messageId: 3));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages[0].expand,
+            'message',
+            equals(true),
+          ),
+          isA<MessagesState>().having(
+            (state) => state.messages[0].expand,
+            'message',
+            equals(false),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should emit nothing when a message does not exist',
+        build: () => bloc,
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: clock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          bloc.add(ChatToggleMessageExpand(messageId: 69));
+        },
+        expect: () => [],
       );
     });
 

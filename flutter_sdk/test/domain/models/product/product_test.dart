@@ -11,14 +11,13 @@ void main() {
         name: 'Test Product',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
+
       );
 
       expect(product.sku, equals('SKU123'));
       expect(product.name, equals('Test Product'));
       expect(product.price, equals(10.0));
       expect(product.unitName, equals('box'));
-      expect(product.unitNamePlural, equals('boxes'));
     });
 
     test('should have default values for optional fields', () {
@@ -27,7 +26,6 @@ void main() {
         name: 'Test Product',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       expect(product.imagesUrl, equals([]));
@@ -49,9 +47,7 @@ void main() {
         subunits: 12,
         unitStep: 2,
         unitName: 'box',
-        unitNamePlural: 'boxes',
         subunitName: 'piece',
-        subunitNamePlural: 'pieces',
         subunitStep: 3,
         unitsAdded: 5,
         subunitsAdded: 60,
@@ -70,7 +66,6 @@ void main() {
         name: 'Original',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       final updated = original.copyWith(name: 'Updated', price: 15.0);
@@ -87,13 +82,18 @@ void main() {
         price: 10.0,
         salePrice: 8.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
-      final updated = original.copyWith(salePrice: () => null);
+      final updated = original.copyWith(
+        salePrice: () => null,
+        subunitNamePlural: () => 'boxes',
+      );
 
       expect(updated.salePrice, isNull);
       expect(updated.price, equals(original.price));
+
+      final updated2 = original.copyWith(salePrice: null);
+      expect(updated2.salePrice, equals(original.salePrice));
     });
 
     test('should be equal when all properties are same', () {
@@ -102,7 +102,6 @@ void main() {
         name: 'Test',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       const product2 = Product(
@@ -110,7 +109,6 @@ void main() {
         name: 'Test',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       expect(product1, equals(product2));
@@ -122,7 +120,6 @@ void main() {
         name: 'Test',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       const product2 = Product(
@@ -130,7 +127,6 @@ void main() {
         name: 'Test',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       expect(product1, isNot(equals(product2)));
@@ -142,7 +138,6 @@ void main() {
         name: 'Test Product',
         price: 10.0,
         unitName: 'box',
-        unitNamePlural: 'boxes',
       );
 
       final json = product.toJson();

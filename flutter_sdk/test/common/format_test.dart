@@ -102,5 +102,33 @@ void main() {
         expect(result, contains('1.234,56'));
       },
     );
+
+    testWidgets(
+      'formatUnit should format units according to value, taking into account plurals',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            locale: Locale('es', 'CO'),
+            child: Builder(
+              builder: (ctx) {
+                context = ctx;
+                return Container();
+              },
+            ),
+          ),
+        );
+
+        final testPattern = '{amount, plural, =1 {caja} other {cajas}}';
+
+        final result = context.formatUnit(3, testPattern);
+        expect(result, equals('cajas'));
+
+        final result2 = context.formatUnit(1, testPattern);
+        expect(result2, equals('caja'));
+
+        final result3 = context.formatUnit(3, 'caja');
+        expect(result3, equals('caja'));
+      },
+    );
   });
 }

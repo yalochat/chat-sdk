@@ -103,8 +103,8 @@ void main() {
 
 ### Theme Customization
 
-All customization of the SDK is made by modifying the (Yalo ChatTheme
-class)[./lib/ui/theme], you can check the following image to know
+All customization of the SDK is made by modifying the [Yalo ChatTheme
+class](./lib/ui/theme), you can check the following image to know
 what component each property modifies.
 
 

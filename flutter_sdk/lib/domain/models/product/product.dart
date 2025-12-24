@@ -34,17 +34,15 @@ class Product extends Equatable {
   // The step to add when increasing/decreasing units
   final double unitStep;
 
-  // The unit name of the product, e.g box.
+  // The name of the unit if applies, it must be an string using intl
+  // MessageFormat grammar to support plurals, use the amount name to handle plurals.
+  // e.g {amount, plural, one {box} other {boxes}}
   final String unitName;
 
-  // The plural unit name of the product in plural e.g boxes
-  final String unitNamePlural;
-
-  // The name of the subunit if applies.
+  // The name of the subunit if applies, it must be an string using intl
+  // MessageFormat grammar to support plurals, use the amount name to handle plurals.
+  // e.g {amount, plural, one {box} other {boxes}}
   final String? subunitName;
-
-  // The plural of the subunits if applies.
-  final String? subunitNamePlural;
 
   // The step to add when increasing/decreasing subunits
   final double subunitStep;
@@ -64,9 +62,7 @@ class Product extends Equatable {
     this.subunits = 1,
     this.unitStep = 1,
     required this.unitName,
-    required this.unitNamePlural,
     this.subunitName,
-    this.subunitNamePlural,
     this.subunitStep = 1,
     this.unitsAdded = 0,
     this.subunitsAdded = 0,
@@ -97,11 +93,7 @@ class Product extends Equatable {
       subunits: subunits ?? this.subunits,
       unitStep: unitStep ?? this.unitStep,
       unitName: unitName ?? this.unitName,
-      unitNamePlural: unitNamePlural ?? this.unitNamePlural,
       subunitName: subunitName != null ? subunitName() : this.subunitName,
-      subunitNamePlural: subunitNamePlural != null
-          ? subunitNamePlural()
-          : this.subunitNamePlural,
       subunitStep: subunitStep ?? this.subunitStep,
       unitsAdded: unitsAdded ?? this.unitsAdded,
       subunitsAdded: subunitsAdded ?? this.subunitsAdded,
@@ -124,9 +116,7 @@ class Product extends Equatable {
     subunits,
     unitStep,
     unitName,
-    unitNamePlural,
     subunitName,
-    subunitNamePlural,
     subunitStep,
     unitsAdded,
     subunitsAdded,

@@ -334,7 +334,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     ChatMessage messageToUpdate = state.messages[messageIndex];
     assert(
       event.productSku != '',
-      'Invalid product index, index must be in range from 0 to ${messageToUpdate.products.length - 1} inclusive',
+      'Invalid product sku, sku must be a non empty string',
     );
 
     final productIndex = messageToUpdate.products.indexWhere(
