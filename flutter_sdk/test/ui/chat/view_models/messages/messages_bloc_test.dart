@@ -1407,7 +1407,7 @@ void main() {
       );
 
       blocTest<MessagesBloc, MessagesState>(
-        'should emit an failed to update message error when the repository fails to update',
+        'should emit a failed to update message error when the repository fails to update',
         build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           imageRepository: imageRepository,

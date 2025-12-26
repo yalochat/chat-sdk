@@ -86,7 +86,7 @@ void main() {
 
       final updated = original.copyWith(
         salePrice: () => null,
-        subunitNamePlural: () => 'boxes',
+        subunitName: () => 'boxes',
       );
 
       expect(updated.salePrice, isNull);

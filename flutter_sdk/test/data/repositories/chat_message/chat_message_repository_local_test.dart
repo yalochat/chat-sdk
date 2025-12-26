@@ -433,7 +433,7 @@ void main() {
     });
 
     test(
-      'should return return an error when the message repository fails while replacing a message',
+      'should return an error when the message repository fails while replacing a message',
       () async {
         ChatMessage message = ChatMessage.product(
           id: 3,

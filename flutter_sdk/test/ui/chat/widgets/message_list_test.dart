@@ -355,7 +355,7 @@ void main() {
                   products: [
                     Product(
                       sku: '123',
-                      name: 'test product without name',
+                      name: 'test product with name',
                       price: 30.0,
                       salePrice: 29.0,
                       subunits: 24,
@@ -372,7 +372,7 @@ void main() {
 
           await tester.pumpWidget(TestWidget(blocs: blocs));
 
-          expect(find.text('test product without name'), findsOneWidget);
+          expect(find.text('test product with name'), findsOneWidget);
           expect(find.text('24 units'), findsOneWidget);
           expect(find.text('0 boxes'), findsOneWidget);
           expect(find.text('0 units'), findsOneWidget);
