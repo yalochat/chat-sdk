@@ -46,37 +46,43 @@ class ProductHorizontalCard extends StatelessWidget {
       productImage = Image(image: provider);
     }
 
-    final subunitsText = product.subunits > 1
-        ? product.subunitNamePlural
-        : product.subunitName;
+    final String? subunitsText =
+        product.subunits > 1 && product.subunitName != null
+        ? context.formatUnit(product.subunits, product.subunitName!)
+        : null;
 
     final orientation = MediaQuery.orientationOf(context);
     final imageAspectRatio = orientation == Orientation.portrait
-        ? 9.0 / 16.0
+        ? 3.0 / 4.0
         : 4.0 / 3.0;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Expanded(
+        Flexible(
           flex: 2,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
               SdkConstants.productImageBorderRadius,
             ),
-            child: AspectRatio(aspectRatio: imageAspectRatio, child: productImage),
+            child: AspectRatio(
+              aspectRatio: imageAspectRatio,
+              child: productImage,
+            ),
           ),
         ),
         SizedBox(width: SdkConstants.rowItemSpace),
-        Expanded(
+        Flexible(
           flex: 4,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(product.name, style: chatThemeCubit.state.productTitleStyle),
-              Text(
-                '${context.formatNumber(product.subunits)} $subunitsText',
-                style: chatThemeCubit.state.productSubunitsStyle,
-              ),
+              if (subunitsText != null && subunitsText.isNotEmpty)
+                Text(
+                  '${context.formatNumber(product.subunits)} $subunitsText',
+                  style: chatThemeCubit.state.productSubunitsStyle,
+                ),
               ProductMessagePrice(
                 price: product.price,
                 salePrice: product.salePrice,
@@ -84,8 +90,10 @@ class ProductHorizontalCard extends StatelessWidget {
               ),
               NumericTextField(
                 value: product.unitsAdded,
-                unitName: product.unitName,
-                unitNamePlural: product.unitNamePlural,
+                unitName: context.formatUnit(
+                  product.unitsAdded,
+                  product.unitName,
+                ),
                 onAdd: () {
                   messagesBloc.add(
                     ChatUpdateProductQuantity(
@@ -117,12 +125,10 @@ class ProductHorizontalCard extends StatelessWidget {
                   );
                 },
               ),
-              if (product.subunitName != null &&
-                  product.subunitNamePlural != null)
+              if (subunitsText != null)
                 NumericTextField(
                   value: product.subunitsAdded,
-                  unitName: product.subunitName!,
-                  unitNamePlural: product.subunitNamePlural!,
+                  unitName: subunitsText,
                   onAdd: () {
                     messagesBloc.add(
                       ChatUpdateProductQuantity(

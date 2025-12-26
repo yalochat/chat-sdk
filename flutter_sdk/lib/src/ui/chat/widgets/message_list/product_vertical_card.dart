@@ -46,9 +46,10 @@ class ProductVerticalCard extends StatelessWidget {
       productImage = Image(image: provider);
     }
 
-    final subunitsText = product.subunits > 1
-        ? product.subunitNamePlural
-        : product.subunitName;
+    final String? subunitsText =
+        product.subunits > 1 && product.subunitName != null
+        ? context.formatUnit(product.subunits, product.subunitName!)
+        : null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -81,8 +82,10 @@ class ProductVerticalCard extends StatelessWidget {
               Text(product.name, style: chatThemeCubit.state.productTitleStyle),
               NumericTextField(
                 value: product.unitsAdded,
-                unitName: product.unitName,
-                unitNamePlural: product.unitNamePlural,
+                unitName: context.formatUnit(
+                  product.unitsAdded,
+                  product.unitName,
+                ),
                 onAdd: () {
                   messagesBloc.add(
                     ChatUpdateProductQuantity(
@@ -114,12 +117,10 @@ class ProductVerticalCard extends StatelessWidget {
                   );
                 },
               ),
-              if (product.subunitName != null &&
-                  product.subunitNamePlural != null)
+              if (subunitsText != null)
                 NumericTextField(
                   value: product.subunitsAdded,
-                  unitName: product.subunitName!,
-                  unitNamePlural: product.subunitNamePlural!,
+                  unitName: subunitsText,
                   onAdd: () {
                     messagesBloc.add(
                       ChatUpdateProductQuantity(

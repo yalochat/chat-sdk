@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:intl/message_format.dart';
 
 extension Formatter on BuildContext {
   static NumberFormat? _numberFormatter;
@@ -23,5 +24,11 @@ extension Formatter on BuildContext {
       _numberFormatter = NumberFormat.decimalPattern(locale.toString());
     }
     return _numberFormatter!.format(val);
+  }
+
+  String formatUnit(double amount, String pattern) {
+    Locale locale = Localizations.localeOf(this);
+    final messageFormat = MessageFormat(pattern, locale: locale.languageCode);
+    return messageFormat.format({'amount': amount.round()});
   }
 }

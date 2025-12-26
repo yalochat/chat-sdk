@@ -48,7 +48,7 @@ class AssistantProductMessage extends StatelessWidget {
         double maxWidth = double.infinity;
         if (direction == Axis.vertical) {
           maxHeight = orientation == Orientation.portrait
-              ? size.height * 0.22
+              ? size.height * 0.30
               : size.height * 0.5;
           maxWidth = constraints.maxWidth;
         } else {

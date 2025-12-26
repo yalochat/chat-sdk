@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
@@ -340,6 +341,435 @@ void main() {
         final textFinder = find.textContaining(r'large assistant');
         expect(textFinder, findsOneWidget);
       });
+
+      testWidgets(
+        'should render product messages correctly and be able to add, edit and remove units',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.product(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  products: [
+                    Product(
+                      sku: '123',
+                      name: 'test product with name',
+                      price: 30.0,
+                      salePrice: 29.0,
+                      subunits: 24,
+                      unitName: '{amount, plural, one {box} other {boxes}}',
+                      subunitName: '{amount, plural, one {unit} other {units}}',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(find.text('test product with name'), findsOneWidget);
+          expect(find.text('24 units'), findsOneWidget);
+          expect(find.text('0 boxes'), findsOneWidget);
+          expect(find.text('0 units'), findsOneWidget);
+
+          final addFinder = find.byIcon(Icons.add);
+          final removeFinder = find.byIcon(Icons.remove);
+          final textFieldFinder = find.byType(TextField);
+          expect(addFinder, findsNWidgets(2));
+          expect(removeFinder, findsNWidgets(2));
+          expect(textFieldFinder, findsNWidgets(2));
+          await tester.tap(addFinder.first);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.unit,
+                quantity: 1,
+              ),
+            ),
+          ).called(1);
+
+          await tester.tap(removeFinder.first);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.unit,
+                quantity: -1.0,
+              ),
+            ),
+          ).called(1);
+
+          await tester.tap(addFinder.last);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.subunit,
+                quantity: 1,
+              ),
+            ),
+          ).called(1);
+
+          await tester.tap(removeFinder.last);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.subunit,
+                quantity: -1.0,
+              ),
+            ),
+          ).called(1);
+
+          // Verify text edition
+          await tester.pumpAndSettle();
+          await tester.enterText(textFieldFinder.first, '3');
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle();
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.unit,
+                quantity: 3.0,
+              ),
+            ),
+          ).called(1);
+
+          await tester.enterText(textFieldFinder.last, '3');
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle();
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.subunit,
+                quantity: 3.0,
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      testWidgets(
+        'should render list product messages correctly, with more than 3 elements and be able to expand the message',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.product(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  products: [
+                    for (int i = 0; i < 4; i++)
+                      Product(
+                        sku: '123$i',
+                        name: 'test product without name $i',
+                        price: 30.0 + i.toDouble(),
+                        salePrice: 29.0 + i.toDouble(),
+                        subunits: 24,
+                        unitName: '{amount, plural, one {box} other {boxes}}',
+                        subunitName:
+                            '{amount, plural, one {unit} other {units}}',
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          final showMoreButton = find.text('Show more');
+          expect(showMoreButton, findsOneWidget);
+          await tester.tap(showMoreButton);
+          verify(() => chatBloc.add(ChatToggleMessageExpand(messageId: 8)));
+        },
+      );
+
+      testWidgets(
+        'should render carousel  messages correctly, with more than 3 elements and be able to expand the message',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.carousel(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  products: [
+                    for (int i = 0; i < 4; i++)
+                      Product(
+                        sku: '123$i',
+                        name: 'test product without name $i',
+                        price: 30.0 + i.toDouble(),
+                        salePrice: 29.0 + i.toDouble(),
+                        subunits: 24,
+                        unitName: '{amount, plural, one {box} other {boxes}}',
+                        subunitName:
+                            '{amount, plural, one {unit} other {units}}',
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          final listFinder = find.byType(Scrollable);
+          final showMoreButton = find.text('Show more');
+          await tester.scrollUntilVisible(
+            showMoreButton,
+            500,
+            scrollable: listFinder.last,
+          );
+          expect(showMoreButton, findsOneWidget);
+          await tester.tap(showMoreButton);
+          verify(() => chatBloc.add(ChatToggleMessageExpand(messageId: 8)));
+        },
+      );
+
+      testWidgets(
+        'should render an expanded product messages correctly, with more than 3 elements, should be able to click show less button',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.product(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  expand: true,
+                  products: [
+                    for (int i = 0; i < 10; i++)
+                      Product(
+                        sku: '123$i',
+                        name: 'test product without name $i',
+                        price: 30.0 + i.toDouble(),
+                        salePrice: 29.0 + i.toDouble(),
+                        subunits: 24,
+                        unitName: '{amount, plural, one {box} other {boxes}}',
+                        subunitName:
+                            '{amount, plural, one {unit} other {units}}',
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          expect(find.text('test product without name 9'), findsOneWidget);
+          final showLessButton = find.text('Show less');
+          expect(showLessButton, findsOneWidget);
+          await tester.tap(showLessButton);
+          verify(() => chatBloc.add(ChatToggleMessageExpand(messageId: 8)));
+        },
+      );
+
+      testWidgets(
+        'should render product carousel with one element correctly and be able to add, edit and remove units',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.carousel(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  products: [
+                    Product(
+                      sku: '123',
+                      name: 'test product without name',
+                      price: 30.0,
+                      salePrice: 29.0,
+                      subunits: 24,
+                      unitName: '{amount, plural, one {box} other {boxes}}',
+                      subunitName: '{amount, plural, one {unit} other {units}}',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(find.text('test product without name'), findsOneWidget);
+          expect(find.text('0 boxes'), findsOneWidget);
+          expect(find.text('0 units'), findsOneWidget);
+
+          final addFinder = find.byIcon(Icons.add);
+          final removeFinder = find.byIcon(Icons.remove);
+          final textFieldFinder = find.byType(TextField);
+          expect(addFinder, findsNWidgets(2));
+          expect(removeFinder, findsNWidgets(2));
+          expect(textFieldFinder, findsNWidgets(2));
+          await tester.tap(addFinder.first);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.unit,
+                quantity: 1,
+              ),
+            ),
+          ).called(1);
+
+          await tester.tap(removeFinder.first);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.unit,
+                quantity: -1.0,
+              ),
+            ),
+          ).called(1);
+
+          await tester.tap(addFinder.last);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.subunit,
+                quantity: 1,
+              ),
+            ),
+          ).called(1);
+
+          await tester.tap(removeFinder.last);
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.subunit,
+                quantity: -1.0,
+              ),
+            ),
+          ).called(1);
+
+          // Verify text edition
+          await tester.pumpAndSettle();
+          await tester.enterText(textFieldFinder.first, '3');
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle();
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.unit,
+                quantity: 3.0,
+              ),
+            ),
+          ).called(1);
+
+          await tester.enterText(textFieldFinder.last, '3');
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle();
+          verify(
+            () => chatBloc.add(
+              ChatUpdateProductQuantity(
+                messageId: 8,
+                productSku: '123',
+                unitType: UnitType.subunit,
+                quantity: 3.0,
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      testWidgets(
+        'should render product carousel and product message in portrait mode correctly',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.carousel(
+                  id: 8,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  products: [
+                    Product(
+                      sku: '123',
+                      name: 'test product without name',
+                      price: 30.0,
+                      salePrice: 29.0,
+                      subunits: 24,
+                      unitName: '{amount, plural, one {box} other {boxes}}',
+                      subunitName: '{amount, plural, one {unit} other {units}}',
+                    ),
+                  ],
+                ),
+                ChatMessage.product(
+                  id: 9,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  products: [
+                    Product(
+                      sku: '123',
+                      name: 'product message',
+                      price: 30.0,
+                      salePrice: 29.0,
+                      subunits: 24,
+                      unitName: '{amount, plural, one {box} other {boxes}}',
+                      subunitName: '{amount, plural, one {unit} other {units}}',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          tester.view.physicalSize = const Size(600, 800);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(() {
+            tester.view.resetPhysicalSize();
+          });
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(find.text('test product without name'), findsOneWidget);
+          expect(find.text('product message'), findsOneWidget);
+          expect(find.text('0 boxes'), findsNWidgets(2));
+          expect(find.text('0 units'), findsNWidgets(2));
+
+          final addFinder = find.byIcon(Icons.add);
+          final removeFinder = find.byIcon(Icons.remove);
+          final textFieldFinder = find.byType(TextField);
+          expect(addFinder, findsNWidgets(4));
+          expect(removeFinder, findsNWidgets(4));
+          expect(textFieldFinder, findsNWidgets(4));
+        },
+      );
 
       testWidgets(
         'should throw an unimplemented error when a unsupported assistant message is received',

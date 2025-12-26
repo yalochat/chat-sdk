@@ -68,19 +68,53 @@ void main() {
           amplitudes: [2.0, 3.0],
           duration: 300,
         );
-        await chatRepository.insertChatMessage(message);
-        await chatRepository.insertChatMessage(message);
-        await chatRepository.insertChatMessage(voiceMessage);
-        await chatRepository.insertChatMessage(voiceMessage);
+        ChatMessage productMessage = ChatMessage.product(
+          role: MessageRole.user,
+          timestamp: clock.now(),
+          products: [
+            Product(
+              sku: '123',
+              name: '123',
+              price: 30.0,
+              unitName: 'box',
+            ),
+          ],
+        );
 
-        var results = await chatRepository.getChatMessagePageDesc(null, 5);
+        ChatMessage carouselMessage = ChatMessage.carousel(
+          role: MessageRole.user,
+          timestamp: clock.now(),
+          products: [
+            Product(
+              sku: '123',
+              name: '123',
+              price: 30.0,
+              unitName: 'box',
+            ),
+          ],
+        );
+
+        ChatMessage imageMessage = ChatMessage.image(
+          role: MessageRole.assistant,
+          timestamp: clock.now(),
+          fileName: 'test/image.png',
+        );
+        await chatRepository.insertChatMessage(message);
+        await chatRepository.insertChatMessage(message);
+        await chatRepository.insertChatMessage(voiceMessage);
+        await chatRepository.insertChatMessage(voiceMessage);
+        await chatRepository.insertChatMessage(productMessage);
+        await chatRepository.insertChatMessage(imageMessage);
+        await chatRepository.insertChatMessage(carouselMessage);
+
+        var results = await chatRepository.getChatMessagePageDesc(null, 700);
         expect(results, isA<Ok<Page<ChatMessage>>>());
 
         var resultPage = (results as Ok<Page<ChatMessage>>).result;
-        expect(resultPage.data.length, equals(4));
+        expect(resultPage.data.length, equals(7));
         expect(
           resultPage.pageInfo,
-          equals(PageInfo(cursor: null, pageSize: 5)),
+          equals(PageInfo(cursor: null, pageSize: 700)),
         );
       },
       tags: ['integration'],
@@ -217,10 +251,18 @@ void main() {
       tags: ['integration'],
     );
 
-    test('should update a chat message correctly', () async {
+    test('should replace a product message correctly', () async {
       ChatMessage message = ChatMessage.product(
         role: MessageRole.user,
         timestamp: clock.now(),
+        products: [
+          Product(
+            sku: '123',
+            name: '123',
+            price: 30.0,
+            unitName: 'box',
+          ),
+        ],
       );
       var result = await chatRepository.insertChatMessage(message);
       expect(result, isA<Ok<ChatMessage>>());
@@ -234,7 +276,6 @@ void main() {
             name: 'Test',
             price: 300,
             unitName: 'box',
-            unitNamePlural: 'boxes',
           ),
         ],
       );
@@ -264,14 +305,79 @@ void main() {
             name: 'Test',
             price: 300,
             unitName: 'box',
-            unitNamePlural: 'boxes',
           ),
         ),
       );
     }, tags: ['integration']);
 
     test(
-      'should return a format exception when the messages does not contain an id',
+      'should replace a generic message correctly, with a product message',
+      () async {
+        ChatMessage message = ChatMessage(
+          role: MessageRole.user,
+          timestamp: clock.now(),
+          amplitudes: [3.0],
+          duration: 1,
+          products: [
+            Product(
+              sku: '123',
+              name: '123',
+              price: 30.0,
+              unitName: 'box',
+            ),
+          ],
+          type: MessageType.text,
+        );
+        var result = await chatRepository.insertChatMessage(message);
+        expect(result, isA<Ok<ChatMessage>>());
+        var okRes = result as Ok<ChatMessage>;
+        expect(okRes.result.id, equals(1));
+
+        ChatMessage newMessage = okRes.result.copyWith(
+          products: [
+            Product(
+              sku: '123',
+              name: 'Test',
+              price: 300,
+              unitName: 'box',
+            ),
+          ],
+        );
+
+        final updateRes = await chatRepository.replaceChatMessage(newMessage);
+        expect(
+          updateRes,
+          isA<Ok<bool>>().having((s) => s.result, 'value', equals(true)),
+        );
+
+        final actualRes = await (databaseService.select(
+          databaseService.chatMessage,
+        )..where((m) => m.id.equals(1))).getSingle();
+
+        final List<Product> products = actualRes.products != null
+            ? (jsonDecode(actualRes.products!) as List)
+                  .map((e) => Product.fromJson(e as Map<String, dynamic>))
+                  .toList()
+            : [];
+
+        expect(products.length, equals(1));
+        expect(
+          products[0],
+          equals(
+            Product(
+              sku: '123',
+              name: 'Test',
+              price: 300,
+              unitName: 'box',
+            ),
+          ),
+        );
+      },
+      tags: ['integration'],
+    );
+
+    test(
+      'should return a format exception when the messages does not contain an id in replace message',
       () async {
         ChatMessage message = ChatMessage.product(
           role: MessageRole.user,
@@ -325,5 +431,36 @@ void main() {
       var result = await chatRepository.getChatMessagePageDesc(0, 1);
       expect(result, isA<Error<Page<ChatMessage>>>());
     });
+
+    test(
+      'should return an error when the message repository fails while replacing a message',
+      () async {
+        ChatMessage message = ChatMessage.product(
+          id: 3,
+          role: MessageRole.user,
+          timestamp: clock.now(),
+          products: [
+            Product(
+              sku: '123',
+              name: '123',
+              price: 30.0,
+              unitName: 'box',
+            ),
+          ],
+        );
+
+        when(
+          () => databaseService
+              .update(databaseService.chatMessage)
+              .replace(any()),
+        ).thenThrow(Exception('test'));
+
+        final updateRes = await chatRepository.replaceChatMessage(message);
+        expect(
+          updateRes,
+          isA<Error<bool>>().having((s) => s.error, 'error', isA<Exception>()),
+        );
+      },
+    );
   });
 }

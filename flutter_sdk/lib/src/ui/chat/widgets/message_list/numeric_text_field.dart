@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 
 class NumericTextField extends StatefulWidget {
   final String unitName;
-  final String unitNamePlural;
   final double value;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
@@ -21,7 +20,6 @@ class NumericTextField extends StatefulWidget {
     required this.onRemove,
     this.onEditingComplete,
     required this.unitName,
-    required this.unitNamePlural,
   });
 
   @override
@@ -38,13 +36,12 @@ class _NumericTextFieldState extends State<NumericTextField> {
     } else {
       final value = _textEditingController.text;
       double valNum = double.parse(value);
-      widget.onEditingComplete!(valNum);
-      final String unitName = widget.value > 1
-          ? widget.unitNamePlural
-          : widget.unitName;
+      if (widget.onEditingComplete != null) {
+        widget.onEditingComplete!(valNum);
+      }
 
       _textEditingController.text =
-          '${context.formatNumber(widget.value)} $unitName';
+          '${context.formatNumber(widget.value)} ${widget.unitName}';
     }
   }
 
@@ -67,11 +64,8 @@ class _NumericTextFieldState extends State<NumericTextField> {
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    final String unitName = widget.value > 1
-        ? widget.unitNamePlural
-        : widget.unitName;
     _textEditingController.text =
-        '${context.formatNumber(widget.value)} $unitName';
+        '${context.formatNumber(widget.value)} ${widget.unitName}';
     return Row(
       children: [
         IconButton(
@@ -90,12 +84,7 @@ class _NumericTextFieldState extends State<NumericTextField> {
             controller: _textEditingController,
             focusNode: _focusNode,
             onEditingComplete: () {
-              if (widget.onEditingComplete != null) {
-                final value = _textEditingController.text;
-                double valNum = double.parse(value);
-                widget.onEditingComplete!(valNum);
-                _focusNode.unfocus();
-              }
+              _focusNode.unfocus();
             },
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           ),
