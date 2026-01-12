@@ -1,7 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'dart:math';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';

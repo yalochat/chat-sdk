@@ -24,4 +24,4 @@ For detailed documentation and examples related to the flutter SDK, visit [our f
 
 ## License
 
-[License type] - see LICENSE file for details
+See LICENSE file for details
