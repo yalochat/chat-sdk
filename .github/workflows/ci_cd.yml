@@ -9,7 +9,7 @@ on:
     tags:
       - 'v*.*.*'
     paths:
-      - 'flutter_sdk/**/*.dart'
+      - 'flutter_sdk/**'
 
   pull_request:
 
@@ -38,10 +38,10 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - name: Flutter analyze/lint
-        run: flutter analyze
       - name: Fetch deps
         run: flutter pub get
+      - name: Flutter analyze/lint
+        run: flutter analyze
       - name: Run tests
         run: flutter test --coverage
       - name: Remove coverage stats from codegen files
@@ -50,4 +50,4 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: unittests,integrationtests
+          flags: flutter_sdk
