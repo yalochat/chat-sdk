@@ -1,6 +1,6 @@
 # Copyright (c) Yalochat, Inc. All rights reserved.
 
-name: Test flutter SDK
+name: Flutter SDK Pipeline
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
   pull_request:
 
 jobs:
-  test-flutter-sdk:
+  flutter-sdk-pipeline:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,6 +38,8 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Flutter analyze/lint
+        run: flutter analyze
       - name: Fetch deps
         run: flutter pub get
       - name: Run tests
@@ -49,3 +51,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests,integrationtests
+      - name: Release library version
+          if: github.ref_type == 'tag'
+          run: dart pub publish
