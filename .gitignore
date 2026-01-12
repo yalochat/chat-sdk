@@ -12,6 +12,9 @@
 .swiftpm/
 migrate_working_dir/
 
+flutter_sdk/pubspec.lock
+.dir-locals.el
+
 # IntelliJ related
 *.iml
 *.ipr
