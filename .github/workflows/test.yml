@@ -8,10 +8,10 @@ on:
       - 'main'
     tags:
       - '*.*.*'
-    pull_requests:
-      - '*'
-    paths:
-      - 'flutter_sdk/**/*.dart'
+  pull_request:
+    - '*'
+  paths:
+    - 'flutter_sdk/**/*.dart'
 jobs:
   test-flutter-sdk:
     runs-on: ubuntu-latest
