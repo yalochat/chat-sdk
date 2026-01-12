@@ -20,7 +20,7 @@ jobs:
       run:
         working-directory: ./flutter_sdk
     steps:
-      - uses: actions/checkout@
+      - uses: actions/checkout@v5
       - name: Install LCOV
         run: sudo apt-get install -y lcov
       - name: Cache pub deps
