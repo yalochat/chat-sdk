@@ -7,7 +7,7 @@ on:
     branches:
       - 'main'
     tags:
-      - '*.*.*'
+      - 'v*.*.*'
     paths:
       - 'flutter_sdk/**/*.dart'
 
@@ -51,6 +51,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: unittests,integrationtests
-      - name: Release library version
-          if: github.ref_type == 'tag'
-          run: dart pub publish
