@@ -10,8 +10,10 @@ on:
       - '*.*.*'
     paths:
       - 'flutter_sdk/**/*.dart'
+
   pull_request:
-    - '*'
+    branches:
+      - '*'
     paths:
       - 'flutter_sdk/**/*.dart'
 jobs:
