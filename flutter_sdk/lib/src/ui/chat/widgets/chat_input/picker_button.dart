@@ -36,7 +36,7 @@ class PickerButton extends StatelessWidget {
               ),
               border: BoxBorder.all(
                 width: 1,
-                color: SdkColors.pickerButtonBorderColor,
+                color: chatTheme.pickerButtonBorderColor,
               ),
             ),
             child: Row(
