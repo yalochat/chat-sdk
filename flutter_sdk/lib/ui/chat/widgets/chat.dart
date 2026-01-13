@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/data/services/yalo_chat_client.dart';
+import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/config/dependencies.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_app_bar.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/chat_input.dart';
