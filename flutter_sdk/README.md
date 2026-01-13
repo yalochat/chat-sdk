@@ -114,15 +114,16 @@ ChatTheme from it using the constructor
 ChatTheme.fromThemeData(themeData);
 ```
 
-You can merge ThemeData with a custom ChatTheme, by sending a base ChatTheme as a second parameter like this:
+You can merge ThemeData with a custom ChatTheme, by passing a base ChatTheme as a second parameter like this:
 ```dart
 ChatTheme.fromThemeData(
   themeData,
   ChatTheme(
     chatIconImage: const AssetImage(
-    'assets/images/oris-icon.png',
-  ),
-),
+      'assets/images/oris-icon.png',
+    ),
+  )
+);
 ```
 
 ## Examples
@@ -144,3 +145,4 @@ flutter run
 ## Support
 
 - 📧 https://support.yalo.com/
+
