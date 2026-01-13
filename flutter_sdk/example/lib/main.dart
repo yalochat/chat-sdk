@@ -15,35 +15,48 @@ void main() {
     );
   });
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MaterialApp.router(routerConfig: router));
+  runApp(MyRoutedApp());
 }
 
-final router = GoRouter(
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (_, _) => MyApp(),
-      routes: <RouteBase>[
-        GoRoute(
-          path: 'chat',
-          builder: (_, _) {
-            return Chat(
-              name: "Chat test",
-              flowKey: "1230487123041234",
-              theme: ChatTheme(
-                chatIconImage: const AssetImage(
-                  'assets/images/oris-icon.png',
+final class MyRoutedApp extends StatelessWidget {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, _) => MyApp(),
+        routes: <RouteBase>[
+          GoRoute(
+            path: 'chat',
+            builder: (context, _) {
+              final themeData = Theme.of(context);
+              return Chat(
+                name: "Chat test",
+                flowKey: "1230487123041234",
+                theme: ChatTheme.fromThemeData(
+                  themeData,
+                  ChatTheme(
+                    chatIconImage: const AssetImage(
+                      'assets/images/oris-icon.png',
+                    ),
+                  ),
                 ),
-              ),
-              onShopPressed: () {},
-              onCartPressed: () {},
-            );
-          },
-        ),
-      ],
-    ),
-  ],
-);
+                onShopPressed: () {},
+                onCartPressed: () {},
+              );
+            },
+          ),
+        ],
+      ),
+    ],
+  );
+
+  MyRoutedApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(routerConfig: router);
+  }
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

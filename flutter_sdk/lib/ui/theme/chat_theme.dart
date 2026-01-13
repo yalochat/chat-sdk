@@ -12,11 +12,10 @@ class ChatTheme {
   final Color cardBorderColor;
   final Color appBarBackgroundColor;
   final Color userMessageColor;
-  final Color systemMessageColor;
   final Color inputTextFieldColor;
   final Color inputTextFieldBorderColor;
   final Color sendButtonColor;
-  final Color sendButtonStyle;
+  final Color sendButtonForegroundColor;
   final Color waveColor;
   final Color attachmentPickerBackgroundColor;
   final Color actionIconColor;
@@ -34,11 +33,11 @@ class ChatTheme {
   final Color imagePlaceholderIconColor;
   final Color productPriceBackgroundColor;
   final Color pricePerSubunitColor;
+  final Color pickerButtonBorderColor;
 
   final TextStyle modalHeaderStyle;
   final TextStyle userMessageTextStyle;
   final TextStyle assistantMessageTextStyle;
-  final TextStyle systemMessageTextStyle;
   final TextStyle hintTextStyle;
   final TextStyle timerTextStyle;
   final TextStyle productTitleStyle;
@@ -73,13 +72,12 @@ class ChatTheme {
     this.cardBorderColor = SdkColors.cardBorderColorLight,
     this.appBarBackgroundColor = SdkColors.appBarBackgroundColorLight,
     this.userMessageColor = SdkColors.userMessageColorLight,
-    this.systemMessageColor = SdkColors.systemMessageColorLight,
     this.inputTextFieldColor = SdkColors.inputTextFieldColorLight,
     this.inputTextFieldBorderColor = SdkColors.inputTextFieldBorderColorLight,
     this.sendButtonColor = SdkColors.sendButtonColorLight,
     this.attachmentPickerBackgroundColor =
         SdkColors.attachmentPickerBackgroundColorLight,
-    this.sendButtonStyle = SdkColors.sendButtonTextColorLight,
+    this.sendButtonForegroundColor = SdkColors.sendButtonTextColorLight,
     this.waveColor = SdkColors.waveColorLight,
     this.actionIconColor = Colors.black,
     this.cancelRecordingIconColor = SdkColors.messageControlIconColorLight,
@@ -96,6 +94,7 @@ class ChatTheme {
     this.imagePlaceholderBackgroundColor = SdkColors.imagePlaceHolderColorLight,
     this.productPriceBackgroundColor = SdkColors.discountBackgroundColorLight,
     this.pricePerSubunitColor = SdkColors.productCardSubtitleColorLight,
+    this.pickerButtonBorderColor = SdkColors.pickerButtonBorderColor,
 
     // Text Styles
     this.userMessageTextStyle = const TextStyle(
@@ -104,9 +103,6 @@ class ChatTheme {
     this.assistantMessageTextStyle = const TextStyle(
       color: SdkColors.assistantMessageTextColorLight,
       fontSize: SdkConstants.titleFontSize,
-    ),
-    this.systemMessageTextStyle = const TextStyle(
-      color: SdkColors.systemMessageColorLight,
     ),
     this.modalHeaderStyle = const TextStyle(
       color: SdkColors.modalHeaderColorLight,
@@ -159,7 +155,217 @@ class ChatTheme {
     this.removeIcon = Icons.remove,
   });
 
-  factory ChatTheme.fromThemeData(ThemeData themedata) {
-    return ChatTheme();
+  ChatTheme copyWith({
+    Color? backgroundColor,
+    Color? cardBackgroundColor,
+    Color? cardBorderColor,
+    Color? appBarBackgroundColor,
+    Color? userMessageColor,
+    Color? inputTextFieldColor,
+    Color? inputTextFieldBorderColor,
+    Color? sendButtonColor,
+    Color? sendButtonForegroundColor,
+    Color? waveColor,
+    Color? attachmentPickerBackgroundColor,
+    Color? actionIconColor,
+    Color? cancelRecordingIconColor,
+    Color? closeModalIconColor,
+    Color? playAudioIconColor,
+    Color? pauseAudioIconColor,
+    Color? attachIconColor,
+    Color? cameraIconColor,
+    Color? galleryIconColor,
+    Color? trashIconColor,
+    Color? currencyIconColor,
+    Color? numericControlIconColor,
+    Color? imagePlaceholderBackgroundColor,
+    Color? imagePlaceholderIconColor,
+    Color? productPriceBackgroundColor,
+    Color? pricePerSubunitColor,
+    Color? pickerButtonBorderColor,
+    TextStyle? modalHeaderStyle,
+    TextStyle? userMessageTextStyle,
+    TextStyle? assistantMessageTextStyle,
+    TextStyle? hintTextStyle,
+    TextStyle? timerTextStyle,
+    TextStyle? productTitleStyle,
+    TextStyle? productSubunitsStyle,
+    TextStyle? productPriceStyle,
+    TextStyle? productSalePriceStrikeStyle,
+    TextStyle? pricePerSubunitStyle,
+    TextStyle? expandControlsStyle,
+    ImageProvider? chatIconImage,
+    IconData? sendButtonIcon,
+    IconData? recordAudioIcon,
+    IconData? shopIcon,
+    IconData? cartIcon,
+    IconData? cancelRecordingIcon,
+    IconData? closeModalIcon,
+    IconData? playAudioIcon,
+    IconData? pauseAudioIcon,
+    IconData? attachIcon,
+    IconData? cameraIcon,
+    IconData? galleryIcon,
+    IconData? trashIcon,
+    IconData? imagePlaceHolderIcon,
+    IconData? currencyIcon,
+    IconData? addIcon,
+    IconData? removeIcon,
+  }) {
+    return ChatTheme(
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      cardBackgroundColor: cardBackgroundColor ?? this.cardBackgroundColor,
+      cardBorderColor: cardBorderColor ?? this.cardBorderColor,
+      appBarBackgroundColor:
+          appBarBackgroundColor ?? this.appBarBackgroundColor,
+      userMessageColor: userMessageColor ?? this.userMessageColor,
+      inputTextFieldColor: inputTextFieldColor ?? this.inputTextFieldColor,
+      inputTextFieldBorderColor:
+          inputTextFieldBorderColor ?? this.inputTextFieldBorderColor,
+      sendButtonColor: sendButtonColor ?? this.sendButtonColor,
+      sendButtonForegroundColor:
+          sendButtonForegroundColor ?? this.sendButtonForegroundColor,
+      waveColor: waveColor ?? this.waveColor,
+      attachmentPickerBackgroundColor:
+          attachmentPickerBackgroundColor ??
+          this.attachmentPickerBackgroundColor,
+      actionIconColor: actionIconColor ?? this.actionIconColor,
+      cancelRecordingIconColor:
+          cancelRecordingIconColor ?? this.cancelRecordingIconColor,
+      closeModalIconColor: closeModalIconColor ?? this.closeModalIconColor,
+      playAudioIconColor: playAudioIconColor ?? this.playAudioIconColor,
+      pauseAudioIconColor: pauseAudioIconColor ?? this.pauseAudioIconColor,
+      attachIconColor: attachIconColor ?? this.attachIconColor,
+      cameraIconColor: cameraIconColor ?? this.cameraIconColor,
+      galleryIconColor: galleryIconColor ?? this.galleryIconColor,
+      trashIconColor: trashIconColor ?? this.trashIconColor,
+      currencyIconColor: currencyIconColor ?? this.currencyIconColor,
+      numericControlIconColor:
+          numericControlIconColor ?? this.numericControlIconColor,
+      imagePlaceholderBackgroundColor:
+          imagePlaceholderBackgroundColor ??
+          this.imagePlaceholderBackgroundColor,
+      imagePlaceholderIconColor:
+          imagePlaceholderIconColor ?? this.imagePlaceholderIconColor,
+      productPriceBackgroundColor:
+          productPriceBackgroundColor ?? this.productPriceBackgroundColor,
+      pricePerSubunitColor: pricePerSubunitColor ?? this.pricePerSubunitColor,
+      pickerButtonBorderColor:
+          pickerButtonBorderColor ?? this.pickerButtonBorderColor,
+
+      modalHeaderStyle: modalHeaderStyle ?? this.modalHeaderStyle,
+      userMessageTextStyle: userMessageTextStyle ?? this.userMessageTextStyle,
+      assistantMessageTextStyle:
+          assistantMessageTextStyle ?? this.assistantMessageTextStyle,
+      hintTextStyle: hintTextStyle ?? this.hintTextStyle,
+      timerTextStyle: timerTextStyle ?? this.timerTextStyle,
+      productTitleStyle: productTitleStyle ?? this.productTitleStyle,
+      productSubunitsStyle: productSubunitsStyle ?? this.productSubunitsStyle,
+      productPriceStyle: productPriceStyle ?? this.productPriceStyle,
+      productSalePriceStrikeStyle:
+          productSalePriceStrikeStyle ?? this.productSalePriceStrikeStyle,
+      pricePerSubunitStyle: pricePerSubunitStyle ?? this.pricePerSubunitStyle,
+      expandControlsStyle: expandControlsStyle ?? this.expandControlsStyle,
+      chatIconImage: chatIconImage ?? this.chatIconImage,
+      sendButtonIcon: sendButtonIcon ?? this.sendButtonIcon,
+      recordAudioIcon: recordAudioIcon ?? this.recordAudioIcon,
+      shopIcon: shopIcon ?? this.shopIcon,
+      cartIcon: cartIcon ?? this.cartIcon,
+      cancelRecordingIcon: cancelRecordingIcon ?? this.cancelRecordingIcon,
+      closeModalIcon: closeModalIcon ?? this.closeModalIcon,
+      playAudioIcon: playAudioIcon ?? this.playAudioIcon,
+      pauseAudioIcon: pauseAudioIcon ?? this.pauseAudioIcon,
+      attachIcon: attachIcon ?? this.attachIcon,
+      cameraIcon: cameraIcon ?? this.cameraIcon,
+      galleryIcon: galleryIcon ?? this.galleryIcon,
+      trashIcon: trashIcon ?? this.trashIcon,
+      imagePlaceHolderIcon: imagePlaceHolderIcon ?? this.imagePlaceHolderIcon,
+      currencyIcon: currencyIcon ?? this.currencyIcon,
+      addIcon: addIcon ?? this.addIcon,
+      removeIcon: removeIcon ?? this.removeIcon,
+    );
+  }
+
+  // Creates a ChatTheme from Material App ThemeData, optional chatTheme lets
+  // create a base theme that the colors will be overriden by ThemeData values
+  factory ChatTheme.fromThemeData(ThemeData themeData, ChatTheme? chatTheme) {
+    final baseTheme = chatTheme ?? ChatTheme();
+    return baseTheme.copyWith(
+      backgroundColor: themeData.colorScheme.surface,
+
+      // App Bar
+      appBarBackgroundColor: themeData.colorScheme.surface,
+      actionIconColor: themeData.colorScheme.onSurface,
+
+      // User messages
+      userMessageColor: themeData.colorScheme.surfaceContainerHighest,
+      userMessageTextStyle: baseTheme.userMessageTextStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+
+      // Assistant messages
+      assistantMessageTextStyle: baseTheme.assistantMessageTextStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+
+      // Main text input
+      inputTextFieldColor: themeData.colorScheme.surface,
+      inputTextFieldBorderColor: themeData.colorScheme.outline,
+      attachmentPickerBackgroundColor: themeData.colorScheme.surface,
+      pickerButtonBorderColor: themeData.colorScheme.onSurfaceVariant,
+      cancelRecordingIconColor: themeData.colorScheme.onSurfaceVariant,
+      attachIconColor: themeData.colorScheme.onSurfaceVariant,
+      cameraIconColor: themeData.colorScheme.onSurfaceVariant,
+      galleryIconColor: themeData.colorScheme.onSurfaceVariant,
+
+      modalHeaderStyle: baseTheme.modalHeaderStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+      hintTextStyle: baseTheme.hintTextStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+      timerTextStyle: baseTheme.timerTextStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+
+      // Main button
+      sendButtonColor: themeData.colorScheme.primary,
+      sendButtonForegroundColor: themeData.colorScheme.onPrimary,
+
+      // Audio wave component
+      waveColor: themeData.colorScheme.primary,
+      playAudioIconColor: themeData.colorScheme.onSurfaceVariant,
+      pauseAudioIconColor: themeData.colorScheme.onSurfaceVariant,
+
+      // Product card
+      cardBackgroundColor: themeData.colorScheme.surface,
+      cardBorderColor: themeData.colorScheme.outline,
+      currencyIconColor: themeData.colorScheme.onSurfaceVariant,
+      numericControlIconColor: themeData.colorScheme.onSurfaceVariant,
+      imagePlaceholderIconColor: themeData.colorScheme.onSurfaceVariant,
+      imagePlaceholderBackgroundColor: themeData.colorScheme.surfaceContainerHighest,
+      productPriceBackgroundColor: themeData.colorScheme.tertiaryContainer,
+      pricePerSubunitColor: themeData.colorScheme.onSurfaceVariant,
+
+      productTitleStyle: baseTheme.productTitleStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+      productSubunitsStyle: baseTheme.productSubunitsStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+
+      productPriceStyle: baseTheme.productPriceStyle.copyWith(
+        color: themeData.colorScheme.onTertiaryContainer,
+      ),
+      productSalePriceStrikeStyle: baseTheme.productSalePriceStrikeStyle.copyWith(
+        color: themeData.colorScheme.onTertiaryContainer,
+      ),
+      pricePerSubunitStyle: baseTheme.pricePerSubunitStyle.copyWith(
+        color: themeData.colorScheme.onSurfaceVariant,
+      ),
+      expandControlsStyle: baseTheme.expandControlsStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+    );
   }
 }

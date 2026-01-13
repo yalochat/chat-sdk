@@ -94,7 +94,7 @@ class ActionButton extends StatelessWidget {
                   ),
                   style: IconButton.styleFrom(
                     backgroundColor: chatThemeCubit.chatTheme.sendButtonColor,
-                    foregroundColor: chatThemeCubit.chatTheme.sendButtonStyle,
+                    foregroundColor: chatThemeCubit.chatTheme.sendButtonForegroundColor,
                     padding: EdgeInsets.all(SdkConstants.iconButtonPadding),
                   ),
                 );
