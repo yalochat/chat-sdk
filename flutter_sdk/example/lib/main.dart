@@ -1,7 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights
 
-import 'package:chat_flutter_sdk/ui/chat/widgets/chat.dart';
-import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
+import 'package:chat_flutter_sdk/yalo_sdk.dart';
 import 'package:flutter/material.dart';
 
 import 'package:go_router/go_router.dart';
@@ -30,8 +29,7 @@ final class MyRoutedApp extends StatelessWidget {
             builder: (context, _) {
               final themeData = Theme.of(context);
               return Chat(
-                name: "Chat test",
-                flowKey: "1230487123041234",
+                client: YaloChatClient(name: "Chat test", flowKey: "1230487123041234"),
                 theme: ChatTheme.fromThemeData(
                   themeData,
                   ChatTheme(

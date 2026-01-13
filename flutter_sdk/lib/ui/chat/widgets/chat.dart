@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/config/dependencies.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_app_bar.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/chat_input.dart';
@@ -12,8 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class Chat extends StatelessWidget {
   final PreferredSizeWidget? appBar;
 
-  final String name;
-  final String flowKey;
+  final YaloChatClient client;
   final bool showAttachmentButton;
   final VoidCallback? onShopPressed;
   final VoidCallback? onCartPressed;
@@ -21,8 +21,7 @@ class Chat extends StatelessWidget {
 
   const Chat({
     super.key,
-    required this.name,
-    required this.flowKey,
+    required this.client,
     this.showAttachmentButton = true,
     this.appBar,
     this.onShopPressed,
@@ -35,7 +34,7 @@ class Chat extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: repositoryProviders(context),
       child: MultiBlocProvider(
-        providers: chatProviders(theme, name),
+        providers: chatProviders(theme, client.name),
         child: BlocBuilder<ChatThemeCubit, ChatTheme>(
           builder: (context, chatTheme) {
             return Scaffold(
@@ -49,10 +48,8 @@ class Chat extends StatelessWidget {
               body: SafeArea(
                 child: Column(
                   children: [
-                    Expanded(
-                      child: MessageList(),
-                    ),
-                    ChatInput(showAttachmentButton:  showAttachmentButton),
+                    Expanded(child: MessageList()),
+                    ChatInput(showAttachmentButton: showAttachmentButton),
                   ],
                 ),
               ),

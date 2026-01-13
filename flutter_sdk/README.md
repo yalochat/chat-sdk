@@ -51,11 +51,12 @@ The SDK supports various message types:
 ### 1. Initialize the SDK
 
 ```dart
-import 'package:yalo_chat_sdk/yalo_chat_sdk.dart';
+import 'package:chat_flutter_sdk/yalo_sdk.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final YaloChatClient client = YaloChatClient(
+    name: 'Chat name',
     flowKey: '1234567890',
   );
 }
@@ -104,15 +105,25 @@ void main() {
 ### Theme Customization
 
 All customization of the SDK is made by modifying the [Yalo ChatTheme
-class](./lib/ui/theme), you can check the following image to know
-what component each property modifies.
+class](./lib/ui/theme).
 
-
-If you already have ThemeData in your project you can create a
+If you already have a ThemeData in your project you can create a
 ChatTheme from it using the constructor
 
 ```dart
 ChatTheme.fromThemeData(themeData);
+```
+
+You can merge ThemeData with a custom ChatTheme, by passing a base ChatTheme as a second parameter like this:
+```dart
+ChatTheme.fromThemeData(
+  themeData,
+  ChatTheme(
+    chatIconImage: const AssetImage(
+      'assets/images/oris-icon.png',
+    ),
+  )
+);
 ```
 
 ## Examples
@@ -134,3 +145,4 @@ flutter run
 ## Support
 
 - 📧 https://support.yalo.com/
+
