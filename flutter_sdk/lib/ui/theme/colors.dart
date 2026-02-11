@@ -30,4 +30,5 @@ abstract final class SdkColors {
   static const Color cardBorderColorLight = Color(0xFFDDE4EC);
   static const Color imagePlaceHolderColorLight = Color(0xFFF9FAFC);
   static const Color expandControlColorLight = Color(0xFF2207F1);
+  static const Color quickReplyBorderColor = Color(0xFFECEDEF);
 }

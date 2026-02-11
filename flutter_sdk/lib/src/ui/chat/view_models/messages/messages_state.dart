@@ -26,6 +26,7 @@ class MessagesState extends Equatable {
   final ChatStatus chatStatus;
   final String chatStatusText;
   final PageInfo pageInfo;
+  final List<String> quickReplies;
 
   MessagesState({
     List<ChatMessage>? messages,
@@ -41,6 +42,7 @@ class MessagesState extends Equatable {
       pageSize: 30,
       nextCursor: null,
     ),
+    this.quickReplies = const [],
   }) : messages = messages ?? <ChatMessage>[];
 
   MessagesState copyWith({
@@ -53,6 +55,7 @@ class MessagesState extends Equatable {
     ChatStatus? chatStatus,
     String? chatStatusText,
     PageInfo? pageInfo,
+    List<String>? quickReplies,
   }) {
     return MessagesState(
       messages: messages ?? this.messages,
@@ -65,6 +68,7 @@ class MessagesState extends Equatable {
       chatStatus: chatStatus ?? this.chatStatus,
       chatStatusText: chatStatusText ?? this.chatStatusText,
       pageInfo: pageInfo ?? this.pageInfo,
+      quickReplies: quickReplies ?? this.quickReplies,
     );
   }
 
@@ -79,5 +83,6 @@ class MessagesState extends Equatable {
     chatStatus,
     chatStatusText,
     pageInfo,
+    quickReplies
   ];
 }

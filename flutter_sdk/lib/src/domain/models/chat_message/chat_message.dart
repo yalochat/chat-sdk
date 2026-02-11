@@ -63,6 +63,8 @@ class ChatMessage extends Equatable {
   // this should not be persisted in DB
   final bool expand;
 
+  final List<String> quickReplies;
+
   const ChatMessage({
     this.id,
     required this.role,
@@ -75,6 +77,7 @@ class ChatMessage extends Equatable {
     this.duration,
     this.products = const [],
     this.expand = false,
+    this.quickReplies = const [],
   });
 
   const ChatMessage.text({
@@ -83,6 +86,7 @@ class ChatMessage extends Equatable {
     required this.timestamp,
     this.status = MessageStatus.inProgress,
     required this.content,
+    this.quickReplies = const [],
   }) : type = MessageType.text,
        amplitudes = null,
        fileName = null,
@@ -98,6 +102,7 @@ class ChatMessage extends Equatable {
     required this.fileName,
     required this.amplitudes,
     required this.duration,
+    this.quickReplies = const [],
   }) : type = MessageType.voice,
        products = const [],
        content = '',
@@ -110,6 +115,7 @@ class ChatMessage extends Equatable {
     required this.fileName,
     this.status = MessageStatus.inProgress,
     this.content = '',
+    this.quickReplies = const [],
   }) : type = MessageType.image,
        amplitudes = null,
        duration = null,
@@ -123,6 +129,7 @@ class ChatMessage extends Equatable {
     this.status = MessageStatus.inProgress,
     this.products = const [],
     this.expand = false,
+    this.quickReplies = const [],
   }) : type = MessageType.product,
        content = '',
        fileName = '',
@@ -136,6 +143,7 @@ class ChatMessage extends Equatable {
     this.status = MessageStatus.inProgress,
     this.products = const [],
     this.expand = false,
+    this.quickReplies = const [],
   }) : type = MessageType.productCarousel,
        content = '',
        fileName = '',

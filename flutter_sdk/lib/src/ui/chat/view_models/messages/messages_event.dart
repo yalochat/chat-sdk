@@ -63,6 +63,7 @@ final class ChatUpdateProductQuantity extends MessagesEvent
   List<Object?> get props => [messageId, productSku, unitType, quantity];
 }
 
+// Expands a toggeable message, like carousels or list products
 final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
   final int messageId;
 
@@ -72,9 +73,21 @@ final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
   List<Object?> get props => [messageId];
 }
 
+// Clear quick replies from GUI
+final class ChatClearQuickReplies extends MessagesEvent with EquatableMixin {
+
+ ChatClearQuickReplies();
+
+  @override
+  List<Object?> get props => [];
+}
+
 // Event to send a text message
 final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
-  ChatSendTextMessage();
+  // text is an optional field to send text messages without a update event.
+  // If text is defined it takes precedence over userMessage
+  final String? text;
+  ChatSendTextMessage({this.text});
   @override
   List<Object?> get props => [];
 }

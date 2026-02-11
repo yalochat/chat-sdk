@@ -34,7 +34,10 @@ class ChatTheme {
   final Color productPriceBackgroundColor;
   final Color pricePerSubunitColor;
   final Color pickerButtonBorderColor;
+  final Color quickReplyColor;
+  final Color quickReplyBorderColor;
 
+  final TextStyle quickReplyStyle;
   final TextStyle modalHeaderStyle;
   final TextStyle userMessageTextStyle;
   final TextStyle assistantMessageTextStyle;
@@ -95,8 +98,13 @@ class ChatTheme {
     this.productPriceBackgroundColor = SdkColors.discountBackgroundColorLight,
     this.pricePerSubunitColor = SdkColors.productCardSubtitleColorLight,
     this.pickerButtonBorderColor = SdkColors.pickerButtonBorderColor,
+    this.quickReplyColor = SdkColors.userMessageColorLight,
+    this.quickReplyBorderColor = SdkColors.quickReplyBorderColor,
 
     // Text Styles
+    this.quickReplyStyle = const TextStyle(
+      color: SdkColors.userMessageTextColorLight,
+    ),
     this.userMessageTextStyle = const TextStyle(
       color: SdkColors.userMessageTextColorLight,
     ),
@@ -183,6 +191,9 @@ class ChatTheme {
     Color? productPriceBackgroundColor,
     Color? pricePerSubunitColor,
     Color? pickerButtonBorderColor,
+    Color? quickReplyColor,
+    Color? quickReplyBorderColor,
+    TextStyle? quickReplyStyle,
     TextStyle? modalHeaderStyle,
     TextStyle? userMessageTextStyle,
     TextStyle? assistantMessageTextStyle,
@@ -252,7 +263,9 @@ class ChatTheme {
       pricePerSubunitColor: pricePerSubunitColor ?? this.pricePerSubunitColor,
       pickerButtonBorderColor:
           pickerButtonBorderColor ?? this.pickerButtonBorderColor,
-
+      quickReplyColor: quickReplyColor ?? this.quickReplyColor,
+      quickReplyBorderColor: quickReplyBorderColor ?? this.quickReplyBorderColor,
+      quickReplyStyle: quickReplyStyle ?? this.quickReplyStyle,
       modalHeaderStyle: modalHeaderStyle ?? this.modalHeaderStyle,
       userMessageTextStyle: userMessageTextStyle ?? this.userMessageTextStyle,
       assistantMessageTextStyle:
@@ -343,7 +356,8 @@ class ChatTheme {
       currencyIconColor: themeData.colorScheme.onSurfaceVariant,
       numericControlIconColor: themeData.colorScheme.onSurfaceVariant,
       imagePlaceholderIconColor: themeData.colorScheme.onSurfaceVariant,
-      imagePlaceholderBackgroundColor: themeData.colorScheme.surfaceContainerHighest,
+      imagePlaceholderBackgroundColor:
+          themeData.colorScheme.surfaceContainerHighest,
       productPriceBackgroundColor: themeData.colorScheme.tertiaryContainer,
       pricePerSubunitColor: themeData.colorScheme.onSurfaceVariant,
 
@@ -357,13 +371,19 @@ class ChatTheme {
       productPriceStyle: baseTheme.productPriceStyle.copyWith(
         color: themeData.colorScheme.onTertiaryContainer,
       ),
-      productSalePriceStrikeStyle: baseTheme.productSalePriceStrikeStyle.copyWith(
-        color: themeData.colorScheme.onTertiaryContainer,
-      ),
+      productSalePriceStrikeStyle: baseTheme.productSalePriceStrikeStyle
+          .copyWith(color: themeData.colorScheme.onTertiaryContainer),
       pricePerSubunitStyle: baseTheme.pricePerSubunitStyle.copyWith(
         color: themeData.colorScheme.onSurfaceVariant,
       ),
       expandControlsStyle: baseTheme.expandControlsStyle.copyWith(
+        color: themeData.colorScheme.onSurface,
+      ),
+
+      // Quick reply
+      quickReplyColor: themeData.colorScheme.surfaceContainerHighest,
+      quickReplyBorderColor: themeData.colorScheme.outline,
+      quickReplyStyle: baseTheme.quickReplyStyle.copyWith(
         color: themeData.colorScheme.onSurface,
       ),
     );
