@@ -42,7 +42,7 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
           role: MessageRole.assistant,
           timestamp: _clock.now(),
           content: 'This is a mocked product assistant message 🤖',
-          quickReplies: ['Quick!', 'Think!']
+          quickReplies: ['Quick!', 'Think!'],
         ),
       );
       _messagesStreamController.add(

@@ -15,9 +15,14 @@ class QuickReply extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chatBloc = context.read<MessagesBloc>();
+    final size = MediaQuery.sizeOf(context);
     return BlocBuilder<ChatThemeCubit, ChatTheme>(
       builder: (BuildContext context, ChatTheme theme) {
         return Container(
+          constraints: BoxConstraints(
+            maxWidth: size.width * 0.5,
+            maxHeight: size.height * 0.10,
+          ),
           decoration: BoxDecoration(
             color: theme.quickReplyColor,
             border: BoxBorder.all(color: theme.quickReplyBorderColor),

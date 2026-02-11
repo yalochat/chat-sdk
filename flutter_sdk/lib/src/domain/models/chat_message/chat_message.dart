@@ -162,6 +162,7 @@ class ChatMessage extends Equatable {
     int? duration,
     List<Product>? products,
     bool? expand,
+    List<String>? quickReplies,
     DateTime? timestamp,
   }) {
     return ChatMessage(
@@ -175,6 +176,7 @@ class ChatMessage extends Equatable {
       duration: duration ?? this.duration,
       products: products ?? this.products,
       expand: expand ?? this.expand,
+      quickReplies: quickReplies ?? this.quickReplies,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -192,6 +194,7 @@ class ChatMessage extends Equatable {
     duration,
     products,
     expand,
+    quickReplies,
     timestamp,
   ];
 }

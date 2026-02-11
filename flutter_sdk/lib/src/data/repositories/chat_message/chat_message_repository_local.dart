@@ -41,6 +41,9 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
       products: message.products.isEmpty
           ? null
           : jsonEncode(message.products.map((p) => p.toJson()).toList()),
+      quickReplies: message.quickReplies.isEmpty
+          ? null
+          : jsonEncode(message.quickReplies),
       timestamp: message.timestamp.millisecondsSinceEpoch,
     );
   }
@@ -64,6 +67,11 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
       products: data.products != null
           ? (jsonDecode(data.products!) as List)
                 .map((e) => Product.fromJson(e as Map<String, dynamic>))
+                .toList()
+          : [],
+      quickReplies: data.quickReplies != null
+          ? (jsonDecode(data.quickReplies!) as List)
+                .map((e) => e as String)
                 .toList()
           : [],
       timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
@@ -153,6 +161,9 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
                         message.products.map((p) => p.toJson()).toList(),
                       ),
                     ),
+              quickReplies: message.quickReplies.isEmpty
+                  ? Value.absent()
+                  : Value(jsonEncode(message.quickReplies)),
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),
           );

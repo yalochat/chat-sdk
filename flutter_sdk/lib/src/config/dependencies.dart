@@ -37,6 +37,10 @@ List<SingleChildWidget> repositoryProviders(BuildContext context) {
           native: const DriftNativeOptions(
             databaseDirectory: getApplicationSupportDirectory,
           ),
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
+          ),
         ),
       ),
       dispose: (_, databaseService) => databaseService.close(),

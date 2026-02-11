@@ -86,10 +86,16 @@ class _ChatInputState extends State<ChatInput> {
                 link: _layerLink,
                 targetAnchor: Alignment.topCenter,
                 followerAnchor: Alignment.bottomCenter,
-                child: Column(
-                  children: quickReplies
-                      .map((reply) => QuickReply(text: reply))
-                      .toList(),
+                child: Container(
+                  padding: EdgeInsets.all(SdkConstants.quickReplyPadding),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: SdkConstants.columnItemSpace,
+                    children: quickReplies
+                        .map((reply) => QuickReply(text: reply))
+                        .toList(),
+                  ),
                 ),
               ),
             ),
@@ -101,7 +107,7 @@ class _ChatInputState extends State<ChatInput> {
     Overlay.of(
       parentContext,
       debugRequiredFor: widget,
-    ).insert(_imagePreviewOverlay!);
+    ).insert(_quickReplyOverlay!);
   }
 
   void _removeQuickReplyOverlay() {
@@ -113,6 +119,7 @@ class _ChatInputState extends State<ChatInput> {
   @override
   void dispose() {
     _removeImagePreviewOverlay();
+    _removeQuickReplyOverlay();
     super.dispose();
   }
 
@@ -166,7 +173,7 @@ class _ChatInputState extends State<ChatInput> {
                           return CompositedTransformTarget(
                             link: _layerLink,
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(width: SdkConstants.rowItemSpace * 3),
                                 Expanded(

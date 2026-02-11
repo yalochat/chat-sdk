@@ -159,7 +159,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
         log.fine('Inserted message received with id ${chatMessage.id}');
         return state.copyWith(
           messages: [chatMessage, ...state.messages],
-          quickReplies: chatMessage.quickReplies,
+          quickReplies: chatMessage.quickReplies.isEmpty
+              ? null
+              : chatMessage.quickReplies,
         );
       },
       onError: (error, stackTrace) {
