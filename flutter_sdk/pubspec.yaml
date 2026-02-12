@@ -34,6 +34,8 @@ dependencies:
     sdk: flutter
   intl: any
   json_annotation: ^4.9.0
+  http: ^1.6.0
+  flutter_markdown_plus: ^1.0.7
 
 
 dev_dependencies:
