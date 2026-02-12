@@ -151,6 +151,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
             switch (result) {
               case Ok<ChatMessage>():
                 cache.set(message.wiId!, true);
+                if (message.content.toLowerCase().contains('aleatorio')) {
+                  _yaloMessageRepository.executeActions();
+                }
                 return result.result;
               case Error<ChatMessage>():
                 throw result.error;
