@@ -1,6 +1,6 @@
 name: chat_flutter_sdk
 description: "Official Yalo Flutter chat SDK"
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/yalochat/chat-sdk
 
 environment:
