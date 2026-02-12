@@ -19,6 +19,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   final StreamController<ChatEvent> _typingEventsStreamController =
       StreamController();
   bool polling = false;
+  final int pollingRate = 1;
+  final int pollingRateWindow = 5;
 
   final YaloChatClient yaloChatClient;
   final Logger log = Logger('YaloMessageRepositoryRemote');
@@ -34,24 +36,19 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       ),
       timestamp: DateTime.parse(item.date),
       content: item.message.text,
+      wiId: item.id,
     );
   }
 
   Future<void> _startPolling() async {
     polling = true;
     while (polling) {
-      final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000 - 2;
+      final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000 - pollingRateWindow;
       final newMessagesResult = await yaloChatClient.fetchMessages(timestamp);
       switch (newMessagesResult) {
         case Ok():
           final messagesResult = newMessagesResult.result;
-          final messages = messagesResult
-              .map(translateMessageResponse)
-              .where(
-                (message) =>
-                    message.timestamp.millisecondsSinceEpoch ~/ 1000 >
-                    timestamp,
-              );
+          final messages = messagesResult.map(translateMessageResponse);
           if (messages.isNotEmpty) {
             _typingEventsStreamController.sink.add(TypingStop());
             await _messagesStreamController.sink.addStream(
@@ -60,11 +57,14 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
           }
           break;
         case Error():
-          log.severe('Unable to fetch messages since $timestamp');
+          log.severe(
+            'Unable to fetch messages since $timestamp',
+            newMessagesResult.error,
+          );
           _typingEventsStreamController.sink.add(TypingStop());
           break;
       }
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: pollingRate));
     }
   }
 

@@ -36,6 +36,7 @@ dependencies:
   json_annotation: ^4.9.0
   http: ^1.6.0
   flutter_markdown_plus: ^1.0.7
+  ecache: ^2.2.0
 
 
 dev_dependencies:

@@ -41,6 +41,7 @@ enum MessageStatus {
 // A class that represents a chat message in the chat
 class ChatMessage extends Equatable {
   final int? id;
+  final String? wiId;
   final MessageRole role;
   final String content;
   final MessageType type;
@@ -67,6 +68,7 @@ class ChatMessage extends Equatable {
 
   const ChatMessage({
     this.id,
+    this.wiId,
     required this.role,
     required this.type,
     required this.timestamp,
@@ -82,6 +84,7 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.text({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
@@ -96,6 +99,7 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.voice({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
@@ -110,6 +114,7 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.image({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     required this.fileName,
@@ -124,6 +129,7 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.product({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
@@ -138,6 +144,7 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.carousel({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
@@ -153,6 +160,7 @@ class ChatMessage extends Equatable {
   // Creates a copy of a chat message
   ChatMessage copyWith({
     int? id,
+    String? wiId,
     MessageRole? role,
     String? content,
     MessageType? type,
@@ -167,6 +175,7 @@ class ChatMessage extends Equatable {
   }) {
     return ChatMessage(
       id: id ?? this.id,
+      wiId: wiId ?? this.wiId,
       role: role ?? this.role,
       content: content ?? this.content,
       type: type ?? this.type,
@@ -185,6 +194,7 @@ class ChatMessage extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    wiId,
     role,
     content,
     type,

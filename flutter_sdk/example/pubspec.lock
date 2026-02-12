@@ -168,6 +168,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.7"
+  ecache:
+    dependency: transitive
+    description:
+      name: ecache
+      sha256: "82255e245d26bcaf646309f605c8b119d36843df37bc49d414091c73a3292b66"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   equatable:
     dependency: transitive
     description:
