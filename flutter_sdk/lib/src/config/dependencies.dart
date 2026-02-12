@@ -8,7 +8,6 @@ import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_fake.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
