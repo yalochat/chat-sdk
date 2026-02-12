@@ -22,7 +22,7 @@ class YaloChatClient {
     // FIXME: Remove this one
     required this.authToken,
     required this.userToken,
-  }) : chatBaseUrl = String.fromEnvironment('YALO_SDK_CHAT_URL');
+  }) : chatBaseUrl = const String.fromEnvironment('YALO_SDK_CHAT_URL');
 
   // Sends a yalo text message to the upstream chat service
   Future<Result<Unit>> sendTextMessage(YaloTextMessageRequest request) async {
