@@ -1,8 +1,7 @@
-// Copyright (c) Yalochat, Inc. All rights
+// Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/yalo_sdk.dart';
 import 'package:flutter/material.dart';
-
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 

@@ -43,7 +43,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   Future<void> _startPolling() async {
     polling = true;
     while (polling) {
-      final timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000 - pollingRateWindow;
+      final timestamp =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 - pollingRateWindow;
       final newMessagesResult = await yaloChatClient.fetchMessages(timestamp);
       switch (newMessagesResult) {
         case Ok():
@@ -102,5 +103,12 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       return yaloChatClient.sendTextMessage(request);
     }
     return Result.error(FormatException('Message type is not supported'));
+  }
+
+  @override
+  Future<void> executeActions() async {
+    for (final action in yaloChatClient.actions) {
+      action.action();
+    }
   }
 }

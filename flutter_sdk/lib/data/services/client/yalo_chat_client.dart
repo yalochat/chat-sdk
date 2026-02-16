@@ -8,12 +8,20 @@ import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_messag
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
+class Action {
+  final String name;
+  final void Function() action;
+
+  Action({required this.name, required this.action});
+}
+
 class YaloChatClient {
   final String name;
   final String flowKey;
   final String userToken;
   final String authToken;
   final String chatBaseUrl;
+  final List<Action> actions;
   final Logger log = Logger('YaloChatClient');
 
   YaloChatClient({
@@ -22,7 +30,12 @@ class YaloChatClient {
     // FIXME: Remove this one
     required this.authToken,
     required this.userToken,
-  }) : chatBaseUrl = const String.fromEnvironment('YALO_SDK_CHAT_URL');
+  }) : chatBaseUrl = const String.fromEnvironment('YALO_SDK_CHAT_URL'),
+       actions = [];
+
+  void registerAction(String actionName, void Function() action) {
+    actions.add(Action(name: actionName, action: action));
+  }
 
   // Sends a yalo text message to the upstream chat service
   Future<Result<Unit>> sendTextMessage(YaloTextMessageRequest request) async {

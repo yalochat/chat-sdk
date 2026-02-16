@@ -16,6 +16,8 @@ abstract class YaloMessageRepository {
   // Sends message to yalo's workflow interpreter adapter
   Future<Result<Unit>> sendMessage(ChatMessage chatMessage);
 
+  Future<void> executeActions();
+
   // Method to free resources
   void dispose();
 }
