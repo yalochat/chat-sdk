@@ -13,7 +13,6 @@ import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dar
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
-import 'package:ecache/ecache.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
 
@@ -148,9 +147,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
           );
           switch (result) {
             case Ok<ChatMessage>():
-            return result.result;
+              return result.result;
             case Error<ChatMessage>():
-            throw result.error;
+              throw result.error;
           }
         });
 

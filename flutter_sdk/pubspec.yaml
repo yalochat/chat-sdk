@@ -10,10 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_web_plugins:
-    sdk: flutter
-  web: ^1.0.0
-  plugin_platform_interface: ^2.0.2
   flutter_bloc: ^9.1.1
   provider: ^6.1.5+1
   path: ^1.9.1
@@ -51,13 +47,3 @@ dev_dependencies:
 
 flutter:
   generate: true
-  plugin:
-    platforms:
-      android:
-        package: ai.yalo.chat_flutter_sdk
-        pluginClass: ChatFlutterSdkPlugin
-      ios:
-        pluginClass: ChatFlutterSdkPlugin
-      web:
-        pluginClass: ChatFlutterSdkWeb
-        fileName: chat_flutter_sdk_web.dart
