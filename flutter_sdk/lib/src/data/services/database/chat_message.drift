@@ -1,6 +1,7 @@
 
 CREATE TABLE chat_message (
   id INTEGER PRIMARY KEY,
+  wi_id TEXT UNIQUE,
   role TEXT NOT NULL,
   content TEXT NOT NULL,
   type TEXT NOT NULL,
@@ -17,6 +18,7 @@ CREATE TABLE chat_message (
 getMessagesFirstPage(REQUIRED :limit AS INTEGER):
    SELECT
       id,
+      wi_id,
       role,
       content,
       type,
@@ -35,6 +37,7 @@ getMessagesFirstPage(REQUIRED :limit AS INTEGER):
 getMessagesPage(REQUIRED :cursor AS INTEGER, REQUIRED :limit AS INTEGER):
    SELECT
       id,
+      wi_id,
       role,
       content,
       type,

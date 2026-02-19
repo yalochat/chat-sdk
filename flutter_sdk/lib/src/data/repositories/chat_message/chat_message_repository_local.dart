@@ -29,6 +29,7 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
     assert(message.id != null, 'Message id must not be null');
     return ChatMessageData(
       id: message.id!,
+      wiId: message.wiId,
       role: message.role.role,
       content: message.content,
       type: message.type.type,
@@ -51,6 +52,7 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
   ChatMessage _convertMessageDataToChatMessage(ChatMessageData data) {
     return ChatMessage(
       id: data.id,
+      wiId: data.wiId,
       role: MessageRole.values.firstWhere((role) => role.role == data.role),
       content: data.content,
       type: MessageType.values.firstWhere((type) => type.type == data.type),
@@ -140,30 +142,31 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
           .into(_databaseService.chatMessage)
           .insert(
             db.ChatMessageCompanion.insert(
-              id: message.id == null ? Value.absent() : Value(message.id!),
+              id: Value.absentIfNull(message.id),
+              wiId: Value.absentIfNull(message.wiId),
               role: message.role.role,
               content: message.content,
               type: message.type.type,
               status: message.status.status,
-              fileName: message.fileName == null
-                  ? Value.absent()
-                  : Value(message.fileName),
-              amplitudes: message.amplitudes == null
-                  ? Value.absent()
-                  : Value(jsonEncode(message.amplitudes)),
-              duration: message.duration == null
-                  ? Value.absent()
-                  : Value(message.duration),
-              products: message.products.isEmpty
-                  ? Value.absent()
-                  : Value(
-                      jsonEncode(
+              fileName: Value.absentIfNull(message.fileName),
+              amplitudes: Value.absentIfNull(
+                message.amplitudes != null
+                    ? jsonEncode(message.amplitudes)
+                    : null,
+              ),
+              duration: Value.absentIfNull(message.duration),
+              products: Value.absentIfNull(
+                message.products.isEmpty
+                    ? null
+                    : jsonEncode(
                         message.products.map((p) => p.toJson()).toList(),
                       ),
-                    ),
-              quickReplies: message.quickReplies.isEmpty
-                  ? Value.absent()
-                  : Value(jsonEncode(message.quickReplies)),
+              ),
+              quickReplies: Value.absentIfNull(
+                message.quickReplies.isEmpty
+                    ? null
+                    : jsonEncode(message.quickReplies),
+              ),
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),
           );

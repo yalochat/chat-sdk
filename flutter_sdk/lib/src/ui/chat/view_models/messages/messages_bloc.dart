@@ -27,7 +27,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
   final ImageRepository _imageRepository;
   final YaloMessageRepository _yaloMessageRepository;
   final Logger log = Logger('ChatViewModel');
-  final cache = SimpleCache<String, bool>(capacity: 500);
 
   MessagesBloc({
     String name = '',
@@ -144,21 +143,14 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
             'Subscription must only receive assistant messages',
           );
           log.info('Inserting incoming chat message to db');
-          if (message.wiId != null && cache.get(message.wiId!) == null) {
-            final result = await _chatMessageRepository.insertChatMessage(
-              message,
-            );
-            switch (result) {
-              case Ok<ChatMessage>():
-                cache.set(message.wiId!, true);
-                return result.result;
-              case Error<ChatMessage>():
-                throw result.error;
-            }
-          } else if (message.wiId != null) {
-            throw FormatException('Message already exists');
-          } else {
-            throw FormatException('Invalid message');
+          final result = await _chatMessageRepository.insertChatMessage(
+            message,
+          );
+          switch (result) {
+            case Ok<ChatMessage>():
+            return result.result;
+            case Error<ChatMessage>():
+            throw result.error;
           }
         });
 

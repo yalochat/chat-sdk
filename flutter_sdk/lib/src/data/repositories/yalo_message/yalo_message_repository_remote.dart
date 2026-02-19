@@ -9,6 +9,7 @@ import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dar
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message_request.dart';
 import 'package:chat_flutter_sdk/yalo_sdk.dart';
+import 'package:ecache/ecache.dart';
 import 'package:logging/logging.dart';
 
 import '../../../domain/models/yalo_message/yalo_fetch_messages_response.dart';
@@ -21,6 +22,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   bool polling = false;
   final int pollingRate = 1;
   final int pollingRateWindow = 5;
+  final cache = SimpleCache<String, bool>(capacity: 500);
 
   final YaloChatClient yaloChatClient;
   final Logger log = Logger('YaloMessageRepositoryRemote');
@@ -53,7 +55,17 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
           if (messages.isNotEmpty) {
             _typingEventsStreamController.sink.add(TypingStop());
             await _messagesStreamController.sink.addStream(
-              Stream.fromIterable(messages),
+              Stream.fromIterable(
+                messages.where((message) {
+                  if (message.wiId == null ||
+                      cache.get(message.wiId!) != null) {
+                    return false;
+                  }
+
+                  cache.set(message.wiId!, true);
+                  return true;
+                }),
+              ),
             );
           }
           break;
