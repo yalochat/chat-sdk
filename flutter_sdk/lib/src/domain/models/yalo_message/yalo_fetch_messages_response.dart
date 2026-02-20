@@ -37,5 +37,5 @@ class YaloFetchMessagesResponse extends Equatable {
   Map<String, dynamic> toJson() => _$YaloFetchMessagesResponseToJson(this);
 
   @override
-  List<Object?> get props => [id, message, date, userId];
+  List<Object?> get props => [id, message, date, userId, status];
 }

@@ -89,7 +89,7 @@ final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
   final String? text;
   ChatSendTextMessage({this.text});
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [text];
 }
 
 // Event to send a voice message

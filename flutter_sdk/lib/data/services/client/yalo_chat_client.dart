@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_fetch_messages_response.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message_request.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 
 class Action {
@@ -23,6 +23,7 @@ class YaloChatClient {
   final String chatBaseUrl;
   final List<Action> actions;
   final Logger log = Logger('YaloChatClient');
+  final Client httpClient;
 
   YaloChatClient({
     required this.name,
@@ -30,8 +31,9 @@ class YaloChatClient {
     // FIXME: Remove this one
     required this.authToken,
     required this.userToken,
+    Client? httpClient,
   }) : chatBaseUrl = const String.fromEnvironment('YALO_SDK_CHAT_URL'),
-       actions = [];
+       actions = [], httpClient = httpClient ?? Client();
 
   void registerAction(String actionName, void Function() action) {
     actions.add(Action(name: actionName, action: action));
@@ -40,7 +42,8 @@ class YaloChatClient {
   // Sends a yalo text message to the upstream chat service
   Future<Result<Unit>> sendTextMessage(YaloTextMessageRequest request) async {
     try {
-      final response = await http.post(
+
+      final response = await httpClient.post(
         Uri.parse('$chatBaseUrl/inbound_messages'),
         headers: {
           'content-type': 'application/json',
@@ -58,8 +61,8 @@ class YaloChatClient {
           Exception('Failed to send message: ${response.statusCode}'),
         );
       }
-    } catch (e) {
-      return Result.error(Exception('Error sending message: $e'));
+    } on Exception catch (e) {
+      return Result.error(e);
     }
   }
 
@@ -72,7 +75,7 @@ class YaloChatClient {
       final baseUrl = '$chatBaseUrl/messages';
       final queryParams = {'since': '$since'};
       final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
-      final response = await http.get(
+      final response = await httpClient.get(
         uri,
         headers: {
           'x-user-id': userToken,
@@ -87,8 +90,8 @@ class YaloChatClient {
         return Result.ok(data);
       }
       return Result.error(Exception('Error fetching messages $response'));
-    } catch (e) {
-      return Result.error(Exception('Error sending messages $e'));
+    } on Exception catch (e) {
+      return Result.error(e);
     }
   }
 }
