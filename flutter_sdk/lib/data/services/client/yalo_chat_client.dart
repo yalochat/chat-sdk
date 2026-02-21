@@ -33,16 +33,15 @@ class YaloChatClient {
     required this.userToken,
     Client? httpClient,
   }) : chatBaseUrl = const String.fromEnvironment('YALO_SDK_CHAT_URL'),
-       actions = [], httpClient = httpClient ?? Client();
+       actions = [],
+       httpClient = httpClient ?? Client();
 
-  void registerAction(String actionName, void Function() action) {
-    actions.add(Action(name: actionName, action: action));
-  }
+  void registerAction(String actionName, void Function() action) =>
+      actions.add(Action(name: actionName, action: action));
 
   // Sends a yalo text message to the upstream chat service
   Future<Result<Unit>> sendTextMessage(YaloTextMessageRequest request) async {
     try {
-
       final response = await httpClient.post(
         Uri.parse('$chatBaseUrl/inbound_messages'),
         headers: {
