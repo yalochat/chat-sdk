@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 
 enum MessageRole {
   user('USER'),
-  assistant('ASSISTANT');
+  assistant('AGENT');
 
   final String role;
 
@@ -41,6 +41,7 @@ enum MessageStatus {
 // A class that represents a chat message in the chat
 class ChatMessage extends Equatable {
   final int? id;
+  final String? wiId;
   final MessageRole role;
   final String content;
   final MessageType type;
@@ -63,8 +64,11 @@ class ChatMessage extends Equatable {
   // this should not be persisted in DB
   final bool expand;
 
+  final List<String> quickReplies;
+
   const ChatMessage({
     this.id,
+    this.wiId,
     required this.role,
     required this.type,
     required this.timestamp,
@@ -75,14 +79,17 @@ class ChatMessage extends Equatable {
     this.duration,
     this.products = const [],
     this.expand = false,
+    this.quickReplies = const [],
   });
 
   const ChatMessage.text({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
     required this.content,
+    this.quickReplies = const [],
   }) : type = MessageType.text,
        amplitudes = null,
        fileName = null,
@@ -92,12 +99,14 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.voice({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
     required this.fileName,
     required this.amplitudes,
     required this.duration,
+    this.quickReplies = const [],
   }) : type = MessageType.voice,
        products = const [],
        content = '',
@@ -105,11 +114,13 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.image({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     required this.fileName,
     this.status = MessageStatus.inProgress,
     this.content = '',
+    this.quickReplies = const [],
   }) : type = MessageType.image,
        amplitudes = null,
        duration = null,
@@ -118,11 +129,13 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.product({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
     this.products = const [],
     this.expand = false,
+    this.quickReplies = const [],
   }) : type = MessageType.product,
        content = '',
        fileName = '',
@@ -131,11 +144,13 @@ class ChatMessage extends Equatable {
 
   const ChatMessage.carousel({
     this.id,
+    this.wiId,
     required this.role,
     required this.timestamp,
     this.status = MessageStatus.inProgress,
     this.products = const [],
     this.expand = false,
+    this.quickReplies = const [],
   }) : type = MessageType.productCarousel,
        content = '',
        fileName = '',
@@ -145,6 +160,7 @@ class ChatMessage extends Equatable {
   // Creates a copy of a chat message
   ChatMessage copyWith({
     int? id,
+    String? wiId,
     MessageRole? role,
     String? content,
     MessageType? type,
@@ -154,10 +170,12 @@ class ChatMessage extends Equatable {
     int? duration,
     List<Product>? products,
     bool? expand,
+    List<String>? quickReplies,
     DateTime? timestamp,
   }) {
     return ChatMessage(
       id: id ?? this.id,
+      wiId: wiId ?? this.wiId,
       role: role ?? this.role,
       content: content ?? this.content,
       type: type ?? this.type,
@@ -167,6 +185,7 @@ class ChatMessage extends Equatable {
       duration: duration ?? this.duration,
       products: products ?? this.products,
       expand: expand ?? this.expand,
+      quickReplies: quickReplies ?? this.quickReplies,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -175,6 +194,7 @@ class ChatMessage extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    wiId,
     role,
     content,
     type,
@@ -184,6 +204,7 @@ class ChatMessage extends Equatable {
     duration,
     products,
     expand,
+    quickReplies,
     timestamp,
   ];
 }

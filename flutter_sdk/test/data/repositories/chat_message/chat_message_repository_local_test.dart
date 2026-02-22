@@ -98,6 +98,7 @@ void main() {
           role: MessageRole.assistant,
           timestamp: clock.now(),
           fileName: 'test/image.png',
+          quickReplies: ['ok!', 'quick', 'Think!'],
         );
         await chatRepository.insertChatMessage(message);
         await chatRepository.insertChatMessage(message);
@@ -253,7 +254,7 @@ void main() {
 
     test('should replace a product message correctly', () async {
       ChatMessage message = ChatMessage.product(
-        role: MessageRole.user,
+        role: MessageRole.assistant,
         timestamp: clock.now(),
         products: [
           Product(
@@ -263,6 +264,7 @@ void main() {
             unitName: 'box',
           ),
         ],
+        quickReplies: ['quick!', 'think!'],
       );
       var result = await chatRepository.insertChatMessage(message);
       expect(result, isA<Ok<ChatMessage>>());

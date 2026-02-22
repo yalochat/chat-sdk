@@ -42,6 +42,7 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
           role: MessageRole.assistant,
           timestamp: _clock.now(),
           content: 'This is a mocked product assistant message 🤖',
+          quickReplies: ['Quick!', 'Think!'],
         ),
       );
       _messagesStreamController.add(
@@ -125,6 +126,11 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
   @override
   Stream<ChatEvent> events() =>
       _typingEventsStreamController.stream.asBroadcastStream();
+
+  @override
+  Future<void> executeActions() async {
+
+  }
 
   @override
   void dispose() {

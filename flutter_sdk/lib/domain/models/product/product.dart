@@ -34,14 +34,14 @@ class Product extends Equatable {
   // The step to add when increasing/decreasing units
   final double unitStep;
 
-  // The name of the unit if applies, it must be an string using intl
-  // MessageFormat grammar to support plurals, use the amount name to handle plurals.
-  // e.g {amount, plural, one {box} other {boxes}}
+  // The name of the unit, it must be an string using ICU message format grammar
+  // to support plurals, use the amount parameter name to handle plurals.  e.g
+  // {amount, plural, one {box} other {boxes}}
   final String unitName;
 
-  // The name of the subunit if applies, it must be an string using intl
-  // MessageFormat grammar to support plurals, use the amount name to handle plurals.
-  // e.g {amount, plural, one {box} other {boxes}}
+  // The name of the subunit if applies, it must be an string using ICU message
+  // format grammar to support plurals, use the amount parameter name to handle
+  // plurals.  e.g {amount, plural, one {box} other {boxes}}
   final String? subunitName;
 
   // The step to add when increasing/decreasing subunits

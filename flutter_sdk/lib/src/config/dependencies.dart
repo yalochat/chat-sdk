@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
@@ -7,7 +8,7 @@ import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_fake.dart';
+import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/camera/camera_service.dart';
@@ -28,7 +29,10 @@ import 'package:provider/single_child_widget.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
-List<SingleChildWidget> repositoryProviders(BuildContext context) {
+List<SingleChildWidget> repositoryProviders(
+  BuildContext context,
+  YaloChatClient yaloClient,
+) {
   return [
     Provider<DatabaseService>(
       create: (_) => DatabaseService(
@@ -36,6 +40,10 @@ List<SingleChildWidget> repositoryProviders(BuildContext context) {
           name: 'yalo_sdk_chat',
           native: const DriftNativeOptions(
             databaseDirectory: getApplicationSupportDirectory,
+          ),
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
           ),
         ),
       ),
@@ -48,7 +56,8 @@ List<SingleChildWidget> repositoryProviders(BuildContext context) {
 
     Provider<CameraService>(create: (_) => CameraServiceFile()),
     RepositoryProvider<YaloMessageRepository>(
-      create: (context) => YaloMessageRepositoryFake(),
+      create: (context) =>
+          YaloMessageRepositoryRemote(yaloChatClient: yaloClient),
     ),
     RepositoryProvider<ImageRepository>(
       create: (context) => ImageRepositoryLocal(

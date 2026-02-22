@@ -10,6 +10,8 @@ abstract final class SdkConstants {
   static const double columnItemSpace = 8;
   static const double inputPadding = 6;
   static const double messagePadding = 16;
+  static const double quickReplyPadding = 8;
+  static const double quickReplyHeight = 48;
   static const double appBarPreferredSize = 64;
 
   static const double maxChatInputSize = 120;

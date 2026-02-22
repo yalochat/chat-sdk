@@ -17,6 +17,15 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     requiredDuringInsert: false,
     $customConstraints: 'PRIMARY KEY',
   );
+  static const VerificationMeta _wiIdMeta = const VerificationMeta('wiId');
+  late final GeneratedColumn<String> wiId = GeneratedColumn<String>(
+    'wi_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'UNIQUE',
+  );
   static const VerificationMeta _roleMeta = const VerificationMeta('role');
   late final GeneratedColumn<String> role = GeneratedColumn<String>(
     'role',
@@ -99,6 +108,17 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
+  static const VerificationMeta _quickRepliesMeta = const VerificationMeta(
+    'quickReplies',
+  );
+  late final GeneratedColumn<String> quickReplies = GeneratedColumn<String>(
+    'quick_replies',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   static const VerificationMeta _timestampMeta = const VerificationMeta(
     'timestamp',
   );
@@ -113,6 +133,7 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    wiId,
     role,
     content,
     type,
@@ -121,6 +142,7 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     amplitudes,
     duration,
     products,
+    quickReplies,
     timestamp,
   ];
   @override
@@ -137,6 +159,12 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('wi_id')) {
+      context.handle(
+        _wiIdMeta,
+        wiId.isAcceptableOrUnknown(data['wi_id']!, _wiIdMeta),
+      );
     }
     if (data.containsKey('role')) {
       context.handle(
@@ -194,6 +222,15 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         products.isAcceptableOrUnknown(data['products']!, _productsMeta),
       );
     }
+    if (data.containsKey('quick_replies')) {
+      context.handle(
+        _quickRepliesMeta,
+        quickReplies.isAcceptableOrUnknown(
+          data['quick_replies']!,
+          _quickRepliesMeta,
+        ),
+      );
+    }
     if (data.containsKey('timestamp')) {
       context.handle(
         _timestampMeta,
@@ -215,6 +252,10 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      wiId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}wi_id'],
+      ),
       role: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}role'],
@@ -247,6 +288,10 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         DriftSqlType.string,
         data['${effectivePrefix}products'],
       ),
+      quickReplies: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}quick_replies'],
+      ),
       timestamp: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}timestamp'],
@@ -265,6 +310,7 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
 
 class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   final int id;
+  final String? wiId;
   final String role;
   final String content;
   final String type;
@@ -273,9 +319,11 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   final String? amplitudes;
   final int? duration;
   final String? products;
+  final String? quickReplies;
   final int timestamp;
   const ChatMessageData({
     required this.id,
+    this.wiId,
     required this.role,
     required this.content,
     required this.type,
@@ -284,12 +332,16 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     this.amplitudes,
     this.duration,
     this.products,
+    this.quickReplies,
     required this.timestamp,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || wiId != null) {
+      map['wi_id'] = Variable<String>(wiId);
+    }
     map['role'] = Variable<String>(role);
     map['content'] = Variable<String>(content);
     map['type'] = Variable<String>(type);
@@ -306,6 +358,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     if (!nullToAbsent || products != null) {
       map['products'] = Variable<String>(products);
     }
+    if (!nullToAbsent || quickReplies != null) {
+      map['quick_replies'] = Variable<String>(quickReplies);
+    }
     map['timestamp'] = Variable<int>(timestamp);
     return map;
   }
@@ -313,6 +368,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   ChatMessageCompanion toCompanion(bool nullToAbsent) {
     return ChatMessageCompanion(
       id: Value(id),
+      wiId: wiId == null && nullToAbsent ? const Value.absent() : Value(wiId),
       role: Value(role),
       content: Value(content),
       type: Value(type),
@@ -329,6 +385,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       products: products == null && nullToAbsent
           ? const Value.absent()
           : Value(products),
+      quickReplies: quickReplies == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quickReplies),
       timestamp: Value(timestamp),
     );
   }
@@ -340,6 +399,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ChatMessageData(
       id: serializer.fromJson<int>(json['id']),
+      wiId: serializer.fromJson<String?>(json['wi_id']),
       role: serializer.fromJson<String>(json['role']),
       content: serializer.fromJson<String>(json['content']),
       type: serializer.fromJson<String>(json['type']),
@@ -348,6 +408,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       amplitudes: serializer.fromJson<String?>(json['amplitudes']),
       duration: serializer.fromJson<int?>(json['duration']),
       products: serializer.fromJson<String?>(json['products']),
+      quickReplies: serializer.fromJson<String?>(json['quick_replies']),
       timestamp: serializer.fromJson<int>(json['timestamp']),
     );
   }
@@ -356,6 +417,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'wi_id': serializer.toJson<String?>(wiId),
       'role': serializer.toJson<String>(role),
       'content': serializer.toJson<String>(content),
       'type': serializer.toJson<String>(type),
@@ -364,12 +426,14 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       'amplitudes': serializer.toJson<String?>(amplitudes),
       'duration': serializer.toJson<int?>(duration),
       'products': serializer.toJson<String?>(products),
+      'quick_replies': serializer.toJson<String?>(quickReplies),
       'timestamp': serializer.toJson<int>(timestamp),
     };
   }
 
   ChatMessageData copyWith({
     int? id,
+    Value<String?> wiId = const Value.absent(),
     String? role,
     String? content,
     String? type,
@@ -378,9 +442,11 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     Value<String?> amplitudes = const Value.absent(),
     Value<int?> duration = const Value.absent(),
     Value<String?> products = const Value.absent(),
+    Value<String?> quickReplies = const Value.absent(),
     int? timestamp,
   }) => ChatMessageData(
     id: id ?? this.id,
+    wiId: wiId.present ? wiId.value : this.wiId,
     role: role ?? this.role,
     content: content ?? this.content,
     type: type ?? this.type,
@@ -389,11 +455,13 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     amplitudes: amplitudes.present ? amplitudes.value : this.amplitudes,
     duration: duration.present ? duration.value : this.duration,
     products: products.present ? products.value : this.products,
+    quickReplies: quickReplies.present ? quickReplies.value : this.quickReplies,
     timestamp: timestamp ?? this.timestamp,
   );
   ChatMessageData copyWithCompanion(ChatMessageCompanion data) {
     return ChatMessageData(
       id: data.id.present ? data.id.value : this.id,
+      wiId: data.wiId.present ? data.wiId.value : this.wiId,
       role: data.role.present ? data.role.value : this.role,
       content: data.content.present ? data.content.value : this.content,
       type: data.type.present ? data.type.value : this.type,
@@ -404,6 +472,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           : this.amplitudes,
       duration: data.duration.present ? data.duration.value : this.duration,
       products: data.products.present ? data.products.value : this.products,
+      quickReplies: data.quickReplies.present
+          ? data.quickReplies.value
+          : this.quickReplies,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
     );
   }
@@ -412,6 +483,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   String toString() {
     return (StringBuffer('ChatMessageData(')
           ..write('id: $id, ')
+          ..write('wiId: $wiId, ')
           ..write('role: $role, ')
           ..write('content: $content, ')
           ..write('type: $type, ')
@@ -420,6 +492,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           ..write('amplitudes: $amplitudes, ')
           ..write('duration: $duration, ')
           ..write('products: $products, ')
+          ..write('quickReplies: $quickReplies, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
@@ -428,6 +501,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   @override
   int get hashCode => Object.hash(
     id,
+    wiId,
     role,
     content,
     type,
@@ -436,6 +510,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     amplitudes,
     duration,
     products,
+    quickReplies,
     timestamp,
   );
   @override
@@ -443,6 +518,7 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       identical(this, other) ||
       (other is ChatMessageData &&
           other.id == this.id &&
+          other.wiId == this.wiId &&
           other.role == this.role &&
           other.content == this.content &&
           other.type == this.type &&
@@ -451,11 +527,13 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           other.amplitudes == this.amplitudes &&
           other.duration == this.duration &&
           other.products == this.products &&
+          other.quickReplies == this.quickReplies &&
           other.timestamp == this.timestamp);
 }
 
 class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
   final Value<int> id;
+  final Value<String?> wiId;
   final Value<String> role;
   final Value<String> content;
   final Value<String> type;
@@ -464,9 +542,11 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
   final Value<String?> amplitudes;
   final Value<int?> duration;
   final Value<String?> products;
+  final Value<String?> quickReplies;
   final Value<int> timestamp;
   const ChatMessageCompanion({
     this.id = const Value.absent(),
+    this.wiId = const Value.absent(),
     this.role = const Value.absent(),
     this.content = const Value.absent(),
     this.type = const Value.absent(),
@@ -475,10 +555,12 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     this.amplitudes = const Value.absent(),
     this.duration = const Value.absent(),
     this.products = const Value.absent(),
+    this.quickReplies = const Value.absent(),
     this.timestamp = const Value.absent(),
   });
   ChatMessageCompanion.insert({
     this.id = const Value.absent(),
+    this.wiId = const Value.absent(),
     required String role,
     required String content,
     required String type,
@@ -487,6 +569,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     this.amplitudes = const Value.absent(),
     this.duration = const Value.absent(),
     this.products = const Value.absent(),
+    this.quickReplies = const Value.absent(),
     required int timestamp,
   }) : role = Value(role),
        content = Value(content),
@@ -495,6 +578,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
        timestamp = Value(timestamp);
   static Insertable<ChatMessageData> custom({
     Expression<int>? id,
+    Expression<String>? wiId,
     Expression<String>? role,
     Expression<String>? content,
     Expression<String>? type,
@@ -503,10 +587,12 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     Expression<String>? amplitudes,
     Expression<int>? duration,
     Expression<String>? products,
+    Expression<String>? quickReplies,
     Expression<int>? timestamp,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (wiId != null) 'wi_id': wiId,
       if (role != null) 'role': role,
       if (content != null) 'content': content,
       if (type != null) 'type': type,
@@ -515,12 +601,14 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
       if (amplitudes != null) 'amplitudes': amplitudes,
       if (duration != null) 'duration': duration,
       if (products != null) 'products': products,
+      if (quickReplies != null) 'quick_replies': quickReplies,
       if (timestamp != null) 'timestamp': timestamp,
     });
   }
 
   ChatMessageCompanion copyWith({
     Value<int>? id,
+    Value<String?>? wiId,
     Value<String>? role,
     Value<String>? content,
     Value<String>? type,
@@ -529,10 +617,12 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     Value<String?>? amplitudes,
     Value<int?>? duration,
     Value<String?>? products,
+    Value<String?>? quickReplies,
     Value<int>? timestamp,
   }) {
     return ChatMessageCompanion(
       id: id ?? this.id,
+      wiId: wiId ?? this.wiId,
       role: role ?? this.role,
       content: content ?? this.content,
       type: type ?? this.type,
@@ -541,6 +631,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
       amplitudes: amplitudes ?? this.amplitudes,
       duration: duration ?? this.duration,
       products: products ?? this.products,
+      quickReplies: quickReplies ?? this.quickReplies,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -550,6 +641,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (wiId.present) {
+      map['wi_id'] = Variable<String>(wiId.value);
     }
     if (role.present) {
       map['role'] = Variable<String>(role.value);
@@ -575,6 +669,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     if (products.present) {
       map['products'] = Variable<String>(products.value);
     }
+    if (quickReplies.present) {
+      map['quick_replies'] = Variable<String>(quickReplies.value);
+    }
     if (timestamp.present) {
       map['timestamp'] = Variable<int>(timestamp.value);
     }
@@ -585,6 +682,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
   String toString() {
     return (StringBuffer('ChatMessageCompanion(')
           ..write('id: $id, ')
+          ..write('wiId: $wiId, ')
           ..write('role: $role, ')
           ..write('content: $content, ')
           ..write('type: $type, ')
@@ -593,6 +691,7 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
           ..write('amplitudes: $amplitudes, ')
           ..write('duration: $duration, ')
           ..write('products: $products, ')
+          ..write('quickReplies: $quickReplies, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
@@ -605,7 +704,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
   late final ChatMessage chatMessage = ChatMessage(this);
   Selectable<ChatMessageData> getMessagesFirstPage(int limit) {
     return customSelect(
-      'SELECT id, role, content, type, status, file_name, amplitudes, duration, products, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
+      'SELECT id, wi_id, role, content, type, status, file_name, amplitudes, duration, products, quick_replies, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
       variables: [Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
@@ -613,7 +712,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
 
   Selectable<ChatMessageData> getMessagesPage(int cursor, int limit) {
     return customSelect(
-      'SELECT id, role, content, type, status, file_name, amplitudes, duration, products, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
+      'SELECT id, wi_id, role, content, type, status, file_name, amplitudes, duration, products, quick_replies, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
       variables: [Variable<int>(cursor), Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
@@ -629,6 +728,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
 typedef $ChatMessageCreateCompanionBuilder =
     ChatMessageCompanion Function({
       Value<int> id,
+      Value<String?> wiId,
       required String role,
       required String content,
       required String type,
@@ -637,11 +737,13 @@ typedef $ChatMessageCreateCompanionBuilder =
       Value<String?> amplitudes,
       Value<int?> duration,
       Value<String?> products,
+      Value<String?> quickReplies,
       required int timestamp,
     });
 typedef $ChatMessageUpdateCompanionBuilder =
     ChatMessageCompanion Function({
       Value<int> id,
+      Value<String?> wiId,
       Value<String> role,
       Value<String> content,
       Value<String> type,
@@ -650,6 +752,7 @@ typedef $ChatMessageUpdateCompanionBuilder =
       Value<String?> amplitudes,
       Value<int?> duration,
       Value<String?> products,
+      Value<String?> quickReplies,
       Value<int> timestamp,
     });
 
@@ -664,6 +767,11 @@ class $ChatMessageFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get wiId => $composableBuilder(
+    column: $table.wiId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -707,6 +815,11 @@ class $ChatMessageFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get quickReplies => $composableBuilder(
+    column: $table.quickReplies,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get timestamp => $composableBuilder(
     column: $table.timestamp,
     builder: (column) => ColumnFilters(column),
@@ -724,6 +837,11 @@ class $ChatMessageOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get wiId => $composableBuilder(
+    column: $table.wiId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -767,6 +885,11 @@ class $ChatMessageOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get quickReplies => $composableBuilder(
+    column: $table.quickReplies,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get timestamp => $composableBuilder(
     column: $table.timestamp,
     builder: (column) => ColumnOrderings(column),
@@ -784,6 +907,9 @@ class $ChatMessageAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get wiId =>
+      $composableBuilder(column: $table.wiId, builder: (column) => column);
 
   GeneratedColumn<String> get role =>
       $composableBuilder(column: $table.role, builder: (column) => column);
@@ -810,6 +936,11 @@ class $ChatMessageAnnotationComposer
 
   GeneratedColumn<String> get products =>
       $composableBuilder(column: $table.products, builder: (column) => column);
+
+  GeneratedColumn<String> get quickReplies => $composableBuilder(
+    column: $table.quickReplies,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
@@ -847,6 +978,7 @@ class $ChatMessageTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> wiId = const Value.absent(),
                 Value<String> role = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<String> type = const Value.absent(),
@@ -855,9 +987,11 @@ class $ChatMessageTableManager
                 Value<String?> amplitudes = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
                 Value<String?> products = const Value.absent(),
+                Value<String?> quickReplies = const Value.absent(),
                 Value<int> timestamp = const Value.absent(),
               }) => ChatMessageCompanion(
                 id: id,
+                wiId: wiId,
                 role: role,
                 content: content,
                 type: type,
@@ -866,11 +1000,13 @@ class $ChatMessageTableManager
                 amplitudes: amplitudes,
                 duration: duration,
                 products: products,
+                quickReplies: quickReplies,
                 timestamp: timestamp,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> wiId = const Value.absent(),
                 required String role,
                 required String content,
                 required String type,
@@ -879,9 +1015,11 @@ class $ChatMessageTableManager
                 Value<String?> amplitudes = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
                 Value<String?> products = const Value.absent(),
+                Value<String?> quickReplies = const Value.absent(),
                 required int timestamp,
               }) => ChatMessageCompanion.insert(
                 id: id,
+                wiId: wiId,
                 role: role,
                 content: content,
                 type: type,
@@ -890,6 +1028,7 @@ class $ChatMessageTableManager
                 amplitudes: amplitudes,
                 duration: duration,
                 products: products,
+                quickReplies: quickReplies,
                 timestamp: timestamp,
               ),
           withReferenceMapper: (p0) => p0

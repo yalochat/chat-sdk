@@ -4,7 +4,7 @@
 
 A Flutter package providing a complete chat UI solution for integrating with Yalo's messaging platform.
 
-![Flutter SDK](./docs/images/chat-preview.png)
+![Flutter SDK](./doc/images/chat-preview.png)
 
 ## Features
 

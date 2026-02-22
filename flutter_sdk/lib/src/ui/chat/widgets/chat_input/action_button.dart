@@ -86,15 +86,18 @@ class ActionButton extends StatelessWidget {
                           );
                         },
                     child: switch (action) {
-                      ButtonAction.send =>
-                        Icon(chatThemeCubit.chatTheme.sendButtonIcon),
-                      ButtonAction.recordAudio =>
-                        Icon(chatThemeCubit.chatTheme.recordAudioIcon),
+                      ButtonAction.send => Icon(
+                        chatThemeCubit.chatTheme.sendButtonIcon,
+                      ),
+                      ButtonAction.recordAudio => Icon(
+                        chatThemeCubit.chatTheme.recordAudioIcon,
+                      ),
                     },
                   ),
                   style: IconButton.styleFrom(
                     backgroundColor: chatThemeCubit.chatTheme.sendButtonColor,
-                    foregroundColor: chatThemeCubit.chatTheme.sendButtonForegroundColor,
+                    foregroundColor:
+                        chatThemeCubit.chatTheme.sendButtonForegroundColor,
                     padding: EdgeInsets.all(SdkConstants.iconButtonPadding),
                   ),
                 );

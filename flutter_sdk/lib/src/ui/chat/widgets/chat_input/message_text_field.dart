@@ -4,6 +4,7 @@ import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,9 +18,11 @@ class MessageTextField extends StatefulWidget {
 
 class _MessageTextFieldState extends State<MessageTextField> {
   late TextEditingController _textEditingController;
+  late ScrollController _scrollController;
   @override
   void initState() {
     _textEditingController = TextEditingController();
+    _scrollController = ScrollController();
     super.initState();
   }
 
@@ -39,18 +42,23 @@ class _MessageTextFieldState extends State<MessageTextField> {
       },
       child: Container(
         color: chatThemeCubit.state.inputTextFieldColor,
+        padding: EdgeInsets.all(SdkConstants.inputPadding),
         child: Scrollbar(
-          child: TextField(
-            controller: _textEditingController,
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              hintStyle: chatThemeCubit.chatTheme.hintTextStyle,
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: TextField(
+              controller: _textEditingController,
+              decoration: InputDecoration(
+                hintText: widget.hintText,
+                hintStyle: chatThemeCubit.chatTheme.hintTextStyle,
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
+              onChanged: (value) => _handleOnMessageChange(chatBloc, value),
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
             ),
-            onChanged: (value) => _handleOnMessageChange(chatBloc, value),
-            keyboardType: TextInputType.multiline,
-            maxLines: null,
           ),
         ),
       ),
@@ -60,6 +68,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
   @override
   void dispose() {
     _textEditingController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 }

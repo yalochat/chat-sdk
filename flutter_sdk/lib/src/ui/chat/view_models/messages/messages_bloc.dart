@@ -56,6 +56,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     on<ChatClearMessages>(_handleClearMessages);
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
+    on<ChatClearQuickReplies>(_handleClearQuickReplies);
   }
 
   // Event that handles the pagination of messages
@@ -156,7 +157,12 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
       yaloMessages,
       onData: (chatMessage) {
         log.fine('Inserted message received with id ${chatMessage.id}');
-        return state.copyWith(messages: [chatMessage, ...state.messages]);
+        return state.copyWith(
+          messages: [chatMessage, ...state.messages],
+          quickReplies: chatMessage.quickReplies.isEmpty
+              ? null
+              : chatMessage.quickReplies,
+        );
       },
       onError: (error, stackTrace) {
         log.severe('Unable to add chat message', error);
@@ -181,7 +187,8 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     Emitter<MessagesState> emit,
   ) async {
     log.info('Inserting text message');
-    final String trimmedMessage = state.userMessage.trim();
+    final String trimmedMessage =
+        event.text?.trim() ?? state.userMessage.trim();
     if (trimmedMessage.isEmpty) return;
 
     final messageToInsert = ChatMessage.text(
@@ -405,5 +412,14 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     newMessages[messageIndex] = updatedMessage;
     log.info('Message expanded successfully');
     emit(state.copyWith(messages: newMessages));
+  }
+
+  // Handles the removals of quick replies
+  void _handleClearQuickReplies(
+    ChatClearQuickReplies event,
+    Emitter<MessagesState> emit,
+  ) {
+    log.info('Clearing quick replies from GUI');
+    emit(state.copyWith(quickReplies: const []));
   }
 }

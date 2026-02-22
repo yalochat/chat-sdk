@@ -70,6 +70,7 @@ class ProductVerticalCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: SdkConstants.columnItemSpace),
               ProductMessagePrice(
                 price: product.price,
                 salePrice: product.salePrice,
