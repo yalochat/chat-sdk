@@ -1070,6 +1070,7 @@ void main() {
             role: MessageRole.assistant,
             type: MessageType.text,
             content: 'Test message',
+            quickReplies: ['Quick!', 'Think!'],
             timestamp: fixedClock.now(),
           );
           when(
@@ -1092,6 +1093,7 @@ void main() {
                 role: MessageRole.assistant,
                 type: MessageType.text,
                 content: 'Test message',
+                quickReplies: ['Quick!', 'Think!'],
                 timestamp: fixedClock.now(),
               ),
             ),
@@ -1521,6 +1523,73 @@ void main() {
           bloc.add(ChatToggleMessageExpand(messageId: 69));
         },
         expect: () => [],
+      );
+    });
+
+    group('clear quick replies', () {
+      blocTest<MessagesBloc, MessagesState>(
+        'should emit state with empty quickReplies when quickReplies are present',
+        build: () => bloc,
+        seed: () => MessagesState(quickReplies: ['Yes', 'No', 'Maybe']),
+        act: (bloc) => bloc.add(ChatClearQuickReplies()),
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.quickReplies,
+            'quickReplies',
+            equals([]),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should not emit when quickReplies are already empty',
+        build: () => bloc,
+        seed: () => MessagesState(quickReplies: []),
+        act: (bloc) => bloc.add(ChatClearQuickReplies()),
+        expect: () => [],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should preserve all other state fields when clearing quick replies',
+        build: () => bloc,
+        seed: () => MessagesState(
+          quickReplies: ['Confirm'],
+          userMessage: 'some input',
+          isConnected: true,
+          messages: [
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Hello',
+              timestamp: clock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) => bloc.add(ChatClearQuickReplies()),
+        expect: () => [
+          isA<MessagesState>()
+              .having(
+                (state) => state.quickReplies,
+                'quickReplies',
+                equals([]),
+              )
+              .having(
+                (state) => state.userMessage,
+                'userMessage',
+                equals('some input'),
+              )
+              .having(
+                (state) => state.isConnected,
+                'isConnected',
+                equals(true),
+              )
+              .having(
+                (state) => state.messages.length,
+                'messages length',
+                equals(1),
+              ),
+        ],
       );
     });
 
