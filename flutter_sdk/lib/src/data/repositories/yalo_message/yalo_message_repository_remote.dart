@@ -29,7 +29,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   YaloMessageRepositoryRemote({required this.yaloChatClient});
 
-  ChatMessage translateMessageResponse(YaloFetchMessagesResponse item) {
+  ChatMessage _translateMessageResponse(YaloFetchMessagesResponse item) {
     // FIXME: detect other messages than text
     return ChatMessage.text(
       role: MessageRole.values.firstWhere(
@@ -51,7 +51,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       switch (newMessagesResult) {
         case Ok():
           final messagesResult = newMessagesResult.result;
-          final messages = messagesResult.map(translateMessageResponse);
+          final messages = messagesResult.map(_translateMessageResponse);
           if (messages.isNotEmpty) {
             _typingEventsStreamController.sink.add(TypingStop());
             await _messagesStreamController.sink.addStream(
