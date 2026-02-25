@@ -9,7 +9,7 @@ on:
     tags:
       - 'v*.*.*'
     paths:
-      - 'flutter_sdk/**'
+      - 'flutter-sdk/**'
 
   pull_request:
 
