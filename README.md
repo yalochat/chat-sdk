@@ -15,7 +15,7 @@ A cross-platform UI package for easy integration of Android, iOS, and web applic
 
 ### Flutter SDK
 
-For detailed documentation and examples related to the flutter SDK, visit [our flutter package](./flutter_sdk/README.md).
+For detailed documentation and examples related to the flutter SDK, visit [our flutter package](./flutter-sdk/README.md).
 
 
 ## Support
