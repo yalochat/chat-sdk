@@ -6,7 +6,7 @@ import { css, html, LitElement } from "lit";
 export class Chat extends LitElement {
 
   static style = css`
-  chat-modal {
+  .chat-modal {
       background-color: #fff;
   }
   `;
