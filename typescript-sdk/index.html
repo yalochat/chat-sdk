@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yalo Chat SDK — Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .chat-wrapper {
+      width: 400px;
+      height: 680px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    yalo-chat {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-wrapper">
+    <yalo-chat
+      name="Support"
+      flow-key="YOUR_FLOW_KEY"
+      user-token="YOUR_USER_TOKEN"
+      auth-token="YOUR_AUTH_TOKEN"
+      chat-base-url="https://YOUR_CHAT_BASE_URL"
+      show-attachment-button="true"
+      show-shop-button="false"
+      show-cart-button="false"
+    ></yalo-chat>
+  </div>
+
+  <script type="module">
+    import './dist/yalo-chat.js';
+
+    const chat = document.querySelector('yalo-chat');
+
+    // Optional: override theme
+    chat.theme = {
+      sendButtonColor: '#2207F1',
+      backgroundColor: '#ffffff',
+      appBarBackgroundColor: '#F1F5FC',
+    };
+
+    // Optional: listen to action events
+    chat.addEventListener('shop-pressed', () => {
+      console.log('Shop button pressed');
+    });
+
+    chat.addEventListener('cart-pressed', () => {
+      console.log('Cart button pressed');
+    });
+  </script>
+
+</body>
+</html>

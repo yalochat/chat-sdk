@@ -1,0 +1,32 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+
+/** SDK default colour palette (light mode). Mirrors Flutter's SdkColors. */
+export const SdkColors = {
+  backgroundColorLight: '#FFFFFF',
+  appBarBackgroundColorLight: '#F1F5FC',
+  inputTextFieldBorderColorLight: '#E8E8E8',
+  inputTextFieldColorLight: '#FFFFFF',
+  hintColorLight: '#BEBEBE',
+  pickerButtonBorderColor: '#E6E6E6',
+  userMessageColorLight: '#F9FAFC',
+  userMessageTextColorLight: '#000000',
+  assistantMessageTextColorLight: '#000000',
+  modalHeaderColorLight: '#010101',
+  systemMessageColorLight: '#151515',
+  sendButtonColorLight: '#2207F1',
+  sendButtonTextColorLight: '#EFF4FF',
+  waveColorLight: '#5C5EE8',
+  timerColorLight: '#7C8086',
+  messageControlIconColorLight: '#7C8086',
+  attachmentPickerBackgroundColorLight: '#FFFFFF',
+  iconWithBackdropColorLight: '#FFFFFF',
+  productCardSubtitleColorLight: '#334155',
+  priceColorLight: '#186C54',
+  discountBackgroundColorLight: '#ECFDF5',
+  discountStrikeColorLight: '#0B996D',
+  pricePerUnitColorLight: '#334155',
+  cardBorderColorLight: '#DDE4EC',
+  imagePlaceHolderColorLight: '#F9FAFC',
+  expandControlColorLight: '#2207F1',
+  quickReplyBorderColor: '#ECEDEF',
+} as const;

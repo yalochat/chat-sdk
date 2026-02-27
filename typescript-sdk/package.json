@@ -1,0 +1,19 @@
+{
+  "name": "yalo-chat-typescript-sdk",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach -A --topological-dev run build && node scripts/bundle.js",
+    "bundle": "node scripts/bundle.js",
+    "test": "yarn workspaces foreach -A run test",
+    "test:watch": "yarn workspaces foreach -A run test --watch",
+    "clean": "yarn workspaces foreach -A run clean && rm -rf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  },
+  "packageManager": "yarn@4.9.2"
+}
