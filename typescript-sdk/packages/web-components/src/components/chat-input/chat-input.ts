@@ -51,11 +51,14 @@ export class YaloChatInput extends LitElement {
     :host { display: flex; flex-direction: column; }
     .input-row {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 4px;
       padding: 6px 8px;
       border-top: 1px solid var(--yalo-input-border-color, #E8E8E8);
       background: var(--yalo-bg-color, #FFFFFF);
+    }
+    yalo-action-button {
+      flex-shrink: 0;
     }
     .text-wrap {
       flex: 1;
@@ -179,6 +182,7 @@ export class YaloChatInput extends LitElement {
             <yalo-waveform-recorder
               .amplitudes=${this._audioState?.amplitudes ?? []}
               .durationMs=${this._audioState?.durationMs ?? 0}
+              .extraOffset=${44}
               @cancel=${this._cancelRecording}
             ></yalo-waveform-recorder>
             <yalo-action-button label="stop recording" primary @action=${this._toggleRecording}>⏹</yalo-action-button>

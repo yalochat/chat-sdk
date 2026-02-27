@@ -2,6 +2,14 @@
 
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+import type { ComplexAttributeConverter } from 'lit';
+
+// Handles show-x="false" correctly — Lit's built-in Boolean converter treats
+// any present attribute (including "false") as true.
+const boolAttr: ComplexAttributeConverter<boolean> = {
+  fromAttribute: (value: string | null) => value !== null && value !== 'false',
+  toAttribute: (value: boolean) => String(value),
+};
 import {
   YaloChatClient,
   IdbService,
@@ -49,9 +57,9 @@ export class YaloChat extends LitElement {
   @property({ type: String, attribute: 'user-token' }) userToken = '';
   @property({ type: String, attribute: 'auth-token' }) authToken = '';
   @property({ type: String, attribute: 'chat-base-url' }) chatBaseUrl = '';
-  @property({ type: Boolean, attribute: 'show-attachment-button' }) showAttachmentButton = true;
-  @property({ type: Boolean, attribute: 'show-shop-button' }) showShopButton = false;
-  @property({ type: Boolean, attribute: 'show-cart-button' }) showCartButton = false;
+  @property({ converter: boolAttr, attribute: 'show-attachment-button' }) showAttachmentButton = true;
+  @property({ converter: boolAttr, attribute: 'show-shop-button' }) showShopButton = false;
+  @property({ converter: boolAttr, attribute: 'show-cart-button' }) showCartButton = false;
   @property({ attribute: false })
   set theme(val: Partial<ChatTheme>) {
     this._theme = { ...defaultChatTheme, ...val };
@@ -69,15 +77,19 @@ export class YaloChat extends LitElement {
 
   static styles = css`
     :host {
-      display: flex;
-      flex-direction: column;
-      background: var(--yalo-bg-color, #FFFFFF);
+      display: block;
       height: 100%;
+      background: var(--yalo-bg-color, #FFFFFF);
       font-family: system-ui, -apple-system, sans-serif;
       overflow: hidden;
     }
+    .layout {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100%;
+      overflow: hidden;
+    }
     yalo-message-list {
-      flex: 1;
       min-height: 0;
       overflow: hidden;
     }
@@ -146,24 +158,26 @@ export class YaloChat extends LitElement {
     }
 
     return html`
-      <yalo-chat-app-bar
-        .title=${this._chatStore.state.chatTitle || this.name}
-        .isTyping=${this._chatStore.state.isSystemTypingMessage}
-        .typingText=${this._chatStore.state.chatStatusText}
-        .showShopButton=${this.showShopButton}
-        .showCartButton=${this.showCartButton}
-        @shop-pressed=${() => this.dispatchEvent(new CustomEvent('shop-pressed', { bubbles: true }))}
-        @cart-pressed=${() => this.dispatchEvent(new CustomEvent('cart-pressed', { bubbles: true }))}
-      ></yalo-chat-app-bar>
+      <div class="layout">
+        <yalo-chat-app-bar
+          .title=${this._chatStore.state.chatTitle || this.name}
+          .isTyping=${this._chatStore.state.isSystemTypingMessage}
+          .typingText=${this._chatStore.state.chatStatusText}
+          .showShopButton=${this.showShopButton}
+          .showCartButton=${this.showCartButton}
+          @shop-pressed=${() => this.dispatchEvent(new CustomEvent('shop-pressed', { bubbles: true }))}
+          @cart-pressed=${() => this.dispatchEvent(new CustomEvent('cart-pressed', { bubbles: true }))}
+        ></yalo-chat-app-bar>
 
-      <yalo-message-list .store=${this._chatStore}></yalo-message-list>
+        <yalo-message-list .store=${this._chatStore}></yalo-message-list>
 
-      <yalo-chat-input
-        .chatStore=${this._chatStore}
-        .audioStore=${this._audioStore}
-        .imageStore=${this._imageStore}
-        .showAttachmentButton=${this.showAttachmentButton}
-      ></yalo-chat-input>
+        <yalo-chat-input
+          .chatStore=${this._chatStore}
+          .audioStore=${this._audioStore}
+          .imageStore=${this._imageStore}
+          .showAttachmentButton=${this.showAttachmentButton}
+        ></yalo-chat-input>
+      </div>
     `;
   }
 }
