@@ -10,10 +10,12 @@ on:
       - 'v*.*.*'
     paths:
       - 'web-sdk/**'
+      - '.github/workflows/webchat-ci-cd.yml'
 
   pull_request:
     paths:
       - 'web-sdk/**'
+      - '.github/workflows/webchat-ci-cd.yml'
 
 jobs:
   lint-test:
