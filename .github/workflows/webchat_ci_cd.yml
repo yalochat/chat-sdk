@@ -49,9 +49,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup GCS credentials
         id: "auth"
-        uses: "google-github-actions/auth@v3"
-        with:
-          credentials_json: "${{secrets.GOOGLE_CREDENTIALS}}"
+        uses: "yalochat/gcp-auth-action/github-oidc@github-oidc/v1.0.0"
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
       - name: Install dependencies
@@ -75,9 +73,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Setup GCS credentials
         id: "auth"
-        uses: "google-github-actions/auth@v3"
-        with:
-          credentials_json: "${{secrets.GOOGLE_CREDENTIALS}}"
+        uses: "yalochat/gcp-auth-action/github-oidc@github-oidc/v1.0.0"
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
       - name: Install dependencies
