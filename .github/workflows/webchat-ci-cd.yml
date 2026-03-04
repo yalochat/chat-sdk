@@ -44,6 +44,8 @@ jobs:
     runs-on: ubuntu-latest
 #    if: github.ref_type == 'branch' && (endsWith(github.ref_name, 'main') || startsWith(github.ref_name, 'hotfix'))
     needs: lint-test
+    permissions:
+      id-token: write
     defaults:
       run:
         working-directory: ./web-sdk
@@ -70,6 +72,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
     needs: lint-test
+    permissions:
+      id-token: write
     defaults:
       run:
         working-directory: ./web-sdk
