@@ -12,6 +12,8 @@ on:
       - 'flutter-sdk/**'
 
   pull_request:
+    paths:
+      - 'flutter-sdk/**'
 
 jobs:
   flutter-sdk-pipeline:
