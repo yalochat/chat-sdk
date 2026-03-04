@@ -10,10 +10,12 @@ on:
       - 'v*.*.*'
     paths:
       - 'flutter-sdk/**'
+      - '.github/workflows/flutter-ci-cd.yml'
 
   pull_request:
     paths:
       - 'flutter-sdk/**'
+      - '.github/workflows/flutter-ci-cd.yml'
 
 jobs:
   flutter-sdk-pipeline:
