@@ -1,0 +1,91 @@
+# Copyright (c) Yalochat, Inc. All rights reserved.
+
+name: Webchat SDK Pipeline
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*.*.*'
+    paths:
+      - 'web-sdk/**'
+
+  pull_request:
+    paths:
+      - 'web-sdk/**'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./web-sdk
+    steps:
+      - uses: actions/checkout@v6
+      - name: Gitleaks Scan
+        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:latest detect --source="/code" -v
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Lint
+        run: bun run lint
+      - name: Test
+        run: bun run coverage
+      - name: Publish coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'branch' && (endsWith(github.ref_name, 'main') || startsWith(github.ref_name, 'hotfix'))
+    needs: lint-test
+    defaults:
+      run:
+        working-directory: ./web-sdk
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup GCS credentials
+        id: "auth"
+        uses: "google-github-actions/auth@v3"
+        with:
+          credentials_json: "${{secrets.GOOGLE_CREDENTIALS}}"
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - name: Upload to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ./web-sdk/dist
+          destination: ${{ secrets.GCS_BUCKET_STAGING }}
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs: lint-test
+    defaults:
+      run:
+        working-directory: ./web-sdk
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup GCS credentials
+        id: "auth"
+        uses: "google-github-actions/auth@v3"
+        with:
+          credentials_json: "${{secrets.GOOGLE_CREDENTIALS}}"
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build
+        run: bun run build
+      - name: Upload to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: ./web-sdk/dist
+          destination: ${{ secrets.GCS_BUCKET_PROD }}

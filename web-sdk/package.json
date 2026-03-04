@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lint": "eslint .",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -12,7 +15,16 @@
     "lit": "^3.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.3.3",
+    "@vitest/coverage-v8": "4.0.18",
+    "eslint": "^10.0.2",
+    "eslint-plugin-lit": "^2.2.1",
+    "globals": "^17.4.0",
+    "jiti": "^2.6.1",
     "typescript": "~5.9.3",
-    "vite": "^7.3.1"
+    "typescript-eslint": "^8.56.1",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
   }
 }
