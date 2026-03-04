@@ -42,16 +42,18 @@ jobs:
           flags: unittests
   deploy-staging:
     runs-on: ubuntu-latest
-    if: github.ref_type == 'branch' && (endsWith(github.ref_name, 'main') || startsWith(github.ref_name, 'hotfix'))
+#    if: github.ref_type == 'branch' && (endsWith(github.ref_name, 'main') || startsWith(github.ref_name, 'hotfix'))
     needs: lint-test
     defaults:
       run:
         working-directory: ./web-sdk
     steps:
       - uses: actions/checkout@v6
-      - name: Setup GCS credentials
-        id: "auth"
-        uses: "yalochat/gcp-auth-action/github-oidc@github-oidc/v1.0.0"
+      - uses: 'google-github-actions/auth@v3'
+        with:
+          workload_identity_provider: ${{ secrets.WI_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_STAGING }}
+          token_format: 'access_token'
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
       - name: Install dependencies
@@ -73,9 +75,11 @@ jobs:
         working-directory: ./web-sdk
     steps:
       - uses: actions/checkout@v6
-      - name: Setup GCS credentials
-        id: "auth"
-        uses: "yalochat/gcp-auth-action/github-oidc@github-oidc/v1.0.0"
+      - uses: 'google-github-actions/auth@v3'
+        with:
+          workload_identity_provider: ${{ secrets.WI_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_PRODUCTION }}
+          token_format: 'access_token'
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
       - name: Install dependencies
