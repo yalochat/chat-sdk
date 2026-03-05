@@ -54,7 +54,7 @@ jobs:
       - uses: 'google-github-actions/auth@v3'
         with:
           workload_identity_provider: ${{ secrets.WI_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT_STAGING }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
           token_format: 'access_token'
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -82,7 +82,7 @@ jobs:
       - uses: 'google-github-actions/auth@v3'
         with:
           workload_identity_provider: ${{ secrets.WI_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT_PRODUCTION }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
           token_format: 'access_token'
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
