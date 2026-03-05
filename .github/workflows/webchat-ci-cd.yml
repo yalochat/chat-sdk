@@ -42,7 +42,7 @@ jobs:
           flags: unittests
   deploy-staging:
     runs-on: ubuntu-latest
-#    if: github.ref_type == 'branch' && (endsWith(github.ref_name, 'main') || startsWith(github.ref_name, 'hotfix'))
+    if: github.ref_type == 'branch' && (endsWith(github.ref_name, 'main') || startsWith(github.ref_name, 'hotfix'))
     needs: lint-test
     permissions:
       id-token: write
