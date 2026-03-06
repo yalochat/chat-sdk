@@ -15,15 +15,13 @@ sealed class MessageType(val value: String) {
     data object Unknown : MessageType("unknown")
 
     companion object {
-        fun fromString(value: String): MessageType = when (value) {
-            "text" -> Text
-            "image" -> Image
-            "voice" -> Voice
-            "product" -> Product
-            "productCarousel" -> ProductCarousel
-            "promotion" -> Promotion
-            "quickReply" -> QuickReply
-            else -> Unknown
+        // Lazy to avoid JVM circular-initialization: companion runs before data objects
+        // are fully initialized when MessageType class is first loaded.
+        private val BY_VALUE: Map<String, MessageType> by lazy {
+            listOf(Text, Image, Voice, Product, ProductCarousel, Promotion, QuickReply, Unknown)
+                .associateBy { it.value }
         }
+
+        fun fromString(value: String): MessageType = BY_VALUE[value] ?: Unknown
     }
 }
