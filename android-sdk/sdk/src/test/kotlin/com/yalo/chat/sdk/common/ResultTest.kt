@@ -11,24 +11,24 @@ import kotlin.test.assertTrue
 class ResultTest {
 
     @Test
-    fun `Ok holds and returns value correctly`() {
+    fun `Ok holds and returns result correctly`() {
         val result = Result.Ok(42)
-        assertEquals(42, result.value)
+        assertEquals(42, result.result)
     }
 
     @Test
-    fun `Error holds exception and message`() {
+    fun `Error holds error and message`() {
         val exception = Exception("something went wrong")
         val result = Result.Error<Int>(exception)
-        assertEquals("something went wrong", result.exception.message)
+        assertEquals("something went wrong", result.error.message)
     }
 
     @Test
-    fun `map transforms value inside Ok`() {
+    fun `map transforms result inside Ok`() {
         val result = Result.Ok(10)
         val mapped = result.map { it * 2 }
         assertIs<Result.Ok<Int>>(mapped)
-        assertEquals(20, mapped.value)
+        assertEquals(20, mapped.result)
     }
 
     @Test
@@ -37,7 +37,7 @@ class ResultTest {
         val result: Result<Int> = Result.Error(exception)
         val mapped = result.map { it * 2 }
         assertIs<Result.Error<Int>>(mapped)
-        assertEquals(exception, mapped.exception)
+        assertEquals(exception, mapped.error)
     }
 
     @Test
@@ -69,7 +69,7 @@ class ResultTest {
     }
 
     @Test
-    fun `getOrNull returns value for Ok`() {
+    fun `getOrNull returns result for Ok`() {
         assertEquals("value", Result.Ok("value").getOrNull())
     }
 
