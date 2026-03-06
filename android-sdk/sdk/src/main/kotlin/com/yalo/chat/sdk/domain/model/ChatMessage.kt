@@ -16,6 +16,6 @@ data class ChatMessage(
     val amplitudes: List<Double> = emptyList(),
     val duration: Long? = null,
     val products: List<Product> = emptyList(),
-    val quickReplies: List<String> = emptyList(),
+    val quickReplies: List<QuickReply> = emptyList(),
     val timestamp: Long = System.currentTimeMillis(),
 )

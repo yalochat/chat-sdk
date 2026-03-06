@@ -24,6 +24,13 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        // Disable NullSafeMutableLiveData — known crash in lifecycle 2.8.x lint rules
+        // with Kotlin 2.0.x Analysis API (IncompatibleClassChangeError on when expressions).
+        // Tracked upstream: https://issuetracker.google.com/issues/kotlin-analysis-api
+        disable += "NullSafeMutableLiveData"
+    }
 }
 
 kotlin {
