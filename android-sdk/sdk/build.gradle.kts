@@ -26,10 +26,13 @@ android {
     }
 
     lint {
-        // Disable NullSafeMutableLiveData — known crash in lifecycle 2.8.x lint rules
-        // with Kotlin 2.0.x Analysis API (IncompatibleClassChangeError on when expressions).
+        // These detectors crash with IncompatibleClassChangeError on Kotlin 2.0.x due to
+        // KaSimpleVariableAccessCall class-vs-interface breakage in the Analysis API.
+        // Affects AGP 8.7.x bundled lifecycle and compose lint rules.
         // Tracked upstream: https://issuetracker.google.com/issues/kotlin-analysis-api
-        disable += "NullSafeMutableLiveData"
+        disable += "NullSafeMutableLiveData"     // lifecycle 2.8.x lint
+        disable += "RememberInComposition"       // compose-ui lint
+        disable += "FrequentlyChangingValue"     // compose-ui lint
     }
 }
 
