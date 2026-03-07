@@ -8,11 +8,23 @@
   </head>
   <body>
     <img class="logo" src="yalo-logo.svg" alt="Yalo" />
-    <button class="fab" id="yalo-chat" aria-label="Open chat">
+    <button type="button" class="fab" id="yalo-chat" aria-label="Open chat">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <title>Chat button</title>
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
       </svg>
     </button>
-    <script type="module" src="/src/chat.ts" data-target="yalo-chat"></script>
+
+    <script type="module">
+
+      import { YaloChatClient } from '/src/chat.ts';
+
+      const client = new YaloChatClient({
+        channelId: 'demo-channel',
+        organizationId: 'demo-org',
+        target: 'yalo-chat',
+      });
+      client.init();
+    </script>
   </body>
 </html>
