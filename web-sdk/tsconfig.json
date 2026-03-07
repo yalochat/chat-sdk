@@ -21,7 +21,17 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@data/*": ["src/data/*"],
+      "@domain/*": ["src/domain/*"],
+      "@i18n/*": ["src/i18n/*"],
+      "@log/*": ["src/log/*"],
+      "@ui/*": ["src/ui/*"]
+    }
   },
   "include": ["src"]
 }

@@ -1,16 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { css, html, LitElement } from "lit";
-
+import { css, html, LitElement } from 'lit';
 
 export class Chat extends LitElement {
-
   static styles = css`
     .chat-modal {
       background-color: #fff;
     }
   `;
-
 
   render() {
     return html`
@@ -18,6 +15,5 @@ export class Chat extends LitElement {
         test
       </section>
     `;
-
   }
 }

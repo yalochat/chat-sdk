@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-import { dirname, resolve } from 'node:path'
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { defineConfig, type UserConfig } from 'vite';
@@ -7,8 +7,16 @@ import { version } from './package.json';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig(({ command }) => {
-
   const config = {
+    resolve: {
+      alias: {
+        '@data': resolve(__dirname, 'src/data'),
+        '@domain': resolve(__dirname, 'src/domain'),
+        '@i18n': resolve(__dirname, 'src/i18n'),
+        '@log': resolve(__dirname, 'src/log'),
+        '@ui': resolve(__dirname, 'src/ui'),
+      },
+    },
     publicDir: command === 'build' ? false : 'public',
     build: {
       outDir: `dist/v${version}`,

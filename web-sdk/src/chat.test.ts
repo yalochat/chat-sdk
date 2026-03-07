@@ -1,5 +1,5 @@
-import { describe, it } from "vitest";
+import { describe, it } from 'vitest';
 
-describe("chat", () => {
-  it.todo("should be implemented");
+describe('chat', () => {
+  it.todo('should be implemented');
 });
