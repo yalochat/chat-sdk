@@ -2,8 +2,11 @@
 
 package com.yalo.chat.sdk
 
-// Port of flutter-sdk YaloChatConfig — placeholder for Phase 1.
-// Real fields (apiBaseUrl, authToken, userToken, flowKey, theme) added in Phase 2.
+// Port of flutter-sdk YaloChatConfig.
+// Phase 2 will add apiBaseUrl, theme, and other settings.
 data class YaloChatConfig(
-    val placeholder: Unit = Unit,
+    val name: String,
+    val flowKey: String,
+    val authToken: String,
+    val userToken: String,
 )

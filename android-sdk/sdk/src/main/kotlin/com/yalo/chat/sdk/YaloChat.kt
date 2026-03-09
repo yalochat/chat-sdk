@@ -2,11 +2,33 @@
 
 package com.yalo.chat.sdk
 
-// Port of flutter-sdk YaloChat entry point — stub for Phase 1.
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
+import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.ui.chat.MessagesViewModel
+
+// Port of flutter-sdk YaloChat entry point.
 // Phase 2 wires real repos (Ktor networking, SQLDelight persistence) here.
 object YaloChat {
 
+    private var _config: YaloChatConfig? = null
+    private var _viewModelFactory: ViewModelProvider.Factory? = null
+
+    val config: YaloChatConfig
+        get() = _config ?: error("YaloChat.init() must be called before accessing config")
+
     fun init(config: YaloChatConfig) {
-        // No-op stub — real initialization added in Phase 2 (FDE-27, FDE-28).
+        _config = config
+        val yaloRepo = FakeYaloMessageRepository()
+        val chatRepo = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
+        _viewModelFactory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                MessagesViewModel(yaloRepo, chatRepo) as T
+        }
     }
+
+    fun getViewModelFactory(): ViewModelProvider.Factory =
+        _viewModelFactory ?: error("YaloChat.init() must be called before rendering ChatScreen")
 }
