@@ -71,6 +71,14 @@ class FakeYaloMessageRepository : YaloMessageRepository {
                 quickReplies = listOf("Track order", "Cancel order", "Talk to agent"),
                 timestamp = System.currentTimeMillis() - 10_000,
             ),
+            ChatMessage(
+                id = 7L,
+                role = MessageRole.AGENT,
+                type = MessageType.Unknown,
+                status = MessageStatus.DELIVERED,
+                content = "",
+                timestamp = System.currentTimeMillis() - 5_000,
+            ),
         )
     }
 }

@@ -32,6 +32,7 @@ class FakeYaloMessageRepositoryTest {
         assertTrue(MessageType.Voice in types)
         assertTrue(MessageType.Product in types)
         assertTrue(MessageType.QuickReply in types)
+        assertTrue(MessageType.Unknown in types)
     }
 
     @Test
