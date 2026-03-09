@@ -45,7 +45,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('android-sdk/gradle/libs.versions.toml', 'android-sdk/gradle/wrapper/gradle-wrapper.properties', 'android-sdk/sdk/build.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android-sdk/gradle/libs.versions.toml', 'android-sdk/gradle/wrapper/gradle-wrapper.properties', 'android-sdk/sdk/build.gradle.kts', 'android-sdk/app/build.gradle.kts') }}
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Lint
@@ -53,6 +53,9 @@ jobs:
 
       - name: Unit tests
         run: ./gradlew :sdk:testDebugUnitTest
+
+      - name: Build demo app
+        run: ./gradlew :app:assembleDebug
 
       - name: Build release AAR
         run: ./gradlew :sdk:assembleRelease

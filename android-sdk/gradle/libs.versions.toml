@@ -47,7 +47,6 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 sqldelight-android-driver = { group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight" }
 sqldelight-coroutines-extensions = { group = "app.cash.sqldelight", name = "coroutines-extensions", version.ref = "sqldelight" }
 sqldelight-jdbc-driver = { group = "app.cash.sqldelight", name = "jdbc-driver", version.ref = "sqldelight" }
-sqldelight-sqlite-dialect = { group = "app.cash.sqldelight", name = "sqlite-3-38-dialect", version.ref = "sqldelight" }
 
 # Hilt (app only — never inside :sdk)
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

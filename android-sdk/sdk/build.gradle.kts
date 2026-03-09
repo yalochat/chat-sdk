@@ -4,7 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.sqldelight)
+    // SQLDelight plugin deferred to Phase 2 — no .sq files yet
+    // alias(libs.plugins.sqldelight)
 }
 
 android {
@@ -42,14 +43,8 @@ kotlin {
     }
 }
 
-sqldelight {
-    databases {
-        create("ChatDatabase") {
-            packageName.set("com.yalo.chat.sdk.data.local.db")
-            srcDirs.setFrom("src/main/sqldelight")
-        }
-    }
-}
+// SQLDelight schema and ChatDatabase configuration deferred to Phase 2 (FDE-xx).
+// Will be added here once .sq files exist under src/main/sqldelight/.
 
 dependencies {
     // Compose BOM — all Compose artifact versions come from here
