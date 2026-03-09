@@ -174,4 +174,45 @@ class MessagesViewModelTest {
         )
         assertEquals(1, vm.state.value.messages.size)
     }
+
+    @Test
+    fun `SubscribeToMessages is idempotent — calling twice does not duplicate updates`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.USER, type = MessageType.Text,
+                status = MessageStatus.SENT, content = "hello")
+        )
+        assertEquals(1, vm.state.value.messages.size)
+    }
+
+    // ── QuickReplies extraction ───────────────────────────────────────────────
+
+    @Test
+    fun `LoadMessages extracts quickReplies from QuickReply message`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Choose:",
+                quickReplies = listOf("Yes", "No"))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+        assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies)
+    }
+
+    @Test
+    fun `SubscribeToMessages extracts quickReplies when QuickReply message arrives`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Pick one:",
+                quickReplies = listOf("Option A", "Option B"))
+        )
+        assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
+    }
 }

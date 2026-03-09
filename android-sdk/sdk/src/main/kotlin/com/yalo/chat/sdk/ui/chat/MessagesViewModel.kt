@@ -11,6 +11,7 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +26,9 @@ class MessagesViewModel(
 
     private val _state = MutableStateFlow(MessagesState())
     val state: StateFlow<MessagesState> = _state.asStateFlow()
+
+    // Keeps the active subscription job so SubscribeToMessages is idempotent.
+    private var subscriptionJob: Job? = null
 
     fun handleEvent(event: MessagesEvent) {
         when (event) {
@@ -44,6 +48,7 @@ class MessagesViewModel(
                 is Result.Ok -> _state.update {
                     it.copy(
                         messages = result.result,
+                        quickReplies = result.result.extractQuickReplies(),
                         chatStatus = ChatStatus.Success,
                         isLoading = false,
                     )
@@ -59,9 +64,17 @@ class MessagesViewModel(
     }
 
     private fun subscribeToMessages() {
-        viewModelScope.launch {
+        // Cancel any existing subscription before starting a new one so this
+        // call is idempotent (safe to call from LaunchedEffect multiple times).
+        subscriptionJob?.cancel()
+        subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
-                _state.update { it.copy(messages = messages) }
+                _state.update {
+                    it.copy(
+                        messages = messages,
+                        quickReplies = messages.extractQuickReplies(),
+                    )
+                }
             }
         }
     }
@@ -81,6 +94,9 @@ class MessagesViewModel(
             chatMessageRepository.insertMessage(optimistic)
             when (yaloMessageRepository.sendMessage(optimistic)) {
                 is Result.Ok -> Unit
+                // Send failure: mark the individual message as ERROR.
+                // chatStatus is not changed to Failure here — a send error is message-level,
+                // not a fatal chat-level failure (mirrors Flutter SDK MessagesBloc behavior).
                 is Result.Error -> chatMessageRepository.updateMessage(
                     optimistic.copy(status = MessageStatus.ERROR)
                 )
@@ -88,3 +104,9 @@ class MessagesViewModel(
         }
     }
 }
+
+// Derives quick replies from the most recent QuickReply message in the list,
+// mirroring the Flutter SDK behaviour where the last agent quick-reply message
+// drives the overlay buttons above ChatInput.
+private fun List<ChatMessage>.extractQuickReplies(): List<String> =
+    lastOrNull { it.type == MessageType.QuickReply }?.quickReplies.orEmpty()
