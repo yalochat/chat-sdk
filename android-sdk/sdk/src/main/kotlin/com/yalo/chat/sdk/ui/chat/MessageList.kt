@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -30,14 +31,14 @@ fun MessageList(
         }
         return
     }
-    val sorted = messages.sortedByDescending { it.timestamp }
+    val sorted = remember(messages) { messages.sortedByDescending { it.timestamp } }
     LazyColumn(
         reverseLayout = true,
         modifier = modifier
             .fillMaxSize()
             .padding(bottom = 4.dp),
     ) {
-        items(items = sorted, key = { it.id ?: it.hashCode() }) { message ->
+        items(items = sorted, key = { it.id ?: it.wiId ?: it.timestamp }) { message ->
             MessageItem(message = message)
         }
     }

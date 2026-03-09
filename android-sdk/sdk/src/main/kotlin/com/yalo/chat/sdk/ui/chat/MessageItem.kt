@@ -41,7 +41,7 @@ fun MessageItem(message: ChatMessage) {
             Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                 when (message.type) {
                     MessageType.Text -> Text(
-                        text = message.content.orEmpty(),
+                        text = message.content,
                         color = textColor,
                     )
                     MessageType.Unknown -> Text(

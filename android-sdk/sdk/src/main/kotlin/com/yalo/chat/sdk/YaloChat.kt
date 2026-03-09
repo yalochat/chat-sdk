@@ -24,8 +24,12 @@ object YaloChat {
         val chatRepo = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                MessagesViewModel(yaloRepo, chatRepo) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                require(modelClass.isAssignableFrom(MessagesViewModel::class.java)) {
+                    "Unsupported ViewModel class: $modelClass"
+                }
+                return MessagesViewModel(yaloRepo, chatRepo) as T
+            }
         }
     }
 

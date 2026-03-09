@@ -16,7 +16,7 @@ class FakeChatMessageRepository(
 ) : ChatMessageRepository {
 
     private val messages = mutableListOf<ChatMessage>().apply { addAll(initialMessages) }
-    private val _flow = MutableStateFlow<List<ChatMessage>>(initialMessages)
+    private val _flow = MutableStateFlow<List<ChatMessage>>(initialMessages.toList())
 
     override suspend fun getMessages(cursor: Long?, limit: Int): Result<List<ChatMessage>> {
         val page = if (cursor == null) {
