@@ -9,7 +9,8 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 
-// Phase 1 stub — returns hardcoded messages covering all meaningful MessageType variants.
+// Phase 1 stub — returns hardcoded messages covering all MessageType variants
+// (Text, Image, Voice, Product, ProductCarousel, Promotion, QuickReply, Unknown).
 // Replaced in Phase 2 by YaloMessageRepositoryRemote (FDE-51).
 class FakeYaloMessageRepository : YaloMessageRepository {
 
@@ -73,6 +74,22 @@ class FakeYaloMessageRepository : YaloMessageRepository {
             ),
             ChatMessage(
                 id = 7L,
+                role = MessageRole.AGENT,
+                type = MessageType.ProductCarousel,
+                status = MessageStatus.DELIVERED,
+                content = "Here are some options:",
+                timestamp = System.currentTimeMillis() - 8_000,
+            ),
+            ChatMessage(
+                id = 8L,
+                role = MessageRole.AGENT,
+                type = MessageType.Promotion,
+                status = MessageStatus.DELIVERED,
+                content = "Special offer just for you!",
+                timestamp = System.currentTimeMillis() - 6_000,
+            ),
+            ChatMessage(
+                id = 9L,
                 role = MessageRole.AGENT,
                 type = MessageType.Unknown,
                 status = MessageStatus.DELIVERED,

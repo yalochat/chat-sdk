@@ -75,6 +75,20 @@ class FakeChatMessageRepositoryTest {
     }
 
     @Test
+    fun `updateMessage returns Error when id is null`() = runTest {
+        val r = repo()
+        val nullIdMessage = ChatMessage(
+            id = null,
+            role = MessageRole.USER,
+            type = MessageType.Text,
+            status = MessageStatus.SENT,
+            content = "no id",
+        )
+        val result = r.updateMessage(nullIdMessage)
+        assertIs<Result.Error<*>>(result)
+    }
+
+    @Test
     fun `observeMessages emits updated list after insertMessage`() = runTest {
         val r = repo()
         r.insertMessage(message(1L))

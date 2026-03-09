@@ -23,7 +23,7 @@ class FakeYaloMessageRepositoryTest {
     }
 
     @Test
-    fun `fetchMessages covers all meaningful MessageType variants`() = runTest {
+    fun `fetchMessages covers all MessageType variants`() = runTest {
         val result = repo.fetchMessages(since = 0L)
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         val types = result.result.map { it.type }.toSet()
@@ -31,6 +31,8 @@ class FakeYaloMessageRepositoryTest {
         assertTrue(MessageType.Image in types)
         assertTrue(MessageType.Voice in types)
         assertTrue(MessageType.Product in types)
+        assertTrue(MessageType.ProductCarousel in types)
+        assertTrue(MessageType.Promotion in types)
         assertTrue(MessageType.QuickReply in types)
         assertTrue(MessageType.Unknown in types)
     }
