@@ -17,7 +17,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -131,28 +130,9 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun `pollIncomingMessages throws on network error so retryWhen can restart it`() = runTest {
-        val engine = MockEngine { respondError(HttpStatusCode.InternalServerError) }
-        val client = HttpClient(engine) {
-            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
-        }
-        val apiService = YaloChatApiService(
-            apiBaseUrl = "https://api.test", authToken = "a", userToken = "u", flowKey = "f",
-            httpClient = client,
-        )
-        val repo = YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)
-        // The flow should throw so the caller's retryWhen can restart it.
-        var threw = false
-        try {
-            repo.pollIncomingMessages().take(1).toList()
-        } catch (_: Exception) {
-            threw = true
-        }
-        assertTrue(threw)
-    }
-
-    @Test
-    fun `pollIncomingMessages resumes after error when retryWhen is applied`() = runTest {
+    fun `pollIncomingMessages continues polling after network error`() = runTest {
+        // Mirrors Flutter _startPolling(): on error the loop continues without restarting.
+        // First call returns 500, second call returns a message — take(1) collects it.
         var callIndex = 0
         val engine = MockEngine {
             callIndex++
@@ -171,10 +151,7 @@ class YaloMessageRepositoryRemoteTest {
             httpClient = client,
         )
         val repo = YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)
-        // retryWhen restarts after the first error; second poll succeeds
-        val messages = repo.pollIncomingMessages()
-            .retryWhen { _, _ -> true }
-            .take(1).toList()
+        val messages = repo.pollIncomingMessages().take(1).toList()
         assertEquals(1, messages.size)
         assertEquals("After error", messages.first().content)
     }

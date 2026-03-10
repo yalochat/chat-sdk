@@ -34,9 +34,10 @@ class MessageTypeTest {
     }
 
     @Test
-    fun `MessageRole fromString returns USER for unknown value`() {
-        assertEquals(MessageRole.USER, MessageRole.fromString("unknown"))
-        assertEquals(MessageRole.USER, MessageRole.fromString(""))
+    fun `MessageRole fromString returns AGENT for unknown value`() {
+        // Mirrors Flutter SDK: orElse: () => MessageRole.assistant (AGENT)
+        assertEquals(MessageRole.AGENT, MessageRole.fromString("unknown"))
+        assertEquals(MessageRole.AGENT, MessageRole.fromString(""))
     }
 
     @Test

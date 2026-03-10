@@ -9,6 +9,6 @@ enum class MessageRole(val value: String) {
     AGENT("AGENT");
 
     companion object {
-        fun fromString(value: String): MessageRole = entries.firstOrNull { it.value == value } ?: USER
+        fun fromString(value: String): MessageRole = entries.firstOrNull { it.value == value } ?: AGENT
     }
 }
