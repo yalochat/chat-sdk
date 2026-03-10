@@ -15,7 +15,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        YaloChat.init(YaloChatConfig())
+        YaloChat.init(
+            YaloChatConfig(
+                name = "Yalo Chat",
+                flowKey = "demo-flow-key",
+                authToken = "demo-auth-token",
+                userToken = "demo-user-token",
+            )
+        )
         setContent {
             ChatScreen()
         }

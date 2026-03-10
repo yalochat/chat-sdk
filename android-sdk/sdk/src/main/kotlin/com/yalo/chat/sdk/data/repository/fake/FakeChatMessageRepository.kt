@@ -11,10 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 
 // Phase 1 stub — in-memory list with StateFlow for reactive observation.
 // Replaced in Phase 2 by ChatMessageRepositoryLocal (SQLDelight, FDE-55).
-class FakeChatMessageRepository : ChatMessageRepository {
+class FakeChatMessageRepository(
+    initialMessages: List<ChatMessage> = emptyList(),
+) : ChatMessageRepository {
 
-    private val messages = mutableListOf<ChatMessage>()
-    private val _flow = MutableStateFlow<List<ChatMessage>>(emptyList())
+    private val messages = mutableListOf<ChatMessage>().apply { addAll(initialMessages) }
+    private val _flow = MutableStateFlow<List<ChatMessage>>(initialMessages.toList())
 
     override suspend fun getMessages(cursor: Long?, limit: Int): Result<List<ChatMessage>> {
         val page = if (cursor == null) {
