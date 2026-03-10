@@ -64,9 +64,9 @@ class YaloMessageRepositoryRemote(
 
     // Continuous polling flow — emits each new inbound ChatMessage as it arrives.
     // Uses the LRU cache so the same message (identified by wiId) is never emitted twice.
-    // Network errors are re-thrown so the caller's retryWhen can restart the flow after
-    // a delay — this is what gives the "automatic restart on network recovery" behavior.
-    // Mirrors flutter-sdk YaloMessageRepositoryRemote._startPolling().
+    // Network errors are logged and swallowed — the loop continues on the next tick,
+    // mirroring flutter-sdk YaloMessageRepositoryRemote._startPolling() which logs
+    // the error and falls through to Future.delayed without breaking the loop.
     override fun pollIncomingMessages(): Flow<ChatMessage> = flow {
         while (true) {
             val since = System.currentTimeMillis() / 1000 - lookbackSecs
@@ -74,8 +74,7 @@ class YaloMessageRepositoryRemote(
                 is Result.Ok -> result.result
                     .mapNotNull { it.toChatMessage(deduplicate = true) }
                     .forEach { emit(it) }
-                // Re-throw so retryWhen in the ViewModel can catch and restart the flow.
-                is Result.Error -> throw result.error
+                is Result.Error -> Unit // swallow, loop continues — mirrors Flutter SDK
             }
             delay(pollingIntervalMs)
         }
@@ -129,9 +128,11 @@ private val threadLocalFormatters: ThreadLocal<List<SimpleDateFormat>> =
 
 // Converts ±HH:MM (or ±HH:MM:SS) offsets to ±HHMM (or ±HHMMSS) so they are
 // compatible with the 'Z' SimpleDateFormat pattern on all supported API levels.
+// Compiled once as a top-level val to avoid per-call Regex allocation.
+private val ISO_OFFSET_PATTERN = Regex("([+-]\\d{2}):(\\d{2})(?::(\\d{2}))?\$")
+
 private fun normalizeIso8601Offset(input: String): String {
-    val offsetPattern = Regex("([+-]\\d{2}):(\\d{2})(?::(\\d{2}))?\$")
-    return input.replace(offsetPattern) { match ->
+    return input.replace(ISO_OFFSET_PATTERN) { match ->
         val (hours, minutes) = match.destructured
         val seconds = match.groupValues[3]
         if (seconds.isNotEmpty()) "$hours$minutes$seconds" else "$hours$minutes"

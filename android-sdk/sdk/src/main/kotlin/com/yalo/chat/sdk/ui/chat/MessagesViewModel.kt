@@ -13,11 +13,9 @@ import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -88,12 +86,18 @@ class MessagesViewModel(
             }
             // 2. Poll remote for new inbound messages; insert into local store so
             //    the observer above picks them up automatically.
-            //    retryWhen restarts the polling flow on any network error (mirrors
-            //    flutter-sdk YaloMessageRepositoryRemote polling behavior).
+            //    Errors are swallowed inside pollIncomingMessages(), mirroring
+            //    flutter-sdk YaloMessageRepositoryRemote._startPolling().
             launch {
                 yaloMessageRepository.pollIncomingMessages()
-                    .retryWhen { _, _ -> delay(1_000); true }
-                    .collect { message -> chatMessageRepository.insertMessage(message) }
+                    .collect { message ->
+                        // Mirror Flutter _handleMessagesSubscription: on insert error the
+                        // message is dropped and the chat is marked as failed to receive.
+                        when (chatMessageRepository.insertMessage(message)) {
+                            is Result.Ok -> Unit
+                            is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                        }
+                    }
             }
         }
     }
@@ -112,15 +116,9 @@ class MessagesViewModel(
             when (chatMessageRepository.insertMessage(optimistic)) {
                 is Result.Ok -> {
                     _state.update { it.copy(userMessage = "") }
-                    when (yaloMessageRepository.sendMessage(optimistic)) {
-                        is Result.Ok -> Unit
-                        // Send failure: mark the individual message as ERROR.
-                        // chatStatus is not changed to Failure here — a send error is message-level,
-                        // not a fatal chat-level failure (mirrors Flutter SDK MessagesBloc behavior).
-                        is Result.Error -> chatMessageRepository.updateMessage(
-                            optimistic.copy(status = MessageStatus.ERROR)
-                        )
-                    }
+                    // Fire-and-forget — mirrors Flutter SDK MessagesBloc._handleSendTextMessage
+                    // which calls _yaloMessageRepository.sendMessage() without awaiting.
+                    launch { yaloMessageRepository.sendMessage(optimistic) }
                 }
                 is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }

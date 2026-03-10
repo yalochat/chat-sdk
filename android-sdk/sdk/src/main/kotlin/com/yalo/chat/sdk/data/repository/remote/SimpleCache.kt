@@ -8,6 +8,11 @@ package com.yalo.chat.sdk.data.repository.remote
 // Thread-safe via @Synchronized on each accessor.
 class SimpleCache<K, V>(private val capacity: Int) {
 
+    init {
+        require(capacity > 0) { "capacity must be > 0, was $capacity" }
+    }
+
+
     // accessOrder = true → LinkedHashMap maintains LRU order; removeEldestEntry
     // evicts when size exceeds capacity, keeping memory bounded.
     private val map: LinkedHashMap<K, V> = object : LinkedHashMap<K, V>(

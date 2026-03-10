@@ -14,11 +14,12 @@
 -keepclassmembers class kotlinx.serialization.json.** {
     *** Companion;
 }
-# Keep generated serializers ($$serializer companion objects)
--keepclasseswithmembers class **$$serializer { *; }
-# Keep all @Serializable classes and their companions
--keep @kotlinx.serialization.Serializable class * { *; }
--keepclassmembers @kotlinx.serialization.Serializable class * {
+# Keep generated serializers for SDK-owned @Serializable classes only.
+# Scoped to com.yalo.chat.sdk.** to avoid keeping unrelated @Serializable classes
+# in the consuming app's binary.
+-keepclasseswithmembers class com.yalo.chat.sdk.**$$serializer { *; }
+-keep @kotlinx.serialization.Serializable class com.yalo.chat.sdk.** { *; }
+-keepclassmembers @kotlinx.serialization.Serializable class com.yalo.chat.sdk.** {
     *** Companion;
     *** INSTANCE;
     kotlinx.serialization.KSerializer serializer(...);
