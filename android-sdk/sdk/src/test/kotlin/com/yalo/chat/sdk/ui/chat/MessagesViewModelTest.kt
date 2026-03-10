@@ -143,9 +143,15 @@ class MessagesViewModelTest {
 
     @Test
     fun `ClearQuickReplies empties quickReplies list`() = runTest {
-        val vm = viewModel()
-        // Seed quick replies by manipulating state directly via LoadMessages from a repo
-        // that has a QuickReply message — instead just verify the event clears it
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Pick:",
+                quickReplies = listOf("A", "B"))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+        assertTrue(vm.state.value.quickReplies.isNotEmpty())
         vm.handleEvent(MessagesEvent.ClearQuickReplies)
         assertTrue(vm.state.value.quickReplies.isEmpty())
     }

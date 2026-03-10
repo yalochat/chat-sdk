@@ -44,7 +44,7 @@ class MessagesViewModel(
     private fun loadMessages() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            when (val result = chatMessageRepository.getMessages(cursor = null, limit = 20)) {
+            when (val result = chatMessageRepository.getMessages(cursor = null, limit = _state.value.pageInfo.pageSize)) {
                 is Result.Ok -> _state.update {
                     it.copy(
                         messages = result.result,
@@ -109,4 +109,4 @@ class MessagesViewModel(
 // mirroring the Flutter SDK behaviour where the last agent quick-reply message
 // drives the overlay buttons above ChatInput.
 private fun List<ChatMessage>.extractQuickReplies(): List<String> =
-    lastOrNull { it.type == MessageType.QuickReply }?.quickReplies.orEmpty()
+    lastOrNull { it.type == MessageType.QuickReply && it.role == MessageRole.AGENT }?.quickReplies.orEmpty()
