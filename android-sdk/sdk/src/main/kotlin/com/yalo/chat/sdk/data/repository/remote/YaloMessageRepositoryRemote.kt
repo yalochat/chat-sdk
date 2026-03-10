@@ -117,9 +117,10 @@ private val ISO_FORMATS = listOf(
     Iso8601Format("yyyy-MM-dd'T'HH:mm:ss'Z'",     normalizeOffset = false),
 )
 
+// ThreadLocal.withInitial() requires API 26; anonymous subclass works from API 1.
 private val threadLocalFormatters: ThreadLocal<List<SimpleDateFormat>> =
-    ThreadLocal.withInitial {
-        ISO_FORMATS.map { fmt ->
+    object : ThreadLocal<List<SimpleDateFormat>>() {
+        override fun initialValue() = ISO_FORMATS.map { fmt ->
             SimpleDateFormat(fmt.pattern, Locale.US).apply {
                 timeZone = TimeZone.getTimeZone(UTC)
             }
