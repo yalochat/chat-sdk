@@ -1,35 +1,63 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { createLogger } from '../../../log/logger';
-import type { IYaloChatClient } from "./yalo-chat-client.interface";
+import type { YaloChatWindow } from '@ui/chat/chat-window';
+import '@ui/chat/chat-window';
+import {
+  defaultIcons,
+  type YaloChatClientConfig,
+} from '@domain/config/chat-config';
 
-
-export interface YaloChatClientConfig {
-  channelId: string;
-  organizationId: string;
-};
-
-export default class YaloChatClient implements IYaloChatClient {
-
-  private readonly logger = createLogger('YaloChatClient');
+export default class YaloChatClient {
   private config: YaloChatClientConfig;
+  private chatWindowEl: YaloChatWindow | null = null;
+  private targetEl: HTMLElement | null = null;
 
   constructor(config: YaloChatClientConfig) {
-    this.config = config;
-    this.logger.debug('Initialized with config', this.config);
+    this.config = {
+      icons: {
+        ...defaultIcons,
+        ...config.icons,
+      },
+      ...config,
+    };
   }
 
   init(): void {
-    throw new Error("Method not implemented.");
+    this.chatWindowEl = document.createElement(
+      'yalo-chat-window',
+    ) as YaloChatWindow;
+    this.chatWindowEl.config = this.config;
+    document.body.appendChild(this.chatWindowEl);
+
+    this.targetEl = document.getElementById(this.config.target);
+
+    if (!this.targetEl) {
+      console.warn(
+        `Target element "#${this.config.target}" not found. Chat window will not work.`,
+      );
+      return;
+    }
+
+    this.targetEl.addEventListener('click', () => {
+      if (this.chatWindowEl?.open) {
+        this.close();
+      } else {
+        this.open();
+      }
+    });
+
+    this.chatWindowEl.addEventListener('yalo-chat-close', () => {
+      this.close();
+    });
   }
 
   open(): void {
-    throw new Error("Method not implemented.");
+    if (this.chatWindowEl) this.chatWindowEl.open = true;
+    this.targetEl?.classList.add('open');
   }
 
   close(): void {
-    throw new Error("Method not implemented.");
+    if (this.chatWindowEl) this.chatWindowEl.open = false;
+    this.targetEl?.classList.remove('open');
   }
-
-
 }
