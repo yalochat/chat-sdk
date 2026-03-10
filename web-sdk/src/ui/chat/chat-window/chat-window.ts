@@ -4,8 +4,8 @@ import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import './chat-header/chat-header.ts';
-import './chat-footer/chat-footer.ts';
+import '@ui/chat/chat-header/chat-header.ts';
+import '@ui/chat/chat-footer/chat-footer.ts';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context.ts';
 import { provide } from '@lit/context';
 import Logger from '@log/logger.ts';
@@ -18,6 +18,8 @@ export class YaloChatWindow extends LitElement {
       --yalo-chat-background: #ffffff;
       --yalo-chat-corner-radius: 12px;
       --yalo-chat-font: sans-serif;
+      --yalo-chat-column-item-space: 8px;
+      --yalo-chat-row-item-space: 8px;
 
       display: none;
       position: fixed;
