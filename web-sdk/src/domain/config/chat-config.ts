@@ -2,7 +2,6 @@
 
 import type { Locale } from '@i18n/index';
 
-
 export interface SdkIcons {
   send?: string;
 }
@@ -13,9 +12,8 @@ export interface YaloChatClientConfig {
   channelName: string;
   target: string;
   locale?: Locale;
-  icons?: SdkIcons; 
+  icons?: SdkIcons;
 }
-
 
 export const defaultIcons: SdkIcons = {
   send: '<span class="material-symbols-outlined">search</span>',

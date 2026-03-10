@@ -2,7 +2,10 @@
 
 import type { YaloChatWindow } from '@ui/chat/chat-window';
 import '@ui/chat/chat-window';
-import { defaultIcons, type YaloChatClientConfig } from '@domain/config/chat-config';
+import {
+  defaultIcons,
+  type YaloChatClientConfig,
+} from '@domain/config/chat-config';
 
 export default class YaloChatClient {
   private config: YaloChatClientConfig;
@@ -16,7 +19,7 @@ export default class YaloChatClient {
         ...config.icons,
       },
       ...config,
-    }
+    };
   }
 
   init(): void {
@@ -35,7 +38,7 @@ export default class YaloChatClient {
       return;
     }
 
-   this.targetEl.addEventListener('click', () => {
+    this.targetEl.addEventListener('click', () => {
       if (this.chatWindowEl?.open) {
         this.close();
       } else {
@@ -46,7 +49,6 @@ export default class YaloChatClient {
     this.chatWindowEl.addEventListener('yalo-chat-close', () => {
       this.close();
     });
-
   }
 
   open(): void {

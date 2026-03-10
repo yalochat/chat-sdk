@@ -11,7 +11,8 @@ const baseConfig = {
   target: 'chat-target',
 };
 
-const getChatWindow = () => document.body.querySelector('yalo-chat-window') as YaloChatWindow;
+const getChatWindow = () =>
+  document.body.querySelector('yalo-chat-window') as YaloChatWindow;
 
 describe('YaloChatClient', () => {
   let targetEl: HTMLButtonElement;
@@ -35,7 +36,10 @@ describe('YaloChatClient', () => {
     });
 
     it('sets config on the chat window element', () => {
-      const client = new YaloChatClient({ ...baseConfig, icons: { send: '<i>custom</i>' } });
+      const client = new YaloChatClient({
+        ...baseConfig,
+        icons: { send: '<i>custom</i>' },
+      });
       client.init();
       expect(getChatWindow().config.channelId).toBe(baseConfig.channelId);
       expect(getChatWindow().config.icons?.send).toBe('<i>custom</i>');
@@ -43,7 +47,10 @@ describe('YaloChatClient', () => {
 
     it('warns when target element is not found', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const client = new YaloChatClient({ ...baseConfig, target: 'nonexistent' });
+      const client = new YaloChatClient({
+        ...baseConfig,
+        target: 'nonexistent',
+      });
       client.init();
       expect(warn).toHaveBeenCalledWith(
         `Target element "#nonexistent" not found. Chat window will not work.`,

@@ -1,14 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { type YaloChatClientConfig, yaloChatClientConfigContext } from "@domain/config/chat-config-context";
-import { consume } from "@lit/context";
-import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import {
+  type YaloChatClientConfig,
+  yaloChatClientConfigContext,
+} from '@domain/config/chat-config-context';
+import { consume } from '@lit/context';
+import { css, html, LitElement } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('chat-footer')
 export class ChatFooter extends LitElement {
-
   static styles = css`
     :host {
       --yalo-chat-send-icon: '';
@@ -43,4 +45,3 @@ export class ChatFooter extends LitElement {
     `;
   }
 }
-

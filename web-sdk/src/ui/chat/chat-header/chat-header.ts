@@ -1,6 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { type YaloChatClientConfig, yaloChatClientConfigContext } from '@domain/config/chat-config-context';
+import {
+  type YaloChatClientConfig,
+  yaloChatClientConfigContext,
+} from '@domain/config/chat-config-context';
 import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
@@ -48,7 +51,7 @@ export class ChatHeader extends LitElement {
     }
   `;
 
-  @consume({ context: yaloChatClientConfigContext})
+  @consume({ context: yaloChatClientConfigContext })
   config!: YaloChatClientConfig;
 
   private _handleClose = () => {

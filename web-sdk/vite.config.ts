@@ -32,14 +32,12 @@ export default defineConfig(({ command }) => {
       browser: {
         provider: preview(),
         enabled: true,
-        instances: [
-          { browser: 'chromium' },
-        ],
+        instances: [{ browser: 'chromium' }],
       },
       coverage: {
         provider: 'istanbul',
       },
-    }
+    },
   } satisfies UserConfig;
 
   return config;
