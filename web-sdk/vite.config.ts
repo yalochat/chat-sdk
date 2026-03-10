@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { preview } from '@vitest/browser-preview';
+import { playwright } from '@vitest/browser-playwright';
 import type { UserConfig } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { version } from './package.json';
@@ -30,7 +30,7 @@ export default defineConfig(({ command }) => {
     },
     test: {
       browser: {
-        provider: preview(),
+        provider: playwright(),
         enabled: true,
         instances: [{ browser: 'chromium' }],
       },
