@@ -4,12 +4,14 @@ package com.yalo.chat.sdk
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
-import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 
 // Port of flutter-sdk YaloChat entry point.
-// Phase 2 wires real repos (Ktor networking, SQLDelight persistence) here.
+// Phase 2 M1: wires real Ktor networking via YaloMessageRepositoryRemote.
+// Phase 2 M2: will replace FakeChatMessageRepository with SQLDelight persistence.
 object YaloChat {
 
     private var _config: YaloChatConfig? = null
@@ -20,8 +22,15 @@ object YaloChat {
 
     fun init(config: YaloChatConfig) {
         _config = config
-        val yaloRepo = FakeYaloMessageRepository()
-        val chatRepo = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
+        val apiService = YaloChatApiService(
+            apiBaseUrl = config.apiBaseUrl,
+            authToken = config.authToken,
+            userToken = config.userToken,
+            flowKey = config.flowKey,
+        )
+        val yaloRepo = YaloMessageRepositoryRemote(apiService)
+        // Phase 2 M2 will replace FakeChatMessageRepository with ChatMessageRepositoryLocal (SQLDelight).
+        val chatRepo = FakeChatMessageRepository()
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

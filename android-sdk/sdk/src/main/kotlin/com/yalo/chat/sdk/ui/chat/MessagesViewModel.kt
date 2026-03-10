@@ -13,9 +13,11 @@ import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -73,13 +75,25 @@ class MessagesViewModel(
         // the brief window where two collectors could be active after cancel+launch.
         if (subscriptionJob?.isActive == true) return
         subscriptionJob = viewModelScope.launch {
-            chatMessageRepository.observeMessages().collect { messages ->
-                _state.update {
-                    it.copy(
-                        messages = messages,
-                        quickReplies = messages.extractQuickReplies(),
-                    )
+            // 1. Observe local store — drives all UI updates.
+            launch {
+                chatMessageRepository.observeMessages().collect { messages ->
+                    _state.update {
+                        it.copy(
+                            messages = messages,
+                            quickReplies = messages.extractQuickReplies(),
+                        )
+                    }
                 }
+            }
+            // 2. Poll remote for new inbound messages; insert into local store so
+            //    the observer above picks them up automatically.
+            //    retryWhen restarts the polling flow on any network error (mirrors
+            //    flutter-sdk YaloMessageRepositoryRemote polling behavior).
+            launch {
+                yaloMessageRepository.pollIncomingMessages()
+                    .retryWhen { _, _ -> delay(1_000); true }
+                    .collect { message -> chatMessageRepository.insertMessage(message) }
             }
         }
     }

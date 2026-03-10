@@ -8,6 +8,8 @@ import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 // Phase 1 stub — returns hardcoded messages covering all MessageType variants
 // (Text, Image, Voice, Product, ProductCarousel, Promotion, QuickReply, Unknown).
@@ -19,6 +21,9 @@ class FakeYaloMessageRepository : YaloMessageRepository {
 
     override suspend fun fetchMessages(since: Long): Result<List<ChatMessage>> =
         Result.Ok(SEED_MESSAGES)
+
+    // No-op: Phase 1 has no remote polling — the fake repo provides seed data only.
+    override fun pollIncomingMessages(): Flow<ChatMessage> = emptyFlow()
 
     companion object {
         val SEED_MESSAGES: List<ChatMessage> = listOf(

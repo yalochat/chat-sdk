@@ -15,6 +15,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -120,6 +122,7 @@ class MessagesViewModelTest {
                 Result.Error<Unit>(RuntimeException("send failed"))
             override suspend fun fetchMessages(since: Long) =
                 Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages() = emptyFlow<ChatMessage>()
         }
         val vm = viewModel(yaloRepo = failingSendRepo, chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SendTextMessage("hello"))
@@ -224,6 +227,28 @@ class MessagesViewModelTest {
                 quickReplies = listOf("Option A", "Option B"))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
+        vm.viewModelScope.cancel()
+    }
+
+    // ── Phase 2 — Remote polling ───────────────────────────────────────────────
+
+    @Test
+    fun `SubscribeToMessages inserts polled remote messages into state`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val pollingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages() = flowOf(
+                ChatMessage(
+                    role = MessageRole.AGENT, type = MessageType.Text,
+                    status = MessageStatus.DELIVERED, content = "from server",
+                )
+            )
+        }
+        val vm = MessagesViewModel(pollingYaloRepo, chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        assertEquals(1, vm.state.value.messages.size)
+        assertEquals("from server", vm.state.value.messages.first().content)
         vm.viewModelScope.cancel()
     }
 }

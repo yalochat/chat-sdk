@@ -21,6 +21,7 @@ class MainActivity : ComponentActivity() {
                 flowKey = "demo-flow-key",
                 authToken = "demo-auth-token",
                 userToken = "demo-user-token",
+                apiBaseUrl = "https://your-yalo-api-base-url", // TODO: replace with real URL
             )
         )
         setContent {
