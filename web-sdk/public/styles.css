@@ -28,7 +28,7 @@ body {
   height: 56px;
   border-radius: 50%;
   border: none;
-  background: url('/button-bg.webp') center/cover no-repeat;
+  background: url("/button-bg.webp") center / cover no-repeat;
   color: #fff;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
