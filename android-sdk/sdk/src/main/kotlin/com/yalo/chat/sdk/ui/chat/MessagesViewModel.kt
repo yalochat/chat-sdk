@@ -69,9 +69,9 @@ class MessagesViewModel(
     }
 
     private fun subscribeToMessages() {
-        // Cancel any existing subscription before starting a new one so this
-        // call is idempotent (safe to call from LaunchedEffect multiple times).
-        subscriptionJob?.cancel()
+        // Return early if already collecting — makes this call idempotent without
+        // the brief window where two collectors could be active after cancel+launch.
+        if (subscriptionJob?.isActive == true) return
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
                 _state.update {
@@ -95,16 +95,20 @@ class MessagesViewModel(
                 status = MessageStatus.SENT,
                 content = text,
             )
-            _state.update { it.copy(userMessage = "") }
-            chatMessageRepository.insertMessage(optimistic)
-            when (yaloMessageRepository.sendMessage(optimistic)) {
-                is Result.Ok -> Unit
-                // Send failure: mark the individual message as ERROR.
-                // chatStatus is not changed to Failure here — a send error is message-level,
-                // not a fatal chat-level failure (mirrors Flutter SDK MessagesBloc behavior).
-                is Result.Error -> chatMessageRepository.updateMessage(
-                    optimistic.copy(status = MessageStatus.ERROR)
-                )
+            when (chatMessageRepository.insertMessage(optimistic)) {
+                is Result.Ok -> {
+                    _state.update { it.copy(userMessage = "") }
+                    when (yaloMessageRepository.sendMessage(optimistic)) {
+                        is Result.Ok -> Unit
+                        // Send failure: mark the individual message as ERROR.
+                        // chatStatus is not changed to Failure here — a send error is message-level,
+                        // not a fatal chat-level failure (mirrors Flutter SDK MessagesBloc behavior).
+                        is Result.Error -> chatMessageRepository.updateMessage(
+                            optimistic.copy(status = MessageStatus.ERROR)
+                        )
+                    }
+                }
+                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }
         }
     }

@@ -11,6 +11,8 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.Dispatchers
@@ -179,6 +181,7 @@ class MessagesViewModelTest {
                 status = MessageStatus.SENT, content = "subscribed")
         )
         assertEquals(1, vm.state.value.messages.size)
+        vm.viewModelScope.cancel()
     }
 
     @Test
@@ -192,6 +195,7 @@ class MessagesViewModelTest {
                 status = MessageStatus.SENT, content = "hello")
         )
         assertEquals(1, vm.state.value.messages.size)
+        vm.viewModelScope.cancel()
     }
 
     // ── QuickReplies extraction ───────────────────────────────────────────────
@@ -220,5 +224,6 @@ class MessagesViewModelTest {
                 quickReplies = listOf("Option A", "Option B"))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
+        vm.viewModelScope.cancel()
     }
 }
