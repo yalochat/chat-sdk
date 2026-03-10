@@ -2,7 +2,7 @@
 
 import type { YaloChatWindow } from '@ui/chat/chat-window';
 import '@ui/chat/chat-window';
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { defaultIcons, type YaloChatClientConfig } from '@domain/config/chat-config';
 
 export default class YaloChatClient {
   private config: YaloChatClientConfig;
@@ -10,7 +10,13 @@ export default class YaloChatClient {
   private targetEl: HTMLElement | null = null;
 
   constructor(config: YaloChatClientConfig) {
-    this.config = config;
+    this.config = {
+      icons: {
+        ...defaultIcons,
+        ...config.icons,
+      },
+      ...config,
+    }
   }
 
   init(): void {
@@ -18,8 +24,8 @@ export default class YaloChatClient {
       'yalo-chat-window',
     ) as YaloChatWindow;
     this.chatWindowEl.config = this.config;
-
     document.body.appendChild(this.chatWindowEl);
+
     this.targetEl = document.getElementById(this.config.target);
 
     if (!this.targetEl) {
@@ -40,6 +46,7 @@ export default class YaloChatClient {
     this.chatWindowEl.addEventListener('yalo-chat-close', () => {
       this.close();
     });
+
   }
 
   open(): void {

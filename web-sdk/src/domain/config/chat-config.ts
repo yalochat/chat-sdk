@@ -1,12 +1,22 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { Locale } from '@i18n/index';
-import type { YaloChatTheme } from '@ui/theme/theme';
+
+
+export interface SdkIcons {
+  send?: string;
+}
 
 export interface YaloChatClientConfig {
   channelId: string;
   organizationId: string;
+  channelName: string;
   target: string;
   locale?: Locale;
-  theme?: YaloChatTheme;
+  icons?: SdkIcons; 
 }
+
+
+export const defaultIcons: SdkIcons = {
+  send: '<span class="material-symbols-outlined">search</span>',
+};

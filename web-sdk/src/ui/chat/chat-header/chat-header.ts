@@ -1,18 +1,26 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import { type YaloChatClientConfig, yaloChatClientConfigContext } from '@domain/config/chat-config-context';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 
 @customElement('chat-header')
 export class ChatHeader extends LitElement {
   static styles = css`
+    :host {
+      --yalo-chat-header-background: #000;
+      --yalo-chat-header-color: #ffffff;
+      --yalo-chat-close-btn-color: #ffffff;
+    }
+
     .chat-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: #6200ea;
-      color: #fff;
+      background: var(--yalo-chat-header-background);
+      color: var(--yalo-chat-header-color);
     }
 
     .chat-header-title {
@@ -24,7 +32,7 @@ export class ChatHeader extends LitElement {
     .chat-close-btn {
       background: none;
       border: none;
-      color: #fff;
+      color: var(--yalo-chat-close-btn-color);
       cursor: pointer;
       padding: 4px;
       display: flex;
@@ -36,18 +44,28 @@ export class ChatHeader extends LitElement {
     }
 
     .chat-close-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: color-mix(in srgb, currentColor 15%, transparent);
     }
   `;
 
-  @property()
-  handleClose?: () => void;
+  @consume({ context: yaloChatClientConfigContext})
+  config!: YaloChatClientConfig;
+
+  private _handleClose = () => {
+    this.dispatchEvent(new Event('close'));
+  };
 
   render() {
     return html`
       <header class="chat-header">
-        <span class="chat-header-title">Chat</span>
-        <button class="chat-close-btn" aria-label="Chat" @click=${this.handleClose}>&#x2715;</button>
+        <span class="chat-header-title">${this.config?.channelName}</span>
+        <button
+          class="chat-close-btn"
+          aria-label="${this.config.channelName}"
+          @click=${this._handleClose}
+        >
+          &#x2715;
+        </button>
       </header>
     `;
   }

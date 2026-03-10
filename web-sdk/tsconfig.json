@@ -31,7 +31,12 @@
       "@i18n/*": ["src/i18n/*"],
       "@log/*": ["src/log/*"],
       "@ui/*": ["src/ui/*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "ts-lit-plugin"
+      }
+    ]
   },
   "include": ["src"]
 }

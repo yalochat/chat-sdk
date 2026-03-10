@@ -1,8 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-import { defineConfig, type UserConfig } from 'vite';
+import { preview } from '@vitest/browser-preview';
+import type { UserConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { version } from './package.json';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -27,6 +28,18 @@ export default defineConfig(({ command }) => {
         formats: ['umd'],
       },
     },
+    test: {
+      browser: {
+        provider: preview(),
+        enabled: true,
+        instances: [
+          { browser: 'chromium' },
+        ],
+      },
+      coverage: {
+        provider: 'istanbul',
+      },
+    }
   } satisfies UserConfig;
 
   return config;
