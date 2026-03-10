@@ -43,7 +43,7 @@ kotlin {
     }
 }
 
-// SQLDelight schema and ChatDatabase configuration deferred to Phase 2 (FDE-xx).
+// SQLDelight schema and ChatDatabase configuration deferred to Phase 2 (FDE-54).
 // Will be added here once .sq files exist under src/main/sqldelight/.
 
 dependencies {
