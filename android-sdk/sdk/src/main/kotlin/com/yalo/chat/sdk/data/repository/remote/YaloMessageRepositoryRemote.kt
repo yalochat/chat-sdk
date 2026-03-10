@@ -21,7 +21,8 @@ import java.util.TimeZone
 
 // Port of flutter-sdk YaloMessageRepositoryRemote.
 // Polling: 1s interval, 5s lookback window, LRU deduplication cache (capacity 500).
-// All network errors are wrapped in Result.Error; nothing is thrown.
+// Network errors in the polling flow are re-thrown so retryWhen in the ViewModel
+// can restart it after a delay, mirroring the flutter-sdk polling restart behavior.
 // Phase 2 M1 only maps text messages — other types are detected in a future milestone.
 class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
@@ -63,8 +64,8 @@ class YaloMessageRepositoryRemote(
 
     // Continuous polling flow — emits each new inbound ChatMessage as it arrives.
     // Uses the LRU cache so the same message (identified by wiId) is never emitted twice.
-    // Network errors are swallowed so the flow stays alive; the caller should apply
-    // retryWhen for automatic restart on persistent failure.
+    // Network errors are re-thrown so the caller's retryWhen can restart the flow after
+    // a delay — this is what gives the "automatic restart on network recovery" behavior.
     // Mirrors flutter-sdk YaloMessageRepositoryRemote._startPolling().
     override fun pollIncomingMessages(): Flow<ChatMessage> = flow {
         while (true) {
@@ -73,7 +74,8 @@ class YaloMessageRepositoryRemote(
                 is Result.Ok -> result.result
                     .mapNotNull { it.toChatMessage(deduplicate = true) }
                     .forEach { emit(it) }
-                is Result.Error -> Unit // swallow; caller applies retryWhen
+                // Re-throw so retryWhen in the ViewModel can catch and restart the flow.
+                is Result.Error -> throw result.error
             }
             delay(pollingIntervalMs)
         }
@@ -93,22 +95,54 @@ class YaloMessageRepositoryRemote(
     }
 }
 
+// ── ISO 8601 date parsing ─────────────────────────────────────────────────────
 // SimpleDateFormat is used instead of java.time.Instant to support API 21+
-// without requiring core library desugaring.
+// without core library desugaring.
+//
+// The 'X' timezone specifier is only available on API 24+, so 'Z' is used
+// instead (supported from API 1). ISO 8601 offsets use ±HH:MM but 'Z' expects
+// ±HHMM, so normalizeIso8601Offset strips the colon before parsing.
+//
+// ThreadLocal caches one SimpleDateFormat per format per thread — avoids
+// per-call allocation and is safe since SimpleDateFormat is not thread-safe.
+
+private const val UTC = "UTC"
+
+private data class Iso8601Format(val pattern: String, val normalizeOffset: Boolean)
+
 private val ISO_FORMATS = listOf(
-    "yyyy-MM-dd'T'HH:mm:ss.SSSX",
-    "yyyy-MM-dd'T'HH:mm:ssX",
-    "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-    "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    Iso8601Format("yyyy-MM-dd'T'HH:mm:ss.SSSZ", normalizeOffset = true),
+    Iso8601Format("yyyy-MM-dd'T'HH:mm:ssZ",      normalizeOffset = true),
+    Iso8601Format("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", normalizeOffset = false),
+    Iso8601Format("yyyy-MM-dd'T'HH:mm:ss'Z'",     normalizeOffset = false),
 )
 
+private val threadLocalFormatters: ThreadLocal<List<SimpleDateFormat>> =
+    ThreadLocal.withInitial {
+        ISO_FORMATS.map { fmt ->
+            SimpleDateFormat(fmt.pattern, Locale.US).apply {
+                timeZone = TimeZone.getTimeZone(UTC)
+            }
+        }
+    }
+
+// Converts ±HH:MM (or ±HH:MM:SS) offsets to ±HHMM (or ±HHMMSS) so they are
+// compatible with the 'Z' SimpleDateFormat pattern on all supported API levels.
+private fun normalizeIso8601Offset(input: String): String {
+    val offsetPattern = Regex("([+-]\\d{2}):(\\d{2})(?::(\\d{2}))?\$")
+    return input.replace(offsetPattern) { match ->
+        val (hours, minutes) = match.destructured
+        val seconds = match.groupValues[3]
+        if (seconds.isNotEmpty()) "$hours$minutes$seconds" else "$hours$minutes"
+    }
+}
+
 private fun parseIso8601(date: String): Long {
-    for (fmt in ISO_FORMATS) {
+    val formatters = threadLocalFormatters.get()!!
+    for ((index, fmt) in ISO_FORMATS.withIndex()) {
         try {
-            return SimpleDateFormat(fmt, Locale.US)
-                .apply { timeZone = TimeZone.getTimeZone("UTC") }
-                .parse(date)
-                ?.time ?: continue
+            val candidate = if (fmt.normalizeOffset) normalizeIso8601Offset(date) else date
+            return formatters[index].parse(candidate)?.time ?: continue
         } catch (_: Exception) {
             continue
         }

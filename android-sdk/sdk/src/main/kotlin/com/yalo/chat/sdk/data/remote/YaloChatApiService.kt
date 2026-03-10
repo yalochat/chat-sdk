@@ -20,6 +20,10 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
+private const val HEADER_USER_ID = "x-user-id"
+private const val HEADER_CHANNEL_ID = "x-channel-id"
+private const val HEADER_AUTHORIZATION = "Authorization"
+
 // Port of flutter-sdk YaloChatClient.
 // Ktor (CIO engine) replaces Dart's http package — same headers and endpoints.
 // All network errors are wrapped in Result.Error; no exceptions are thrown.
@@ -35,9 +39,9 @@ class YaloChatApiService(
     suspend fun sendTextMessage(request: YaloTextMessageRequest): Result<Unit> = try {
         val response = httpClient.post("$apiBaseUrl/inbound_messages") {
             contentType(ContentType.Application.Json)
-            header("x-user-id", userToken)
-            header("x-channel-id", flowKey)
-            header("Authorization", "Bearer $authToken")
+            header(HEADER_USER_ID, userToken)
+            header(HEADER_CHANNEL_ID, flowKey)
+            header(HEADER_AUTHORIZATION, "Bearer $authToken")
             setBody(request)
         }
         if (response.status.isSuccess()) Result.Ok(Unit)
@@ -50,9 +54,9 @@ class YaloChatApiService(
     suspend fun fetchMessages(since: Long): Result<List<YaloFetchMessagesResponse>> = try {
         val response = httpClient.get("$apiBaseUrl/messages") {
             parameter("since", since)
-            header("x-user-id", userToken)
-            header("x-channel-id", flowKey)
-            header("Authorization", "Bearer $authToken")
+            header(HEADER_USER_ID, userToken)
+            header(HEADER_CHANNEL_ID, flowKey)
+            header(HEADER_AUTHORIZATION, "Bearer $authToken")
         }
         if (response.status.isSuccess()) Result.Ok(response.body())
         else Result.Error(RuntimeException("HTTP ${response.status.value}: fetch failed"))
