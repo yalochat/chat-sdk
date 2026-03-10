@@ -11,6 +11,7 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,10 @@ class MessagesViewModel(
 
     // Keeps the active subscription job so SubscribeToMessages is idempotent.
     private var subscriptionJob: Job? = null
+
+    // Decrementing counter for optimistic temp IDs — always negative so they
+    // never collide with real server IDs (which are positive).
+    private val tempIdSeq = AtomicLong(-1L)
 
     fun handleEvent(event: MessagesEvent) {
         when (event) {
@@ -82,7 +87,7 @@ class MessagesViewModel(
     private fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         viewModelScope.launch {
-            val tempId = System.currentTimeMillis()
+            val tempId = tempIdSeq.getAndDecrement()
             val optimistic = ChatMessage(
                 id = tempId,
                 role = MessageRole.USER,
