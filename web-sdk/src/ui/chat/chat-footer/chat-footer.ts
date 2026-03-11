@@ -59,7 +59,7 @@ export class ChatFooter extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 24px;
+      font-size: 1.5rem;
       font-family: 'Material Symbols Outlined';
     }
   `;
@@ -107,7 +107,7 @@ export class ChatFooter extends LitElement {
     return html`
       <footer class="chat-footer">
         <form class="chat-form" @submit=${this._onSubmit}>
-          <textarea 
+          <textarea
             id="yalo-chat-input"
             class="chat-input"
             rows="1"
