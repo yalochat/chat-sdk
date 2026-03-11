@@ -18,10 +18,10 @@ class MainActivity : ComponentActivity() {
         YaloChat.init(
             YaloChatConfig(
                 name = "Yalo Chat",
-                flowKey = "demo-flow-key",
-                authToken = "demo-auth-token",
-                userToken = "demo-user-token",
-                apiBaseUrl = "https://your-yalo-api-base-url", // TODO: replace with real URL
+                flowKey = BuildConfig.YALO_FLOW_KEY,
+                authToken = BuildConfig.YALO_AUTH_TOKEN,
+                userToken = BuildConfig.YALO_USER_TOKEN,
+                apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
             )
         )
         setContent {
