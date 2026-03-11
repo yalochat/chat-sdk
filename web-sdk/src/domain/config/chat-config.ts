@@ -11,10 +11,11 @@ export interface YaloChatClientConfig {
   organizationId: string;
   channelName: string;
   target: string;
+  image?: string;
   locale?: Locale;
   icons?: SdkIcons;
 }
 
 export const defaultIcons: SdkIcons = {
-  send: '<span class="material-symbols-outlined">search</span>',
+  send: '<span class="material-symbols-outlined">send</span>',
 };

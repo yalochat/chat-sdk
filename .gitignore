@@ -12,6 +12,10 @@
 .swiftpm/
 migrate_working_dir/
 
+dist/**
+
+coverage/**
+
 flutter_sdk/pubspec.lock
 .dir-locals.el
 

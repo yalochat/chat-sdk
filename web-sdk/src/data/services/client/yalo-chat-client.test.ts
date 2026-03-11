@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatWindow } from '@ui/chat/chat-window';
+import type { YaloChatWindow } from '@ui/chat/chat-window/chat-window';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import YaloChatClient from './yalo-chat-client';
 
