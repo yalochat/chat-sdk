@@ -2,17 +2,12 @@
 
 package com.yalo.chat.sdk.data.remote
 
-import com.yalo.chat.sdk.BuildConfig
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.data.remote.model.YaloTextMessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -29,18 +24,20 @@ private const val HEADER_CHANNEL_ID = "x-channel-id"
 private const val HEADER_AUTHORIZATION = "Authorization"
 
 // Port of flutter-sdk YaloChatClient.
-// Ktor (CIO engine) replaces Dart's http package — same headers and endpoints.
+// Ktor replaces Dart's http package — same headers and endpoints.
 // All network errors are wrapped in Result.Error; no exceptions are thrown.
 //
-// KMP note: CIO engine is JVM/Android only. When splitting to a KMP module the
-// engine will move to androidMain and a Darwin engine added for iosMain.
+// KMP note: the HttpClient (with its platform engine) is provided by the caller —
+// YaloChat.kt on Android passes an Android-engine client, tests pass a MockEngine client.
+// When splitting to KMP: YaloChat.kt moves to androidMain and provides the Android engine;
+// an iosMain counterpart provides the Darwin engine.
 class YaloChatApiService(
     private val apiBaseUrl: String,
     private val authToken: String,
     private val userToken: String,
     private val flowKey: String,
-    // Exposed as internal so tests can inject a MockEngine-backed client.
-    internal val httpClient: HttpClient = defaultClient(),
+    // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
+    internal val httpClient: HttpClient,
 ) {
     // POST /inbound_messages — send a text message to the Yalo backend.
     suspend fun sendTextMessage(request: YaloTextMessageRequest): Result<Unit> = try {
@@ -72,19 +69,19 @@ class YaloChatApiService(
     }
 }
 
-// KMP note: Logging uses println() which works on all Kotlin targets.
-// When the module is split, the CIO engine + Logging installation can move to
-// androidMain/iosMain and each target can use its own native logger.
-private fun defaultClient() = HttpClient(CIO) {
-    install(ContentNegotiation) {
-        json(Json { ignoreUnknownKeys = true })
-    }
-    if (BuildConfig.DEBUG) {
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) { println(message) }
+// Builds a configured HttpClient with ContentNegotiation (JSON) and optional debug logging.
+// Called from YaloChat.kt with the platform engine (Android/Darwin/etc.).
+fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, debug: Boolean): HttpClient =
+    HttpClient(engine) {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        if (debug) {
+            install(io.ktor.client.plugins.logging.Logging) {
+                logger = object : io.ktor.client.plugins.logging.Logger {
+                    override fun log(message: String) { println(message) }
+                }
+                level = io.ktor.client.plugins.logging.LogLevel.ALL
             }
-            level = LogLevel.ALL
         }
     }
-}

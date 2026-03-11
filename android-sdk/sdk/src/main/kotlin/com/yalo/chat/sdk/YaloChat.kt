@@ -5,9 +5,11 @@ package com.yalo.chat.sdk
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
+import io.ktor.client.engine.android.Android
 
 // Port of flutter-sdk YaloChat entry point.
 // Phase 2 M1: wires real Ktor networking via YaloMessageRepositoryRemote.
@@ -22,11 +24,13 @@ object YaloChat {
 
     fun init(config: YaloChatConfig) {
         _config = config
+        val httpClient = buildHttpClient(Android.create(), debug = BuildConfig.DEBUG)
         val apiService = YaloChatApiService(
             apiBaseUrl = config.apiBaseUrl,
             authToken = config.authToken,
             userToken = config.userToken,
             flowKey = config.flowKey,
+            httpClient = httpClient,
         )
         val yaloRepo = YaloMessageRepositoryRemote(apiService)
         // Phase 2 M2 will replace FakeChatMessageRepository with ChatMessageRepositoryLocal (SQLDelight).

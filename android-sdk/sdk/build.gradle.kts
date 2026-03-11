@@ -66,12 +66,16 @@ dependencies {
     // Coroutines
     implementation(libs.coroutines.android)
 
-    // Ktor — KMP-ready HTTP client (no OkHttp)
+    // Ktor — HTTP client
+    // ktor-client-android uses Android's system HTTP stack (proper DNS resolution).
+    // ktor-client-cio kept for tests (MockEngine is engine-agnostic).
+    // When splitting to KMP: move ktor-client-android to androidMain, add Darwin for iosMain.
     implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
+    testImplementation(libs.ktor.client.cio)
 
     // kotlinx.serialization
     implementation(libs.kotlinx.serialization.json)

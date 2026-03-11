@@ -2,6 +2,8 @@
 <!-- Copyright (c) Yalochat, Inc. All rights reserved. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".DemoApplication"
         android:label="Yalo Chat Demo"
