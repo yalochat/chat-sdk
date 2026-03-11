@@ -4,24 +4,42 @@ package com.yalo.chat.sdk
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
-import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 
 // Port of flutter-sdk YaloChat entry point.
-// Phase 2 wires real repos (Ktor networking, SQLDelight persistence) here.
+// Phase 2 M1: wires real Ktor networking via YaloMessageRepositoryRemote.
+// Phase 2 M2: will replace FakeChatMessageRepository with SQLDelight persistence.
 object YaloChat {
 
     private var _config: YaloChatConfig? = null
     private var _viewModelFactory: ViewModelProvider.Factory? = null
+    private var _httpClient: HttpClient? = null
 
     val config: YaloChatConfig
         get() = _config ?: error("YaloChat.init() must be called before accessing config")
 
     fun init(config: YaloChatConfig) {
+        // Close any previously created client before replacing it (idempotent re-init).
+        _httpClient?.close()
         _config = config
-        val yaloRepo = FakeYaloMessageRepository()
-        val chatRepo = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
+        val httpClient = buildHttpClient(Android.create(), debug = BuildConfig.DEBUG)
+        _httpClient = httpClient
+        val apiService = YaloChatApiService(
+            apiBaseUrl = config.apiBaseUrl,
+            authToken = config.authToken,
+            userToken = config.userToken,
+            flowKey = config.flowKey,
+            httpClient = httpClient,
+        )
+        val yaloRepo = YaloMessageRepositoryRemote(apiService)
+        // Phase 2 M2 will replace FakeChatMessageRepository with ChatMessageRepositoryLocal (SQLDelight).
+        val chatRepo = FakeChatMessageRepository()
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

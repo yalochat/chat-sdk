@@ -1,11 +1,28 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+}
+
+// Read demo credentials from local.properties (never committed to git).
+// Copy local.properties.example → local.properties and fill in the values.
+val localProps = Properties().also { props ->
+    val file = rootProject.file("local.properties")
+    if (file.exists()) props.load(file.inputStream())
+}
+
+fun localProp(key: String): String {
+    val value = localProps.getProperty(key, "")
+    if (value.isEmpty()) {
+        logger.warn("WARNING: local.properties is missing '$key'. Copy local.properties.example → local.properties and fill in the values. The demo app will fail at runtime.")
+    }
+    return value
 }
 
 android {
@@ -18,6 +35,11 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "YALO_API_BASE_URL", "\"${localProp("yalo.apiBaseUrl")}\"")
+        buildConfigField("String", "YALO_FLOW_KEY",    "\"${localProp("yalo.flowKey")}\"")
+        buildConfigField("String", "YALO_AUTH_TOKEN",  "\"${localProp("yalo.authToken")}\"")
+        buildConfigField("String", "YALO_USER_TOKEN",  "\"${localProp("yalo.userToken")}\"")
     }
 
     compileOptions {
@@ -27,6 +49,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

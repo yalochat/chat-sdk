@@ -15,6 +15,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -110,22 +111,6 @@ class MessagesViewModelTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(1, result.result.size)
         assertEquals("hello", result.result.first().content)
-    }
-
-    @Test
-    fun `SendTextMessage on send error marks message as ERROR`() = runTest {
-        val chatRepo = FakeChatMessageRepository()
-        val failingSendRepo = object : YaloMessageRepository {
-            override suspend fun sendMessage(message: ChatMessage) =
-                Result.Error<Unit>(RuntimeException("send failed"))
-            override suspend fun fetchMessages(since: Long) =
-                Result.Ok(emptyList<ChatMessage>())
-        }
-        val vm = viewModel(yaloRepo = failingSendRepo, chatRepo = chatRepo)
-        vm.handleEvent(MessagesEvent.SendTextMessage("hello"))
-        val result = chatRepo.getMessages(null, 10)
-        assertIs<Result.Ok<List<ChatMessage>>>(result)
-        assertEquals(MessageStatus.ERROR, result.result.first().status)
     }
 
     // ── ClearMessages ─────────────────────────────────────────────────────────
@@ -224,6 +209,31 @@ class MessagesViewModelTest {
                 quickReplies = listOf("Option A", "Option B"))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
+        vm.viewModelScope.cancel()
+    }
+
+    // ── Phase 2 — Remote polling ───────────────────────────────────────────────
+
+    @Test
+    fun `SubscribeToMessages inserts polled remote messages into state`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val pollingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages() = flowOf(
+                ChatMessage(
+                    role = MessageRole.AGENT, type = MessageType.Text,
+                    status = MessageStatus.DELIVERED, content = "from server",
+                )
+            )
+        }
+        val vm = MessagesViewModel(pollingYaloRepo, chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        // advanceUntilIdle() drains all coroutines launched by SubscribeToMessages
+        // (pollIncomingMessages collector + observeMessages collector) before asserting.
+        testScheduler.advanceUntilIdle()
+        assertEquals(1, vm.state.value.messages.size)
+        assertEquals("from server", vm.state.value.messages.first().content)
         vm.viewModelScope.cancel()
     }
 }

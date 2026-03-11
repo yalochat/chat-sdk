@@ -1,0 +1,11 @@
+# Android SDK location (set automatically by Android Studio)
+sdk.dir=/path/to/Android/sdk
+
+# ── Yalo demo credentials ──────────────────────────────────────────────────────
+# Copy this file to local.properties and fill in the values.
+# local.properties is gitignored — credentials will never be committed.
+
+yalo.apiBaseUrl=https://your-yalo-api-base-url
+yalo.flowKey=your-flow-key
+yalo.authToken=your-auth-token
+yalo.userToken=your-user-token
