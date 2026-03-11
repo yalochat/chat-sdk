@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.data.remote
 
+import com.yalo.chat.sdk.BuildConfig
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.data.remote.model.YaloTextMessageRequest
@@ -9,6 +10,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -27,6 +31,9 @@ private const val HEADER_AUTHORIZATION = "Authorization"
 // Port of flutter-sdk YaloChatClient.
 // Ktor (CIO engine) replaces Dart's http package — same headers and endpoints.
 // All network errors are wrapped in Result.Error; no exceptions are thrown.
+//
+// KMP note: CIO engine is JVM/Android only. When splitting to a KMP module the
+// engine will move to androidMain and a Darwin engine added for iosMain.
 class YaloChatApiService(
     private val apiBaseUrl: String,
     private val authToken: String,
@@ -65,8 +72,19 @@ class YaloChatApiService(
     }
 }
 
+// KMP note: Logging uses println() which works on all Kotlin targets.
+// When the module is split, the CIO engine + Logging installation can move to
+// androidMain/iosMain and each target can use its own native logger.
 private fun defaultClient() = HttpClient(CIO) {
     install(ContentNegotiation) {
         json(Json { ignoreUnknownKeys = true })
+    }
+    if (BuildConfig.DEBUG) {
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) { println(message) }
+            }
+            level = LogLevel.ALL
+        }
     }
 }

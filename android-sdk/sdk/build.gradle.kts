@@ -24,6 +24,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     lint {
@@ -70,9 +71,13 @@ dependencies {
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
 
     // kotlinx.serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // kotlinx.datetime — KMP-compatible (replaces java.text.SimpleDateFormat)
+    implementation(libs.kotlinx.datetime)
 
     // SQLDelight — KMP-ready persistence (no Room)
     implementation(libs.sqldelight.android.driver)

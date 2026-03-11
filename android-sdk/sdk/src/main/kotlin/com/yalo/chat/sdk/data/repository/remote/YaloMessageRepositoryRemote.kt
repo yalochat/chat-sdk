@@ -15,15 +15,17 @@ import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 // Port of flutter-sdk YaloMessageRepositoryRemote.
 // Polling: 1s interval, 5s lookback window, LRU deduplication cache (capacity 500).
-// Network errors in the polling flow are re-thrown so retryWhen in the ViewModel
-// can restart it after a delay, mirroring the flutter-sdk polling restart behavior.
+// Network errors in the polling flow are swallowed and the loop continues — mirrors
+// flutter-sdk _startPolling() which logs the error and falls through to Future.delayed.
 // Phase 2 M1 only maps text messages — other types are detected in a future milestone.
+//
+// KMP note: all platform-specific imports (java.text.*, java.util.*) have been replaced
+// with kotlinx-datetime so this file is ready for a commonMain source set.
 class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
     // Exposed as internal so tests can override the interval without waiting.
@@ -41,7 +43,7 @@ class YaloMessageRepositoryRemote(
                 UnsupportedOperationException("Only text messages are supported in Phase 2 M1")
             )
         }
-        val nowSecs = System.currentTimeMillis() / 1000
+        val nowSecs = Clock.System.now().epochSeconds
         val request = YaloTextMessageRequest(
             timestamp = nowSecs,
             content = YaloTextMessage(
@@ -69,7 +71,7 @@ class YaloMessageRepositoryRemote(
     // the error and falls through to Future.delayed without breaking the loop.
     override fun pollIncomingMessages(): Flow<ChatMessage> = flow {
         while (true) {
-            val since = System.currentTimeMillis() / 1000 - lookbackSecs
+            val since = Clock.System.now().epochSeconds - lookbackSecs
             when (val result = apiService.fetchMessages(since)) {
                 is Result.Ok -> result.result
                     .mapNotNull { it.toChatMessage(deduplicate = true) }
@@ -95,59 +97,13 @@ class YaloMessageRepositoryRemote(
 }
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────
-// SimpleDateFormat is used instead of java.time.Instant to support API 21+
-// without core library desugaring.
-//
-// The 'X' timezone specifier is only available on API 24+, so 'Z' is used
-// instead (supported from API 1). ISO 8601 offsets use ±HH:MM but 'Z' expects
-// ±HHMM, so normalizeIso8601Offset strips the colon before parsing.
-//
-// ThreadLocal caches one SimpleDateFormat per format per thread — avoids
-// per-call allocation and is safe since SimpleDateFormat is not thread-safe.
+// kotlinx-datetime's Instant.parse() handles all standard ISO 8601 variants
+// (with/without millis, Z suffix, ±HH:MM offsets) and is fully KMP-compatible —
+// no java.text.SimpleDateFormat, ThreadLocal, or TimeZone needed.
 
-private const val UTC = "UTC"
-
-private data class Iso8601Format(val pattern: String, val normalizeOffset: Boolean)
-
-private val ISO_FORMATS = listOf(
-    Iso8601Format("yyyy-MM-dd'T'HH:mm:ss.SSSZ", normalizeOffset = true),
-    Iso8601Format("yyyy-MM-dd'T'HH:mm:ssZ",      normalizeOffset = true),
-    Iso8601Format("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", normalizeOffset = false),
-    Iso8601Format("yyyy-MM-dd'T'HH:mm:ss'Z'",     normalizeOffset = false),
-)
-
-// ThreadLocal.withInitial() requires API 26; anonymous subclass works from API 1.
-private val threadLocalFormatters: ThreadLocal<List<SimpleDateFormat>> =
-    object : ThreadLocal<List<SimpleDateFormat>>() {
-        override fun initialValue() = ISO_FORMATS.map { fmt ->
-            SimpleDateFormat(fmt.pattern, Locale.US).apply {
-                timeZone = TimeZone.getTimeZone(UTC)
-            }
-        }
+private fun parseIso8601(date: String): Long =
+    try {
+        Instant.parse(date).toEpochMilliseconds()
+    } catch (_: Exception) {
+        Clock.System.now().toEpochMilliseconds()
     }
-
-// Converts ±HH:MM (or ±HH:MM:SS) offsets to ±HHMM (or ±HHMMSS) so they are
-// compatible with the 'Z' SimpleDateFormat pattern on all supported API levels.
-// Compiled once as a top-level val to avoid per-call Regex allocation.
-private val ISO_OFFSET_PATTERN = Regex("([+-]\\d{2}):(\\d{2})(?::(\\d{2}))?\$")
-
-private fun normalizeIso8601Offset(input: String): String {
-    return input.replace(ISO_OFFSET_PATTERN) { match ->
-        val (hours, minutes) = match.destructured
-        val seconds = match.groupValues[3]
-        if (seconds.isNotEmpty()) "$hours$minutes$seconds" else "$hours$minutes"
-    }
-}
-
-private fun parseIso8601(date: String): Long {
-    val formatters = threadLocalFormatters.get()!!
-    for ((index, fmt) in ISO_FORMATS.withIndex()) {
-        try {
-            val candidate = if (fmt.normalizeOffset) normalizeIso8601Offset(date) else date
-            return formatters[index].parse(candidate)?.time ?: continue
-        } catch (_: Exception) {
-            continue
-        }
-    }
-    return System.currentTimeMillis()
-}
