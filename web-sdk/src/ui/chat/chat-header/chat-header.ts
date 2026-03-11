@@ -8,9 +8,11 @@ import { consume } from '@lit/context';
 import { msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('chat-header')
 export class ChatHeader extends LitElement {
+
   static styles = css`
     :host {
       --yalo-chat-header-background: #F1F5FC;
@@ -33,13 +35,13 @@ export class ChatHeader extends LitElement {
       flex-grow: 1;
     }
 
+
     .chat-header-title {
       font-size: 1.2rem;
       padding: 0;
       margin: 0;
       font-weight: 600;
     }
-
 
     .header-icon {
       width: 3rem;
@@ -62,11 +64,16 @@ export class ChatHeader extends LitElement {
       justify-content: center;
       border-radius: 4px;
       line-height: 1;
-      font-size: 20px;
+      font-size: 1.5rem;
     }
 
     .chat-close-btn:hover {
       background: color-mix(in srgb, currentColor 15%, transparent);
+    }
+
+    .material-symbols-outlined {
+      font-size: 1.5rem;
+      font-family: 'Material Symbols Outlined';
     }
   `;
 
@@ -103,7 +110,7 @@ export class ChatHeader extends LitElement {
           aria-label="${msg(`Close Chat`)}"
           @click=${this._handleClose}
         >
-          &#x2715;
+          ${unsafeHTML(this.config.icons?.close)}
         </button>
       </header>
     `;
