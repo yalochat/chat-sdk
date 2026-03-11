@@ -10,7 +10,9 @@ const DB_NAME = 'yalo-chat-messages';
 const DB_VERSION = 1;
 const STORE_NAME = 'chat_message';
 
-type ChatMessageData = ConstructorParameters<typeof ChatMessage>[0] & { id: number };
+type ChatMessageData = ConstructorParameters<typeof ChatMessage>[0] & {
+  id: number;
+};
 
 export class ChatMessageRepositoryLocal extends ChatMessageRepository {
   private dbPromise: Promise<IDBDatabase>;
@@ -99,7 +101,9 @@ export class ChatMessageRepositoryLocal extends ChatMessageRepository {
     }
   }
 
-  override async insertChatMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
+  override async insertChatMessage(
+    message: ChatMessage,
+  ): Promise<Result<ChatMessage>> {
     try {
       const db = await this.dbPromise;
       const { id: _id, ...data } = message;
@@ -117,7 +121,9 @@ export class ChatMessageRepositoryLocal extends ChatMessageRepository {
     }
   }
 
-  override async replaceChatMessage(message: ChatMessage): Promise<Result<boolean>> {
+  override async replaceChatMessage(
+    message: ChatMessage,
+  ): Promise<Result<boolean>> {
     if (message.id === undefined) {
       return new Err(new Error('Message must contain an id to replace'));
     }

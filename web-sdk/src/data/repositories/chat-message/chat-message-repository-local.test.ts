@@ -5,8 +5,9 @@ import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ChatMessageRepositoryLocal } from './chat-message-repository-local';
 
-
-const makeMessage = (overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}) =>
+const makeMessage = (
+  overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {},
+) =>
   new ChatMessage({
     role: 'USER',
     type: 'text',
@@ -55,7 +56,11 @@ describe('ChatMessageRepositoryLocal', () => {
     });
 
     it('preserves message fields after insert', async () => {
-      const message = makeMessage({ content: 'test content', role: 'AGENT', type: 'text' });
+      const message = makeMessage({
+        content: 'test content',
+        role: 'AGENT',
+        type: 'text',
+      });
       const result = await repo.insertChatMessage(message);
       const inserted = (result as Ok<ChatMessage>).value;
       expect(inserted.content).toBe('test content');
@@ -69,14 +74,20 @@ describe('ChatMessageRepositoryLocal', () => {
       const message = makeMessage();
       const result = await repo.replaceChatMessage(message);
       expect(result).toBeInstanceOf(Err);
-      expect((result as Err).error.message).toBe('Message must contain an id to replace');
+      expect((result as Err).error.message).toBe(
+        'Message must contain an id to replace',
+      );
     });
 
     it('returns Ok(true) after a successful replace', async () => {
       const insertResult = await repo.insertChatMessage(makeMessage());
       const inserted = (insertResult as Ok<ChatMessage>).value;
 
-      const updated = new ChatMessage({ ...inserted, content: 'updated', status: 'READ' });
+      const updated = new ChatMessage({
+        ...inserted,
+        content: 'updated',
+        status: 'READ',
+      });
       const replaceResult = await repo.replaceChatMessage(updated);
 
       expect(replaceResult).toBeInstanceOf(Ok);
@@ -87,11 +98,15 @@ describe('ChatMessageRepositoryLocal', () => {
       const insertResult = await repo.insertChatMessage(makeMessage());
       const inserted = (insertResult as Ok<ChatMessage>).value;
 
-      await repo.replaceChatMessage(new ChatMessage({ ...inserted, content: 'updated content' }));
+      await repo.replaceChatMessage(
+        new ChatMessage({ ...inserted, content: 'updated content' }),
+      );
 
       const pageResult = await repo.getChatMessagePageDesc(null, 10);
       const messages = (pageResult as Ok<{ data: ChatMessage[] }>).value.data;
-      expect(messages.find((m) => m.id === inserted.id)?.content).toBe('updated content');
+      expect(messages.find((m) => m.id === inserted.id)?.content).toBe(
+        'updated content',
+      );
     });
   });
 
@@ -99,7 +114,9 @@ describe('ChatMessageRepositoryLocal', () => {
     it('returns Ok with empty data when store is empty', async () => {
       const result = await repo.getChatMessagePageDesc(null, 10);
       expect(result).toBeInstanceOf(Ok);
-      expect((result as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(0);
+      expect((result as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(
+        0,
+      );
     });
 
     it('returns inserted messages', async () => {
@@ -107,13 +124,21 @@ describe('ChatMessageRepositoryLocal', () => {
       await repo.insertChatMessage(makeMessage());
 
       const result = await repo.getChatMessagePageDesc(null, 10);
-      expect((result as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(2);
+      expect((result as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(
+        2,
+      );
     });
 
     it('returns messages in descending timestamp order', async () => {
-      await repo.insertChatMessage(makeMessage({ timestamp: new Date('2024-01-01T09:00:00Z') }));
-      await repo.insertChatMessage(makeMessage({ timestamp: new Date('2024-01-01T11:00:00Z') }));
-      await repo.insertChatMessage(makeMessage({ timestamp: new Date('2024-01-01T10:00:00Z') }));
+      await repo.insertChatMessage(
+        makeMessage({ timestamp: new Date('2024-01-01T09:00:00Z') }),
+      );
+      await repo.insertChatMessage(
+        makeMessage({ timestamp: new Date('2024-01-01T11:00:00Z') }),
+      );
+      await repo.insertChatMessage(
+        makeMessage({ timestamp: new Date('2024-01-01T10:00:00Z') }),
+      );
 
       const result = await repo.getChatMessagePageDesc(null, 10);
       const messages = (result as Ok<{ data: ChatMessage[] }>).value.data;
@@ -132,7 +157,9 @@ describe('ChatMessageRepositoryLocal', () => {
       }
 
       const result = await repo.getChatMessagePageDesc(null, 3);
-      expect((result as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(3);
+      expect((result as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(
+        3,
+      );
     });
 
     it('sets nextCursor when there are more pages', async () => {
@@ -141,8 +168,9 @@ describe('ChatMessageRepositoryLocal', () => {
       }
 
       const result = await repo.getChatMessagePageDesc(null, 3);
-      const pageInfo = (result as Ok<{ data: ChatMessage[]; pageInfo: { nextCursor?: number } }>)
-        .value.pageInfo;
+      const pageInfo = (
+        result as Ok<{ data: ChatMessage[]; pageInfo: { nextCursor?: number } }>
+      ).value.pageInfo;
       expect(pageInfo.nextCursor).toBeDefined();
     });
 
@@ -151,22 +179,35 @@ describe('ChatMessageRepositoryLocal', () => {
       await repo.insertChatMessage(makeMessage());
 
       const result = await repo.getChatMessagePageDesc(null, 10);
-      const pageInfo = (result as Ok<{ data: ChatMessage[]; pageInfo: { nextCursor?: number } }>)
-        .value.pageInfo;
+      const pageInfo = (
+        result as Ok<{ data: ChatMessage[]; pageInfo: { nextCursor?: number } }>
+      ).value.pageInfo;
       expect(pageInfo.nextCursor).toBeUndefined();
     });
 
     it('returns the next page when cursor is provided', async () => {
       for (let i = 0; i < 5; i++) {
-        await repo.insertChatMessage(makeMessage({ timestamp: new Date(1000 * i) }));
+        await repo.insertChatMessage(
+          makeMessage({ timestamp: new Date(1000 * i) }),
+        );
       }
 
       const firstPage = await repo.getChatMessagePageDesc(null, 3);
-      const { data, pageInfo } = (firstPage as Ok<{ data: ChatMessage[]; pageInfo: { nextCursor?: number } }>).value;
+      const { data, pageInfo } = (
+        firstPage as Ok<{
+          data: ChatMessage[];
+          pageInfo: { nextCursor?: number };
+        }>
+      ).value;
       const firstIds = data.map((m) => m.id);
 
-      const secondPage = await repo.getChatMessagePageDesc(pageInfo.nextCursor ?? null, 3);
-      const secondIds = (secondPage as Ok<{ data: ChatMessage[] }>).value.data.map((m) => m.id);
+      const secondPage = await repo.getChatMessagePageDesc(
+        pageInfo.nextCursor ?? null,
+        3,
+      );
+      const secondIds = (
+        secondPage as Ok<{ data: ChatMessage[] }>
+      ).value.data.map((m) => m.id);
 
       // No overlap between pages
       expect(secondIds.some((id) => firstIds.includes(id))).toBe(false);
@@ -176,8 +217,9 @@ describe('ChatMessageRepositoryLocal', () => {
       await repo.insertChatMessage(makeMessage());
 
       const result = await repo.getChatMessagePageDesc(null, 10);
-      const pageInfo = (result as Ok<{ data: ChatMessage[]; pageInfo: { cursor?: number } }>)
-        .value.pageInfo;
+      const pageInfo = (
+        result as Ok<{ data: ChatMessage[]; pageInfo: { cursor?: number } }>
+      ).value.pageInfo;
       expect(pageInfo.cursor).toBeUndefined();
     });
   });

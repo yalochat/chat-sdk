@@ -13,7 +13,9 @@ export abstract class ChatMessageRepository {
   ): Promise<Result<Page<ChatMessage>>>;
 
   // Inserts a message and returns it with the assigned id.
-  abstract insertChatMessage(message: ChatMessage): Promise<Result<ChatMessage>>;
+  abstract insertChatMessage(
+    message: ChatMessage,
+  ): Promise<Result<ChatMessage>>;
 
   // Replaces an existing message by id.
   abstract replaceChatMessage(message: ChatMessage): Promise<Result<boolean>>;

@@ -12,7 +12,6 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('chat-header')
 export class ChatHeader extends LitElement {
-
   static styles = css`
     :host {
       --yalo-chat-header-background: #F1F5FC;

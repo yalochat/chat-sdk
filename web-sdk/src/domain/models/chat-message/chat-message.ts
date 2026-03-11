@@ -15,7 +15,13 @@ export const MessageTypes = [
 ] as const;
 export type MessageType = (typeof MessageTypes)[number];
 
-export const MessageStatuses = ['DELIVERED', 'READ', 'ERROR', 'SENT', 'IN_PROGRESS'] as const;
+export const MessageStatuses = [
+  'DELIVERED',
+  'READ',
+  'ERROR',
+  'SENT',
+  'IN_PROGRESS',
+] as const;
 export type MessageStatus = (typeof MessageStatuses)[number];
 
 export class ChatMessage {
@@ -95,5 +101,4 @@ export class ChatMessage {
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'image' });
   }
-
 }
