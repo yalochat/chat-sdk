@@ -64,18 +64,18 @@ class YaloMessageRepositoryRemote(
             is Result.Error -> Result.Error(result.error)
         }
 
-    // Continuous polling flow — emits each new inbound ChatMessage as it arrives.
-    // Uses the LRU cache so the same message (identified by wiId) is never emitted twice.
-    // Network errors are logged and swallowed — the loop continues on the next tick,
-    // mirroring flutter-sdk YaloMessageRepositoryRemote._startPolling() which logs
-    // the error and falls through to Future.delayed without breaking the loop.
-    override fun pollIncomingMessages(): Flow<ChatMessage> = flow {
+    // Continuous polling flow — each emission is the de-duplicated batch of new messages
+    // from one poll cycle. Empty batches are suppressed so downstream only sees real data.
+    // Network errors are swallowed and the loop continues on the next tick, mirroring
+    // flutter-sdk YaloMessageRepositoryRemote._startPolling().
+    override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         while (true) {
             val since = Clock.System.now().epochSeconds - lookbackSecs
             when (val result = apiService.fetchMessages(since)) {
-                is Result.Ok -> result.result
-                    .mapNotNull { it.toChatMessage(deduplicate = true) }
-                    .forEach { emit(it) }
+                is Result.Ok -> {
+                    val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }
+                    if (batch.isNotEmpty()) emit(batch)
+                }
                 is Result.Error -> Unit // swallow, loop continues — mirrors Flutter SDK
             }
             delay(pollingIntervalMs)

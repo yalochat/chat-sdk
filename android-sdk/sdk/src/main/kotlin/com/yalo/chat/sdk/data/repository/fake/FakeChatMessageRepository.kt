@@ -33,6 +33,12 @@ class FakeChatMessageRepository(
         return Result.Ok(Unit)
     }
 
+    override suspend fun insertMessages(messagesToInsert: List<ChatMessage>): Result<Unit> {
+        messages.addAll(messagesToInsert)
+        _flow.value = messages.toList()
+        return Result.Ok(Unit)
+    }
+
     override suspend fun updateMessage(message: ChatMessage): Result<Unit> {
         if (message.id == null) return Result.Error(IllegalArgumentException("Cannot update a message with null id"))
         val index = messages.indexOfFirst { it.id == message.id }

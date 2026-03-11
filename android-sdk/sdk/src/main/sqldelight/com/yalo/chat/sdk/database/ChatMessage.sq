@@ -1,0 +1,52 @@
+-- Copyright (c) Yalochat, Inc. All rights reserved.
+-- Port of flutter-sdk/lib/src/data/services/database/chat_message.drift
+-- Schema matches the Flutter Drift schema exactly (same column names and types).
+-- JSON columns (amplitudes, products, quick_replies) are stored as TEXT and decoded
+-- via ColumnAdapters in DatabaseFactory.kt using kotlinx.serialization.
+
+CREATE TABLE chat_message (
+    id              INTEGER NOT NULL PRIMARY KEY,
+    wi_id           TEXT,
+    role            TEXT NOT NULL,
+    content         TEXT NOT NULL,
+    type            TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    file_name       TEXT,
+    amplitudes      TEXT,
+    duration        INTEGER,
+    products        TEXT,
+    quick_replies   TEXT,
+    timestamp       INTEGER NOT NULL
+);
+
+-- Upsert by primary key — mirrors Flutter Drift insertOrReplace mode.
+insertOrReplace:
+INSERT OR REPLACE INTO chat_message (
+    id, wi_id, role, content, type, status,
+    file_name, amplitudes, duration, products, quick_replies, timestamp
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+-- First page: most recent messages, ordered newest-first.
+-- Port of Flutter getMessagesFirstPage(limit).
+selectFirstPage:
+SELECT * FROM chat_message
+ORDER BY id DESC
+LIMIT :limit;
+
+-- Cursor page: messages with id < cursor, ordered newest-first.
+-- Port of Flutter getMessagesPage(cursor, limit).
+selectPageBefore:
+SELECT * FROM chat_message
+WHERE id < :cursor
+ORDER BY id DESC
+LIMIT :limit;
+
+-- Live query: all messages ordered oldest-first for chat display.
+-- Used by LocalChatMessageRepository.observeMessages() via .asFlow().mapToList().
+observeConversation:
+SELECT * FROM chat_message
+ORDER BY id ASC;
+
+-- Delete all messages (e.g., on logout / conversation reset).
+deleteConversation:
+DELETE FROM chat_message;

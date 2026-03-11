@@ -23,7 +23,7 @@ class FakeYaloMessageRepository : YaloMessageRepository {
         Result.Ok(SEED_MESSAGES)
 
     // No-op: Phase 1 has no remote polling — the fake repo provides seed data only.
-    override fun pollIncomingMessages(): Flow<ChatMessage> = emptyFlow()
+    override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
 
     companion object {
         val SEED_MESSAGES: List<ChatMessage> = listOf(

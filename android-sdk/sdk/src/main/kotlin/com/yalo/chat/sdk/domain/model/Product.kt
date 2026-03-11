@@ -2,8 +2,11 @@
 
 package com.yalo.chat.sdk.domain.model
 
+import kotlinx.serialization.Serializable
+
 // Port of flutter-sdk/lib/domain/models/product/product.dart
 // All fields mirror the Flutter model exactly, including unit/subunit handling.
+@Serializable
 data class Product(
     val sku: String,
     val name: String,
