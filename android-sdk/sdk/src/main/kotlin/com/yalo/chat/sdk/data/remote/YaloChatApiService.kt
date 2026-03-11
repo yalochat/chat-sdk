@@ -82,6 +82,8 @@ fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, debug: Boole
                     override fun log(message: String) { println(message) }
                 }
                 level = io.ktor.client.plugins.logging.LogLevel.ALL
+                // Redact the Bearer token so it never appears in Logcat.
+                sanitizeHeader { header -> header == io.ktor.http.HttpHeaders.Authorization }
             }
         }
     }

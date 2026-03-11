@@ -17,7 +17,13 @@ val localProps = Properties().also { props ->
     if (file.exists()) props.load(file.inputStream())
 }
 
-fun localProp(key: String) = localProps.getProperty(key, "")
+fun localProp(key: String): String {
+    val value = localProps.getProperty(key, "")
+    if (value.isEmpty()) {
+        logger.warn("WARNING: local.properties is missing '$key'. Copy local.properties.example → local.properties and fill in the values. The demo app will fail at runtime.")
+    }
+    return value
+}
 
 android {
     namespace = "com.yalo.chat.demo"

@@ -14,6 +14,7 @@ import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -73,31 +74,35 @@ class MessagesViewModel(
         // the brief window where two collectors could be active after cancel+launch.
         if (subscriptionJob?.isActive == true) return
         subscriptionJob = viewModelScope.launch {
-            // 1. Observe local store — drives all UI updates.
-            launch {
-                chatMessageRepository.observeMessages().collect { messages ->
-                    _state.update {
-                        it.copy(
-                            messages = messages,
-                            quickReplies = messages.extractQuickReplies(),
-                        )
-                    }
-                }
-            }
-            // 2. Poll remote for new inbound messages; insert into local store so
-            //    the observer above picks them up automatically.
-            //    Errors are swallowed inside pollIncomingMessages(), mirroring
-            //    flutter-sdk YaloMessageRepositoryRemote._startPolling().
-            launch {
-                yaloMessageRepository.pollIncomingMessages()
-                    .collect { message ->
-                        // Mirror Flutter _handleMessagesSubscription: on insert error the
-                        // message is dropped and the chat is marked as failed to receive.
-                        when (chatMessageRepository.insertMessage(message)) {
-                            is Result.Ok -> Unit
-                            is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            // supervisorScope isolates the two child coroutines: an unexpected failure in
+            // one (e.g., an unhandled throw from a Flow collect) does not cancel the other.
+            supervisorScope {
+                // 1. Observe local store — drives all UI updates.
+                launch {
+                    chatMessageRepository.observeMessages().collect { messages ->
+                        _state.update {
+                            it.copy(
+                                messages = messages,
+                                quickReplies = messages.extractQuickReplies(),
+                            )
                         }
                     }
+                }
+                // 2. Poll remote for new inbound messages; insert into local store so
+                //    the observer above picks them up automatically.
+                //    Errors are swallowed inside pollIncomingMessages(), mirroring
+                //    flutter-sdk YaloMessageRepositoryRemote._startPolling().
+                launch {
+                    yaloMessageRepository.pollIncomingMessages()
+                        .collect { message ->
+                            // Mirror Flutter _handleMessagesSubscription: on insert error the
+                            // message is dropped and the chat is marked as failed to receive.
+                            when (chatMessageRepository.insertMessage(message)) {
+                                is Result.Ok -> Unit
+                                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                            }
+                        }
+                }
             }
         }
     }

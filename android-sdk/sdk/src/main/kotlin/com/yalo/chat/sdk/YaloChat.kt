@@ -9,6 +9,7 @@ import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 
 // Port of flutter-sdk YaloChat entry point.
@@ -18,13 +19,17 @@ object YaloChat {
 
     private var _config: YaloChatConfig? = null
     private var _viewModelFactory: ViewModelProvider.Factory? = null
+    private var _httpClient: HttpClient? = null
 
     val config: YaloChatConfig
         get() = _config ?: error("YaloChat.init() must be called before accessing config")
 
     fun init(config: YaloChatConfig) {
+        // Close any previously created client before replacing it (idempotent re-init).
+        _httpClient?.close()
         _config = config
         val httpClient = buildHttpClient(Android.create(), debug = BuildConfig.DEBUG)
+        _httpClient = httpClient
         val apiService = YaloChatApiService(
             apiBaseUrl = config.apiBaseUrl,
             authToken = config.authToken,
