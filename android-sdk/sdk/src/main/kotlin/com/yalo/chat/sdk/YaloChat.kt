@@ -9,9 +9,9 @@ import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.local.ImageRepositoryLocal
-import com.yalo.chat.sdk.domain.repository.ImagePickerRepository
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
 import com.yalo.chat.sdk.data.local.createDatabase
+import com.yalo.chat.sdk.domain.repository.ImagePickerRepository
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote

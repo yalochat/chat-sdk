@@ -5,7 +5,6 @@ package com.yalo.chat.sdk.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,12 +71,10 @@ internal fun ImagePreview(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column {
-                Text(
-                    text = "Send image?",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            Text(
+                text = "Send image?",
+                style = MaterialTheme.typography.bodyMedium,
+            )
             IconButton(onClick = onSend) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
