@@ -105,5 +105,7 @@ private fun parseIso8601(date: String): Long =
     try {
         Instant.parse(date).toEpochMilliseconds()
     } catch (_: Exception) {
-        Clock.System.now().toEpochMilliseconds()
+        // Fallback to 0 so malformed dates sort before all real messages
+        // rather than jumping to "now" and breaking chronological ordering.
+        0L
     }

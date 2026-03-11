@@ -14,7 +14,7 @@ plugins {
 // Copy local.properties.example → local.properties and fill in the values.
 val localProps = Properties().also { props ->
     val file = rootProject.file("local.properties")
-    if (file.exists()) props.load(file.inputStream())
+    if (file.exists()) file.inputStream().use { props.load(it) }
 }
 
 fun localProp(key: String): String {

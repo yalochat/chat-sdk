@@ -102,9 +102,14 @@ class MessagesViewModel(
             when (chatMessageRepository.insertMessage(optimistic)) {
                 is Result.Ok -> {
                     _state.update { it.copy(userMessage = "") }
-                    // Fire-and-forget — mirrors Flutter SDK MessagesBloc._handleSendTextMessage
-                    // which calls _yaloMessageRepository.sendMessage() without awaiting.
-                    launch { yaloMessageRepository.sendMessage(optimistic) }
+                    // Send to remote and update the optimistic message on failure.
+                    launch {
+                        if (yaloMessageRepository.sendMessage(optimistic) is Result.Error) {
+                            chatMessageRepository.updateMessage(
+                                optimistic.copy(status = MessageStatus.ERROR)
+                            )
+                        }
+                    }
                 }
                 is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }

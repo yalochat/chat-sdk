@@ -112,6 +112,23 @@ class MessagesViewModelTest {
         assertEquals("hello", result.result.first().content)
     }
 
+    @Test
+    fun `SendTextMessage marks optimistic message as ERROR when remote send fails`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val failingYaloRepo = object : com.yalo.chat.sdk.domain.repository.YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("network error"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): kotlinx.coroutines.flow.Flow<List<ChatMessage>> =
+                kotlinx.coroutines.flow.emptyFlow()
+        }
+        val vm = MessagesViewModel(failingYaloRepo, chatRepo)
+        vm.handleEvent(MessagesEvent.SendTextMessage("hello"))
+        val result = chatRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.first().status)
+    }
+
     // ── ClearMessages ─────────────────────────────────────────────────────────
 
     @Test
