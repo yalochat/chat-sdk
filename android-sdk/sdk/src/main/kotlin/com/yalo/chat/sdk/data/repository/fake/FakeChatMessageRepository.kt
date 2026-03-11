@@ -34,7 +34,19 @@ class FakeChatMessageRepository(
     }
 
     override suspend fun insertMessages(messagesToInsert: List<ChatMessage>): Result<Unit> {
-        messages.addAll(messagesToInsert)
+        // Mirror INSERT OR REPLACE semantics: replace existing entry by id when present.
+        val indexById = messages.withIndex()
+            .mapNotNull { (i, m) -> m.id?.let { it to i } }
+            .toMap(mutableMapOf())
+        messagesToInsert.forEach { message ->
+            val existingIndex = message.id?.let { indexById[it] }
+            if (existingIndex != null) {
+                messages[existingIndex] = message
+            } else {
+                messages.add(message)
+                message.id?.let { indexById[it] = messages.lastIndex }
+            }
+        }
         _flow.value = messages.toList()
         return Result.Ok(Unit)
     }

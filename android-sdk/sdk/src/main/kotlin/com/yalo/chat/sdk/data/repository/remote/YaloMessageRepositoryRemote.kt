@@ -85,13 +85,17 @@ class YaloMessageRepositoryRemote(
     private fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean): ChatMessage? {
         if (deduplicate && cache.get(id) != null) return null
         if (deduplicate) cache.set(id, true)
+        val ts = parseIso8601(date)
         return ChatMessage(
+            // Use the epoch-millis timestamp as the stable Long primary key.
+            // The server id (UUID string) is stored in wiId and drives deduplication via the cache.
+            id = if (ts != 0L) ts else id.hashCode().toLong(),
             wiId = id,
             role = MessageRole.fromString(message.role),
             type = MessageType.Text, // Phase 2 M1: only text detected
             status = MessageStatus.DELIVERED,
             content = message.text,
-            timestamp = parseIso8601(date),
+            timestamp = ts,
         )
     }
 }

@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.data
 
+import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +33,12 @@ class MessageSyncService(
         job = scope.launch {
             yaloRepo.pollIncomingMessages().collect { batch ->
                 // Insert the whole poll batch in one SQLDelight transaction.
-                // Errors are ignored — polling continues on the next cycle.
-                localRepo.insertMessages(batch)
+                // Polling continues on the next cycle regardless of insert outcome.
+                val result = localRepo.insertMessages(batch)
+                if (result is Result.Error) {
+                    // Surface failures so SDK consumers can observe sync issues.
+                    println("MessageSyncService: insertMessages failed — ${result.error.message}")
+                }
             }
         }
     }

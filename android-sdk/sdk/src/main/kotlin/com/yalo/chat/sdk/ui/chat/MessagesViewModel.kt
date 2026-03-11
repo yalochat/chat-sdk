@@ -5,6 +5,7 @@ package com.yalo.chat.sdk.ui.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -26,6 +27,8 @@ import kotlinx.coroutines.launch
 class MessagesViewModel(
     private val yaloMessageRepository: YaloMessageRepository,
     private val chatMessageRepository: ChatMessageRepository,
+    // null in tests — sync is driven externally (or not at all) in unit tests.
+    private val syncService: MessageSyncService? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MessagesState())
@@ -44,7 +47,10 @@ class MessagesViewModel(
             is MessagesEvent.SubscribeToMessages -> subscribeToMessages()
             is MessagesEvent.SendTextMessage -> sendTextMessage(event.text)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
-            is MessagesEvent.ClearMessages -> _state.value = MessagesState()
+            is MessagesEvent.ClearMessages -> {
+                syncService?.stop()
+                _state.value = MessagesState()
+            }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
         }
     }
@@ -74,6 +80,9 @@ class MessagesViewModel(
     private fun subscribeToMessages() {
         // Return early if already collecting — makes this call idempotent.
         if (subscriptionJob?.isActive == true) return
+        // Start remote polling lazily so it only runs while the chat UI is active.
+        // Polling is scoped to viewModelScope and stops automatically when the ViewModel is cleared.
+        syncService?.start(viewModelScope)
         // Observe local store — MessageSyncService writes remote messages here,
         // so the UI always reads from a single source of truth (SQLDelight / fake repo).
         subscriptionJob = viewModelScope.launch {

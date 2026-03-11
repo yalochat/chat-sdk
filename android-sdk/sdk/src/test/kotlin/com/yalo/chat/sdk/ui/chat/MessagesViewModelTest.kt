@@ -43,7 +43,7 @@ class MessagesViewModelTest {
     }
 
     private fun viewModel(
-        yaloRepo: FakeYaloMessageRepository = FakeYaloMessageRepository(),
+        yaloRepo: com.yalo.chat.sdk.domain.repository.YaloMessageRepository = FakeYaloMessageRepository(),
         chatRepo: FakeChatMessageRepository = FakeChatMessageRepository(),
     ) = MessagesViewModel(yaloRepo, chatRepo)
 
@@ -122,7 +122,7 @@ class MessagesViewModelTest {
             override fun pollIncomingMessages(): kotlinx.coroutines.flow.Flow<List<ChatMessage>> =
                 kotlinx.coroutines.flow.emptyFlow()
         }
-        val vm = MessagesViewModel(failingYaloRepo, chatRepo)
+        val vm = viewModel(yaloRepo = failingYaloRepo, chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SendTextMessage("hello"))
         val result = chatRepo.getMessages(null, 10)
         assertIs<Result.Ok<List<ChatMessage>>>(result)

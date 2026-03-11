@@ -1,8 +1,8 @@
 -- Copyright (c) Yalochat, Inc. All rights reserved.
 -- Port of flutter-sdk/lib/src/data/services/database/chat_message.drift
 -- Schema matches the Flutter Drift schema exactly (same column names and types).
--- JSON columns (amplitudes, products, quick_replies) are stored as TEXT and decoded
--- via ColumnAdapters in DatabaseFactory.kt using kotlinx.serialization.
+-- JSON columns (amplitudes, products, quick_replies) are stored as TEXT and are
+-- encoded/decoded in the Kotlin repository layer (see LocalChatMessageRepository).
 
 CREATE TABLE chat_message (
     id              INTEGER NOT NULL PRIMARY KEY,

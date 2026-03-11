@@ -5,6 +5,7 @@ package com.yalo.chat.sdk
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
@@ -16,10 +17,6 @@ import com.yalo.chat.sdk.database.ChatDatabase
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 
 // Port of flutter-sdk YaloChat entry point.
 // Phase 2 M2: wires SQLDelight persistence via LocalChatMessageRepository and
@@ -29,7 +26,7 @@ object YaloChat {
     private var _config: YaloChatConfig? = null
     private var _viewModelFactory: ViewModelProvider.Factory? = null
     private var _httpClient: HttpClient? = null
-    private var _sdkScope: CoroutineScope? = null
+    private var _driver: SqlDriver? = null
     private var _syncService: MessageSyncService? = null
 
     val config: YaloChatConfig
@@ -41,8 +38,8 @@ object YaloChat {
     fun init(config: YaloChatConfig, context: Context) {
         // Tear down any previous instance before re-initialising (idempotent re-init).
         _syncService?.stop()
-        _sdkScope?.cancel()
         _httpClient?.close()
+        _driver?.close()
 
         _config = config
 
@@ -59,17 +56,15 @@ object YaloChat {
         val yaloRepo = YaloMessageRepositoryRemote(apiService)
 
         val driver = AndroidSqliteDriver(ChatDatabase.Schema, context.applicationContext, "chat.db")
+        _driver = driver
         val db = createDatabase(driver)
         val localRepo = LocalChatMessageRepository(db.chatMessageQueries)
 
-        // SDK-owned scope: lives for the duration of the SDK session.
-        // SupervisorJob so MessageSyncService failure doesn't cancel the whole scope.
-        val sdkScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        _sdkScope = sdkScope
-
+        // Sync service is started lazily by MessagesViewModel.subscribeToMessages() so that
+        // background polling only runs while the chat UI is active, not for the entire
+        // process lifetime. The ViewModel scope governs the polling lifecycle.
         val syncService = MessageSyncService(yaloRepo, localRepo)
         _syncService = syncService
-        syncService.start(sdkScope)
 
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -77,7 +72,7 @@ object YaloChat {
                 require(modelClass.isAssignableFrom(MessagesViewModel::class.java)) {
                     "Unsupported ViewModel class: $modelClass"
                 }
-                return MessagesViewModel(yaloRepo, localRepo) as T
+                return MessagesViewModel(yaloRepo, localRepo, syncService) as T
             }
         }
     }

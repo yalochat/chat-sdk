@@ -13,7 +13,6 @@ import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -22,8 +21,6 @@ import kotlin.test.assertIs
 // FDE-56: MessageSyncService tests.
 @OptIn(ExperimentalCoroutinesApi::class)
 class MessageSyncServiceTest {
-
-    private val dispatcher = UnconfinedTestDispatcher()
 
     private fun yaloRepo(vararg batches: List<ChatMessage>): YaloMessageRepository =
         object : YaloMessageRepository {
