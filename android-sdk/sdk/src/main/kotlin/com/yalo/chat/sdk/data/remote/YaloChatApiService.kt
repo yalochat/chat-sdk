@@ -31,7 +31,7 @@ private const val HEADER_AUTHORIZATION = "Authorization"
 // YaloChat.kt on Android passes an Android-engine client, tests pass a MockEngine client.
 // When splitting to KMP: YaloChat.kt moves to androidMain and provides the Android engine;
 // an iosMain counterpart provides the Darwin engine.
-class YaloChatApiService(
+internal class YaloChatApiService(
     private val apiBaseUrl: String,
     private val authToken: String,
     private val userToken: String,

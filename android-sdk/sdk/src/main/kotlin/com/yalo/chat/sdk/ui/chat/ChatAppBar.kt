@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 // Phase 2 will add chatIconImage, shop/cart action buttons, and status text.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatAppBar(title: String) {
+internal fun ChatAppBar(title: String) {
     TopAppBar(
         title = { Text(text = title) },
     )

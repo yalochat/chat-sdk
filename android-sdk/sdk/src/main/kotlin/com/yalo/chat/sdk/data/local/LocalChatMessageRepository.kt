@@ -25,7 +25,7 @@ import kotlinx.serialization.json.Json
 // Port of flutter-sdk ChatMessageRepositoryLocal (Drift) — same schema, same query semantics.
 // Free of Android-specific imports: ChatMessageQueries is injected, ioDispatcher is injectable.
 // KMP note: when splitting to KMP, pass the appropriate CoroutineDispatcher from the platform.
-class LocalChatMessageRepository(
+internal class LocalChatMessageRepository(
     private val queries: ChatMessageQueries,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ChatMessageRepository {
@@ -46,8 +46,11 @@ class LocalChatMessageRepository(
         }
 
     // INSERT OR REPLACE a single message — used by MessagesViewModel for optimistic sends.
-    override suspend fun insertMessage(message: ChatMessage): Result<Unit> =
-        withContext(ioDispatcher) {
+    override suspend fun insertMessage(message: ChatMessage): Result<Unit> {
+        if (message.id == null) return Result.Error(
+            IllegalArgumentException("Cannot insert a message with null id")
+        )
+        return withContext(ioDispatcher) {
             try {
                 queries.insertOrReplace(message.toRow())
                 Result.Ok(Unit)
@@ -55,11 +58,16 @@ class LocalChatMessageRepository(
                 Result.Error(e)
             }
         }
+    }
 
     // Batch INSERT OR REPLACE in a single transaction — used by MessageSyncService.
     // Port of Flutter insertChatMessage called in a loop inside a Drift transaction.
-    override suspend fun insertMessages(messages: List<ChatMessage>): Result<Unit> =
-        withContext(ioDispatcher) {
+    override suspend fun insertMessages(messages: List<ChatMessage>): Result<Unit> {
+        val nullIdMessage = messages.firstOrNull { it.id == null }
+        if (nullIdMessage != null) return Result.Error(
+            IllegalArgumentException("Cannot insert a message with null id (content: ${nullIdMessage.content})")
+        )
+        return withContext(ioDispatcher) {
             try {
                 queries.transaction {
                     messages.forEach { queries.insertOrReplace(it.toRow()) }
@@ -69,6 +77,7 @@ class LocalChatMessageRepository(
                 Result.Error(e)
             }
         }
+    }
 
     // UPDATE an existing message (e.g., status change after server confirmation).
     override suspend fun updateMessage(message: ChatMessage): Result<Unit> =
@@ -111,7 +120,7 @@ class LocalChatMessageRepository(
     )
 
     private fun ChatMessage.toRow(): InsertOrReplaceParams = InsertOrReplaceParams(
-        id = id ?: error("ChatMessage.id must not be null when persisting"),
+        id = id!!, // null check already done in insertMessage/insertMessages/updateMessage
         wi_id = wiId,
         role = role.value,
         content = content,

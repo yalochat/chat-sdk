@@ -11,4 +11,4 @@ import com.yalo.chat.sdk.database.ChatDatabase
 // JSON columns (amplitudes, products, quick_replies) are stored as TEXT and decoded
 // manually in LocalChatMessageRepository using kotlinx.serialization — no ColumnAdapters needed.
 // KMP note: when splitting to KMP, iosMain will provide NativeSqliteDriver.
-fun createDatabase(driver: SqlDriver): ChatDatabase = ChatDatabase(driver)
+internal fun createDatabase(driver: SqlDriver): ChatDatabase = ChatDatabase(driver)

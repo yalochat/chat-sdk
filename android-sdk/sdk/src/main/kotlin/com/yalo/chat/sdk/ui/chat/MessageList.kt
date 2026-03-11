@@ -18,7 +18,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 // Port of flutter-sdk MessageList — reverse layout mirrors ListView.builder(reverse: true).
 // Items sorted newest-first so item[0] appears at the bottom of the reversed column.
 @Composable
-fun MessageList(
+internal fun MessageList(
     messages: List<ChatMessage>,
     modifier: Modifier = Modifier,
 ) {

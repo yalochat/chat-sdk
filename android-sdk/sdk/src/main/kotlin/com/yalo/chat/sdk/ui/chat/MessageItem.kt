@@ -22,7 +22,7 @@ import com.yalo.chat.sdk.domain.model.MessageType
 // Phase 1: text only; others rendered as "[type]" placeholder.
 // Phase 2 will add image, voice, product, productCarousel, promotion, quickReply widgets.
 @Composable
-fun MessageItem(message: ChatMessage) {
+internal fun MessageItem(message: ChatMessage) {
     val isUser = message.role == MessageRole.USER
     Row(
         modifier = Modifier

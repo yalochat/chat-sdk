@@ -26,7 +26,7 @@ import kotlinx.datetime.Instant
 //
 // KMP note: all platform-specific imports (java.text.*, java.util.*) have been replaced
 // with kotlinx-datetime so this file is ready for a commonMain source set.
-class YaloMessageRepositoryRemote(
+internal class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
     // Exposed as internal so tests can override the interval without waiting.
     internal val pollingIntervalMs: Long = 1_000L,
@@ -86,10 +86,14 @@ class YaloMessageRepositoryRemote(
         if (deduplicate && cache.get(id) != null) return null
         if (deduplicate) cache.set(id, true)
         val ts = parseIso8601(date)
+        // Build a collision-resistant Long primary key:
+        //   upper: second-precision epoch (handles server dates with no sub-second component)
+        //   lower: 0–999 from wiId hash, so messages in the same second get distinct ids.
+        // For ts == 0 (malformed date) the id is just the hash offset — sorts before real messages.
+        val hashOffset = ((id.hashCode() % 1000) + 1000) % 1000
+        val stableId = if (ts != 0L) (ts / 1000L) * 1000L + hashOffset else hashOffset.toLong()
         return ChatMessage(
-            // Use the epoch-millis timestamp as the stable Long primary key.
-            // The server id (UUID string) is stored in wiId and drives deduplication via the cache.
-            id = if (ts != 0L) ts else id.hashCode().toLong(),
+            id = stableId,
             wiId = id,
             role = MessageRole.fromString(message.role),
             type = MessageType.Text, // Phase 2 M1: only text detected

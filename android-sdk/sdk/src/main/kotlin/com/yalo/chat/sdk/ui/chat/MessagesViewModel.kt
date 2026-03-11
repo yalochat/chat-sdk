@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 // Phase 2 M2: subscribeToMessages() now only observes the local store.
 // Remote polling is handled by MessageSyncService (FDE-56), which writes incoming
 // server messages to SQLDelight so the observeMessages() flow picks them up.
-class MessagesViewModel(
+internal class MessagesViewModel(
     private val yaloMessageRepository: YaloMessageRepository,
     private val chatMessageRepository: ChatMessageRepository,
     // null in tests — sync is driven externally (or not at all) in unit tests.
@@ -37,9 +37,12 @@ class MessagesViewModel(
     // Keeps the active subscription job so SubscribeToMessages is idempotent.
     private var subscriptionJob: Job? = null
 
-    // Decrementing counter for optimistic temp IDs — always negative so they
-    // never collide with real server IDs (which are positive).
-    private val tempIdSeq = AtomicLong(-1L)
+    // Incrementing counter seeded from current epoch-ms so optimistic temp IDs:
+    //  1. Never collide across sessions (different session → different starting time)
+    //  2. Sort at the bottom in ORDER BY id ASC (most recent, correct chat position)
+    // Server message IDs are also epoch-ms based, so optimistic and server messages
+    // interleave correctly by send time.
+    private val tempIdSeq = AtomicLong(System.currentTimeMillis())
 
     fun handleEvent(event: MessagesEvent) {
         when (event) {
@@ -100,7 +103,7 @@ class MessagesViewModel(
     private fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         viewModelScope.launch {
-            val tempId = tempIdSeq.getAndDecrement()
+            val tempId = tempIdSeq.getAndIncrement()
             val optimistic = ChatMessage(
                 id = tempId,
                 role = MessageRole.USER,

@@ -63,7 +63,11 @@ object YaloChat {
         // Sync service is started lazily by MessagesViewModel.subscribeToMessages() so that
         // background polling only runs while the chat UI is active, not for the entire
         // process lifetime. The ViewModel scope governs the polling lifecycle.
-        val syncService = MessageSyncService(yaloRepo, localRepo)
+        val syncService = MessageSyncService(
+            yaloRepo = yaloRepo,
+            localRepo = localRepo,
+            onSyncError = { e -> android.util.Log.e("MessageSyncService", "insertMessages failed", e) },
+        )
         _syncService = syncService
 
         _viewModelFactory = object : ViewModelProvider.Factory {

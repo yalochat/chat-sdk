@@ -21,9 +21,12 @@ import kotlinx.coroutines.launch
 //     → MessagesViewModel updates UI
 //
 // FDE-56: Free of Android-specific imports (KMP-compatible).
-class MessageSyncService(
+internal class MessageSyncService(
     private val yaloRepo: YaloMessageRepository,
     private val localRepo: ChatMessageRepository,
+    // Optional callback for insert failures — avoids println in library code.
+    // YaloChat wires this to android.util.Log; tests can pass a capturing lambda.
+    private val onSyncError: ((Throwable) -> Unit)? = null,
 ) {
     private var job: Job? = null
 
@@ -36,8 +39,7 @@ class MessageSyncService(
                 // Polling continues on the next cycle regardless of insert outcome.
                 val result = localRepo.insertMessages(batch)
                 if (result is Result.Error) {
-                    // Surface failures so SDK consumers can observe sync issues.
-                    println("MessageSyncService: insertMessages failed — ${result.error.message}")
+                    onSyncError?.invoke(result.error)
                 }
             }
         }
