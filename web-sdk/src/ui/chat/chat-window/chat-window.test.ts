@@ -24,10 +24,14 @@ const getFooter = (el: YaloChatWindow): LitElement =>
   el.shadowRoot?.querySelector('chat-footer') as unknown as LitElement;
 
 const getTextarea = (el: YaloChatWindow): HTMLTextAreaElement =>
-  getFooter(el).shadowRoot?.querySelector('.chat-input') as unknown as HTMLTextAreaElement;
+  getFooter(el).shadowRoot?.querySelector(
+    '.chat-input',
+  ) as unknown as HTMLTextAreaElement;
 
 const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
-  getFooter(el).shadowRoot?.querySelector('.chat-send-button') as unknown as HTMLButtonElement;
+  getFooter(el).shadowRoot?.querySelector(
+    '.chat-send-button',
+  ) as unknown as HTMLButtonElement;
 
 describe('YaloChatWindow', () => {
   let el: YaloChatWindow;
@@ -71,7 +75,9 @@ describe('YaloChatWindow', () => {
         el.addEventListener('yalo-chat-close', () => resolve(), { once: true });
       });
 
-      header.shadowRoot?.querySelector<HTMLButtonElement>('.chat-close-btn')?.click();
+      header.shadowRoot
+        ?.querySelector<HTMLButtonElement>('.chat-close-btn')
+        ?.click();
 
       await closed;
       expect(el.open).toBe(false);
@@ -87,8 +93,11 @@ describe('YaloChatWindow', () => {
       textarea.value = 'Hello world';
 
       const received = new Promise<string>((resolve) => {
-        el.addEventListener('yalo-chat-send-text-message', (e) =>
-          resolve((e as CustomEvent<string>).detail), { once: true });
+        el.addEventListener(
+          'yalo-chat-send-text-message',
+          (e) => resolve((e as CustomEvent<string>).detail),
+          { once: true },
+        );
       });
 
       getSendButton(el).click();
@@ -112,7 +121,9 @@ describe('YaloChatWindow', () => {
       await footer.updateComplete;
 
       let emitted = false;
-      el.addEventListener('yalo-chat-send-text-message', () => { emitted = true; });
+      el.addEventListener('yalo-chat-send-text-message', () => {
+        emitted = true;
+      });
 
       getSendButton(el).click();
 
@@ -124,7 +135,9 @@ describe('YaloChatWindow', () => {
       await footer.updateComplete;
 
       let emitted = false;
-      el.addEventListener('yalo-chat-send-text-message', () => { emitted = true; });
+      el.addEventListener('yalo-chat-send-text-message', () => {
+        emitted = true;
+      });
 
       getTextarea(el).value = '   ';
       getSendButton(el).click();
@@ -140,11 +153,20 @@ describe('YaloChatWindow', () => {
       textarea.value = 'Via keyboard';
 
       const received = new Promise<string>((resolve) => {
-        el.addEventListener('yalo-chat-send-text-message', (e) =>
-          resolve((e as CustomEvent<string>).detail), { once: true });
+        el.addEventListener(
+          'yalo-chat-send-text-message',
+          (e) => resolve((e as CustomEvent<string>).detail),
+          { once: true },
+        );
       });
 
-      textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, composed: true }));
+      textarea.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Enter',
+          bubbles: true,
+          composed: true,
+        }),
+      );
 
       expect(await received).toBe('Via keyboard');
     });
@@ -154,11 +176,20 @@ describe('YaloChatWindow', () => {
       await footer.updateComplete;
 
       let emitted = false;
-      el.addEventListener('yalo-chat-send-text-message', () => { emitted = true; });
+      el.addEventListener('yalo-chat-send-text-message', () => {
+        emitted = true;
+      });
 
       const textarea = getTextarea(el);
       textarea.value = 'Draft';
-      textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true, composed: true }));
+      textarea.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'Enter',
+          shiftKey: true,
+          bubbles: true,
+          composed: true,
+        }),
+      );
 
       expect(emitted).toBe(false);
     });
@@ -174,7 +205,9 @@ describe('YaloChatWindow', () => {
 
       const textarea = getTextarea(el);
       textarea.value = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6';
-      textarea.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true }),
+      );
 
       expect(textarea.style.overflowY).toBe('scroll');
     });
@@ -190,7 +223,9 @@ describe('YaloChatWindow', () => {
       const initialHeight = textarea.scrollHeight;
 
       textarea.value = 'Line 1\nLine 2\nLine 3';
-      textarea.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true }),
+      );
 
       expect(textarea.scrollHeight).toBeGreaterThan(initialHeight);
     });
@@ -204,7 +239,9 @@ describe('YaloChatWindow', () => {
 
       const textarea = getTextarea(el);
       textarea.value = 'Line 1\nLine 2\nLine 3';
-      textarea.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true }),
+      );
 
       getSendButton(el).click();
 

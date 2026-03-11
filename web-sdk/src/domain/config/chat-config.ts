@@ -11,7 +11,7 @@ export interface YaloChatClientConfig {
   organizationId: string;
   channelName: string;
   target: string;
-  image?: string; 
+  image?: string;
   locale?: Locale;
   icons?: SdkIcons;
 }
