@@ -3,7 +3,7 @@
 package com.yalo.chat.sdk.domain.repository
 
 import com.yalo.chat.sdk.common.Result
-import com.yalo.chat.sdk.data.local.CameraCapture
+import com.yalo.chat.sdk.domain.model.CameraCapture
 import com.yalo.chat.sdk.domain.model.ImageData
 
 // Abstraction over platform image-pick operations used by ImageViewModel.

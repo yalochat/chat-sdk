@@ -10,4 +10,7 @@ internal data class ImageState(
     val pickedImage: ImageData? = null,
     // True while the preview overlay is shown above the chat input.
     val isPreviewVisible: Boolean = false,
+    // Non-null while a Snackbar error is pending (e.g. failed gallery save or camera setup).
+    // Cleared by ImageEvent.DismissError after the Snackbar is shown.
+    val errorMessage: String? = null,
 )

@@ -18,6 +18,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -43,10 +44,11 @@ class ImageViewModelTest {
     // ── Initial state ─────────────────────────────────────────────────────────
 
     @Test
-    fun `initial state has no picked image and preview is hidden`() {
+    fun `initial state has no picked image, preview hidden, and no error`() {
         val vm = viewModel()
         assertNull(vm.state.value.pickedImage)
         assertFalse(vm.state.value.isPreviewVisible)
+        assertNull(vm.state.value.errorMessage)
     }
 
     // ── PickFromGallery ───────────────────────────────────────────────────────
@@ -78,13 +80,14 @@ class ImageViewModelTest {
     }
 
     @Test
-    fun `GalleryImageReceived swallows error and leaves state unchanged`() = runTest {
+    fun `GalleryImageReceived sets errorMessage and leaves pickedImage null on save failure`() = runTest {
         val vm = viewModel(FakeImagePickerRepository(saveError = RuntimeException("disk full")))
 
         vm.handleEvent(ImageEvent.GalleryImageReceived("content://fake/uri"))
 
         assertNull(vm.state.value.pickedImage)
         assertFalse(vm.state.value.isPreviewVisible)
+        assertNotNull(vm.state.value.errorMessage)
     }
 
     // ── PickFromCamera ────────────────────────────────────────────────────────
@@ -101,6 +104,17 @@ class ImageViewModelTest {
         val cameraEffect = effects.filterIsInstance<ImageSideEffect.LaunchCamera>().firstOrNull()
         assertEquals("content://fake/camera", cameraEffect?.uriString)
         job.cancel()
+    }
+
+    @Test
+    fun `PickFromCamera sets errorMessage when camera setup fails`() = runTest {
+        val vm = viewModel(FakeImagePickerRepository(captureError = RuntimeException("FileProvider not configured")))
+
+        vm.handleEvent(ImageEvent.PickFromCamera)
+        advanceUntilIdle()
+
+        assertNotNull(vm.state.value.errorMessage)
+        assertFalse(vm.state.value.isPreviewVisible)
     }
 
     // ── CameraImageCaptured ───────────────────────────────────────────────────
@@ -164,7 +178,7 @@ class ImageViewModelTest {
         assertFalse(vm.state.value.isPreviewVisible)
     }
 
-    // ── CancelPick ────────────────────────────────────────────────────────────
+    // ── CancelPick — state ────────────────────────────────────────────────────
 
     @Test
     fun `CancelPick clears image and hides preview`() = runTest {
@@ -176,5 +190,61 @@ class ImageViewModelTest {
 
         assertNull(vm.state.value.pickedImage)
         assertFalse(vm.state.value.isPreviewVisible)
+    }
+
+    // ── CancelPick — file cleanup ─────────────────────────────────────────────
+
+    @Test
+    fun `CancelPick deletes the gallery destination file`() = runTest {
+        val galleryFile = File.createTempFile("test_gallery", ".jpg")
+        assertTrue(galleryFile.exists())
+
+        val vm = viewModel(FakeImagePickerRepository(galleryImageData = ImageData(path = galleryFile.absolutePath)))
+        vm.handleEvent(ImageEvent.GalleryImageReceived("content://x"))
+        vm.handleEvent(ImageEvent.CancelPick)
+
+        assertFalse(galleryFile.exists())
+    }
+
+    @Test
+    fun `CancelPick deletes the camera file after capture and preview`() = runTest {
+        val cameraFile = File.createTempFile("test_capture", ".jpg")
+        assertTrue(cameraFile.exists())
+
+        val vm = viewModel(FakeImagePickerRepository(cameraFile = cameraFile))
+        vm.handleEvent(ImageEvent.PickFromCamera)
+        vm.handleEvent(ImageEvent.CameraImageCaptured)
+        assertTrue(vm.state.value.isPreviewVisible)
+
+        vm.handleEvent(ImageEvent.CancelPick)
+
+        assertFalse(cameraFile.exists())
+    }
+
+    @Test
+    fun `CancelPick deletes the pending camera file when OS camera is cancelled before capture`() = runTest {
+        // Simulates TakePicture returning false — CameraImageCaptured is never dispatched.
+        val cameraFile = File.createTempFile("test_pending", ".jpg")
+        assertTrue(cameraFile.exists())
+
+        val vm = viewModel(FakeImagePickerRepository(cameraFile = cameraFile))
+        vm.handleEvent(ImageEvent.PickFromCamera)
+        vm.handleEvent(ImageEvent.CancelPick)
+
+        assertFalse(cameraFile.exists())
+    }
+
+    // ── DismissError ──────────────────────────────────────────────────────────
+
+    @Test
+    fun `DismissError clears the error message`() = runTest {
+        val vm = viewModel(FakeImagePickerRepository(captureError = RuntimeException("setup failed")))
+        vm.handleEvent(ImageEvent.PickFromCamera)
+        advanceUntilIdle()
+        assertNotNull(vm.state.value.errorMessage)
+
+        vm.handleEvent(ImageEvent.DismissError)
+
+        assertNull(vm.state.value.errorMessage)
     }
 }

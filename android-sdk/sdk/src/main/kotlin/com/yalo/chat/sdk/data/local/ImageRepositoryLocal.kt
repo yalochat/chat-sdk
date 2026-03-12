@@ -7,9 +7,11 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.domain.model.CameraCapture
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.repository.ImagePickerRepository
 import java.io.File
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -46,7 +48,9 @@ internal class ImageRepositoryLocal(private val context: Context) : ImagePickerR
                 val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "jpg"
                 val dir = File(context.cacheDir, "yalo_images").also { it.mkdirs() }
                 val dest = File(dir, "img_${System.currentTimeMillis()}.$ext")
-                context.contentResolver.openInputStream(uri)?.use { input ->
+                val stream = context.contentResolver.openInputStream(uri)
+                    ?: return@withContext Result.Error(IOException("Could not open stream for URI: $uri"))
+                stream.use { input ->
                     dest.outputStream().use { output -> input.copyTo(output) }
                 }
                 Result.Ok(ImageData(path = dest.absolutePath, mimeType = mimeType))
@@ -55,7 +59,3 @@ internal class ImageRepositoryLocal(private val context: Context) : ImagePickerR
             }
         }
 }
-
-// Carries the FileProvider URI string for the camera intent and the backing File for the image path.
-// Uses String for the URI so it can cross the domain/ViewModel boundary without Android dependencies.
-internal data class CameraCapture(val uriString: String, val file: File)

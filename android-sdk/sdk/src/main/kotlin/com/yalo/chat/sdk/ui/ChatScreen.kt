@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -53,6 +55,7 @@ fun ChatScreen() {
     val imageState by imageViewModel.state.collectAsState()
 
     var showPickerSheet by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Holds the camera URI while waiting for the permission grant result.
     var pendingCameraUriString by remember { mutableStateOf<String?>(null) }
@@ -67,14 +70,20 @@ fun ChatScreen() {
     }
 
     // Camera launcher — saves image to the FileProvider URI provided by ImageViewModel.
+    // Dispatches CancelPick on failure so the ViewModel can delete the pending temp file.
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
     ) { success: Boolean ->
-        if (success) imageViewModel.handleEvent(ImageEvent.CameraImageCaptured)
+        if (success) {
+            imageViewModel.handleEvent(ImageEvent.CameraImageCaptured)
+        } else {
+            imageViewModel.handleEvent(ImageEvent.CancelPick)
+        }
     }
 
     // Permission launcher — requests CAMERA at runtime (dangerous permission, API 23+).
-    // On grant, fires the camera launcher with the URI that was held in pendingCameraUriString.
+    // On grant: fires the camera launcher with the URI held in pendingCameraUriString.
+    // On denial: dispatches CancelPick to clean up the pending temp file created by PickFromCamera.
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { granted: Boolean ->
@@ -82,6 +91,8 @@ fun ChatScreen() {
             pendingCameraUriString?.let { uriString ->
                 cameraLauncher.launch(Uri.parse(uriString))
             }
+        } else {
+            imageViewModel.handleEvent(ImageEvent.CancelPick)
         }
         pendingCameraUriString = null
     }
@@ -108,6 +119,14 @@ fun ChatScreen() {
         }
     }
 
+    // Show a Snackbar whenever ImageViewModel emits an error (e.g. failed gallery save or
+    // camera setup failure). Dismisses automatically and clears the error from state.
+    LaunchedEffect(imageState.errorMessage) {
+        val message = imageState.errorMessage ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        imageViewModel.handleEvent(ImageEvent.DismissError)
+    }
+
     LaunchedEffect(Unit) {
         viewModel.handleEvent(MessagesEvent.LoadMessages)
         viewModel.handleEvent(MessagesEvent.SubscribeToMessages)
@@ -126,6 +145,7 @@ fun ChatScreen() {
                     onAttachmentClick = { showPickerSheet = true },
                 )
             },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
             MessageList(
                 messages = state.messages,
@@ -134,12 +154,15 @@ fun ChatScreen() {
         }
 
         // Image preview overlay — shown above the scaffold when a picked image is ready.
+        // pickedImage is captured as a local val so the lambda captures a stable reference
+        // rather than relying on a non-null assertion against live state.
         if (imageState.isPreviewVisible) {
-            imageState.pickedImage?.path?.let { path ->
+            val pickedImage = imageState.pickedImage
+            if (pickedImage?.path != null) {
                 ImagePreview(
-                    imagePath = path,
+                    imagePath = pickedImage.path,
                     onSend = {
-                        viewModel.handleEvent(MessagesEvent.SendImageMessage(imageState.pickedImage!!))
+                        viewModel.handleEvent(MessagesEvent.SendImageMessage(pickedImage))
                         imageViewModel.handleEvent(ImageEvent.HidePreview)
                     },
                     onCancel = { imageViewModel.handleEvent(ImageEvent.CancelPick) },

@@ -17,12 +17,16 @@ sealed class ImageEvent {
     /** Camera capture completed successfully (image stored at pendingCameraFile). */
     data object CameraImageCaptured : ImageEvent()
 
-    /** User tapped Cancel in the image preview. */
+    /** User cancelled the pick (preview Cancel button, OS camera back, or permission denied). */
     data object CancelPick : ImageEvent()
 
     /** Hide the image preview (after send or explicit dismiss). */
     data object HidePreview : ImageEvent()
 
-    /** Re-show a hidden image preview. */
+    /** Re-show a hidden image preview (e.g. after scroll past unsent image).
+     * TODO: dispatch from ChatScreen when restoring preview after scroll — future milestone. */
     data object ShowPreview : ImageEvent()
+
+    /** Clears the error message after the Snackbar has been shown. */
+    data object DismissError : ImageEvent()
 }

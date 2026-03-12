@@ -259,4 +259,22 @@ class MessagesViewModelTest {
         assertTrue(vm.state.value.messages.isEmpty())
         vm.viewModelScope.cancel()
     }
+
+    @Test
+    fun `SendImageMessage updates chatStatus to Failure when insert fails`() = runTest {
+        val failingChatRepo = object : ChatMessageRepository {
+            override suspend fun getMessages(cursor: Long?, limit: Int) =
+                Result.Ok(emptyList<ChatMessage>())
+            override suspend fun insertMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("disk full"))
+            override suspend fun insertMessages(messages: List<ChatMessage>) = Result.Ok(Unit)
+            override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
+            override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
+        }
+        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo)
+
+        vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = "/storage/img.jpg")))
+
+        assertIs<ChatStatus.Failure>(vm.state.value.chatStatus)
+    }
 }

@@ -43,14 +43,19 @@ internal class ImageViewModel(
                 _sideEffects.send(ImageSideEffect.LaunchGallery)
             }
             is ImageEvent.PickFromCamera -> viewModelScope.launch {
-                val capture = imageRepo.createCameraCapture()
-                pendingCameraFile = capture.file
-                _sideEffects.send(ImageSideEffect.LaunchCamera(capture.uriString))
+                try {
+                    val capture = imageRepo.createCameraCapture()
+                    pendingCameraFile = capture.file
+                    _sideEffects.send(ImageSideEffect.LaunchCamera(capture.uriString))
+                } catch (e: Exception) {
+                    // Camera setup failed (e.g. FileProvider misconfigured, no cache space).
+                    _state.update { it.copy(errorMessage = "Could not start camera. Please try again.") }
+                }
             }
             is ImageEvent.GalleryImageReceived -> viewModelScope.launch {
                 when (val result = imageRepo.saveGalleryUri(event.uriString)) {
                     is Result.Ok -> showPreview(result.result)
-                    is Result.Error -> Unit // swallow — future milestone may surface error state
+                    is Result.Error -> _state.update { it.copy(errorMessage = "Could not load image. Please try again.") }
                 }
             }
             is ImageEvent.CameraImageCaptured -> {
@@ -59,15 +64,22 @@ internal class ImageViewModel(
                 showPreview(ImageData(path = file.absolutePath))
             }
             is ImageEvent.CancelPick -> {
+                // Delete the committed picked image file (gallery dest or camera file post-capture).
+                _state.value.pickedImage?.path?.let { File(it).delete() }
+                // Delete the pending camera file if the OS camera was cancelled before capture
+                // (TakePicture returned false) or permission was denied.
+                pendingCameraFile?.delete()
                 pendingCameraFile = null
                 _state.update { ImageState() }
             }
             is ImageEvent.HidePreview -> _state.update { it.copy(isPreviewVisible = false) }
             is ImageEvent.ShowPreview -> {
+                // TODO: dispatch from ChatScreen when restoring preview after scroll — future milestone.
                 if (_state.value.pickedImage != null) {
                     _state.update { it.copy(isPreviewVisible = true) }
                 }
             }
+            is ImageEvent.DismissError -> _state.update { it.copy(errorMessage = null) }
         }
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -48,10 +49,15 @@ internal fun MessageItem(message: ChatMessage) {
                         color = textColor,
                     )
                     MessageType.Image -> AsyncImage(
-                        model = message.fileName,
+                        // fileName holds the local file path for user-sent images (set by
+                        // sendImageMessage). content holds the URL for agent/server images.
+                        // Fall back to content so both cases render correctly.
+                        model = message.fileName ?: message.content,
                         contentDescription = "Image message",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.size(200.dp),
+                        placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                        error = ColorPainter(MaterialTheme.colorScheme.errorContainer),
                     )
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",

@@ -145,7 +145,9 @@ internal class MessagesViewModel(
                 status = MessageStatus.SENT,
                 fileName = imageData.path,
             )
-            chatMessageRepository.insertMessage(message)
+            if (chatMessageRepository.insertMessage(message) is Result.Error) {
+                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            }
         }
     }
 }
