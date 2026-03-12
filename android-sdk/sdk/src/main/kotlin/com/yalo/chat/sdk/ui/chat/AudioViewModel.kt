@@ -10,6 +10,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.AudioRepository
 import com.yalo.chat.sdk.domain.usecase.AudioProcessingUseCase
+import java.io.File
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +28,8 @@ internal class AudioViewModel(
 ) : ViewModel() {
 
     companion object {
-        const val RECORD_TICK_MS = 25L
+        // Tick rate is defined by AudioRepository — mirrored here for the duration counter.
+        val RECORD_TICK_MS get() = AudioRepository.RECORD_TICK_MS
         const val AMPLITUDE_DATA_POINTS = 48
         const val DEFAULT_AMPLITUDE = -30.0
     }
@@ -43,6 +45,7 @@ internal class AudioViewModel(
             is AudioEvent.SubscribeToPlaybackCompletion -> subscribeToPlaybackCompletion()
             is AudioEvent.StartRecording -> startRecording()
             is AudioEvent.StopRecording -> stopRecording()
+            is AudioEvent.CancelRecording -> cancelRecording()
             is AudioEvent.Play -> playAudio(event.message)
             is AudioEvent.Stop -> stopAudio()
         }
@@ -72,7 +75,6 @@ internal class AudioViewModel(
                 is Result.Ok -> {
                     _state.update { s ->
                         s.copy(
-                            isRecording = true,
                             audioStatus = AudioStatus.RecordingAudio,
                             audioData = AudioData(
                                 fileName = result.result,
@@ -86,10 +88,7 @@ internal class AudioViewModel(
                     subscribeToAmplitudes()
                 }
                 is Result.Error -> _state.update { s ->
-                    s.copy(
-                        isRecording = false,
-                        audioStatus = AudioStatus.ErrorRecordingAudio,
-                    )
+                    s.copy(audioStatus = AudioStatus.ErrorRecordingAudio)
                 }
             }
         }
@@ -103,18 +102,38 @@ internal class AudioViewModel(
             when (val result = audioRepository.stopRecording()) {
                 is Result.Ok -> _state.update { s ->
                     s.copy(
-                        isRecording = false,
                         audioStatus = AudioStatus.Initial,
                         // Carry duration from the repository result; amplitudes stay for SendVoiceMessage.
                         audioData = s.audioData.copy(durationMs = result.result.durationMs),
                     )
                 }
                 is Result.Error -> _state.update { s ->
-                    s.copy(
-                        isRecording = false,
-                        audioStatus = AudioStatus.ErrorStoppingRecording,
-                    )
+                    s.copy(audioStatus = AudioStatus.ErrorStoppingRecording)
                 }
+            }
+        }
+    }
+
+    // Discards the current recording: stops the recorder, deletes the temp file, and
+    // resets state without triggering SendVoiceMessage (empty fileName acts as the guard).
+    private fun cancelRecording() {
+        amplitudeJob?.cancel()
+        amplitudeJob = null
+        val fileToDelete = _state.value.audioData.fileName
+        viewModelScope.launch {
+            audioRepository.stopRecording() // stop the recorder; result is discarded
+            if (fileToDelete.isNotEmpty()) {
+                File(fileToDelete).delete()
+            }
+            _state.update { s ->
+                s.copy(
+                    audioStatus = AudioStatus.Initial,
+                    audioData = AudioData(
+                        amplitudes = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
+                        amplitudesPreview = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
+                    ),
+                    amplitudeIndex = AMPLITUDE_DATA_POINTS - 1,
+                )
             }
         }
     }

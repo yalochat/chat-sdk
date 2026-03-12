@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.Flow
 // Port of flutter-sdk/lib/src/data/repositories/audio/audio_repository.dart
 // Phase 2 M4: implemented by AudioRepositoryLocal (MediaRecorder / MediaPlayer).
 interface AudioRepository {
+
+    companion object {
+        // Polling interval for amplitudeFlow() — shared with AudioViewModel so that the
+        // duration counter incremented per tick stays in sync with the actual tick rate.
+        const val RECORD_TICK_MS = 25L
+    }
     // FDE-60: start recording — returns the output file path on success.
     suspend fun startRecording(): Result<String>
 

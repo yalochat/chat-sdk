@@ -27,7 +27,9 @@ data class AudioState(
     ),
     // Index drives the sliding-waveform animation, decremented on each amplitude tick.
     val amplitudeIndex: Int = AMPLITUDE_DATA_POINTS - 1,
-    val isRecording: Boolean = false,
     val playingMessage: ChatMessage? = null,
     val audioStatus: AudioStatus = AudioStatus.Initial,
 )
+
+// Derived convenience — avoids a redundant boolean field that could disagree with audioStatus.
+val AudioState.isRecording: Boolean get() = audioStatus is AudioStatus.RecordingAudio

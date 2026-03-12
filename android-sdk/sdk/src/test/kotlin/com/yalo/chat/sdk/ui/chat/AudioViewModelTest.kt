@@ -12,8 +12,6 @@ import com.yalo.chat.sdk.domain.repository.AudioRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -24,7 +22,6 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -58,11 +55,11 @@ class AudioViewModelTest {
     // ── Initial state ─────────────────────────────────────────────────────────
 
     @Test
-    fun `initial state has correct defaults`() {
+    fun `initial state is not recording with Initial status`() {
         val vm = viewModel()
-        assertFalse(vm.state.value.isRecording)
-        assertNull(vm.state.value.playingMessage)
         assertIs<AudioStatus.Initial>(vm.state.value.audioStatus)
+        assertTrue(!vm.state.value.isRecording)
+        assertNull(vm.state.value.playingMessage)
         assertEquals(AudioViewModel.AMPLITUDE_DATA_POINTS, vm.state.value.audioData.amplitudes.size)
         assertEquals(AudioViewModel.AMPLITUDE_DATA_POINTS, vm.state.value.audioData.amplitudesPreview.size)
     }
@@ -70,14 +67,14 @@ class AudioViewModelTest {
     // ── StartRecording ────────────────────────────────────────────────────────
 
     @Test
-    fun `StartRecording sets isRecording true and status to RecordingAudio`() = runTest {
+    fun `StartRecording transitions to RecordingAudio status`() = runTest {
         val vm = viewModel()
 
         vm.handleEvent(AudioEvent.StartRecording)
         advanceUntilIdle()
 
-        assertTrue(vm.state.value.isRecording)
         assertIs<AudioStatus.RecordingAudio>(vm.state.value.audioStatus)
+        assertTrue(vm.state.value.isRecording)
     }
 
     @Test
@@ -98,8 +95,8 @@ class AudioViewModelTest {
         vm.handleEvent(AudioEvent.StartRecording)
         advanceUntilIdle()
 
-        assertFalse(vm.state.value.isRecording)
         assertIs<AudioStatus.ErrorRecordingAudio>(vm.state.value.audioStatus)
+        assertTrue(!vm.state.value.isRecording)
     }
 
     // ── Amplitude streaming ───────────────────────────────────────────────────
@@ -123,21 +120,21 @@ class AudioViewModelTest {
         vm.handleEvent(AudioEvent.StartRecording)
         advanceUntilIdle()
 
-        assertEquals(samples.size * AudioViewModel.RECORD_TICK_MS, vm.state.value.audioData.durationMs)
+        assertEquals(samples.size * AudioRepository.RECORD_TICK_MS, vm.state.value.audioData.durationMs)
     }
 
     // ── StopRecording ─────────────────────────────────────────────────────────
 
     @Test
-    fun `StopRecording sets isRecording false and status to Initial`() = runTest {
+    fun `StopRecording transitions to Initial status`() = runTest {
         val vm = viewModel()
 
         vm.handleEvent(AudioEvent.StartRecording)
         vm.handleEvent(AudioEvent.StopRecording)
         advanceUntilIdle()
 
-        assertFalse(vm.state.value.isRecording)
         assertIs<AudioStatus.Initial>(vm.state.value.audioStatus)
+        assertTrue(!vm.state.value.isRecording)
     }
 
     @Test
@@ -171,6 +168,43 @@ class AudioViewModelTest {
         advanceUntilIdle()
 
         assertIs<AudioStatus.ErrorStoppingRecording>(vm.state.value.audioStatus)
+        // isRecording must be false even on error so ChatScreen stops showing WaveformRecorder.
+        assertTrue(!vm.state.value.isRecording)
+    }
+
+    // ── CancelRecording ───────────────────────────────────────────────────────
+
+    @Test
+    fun `CancelRecording transitions to Initial status with empty audioData`() = runTest {
+        val vm = viewModel(FakeAudioRepository(
+            recordedAudioData = AudioData(fileName = "fake.m4a", durationMs = 1000L),
+        ))
+
+        vm.handleEvent(AudioEvent.StartRecording)
+        advanceUntilIdle()
+        assertIs<AudioStatus.RecordingAudio>(vm.state.value.audioStatus)
+
+        vm.handleEvent(AudioEvent.CancelRecording)
+        advanceUntilIdle()
+
+        assertIs<AudioStatus.Initial>(vm.state.value.audioStatus)
+        assertTrue(!vm.state.value.isRecording)
+        // fileName must be empty so SendVoiceMessage guard rejects it.
+        assertTrue(vm.state.value.audioData.fileName.isEmpty())
+    }
+
+    @Test
+    fun `CancelRecording resets amplitudes to defaults`() = runTest {
+        val samples = listOf(-10.0, -15.0, -20.0)
+        val vm = viewModel(FakeAudioRepository(amplitudeValues = samples))
+
+        vm.handleEvent(AudioEvent.StartRecording)
+        advanceUntilIdle()
+
+        vm.handleEvent(AudioEvent.CancelRecording)
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.audioData.amplitudes.all { it == AudioViewModel.DEFAULT_AMPLITUDE })
     }
 
     // ── Play ──────────────────────────────────────────────────────────────────

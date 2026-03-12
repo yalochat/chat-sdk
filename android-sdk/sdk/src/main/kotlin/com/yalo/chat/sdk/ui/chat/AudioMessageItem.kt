@@ -29,7 +29,12 @@ internal fun AudioMessageItem(
     onPlay: (ChatMessage) -> Unit,
     onStop: () -> Unit,
 ) {
-    val isPlaying = playingMessage?.id != null && playingMessage.id == message.id
+    // Match on local id first (user-sent messages); fall back to wiId for server messages
+    // that may not yet have a local SQLite id assigned.
+    val isPlaying = playingMessage != null && (
+        (message.id != null && playingMessage.id == message.id) ||
+        (message.wiId != null && playingMessage.wiId == message.wiId)
+    )
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = { if (isPlaying) onStop() else onPlay(message) },

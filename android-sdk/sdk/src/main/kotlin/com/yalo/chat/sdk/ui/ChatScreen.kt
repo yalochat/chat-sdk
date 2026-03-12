@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yalo.chat.sdk.YaloChat
 import com.yalo.chat.sdk.ui.chat.AudioEvent
+import com.yalo.chat.sdk.ui.chat.AudioStatus
 import com.yalo.chat.sdk.ui.chat.AudioViewModel
 import com.yalo.chat.sdk.ui.chat.ChatAppBar
 import com.yalo.chat.sdk.ui.chat.ChatInput
@@ -43,6 +44,7 @@ import com.yalo.chat.sdk.ui.chat.MessageList
 import com.yalo.chat.sdk.ui.chat.MessagesEvent
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.chat.WaveformRecorder
+import com.yalo.chat.sdk.ui.chat.isRecording
 
 // Port of flutter-sdk Chat widget.
 // Phase 2 M3: adds ImageViewModel, gallery/camera launchers, and ImagePreview overlay.
@@ -149,10 +151,15 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     }
 
     // FDE-63: when recording stops successfully, insert the voice message.
-    // audioState.audioData is populated by AudioViewModel after StopRecording.
+    // Guards:
+    //  1. audioStatus must be Initial — prevents sending on ErrorStoppingRecording.
+    //  2. audioData.fileName must be non-empty — prevents sending after CancelRecording
+    //     (cancelRecording() resets audioData to an empty AudioData before transitioning).
     val wasRecording = remember { mutableStateOf(false) }
     LaunchedEffect(audioState.isRecording) {
-        if (wasRecording.value && !audioState.isRecording) {
+        if (wasRecording.value && !audioState.isRecording
+            && audioState.audioStatus is AudioStatus.Initial
+        ) {
             viewModel.handleEvent(MessagesEvent.SendVoiceMessage(audioState.audioData))
         }
         wasRecording.value = audioState.isRecording
@@ -181,7 +188,8 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
                     // FDE-63: replace ChatInput with WaveformRecorder while recording.
                     WaveformRecorder(
                         audioData = audioState.audioData,
-                        onStop = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
+                        onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
+                        onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
                     )
                 } else {
                     ChatInput(

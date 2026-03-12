@@ -29,14 +29,11 @@ internal class AudioRepositoryLocal(
     private val context: Context,
 ) : AudioRepository {
 
-    companion object {
-        const val RECORD_TICK_MS = 25L
-    }
-
-    // Guarded by the coroutine dispatcher — only mutated from suspend functions.
+    // Guarded by the coroutine dispatcher — recorder/player mutated from suspend functions,
+    // @Volatile ensures cross-thread visibility for the completion listener assignment of player.
     private var recorder: MediaRecorder? = null
     private var currentFile: File? = null
-    private var player: MediaPlayer? = null
+    @Volatile private var player: MediaPlayer? = null
     @Volatile private var isRecording = false
 
     // FDE-62: shared flow that emits when MediaPlayer.setOnCompletionListener fires.
@@ -97,15 +94,19 @@ internal class AudioRepositoryLocal(
             isRecording = false
 
             // Read duration from the recorded file's metadata.
+            // MediaMetadataRetriever is closed in finally to avoid a native resource leak
+            // if setDataSource or extractMetadata throws.
             val durationMs = if (file != null) {
                 runCatching {
                     val retriever = MediaMetadataRetriever()
-                    retriever.setDataSource(file.absolutePath)
-                    val duration = retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_DURATION
-                    )?.toLongOrNull() ?: 0L
-                    retriever.release()
-                    duration
+                    try {
+                        retriever.setDataSource(file.absolutePath)
+                        retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_DURATION
+                        )?.toLongOrNull() ?: 0L
+                    } finally {
+                        retriever.release()
+                    }
                 }.getOrDefault(0L)
             } else 0L
 
@@ -129,15 +130,20 @@ internal class AudioRepositoryLocal(
             // Convert 0..32767 → DBFS (matches Flutter AudioRepositoryLocal mapping).
             val dbfs = if (raw > 0) 20.0 * log10(raw / 32767.0) else -160.0
             emit(dbfs)
-            kotlinx.coroutines.delay(RECORD_TICK_MS)
+            kotlinx.coroutines.delay(AudioRepository.RECORD_TICK_MS)
         }
     }.buffer(Channel.UNLIMITED)
 
     // ── FDE-62: Playback ──────────────────────────────────────────────────────
 
-    override suspend fun play(fileName: String): Result<Unit> = withContext(Dispatchers.Main) {
+    // Note: prepare() is called on Dispatchers.IO (blocking file I/O) to avoid ANR risk.
+    // MediaPlayer is constructed on IO; AOSP MediaPlayer falls back to the main Looper for
+    // callback delivery when no current-thread Looper exists, so completion/error listeners
+    // are delivered on Main regardless of which thread creates the player.
+    override suspend fun play(fileName: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             // Release any existing player before starting a new one.
+            player?.stop()
             player?.release()
             player = null
 
@@ -153,8 +159,7 @@ internal class AudioRepositoryLocal(
                     player = null
                     true
                 }
-                // synchronous prepare is safe for local cacheDir files.
-                prepare()
+                prepare() // blocking — safe on Dispatchers.IO
                 start()
             }
             player = mediaPlayer
@@ -166,9 +171,13 @@ internal class AudioRepositoryLocal(
         }
     }
 
-    override suspend fun stop(): Result<Unit> = withContext(Dispatchers.Main) {
+    // Stops and releases the current player. Using stop()+release() rather than pause()
+    // fully cleans up the MediaPlayer resource — the next play() always creates a fresh one.
+    override suspend fun stop(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            player?.pause()
+            player?.stop()
+            player?.release()
+            player = null
             Result.Ok(Unit)
         } catch (e: Exception) {
             Result.Error(e)
@@ -179,7 +188,7 @@ internal class AudioRepositoryLocal(
 
     // ── Defensive resource release ────────────────────────────────────────────
 
-    // Called from AudioViewModel.onCleared() and on lifecycle ON_STOP.
+    // Called from AudioViewModel.onCleared().
     // Catches any IllegalStateException from stopping an already-stopped recorder/player.
     override fun release() {
         try { recorder?.stop() } catch (_: Exception) {}

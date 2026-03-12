@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,12 +24,14 @@ import com.yalo.chat.sdk.domain.model.AudioData
 // Port of flutter-sdk/lib/src/ui/chat/widgets/chat_input/waveform_recorder.dart
 //
 // Replaces ChatInput while the user is recording a voice message.
-// Shows a MM:SS timer, the live waveform, and a cancel button.
-// The caller (ChatScreen) dispatches AudioEvent.StopRecording on stop.
+// Layout: [Cancel] [Timer] [Waveform] [Send]
+//   onCancel — discards the recording (dispatches CancelRecording; temp file is deleted)
+//   onSend   — stops recording and inserts the voice message (dispatches StopRecording)
 @Composable
 internal fun WaveformRecorder(
     audioData: AudioData,
-    onStop: () -> Unit,
+    onCancel: () -> Unit,
+    onSend: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -37,6 +40,12 @@ internal fun WaveformRecorder(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        IconButton(onClick = onCancel) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "Cancel recording",
+            )
+        }
         val totalSeconds = (audioData.durationMs / 1000).toInt()
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
@@ -51,10 +60,10 @@ internal fun WaveformRecorder(
                 .weight(1f)
                 .height(40.dp),
         )
-        IconButton(onClick = onStop) {
+        IconButton(onClick = onSend) {
             Icon(
-                imageVector = Icons.Filled.Close,
-                contentDescription = "Cancel recording",
+                imageVector = Icons.AutoMirrored.Filled.Send,
+                contentDescription = "Send voice message",
             )
         }
     }
