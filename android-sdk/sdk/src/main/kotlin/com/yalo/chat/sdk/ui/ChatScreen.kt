@@ -2,6 +2,8 @@
 
 package com.yalo.chat.sdk.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -22,6 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yalo.chat.sdk.YaloChat
 import com.yalo.chat.sdk.ui.chat.ChatAppBar
@@ -40,6 +44,7 @@ import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen() {
+    val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()
     val viewModel: MessagesViewModel = viewModel(factory = factory)
     val imageViewModel: ImageViewModel = viewModel(factory = factory)
@@ -48,6 +53,9 @@ fun ChatScreen() {
     val imageState by imageViewModel.state.collectAsState()
 
     var showPickerSheet by remember { mutableStateOf(false) }
+
+    // Holds the camera URI while waiting for the permission grant result.
+    var pendingCameraUriString by remember { mutableStateOf<String?>(null) }
 
     // Gallery launcher — PickVisualMedia requires no READ_MEDIA_IMAGES permission on API 33+.
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -65,14 +73,37 @@ fun ChatScreen() {
         if (success) imageViewModel.handleEvent(ImageEvent.CameraImageCaptured)
     }
 
+    // Permission launcher — requests CAMERA at runtime (dangerous permission, API 23+).
+    // On grant, fires the camera launcher with the URI that was held in pendingCameraUriString.
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted: Boolean ->
+        if (granted) {
+            pendingCameraUriString?.let { uriString ->
+                cameraLauncher.launch(Uri.parse(uriString))
+            }
+        }
+        pendingCameraUriString = null
+    }
+
     // Collect ImageViewModel side effects and fire the appropriate launchers.
     LaunchedEffect(imageViewModel) {
         imageViewModel.sideEffects.collect { effect ->
             when (effect) {
                 is ImageSideEffect.LaunchGallery ->
                     galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                is ImageSideEffect.LaunchCamera ->
-                    cameraLauncher.launch(Uri.parse(effect.uriString))
+                is ImageSideEffect.LaunchCamera -> {
+                    val hasCameraPermission = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.CAMERA
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (hasCameraPermission) {
+                        cameraLauncher.launch(Uri.parse(effect.uriString))
+                    } else {
+                        // Store the URI and request the permission; launcher fires on grant.
+                        pendingCameraUriString = effect.uriString
+                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                }
             }
         }
     }
