@@ -21,7 +21,7 @@ import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 // Scaffold mirrors Flutter's Scaffold: ChatAppBar (topBar), ChatInput (bottomBar),
 // MessageList (body) — LazyColumn with reverseLayout = true.
 @Composable
-fun ChatScreen() {
+fun ChatScreen(onBack: (() -> Unit)? = null) {
     val viewModel: MessagesViewModel = viewModel(factory = YaloChat.getViewModelFactory())
     val state by viewModel.state.collectAsState()
 
@@ -32,7 +32,7 @@ fun ChatScreen() {
 
     Scaffold(
         topBar = {
-            ChatAppBar(title = YaloChat.config.name)
+            ChatAppBar(title = YaloChat.config.name, onBack = onBack)
         },
         bottomBar = {
             ChatInput(
