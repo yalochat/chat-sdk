@@ -5,6 +5,7 @@ package com.yalo.chat.sdk.ui
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,6 +29,12 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     LaunchedEffect(Unit) {
         viewModel.handleEvent(MessagesEvent.LoadMessages)
         viewModel.handleEvent(MessagesEvent.SubscribeToMessages)
+    }
+
+    // Stop sync and reset state when the screen leaves composition so background
+    // polling does not continue while the host app shows other screens.
+    DisposableEffect(Unit) {
+        onDispose { viewModel.handleEvent(MessagesEvent.ClearMessages) }
     }
 
     Scaffold(
