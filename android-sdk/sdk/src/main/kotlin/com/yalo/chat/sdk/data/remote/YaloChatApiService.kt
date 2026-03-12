@@ -31,7 +31,7 @@ private const val HEADER_AUTHORIZATION = "Authorization"
 // YaloChat.kt on Android passes an Android-engine client, tests pass a MockEngine client.
 // When splitting to KMP: YaloChat.kt moves to androidMain and provides the Android engine;
 // an iosMain counterpart provides the Darwin engine.
-class YaloChatApiService(
+internal class YaloChatApiService(
     private val apiBaseUrl: String,
     private val authToken: String,
     private val userToken: String,
@@ -71,7 +71,8 @@ class YaloChatApiService(
 
 // Builds a configured HttpClient with ContentNegotiation (JSON) and optional debug logging.
 // Called from YaloChat.kt with the platform engine (Android/Darwin/etc.).
-fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, debug: Boolean): HttpClient =
+// internal: not part of the public SDK API surface.
+internal fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, debug: Boolean): HttpClient =
     HttpClient(engine) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
@@ -81,9 +82,14 @@ fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, debug: Boole
                 logger = object : io.ktor.client.plugins.logging.Logger {
                     override fun log(message: String) { println(message) }
                 }
-                level = io.ktor.client.plugins.logging.LogLevel.ALL
-                // Redact the Bearer token so it never appears in Logcat.
-                sanitizeHeader { header -> header == io.ktor.http.HttpHeaders.Authorization }
+                // HEADERS only — avoids logging request/response bodies in plaintext.
+                level = io.ktor.client.plugins.logging.LogLevel.HEADERS
+                // Redact sensitive headers so they never appear in Logcat.
+                sanitizeHeader { header ->
+                    header == io.ktor.http.HttpHeaders.Authorization ||
+                        header.equals(HEADER_USER_ID, ignoreCase = true) ||
+                        header.equals(HEADER_CHANNEL_ID, ignoreCase = true)
+                }
             }
         }
     }

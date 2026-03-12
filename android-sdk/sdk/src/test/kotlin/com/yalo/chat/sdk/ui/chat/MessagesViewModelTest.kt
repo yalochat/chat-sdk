@@ -10,12 +10,10 @@ import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
-import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -45,7 +43,7 @@ class MessagesViewModelTest {
     }
 
     private fun viewModel(
-        yaloRepo: YaloMessageRepository = FakeYaloMessageRepository(),
+        yaloRepo: com.yalo.chat.sdk.domain.repository.YaloMessageRepository = FakeYaloMessageRepository(),
         chatRepo: FakeChatMessageRepository = FakeChatMessageRepository(),
     ) = MessagesViewModel(yaloRepo, chatRepo)
 
@@ -71,6 +69,7 @@ class MessagesViewModelTest {
             override suspend fun getMessages(cursor: Long?, limit: Int) =
                 Result.Error<List<ChatMessage>>(RuntimeException("db error"))
             override suspend fun insertMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun insertMessages(messages: List<ChatMessage>) = Result.Ok(Unit)
             override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
             override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
         }
@@ -111,6 +110,23 @@ class MessagesViewModelTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(1, result.result.size)
         assertEquals("hello", result.result.first().content)
+    }
+
+    @Test
+    fun `SendTextMessage marks optimistic message as ERROR when remote send fails`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val failingYaloRepo = object : com.yalo.chat.sdk.domain.repository.YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("network error"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): kotlinx.coroutines.flow.Flow<List<ChatMessage>> =
+                kotlinx.coroutines.flow.emptyFlow()
+        }
+        val vm = viewModel(yaloRepo = failingYaloRepo, chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SendTextMessage("hello"))
+        val result = chatRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.first().status)
     }
 
     // ── ClearMessages ─────────────────────────────────────────────────────────
@@ -157,7 +173,7 @@ class MessagesViewModelTest {
     // ── SubscribeToMessages ───────────────────────────────────────────────────
 
     @Test
-    fun `SubscribeToMessages updates state when messages are inserted`() = runTest {
+    fun `SubscribeToMessages updates state when messages are inserted into local repo`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SubscribeToMessages)
@@ -209,31 +225,6 @@ class MessagesViewModelTest {
                 quickReplies = listOf("Option A", "Option B"))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
-        vm.viewModelScope.cancel()
-    }
-
-    // ── Phase 2 — Remote polling ───────────────────────────────────────────────
-
-    @Test
-    fun `SubscribeToMessages inserts polled remote messages into state`() = runTest {
-        val chatRepo = FakeChatMessageRepository()
-        val pollingYaloRepo = object : YaloMessageRepository {
-            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
-            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
-            override fun pollIncomingMessages() = flowOf(
-                ChatMessage(
-                    role = MessageRole.AGENT, type = MessageType.Text,
-                    status = MessageStatus.DELIVERED, content = "from server",
-                )
-            )
-        }
-        val vm = MessagesViewModel(pollingYaloRepo, chatRepo)
-        vm.handleEvent(MessagesEvent.SubscribeToMessages)
-        // advanceUntilIdle() drains all coroutines launched by SubscribeToMessages
-        // (pollIncomingMessages collector + observeMessages collector) before asserting.
-        testScheduler.advanceUntilIdle()
-        assertEquals(1, vm.state.value.messages.size)
-        assertEquals("from server", vm.state.value.messages.first().content)
         vm.viewModelScope.cancel()
     }
 }

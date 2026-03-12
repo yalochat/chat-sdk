@@ -33,6 +33,24 @@ class FakeChatMessageRepository(
         return Result.Ok(Unit)
     }
 
+    override suspend fun insertMessages(messagesToInsert: List<ChatMessage>): Result<Unit> {
+        // Mirror INSERT OR REPLACE semantics: replace existing entry by id when present.
+        val indexById = messages.withIndex()
+            .mapNotNull { (i, m) -> m.id?.let { it to i } }
+            .toMap(mutableMapOf())
+        messagesToInsert.forEach { message ->
+            val existingIndex = message.id?.let { indexById[it] }
+            if (existingIndex != null) {
+                messages[existingIndex] = message
+            } else {
+                messages.add(message)
+                message.id?.let { indexById[it] = messages.lastIndex }
+            }
+        }
+        _flow.value = messages.toList()
+        return Result.Ok(Unit)
+    }
+
     override suspend fun updateMessage(message: ChatMessage): Result<Unit> {
         if (message.id == null) return Result.Error(IllegalArgumentException("Cannot update a message with null id"))
         val index = messages.indexOfFirst { it.id == message.id }

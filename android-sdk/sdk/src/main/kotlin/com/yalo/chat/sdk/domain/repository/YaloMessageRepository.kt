@@ -13,8 +13,9 @@ interface YaloMessageRepository {
     suspend fun sendMessage(message: ChatMessage): Result<Unit>
     suspend fun fetchMessages(since: Long): Result<List<ChatMessage>>
 
-    // Phase 2: continuous polling flow — emits new inbound messages from the server.
+    // Phase 2: continuous polling flow — each emission is the batch of new messages
+    // from one poll cycle. Empty batches are suppressed; only non-empty lists are emitted.
     // FakeYaloMessageRepository returns emptyFlow() (no-op for Phase 1 tests).
-    // YaloMessageRepositoryRemote uses a 1s polling loop with a 5s lookback window.
-    fun pollIncomingMessages(): Flow<ChatMessage>
+    // YaloMessageRepositoryRemote polls on a 1s interval with a 5s lookback window.
+    fun pollIncomingMessages(): Flow<List<ChatMessage>>
 }

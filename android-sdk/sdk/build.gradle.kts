@@ -4,8 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    // SQLDelight plugin deferred to Phase 2 — no .sq files yet
-    // alias(libs.plugins.sqldelight)
+    alias(libs.plugins.sqldelight)
 }
 
 android {
@@ -44,8 +43,16 @@ kotlin {
     }
 }
 
-// SQLDelight schema and ChatDatabase configuration deferred to Phase 2 (FDE-54).
-// Will be added here once .sq files exist under src/main/sqldelight/.
+// Phase 2 M2 (FDE-54): SQLDelight schema for local message persistence.
+// Schema file: src/main/sqldelight/com/yalo/chat/sdk/database/ChatMessage.sq
+// KMP note: when splitting to KMP, add NativeSqliteDriver for iosMain here.
+sqldelight {
+    databases {
+        create("ChatDatabase") {
+            packageName.set("com.yalo.chat.sdk.database")
+        }
+    }
+}
 
 dependencies {
     // Compose BOM — all Compose artifact versions come from here

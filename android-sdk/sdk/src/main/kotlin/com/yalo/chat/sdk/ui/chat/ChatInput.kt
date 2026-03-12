@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 // Port of flutter-sdk ChatInput — Phase 1: text field + send button only.
 // Phase 2 will add attachment button, voice recorder, image preview, and quick replies.
 @Composable
-fun ChatInput(
+internal fun ChatInput(
     userMessage: String,
     onUserMessageChange: (String) -> Unit,
     onSendMessage: () -> Unit,

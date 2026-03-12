@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 // Port of flutter-sdk YaloFetchMessagesResponse + YaloMessage.
 // snake_case server fields are mapped via @SerialName.
 @Serializable
-data class YaloFetchMessagesResponse(
+internal data class YaloFetchMessagesResponse(
     val id: String,
     val message: YaloMessageDto,
     val date: String,

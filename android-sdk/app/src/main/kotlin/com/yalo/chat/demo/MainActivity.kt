@@ -16,13 +16,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         YaloChat.init(
-            YaloChatConfig(
+            config = YaloChatConfig(
                 name = "Yalo Chat",
                 flowKey = BuildConfig.YALO_FLOW_KEY,
                 authToken = BuildConfig.YALO_AUTH_TOKEN,
                 userToken = BuildConfig.YALO_USER_TOKEN,
                 apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
-            )
+            ),
+            context = this,
         )
         setContent {
             ChatScreen()

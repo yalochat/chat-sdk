@@ -1,7 +1,13 @@
 # Phase 2 M1 — kotlinx.serialization rules (FDE-53).
 # Ktor (ktor-client-android) ships its own consumer ProGuard rules via its AAR;
 # no blanket -keep io.ktor.** needed here — that would prevent shrinking.
-# SQLDelight rules will be added in Phase 2 M2.
+# Phase 2 M2 — SQLDelight rules (FDE-54).
+
+# ── SQLDelight ─────────────────────────────────────────────────────────────────
+# SQLDelight ships its own consumer ProGuard rules via its AAR.
+# Keep the generated ChatDatabase entry point referenced by the SDK.
+# Narrowed from database.** to avoid preventing shrinking of all generated classes.
+-keep class com.yalo.chat.sdk.database.ChatDatabase { *; }
 
 # ── kotlinx.serialization ─────────────────────────────────────────────────────
 -keepattributes *Annotation*, InnerClasses

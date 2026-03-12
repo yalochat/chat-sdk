@@ -6,7 +6,7 @@ package com.yalo.chat.sdk.data.repository.remote
 // messages within the polling lookback window.
 // Mirrors the ecache SimpleCache used in the Flutter SDK (capacity = 500).
 // Thread-safe via @Synchronized on each accessor.
-class SimpleCache<K, V>(private val capacity: Int) {
+internal class SimpleCache<K, V>(private val capacity: Int) {
 
     init {
         require(capacity > 0) { "capacity must be > 0, was $capacity" }

@@ -89,6 +89,17 @@ class FakeChatMessageRepositoryTest {
     }
 
     @Test
+    fun `insertMessages inserts all messages and updates flow`() = runTest {
+        val r = repo()
+        r.insertMessages(listOf(message(1L, "A"), message(2L, "B"), message(3L, "C")))
+        val result = r.getMessages(cursor = null, limit = 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(3, result.result.size)
+        val emitted = r.observeMessages().first()
+        assertEquals(3, emitted.size)
+    }
+
+    @Test
     fun `observeMessages emits updated list after insertMessage`() = runTest {
         val r = repo()
         r.insertMessage(message(1L))

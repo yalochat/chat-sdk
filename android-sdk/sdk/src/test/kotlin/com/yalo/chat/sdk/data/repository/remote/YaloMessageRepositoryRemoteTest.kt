@@ -17,6 +17,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -105,34 +106,36 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     // ── pollIncomingMessages ───────────────────────────────────────────────────
+    // Each emission is now a List<ChatMessage> (one poll cycle = one batch).
 
     @Test
-    fun `pollIncomingMessages emits messages from first poll`() = runTest {
+    fun `pollIncomingMessages emits batch from first poll`() = runTest {
         val repo = buildRepo(listOf(messageJson("id-1", "Hi"), "[]"))
-        val messages = repo.pollIncomingMessages().take(1).toList()
-        assertEquals(1, messages.size)
-        assertEquals("Hi", messages.first().content)
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals("Hi", batch.first().content)
     }
 
     @Test
-    fun `pollIncomingMessages deduplicates — same wiId is emitted only once`() = runTest {
-        // First poll: id-1 only. Second poll: id-1 (dup) + id-2 (new).
+    fun `pollIncomingMessages deduplicates — same wiId emitted only once across batches`() = runTest {
+        // Poll 1: [id-1]. Poll 2: [id-1 (dup), id-2 (new)] → batch 2 = [id-2] only.
         val bothMessages = """[
             {"id":"id-1","message":{"text":"First","role":"AGENT"},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"DELIVERED"},
             {"id":"id-2","message":{"text":"Second","role":"AGENT"},"date":"2024-01-01T12:00:01Z","user_id":"u1","status":"DELIVERED"}
         ]"""
         val repo = buildRepo(listOf(messageJson("id-1", "First"), bothMessages))
-        // take(2): id-1 from poll 1, id-2 from poll 2; id-1 is suppressed by the cache
-        val messages = repo.pollIncomingMessages().take(2).toList()
-        assertEquals(2, messages.size)
-        assertEquals("First", messages[0].content)
-        assertEquals("Second", messages[1].content)
+        val batches = repo.pollIncomingMessages().take(2).toList()
+        assertEquals(2, batches.size)
+        assertEquals(1, batches[0].size)
+        assertEquals("First", batches[0].first().content)
+        assertEquals(1, batches[1].size)
+        assertEquals("Second", batches[1].first().content)
     }
 
     @Test
     fun `pollIncomingMessages continues polling after network error`() = runTest {
         // Mirrors Flutter _startPolling(): on error the loop continues without restarting.
-        // First call returns 500, second call returns a message — take(1) collects it.
+        // First call returns 500, second call returns a message — first() collects it.
         var callIndex = 0
         val engine = MockEngine {
             callIndex++
@@ -151,22 +154,32 @@ class YaloMessageRepositoryRemoteTest {
             httpClient = client,
         )
         val repo = YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)
-        val messages = repo.pollIncomingMessages().take(1).toList()
-        assertEquals(1, messages.size)
-        assertEquals("After error", messages.first().content)
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals("After error", batch.first().content)
     }
 
     @Test
     fun `pollIncomingMessages sets MessageRole from server role field`() = runTest {
         val repo = buildRepo(listOf(messageJson("id-1", "Hey", "USER"), "[]"))
-        val messages = repo.pollIncomingMessages().take(1).toList()
-        assertEquals(MessageRole.USER, messages.first().role)
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(MessageRole.USER, batch.first().role)
     }
 
     @Test
     fun `pollIncomingMessages status is always DELIVERED`() = runTest {
         val repo = buildRepo(listOf(messageJson("id-1", "msg"), "[]"))
-        val messages = repo.pollIncomingMessages().take(1).toList()
-        assertEquals(MessageStatus.DELIVERED, messages.first().status)
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(MessageStatus.DELIVERED, batch.first().status)
+    }
+
+    @Test
+    fun `pollIncomingMessages suppresses empty poll cycles`() = runTest {
+        // First poll returns nothing, second returns a message → first() skips the empty cycle.
+        val repo = buildRepo(listOf("[]", messageJson("id-1", "Eventually")))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals("Eventually", batch.first().content)
+        assertTrue(batch.first().role == MessageRole.AGENT)
     }
 }
