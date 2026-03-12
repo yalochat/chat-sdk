@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.yalo.chat.sdk.data.MessageSyncService
+import com.yalo.chat.sdk.data.local.AudioRepositoryLocal
 import com.yalo.chat.sdk.data.local.ImageRepositoryLocal
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
 import com.yalo.chat.sdk.data.local.createDatabase
@@ -16,13 +17,14 @@ import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.database.ChatDatabase
+import com.yalo.chat.sdk.ui.chat.AudioViewModel
 import com.yalo.chat.sdk.ui.chat.ImageViewModel
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 
 // Port of flutter-sdk YaloChat entry point.
-// Phase 2 M3: adds ImageRepositoryLocal and ImageViewModel to the factory.
+// Phase 2 M4: adds AudioRepositoryLocal and AudioViewModel to the factory.
 object YaloChat {
 
     private var _config: YaloChatConfig? = null
@@ -74,6 +76,7 @@ object YaloChat {
         _syncService = syncService
 
         val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
+        val audioRepo = AudioRepositoryLocal(context.applicationContext)
 
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -82,6 +85,8 @@ object YaloChat {
                     MessagesViewModel(yaloRepo, localRepo, syncService) as T
                 modelClass.isAssignableFrom(ImageViewModel::class.java) ->
                     ImageViewModel(imageRepo) as T
+                modelClass.isAssignableFrom(AudioViewModel::class.java) ->
+                    AudioViewModel(audioRepo) as T
                 else -> error("Unsupported ViewModel class: $modelClass")
             }
         }

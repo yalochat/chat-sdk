@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.MessageSyncService
+import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -51,6 +52,7 @@ internal class MessagesViewModel(
             is MessagesEvent.SubscribeToMessages -> subscribeToMessages()
             is MessagesEvent.SendTextMessage -> sendTextMessage(event.text)
             is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
+            is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
@@ -126,6 +128,28 @@ internal class MessagesViewModel(
                     }
                 }
                 is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            }
+        }
+    }
+
+    // FDE-63: Inserts a voice message locally after recording completes.
+    // Voice messages are not sent to the remote API in Phase 2 — same pattern as images.
+    // amplitudesPreview is persisted so the waveform renders on replay.
+    private fun sendVoiceMessage(audioData: AudioData) {
+        if (audioData.fileName.isEmpty()) return
+        viewModelScope.launch {
+            val tempId = tempIdSeq.getAndIncrement()
+            val message = ChatMessage(
+                id = tempId,
+                role = MessageRole.USER,
+                type = MessageType.Voice,
+                status = MessageStatus.SENT,
+                fileName = audioData.fileName,
+                amplitudes = audioData.amplitudesPreview,
+                duration = audioData.durationMs,
+            )
+            if (chatMessageRepository.insertMessage(message) is Result.Error) {
+                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }
         }
     }

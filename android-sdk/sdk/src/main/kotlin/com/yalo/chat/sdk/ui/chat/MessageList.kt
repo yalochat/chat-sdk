@@ -17,10 +17,14 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 
 // Port of flutter-sdk MessageList — reverse layout mirrors ListView.builder(reverse: true).
 // Items sorted newest-first so item[0] appears at the bottom of the reversed column.
+// Audio callbacks are threaded down to MessageItem for Voice messages (FDE-63).
 @Composable
 internal fun MessageList(
     messages: List<ChatMessage>,
     modifier: Modifier = Modifier,
+    playingMessage: ChatMessage? = null,
+    onPlayAudio: (ChatMessage) -> Unit = {},
+    onStopAudio: () -> Unit = {},
 ) {
     if (messages.isEmpty()) {
         Box(
@@ -39,7 +43,12 @@ internal fun MessageList(
             .padding(bottom = 4.dp),
     ) {
         items(items = sorted, key = { it.id ?: it.wiId ?: it.timestamp }) { message ->
-            MessageItem(message = message)
+            MessageItem(
+                message = message,
+                playingMessage = playingMessage,
+                onPlayAudio = onPlayAudio,
+                onStopAudio = onStopAudio,
+            )
         }
     }
 }

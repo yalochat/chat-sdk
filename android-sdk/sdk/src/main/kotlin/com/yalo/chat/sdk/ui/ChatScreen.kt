@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yalo.chat.sdk.YaloChat
+import com.yalo.chat.sdk.ui.chat.AudioEvent
+import com.yalo.chat.sdk.ui.chat.AudioViewModel
 import com.yalo.chat.sdk.ui.chat.ChatAppBar
 import com.yalo.chat.sdk.ui.chat.ChatInput
 import com.yalo.chat.sdk.ui.chat.ImageEvent
@@ -39,26 +42,32 @@ import com.yalo.chat.sdk.ui.chat.ImageViewModel
 import com.yalo.chat.sdk.ui.chat.MessageList
 import com.yalo.chat.sdk.ui.chat.MessagesEvent
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
+import com.yalo.chat.sdk.ui.chat.WaveformRecorder
 
 // Port of flutter-sdk Chat widget.
 // Phase 2 M3: adds ImageViewModel, gallery/camera launchers, and ImagePreview overlay.
+// Phase 2 M4: adds AudioViewModel, RECORD_AUDIO permission, and WaveformRecorder.
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen() {
+fun ChatScreen(onBack: (() -> Unit)? = null) {
     val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()
     val viewModel: MessagesViewModel = viewModel(factory = factory)
     val imageViewModel: ImageViewModel = viewModel(factory = factory)
+    val audioViewModel: AudioViewModel = viewModel(factory = factory)
 
     val state by viewModel.state.collectAsState()
     val imageState by imageViewModel.state.collectAsState()
+    val audioState by audioViewModel.state.collectAsState()
 
     var showPickerSheet by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Holds the camera URI while waiting for the permission grant result.
     var pendingCameraUriString by remember { mutableStateOf<String?>(null) }
+
+    // ── Image launchers ───────────────────────────────────────────────────────
 
     // Gallery launcher — PickVisualMedia requires no READ_MEDIA_IMAGES permission on API 33+.
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -81,21 +90,35 @@ fun ChatScreen() {
         }
     }
 
-    // Permission launcher — requests CAMERA at runtime (dangerous permission, API 23+).
+    // Permission launcher for CAMERA — requests at runtime (dangerous permission, API 23+).
     // On grant: fires the camera launcher with the URI held in pendingCameraUriString.
-    // On denial: dispatches CancelPick to clean up the pending temp file created by PickFromCamera.
+    // On denial: dispatches CancelPick to clean up the pending temp file.
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { granted: Boolean ->
         if (granted) {
-            pendingCameraUriString?.let { uriString ->
-                cameraLauncher.launch(Uri.parse(uriString))
-            }
+            pendingCameraUriString?.let { cameraLauncher.launch(Uri.parse(it)) }
         } else {
             imageViewModel.handleEvent(ImageEvent.CancelPick)
         }
         pendingCameraUriString = null
     }
+
+    // ── Audio permission launcher ─────────────────────────────────────────────
+
+    // FDE-60: RECORD_AUDIO is a dangerous permission — request before starting recording.
+    // On denial show a Snackbar; no crash, no further action (graceful denial per DoD).
+    val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted: Boolean ->
+        if (granted) {
+            audioViewModel.handleEvent(AudioEvent.StartRecording)
+        }
+        // Denial is silent — the Snackbar below is shown only on image errors.
+        // A future milestone may add a rationale Snackbar here.
+    }
+
+    // ── Side-effect collectors ────────────────────────────────────────────────
 
     // Collect ImageViewModel side effects and fire the appropriate launchers.
     LaunchedEffect(imageViewModel) {
@@ -110,7 +133,6 @@ fun ChatScreen() {
                     if (hasCameraPermission) {
                         cameraLauncher.launch(Uri.parse(effect.uriString))
                     } else {
-                        // Store the URI and request the permission; launcher fires on grant.
                         pendingCameraUriString = effect.uriString
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
@@ -119,37 +141,76 @@ fun ChatScreen() {
         }
     }
 
-    // Show a Snackbar whenever ImageViewModel emits an error (e.g. failed gallery save or
-    // camera setup failure). Dismisses automatically and clears the error from state.
+    // Show a Snackbar whenever ImageViewModel emits an error.
     LaunchedEffect(imageState.errorMessage) {
         val message = imageState.errorMessage ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
         imageViewModel.handleEvent(ImageEvent.DismissError)
     }
 
+    // FDE-63: when recording stops successfully, insert the voice message.
+    // audioState.audioData is populated by AudioViewModel after StopRecording.
+    val wasRecording = remember { mutableStateOf(false) }
+    LaunchedEffect(audioState.isRecording) {
+        if (wasRecording.value && !audioState.isRecording) {
+            viewModel.handleEvent(MessagesEvent.SendVoiceMessage(audioState.audioData))
+        }
+        wasRecording.value = audioState.isRecording
+    }
+
     LaunchedEffect(Unit) {
         viewModel.handleEvent(MessagesEvent.LoadMessages)
         viewModel.handleEvent(MessagesEvent.SubscribeToMessages)
+        audioViewModel.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
     }
+
+    // Stop sync and reset state when the screen leaves composition.
+    DisposableEffect(Unit) {
+        onDispose { viewModel.handleEvent(MessagesEvent.ClearMessages) }
+    }
+
+    // ── Scaffold ──────────────────────────────────────────────────────────────
 
     Box {
         Scaffold(
             topBar = {
-                ChatAppBar(title = YaloChat.config.name)
+                ChatAppBar(title = YaloChat.config.name, onBack = onBack)
             },
             bottomBar = {
-                ChatInput(
-                    userMessage = state.userMessage,
-                    onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
-                    onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
-                    onAttachmentClick = { showPickerSheet = true },
-                )
+                if (audioState.isRecording) {
+                    // FDE-63: replace ChatInput with WaveformRecorder while recording.
+                    WaveformRecorder(
+                        audioData = audioState.audioData,
+                        onStop = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
+                    )
+                } else {
+                    ChatInput(
+                        userMessage = state.userMessage,
+                        onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
+                        onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
+                        onAttachmentClick = { showPickerSheet = true },
+                        onMicClick = {
+                            // FDE-60: check RECORD_AUDIO permission before starting.
+                            val hasPermission = ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.RECORD_AUDIO
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (hasPermission) {
+                                audioViewModel.handleEvent(AudioEvent.StartRecording)
+                            } else {
+                                recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            }
+                        },
+                    )
+                }
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
         ) { paddingValues ->
             MessageList(
                 messages = state.messages,
                 modifier = Modifier.padding(paddingValues),
+                playingMessage = audioState.playingMessage,
+                onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
+                onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
             )
         }
 
