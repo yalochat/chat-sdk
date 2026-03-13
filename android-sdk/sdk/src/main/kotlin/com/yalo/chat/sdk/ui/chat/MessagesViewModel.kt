@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
@@ -49,6 +50,7 @@ internal class MessagesViewModel(
             is MessagesEvent.LoadMessages -> loadMessages()
             is MessagesEvent.SubscribeToMessages -> subscribeToMessages()
             is MessagesEvent.SendTextMessage -> sendTextMessage(event.text)
+            is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
@@ -124,6 +126,27 @@ internal class MessagesViewModel(
                     }
                 }
                 is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            }
+        }
+    }
+
+    // Inserts an image message locally. Images are not sent to the remote API in Phase 2 —
+    // the backend does not yet accept image payloads (YaloMessageRepository.sendMessage()
+    // returns Result.Error for non-text types). Local-only insertion keeps the message
+    // visible in the chat with status SENT.
+    private fun sendImageMessage(imageData: ImageData) {
+        if (imageData.path == null) return
+        viewModelScope.launch {
+            val tempId = tempIdSeq.getAndIncrement()
+            val message = ChatMessage(
+                id = tempId,
+                role = MessageRole.USER,
+                type = MessageType.Image,
+                status = MessageStatus.SENT,
+                fileName = imageData.path,
+            )
+            if (chatMessageRepository.insertMessage(message) is Result.Error) {
+                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }
         }
     }

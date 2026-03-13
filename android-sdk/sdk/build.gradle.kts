@@ -34,6 +34,7 @@ android {
         disable += "NullSafeMutableLiveData"     // lifecycle 2.8.x lint
         disable += "RememberInComposition"       // compose-ui lint
         disable += "FrequentlyChangingValue"     // compose-ui lint
+        disable += "AutoboxingStateCreation"     // compose-ui lint (same IncompatibleClassChangeError)
     }
 }
 
@@ -69,6 +70,12 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.ktx)
+
+    // Activity — provides rememberLauncherForActivityResult for image/camera picking.
+    implementation(libs.activity.compose)
+
+    // Coil — async image loading (FDE-59)
+    implementation(libs.coil.compose)
 
     // Coroutines
     implementation(libs.coroutines.android)
