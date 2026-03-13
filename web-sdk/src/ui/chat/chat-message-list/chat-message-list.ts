@@ -188,7 +188,13 @@ export default class ChatMessageList extends LitElement {
                   ? html`<span class="bubble">${chatMessage.content}</span>`
                   : html`<p>
                       ${unsafeHTML(
-                        snarkdown(dompurify.sanitize(chatMessage.content))
+                        dompurify.sanitize(
+                          snarkdown(
+                            this._chatMessageListController.highlightLinks(
+                              chatMessage.content
+                            )
+                          )
+                        )
                       )}
                     </p>`}
               </li>
