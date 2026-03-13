@@ -20,10 +20,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/audio/audio_bloc.dart
 // Manages recording, amplitude streaming, and playback lifecycle.
-// AudioViewModel is separate from MessagesViewModel, mirroring the Flutter separation
-// between AudioBloc and MessagesBloc.
+// Kept separate from MessagesViewModel so recording state (waveform, duration) is
+// isolated from message list state — the same separation the Flutter SDK uses.
 internal class AudioViewModel(
     private val audioRepository: AudioRepository,
     private val audioProcessingUseCase: AudioProcessingUseCase = AudioProcessingUseCase(),
@@ -53,9 +52,8 @@ internal class AudioViewModel(
         }
     }
 
-    // ── FDE-62: playback completion subscription ──────────────────────────────
+    // ── Playback completion subscription ──────────────────────────────────────
 
-    // Port of AudioBloc._handleAudioCompletedSubscribe.
     // Idempotent — a second call cancels the previous job and re-subscribes.
     private fun subscribeToPlaybackCompletion() {
         completionJob?.cancel()
@@ -68,9 +66,8 @@ internal class AudioViewModel(
         }
     }
 
-    // ── FDE-60: recording ─────────────────────────────────────────────────────
+    // ── Recording ─────────────────────────────────────────────────────────────
 
-    // Port of AudioBloc._handleStartRecording.
     private fun startRecording() {
         viewModelScope.launch {
             when (val result = audioRepository.startRecording()) {
@@ -96,7 +93,6 @@ internal class AudioViewModel(
         }
     }
 
-    // Port of AudioBloc._handleStopRecording.
     private fun stopRecording() {
         amplitudeJob?.cancel()
         amplitudeJob = null
@@ -142,9 +138,8 @@ internal class AudioViewModel(
         }
     }
 
-    // ── FDE-61: amplitude streaming ───────────────────────────────────────────
+    // ── Amplitude streaming ───────────────────────────────────────────────────
 
-    // Port of AudioBloc._onAmplitudeSubscribe.
     // Runs while recording; each tick advances the sliding waveform window.
     private fun subscribeToAmplitudes() {
         amplitudeJob?.cancel()
@@ -176,9 +171,8 @@ internal class AudioViewModel(
         }
     }
 
-    // ── FDE-62: playback ──────────────────────────────────────────────────────
+    // ── Playback ──────────────────────────────────────────────────────────────
 
-    // Port of AudioBloc._handlePlayAudio.
     private fun playAudio(message: ChatMessage) {
         if (message.type != MessageType.Voice || message.fileName.isNullOrEmpty()) return
 
@@ -210,7 +204,6 @@ internal class AudioViewModel(
         }
     }
 
-    // Port of AudioBloc._handleStopAudio.
     private fun stopAudio() {
         viewModelScope.launch {
             when (audioRepository.stop()) {

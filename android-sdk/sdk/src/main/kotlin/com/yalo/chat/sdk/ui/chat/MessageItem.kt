@@ -22,9 +22,6 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
 
-// Port of flutter-sdk Message + UserMessage + AssistantMessage.
-// Phase 2 M3 (FDE-59): Image type rendered via Coil AsyncImage.
-// Phase 2 M4 (FDE-63): Voice type rendered via AudioMessageItem.
 @Composable
 internal fun MessageItem(
     message: ChatMessage,

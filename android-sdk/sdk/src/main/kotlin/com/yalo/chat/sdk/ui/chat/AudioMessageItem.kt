@@ -17,11 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/message_list/user_voice_message.dart
-//
-// Renders inside MessageItem for MessageType.Voice messages.
-// Shows a play/pause button and a waveform preview of the recorded amplitudes.
-// onPlay / onStop are dispatched to AudioViewModel by MessageItem's caller (MessageList / ChatScreen).
+// Renders a voice message bubble: play/pause button + waveform preview of the recorded amplitudes.
+// onPlay / onStop are owned by AudioViewModel; callers (MessageList / ChatScreen) thread them down.
 @Composable
 internal fun AudioMessageItem(
     message: ChatMessage,

@@ -4,15 +4,12 @@ package com.yalo.chat.sdk.domain.usecase
 
 import kotlin.math.max
 
-// Port of flutter-sdk/lib/src/domain/use_cases/audio/audio_processing_use_case.dart
-//
 // Receives a new amplitude point and re-compresses the waveform preview into a
 // fixed-size window (amplitudeDataPoints bins). As recording grows beyond the bin
 // count, older bins are merged by keeping the maximum value so no waveform data
 // is lost — only compressed.
 internal class AudioProcessingUseCase {
 
-    // Port of AudioProcessingUseCase.compressWaveformForPreview():
     //   newPoint      — latest DBFS amplitude sample
     //   totalSamples  — total number of samples recorded so far (including newPoint)
     //   preview       — current compressed preview list (length == amplitudeDataPoints)

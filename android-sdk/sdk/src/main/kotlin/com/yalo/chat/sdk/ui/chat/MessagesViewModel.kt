@@ -22,10 +22,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/messages/messages_bloc.dart
-// Phase 2 M2: subscribeToMessages() now only observes the local store.
-// Remote polling is handled by MessageSyncService (FDE-56), which writes incoming
-// server messages to SQLDelight so the observeMessages() flow picks them up.
+// subscribeToMessages() only observes the local store — remote polling is delegated to
+// MessageSyncService, which writes incoming server messages to SQLDelight so the
+// observeMessages() flow is the single source of truth for the UI.
 internal class MessagesViewModel(
     private val yaloMessageRepository: YaloMessageRepository,
     private val chatMessageRepository: ChatMessageRepository,
@@ -136,9 +135,8 @@ internal class MessagesViewModel(
         }
     }
 
-    // FDE-63: Inserts a voice message locally after recording completes.
-    // Voice messages are not sent to the remote API in Phase 2 — same pattern as images.
-    // amplitudesPreview is persisted so the waveform renders on replay.
+    // Voice messages are not sent to the remote API — same local-only pattern as images.
+    // amplitudesPreview is persisted so the waveform renders correctly on replay.
     private fun sendVoiceMessage(audioData: AudioData) {
         if (audioData.fileName.isEmpty()) return
         viewModelScope.launch {

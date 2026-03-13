@@ -21,8 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.AudioData
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/chat_input/waveform_recorder.dart
-//
 // Replaces ChatInput while the user is recording a voice message.
 // Layout: [Cancel] [Timer] [Waveform] [Send]
 //   onCancel — discards the recording (dispatches CancelRecording; temp file is deleted)

@@ -15,10 +15,10 @@ interface AudioRepository {
         // duration counter incremented per tick stays in sync with the actual tick rate.
         const val RECORD_TICK_MS = 25L
     }
-    // FDE-60: start recording — returns the output file path on success.
+    // Start recording — returns the output file path on success.
     suspend fun startRecording(): Result<String>
 
-    // FDE-60: stop recording — returns AudioData with fileName and durationMs.
+    // Stop recording — returns AudioData with fileName and durationMs.
     suspend fun stopRecording(): Result<AudioData>
 
     // FDE-61: amplitude stream polled every RECORD_TICK_MS during active recording (DBFS values,
@@ -27,16 +27,16 @@ interface AudioRepository {
     // so no samples must be dropped (conflate() would undercount duration).
     fun amplitudeFlow(): Flow<Double>
 
-    // FDE-62: play audio at the given local file path.
+    // Play audio at the given local file path.
     suspend fun play(fileName: String): Result<Unit>
 
-    // FDE-62: pause/stop current playback.
+    // Stop current playback.
     suspend fun stop(): Result<Unit>
 
-    // FDE-62: emits Unit each time playback completes naturally (not on stop()).
+    // Emits Unit each time playback completes naturally (not on stop()).
     fun onPlaybackCompleted(): Flow<Unit>
 
-    // FDE-60 / FDE-62: release MediaRecorder and MediaPlayer resources.
-    // Called from AudioViewModel.onCleared() and on lifecycle ON_STOP.
+    // Release MediaRecorder and MediaPlayer resources.
+    // Called from AudioViewModel.onCleared() to prevent resource leaks.
     fun release()
 }

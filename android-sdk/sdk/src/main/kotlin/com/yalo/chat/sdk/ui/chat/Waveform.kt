@@ -13,11 +13,9 @@ import androidx.compose.ui.graphics.Color
 import kotlin.math.max
 import kotlin.math.pow
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/chat_input/waveform_painter.dart
-//
 // Renders amplitude bars on a Canvas. Amplitudes are DBFS values (negative, down to -160.0).
-// Conversion to 0..1: pow(10, amplitude / 20), matching Flutter's exact formula.
-// Bar height is at least 5% of the container height — same floor as Flutter.
+// Converted to linear 0..1 via pow(10, amplitude / 20).
+// Bar height is at least 5% of container height — prevents zero-height bars on silence.
 @Composable
 internal fun Waveform(
     amplitudes: List<Double>,
@@ -30,7 +28,7 @@ internal fun Waveform(
         if (amplitudes.isEmpty()) return@Canvas
         val barWidth = size.width / amplitudes.size
         amplitudes.forEachIndexed { i, amplitude ->
-            // DBFS → linear 0..1 (matches Flutter WaveformPainter formula).
+            // DBFS → linear 0..1.
             val linear = 10.0.pow(amplitude / 20.0).toFloat()
             val barHeight = max(0.05f * size.height, linear * size.height)
             val x = i * barWidth

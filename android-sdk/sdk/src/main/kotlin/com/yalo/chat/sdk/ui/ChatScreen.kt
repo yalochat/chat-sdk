@@ -46,9 +46,6 @@ import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.chat.WaveformRecorder
 import com.yalo.chat.sdk.ui.chat.isRecording
 
-// Port of flutter-sdk Chat widget.
-// Phase 2 M3: adds ImageViewModel, gallery/camera launchers, and ImagePreview overlay.
-// Phase 2 M4: adds AudioViewModel, RECORD_AUDIO permission, and WaveformRecorder.
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -163,7 +160,7 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
         imageViewModel.handleEvent(ImageEvent.DismissError)
     }
 
-    // FDE-63: when recording stops successfully, insert the voice message.
+    // When recording stops successfully, insert the voice message.
     // Guards:
     //  1. audioStatus must be Initial — prevents sending on ErrorStoppingRecording.
     //  2. audioData.fileName must be non-empty — prevents sending after CancelRecording
@@ -201,7 +198,6 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
             },
             bottomBar = {
                 if (audioState.isRecording) {
-                    // FDE-63: replace ChatInput with WaveformRecorder while recording.
                     WaveformRecorder(
                         audioData = audioState.audioData,
                         onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
@@ -214,8 +210,7 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
                         onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
                         onAttachmentClick = { showPickerSheet = true },
                         onMicClick = {
-                            // FDE-60: check RECORD_AUDIO permission before starting.
-                            val hasPermission = ContextCompat.checkSelfPermission(
+                                                val hasPermission = ContextCompat.checkSelfPermission(
                                 context, Manifest.permission.RECORD_AUDIO
                             ) == PackageManager.PERMISSION_GRANTED
                             if (hasPermission) {

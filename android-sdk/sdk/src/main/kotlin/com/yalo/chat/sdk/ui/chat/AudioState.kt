@@ -7,8 +7,6 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.ui.chat.AudioViewModel.Companion.AMPLITUDE_DATA_POINTS
 import com.yalo.chat.sdk.ui.chat.AudioViewModel.Companion.DEFAULT_AMPLITUDE
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/audio/audio_state.dart
-// AudioStatus mirrors Flutter's AudioStatus enum as a sealed class.
 sealed class AudioStatus {
     data object Initial : AudioStatus()
     data object RecordingAudio : AudioStatus()

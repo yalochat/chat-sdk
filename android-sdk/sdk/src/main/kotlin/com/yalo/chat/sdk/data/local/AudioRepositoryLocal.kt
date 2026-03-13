@@ -21,10 +21,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import kotlin.math.log10
 
-// Port of flutter-sdk AudioRepositoryLocal / AudioServiceFile using Android platform APIs.
-// MediaRecorder replaces the Flutter `record` plugin.
-// MediaPlayer replaces the Flutter `audioplayers` plugin.
-// FDE-60: recording, FDE-61: amplitude flow, FDE-62: playback.
+// AudioRepository implementation using Android MediaRecorder (recording) and MediaPlayer (playback).
 internal class AudioRepositoryLocal(
     private val context: Context,
 ) : AudioRepository {
@@ -36,11 +33,10 @@ internal class AudioRepositoryLocal(
     @Volatile private var player: MediaPlayer? = null
     @Volatile private var isRecording = false
 
-    // FDE-62: shared flow that emits when MediaPlayer.setOnCompletionListener fires.
     // extraBufferCapacity = 1 ensures the emission is not dropped if no collector is active yet.
     private val _playbackCompleted = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
-    // ── FDE-60: Recording ─────────────────────────────────────────────────────
+    // ── Recording ─────────────────────────────────────────────────────────────
 
     override suspend fun startRecording(): Result<String> = withContext(Dispatchers.IO) {
         var localRecorder: MediaRecorder? = null
@@ -123,7 +119,7 @@ internal class AudioRepositoryLocal(
         }
     }
 
-    // ── FDE-61: Amplitude flow ────────────────────────────────────────────────
+    // ── Amplitude flow ────────────────────────────────────────────────────────
 
     // Cold Flow that polls MediaRecorder.maxAmplitude every 25ms while recording.
     // Converts raw 0..32767 values to DBFS to match Flutter's amplitude representation.
@@ -139,7 +135,7 @@ internal class AudioRepositoryLocal(
         }
     }.buffer(Channel.UNLIMITED)
 
-    // ── FDE-62: Playback ──────────────────────────────────────────────────────
+    // ── Playback ──────────────────────────────────────────────────────────────
 
     // Note: prepare() is called on Dispatchers.IO (blocking file I/O) to avoid ANR risk.
     // MediaPlayer is constructed on IO; AOSP MediaPlayer falls back to the main Looper for

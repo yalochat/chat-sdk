@@ -23,8 +23,6 @@ import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 
-// Port of flutter-sdk YaloChat entry point.
-// Phase 2 M4: adds AudioRepositoryLocal and AudioViewModel to the factory.
 object YaloChat {
 
     private var _config: YaloChatConfig? = null

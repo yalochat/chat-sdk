@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-// Port of flutter-sdk ChatInput — Phase 2 M4: adds mic button for voice recording.
 // When the text field is blank a Mic icon replaces the Send button — tapping it starts
 // recording and ChatScreen switches to WaveformRecorder. onMicClick defaults to a no-op.
 @Composable
