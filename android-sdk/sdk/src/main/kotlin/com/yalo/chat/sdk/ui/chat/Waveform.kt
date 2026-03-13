@@ -3,7 +3,7 @@
 package com.yalo.chat.sdk.ui.chat
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -22,7 +22,9 @@ import kotlin.math.pow
 internal fun Waveform(
     amplitudes: List<Double>,
     modifier: Modifier = Modifier,
-    barColor: Color = MaterialTheme.colorScheme.primary,
+    // Defaults to LocalContentColor so bars automatically contrast with the enclosing Surface
+    // (onPrimary inside user message bubbles, onSurfaceVariant inside agent bubbles).
+    barColor: Color = LocalContentColor.current,
 ) {
     Canvas(modifier = modifier) {
         if (amplitudes.isEmpty()) return@Canvas
