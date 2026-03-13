@@ -1,0 +1,3 @@
+[submodule "ai-assets"]
+	path = ai-assets
+	url = ../chat-sdk-private-assets
