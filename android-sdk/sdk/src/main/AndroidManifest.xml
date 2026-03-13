@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Required for camera capture (FDE-57). Not needed for gallery with PickVisualMedia. -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Required for voice recording (FDE-60). Requested at runtime in ChatScreen. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application>

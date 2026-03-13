@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.MessageSyncService
+import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -21,10 +22,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/messages/messages_bloc.dart
-// Phase 2 M2: subscribeToMessages() now only observes the local store.
-// Remote polling is handled by MessageSyncService (FDE-56), which writes incoming
-// server messages to SQLDelight so the observeMessages() flow picks them up.
+// subscribeToMessages() only observes the local store — remote polling is delegated to
+// MessageSyncService, which writes incoming server messages to SQLDelight so the
+// observeMessages() flow is the single source of truth for the UI.
 internal class MessagesViewModel(
     private val yaloMessageRepository: YaloMessageRepository,
     private val chatMessageRepository: ChatMessageRepository,
@@ -51,9 +51,14 @@ internal class MessagesViewModel(
             is MessagesEvent.SubscribeToMessages -> subscribeToMessages()
             is MessagesEvent.SendTextMessage -> sendTextMessage(event.text)
             is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
+            is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
+                // Cancel and reset subscriptionJob so SubscribeToMessages restarts polling
+                // correctly if the host app re-enters ChatScreen without destroying the ViewModel.
+                subscriptionJob?.cancel()
+                subscriptionJob = null
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
@@ -129,6 +134,28 @@ internal class MessagesViewModel(
             }
         }
     }
+
+    // Voice messages are not sent to the remote API — same local-only pattern as images.
+    // amplitudesPreview is persisted so the waveform renders correctly on replay.
+    private fun sendVoiceMessage(audioData: AudioData) {
+        if (audioData.fileName.isEmpty()) return
+        viewModelScope.launch {
+            val tempId = tempIdSeq.getAndIncrement()
+            val message = ChatMessage(
+                id = tempId,
+                role = MessageRole.USER,
+                type = MessageType.Voice,
+                status = MessageStatus.SENT,
+                fileName = audioData.fileName,
+                amplitudes = audioData.amplitudesPreview,
+                duration = audioData.durationMs,
+            )
+            if (chatMessageRepository.insertMessage(message) is Result.Error) {
+                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            }
+        }
+    }
+
 
     // Inserts an image message locally. Images are not sent to the remote API in Phase 2 —
     // the backend does not yet accept image payloads (YaloMessageRepository.sendMessage()

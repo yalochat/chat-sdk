@@ -22,11 +22,13 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
 
-// Port of flutter-sdk Message + UserMessage + AssistantMessage.
-// Phase 2 M3 (FDE-59): Image type rendered via Coil AsyncImage.
-// Other non-text types remain as "[type]" placeholders until future milestones.
 @Composable
-internal fun MessageItem(message: ChatMessage) {
+internal fun MessageItem(
+    message: ChatMessage,
+    playingMessage: ChatMessage? = null,
+    onPlayAudio: (ChatMessage) -> Unit = {},
+    onStopAudio: () -> Unit = {},
+) {
     val isUser = message.role == MessageRole.USER
     Row(
         modifier = Modifier
@@ -58,6 +60,12 @@ internal fun MessageItem(message: ChatMessage) {
                         modifier = Modifier.size(200.dp),
                         placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
                         error = ColorPainter(MaterialTheme.colorScheme.errorContainer),
+                    )
+                    MessageType.Voice -> AudioMessageItem(
+                        message = message,
+                        playingMessage = playingMessage,
+                        onPlay = onPlayAudio,
+                        onStop = onStopAudio,
                     )
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",
