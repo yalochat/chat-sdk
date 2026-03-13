@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="pt-BR" source-language="en" original="lit-localize-inputs" datatype="plaintext">
-<body/>
+<body>
+<trans-unit id="sf900fe612519e672">
+  <source>Write a message...</source>
+  <target>Escreva uma mensagem...</target>
+</trans-unit>
+<trans-unit id="s32bad8884f0b1be7">
+  <source>Close Chat</source>
+  <target>Fechar chat</target>
+</trans-unit>
+</body>
 </file>
 </xliff>

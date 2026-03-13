@@ -5,18 +5,22 @@ import {
   yaloChatClientConfigContext,
 } from '@domain/config/chat-config-context';
 import { consume } from '@lit/context';
+import { localized, msg } from '@lit/localize';
 import { css, html, LitElement } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { ChatFooterController } from './chat-footer-controller';
+import { loggerContext, type Logger } from '@log/logger-context';
 
 @customElement('chat-footer')
+@localized()
 export class ChatFooter extends LitElement {
   static styles = css`
     :host {
       --yalo-chat-input-border: 1px solid #e8e8e8;
       --yalo-chat-input-border-radius: 25.5px;
       --yalo-chat-input-font-size: 16px;
-      --yalo-chat-send-btn-background: #2207F1;
+      --yalo-chat-send-btn-background: #2207f1;
       --yalo-chat-send-btn-color: white;
     }
 
@@ -64,55 +68,32 @@ export class ChatFooter extends LitElement {
     }
   `;
 
+  @consume({ context: loggerContext })
+  logger!: Logger;
+
   @consume({ context: yaloChatClientConfigContext })
   config!: YaloChatClientConfig;
 
   @query('.chat-input')
-  private _textarea!: HTMLTextAreaElement;
+  textArea!: HTMLTextAreaElement;
 
-  private _onSubmit = (e: Event) => {
-    e.preventDefault();
-    const value = this._textarea.value.trim();
-    if (!value) return;
-    this.dispatchEvent(
-      new CustomEvent('yalo-chat-send-text-message', {
-        detail: value,
-        bubbles: true,
-        composed: true,
-      }),
-    );
-    this._textarea.value = '';
-    this._textarea.style.height = 'auto';
-    this._textarea.style.overflowY = 'hidden';
-  };
-
-  private _onKeydown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      this._onSubmit(e);
-    }
-  };
-
-  private _onInput() {
-    const el = this._textarea;
-    el.style.overflowY = 'hidden';
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-    const maxHeight = parseFloat(getComputedStyle(el).maxHeight);
-    if (el.scrollHeight > maxHeight) {
-      el.style.overflowY = 'scroll';
-    }
-  }
+  private _chatFootercontroller = new ChatFooterController(this);
 
   render() {
     return html`
       <footer class="chat-footer">
-        <form class="chat-form" @submit=${this._onSubmit}>
+        <form
+          class="chat-form"
+          @submit=${(e: Event) => this._chatFootercontroller.sendTextMessage(e)}
+        >
           <textarea
             id="yalo-chat-input"
             class="chat-input"
             rows="1"
-            @input=${this._onInput}
-            @keydown=${this._onKeydown}
+            placeholder="${msg('Write a message...')}"
+            @input=${() => this._chatFootercontroller.handleOnInput()}
+            @keydown=${(e: KeyboardEvent) =>
+              this._chatFootercontroller.handleOnKeyDown(e)}
           ></textarea>
           <button class="chat-send-button">
             ${unsafeHTML(this.config.icons?.send)}
