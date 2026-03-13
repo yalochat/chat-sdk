@@ -8,19 +8,21 @@ import androidx.lifecycle.ViewModelProvider
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.yalo.chat.sdk.data.MessageSyncService
+import com.yalo.chat.sdk.data.local.ImageRepositoryLocal
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
 import com.yalo.chat.sdk.data.local.createDatabase
+import com.yalo.chat.sdk.domain.repository.ImagePickerRepository
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.database.ChatDatabase
+import com.yalo.chat.sdk.ui.chat.ImageViewModel
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 
 // Port of flutter-sdk YaloChat entry point.
-// Phase 2 M2: wires SQLDelight persistence via LocalChatMessageRepository and
-// MessageSyncService, replacing FakeChatMessageRepository.
+// Phase 2 M3: adds ImageRepositoryLocal and ImageViewModel to the factory.
 object YaloChat {
 
     private var _config: YaloChatConfig? = null
@@ -32,7 +34,8 @@ object YaloChat {
     val config: YaloChatConfig
         get() = _config ?: error("YaloChat.init() must be called before accessing config")
 
-    // context: needed to construct AndroidSqliteDriver for the local SQLite database.
+    // context: needed to construct AndroidSqliteDriver for the local SQLite database,
+    // and ImageRepositoryLocal for the FileProvider / content resolver.
     // KMP note: when splitting to KMP, YaloChat.kt moves to androidMain; iosMain
     // counterpart will provide NativeSqliteDriver without a Context.
     fun init(config: YaloChatConfig, context: Context) {
@@ -70,13 +73,16 @@ object YaloChat {
         )
         _syncService = syncService
 
+        val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
+
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                require(modelClass.isAssignableFrom(MessagesViewModel::class.java)) {
-                    "Unsupported ViewModel class: $modelClass"
-                }
-                return MessagesViewModel(yaloRepo, localRepo, syncService) as T
+            override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+                modelClass.isAssignableFrom(MessagesViewModel::class.java) ->
+                    MessagesViewModel(yaloRepo, localRepo, syncService) as T
+                modelClass.isAssignableFrom(ImageViewModel::class.java) ->
+                    ImageViewModel(imageRepo) as T
+                else -> error("Unsupported ViewModel class: $modelClass")
             }
         }
     }

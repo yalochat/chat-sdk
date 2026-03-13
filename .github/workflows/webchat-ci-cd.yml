@@ -64,6 +64,8 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build
         run: bun run build
+        env:
+          VITE_YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL }}
       - name: Upload to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:
@@ -93,6 +95,8 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Build
         run: bun run build
+        env:
+          VITE_YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL_PROD }}
       - name: Upload to GCS
         uses: google-github-actions/upload-cloud-storage@v2
         with:

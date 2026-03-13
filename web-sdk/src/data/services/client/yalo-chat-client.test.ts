@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatWindow } from '@ui/chat/chat-window/chat-window';
+import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import YaloChatClient from './yalo-chat-client';
 
@@ -53,7 +53,7 @@ describe('YaloChatClient', () => {
       });
       client.init();
       expect(warn).toHaveBeenCalledWith(
-        `Target element "#nonexistent" not found. Chat window will not work.`,
+        `Target element "#nonexistent" not found. Chat window will not work.`
       );
     });
 

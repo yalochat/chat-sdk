@@ -8,6 +8,7 @@ import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
+import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import androidx.lifecycle.viewModelScope
@@ -226,5 +227,54 @@ class MessagesViewModelTest {
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
         vm.viewModelScope.cancel()
+    }
+
+    // ── SendImageMessage ──────────────────────────────────────────────────────
+
+    @Test
+    fun `SendImageMessage inserts image message into local repo`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+
+        vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = "/storage/img.jpg")))
+
+        val messages = vm.state.value.messages
+        assertEquals(1, messages.size)
+        assertEquals(MessageType.Image, messages.first().type)
+        assertEquals("/storage/img.jpg", messages.first().fileName)
+        assertEquals(MessageRole.USER, messages.first().role)
+        assertEquals(MessageStatus.SENT, messages.first().status)
+        vm.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `SendImageMessage with null path is a no-op`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+
+        vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = null)))
+
+        assertTrue(vm.state.value.messages.isEmpty())
+        vm.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `SendImageMessage updates chatStatus to Failure when insert fails`() = runTest {
+        val failingChatRepo = object : ChatMessageRepository {
+            override suspend fun getMessages(cursor: Long?, limit: Int) =
+                Result.Ok(emptyList<ChatMessage>())
+            override suspend fun insertMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("disk full"))
+            override suspend fun insertMessages(messages: List<ChatMessage>) = Result.Ok(Unit)
+            override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
+            override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
+        }
+        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo)
+
+        vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = "/storage/img.jpg")))
+
+        assertIs<ChatStatus.Failure>(vm.state.value.chatStatus)
     }
 }

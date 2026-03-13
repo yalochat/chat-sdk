@@ -5,6 +5,10 @@ package com.yalo.chat.demo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.yalo.chat.sdk.YaloChat
 import com.yalo.chat.sdk.YaloChatConfig
 import com.yalo.chat.sdk.ui.ChatScreen
@@ -26,7 +30,12 @@ class MainActivity : ComponentActivity() {
             context = this,
         )
         setContent {
-            ChatScreen()
+            var showChat by remember { mutableStateOf(false) }
+            if (showChat) {
+                ChatScreen(onBack = { showChat = false })
+            } else {
+                HomeScreen(onOpenChat = { showChat = true })
+            }
         }
     }
 }
