@@ -29,13 +29,11 @@ final class MyRoutedApp extends StatelessWidget {
               final themeData = Theme.of(context);
               return Chat(
                 client: YaloChatClient(
-                  name: '',
-
-                  // Your flow key
-                  flowKey: '',
-                  // Your user token to authorize
-                  userToken: '',
-                  authToken: '',
+                  name: 'Chat Demo',
+                  // Your channel id
+                  channelId: '',
+                  // organization id
+                  organizationId: '',
                 ),
                 theme: ChatTheme.fromThemeData(
                   themeData,

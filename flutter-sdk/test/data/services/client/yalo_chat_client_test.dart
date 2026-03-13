@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_auth_service.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_fetch_messages_response.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message.dart';
@@ -14,15 +15,21 @@ import 'package:mocktail/mocktail.dart';
 
 class MockHttpClient extends Mock implements Client {}
 
+class MockYaloMessageAuthService extends Mock implements YaloMessageAuthService {}
+
 void main() {
   group(YaloChatClient, () {
     late MockHttpClient mockHttpClient;
+    late MockYaloMessageAuthService mockAuthService;
     late YaloChatClient client;
 
     const testName = 'test name';
     const testFlowKey = 'test-flow-key';
-    const testAuthToken = 'test-auth-token';
+    const testOrganizationId = 'test-org-id';
     const testUserToken = 'test-user-token';
+    // JWT with payload {"user_id":"test-user-token"}
+    const testAuthToken =
+        'eyJhbGciOiJub25lIn0.eyJ1c2VyX2lkIjoidGVzdC11c2VyLXRva2VuIn0.sig';
 
     setUpAll(() {
       registerFallbackValue(Uri());
@@ -31,12 +38,18 @@ void main() {
 
     setUp(() {
       mockHttpClient = MockHttpClient();
+      mockAuthService = MockYaloMessageAuthService();
+
+      when(() => mockAuthService.auth()).thenAnswer(
+        (_) async => Result.ok(testAuthToken),
+      );
+
       client = YaloChatClient(
         name: testName,
-        flowKey: testFlowKey,
-        authToken: testAuthToken,
-        userToken: testUserToken,
+        channelId: testFlowKey,
         httpClient: mockHttpClient,
+        authService: mockAuthService,
+        organizationId: testOrganizationId,
       );
     });
 
@@ -44,9 +57,8 @@ void main() {
       test('initializes a new httpclient if it is not sent', () {
         YaloChatClient testClient = client = YaloChatClient(
           name: testName,
-          flowKey: testFlowKey,
-          authToken: testAuthToken,
-          userToken: testUserToken,
+          channelId: testFlowKey,
+          organizationId: testOrganizationId,
         );
 
         expect(testClient.httpClient, isA<Client>());
@@ -107,6 +119,26 @@ void main() {
           final result = await client.sendTextMessage(request);
 
           expect(result, equals(Result.ok(Unit())));
+        },
+      );
+
+      test(
+        'returns Result.error when auth fails',
+        () async {
+          when(() => mockAuthService.auth()).thenAnswer(
+            (_) async => Result.error(Exception('Auth failed')),
+          );
+
+          final result = await client.sendTextMessage(request);
+
+          expect(result, isA<Error<Unit>>());
+          verifyNever(
+            () => mockHttpClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            ),
+          );
         },
       );
 
@@ -276,6 +308,22 @@ void main() {
           final messages =
               (result as Ok<List<YaloFetchMessagesResponse>>).result;
           expect(messages, isEmpty);
+        },
+      );
+
+      test(
+        'returns Result.error when auth fails',
+        () async {
+          when(() => mockAuthService.auth()).thenAnswer(
+            (_) async => Result.error(Exception('Auth failed')),
+          );
+
+          final result = await client.fetchMessages(since);
+
+          expect(result, isA<Error<List<YaloFetchMessagesResponse>>>());
+          verifyNever(
+            () => mockHttpClient.get(any(), headers: any(named: 'headers')),
+          );
         },
       );
 
