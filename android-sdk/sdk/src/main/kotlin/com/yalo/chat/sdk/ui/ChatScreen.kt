@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,7 +46,7 @@ import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen() {
+fun ChatScreen(onBack: (() -> Unit)? = null) {
     val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()
     val viewModel: MessagesViewModel = viewModel(factory = factory)
@@ -132,10 +133,16 @@ fun ChatScreen() {
         viewModel.handleEvent(MessagesEvent.SubscribeToMessages)
     }
 
+    // Stop sync and reset state when the screen leaves composition so background
+    // polling does not continue while the host app shows other screens.
+    DisposableEffect(Unit) {
+        onDispose { viewModel.handleEvent(MessagesEvent.ClearMessages) }
+    }
+
     Box {
         Scaffold(
             topBar = {
-                ChatAppBar(title = YaloChat.config.name)
+                ChatAppBar(title = YaloChat.config.name, onBack = onBack)
             },
             bottomBar = {
                 ChatInput(
