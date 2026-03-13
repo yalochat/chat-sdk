@@ -9,7 +9,7 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      's32bad8884f0b1be7': `Close Chat`,
-'sf900fe612519e672': `Write a message...`,
+      's32bad8884f0b1be7': `Cerrar chat`,
+'sf900fe612519e672': `Escribe un mensaje...`,
     };
   

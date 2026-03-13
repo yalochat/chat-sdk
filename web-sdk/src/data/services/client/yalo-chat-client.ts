@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatWindow } from '@ui/chat/chat-window/chat-window';
-import '@ui/chat/chat-window/chat-window';
+import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
+import '@ui/chat/chat-window/yalo-chat-window';
 import {
   defaultIcons,
   type YaloChatClientConfig,

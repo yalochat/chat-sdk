@@ -2,7 +2,7 @@
 
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { ChatMessageRepositoryLocal } from './chat-message-repository-local';
 
 const makeMessage = (
@@ -19,6 +19,14 @@ const makeMessage = (
 describe('ChatMessageRepositoryLocal', () => {
   let repo: ChatMessageRepositoryLocal;
 
+  beforeAll(async () => {
+    await new Promise<void>((resolve, reject) => {
+      const req = indexedDB.deleteDatabase('YaloChatMessages');
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  });
+
   beforeEach(() => {
     repo = new ChatMessageRepositoryLocal();
   });
@@ -26,7 +34,7 @@ describe('ChatMessageRepositoryLocal', () => {
   afterEach(async () => {
     await repo.close();
     await new Promise<void>((resolve, reject) => {
-      const req = indexedDB.deleteDatabase('yalo-chat-messages');
+      const req = indexedDB.deleteDatabase('YaloChatMessages');
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });

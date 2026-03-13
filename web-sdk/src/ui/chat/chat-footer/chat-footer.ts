@@ -5,7 +5,7 @@ import {
   yaloChatClientConfigContext,
 } from '@domain/config/chat-config-context';
 import { consume } from '@lit/context';
-import { msg } from '@lit/localize';
+import { localized, msg } from '@lit/localize';
 import { css, html, LitElement } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -13,6 +13,7 @@ import { ChatFooterController } from './chat-footer-controller';
 import { loggerContext, type Logger } from '@log/logger-context';
 
 @customElement('chat-footer')
+@localized()
 export class ChatFooter extends LitElement {
   static styles = css`
     :host {

@@ -28,6 +28,7 @@ import {
   type YaloMessageAuthService,
 } from '@data/services/yalo-message/yalo-message-auth-service-context';
 import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
+import { setLocale } from '@i18n/index';
 
 @customElement('yalo-chat-window')
 export class YaloChatWindow extends LitElement {
@@ -104,6 +105,10 @@ export class YaloChatWindow extends LitElement {
       this.yaloMessageAuthService
     );
     this.logger.debug('Initialized with config', this.config);
+  }
+
+  firstUpdated(): void {
+    setLocale(this.config.locale || 'en');
   }
 
   private _handleClose = () => {
