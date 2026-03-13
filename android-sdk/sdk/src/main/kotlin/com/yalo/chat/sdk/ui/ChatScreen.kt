@@ -99,7 +99,14 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
         contract = ActivityResultContracts.RequestPermission(),
     ) { granted: Boolean ->
         if (granted) {
-            pendingCameraUriString?.let { cameraLauncher.launch(Uri.parse(it)) }
+            pendingCameraUriString?.let {
+                try {
+                    cameraLauncher.launch(Uri.parse(it))
+                } catch (_: SecurityException) {
+                    // Permission revoked between grant callback and intent launch (TOCTOU).
+                    imageViewModel.handleEvent(ImageEvent.CancelPick)
+                }
+            }
         } else {
             imageViewModel.handleEvent(ImageEvent.CancelPick)
         }
@@ -133,7 +140,12 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
                         context, Manifest.permission.CAMERA
                     ) == PackageManager.PERMISSION_GRANTED
                     if (hasCameraPermission) {
-                        cameraLauncher.launch(Uri.parse(effect.uriString))
+                        try {
+                            cameraLauncher.launch(Uri.parse(effect.uriString))
+                        } catch (_: SecurityException) {
+                            // Permission revoked between checkSelfPermission and intent launch (TOCTOU).
+                            imageViewModel.handleEvent(ImageEvent.CancelPick)
+                        }
                     } else {
                         pendingCameraUriString = effect.uriString
                         cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
