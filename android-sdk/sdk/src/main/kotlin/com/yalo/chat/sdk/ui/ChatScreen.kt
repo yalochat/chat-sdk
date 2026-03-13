@@ -117,15 +117,14 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     // ── Audio permission launcher ─────────────────────────────────────────────
 
     // FDE-60: RECORD_AUDIO is a dangerous permission — request before starting recording.
-    // On denial show a Snackbar; no crash, no further action (graceful denial per DoD).
+    // On denial do nothing: no crash, no further action (graceful denial per DoD).
     val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
     ) { granted: Boolean ->
         if (granted) {
             audioViewModel.handleEvent(AudioEvent.StartRecording)
         }
-        // Denial is silent — the Snackbar below is shown only on image errors.
-        // A future milestone may add a rationale Snackbar here.
+        // Denial is intentionally silent — a future milestone may add a rationale Snackbar.
     }
 
     // ── Side-effect collectors ────────────────────────────────────────────────

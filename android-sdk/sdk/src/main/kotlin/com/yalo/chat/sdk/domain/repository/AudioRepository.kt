@@ -21,8 +21,10 @@ interface AudioRepository {
     // FDE-60: stop recording — returns AudioData with fileName and durationMs.
     suspend fun stopRecording(): Result<AudioData>
 
-    // FDE-61: amplitude stream polled every 25ms during recording (DBFS values, matching Flutter).
-    // Emits -160.0 when not recording (safe to collect at any time).
+    // FDE-61: amplitude stream polled every RECORD_TICK_MS during active recording (DBFS values,
+    // matching Flutter). Only emits while recording — callers should subscribe after StartRecording.
+    // buffer(Channel.UNLIMITED) is intentional: duration is tracked by counting emitted samples,
+    // so no samples must be dropped (conflate() would undercount duration).
     fun amplitudeFlow(): Flow<Double>
 
     // FDE-62: play audio at the given local file path.

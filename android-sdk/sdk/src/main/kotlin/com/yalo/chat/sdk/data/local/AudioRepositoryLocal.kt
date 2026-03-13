@@ -43,39 +43,43 @@ internal class AudioRepositoryLocal(
     // ── FDE-60: Recording ─────────────────────────────────────────────────────
 
     override suspend fun startRecording(): Result<String> = withContext(Dispatchers.IO) {
+        var localRecorder: MediaRecorder? = null
         try {
             val file = File(context.cacheDir, "audio_${System.currentTimeMillis()}.m4a")
 
             @Suppress("DEPRECATION")
-            val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            localRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 MediaRecorder(context)
             } else {
                 MediaRecorder()
             }
 
-            mediaRecorder.apply {
+            localRecorder.apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setOutputFile(file.absolutePath)
-                // Defensive FDE-60: on hardware error emit Result.Error on the next operation
-                // rather than crashing — the IllegalStateException from subsequent calls will
-                // be caught and surfaced as Result.Error.
-                setOnErrorListener { _, _, _ ->
+                // Defensive FDE-60: on hardware error release the exact instance that errored
+                // and clear state. The listener fires asynchronously during active recording,
+                // so recorder is already assigned — using the callback's erroredRecorder
+                // parameter is clearer and avoids any ambiguity.
+                setOnErrorListener { erroredRecorder, _, _ ->
                     isRecording = false
-                    recorder?.release()
+                    erroredRecorder.release()
                     recorder = null
                 }
                 prepare()
                 start()
             }
 
-            recorder = mediaRecorder
+            recorder = localRecorder
             currentFile = file
             isRecording = true
             Result.Ok(file.absolutePath)
         } catch (e: Exception) {
-            recorder?.release()
+            // Release localRecorder directly — recorder property may not be assigned yet
+            // if the exception was thrown by prepare() or start().
+            localRecorder?.release()
             recorder = null
             isRecording = false
             Result.Error(e)
@@ -123,7 +127,8 @@ internal class AudioRepositoryLocal(
 
     // Cold Flow that polls MediaRecorder.maxAmplitude every 25ms while recording.
     // Converts raw 0..32767 values to DBFS to match Flutter's amplitude representation.
-    // buffer(UNLIMITED) prevents backpressure from dropping samples on slow collectors.
+    // buffer(UNLIMITED) is intentional — duration is tracked by counting emitted samples in
+    // AudioViewModel, so no samples must be dropped. conflate() would undercount duration.
     override fun amplitudeFlow(): Flow<Double> = flow {
         while (isRecording) {
             val raw = recorder?.maxAmplitude ?: 0

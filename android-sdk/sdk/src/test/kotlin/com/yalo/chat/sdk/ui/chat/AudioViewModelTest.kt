@@ -311,9 +311,11 @@ class AudioViewModelTest {
         val repo = FakeAudioRepository()
         val vm = AudioViewModel(repo)
 
-        // Simulate lifecycle clear by calling release directly via the repo reference.
-        // ViewModel.onCleared() is protected; we verify the repo side-effect instead.
-        repo.release()
+        // onCleared() is protected — invoke via reflection to simulate lifecycle clear
+        // rather than calling repo.release() directly (which would make the test vacuous).
+        val method = androidx.lifecycle.ViewModel::class.java.getDeclaredMethod("onCleared")
+        method.isAccessible = true
+        method.invoke(vm)
 
         assertTrue(repo.released)
     }

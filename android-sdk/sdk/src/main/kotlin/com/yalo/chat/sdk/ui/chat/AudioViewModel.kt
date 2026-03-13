@@ -11,8 +11,10 @@ import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.AudioRepository
 import com.yalo.chat.sdk.domain.usecase.AudioProcessingUseCase
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -120,20 +122,22 @@ internal class AudioViewModel(
         amplitudeJob?.cancel()
         amplitudeJob = null
         val fileToDelete = _state.value.audioData.fileName
+        // Reset UI state synchronously so ChatScreen immediately stops showing WaveformRecorder.
+        _state.update { s ->
+            s.copy(
+                audioStatus = AudioStatus.Initial,
+                audioData = AudioData(
+                    amplitudes = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
+                    amplitudesPreview = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
+                ),
+                amplitudeIndex = AMPLITUDE_DATA_POINTS - 1,
+            )
+        }
+        // Async cleanup: stop the recorder and delete the temp file on IO.
         viewModelScope.launch {
-            audioRepository.stopRecording() // stop the recorder; result is discarded
+            audioRepository.stopRecording() // result discarded
             if (fileToDelete.isNotEmpty()) {
-                File(fileToDelete).delete()
-            }
-            _state.update { s ->
-                s.copy(
-                    audioStatus = AudioStatus.Initial,
-                    audioData = AudioData(
-                        amplitudes = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
-                        amplitudesPreview = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
-                    ),
-                    amplitudeIndex = AMPLITUDE_DATA_POINTS - 1,
-                )
+                withContext(Dispatchers.IO) { File(fileToDelete).delete() }
             }
         }
     }
