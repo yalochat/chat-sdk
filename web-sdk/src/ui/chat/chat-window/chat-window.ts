@@ -121,6 +121,7 @@ export class YaloChatWindow extends LitElement {
           <chat-message-list
             .chatMessages=${this._chatWindowController.chatMessages}
             .isLoading=${this._chatWindowController.isLoadingMessages}
+            .isWriting=${this._chatWindowController.isWriting}
             @yalo-chat-fetch-next-page=${() =>
               this._chatWindowController.fetchNextPage()}
           >

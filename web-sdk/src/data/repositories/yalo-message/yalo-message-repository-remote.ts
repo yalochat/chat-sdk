@@ -27,6 +27,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _authService: YaloMessageAuthService;
   private _pollTimeout?: ReturnType<typeof setTimeout>;
   private _seenIds = new Set<string>();
+  private _pollInterval = 2000;
 
   constructor(
     baseUrl: string,
@@ -89,13 +90,19 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       const userId = this._decodeUserId(token);
 
       try {
-        const response = await fetch(`${this._baseUrl}/webchat/messages`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'x-channel-id': this._config.channelId,
-            'x-user-id': userId,
-          },
+        const params = new URLSearchParams({
+          timestamp: String(Math.floor(Date.now() - 5000)),
         });
+        const response = await fetch(
+          `${this._baseUrl}/webchat/messages?${params}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'x-channel-id': this._config.channelId,
+              'x-user-id': userId,
+            },
+          }
+        );
 
         if (!response.ok) return;
 
@@ -120,7 +127,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         // swallow network errors — next poll will retry
       }
 
-      this._pollTimeout = setTimeout(poll, 5000);
+      this._pollTimeout = setTimeout(poll, this._pollInterval);
     };
 
     poll();

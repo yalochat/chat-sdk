@@ -19,6 +19,7 @@ export default class ChatMessageList extends LitElement {
     :host {
       --yalo-chat-user-message-background: #f9fafc;
       --yalo-chat-spinner-color: #2207f1;
+      --yalo-chat-dot-color: #2207f1;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -45,6 +46,7 @@ export default class ChatMessageList extends LitElement {
 
     .agent-message {
       justify-content: flex-start;
+      display: flow;
     }
 
     .bubble {
@@ -82,6 +84,54 @@ export default class ChatMessageList extends LitElement {
         transform: rotate(360deg);
       }
     }
+
+    .writing-loader {
+      display: flex;
+      padding-left: 1rem;
+    }
+
+    .dot-loader {
+      width: 30px;
+      aspect-ratio: 2;
+      --_g: no-repeat
+        radial-gradient(
+          circle closest-side,
+          var(--yalo-chat-dot-color) 90%,
+          #0000
+        );
+      background:
+        var(--_g) 0% 50%,
+        var(--_g) 50% 50%,
+        var(--_g) 100% 50%;
+      background-size: calc(100% / 3) 50%;
+      animation: l3 1s infinite linear;
+    }
+    @keyframes l3 {
+      20% {
+        background-position:
+          0% 0%,
+          50% 50%,
+          100% 50%;
+      }
+      40% {
+        background-position:
+          0% 100%,
+          50% 0%,
+          100% 50%;
+      }
+      60% {
+        background-position:
+          0% 50%,
+          50% 100%,
+          100% 0%;
+      }
+      80% {
+        background-position:
+          0% 50%,
+          50% 50%,
+          100% 100%;
+      }
+    }
   `;
 
   @consume({ context: yaloChatClientConfigContext })
@@ -95,6 +145,9 @@ export default class ChatMessageList extends LitElement {
 
   @property({ type: Boolean })
   isLoading: boolean = false;
+
+  @property({ type: Boolean })
+  isWriting: boolean = false;
 
   @query('.message-list')
   messageList!: HTMLUListElement;
@@ -115,6 +168,11 @@ export default class ChatMessageList extends LitElement {
   render() {
     return html`
       <ul class="message-list">
+        ${this.isWriting
+          ? html` <li class="writing-loader">
+              <span class="dot-loader"></span>
+            </li>`
+          : nothing}
         ${repeat(
           this.chatMessages,
           (chatMessage) => chatMessage.id,
@@ -128,9 +186,11 @@ export default class ChatMessageList extends LitElement {
               >
                 ${isUser
                   ? html`<span class="bubble">${chatMessage.content}</span>`
-                  : unsafeHTML(
-                      snarkdown(dompurify.sanitize(chatMessage.content))
-                    )}
+                  : html`<p>
+                      ${unsafeHTML(
+                        snarkdown(dompurify.sanitize(chatMessage.content))
+                      )}
+                    </p>`}
               </li>
             `;
           }

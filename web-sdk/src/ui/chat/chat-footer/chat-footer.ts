@@ -5,6 +5,7 @@ import {
   yaloChatClientConfigContext,
 } from '@domain/config/chat-config-context';
 import { consume } from '@lit/context';
+import { msg } from '@lit/localize';
 import { css, html, LitElement } from 'lit';
 import { customElement, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
@@ -88,6 +89,7 @@ export class ChatFooter extends LitElement {
             id="yalo-chat-input"
             class="chat-input"
             rows="1"
+            placeholder="${msg('Write a message...')}"
             @input=${() => this._chatFootercontroller.handleOnInput()}
             @keydown=${(e: KeyboardEvent) =>
               this._chatFootercontroller.handleOnKeyDown(e)}
