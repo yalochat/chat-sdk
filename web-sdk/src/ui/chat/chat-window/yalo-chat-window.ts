@@ -42,8 +42,8 @@ export class YaloChatWindow extends LitElement {
 
       display: none;
       position: fixed;
-      bottom: 80px;
-      right: 24px;
+      bottom: var(--yalo-chat-inset-bottom, 80px);
+      right: var(--yalo-chat-inset-right, 24px);
       z-index: 9999;
     }
 
