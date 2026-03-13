@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { PropertyValues, ReactiveController } from 'lit';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type ChatMessageList from './chat-message-list';
 
 export default class ChatMessageListController implements ReactiveController {
@@ -11,6 +12,7 @@ export default class ChatMessageListController implements ReactiveController {
   private readonly _scrollActivityThreshold = 25;
   private _scrollHeightBeforeFetch = 0;
   private _scrollTopBeforeFetch = 0;
+  private _newMessageInserted = false;
 
   constructor(host: ChatMessageList) {
     this.host = host;
@@ -49,20 +51,24 @@ export default class ChatMessageListController implements ReactiveController {
       const heightDelta =
         messageList.scrollHeight - this._scrollHeightBeforeFetch;
       messageList.scrollTop = this._scrollTopBeforeFetch + heightDelta;
+      this._scrollHeightBeforeFetch = 0;
+      this._scrollTopBeforeFetch = 0;
       return;
     }
 
-    const scrollDistance =
-      messageList.scrollHeight -
-      messageList.scrollTop -
-      messageList.offsetHeight;
-    if (scrollDistance < this._scrollActivityThreshold) {
-      messageList.scrollTop = messageList.scrollHeight;
+    const previousMessages =
+      changedProperties.get('chatMessages') as ChatMessage[] | undefined;
+    this._newMessageInserted =
+      previousMessages !== undefined &&
+      this.host.chatMessages[0]?.id !== previousMessages[0]?.id;
+
+    if (this._newMessageInserted && messageList.scrollTop < this._scrollActivityThreshold) {
+      messageList.scrollTop = 0;
     }
   }
 
   highlightLinks(text: string): string {
-    return text.replace(/(https?:\/\/[^\s]+)/g, '[$1]($1)');
+    return text.replace(/(?<!\]\()https?:\/\/[^\s)]+/g, '[$&]($&)');
   }
 
   hostDisconnected() {
