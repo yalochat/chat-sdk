@@ -56,6 +56,10 @@ internal class MessagesViewModel(
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
+                // Cancel and reset subscriptionJob so SubscribeToMessages restarts polling
+                // correctly if the host app re-enters ChatScreen without destroying the ViewModel.
+                subscriptionJob?.cancel()
+                subscriptionJob = null
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
@@ -153,6 +157,7 @@ internal class MessagesViewModel(
             }
         }
     }
+
 
     // Inserts an image message locally. Images are not sent to the remote API in Phase 2 —
     // the backend does not yet accept image payloads (YaloMessageRepository.sendMessage()

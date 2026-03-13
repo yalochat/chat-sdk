@@ -5,5 +5,5 @@ import { createContext } from '@lit/context';
 import type { YaloChatClientConfig } from './chat-config';
 export type { YaloChatClientConfig };
 export const yaloChatClientConfigContext = createContext<YaloChatClientConfig>(
-  Symbol('YaloChatClientConfig'),
+  Symbol('YaloChatClientConfig')
 );

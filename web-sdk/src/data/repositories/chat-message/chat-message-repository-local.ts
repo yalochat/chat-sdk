@@ -4,21 +4,20 @@ import type { Page } from '@domain/common/page';
 import type { Result } from '@domain/common/result';
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { ChatMessageRepository } from './chat-message-repository';
+import type { ChatMessageRepository } from './chat-message-repository';
 
-const DB_NAME = 'yalo-chat-messages';
+const DB_NAME = 'YaloChatMessages';
 const DB_VERSION = 1;
-const STORE_NAME = 'chat_message';
+const STORE_NAME = 'chatMessage';
 
 type ChatMessageData = ConstructorParameters<typeof ChatMessage>[0] & {
   id: number;
 };
 
-export class ChatMessageRepositoryLocal extends ChatMessageRepository {
+export class ChatMessageRepositoryLocal implements ChatMessageRepository {
   private dbPromise: Promise<IDBDatabase>;
 
   constructor() {
-    super();
     this.dbPromise = this.openDb();
   }
 
@@ -47,9 +46,9 @@ export class ChatMessageRepositoryLocal extends ChatMessageRepository {
     });
   }
 
-  override async getChatMessagePageDesc(
+  async getChatMessagePageDesc(
     cursor: number | null,
-    pageSize: number,
+    pageSize: number
   ): Promise<Result<Page<ChatMessage>>> {
     try {
       const db = await this.dbPromise;
@@ -101,12 +100,11 @@ export class ChatMessageRepositoryLocal extends ChatMessageRepository {
     }
   }
 
-  override async insertChatMessage(
-    message: ChatMessage,
-  ): Promise<Result<ChatMessage>> {
+  async insertChatMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
     try {
       const db = await this.dbPromise;
-      const { id: _id, ...data } = message;
+      const { ...data } = message;
+      delete data.id;
       const id = await new Promise<number>((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
@@ -121,9 +119,7 @@ export class ChatMessageRepositoryLocal extends ChatMessageRepository {
     }
   }
 
-  override async replaceChatMessage(
-    message: ChatMessage,
-  ): Promise<Result<boolean>> {
+  async replaceChatMessage(message: ChatMessage): Promise<Result<boolean>> {
     if (message.id === undefined) {
       return new Err(new Error('Message must contain an id to replace'));
     }

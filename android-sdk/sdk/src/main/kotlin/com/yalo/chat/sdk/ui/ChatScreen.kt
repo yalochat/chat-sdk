@@ -71,6 +71,7 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
 
     // ── Image launchers ───────────────────────────────────────────────────────
 
+
     // Gallery launcher — PickVisualMedia requires no READ_MEDIA_IMAGES permission on API 33+.
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -129,6 +130,7 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
 
     // ── Side-effect collectors ────────────────────────────────────────────────
 
+
     // Collect ImageViewModel side effects and fire the appropriate launchers.
     LaunchedEffect(imageViewModel) {
         imageViewModel.sideEffects.collect { effect ->
@@ -183,12 +185,15 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
         audioViewModel.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
     }
 
-    // Stop sync and reset state when the screen leaves composition.
-    DisposableEffect(Unit) {
+    // Stop sync and reset state when the screen leaves composition so background
+    // polling does not continue while the host app shows other screens.
+    // Keyed to viewModel so disposal always targets the current instance.
+    DisposableEffect(viewModel) {
         onDispose { viewModel.handleEvent(MessagesEvent.ClearMessages) }
     }
 
     // ── Scaffold ──────────────────────────────────────────────────────────────
+
 
     Box {
         Scaffold(
