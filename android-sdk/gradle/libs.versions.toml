@@ -12,6 +12,7 @@ lifecycle = "2.8.7"
 coroutines = "1.9.0"
 hilt = "2.56"
 junit = "4.13.2"
+coil = "3.0.4"
 
 [libraries]
 # Compose
@@ -59,6 +60,9 @@ sqldelight-jdbc-driver = { group = "app.cash.sqldelight", name = "sqlite-driver"
 # Hilt (app only — never inside :sdk)
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+
+# Coil — async image loading
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }

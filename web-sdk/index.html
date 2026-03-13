@@ -5,29 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Yalo Chat SDK Demo</title>
     <link rel="stylesheet" href="/styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <img class="logo" src="yalo-logo.svg" alt="Yalo" />
     <button type="button" class="fab" id="yalo-chat" aria-label="Open chat">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <title>Chat button</title>
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        <path
+          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+        ></path>
       </svg>
     </button>
 
     <script type="module">
-
       import { YaloChatClient } from '/src/chat.ts';
 
       const client = new YaloChatClient({
-        channelId: 'demo-channel',
-        organizationId: 'demo-org',
-        channelName: 'Chat Demo',
+        channelId: '', // Your channel id
+        organizationId: '', // Your organization id
+        channelName: 'Chat Demo', // Your channel name that will appear in the bot chat
         image: '/oris-icon.svg',
-        target: 'yalo-chat',
+        target: 'yalo-chat', // The target element to render over
       });
       client.init();
+      client.open();
     </script>
   </body>
 </html>

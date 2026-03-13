@@ -2,8 +2,9 @@
 
 import type { LitElement } from 'lit';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import './chat-window';
-import type { YaloChatWindow } from './chat-window';
+import './yalo-chat-window';
+import type { YaloChatWindow } from './yalo-chat-window';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -25,12 +26,12 @@ const getFooter = (el: YaloChatWindow): LitElement =>
 
 const getTextarea = (el: YaloChatWindow): HTMLTextAreaElement =>
   getFooter(el).shadowRoot?.querySelector(
-    '.chat-input',
+    '.chat-input'
   ) as unknown as HTMLTextAreaElement;
 
 const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
   getFooter(el).shadowRoot?.querySelector(
-    '.chat-send-button',
+    '.chat-send-button'
   ) as unknown as HTMLButtonElement;
 
 describe('YaloChatWindow', () => {
@@ -92,17 +93,22 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Hello world';
 
-      const received = new Promise<string>((resolve) => {
+      const received = new Promise<ChatMessage>((resolve) => {
         el.addEventListener(
           'yalo-chat-send-text-message',
-          (e) => resolve((e as CustomEvent<string>).detail),
-          { once: true },
+          (e) => resolve((e as CustomEvent<ChatMessage>).detail),
+          { once: true }
         );
       });
 
       getSendButton(el).click();
 
-      expect(await received).toBe('Hello world');
+      const message = await received;
+      expect(message.content).toBe('Hello world');
+      expect(message.role).toBe('USER');
+      expect(message.type).toBe('text');
+      expect(message.status).toBe('IN_PROGRESS');
+      expect(message.timestamp).toBeInstanceOf(Date);
     });
 
     it('clears the textarea after sending', async () => {
@@ -152,11 +158,11 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Via keyboard';
 
-      const received = new Promise<string>((resolve) => {
+      const received = new Promise<ChatMessage>((resolve) => {
         el.addEventListener(
           'yalo-chat-send-text-message',
-          (e) => resolve((e as CustomEvent<string>).detail),
-          { once: true },
+          (e) => resolve((e as CustomEvent<ChatMessage>).detail),
+          { once: true }
         );
       });
 
@@ -165,10 +171,10 @@ describe('YaloChatWindow', () => {
           key: 'Enter',
           bubbles: true,
           composed: true,
-        }),
+        })
       );
 
-      expect(await received).toBe('Via keyboard');
+      expect((await received).content).toBe('Via keyboard');
     });
 
     it('does not emit on Shift+Enter', async () => {
@@ -188,7 +194,7 @@ describe('YaloChatWindow', () => {
           shiftKey: true,
           bubbles: true,
           composed: true,
-        }),
+        })
       );
 
       expect(emitted).toBe(false);
@@ -206,7 +212,7 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6';
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true }),
+        new Event('input', { bubbles: true, composed: true })
       );
 
       expect(textarea.style.overflowY).toBe('scroll');
@@ -224,7 +230,7 @@ describe('YaloChatWindow', () => {
 
       textarea.value = 'Line 1\nLine 2\nLine 3';
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true }),
+        new Event('input', { bubbles: true, composed: true })
       );
 
       expect(textarea.scrollHeight).toBeGreaterThan(initialHeight);
@@ -240,7 +246,7 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Line 1\nLine 2\nLine 3';
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true }),
+        new Event('input', { bubbles: true, composed: true })
       );
 
       getSendButton(el).click();

@@ -1,2 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for camera capture (FDE-57). Not needed for gallery with PickVisualMedia. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application>
+        <!--
+            FileProvider authority for camera capture URIs.
+            Authority: ${applicationId}.yalo.fileprovider avoids collisions with host app providers.
+            Paths configured in res/xml/yalo_file_paths.xml (cache-path, yalo_camera/).
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.yalo.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/yalo_file_paths" />
+        </provider>
+    </application>
+</manifest>
