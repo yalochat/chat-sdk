@@ -25,12 +25,12 @@ const getFooter = (el: YaloChatWindow): LitElement =>
 
 const getTextarea = (el: YaloChatWindow): HTMLTextAreaElement =>
   getFooter(el).shadowRoot?.querySelector(
-    '.chat-input',
+    '.chat-input'
   ) as unknown as HTMLTextAreaElement;
 
 const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
   getFooter(el).shadowRoot?.querySelector(
-    '.chat-send-button',
+    '.chat-send-button'
   ) as unknown as HTMLButtonElement;
 
 describe('YaloChatWindow', () => {
@@ -96,7 +96,7 @@ describe('YaloChatWindow', () => {
         el.addEventListener(
           'yalo-chat-send-text-message',
           (e) => resolve((e as CustomEvent<string>).detail),
-          { once: true },
+          { once: true }
         );
       });
 
@@ -156,7 +156,7 @@ describe('YaloChatWindow', () => {
         el.addEventListener(
           'yalo-chat-send-text-message',
           (e) => resolve((e as CustomEvent<string>).detail),
-          { once: true },
+          { once: true }
         );
       });
 
@@ -165,7 +165,7 @@ describe('YaloChatWindow', () => {
           key: 'Enter',
           bubbles: true,
           composed: true,
-        }),
+        })
       );
 
       expect(await received).toBe('Via keyboard');
@@ -188,7 +188,7 @@ describe('YaloChatWindow', () => {
           shiftKey: true,
           bubbles: true,
           composed: true,
-        }),
+        })
       );
 
       expect(emitted).toBe(false);
@@ -206,7 +206,7 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6';
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true }),
+        new Event('input', { bubbles: true, composed: true })
       );
 
       expect(textarea.style.overflowY).toBe('scroll');
@@ -224,7 +224,7 @@ describe('YaloChatWindow', () => {
 
       textarea.value = 'Line 1\nLine 2\nLine 3';
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true }),
+        new Event('input', { bubbles: true, composed: true })
       );
 
       expect(textarea.scrollHeight).toBeGreaterThan(initialHeight);
@@ -240,7 +240,7 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Line 1\nLine 2\nLine 3';
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true }),
+        new Event('input', { bubbles: true, composed: true })
       );
 
       getSendButton(el).click();

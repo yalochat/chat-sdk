@@ -14,7 +14,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 export class ChatHeader extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-header-background: #F1F5FC;
+      --yalo-chat-header-background: #f1f5fc;
       --yalo-chat-header-color: #010101;
       --yalo-chat-close-btn-color: #010101;
     }
@@ -33,7 +33,6 @@ export class ChatHeader extends LitElement {
       margin: 0;
       flex-grow: 1;
     }
-
 
     .chat-header-title {
       font-size: 1.2rem;
@@ -89,20 +88,14 @@ export class ChatHeader extends LitElement {
   render() {
     return html`
       <header class="chat-header">
-        ${
-          this.config.image != null
-            ? html`<img class="header-icon" src="${this.config.image}"/>`
-            : nothing
-        }
+        ${this.config.image != null
+          ? html`<img class="header-icon" src="${this.config.image}" />`
+          : nothing}
         <hgroup class="chat-header-title-group">
-          <h1 class="chat-header-title">
-            ${this.config.channelName}
-          </h1>
-          ${
-            this._statusMessage !== ''
-              ? html`<p class='chat-status'>${this._statusMessage}</p>`
-              : nothing
-          }
+          <h1 class="chat-header-title">${this.config.channelName}</h1>
+          ${this._statusMessage !== ''
+            ? html`<p class="chat-status">${this._statusMessage}</p>`
+            : nothing}
         </hgroup>
         <button
           class="chat-close-btn"

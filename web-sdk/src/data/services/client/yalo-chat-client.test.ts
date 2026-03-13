@@ -53,7 +53,7 @@ describe('YaloChatClient', () => {
       });
       client.init();
       expect(warn).toHaveBeenCalledWith(
-        `Target element "#nonexistent" not found. Chat window will not work.`,
+        `Target element "#nonexistent" not found. Chat window will not work.`
       );
     });
 

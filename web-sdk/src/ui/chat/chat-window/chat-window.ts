@@ -4,12 +4,30 @@ import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-import '@ui/chat/chat-header/chat-header.ts';
-import '@ui/chat/chat-footer/chat-footer.ts';
-import { yaloChatClientConfigContext } from '@domain/config/chat-config-context.ts';
+import '@ui/chat/chat-header/chat-header';
+import '@ui/chat/chat-footer/chat-footer';
+import '@ui/chat/chat-message-list/chat-message-list';
+import {
+  type ChatMessageRepository,
+  chatMessageRepositoryContext,
+} from '@data/repositories/chat-message/chat-message-repository-context';
+import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import { provide } from '@lit/context';
-import Logger from '@log/logger.ts';
-import { loggerContext } from '@log/logger-context.ts';
+import Logger from '@log/logger';
+import { loggerContext } from '@log/logger-context';
+import YaloChatWindowController from './yalo-chat-window-controller';
+
+import {
+  type YaloMessageRepository,
+  yaloMessageRepositoryContext,
+} from '@data/repositories/yalo-message/yalo-message-repository-context';
+import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
+import {
+  yaloMessageAuthServiceContext,
+  type YaloMessageAuthService,
+} from '@data/services/yalo-message/yalo-message-auth-service-context';
+import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
 
 @customElement('yalo-chat-window')
 export class YaloChatWindow extends LitElement {
@@ -47,6 +65,7 @@ export class YaloChatWindow extends LitElement {
     .chat-body {
       flex: 1;
       overflow-y: auto;
+      display: flex;
     }
   `;
 
@@ -60,27 +79,57 @@ export class YaloChatWindow extends LitElement {
   @provide({ context: loggerContext })
   logger: Logger = new Logger();
 
+  @provide({ context: chatMessageRepositoryContext })
+  chatMessageRepository: ChatMessageRepository =
+    new ChatMessageRepositoryLocal();
+
+  @provide({ context: yaloMessageRepositoryContext })
+  yaloMessageRepository!: YaloMessageRepository;
+
+  @provide({ context: yaloMessageAuthServiceContext })
+  yaloMessageAuthService!: YaloMessageAuthService;
+
+  private _chatWindowController = new YaloChatWindowController(this);
+
   connectedCallback() {
     super.connectedCallback();
+
+    this.yaloMessageAuthService = new YaloMessageAuthServiceRemote(
+      import.meta.env.VITE_YALO_API_BASE_URL,
+      this.config
+    );
+    this.yaloMessageRepository = new YaloMessageRepositoryRemote(
+      import.meta.env.VITE_YALO_API_BASE_URL,
+      this.config,
+      this.yaloMessageAuthService
+    );
     this.logger.debug('Initialized with config', this.config);
   }
 
   private _handleClose = () => {
     this.open = false;
     this.dispatchEvent(
-      new Event('yalo-chat-close', { bubbles: true, composed: true }),
+      new Event('yalo-chat-close', { bubbles: true, composed: true })
     );
   };
 
   render() {
     return html`
-      <div class="chat-window" >
-        <chat-header @close=${this._handleClose}>
-        </chat-header>
-        <div class="chat-body">
-          <slot></slot>
-        </div>
-        <chat-footer>
+      <div class="chat-window">
+        <chat-header @close=${this._handleClose}> </chat-header>
+        <main class="chat-body">
+          <chat-message-list
+            .chatMessages=${this._chatWindowController.chatMessages}
+            .isLoading=${this._chatWindowController.isLoadingMessages}
+            @yalo-chat-fetch-next-page=${() =>
+              this._chatWindowController.fetchNextPage()}
+          >
+          </chat-message-list>
+        </main>
+        <chat-footer
+          @yalo-chat-send-text-message=${(e: CustomEvent) =>
+            this._chatWindowController.sendTextMessage(e)}
+        >
         </chat-footer>
       </div>
     `;

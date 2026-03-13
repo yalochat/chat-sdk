@@ -24,7 +24,7 @@ export default class YaloChatClient {
 
   init(): void {
     this.chatWindowEl = document.createElement(
-      'yalo-chat-window',
+      'yalo-chat-window'
     ) as YaloChatWindow;
     this.chatWindowEl.config = this.config;
     document.body.appendChild(this.chatWindowEl);
@@ -33,7 +33,7 @@ export default class YaloChatClient {
 
     if (!this.targetEl) {
       console.warn(
-        `Target element "#${this.config.target}" not found. Chat window will not work.`,
+        `Target element "#${this.config.target}" not found. Chat window will not work.`
       );
       return;
     }
