@@ -1,3 +1,7 @@
+# AI private assets (managed by private-assets submodule)
+CLAUDE.md
+.claude/
+
 # Miscellaneous
 *.class
 *.log
