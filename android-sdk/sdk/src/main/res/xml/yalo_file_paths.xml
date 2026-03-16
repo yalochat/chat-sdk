@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider paths for Yalo SDK camera capture (FDE-57).
+     cache-path → Context.getCacheDir() / yalo_camera/ -->
+<paths>
+    <cache-path name="yalo_camera_images" path="yalo_camera/" />
+    <cache-path name="yalo_gallery_images" path="yalo_images/" />
+</paths>

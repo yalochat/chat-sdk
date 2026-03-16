@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -16,13 +18,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-// Port of flutter-sdk ChatInput — Phase 1: text field + send button only.
-// Phase 2 will add attachment button, voice recorder, image preview, and quick replies.
+// When the text field is blank a Mic icon replaces the Send button — tapping it starts
+// recording and ChatScreen switches to WaveformRecorder. onMicClick defaults to a no-op.
 @Composable
-fun ChatInput(
+internal fun ChatInput(
     userMessage: String,
     onUserMessageChange: (String) -> Unit,
     onSendMessage: () -> Unit,
+    onAttachmentClick: () -> Unit,
+    onMicClick: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -30,6 +34,12 @@ fun ChatInput(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        IconButton(onClick = onAttachmentClick) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Attach image",
+            )
+        }
         TextField(
             value = userMessage,
             onValueChange = onUserMessageChange,
@@ -37,14 +47,20 @@ fun ChatInput(
             placeholder = { Text("Type a message…") },
             singleLine = true,
         )
-        IconButton(
-            onClick = onSendMessage,
-            enabled = userMessage.isNotBlank(),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send,
-                contentDescription = "Send",
-            )
+        if (userMessage.isBlank()) {
+            IconButton(onClick = onMicClick) {
+                Icon(
+                    imageVector = Icons.Filled.Mic,
+                    contentDescription = "Record voice message",
+                )
+            }
+        } else {
+            IconButton(onClick = onSendMessage) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = "Send",
+                )
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ plugins {
 // Copy local.properties.example → local.properties and fill in the values.
 val localProps = Properties().also { props ->
     val file = rootProject.file("local.properties")
-    if (file.exists()) props.load(file.inputStream())
+    if (file.exists()) file.inputStream().use { props.load(it) }
 }
 
 fun localProp(key: String): String {
@@ -67,6 +67,7 @@ dependencies {
     implementation(composeBom)
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
 

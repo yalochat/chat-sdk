@@ -1,7 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { Locale } from '@i18n/index';
-
 export interface SdkIcons {
   close?: string;
   send?: string;
@@ -13,7 +11,7 @@ export interface YaloChatClientConfig {
   channelName: string;
   target: string;
   image?: string;
-  locale?: Locale;
+  locale?: string;
   icons?: SdkIcons;
 }
 

@@ -2,4 +2,4 @@
 
 export { default as YaloChatClient } from './data/services/client/yalo-chat-client';
 export type { YaloChatClientConfig } from './domain/config/chat-config';
-export { YaloChatWindow } from './ui/chat/chat-window/chat-window';
+export { YaloChatWindow } from './ui/chat/chat-window/yalo-chat-window';

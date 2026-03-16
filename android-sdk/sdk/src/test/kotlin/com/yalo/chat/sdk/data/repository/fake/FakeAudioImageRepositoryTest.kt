@@ -7,6 +7,7 @@ import com.yalo.chat.sdk.domain.model.ImageData
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -41,8 +42,15 @@ class FakeAudioImageRepositoryTest {
     }
 
     @Test
-    fun `FakeAudioRepository amplitudeFlow completes without emitting`() = runTest {
-        val emissions = FakeAudioRepository().amplitudeFlow().toList()
+    fun `FakeAudioRepository amplitudeFlow emits configured values then completes`() = runTest {
+        val values = listOf(-10.0, -20.0)
+        val emissions = FakeAudioRepository(amplitudeValues = values).amplitudeFlow().toList()
+        assertEquals(values, emissions)
+    }
+
+    @Test
+    fun `FakeAudioRepository amplitudeFlow completes without emitting when given empty list`() = runTest {
+        val emissions = FakeAudioRepository(amplitudeValues = emptyList()).amplitudeFlow().toList()
         assertTrue(emissions.isEmpty())
     }
 

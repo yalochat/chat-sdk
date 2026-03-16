@@ -8,13 +8,13 @@ import kotlinx.serialization.Serializable
 // The outer wrapper carries the epoch-second timestamp of the send request;
 // the inner content carries the message payload.
 @Serializable
-data class YaloTextMessageRequest(
+internal data class YaloTextMessageRequest(
     val timestamp: Long,
     val content: YaloTextMessage,
 )
 
 @Serializable
-data class YaloTextMessage(
+internal data class YaloTextMessage(
     val timestamp: Long,
     val text: String,
     val status: String,

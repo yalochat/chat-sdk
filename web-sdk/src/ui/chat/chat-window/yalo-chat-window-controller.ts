@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ReactiveController } from 'lit';
-import type { YaloChatWindow } from './chat-window';
+import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { PageInfo } from '@domain/common/page';
 

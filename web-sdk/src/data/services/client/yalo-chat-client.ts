@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatWindow } from '@ui/chat/chat-window/chat-window';
-import '@ui/chat/chat-window/chat-window';
+import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
+import '@ui/chat/chat-window/yalo-chat-window';
 import {
   defaultIcons,
   type YaloChatClientConfig,
@@ -38,6 +38,10 @@ export default class YaloChatClient {
       return;
     }
 
+    new ResizeObserver(() => this._updatePosition()).observe(this.targetEl);
+    window.addEventListener('resize', () => this._updatePosition());
+    this._updatePosition();
+
     this.targetEl.addEventListener('click', () => {
       if (this.chatWindowEl?.open) {
         this.close();
@@ -49,6 +53,16 @@ export default class YaloChatClient {
     this.chatWindowEl.addEventListener('yalo-chat-close', () => {
       this.close();
     });
+  }
+
+  private _updatePosition(): void {
+    if (!this.targetEl || !this.chatWindowEl) return;
+    const rect = this.targetEl.getBoundingClientRect();
+    const gap = 8;
+    const bottom = window.innerHeight - rect.top + gap;
+    const right = window.innerWidth - rect.right;
+    this.chatWindowEl.style.setProperty('--yalo-chat-inset-bottom', `${bottom}px`);
+    this.chatWindowEl.style.setProperty('--yalo-chat-inset-right', `${right}px`);
   }
 
   open(): void {

@@ -7,22 +7,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
 
-// Port of flutter-sdk Message + UserMessage + AssistantMessage.
-// Phase 1: text only; others rendered as "[type]" placeholder.
-// Phase 2 will add image, voice, product, productCarousel, promotion, quickReply widgets.
 @Composable
-fun MessageItem(message: ChatMessage) {
+internal fun MessageItem(
+    message: ChatMessage,
+    playingMessage: ChatMessage? = null,
+    onPlayAudio: (ChatMessage) -> Unit = {},
+    onStopAudio: () -> Unit = {},
+) {
     val isUser = message.role == MessageRole.USER
     Row(
         modifier = Modifier
@@ -43,6 +49,23 @@ fun MessageItem(message: ChatMessage) {
                     MessageType.Text -> Text(
                         text = message.content,
                         color = textColor,
+                    )
+                    MessageType.Image -> AsyncImage(
+                        // fileName holds the local file path for user-sent images (set by
+                        // sendImageMessage). content holds the URL for agent/server images.
+                        // Fall back to content so both cases render correctly.
+                        model = message.fileName ?: message.content,
+                        contentDescription = "Image message",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(200.dp),
+                        placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                        error = ColorPainter(MaterialTheme.colorScheme.errorContainer),
+                    )
+                    MessageType.Voice -> AudioMessageItem(
+                        message = message,
+                        playingMessage = playingMessage,
+                        onPlay = onPlayAudio,
+                        onStop = onStopAudio,
                     )
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",

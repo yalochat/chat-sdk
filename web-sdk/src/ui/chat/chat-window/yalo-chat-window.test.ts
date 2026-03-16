@@ -2,8 +2,9 @@
 
 import type { LitElement } from 'lit';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import './chat-window';
-import type { YaloChatWindow } from './chat-window';
+import './yalo-chat-window';
+import type { YaloChatWindow } from './yalo-chat-window';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -92,17 +93,22 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Hello world';
 
-      const received = new Promise<string>((resolve) => {
+      const received = new Promise<ChatMessage>((resolve) => {
         el.addEventListener(
           'yalo-chat-send-text-message',
-          (e) => resolve((e as CustomEvent<string>).detail),
+          (e) => resolve((e as CustomEvent<ChatMessage>).detail),
           { once: true }
         );
       });
 
       getSendButton(el).click();
 
-      expect(await received).toBe('Hello world');
+      const message = await received;
+      expect(message.content).toBe('Hello world');
+      expect(message.role).toBe('USER');
+      expect(message.type).toBe('text');
+      expect(message.status).toBe('IN_PROGRESS');
+      expect(message.timestamp).toBeInstanceOf(Date);
     });
 
     it('clears the textarea after sending', async () => {
@@ -152,10 +158,10 @@ describe('YaloChatWindow', () => {
       const textarea = getTextarea(el);
       textarea.value = 'Via keyboard';
 
-      const received = new Promise<string>((resolve) => {
+      const received = new Promise<ChatMessage>((resolve) => {
         el.addEventListener(
           'yalo-chat-send-text-message',
-          (e) => resolve((e as CustomEvent<string>).detail),
+          (e) => resolve((e as CustomEvent<ChatMessage>).detail),
           { once: true }
         );
       });
@@ -168,7 +174,7 @@ describe('YaloChatWindow', () => {
         })
       );
 
-      expect(await received).toBe('Via keyboard');
+      expect((await received).content).toBe('Via keyboard');
     });
 
     it('does not emit on Shift+Enter', async () => {

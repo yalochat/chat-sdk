@@ -15,12 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
 
-// Port of flutter-sdk MessageList — reverse layout mirrors ListView.builder(reverse: true).
-// Items sorted newest-first so item[0] appears at the bottom of the reversed column.
+// reverseLayout puts the newest message at the bottom, matching chat convention.
+// Items are sorted newest-first so item[0] lands at the bottom of the reversed column.
+// Audio callbacks are optional — only wired for screens that have an AudioViewModel.
 @Composable
-fun MessageList(
+internal fun MessageList(
     messages: List<ChatMessage>,
     modifier: Modifier = Modifier,
+    playingMessage: ChatMessage? = null,
+    onPlayAudio: (ChatMessage) -> Unit = {},
+    onStopAudio: () -> Unit = {},
 ) {
     if (messages.isEmpty()) {
         Box(
@@ -39,7 +43,12 @@ fun MessageList(
             .padding(bottom = 4.dp),
     ) {
         items(items = sorted, key = { it.id ?: it.wiId ?: it.timestamp }) { message ->
-            MessageItem(message = message)
+            MessageItem(
+                message = message,
+                playingMessage = playingMessage,
+                onPlayAudio = onPlayAudio,
+                onStopAudio = onStopAudio,
+            )
         }
     }
 }

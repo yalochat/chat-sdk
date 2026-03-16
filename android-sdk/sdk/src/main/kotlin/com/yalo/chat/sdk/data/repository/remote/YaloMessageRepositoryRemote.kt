@@ -26,7 +26,7 @@ import kotlinx.datetime.Instant
 //
 // KMP note: all platform-specific imports (java.text.*, java.util.*) have been replaced
 // with kotlinx-datetime so this file is ready for a commonMain source set.
-class YaloMessageRepositoryRemote(
+internal class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
     // Exposed as internal so tests can override the interval without waiting.
     internal val pollingIntervalMs: Long = 1_000L,
@@ -64,18 +64,18 @@ class YaloMessageRepositoryRemote(
             is Result.Error -> Result.Error(result.error)
         }
 
-    // Continuous polling flow — emits each new inbound ChatMessage as it arrives.
-    // Uses the LRU cache so the same message (identified by wiId) is never emitted twice.
-    // Network errors are logged and swallowed — the loop continues on the next tick,
-    // mirroring flutter-sdk YaloMessageRepositoryRemote._startPolling() which logs
-    // the error and falls through to Future.delayed without breaking the loop.
-    override fun pollIncomingMessages(): Flow<ChatMessage> = flow {
+    // Continuous polling flow — each emission is the de-duplicated batch of new messages
+    // from one poll cycle. Empty batches are suppressed so downstream only sees real data.
+    // Network errors are swallowed and the loop continues on the next tick, mirroring
+    // flutter-sdk YaloMessageRepositoryRemote._startPolling().
+    override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         while (true) {
             val since = Clock.System.now().epochSeconds - lookbackSecs
             when (val result = apiService.fetchMessages(since)) {
-                is Result.Ok -> result.result
-                    .mapNotNull { it.toChatMessage(deduplicate = true) }
-                    .forEach { emit(it) }
+                is Result.Ok -> {
+                    val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }
+                    if (batch.isNotEmpty()) emit(batch)
+                }
                 is Result.Error -> Unit // swallow, loop continues — mirrors Flutter SDK
             }
             delay(pollingIntervalMs)
@@ -85,13 +85,21 @@ class YaloMessageRepositoryRemote(
     private fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean): ChatMessage? {
         if (deduplicate && cache.get(id) != null) return null
         if (deduplicate) cache.set(id, true)
+        val ts = parseIso8601(date)
+        // Build a collision-resistant Long primary key:
+        //   upper: second-precision epoch (handles server dates with no sub-second component)
+        //   lower: 0–999 from wiId hash, so messages in the same second get distinct ids.
+        // For ts == 0 (malformed date) the id is just the hash offset — sorts before real messages.
+        val hashOffset = ((id.hashCode() % 1000) + 1000) % 1000
+        val stableId = if (ts != 0L) (ts / 1000L) * 1000L + hashOffset else hashOffset.toLong()
         return ChatMessage(
+            id = stableId,
             wiId = id,
             role = MessageRole.fromString(message.role),
             type = MessageType.Text, // Phase 2 M1: only text detected
             status = MessageStatus.DELIVERED,
             content = message.text,
-            timestamp = parseIso8601(date),
+            timestamp = ts,
         )
     }
 }
@@ -105,5 +113,7 @@ private fun parseIso8601(date: String): Long =
     try {
         Instant.parse(date).toEpochMilliseconds()
     } catch (_: Exception) {
-        Clock.System.now().toEpochMilliseconds()
+        // Fallback to 0 so malformed dates sort before all real messages
+        // rather than jumping to "now" and breaking chronological ordering.
+        0L
     }

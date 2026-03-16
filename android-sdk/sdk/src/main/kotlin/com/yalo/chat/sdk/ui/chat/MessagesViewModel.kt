@@ -5,7 +5,10 @@ package com.yalo.chat.sdk.ui.chat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.data.MessageSyncService
+import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
@@ -14,16 +17,19 @@ import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/messages/messages_bloc.dart
-class MessagesViewModel(
+// subscribeToMessages() only observes the local store — remote polling is delegated to
+// MessageSyncService, which writes incoming server messages to SQLDelight so the
+// observeMessages() flow is the single source of truth for the UI.
+internal class MessagesViewModel(
     private val yaloMessageRepository: YaloMessageRepository,
     private val chatMessageRepository: ChatMessageRepository,
+    // null in tests — sync is driven externally (or not at all) in unit tests.
+    private val syncService: MessageSyncService? = null,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MessagesState())
@@ -32,17 +38,29 @@ class MessagesViewModel(
     // Keeps the active subscription job so SubscribeToMessages is idempotent.
     private var subscriptionJob: Job? = null
 
-    // Decrementing counter for optimistic temp IDs — always negative so they
-    // never collide with real server IDs (which are positive).
-    private val tempIdSeq = AtomicLong(-1L)
+    // Incrementing counter seeded from current epoch-ms so optimistic temp IDs:
+    //  1. Never collide across sessions (different session → different starting time)
+    //  2. Sort at the bottom in ORDER BY id ASC (most recent, correct chat position)
+    // Server message IDs are also epoch-ms based, so optimistic and server messages
+    // interleave correctly by send time.
+    private val tempIdSeq = AtomicLong(System.currentTimeMillis())
 
     fun handleEvent(event: MessagesEvent) {
         when (event) {
             is MessagesEvent.LoadMessages -> loadMessages()
             is MessagesEvent.SubscribeToMessages -> subscribeToMessages()
             is MessagesEvent.SendTextMessage -> sendTextMessage(event.text)
+            is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
+            is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
-            is MessagesEvent.ClearMessages -> _state.value = MessagesState()
+            is MessagesEvent.ClearMessages -> {
+                syncService?.stop()
+                // Cancel and reset subscriptionJob so SubscribeToMessages restarts polling
+                // correctly if the host app re-enters ChatScreen without destroying the ViewModel.
+                subscriptionJob?.cancel()
+                subscriptionJob = null
+                _state.value = MessagesState()
+            }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
         }
     }
@@ -70,38 +88,20 @@ class MessagesViewModel(
     }
 
     private fun subscribeToMessages() {
-        // Return early if already collecting — makes this call idempotent without
-        // the brief window where two collectors could be active after cancel+launch.
+        // Return early if already collecting — makes this call idempotent.
         if (subscriptionJob?.isActive == true) return
+        // Start remote polling lazily so it only runs while the chat UI is active.
+        // Polling is scoped to viewModelScope and stops automatically when the ViewModel is cleared.
+        syncService?.start(viewModelScope)
+        // Observe local store — MessageSyncService writes remote messages here,
+        // so the UI always reads from a single source of truth (SQLDelight / fake repo).
         subscriptionJob = viewModelScope.launch {
-            // supervisorScope isolates the two child coroutines: an unexpected failure in
-            // one (e.g., an unhandled throw from a Flow collect) does not cancel the other.
-            supervisorScope {
-                // 1. Observe local store — drives all UI updates.
-                launch {
-                    chatMessageRepository.observeMessages().collect { messages ->
-                        _state.update {
-                            it.copy(
-                                messages = messages,
-                                quickReplies = messages.extractQuickReplies(),
-                            )
-                        }
-                    }
-                }
-                // 2. Poll remote for new inbound messages; insert into local store so
-                //    the observer above picks them up automatically.
-                //    Errors are swallowed inside pollIncomingMessages(), mirroring
-                //    flutter-sdk YaloMessageRepositoryRemote._startPolling().
-                launch {
-                    yaloMessageRepository.pollIncomingMessages()
-                        .collect { message ->
-                            // Mirror Flutter _handleMessagesSubscription: on insert error the
-                            // message is dropped and the chat is marked as failed to receive.
-                            when (chatMessageRepository.insertMessage(message)) {
-                                is Result.Ok -> Unit
-                                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
-                            }
-                        }
+            chatMessageRepository.observeMessages().collect { messages ->
+                _state.update {
+                    it.copy(
+                        messages = messages,
+                        quickReplies = messages.extractQuickReplies(),
+                    )
                 }
             }
         }
@@ -110,7 +110,7 @@ class MessagesViewModel(
     private fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         viewModelScope.launch {
-            val tempId = tempIdSeq.getAndDecrement()
+            val tempId = tempIdSeq.getAndIncrement()
             val optimistic = ChatMessage(
                 id = tempId,
                 role = MessageRole.USER,
@@ -121,11 +121,59 @@ class MessagesViewModel(
             when (chatMessageRepository.insertMessage(optimistic)) {
                 is Result.Ok -> {
                     _state.update { it.copy(userMessage = "") }
-                    // Fire-and-forget — mirrors Flutter SDK MessagesBloc._handleSendTextMessage
-                    // which calls _yaloMessageRepository.sendMessage() without awaiting.
-                    launch { yaloMessageRepository.sendMessage(optimistic) }
+                    // Send to remote and update the optimistic message on failure.
+                    launch {
+                        if (yaloMessageRepository.sendMessage(optimistic) is Result.Error) {
+                            chatMessageRepository.updateMessage(
+                                optimistic.copy(status = MessageStatus.ERROR)
+                            )
+                        }
+                    }
                 }
                 is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            }
+        }
+    }
+
+    // Voice messages are not sent to the remote API — same local-only pattern as images.
+    // amplitudesPreview is persisted so the waveform renders correctly on replay.
+    private fun sendVoiceMessage(audioData: AudioData) {
+        if (audioData.fileName.isEmpty()) return
+        viewModelScope.launch {
+            val tempId = tempIdSeq.getAndIncrement()
+            val message = ChatMessage(
+                id = tempId,
+                role = MessageRole.USER,
+                type = MessageType.Voice,
+                status = MessageStatus.SENT,
+                fileName = audioData.fileName,
+                amplitudes = audioData.amplitudesPreview,
+                duration = audioData.durationMs,
+            )
+            if (chatMessageRepository.insertMessage(message) is Result.Error) {
+                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            }
+        }
+    }
+
+
+    // Inserts an image message locally. Images are not sent to the remote API in Phase 2 —
+    // the backend does not yet accept image payloads (YaloMessageRepository.sendMessage()
+    // returns Result.Error for non-text types). Local-only insertion keeps the message
+    // visible in the chat with status SENT.
+    private fun sendImageMessage(imageData: ImageData) {
+        if (imageData.path == null) return
+        viewModelScope.launch {
+            val tempId = tempIdSeq.getAndIncrement()
+            val message = ChatMessage(
+                id = tempId,
+                role = MessageRole.USER,
+                type = MessageType.Image,
+                status = MessageStatus.SENT,
+                fileName = imageData.path,
+            )
+            if (chatMessageRepository.insertMessage(message) is Result.Error) {
+                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }
         }
     }
