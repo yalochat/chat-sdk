@@ -2,7 +2,14 @@
 
 // Service class that will be in charge of fetching yalo messages
 // from yalo's workflow interpreter adapter
-abstract class YaloMessageService  {
+import 'package:chat_flutter_sdk/src/common/result.dart';
+import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_fetch_messages_response.dart';
+import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message_request.dart';
 
-  // TODO: Implement this service interface once the adapter has been defined
+abstract class YaloMessageService {
+  /// Sends a text message using the provided YaloTextMessageRequest.
+  Future<Result<Unit>> sendTextMessage(YaloTextMessageRequest request);
+
+  /// Fetches messages since the given "since" timestamp.
+  Future<Result<List<YaloFetchMessagesResponse>>> fetchMessages(int since);
 }

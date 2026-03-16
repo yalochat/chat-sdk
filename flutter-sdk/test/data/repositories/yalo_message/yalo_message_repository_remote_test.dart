@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_fetch_messages_response.dart';
@@ -16,9 +17,12 @@ import 'package:mocktail/mocktail.dart';
 
 class MockYaloChatClient extends Mock implements YaloChatClient {}
 
+class MockYaloMessageService extends Mock implements YaloMessageService {}
+
 void main() {
   group(YaloMessageRepositoryRemote, () {
     late MockYaloChatClient mockClient;
+    late MockYaloMessageService mockMessageService;
     late YaloMessageRepositoryRemote repo;
 
     const fixedDate = '2024-01-01T00:00:00.000Z';
@@ -47,7 +51,11 @@ void main() {
 
     setUp(() {
       mockClient = MockYaloChatClient();
-      repo = YaloMessageRepositoryRemote(yaloChatClient: mockClient);
+      mockMessageService = MockYaloMessageService();
+      repo = YaloMessageRepositoryRemote(
+        yaloChatClient: mockClient,
+        messageService: mockMessageService,
+      );
     });
 
     tearDown(() {
@@ -64,7 +72,7 @@ void main() {
     group('messages', () {
       test('returns a broadcast stream', () {
         when(
-          () => mockClient.fetchMessages(any()),
+          () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([]));
 
         expect(repo.messages().isBroadcast, isTrue);
@@ -72,7 +80,7 @@ void main() {
 
       test('emits translated messages received from fetchMessages', () async {
         when(
-          () => mockClient.fetchMessages(any()),
+          () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
 
         final message = await repo.messages().first;
@@ -85,7 +93,7 @@ void main() {
 
       test('does not emit messages when fetchMessages returns an empty list', () async {
         final fetchCompleter = Completer<void>();
-        when(() => mockClient.fetchMessages(any())).thenAnswer((_) async {
+        when(() => mockMessageService.fetchMessages(any())).thenAnswer((_) async {
           if (!fetchCompleter.isCompleted) fetchCompleter.complete();
           return Result.ok([]);
         });
@@ -101,7 +109,7 @@ void main() {
 
       test('filters duplicate messages with the same wiId within a single poll batch', () async {
         when(
-          () => mockClient.fetchMessages(any()),
+          () => mockMessageService.fetchMessages(any()),
         ).thenAnswer(
           (_) async => Result.ok([assistantResponseStub, assistantResponseStub]),
         );
@@ -123,7 +131,7 @@ void main() {
 
       test('caches the wiId after first emission to prevent re-emission in future polls', () async {
         when(
-          () => mockClient.fetchMessages(any()),
+          () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
 
         await repo.messages().first;
@@ -134,7 +142,7 @@ void main() {
 
       test('emits TypingStop to the events stream when messages are received', () async {
         when(
-          () => mockClient.fetchMessages(any()),
+          () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
 
         final eventFuture = repo.events().first;
@@ -148,7 +156,7 @@ void main() {
 
       test('emits TypingStop to the events stream when fetchMessages fails', () async {
         when(
-          () => mockClient.fetchMessages(any()),
+          () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.error(Exception('Network error')));
 
         final eventFuture = repo.events().first;
@@ -170,7 +178,7 @@ void main() {
 
       test('emits TypingStart to the events stream before sending', () async {
         when(
-          () => mockClient.sendTextMessage(any()),
+          () => mockMessageService.sendTextMessage(any()),
         ).thenAnswer((_) async => Result.ok(Unit()));
 
         final eventFuture = repo.events().first;
@@ -184,7 +192,7 @@ void main() {
 
       test('returns Result.ok when the client succeeds', () async {
         when(
-          () => mockClient.sendTextMessage(any()),
+          () => mockMessageService.sendTextMessage(any()),
         ).thenAnswer((_) async => Result.ok(Unit()));
 
         final result = await repo.sendMessage(textMessage);
@@ -194,7 +202,7 @@ void main() {
 
       test('returns Result.error when the client fails', () async {
         when(
-          () => mockClient.sendTextMessage(any()),
+          () => mockMessageService.sendTextMessage(any()),
         ).thenAnswer((_) async => Result.error(Exception('Send failed')));
 
         final result = await repo.sendMessage(textMessage);
@@ -204,12 +212,12 @@ void main() {
 
       test('delegates to yaloChatClient.sendTextMessage for text messages', () async {
         when(
-          () => mockClient.sendTextMessage(any()),
+          () => mockMessageService.sendTextMessage(any()),
         ).thenAnswer((_) async => Result.ok(Unit()));
 
         await repo.sendMessage(textMessage);
 
-        verify(() => mockClient.sendTextMessage(any())).called(1);
+        verify(() => mockMessageService.sendTextMessage(any())).called(1);
       });
 
       test('returns Result.error(FormatException) for voice messages without calling the client', () async {
@@ -225,7 +233,7 @@ void main() {
 
         expect(result, isA<Error<Unit>>());
         expect((result as Error<Unit>).error, isA<FormatException>());
-        verifyNever(() => mockClient.sendTextMessage(any()));
+        verifyNever(() => mockMessageService.sendTextMessage(any()));
       });
 
       test('returns Result.error(FormatException) for image messages without calling the client', () async {
@@ -239,7 +247,7 @@ void main() {
 
         expect(result, isA<Error<Unit>>());
         expect((result as Error<Unit>).error, isA<FormatException>());
-        verifyNever(() => mockClient.sendTextMessage(any()));
+        verifyNever(() => mockMessageService.sendTextMessage(any()));
       });
     });
 

@@ -9,6 +9,10 @@ import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.da
 import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository_local.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service_remote.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service_remote.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:chat_flutter_sdk/src/data/services/audio/audio_service_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/camera/camera_service.dart';
@@ -55,9 +59,25 @@ List<SingleChildWidget> repositoryProviders(
     ),
 
     Provider<CameraService>(create: (_) => CameraServiceFile()),
+    Provider<YaloMessageAuthService>(
+      create: (_) => YaloMessageAuthServiceRemote(
+        baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
+        channelId: yaloClient.channelId,
+        organizationId: yaloClient.organizationId,
+      ),
+    ),
+    Provider<YaloMessageService>(
+      create: (context) => YaloMessageServiceRemote(
+        baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
+        channelId: yaloClient.channelId,
+        authService: context.read<YaloMessageAuthService>(),
+      ),
+    ),
     RepositoryProvider<YaloMessageRepository>(
-      create: (context) =>
-          YaloMessageRepositoryRemote(yaloChatClient: yaloClient),
+      create: (context) => YaloMessageRepositoryRemote(
+        yaloChatClient: yaloClient,
+        messageService: context.read<YaloMessageService>(),
+      ),
     ),
     RepositoryProvider<ImageRepository>(
       create: (context) => ImageRepositoryLocal(
