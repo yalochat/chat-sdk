@@ -7,6 +7,7 @@ import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message_request.dart';
 import 'package:chat_flutter_sdk/yalo_sdk.dart';
 import 'package:ecache/ecache.dart';
@@ -25,9 +26,13 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   final cache = SimpleCache<String, bool>(capacity: 500);
 
   final YaloChatClient yaloChatClient;
+  final YaloMessageService messageService;
   final Logger log = Logger('YaloMessageRepositoryRemote');
 
-  YaloMessageRepositoryRemote({required this.yaloChatClient});
+  YaloMessageRepositoryRemote({
+    required this.yaloChatClient,
+    required this.messageService,
+  });
 
   ChatMessage _translateMessageResponse(YaloFetchMessagesResponse item) {
     // FIXME: detect other messages than text
@@ -47,7 +52,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     while (polling) {
       final timestamp =
           DateTime.now().millisecondsSinceEpoch ~/ 1000 - pollingRateWindow;
-      final newMessagesResult = await yaloChatClient.fetchMessages(timestamp);
+      final newMessagesResult = await messageService.fetchMessages(timestamp);
       switch (newMessagesResult) {
         case Ok():
           final messagesResult = newMessagesResult.result;
@@ -112,7 +117,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
           role: chatMessage.role.role,
         ),
       );
-      return yaloChatClient.sendTextMessage(request);
+      return messageService.sendTextMessage(request);
     }
     return Result.error(FormatException('Message type is not supported'));
   }

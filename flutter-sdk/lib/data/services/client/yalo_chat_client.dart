@@ -1,13 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'dart:convert';
-
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_auth_service.dart';
-import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_auth_service_remote.dart';
-import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_fetch_messages_response.dart';
-import 'package:chat_flutter_sdk/src/domain/models/yalo_message/yalo_text_message_request.dart';
-import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 
 class Action {
@@ -20,106 +12,16 @@ class Action {
 class YaloChatClient {
   final String name;
   final String channelId;
-  final String chatBaseUrl;
   final String organizationId;
   final List<Action> actions;
   final Logger log = Logger('YaloChatClient');
-  final Client httpClient;
-  final YaloMessageAuthService authService;
 
   YaloChatClient({
     required this.name,
     required this.channelId,
     required this.organizationId,
-    Client? httpClient,
-    YaloMessageAuthService? authService,
-  }) : chatBaseUrl = const String.fromEnvironment('YALO_SDK_CHAT_URL'),
-       actions = [],
-       httpClient = httpClient ?? Client(),
-       authService = authService ?? YaloMessageAuthServiceRemote(
-         baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
-         organizationId: organizationId,
-         channelId: channelId,
-       );
+  }) : actions = [];
 
   void registerAction(String actionName, void Function() action) =>
       actions.add(Action(name: actionName, action: action));
-
-  // Sends a yalo text message to the upstream chat service
-  Future<Result<Unit>> sendTextMessage(YaloTextMessageRequest request) async {
-    final authResult = await authService.auth();
-    if (authResult case Error(:final error)) {
-      return Result.error(error);
-    }
-    final token = (authResult as Ok<String>).result;
-    final userId = _decodeUserId(token);
-
-    try {
-      final response = await httpClient.post(
-        Uri.parse('$chatBaseUrl/webchat/inbound_messages'),
-        headers: {
-          'content-type': 'application/json',
-          'x-user-id': userId,
-          'x-channel-id': channelId,
-          'authorization': 'Bearer $token',
-        },
-        body: jsonEncode(request.toJson()),
-      );
-
-      if (response.statusCode == 200) {
-        return Result.ok(Unit());
-      } else {
-        return Result.error(
-          Exception('Failed to send message: ${response.statusCode}'),
-        );
-      }
-    } on Exception catch (e) {
-      return Result.error(e);
-    }
-  }
-
-  // Fetches messages from the chat service, the "since" argument
-  // is a unix timestamp.
-  Future<Result<List<YaloFetchMessagesResponse>>> fetchMessages(
-    int since,
-  ) async {
-    final authResult = await authService.auth();
-    if (authResult case Error(:final error)) {
-      return Result.error(error);
-    }
-    final token = (authResult as Ok<String>).result;
-    final userId = _decodeUserId(token);
-
-    try {
-      final baseUrl = '$chatBaseUrl/webchat/messages';
-      final queryParams = {'since': '$since'};
-      final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
-      final response = await httpClient.get(
-        uri,
-        headers: {
-          'x-user-id': userId,
-          'x-channel-id': channelId,
-          'authorization': 'Bearer $token',
-        },
-      );
-      if (response.statusCode == 200) {
-        final data = YaloFetchMessagesResponse.fromJsonList(
-          jsonDecode(response.body),
-        );
-        return Result.ok(data);
-      }
-      return Result.error(Exception('Error fetching messages $response'));
-    } on Exception catch (e) {
-      return Result.error(e);
-    }
-  }
-
-  String _decodeUserId(String token) {
-    final parts = token.split('.');
-    final normalized = base64Url.normalize(parts[1]);
-    final payload =
-        jsonDecode(utf8.decode(base64Url.decode(normalized)))
-            as Map<String, dynamic>;
-    return payload['user_id'] as String;
-  }
 }

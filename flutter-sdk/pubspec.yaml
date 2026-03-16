@@ -45,6 +45,8 @@ dev_dependencies:
   drift_dev: ^2.29.0
   build_runner: ^2.10.4
   json_serializable: ^6.11.2
+  url_launcher_platform_interface: any
+  plugin_platform_interface: any
 
 flutter:
   generate: true

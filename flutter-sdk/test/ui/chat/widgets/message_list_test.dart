@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/domain/models/product/product.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
@@ -35,6 +37,10 @@ class MockAudioBloc extends MockBloc<AudioEvent, AudioState>
 class MockImageBloc extends MockBloc<ImageEvent, ImageState>
     implements ImageBloc {}
 
+class MockUrlLauncherPlatform extends Mock
+    with MockPlatformInterfaceMixin
+    implements UrlLauncherPlatform {}
+
 void main() {
   group(MessageList, () {
     late ChatThemeCubit chatThemeCubit;
@@ -43,8 +49,18 @@ void main() {
     late ImageBloc imageBloc;
     late List<SingleChildWidget> blocs;
     late StreamController<AudioState> audioStreamController;
+    late MockUrlLauncherPlatform mockUrlLauncher;
+
+    setUpAll(() {
+      registerFallbackValue(const LaunchOptions());
+      registerFallbackValue(PreferredLaunchMode.platformDefault);
+    });
 
     setUp(() {
+      mockUrlLauncher = MockUrlLauncherPlatform();
+      UrlLauncherPlatform.instance = mockUrlLauncher;
+      when(() => mockUrlLauncher.supportsMode(any())).thenAnswer((_) async => true);
+      when(() => mockUrlLauncher.launchUrl(any(), any())).thenAnswer((_) async => true);
       chatThemeCubit = ChatThemeCubit(chatTheme: ChatTheme());
       chatBloc = MockMessagesBloc();
       audioBloc = MockAudioBloc();
@@ -795,6 +811,56 @@ void main() {
           expect(tester.takeException(), isA<UnimplementedError>());
         },
       );
+
+      testWidgets('taps a markdown link and launches URL', (tester) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 9,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content: '[Visit](https://example.com)',
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+        await tester.tap(find.textContaining('Visit'));
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockUrlLauncher.launchUrl('https://example.com', any()),
+        ).called(1);
+      });
+
+      testWidgets('taps a bare URL and launches URL', (tester) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 10,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content: 'https://example.com',
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+        await tester.tap(find.textContaining('https://example.com'));
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockUrlLauncher.launchUrl('https://example.com', any()),
+        ).called(1);
+      });
     });
   });
 }
