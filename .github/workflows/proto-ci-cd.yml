@@ -64,7 +64,9 @@ jobs:
           git config user.email "developer-acceleration@yalo.com"
 
       - name: Generate bindings
-        run: make proto
+        run: |
+          export PATH=${PATH}:`go env GOPATH`/bin
+          make proto
 
       - name: Check for changes
         id: check-changes
