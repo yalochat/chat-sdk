@@ -156,7 +156,6 @@ internal class MessagesViewModel(
         }
     }
 
-
     // Inserts an image message locally. Images are not sent to the remote API in Phase 2 —
     // the backend does not yet accept image payloads (YaloMessageRepository.sendMessage()
     // returns Result.Error for non-text types). Local-only insertion keeps the message

@@ -69,7 +69,6 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
 
     // ── Image launchers ───────────────────────────────────────────────────────
 
-
     // Gallery launcher — PickVisualMedia requires no READ_MEDIA_IMAGES permission on API 33+.
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -126,7 +125,6 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     }
 
     // ── Side-effect collectors ────────────────────────────────────────────────
-
 
     // Collect ImageViewModel side effects and fire the appropriate launchers.
     LaunchedEffect(imageViewModel) {
@@ -198,89 +196,90 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     // ── Scaffold ──────────────────────────────────────────────────────────────
 
     ChatThemeProvider(YaloChat.config.theme) {
-    Box {
-        Scaffold(
-            topBar = {
-                ChatAppBar(title = YaloChat.config.name, onBack = onBack)
-            },
-            bottomBar = {
-                if (audioState.isRecording) {
-                    WaveformRecorder(
-                        audioData = audioState.audioData,
-                        onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
-                        onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
-                    )
-                } else {
-                    ChatInput(
-                        userMessage = state.userMessage,
-                        onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
-                        onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
-                        onAttachmentClick = { showPickerSheet = true },
-                        onMicClick = {
-                                                val hasPermission = ContextCompat.checkSelfPermission(
-                                context, Manifest.permission.RECORD_AUDIO
-                            ) == PackageManager.PERMISSION_GRANTED
-                            if (hasPermission) {
-                                audioViewModel.handleEvent(AudioEvent.StartRecording)
-                            } else {
-                                recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            }
-                        },
-                    )
-                }
-            },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-        ) { paddingValues ->
-            MessageList(
-                messages = state.messages,
-                modifier = Modifier.padding(paddingValues),
-                playingMessage = audioState.playingMessage,
-                onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
-                onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
-            )
-        }
-
-        // Image preview overlay — shown above the scaffold when a picked image is ready.
-        // pickedImage is captured as a local val so the lambda captures a stable reference
-        // rather than relying on a non-null assertion against live state.
-        if (imageState.isPreviewVisible) {
-            val pickedImage = imageState.pickedImage
-            if (pickedImage?.path != null) {
-                ImagePreview(
-                    imagePath = pickedImage.path,
-                    onSend = {
-                        viewModel.handleEvent(MessagesEvent.SendImageMessage(pickedImage))
-                        imageViewModel.handleEvent(ImageEvent.HidePreview)
-                    },
-                    onCancel = { imageViewModel.handleEvent(ImageEvent.CancelPick) },
+        Box {
+            Scaffold(
+                topBar = {
+                    ChatAppBar(title = YaloChat.config.name, onBack = onBack)
+                },
+                bottomBar = {
+                    if (audioState.isRecording) {
+                        WaveformRecorder(
+                            audioData = audioState.audioData,
+                            onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
+                            onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
+                        )
+                    } else {
+                        ChatInput(
+                            userMessage = state.userMessage,
+                            onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
+                            onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
+                            onAttachmentClick = { showPickerSheet = true },
+                            onMicClick = {
+                                val hasPermission = ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.RECORD_AUDIO,
+                                ) == PackageManager.PERMISSION_GRANTED
+                                if (hasPermission) {
+                                    audioViewModel.handleEvent(AudioEvent.StartRecording)
+                                } else {
+                                    recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                }
+                            },
+                        )
+                    }
+                },
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+            ) { paddingValues ->
+                MessageList(
+                    messages = state.messages,
+                    modifier = Modifier.padding(paddingValues),
+                    playingMessage = audioState.playingMessage,
+                    onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
+                    onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
                 )
             }
-        }
-    }
 
-    // Bottom sheet for picker source selection (gallery vs. camera).
-    if (showPickerSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showPickerSheet = false },
-            sheetState = rememberModalBottomSheetState(),
-        ) {
-            TextButton(
-                onClick = {
-                    showPickerSheet = false
-                    imageViewModel.handleEvent(ImageEvent.PickFromGallery)
-                },
-            ) {
-                Text("Choose from Gallery")
-            }
-            TextButton(
-                onClick = {
-                    showPickerSheet = false
-                    imageViewModel.handleEvent(ImageEvent.PickFromCamera)
-                },
-            ) {
-                Text("Take Photo")
+            // Image preview overlay — shown above the scaffold when a picked image is ready.
+            // pickedImage is captured as a local val so the lambda captures a stable reference
+            // rather than relying on a non-null assertion against live state.
+            if (imageState.isPreviewVisible) {
+                val pickedImage = imageState.pickedImage
+                if (pickedImage?.path != null) {
+                    ImagePreview(
+                        imagePath = pickedImage.path,
+                        onSend = {
+                            viewModel.handleEvent(MessagesEvent.SendImageMessage(pickedImage))
+                            imageViewModel.handleEvent(ImageEvent.HidePreview)
+                        },
+                        onCancel = { imageViewModel.handleEvent(ImageEvent.CancelPick) },
+                    )
+                }
             }
         }
-    }
+
+        // Bottom sheet for picker source selection (gallery vs. camera).
+        if (showPickerSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showPickerSheet = false },
+                sheetState = rememberModalBottomSheetState(),
+            ) {
+                TextButton(
+                    onClick = {
+                        showPickerSheet = false
+                        imageViewModel.handleEvent(ImageEvent.PickFromGallery)
+                    },
+                ) {
+                    Text("Choose from Gallery")
+                }
+                TextButton(
+                    onClick = {
+                        showPickerSheet = false
+                        imageViewModel.handleEvent(ImageEvent.PickFromCamera)
+                    },
+                ) {
+                    Text("Take Photo")
+                }
+            }
+        }
     } // end ChatThemeProvider
 }
