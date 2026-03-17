@@ -224,15 +224,37 @@ YaloChat.init(
 
 ### Inherit from your Material theme
 
-If your app already has a Material 3 colour scheme, derive the chat theme from it automatically:
+If your app already has a Material 3 colour scheme, derive the chat theme from it automatically.
+
+`MaterialTheme.colorScheme` is only accessible inside a `@Composable` scope. Call `fromMaterialTheme` inside `setContent {}` after your `MaterialTheme` wrapper, then pass the result to `YaloChat.init`:
 
 ```kotlin
-val chatTheme = ChatTheme.fromMaterialTheme(MaterialTheme.colorScheme)
+setContent {
+    MaterialTheme(colorScheme = myColorScheme) {
+        val chatTheme = ChatTheme.fromMaterialTheme(MaterialTheme.colorScheme)
 
+        YaloChat.init(
+            config = YaloChatConfig(
+                // ... credentials ...
+                theme = chatTheme,
+            ),
+            context = this@MainActivity,
+        )
+
+        ChatScreen()
+    }
+}
+```
+
+If you initialise the SDK in `Activity.onCreate` before `setContent`, construct the `ColorScheme` directly instead:
+
+```kotlin
 YaloChat.init(
     config = YaloChatConfig(
         // ... credentials ...
-        theme = chatTheme,
+        theme = ChatTheme.fromMaterialTheme(
+            lightColorScheme(primary = Color(0xFF6650A4))
+        ),
     ),
     context = this,
 )
@@ -244,10 +266,10 @@ This maps Material colour slots (primary, surface, outline, etc.) to their ChatT
 
 | Category | Properties |
 |---|---|
-| **Colors** | `backgroundColor`, `appBarBackgroundColor`, `userBubbleColor`, `agentBubbleColor`, `sendButtonColor`, `sendButtonForegroundColor`, `waveColor`, `inputTextFieldColor`, `inputTextFieldBorderColor`, `actionIconColor`, and 19 more |
-| **Text styles** | `userMessageTextStyle`, `assistantMessageTextStyle`, `hintTextStyle`, `timerTextStyle`, `modalHeaderStyle`, `quickReplyStyle`, and 6 more |
+| **Colors** | `backgroundColor`, `appBarBackgroundColor`, `userBubbleColor`, `agentBubbleColor`, `sendButtonColor`, `waveColor`, `inputTextFieldColor`, `inputTextFieldBorderColor`, `actionIconColor`, `cancelRecordingIconColor`, `closeModalIconColor`, `playAudioIconColor`, `pauseAudioIconColor`, `attachIconColor`, `imagePlaceholderBackgroundColor` |
+| **Text styles** | `userMessageTextStyle`, `assistantMessageTextStyle`, `hintTextStyle`, `timerTextStyle`, `modalHeaderStyle` |
 | **Shape** | `bubbleShape` — corner radius of message bubbles |
-| **Icons** | `sendButtonIcon`, `recordAudioIcon`, `attachIcon`, `playAudioIcon`, `pauseAudioIcon`, `cancelRecordingIcon`, `closeModalIcon`, and 9 more |
+| **Icons** | `sendButtonIcon`, `recordAudioIcon`, `attachIcon`, `playAudioIcon`, `pauseAudioIcon`, `cancelRecordingIcon`, `closeModalIcon` |
 
 All `TextStyle` overrides are merged with the base Material typography — you only need to specify the properties you want to change (e.g., just `color`).
 
