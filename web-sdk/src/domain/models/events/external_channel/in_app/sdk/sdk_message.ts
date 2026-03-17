@@ -11,11 +11,20 @@ import { Timestamp } from "../../../../google/protobuf/timestamp";
 export const protobufPackage = "yalo.external_channel.in_app.sdk.v1";
 
 /** ResponseStatus indicates whether a channel operation succeeded or failed. */
-export enum ResponseStatus {
-  RESPONSE_STATUS_UNSPECIFIED = 0,
-  RESPONSE_STATUS_SUCCESS = 1,
-  RESPONSE_STATUS_ERROR = 2,
-  UNRECOGNIZED = -1,
+export const ResponseStatus = {
+  RESPONSE_STATUS_UNSPECIFIED: 0,
+  RESPONSE_STATUS_SUCCESS: 1,
+  RESPONSE_STATUS_ERROR: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type ResponseStatus = typeof ResponseStatus[keyof typeof ResponseStatus];
+
+export namespace ResponseStatus {
+  export type RESPONSE_STATUS_UNSPECIFIED = typeof ResponseStatus.RESPONSE_STATUS_UNSPECIFIED;
+  export type RESPONSE_STATUS_SUCCESS = typeof ResponseStatus.RESPONSE_STATUS_SUCCESS;
+  export type RESPONSE_STATUS_ERROR = typeof ResponseStatus.RESPONSE_STATUS_ERROR;
+  export type UNRECOGNIZED = typeof ResponseStatus.UNRECOGNIZED;
 }
 
 export function responseStatusFromJSON(object: any): ResponseStatus {
@@ -51,11 +60,20 @@ export function responseStatusToJSON(object: ResponseStatus): string {
 }
 
 /** MessageRole identifies the originator of a message in the conversation. */
-export enum MessageRole {
-  MESSAGE_ROLE_UNSPECIFIED = 0,
-  MESSAGE_ROLE_USER = 1,
-  MESSAGE_ROLE_AGENT = 2,
-  UNRECOGNIZED = -1,
+export const MessageRole = {
+  MESSAGE_ROLE_UNSPECIFIED: 0,
+  MESSAGE_ROLE_USER: 1,
+  MESSAGE_ROLE_AGENT: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type MessageRole = typeof MessageRole[keyof typeof MessageRole];
+
+export namespace MessageRole {
+  export type MESSAGE_ROLE_UNSPECIFIED = typeof MessageRole.MESSAGE_ROLE_UNSPECIFIED;
+  export type MESSAGE_ROLE_USER = typeof MessageRole.MESSAGE_ROLE_USER;
+  export type MESSAGE_ROLE_AGENT = typeof MessageRole.MESSAGE_ROLE_AGENT;
+  export type UNRECOGNIZED = typeof MessageRole.UNRECOGNIZED;
 }
 
 export function messageRoleFromJSON(object: any): MessageRole {
@@ -91,14 +109,26 @@ export function messageRoleToJSON(object: MessageRole): string {
 }
 
 /** MessageStatus tracks the delivery lifecycle of a single message. */
-export enum MessageStatus {
-  MESSAGE_STATUS_UNSPECIFIED = 0,
-  MESSAGE_STATUS_DELIVERED = 1,
-  MESSAGE_STATUS_IN_PROGRESS = 2,
-  MESSAGE_STATUS_READ = 3,
-  MESSAGE_STATUS_ERROR = 4,
-  MESSAGE_STATUS_SENT = 5,
-  UNRECOGNIZED = -1,
+export const MessageStatus = {
+  MESSAGE_STATUS_UNSPECIFIED: 0,
+  MESSAGE_STATUS_DELIVERED: 1,
+  MESSAGE_STATUS_IN_PROGRESS: 2,
+  MESSAGE_STATUS_READ: 3,
+  MESSAGE_STATUS_ERROR: 4,
+  MESSAGE_STATUS_SENT: 5,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type MessageStatus = typeof MessageStatus[keyof typeof MessageStatus];
+
+export namespace MessageStatus {
+  export type MESSAGE_STATUS_UNSPECIFIED = typeof MessageStatus.MESSAGE_STATUS_UNSPECIFIED;
+  export type MESSAGE_STATUS_DELIVERED = typeof MessageStatus.MESSAGE_STATUS_DELIVERED;
+  export type MESSAGE_STATUS_IN_PROGRESS = typeof MessageStatus.MESSAGE_STATUS_IN_PROGRESS;
+  export type MESSAGE_STATUS_READ = typeof MessageStatus.MESSAGE_STATUS_READ;
+  export type MESSAGE_STATUS_ERROR = typeof MessageStatus.MESSAGE_STATUS_ERROR;
+  export type MESSAGE_STATUS_SENT = typeof MessageStatus.MESSAGE_STATUS_SENT;
+  export type UNRECOGNIZED = typeof MessageStatus.UNRECOGNIZED;
 }
 
 export function messageStatusFromJSON(object: any): MessageStatus {
@@ -405,12 +435,22 @@ export interface ProductMessageRequest {
 }
 
 /** Orientation controls how the product list is rendered in the client UI. */
-export enum ProductMessageRequest_Orientation {
-  ORIENTATION_UNSPECIFIED = 0,
-  ORIENTATION_VERTICAL = 1,
+export const ProductMessageRequest_Orientation = {
+  ORIENTATION_UNSPECIFIED: 0,
+  ORIENTATION_VERTICAL: 1,
   /** ORIENTATION_HORIZONTAL - Carousel */
-  ORIENTATION_HORIZONTAL = 2,
-  UNRECOGNIZED = -1,
+  ORIENTATION_HORIZONTAL: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type ProductMessageRequest_Orientation =
+  typeof ProductMessageRequest_Orientation[keyof typeof ProductMessageRequest_Orientation];
+
+export namespace ProductMessageRequest_Orientation {
+  export type ORIENTATION_UNSPECIFIED = typeof ProductMessageRequest_Orientation.ORIENTATION_UNSPECIFIED;
+  export type ORIENTATION_VERTICAL = typeof ProductMessageRequest_Orientation.ORIENTATION_VERTICAL;
+  export type ORIENTATION_HORIZONTAL = typeof ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL;
+  export type UNRECOGNIZED = typeof ProductMessageRequest_Orientation.UNRECOGNIZED;
 }
 
 export function productMessageRequest_OrientationFromJSON(object: any): ProductMessageRequest_Orientation {
