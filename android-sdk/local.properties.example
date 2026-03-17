@@ -6,5 +6,6 @@ sdk.dir=/path/to/Android/sdk
 # local.properties is gitignored — credentials will never be committed.
 
 yalo.apiBaseUrl=https://your-yalo-api-base-url
+yalo.channelName=your-channel-name
 yalo.channelId=your-channel-id
 yalo.organizationId=your-organization-id

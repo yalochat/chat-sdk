@@ -10,7 +10,7 @@ import com.yalo.chat.sdk.ui.theme.ChatTheme
  * Mirrors Flutter SDK's `YaloChatClient` constructor so integrating teams use the same
  * credential names across both platforms.
  *
- * @param name           Display name shown in the chat app bar.
+ * @param channelName    Display name shown in the chat app bar.
  * @param channelId      Yalo channel identifier (maps to `x-channel-id` request header).
  * @param organizationId Yalo organization identifier (used during anonymous authentication).
  * @param apiBaseUrl     Base URL for the Yalo Chat API (no trailing slash, no `/webchat` suffix).
@@ -20,7 +20,7 @@ import com.yalo.chat.sdk.ui.theme.ChatTheme
  *                       Material color scheme automatically.
  */
 data class YaloChatConfig(
-    val name: String,
+    val channelName: String,
     val channelId: String,
     val organizationId: String,
     val apiBaseUrl: String,

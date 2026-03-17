@@ -151,6 +151,57 @@ class ChatThemeTest {
     }
 
     @Test
+    fun `fromMaterialTheme maps onPrimary to sendButtonForegroundColor`() {
+        val theme = ChatTheme.fromMaterialTheme(lightColorScheme(onPrimary = sentinel))
+        assertEquals(sentinel, theme.sendButtonForegroundColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps surface to cardBackgroundColor`() {
+        val theme = ChatTheme.fromMaterialTheme(lightColorScheme(surface = sentinel))
+        assertEquals(sentinel, theme.cardBackgroundColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps outlineVariant to cardBorderColor`() {
+        val scheme = lightColorScheme().copy(outlineVariant = sentinel)
+        val theme = ChatTheme.fromMaterialTheme(scheme)
+        assertEquals(sentinel, theme.cardBorderColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps surfaceContainerHigh to attachmentPickerBackgroundColor`() {
+        val scheme = lightColorScheme().copy(surfaceContainerHigh = sentinel)
+        val theme = ChatTheme.fromMaterialTheme(scheme)
+        assertEquals(sentinel, theme.attachmentPickerBackgroundColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps surfaceVariant to quickReplyColor`() {
+        val scheme = lightColorScheme().copy(surfaceVariant = sentinel)
+        val theme = ChatTheme.fromMaterialTheme(scheme)
+        assertEquals(sentinel, theme.quickReplyColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps outline to quickReplyBorderColor`() {
+        val theme = ChatTheme.fromMaterialTheme(lightColorScheme(outline = sentinel))
+        assertEquals(sentinel, theme.quickReplyBorderColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps onSurfaceVariant to cameraIconColor`() {
+        val theme = ChatTheme.fromMaterialTheme(lightColorScheme(onSurfaceVariant = sentinel))
+        assertEquals(sentinel, theme.cameraIconColor)
+    }
+
+    @Test
+    fun `fromMaterialTheme maps onSurfaceVariant to galleryIconColor`() {
+        val theme = ChatTheme.fromMaterialTheme(lightColorScheme(onSurfaceVariant = sentinel))
+        assertEquals(sentinel, theme.galleryIconColor)
+    }
+
+    @Test
     fun `fromMaterialTheme works with dark color scheme`() {
         val theme = ChatTheme.fromMaterialTheme(darkColorScheme())
         // Verify it doesn't throw and produces a non-default theme.

@@ -50,7 +50,12 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(onBack: (() -> Unit)? = null) {
+fun ChatScreen(
+    onBack: (() -> Unit)? = null,
+    showAttachmentButton: Boolean = true,
+    onShopPressed: (() -> Unit)? = null,
+    onCartPressed: (() -> Unit)? = null,
+) {
     val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()
     val viewModel: MessagesViewModel = viewModel(factory = factory)
@@ -200,7 +205,7 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
         Box {
             Scaffold(
                 topBar = {
-                    ChatAppBar(title = YaloChat.config.name, onBack = onBack)
+                    ChatAppBar(title = YaloChat.config.channelName, onBack = onBack)
                 },
                 bottomBar = {
                     if (audioState.isRecording) {
@@ -215,6 +220,7 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
                             onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
                             onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
                             onAttachmentClick = { showPickerSheet = true },
+                            showAttachmentButton = showAttachmentButton,
                             onMicClick = {
                                 val hasPermission = ContextCompat.checkSelfPermission(
                                     context,

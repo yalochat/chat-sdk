@@ -168,7 +168,7 @@ Call `YaloChat.init()` once before rendering `ChatScreen` — typically in your 
 ```kotlin
 YaloChat.init(
     config = YaloChatConfig(
-        name           = "Support Chat",
+        channelName    = "Support Chat",
         channelId      = "your-channel-id",
         organizationId = "your-organization-id",
         apiBaseUrl     = "https://your-api-base-url",

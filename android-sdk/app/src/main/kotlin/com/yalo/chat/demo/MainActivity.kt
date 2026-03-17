@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         YaloChat.init(
             config = YaloChatConfig(
-                name = "Yalo Chat",
+                channelName = BuildConfig.YALO_CHANNEL_NAME,
                 channelId = BuildConfig.YALO_CHANNEL_ID,
                 organizationId = BuildConfig.YALO_ORGANIZATION_ID,
                 apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
