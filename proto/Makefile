@@ -15,7 +15,7 @@ proto_go:
 
 proto_webchat:
 	mkdir -p $(typescript_sdk_out_path)
-	protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=$(typescript_sdk_out_path) `find events -name '*.proto' -print | sort`
+	protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_opt=enumsAsLiterals=true --ts_proto_out=$(typescript_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_ts
 
 proto_flutter:
