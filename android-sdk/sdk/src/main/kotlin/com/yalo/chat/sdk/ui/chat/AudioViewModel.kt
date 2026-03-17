@@ -11,6 +11,7 @@ import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.AudioRepository
 import com.yalo.chat.sdk.domain.usecase.AudioProcessingUseCase
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +41,10 @@ internal class AudioViewModel(
 
     private var amplitudeJob: Job? = null
     private var completionJob: Job? = null
+    // Atomic flag to close the race window between rapid StartRecording taps.
+    // The coroutine sets audioStatus = RecordingAudio only after startRecording() returns,
+    // so the state-based guard alone cannot prevent two concurrent launches.
+    private val isStartingRecording = AtomicBoolean(false)
 
     fun handleEvent(event: AudioEvent) {
         when (event) {
@@ -69,29 +74,38 @@ internal class AudioViewModel(
     // ── Recording ─────────────────────────────────────────────────────────────
 
     private fun startRecording() {
-        // Guard against rapid taps — a second call before the first coroutine updates state
-        // would launch two concurrent startRecording() calls, leaking the first MediaRecorder.
-        if (_state.value.audioStatus is AudioStatus.RecordingAudio) return
+        // Atomic compareAndSet closes the race window: two rapid taps both call this before
+        // the coroutine has a chance to update audioStatus to RecordingAudio. The flag is
+        // reset in a finally block so a failure still allows a retry.
+        if (!isStartingRecording.compareAndSet(false, true)) return
+        if (_state.value.audioStatus is AudioStatus.RecordingAudio) {
+            isStartingRecording.set(false)
+            return
+        }
         viewModelScope.launch {
-            when (val result = audioRepository.startRecording()) {
-                is Result.Ok -> {
-                    _state.update { s ->
-                        s.copy(
-                            audioStatus = AudioStatus.RecordingAudio,
-                            audioData = AudioData(
-                                fileName = result.result,
-                                amplitudes = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
-                                amplitudesPreview = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
-                                durationMs = 0L,
-                            ),
-                            amplitudeIndex = AMPLITUDE_DATA_POINTS - 1,
-                        )
+            try {
+                when (val result = audioRepository.startRecording()) {
+                    is Result.Ok -> {
+                        _state.update { s ->
+                            s.copy(
+                                audioStatus = AudioStatus.RecordingAudio,
+                                audioData = AudioData(
+                                    fileName = result.result,
+                                    amplitudes = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
+                                    amplitudesPreview = List(AMPLITUDE_DATA_POINTS) { DEFAULT_AMPLITUDE },
+                                    durationMs = 0L,
+                                ),
+                                amplitudeIndex = AMPLITUDE_DATA_POINTS - 1,
+                            )
+                        }
+                        subscribeToAmplitudes()
                     }
-                    subscribeToAmplitudes()
+                    is Result.Error -> _state.update { s ->
+                        s.copy(audioStatus = AudioStatus.ErrorRecordingAudio)
+                    }
                 }
-                is Result.Error -> _state.update { s ->
-                    s.copy(audioStatus = AudioStatus.ErrorRecordingAudio)
-                }
+            } finally {
+                isStartingRecording.set(false)
             }
         }
     }

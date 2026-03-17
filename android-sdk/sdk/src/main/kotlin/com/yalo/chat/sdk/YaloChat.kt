@@ -51,9 +51,8 @@ object YaloChat {
 
         val apiService = YaloChatApiService(
             apiBaseUrl = config.apiBaseUrl,
-            authToken = config.authToken,
-            userToken = config.userToken,
-            flowKey = config.flowKey,
+            channelId = config.channelId,
+            organizationId = config.organizationId,
             httpClient = httpClient,
         )
         val yaloRepo = YaloMessageRepositoryRemote(apiService)

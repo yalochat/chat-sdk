@@ -3,29 +3,43 @@
 package com.yalo.chat.sdk.data.remote
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.data.remote.model.YaloAuthRequest
+import com.yalo.chat.sdk.data.remote.model.YaloAuthResponse
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.data.remote.model.YaloTextMessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.Parameters
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
 private const val HEADER_USER_ID = "x-user-id"
 private const val HEADER_CHANNEL_ID = "x-channel-id"
 private const val HEADER_AUTHORIZATION = "Authorization"
+// Refresh 30 s before actual expiry to avoid a race between expiry check and the API call.
+private const val TOKEN_REFRESH_BUFFER_MS = 30_000L
 
 // Port of flutter-sdk YaloChatClient.
 // Ktor replaces Dart's http package — same headers and endpoints.
 // All network errors are wrapped in Result.Error; no exceptions are thrown.
+//
+// Auth flow mirrors Flutter: POST /auth with channelId + organizationId → access_token.
+// The token is cached and refreshed automatically via POST /oauth/token.
+// A Mutex serialises concurrent auth calls so only one in-flight /auth request can exist.
 //
 // KMP note: the HttpClient (with its platform engine) is provided by the caller —
 // YaloChat.kt on Android passes an Android-engine client, tests pass a MockEngine client.
@@ -33,39 +47,139 @@ private const val HEADER_AUTHORIZATION = "Authorization"
 // an iosMain counterpart provides the Darwin engine.
 internal class YaloChatApiService(
     private val apiBaseUrl: String,
-    private val authToken: String,
-    private val userToken: String,
-    private val flowKey: String,
+    private val channelId: String,
+    private val organizationId: String,
     // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
     internal val httpClient: HttpClient,
 ) {
-    // POST /inbound_messages — send a text message to the Yalo backend.
-    suspend fun sendTextMessage(request: YaloTextMessageRequest): Result<Unit> = try {
-        val response = httpClient.post("$apiBaseUrl/inbound_messages") {
-            contentType(ContentType.Application.Json)
-            header(HEADER_USER_ID, userToken)
-            header(HEADER_CHANNEL_ID, flowKey)
-            header(HEADER_AUTHORIZATION, "Bearer $authToken")
-            setBody(request)
+    private val tokenMutex = Mutex()
+    private var accessToken: String? = null
+    private var storedRefreshToken: String? = null
+    private var tokenExpiresAt: Long = 0L
+    private var userId: String = ""
+
+    // ── Token management ───────────────────────────────────────────────────────
+
+    // Returns a valid (accessToken, userId) pair, authenticating or refreshing as needed.
+    // Mutex ensures only one in-flight auth call at a time even under concurrent requests.
+    private suspend fun ensureValidToken(): Result<Pair<String, String>> =
+        tokenMutex.withLock {
+            val token = accessToken
+            if (token != null && System.currentTimeMillis() < tokenExpiresAt - TOKEN_REFRESH_BUFFER_MS) {
+                return@withLock Result.Ok(token to userId)
+            }
+            val rt = storedRefreshToken
+            if (rt != null) {
+                val refreshResult = doRefreshToken(rt)
+                if (refreshResult is Result.Ok) return@withLock refreshResult
+                // Refresh failed — fall through to full re-auth.
+            }
+            doAuthenticate()
         }
-        if (response.status.isSuccess()) Result.Ok(Unit)
-        else Result.Error(RuntimeException("HTTP ${response.status.value}: send failed"))
+
+    private suspend fun doAuthenticate(): Result<Pair<String, String>> = try {
+        val response = httpClient.post("$apiBaseUrl/auth") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                YaloAuthRequest(
+                    channelId = channelId,
+                    organizationId = organizationId,
+                    timestamp = System.currentTimeMillis() / 1000L,
+                )
+            )
+        }
+        if (response.status.isSuccess()) {
+            val auth: YaloAuthResponse = response.body()
+            cacheTokens(auth)
+            Result.Ok(auth.accessToken to userId)
+        } else {
+            Result.Error(RuntimeException("HTTP ${response.status.value}: auth failed"))
+        }
     } catch (e: Exception) {
         Result.Error(e)
     }
 
-    // GET /messages?since={timestamp} — fetch messages newer than the given Unix second timestamp.
-    suspend fun fetchMessages(since: Long): Result<List<YaloFetchMessagesResponse>> = try {
-        val response = httpClient.get("$apiBaseUrl/messages") {
-            parameter("since", since)
-            header(HEADER_USER_ID, userToken)
-            header(HEADER_CHANNEL_ID, flowKey)
-            header(HEADER_AUTHORIZATION, "Bearer $authToken")
+    private suspend fun doRefreshToken(refreshToken: String): Result<Pair<String, String>> = try {
+        val response = httpClient.submitForm(
+            url = "$apiBaseUrl/oauth/token",
+            formParameters = Parameters.build {
+                append("grant_type", "refresh_token")
+                append("refresh_token", refreshToken)
+            },
+        )
+        if (response.status.isSuccess()) {
+            val auth: YaloAuthResponse = response.body()
+            cacheTokens(auth)
+            Result.Ok(auth.accessToken to userId)
+        } else {
+            Result.Error(RuntimeException("HTTP ${response.status.value}: token refresh failed"))
         }
-        if (response.status.isSuccess()) Result.Ok(response.body())
-        else Result.Error(RuntimeException("HTTP ${response.status.value}: fetch failed"))
     } catch (e: Exception) {
         Result.Error(e)
+    }
+
+    private fun cacheTokens(auth: YaloAuthResponse) {
+        accessToken = auth.accessToken
+        storedRefreshToken = auth.refreshToken
+        tokenExpiresAt = System.currentTimeMillis() + auth.expiresIn * 1000L
+        userId = extractUserIdFromJwt(auth.accessToken)
+    }
+
+    // JWT payloads use URL-safe base64 without padding. Normalise to standard base64 with
+    // padding so kotlin.io.encoding.Base64.Default (which requires padding) can decode it.
+    @OptIn(ExperimentalEncodingApi::class)
+    private fun extractUserIdFromJwt(token: String): String = try {
+        val rawPayload = token.split(".").getOrNull(1) ?: return ""
+        val padded = when (rawPayload.length % 4) {
+            2 -> "$rawPayload=="
+            3 -> "$rawPayload="
+            else -> rawPayload
+        }.replace('-', '+').replace('_', '/')
+        val decoded = String(Base64.Default.decode(padded))
+        Regex(""""user_id"\s*:\s*"([^"]+)"""").find(decoded)?.groupValues?.get(1) ?: ""
+    } catch (_: Exception) {
+        ""
+    }
+
+    // ── API calls ─────────────────────────────────────────────────────────────
+
+    // POST /webchat/inbound_messages — send a text message to the Yalo backend.
+    suspend fun sendTextMessage(request: YaloTextMessageRequest): Result<Unit> {
+        val tokenResult = ensureValidToken()
+        if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
+        val (token, uid) = (tokenResult as Result.Ok).result
+        return try {
+            val response = httpClient.post("$apiBaseUrl/webchat/inbound_messages") {
+                contentType(ContentType.Application.Json)
+                header(HEADER_USER_ID, uid)
+                header(HEADER_CHANNEL_ID, channelId)
+                header(HEADER_AUTHORIZATION, "Bearer $token")
+                setBody(request)
+            }
+            if (response.status.isSuccess()) Result.Ok(Unit)
+            else Result.Error(RuntimeException("HTTP ${response.status.value}: send failed"))
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    // GET /webchat/messages?since={timestamp} — fetch messages newer than the given timestamp.
+    suspend fun fetchMessages(since: Long): Result<List<YaloFetchMessagesResponse>> {
+        val tokenResult = ensureValidToken()
+        if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
+        val (token, uid) = (tokenResult as Result.Ok).result
+        return try {
+            val response = httpClient.get("$apiBaseUrl/webchat/messages") {
+                parameter("since", since)
+                header(HEADER_USER_ID, uid)
+                header(HEADER_CHANNEL_ID, channelId)
+                header(HEADER_AUTHORIZATION, "Bearer $token")
+            }
+            if (response.status.isSuccess()) Result.Ok(response.body())
+            else Result.Error(RuntimeException("HTTP ${response.status.value}: fetch failed"))
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
     }
 }
 

@@ -7,6 +7,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertSame
 import org.junit.Test
 
 // Unit tests for ChatTheme.fromMaterialTheme — verifies every Material color-slot mapping
@@ -19,7 +21,7 @@ class ChatThemeTest {
     @Test
     fun `Default is a stable singleton`() {
         // Same reference — not a new allocation each time.
-        assert(ChatTheme.Default === ChatTheme.Default)
+        assertSame(ChatTheme.Default, ChatTheme.Default)
     }
 
     @Test
@@ -151,7 +153,7 @@ class ChatThemeTest {
     @Test
     fun `fromMaterialTheme works with dark color scheme`() {
         val theme = ChatTheme.fromMaterialTheme(darkColorScheme())
-        // Just verify it doesn't throw and produces a non-default theme.
-        assert(theme != ChatTheme.Default)
+        // Verify it doesn't throw and produces a non-default theme.
+        assertNotEquals(ChatTheme.Default, theme)
     }
 }

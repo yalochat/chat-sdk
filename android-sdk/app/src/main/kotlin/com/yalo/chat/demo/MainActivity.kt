@@ -22,9 +22,8 @@ class MainActivity : ComponentActivity() {
         YaloChat.init(
             config = YaloChatConfig(
                 name = "Yalo Chat",
-                flowKey = BuildConfig.YALO_FLOW_KEY,
-                authToken = BuildConfig.YALO_AUTH_TOKEN,
-                userToken = BuildConfig.YALO_USER_TOKEN,
+                channelId = BuildConfig.YALO_CHANNEL_ID,
+                organizationId = BuildConfig.YALO_ORGANIZATION_ID,
                 apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
             ),
             context = this,
