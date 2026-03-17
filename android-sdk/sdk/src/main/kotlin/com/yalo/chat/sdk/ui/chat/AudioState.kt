@@ -11,7 +11,6 @@ sealed class AudioStatus {
     data object Initial : AudioStatus()
     data object RecordingAudio : AudioStatus()
     data object PlayingAudio : AudioStatus()
-    data object AudioPaused : AudioStatus()
     data object ErrorRecordingAudio : AudioStatus()
     data object ErrorStoppingRecording : AudioStatus()
     data object ErrorPlayingAudio : AudioStatus()

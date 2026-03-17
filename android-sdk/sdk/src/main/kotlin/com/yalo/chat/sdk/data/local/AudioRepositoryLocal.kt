@@ -13,6 +13,7 @@ import com.yalo.chat.sdk.domain.repository.AudioRepository
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,8 +29,8 @@ internal class AudioRepositoryLocal(
 
     // Guarded by the coroutine dispatcher — recorder/player mutated from suspend functions,
     // @Volatile ensures cross-thread visibility for the completion listener assignment of player.
-    private var recorder: MediaRecorder? = null
-    private var currentFile: File? = null
+    @Volatile private var recorder: MediaRecorder? = null
+    @Volatile private var currentFile: File? = null
     @Volatile private var player: MediaPlayer? = null
     @Volatile private var isRecording = false
 
@@ -131,7 +132,7 @@ internal class AudioRepositoryLocal(
             // Convert 0..32767 → DBFS (matches Flutter AudioRepositoryLocal mapping).
             val dbfs = if (raw > 0) 20.0 * log10(raw / 32767.0) else -160.0
             emit(dbfs)
-            kotlinx.coroutines.delay(AudioRepository.RECORD_TICK_MS)
+            delay(AudioRepository.RECORD_TICK_MS)
         }
     }.buffer(Channel.UNLIMITED)
 
@@ -181,6 +182,8 @@ internal class AudioRepositoryLocal(
             player = null
             Result.Ok(Unit)
         } catch (e: Exception) {
+            player?.release()
+            player = null
             Result.Error(e)
         }
     }

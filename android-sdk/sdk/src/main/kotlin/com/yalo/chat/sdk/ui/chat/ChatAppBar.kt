@@ -9,14 +9,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Port of flutter-sdk ChatAppBar — Phase 1 shows name only (no icon/actions).
-// Phase 2 will add chatIconImage, shop/cart action buttons, and status text.
-// onBack: optional back arrow shown when the host app provides a navigation callback.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ChatAppBar(title: String, onBack: (() -> Unit)? = null) {
+    val theme = LocalChatTheme.current
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon = {
@@ -26,5 +26,6 @@ internal fun ChatAppBar(title: String, onBack: (() -> Unit)? = null) {
                 }
             }
         },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = theme.appBarBackgroundColor),
     )
 }

@@ -69,6 +69,9 @@ internal class AudioViewModel(
     // ── Recording ─────────────────────────────────────────────────────────────
 
     private fun startRecording() {
+        // Guard against rapid taps — a second call before the first coroutine updates state
+        // would launch two concurrent startRecording() calls, leaking the first MediaRecorder.
+        if (_state.value.audioStatus is AudioStatus.RecordingAudio) return
         viewModelScope.launch {
             when (val result = audioRepository.startRecording()) {
                 is Result.Ok -> {
@@ -181,7 +184,8 @@ internal class AudioViewModel(
             if (_state.value.playingMessage != null) {
                 when (audioRepository.stop()) {
                     is Result.Ok -> _state.update { s ->
-                        s.copy(playingMessage = null, audioStatus = AudioStatus.AudioPaused)
+                        // stop() fully releases MediaPlayer — reset to Initial, not Paused.
+                        s.copy(playingMessage = null, audioStatus = AudioStatus.Initial)
                     }
                     is Result.Error -> {
                         _state.update { s -> s.copy(audioStatus = AudioStatus.ErrorStoppingAudio) }

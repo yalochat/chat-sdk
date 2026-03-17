@@ -2,13 +2,26 @@
 
 package com.yalo.chat.sdk
 
-// Port of flutter-sdk YaloChatConfig.
-// Phase 2 M1 adds apiBaseUrl — required for real Ktor networking.
-// Phase 2 M5 will add theme and other polish settings.
+import com.yalo.chat.sdk.ui.theme.ChatTheme
+
+/**
+ * Configuration passed to [YaloChat.init].
+ *
+ * @param name      Display name shown in the chat app bar.
+ * @param flowKey   Yalo flow key that identifies the conversation flow.
+ * @param authToken Bearer token for API authentication.
+ * @param userToken Token identifying the end user.
+ * @param apiBaseUrl Base URL for the Yalo Chat API (no trailing slash).
+ * @param theme     Visual theme for the chat UI. Defaults to [ChatTheme.Default],
+ *                  which matches the Flutter SDK's built-in light theme.
+ *                  Use [ChatTheme.fromMaterialTheme] to inherit the host app's
+ *                  Material color scheme automatically.
+ */
 data class YaloChatConfig(
     val name: String,
     val flowKey: String,
     val authToken: String,
     val userToken: String,
     val apiBaseUrl: String,
+    val theme: ChatTheme = ChatTheme.Default,
 )

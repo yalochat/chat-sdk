@@ -45,6 +45,7 @@ import com.yalo.chat.sdk.ui.chat.MessagesEvent
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.chat.WaveformRecorder
 import com.yalo.chat.sdk.ui.chat.isRecording
+import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,7 +68,6 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     var pendingCameraUriString by remember { mutableStateOf<String?>(null) }
 
     // ── Image launchers ───────────────────────────────────────────────────────
-
 
     // Gallery launcher — PickVisualMedia requires no READ_MEDIA_IMAGES permission on API 33+.
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -126,7 +126,6 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
 
     // ── Side-effect collectors ────────────────────────────────────────────────
 
-
     // Collect ImageViewModel side effects and fire the appropriate launchers.
     LaunchedEffect(imageViewModel) {
         imageViewModel.sideEffects.collect { effect ->
@@ -163,12 +162,13 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     // When recording stops successfully, insert the voice message.
     // Guards:
     //  1. audioStatus must be Initial — prevents sending on ErrorStoppingRecording.
-    //  2. audioData.fileName must be non-empty — prevents sending after CancelRecording
-    //     (cancelRecording() resets audioData to an empty AudioData before transitioning).
+    //  2. fileName must be non-empty — prevents sending after CancelRecording,
+    //     which resets audioData (including fileName) before transitioning to Initial.
     val wasRecording = remember { mutableStateOf(false) }
     LaunchedEffect(audioState.isRecording) {
         if (wasRecording.value && !audioState.isRecording
             && audioState.audioStatus is AudioStatus.Initial
+            && audioState.audioData.fileName.isNotEmpty()
         ) {
             viewModel.handleEvent(MessagesEvent.SendVoiceMessage(audioState.audioData))
         }
@@ -183,96 +183,104 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
 
     // Stop sync and reset state when the screen leaves composition so background
     // polling does not continue while the host app shows other screens.
-    // Keyed to viewModel so disposal always targets the current instance.
-    DisposableEffect(viewModel) {
-        onDispose { viewModel.handleEvent(MessagesEvent.ClearMessages) }
+    // Keyed to both ViewModels so disposal always targets the current instances.
+    // audioViewModel cleanup stops an in-progress recording or playback on screen exit.
+    DisposableEffect(viewModel, audioViewModel, imageViewModel) {
+        onDispose {
+            viewModel.handleEvent(MessagesEvent.ClearMessages)
+            audioViewModel.handleEvent(AudioEvent.CancelRecording)
+            audioViewModel.handleEvent(AudioEvent.Stop)
+            imageViewModel.handleEvent(ImageEvent.CancelPick)
+        }
     }
 
     // ── Scaffold ──────────────────────────────────────────────────────────────
 
-
-    Box {
-        Scaffold(
-            topBar = {
-                ChatAppBar(title = YaloChat.config.name, onBack = onBack)
-            },
-            bottomBar = {
-                if (audioState.isRecording) {
-                    WaveformRecorder(
-                        audioData = audioState.audioData,
-                        onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
-                        onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
-                    )
-                } else {
-                    ChatInput(
-                        userMessage = state.userMessage,
-                        onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
-                        onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
-                        onAttachmentClick = { showPickerSheet = true },
-                        onMicClick = {
-                                                val hasPermission = ContextCompat.checkSelfPermission(
-                                context, Manifest.permission.RECORD_AUDIO
-                            ) == PackageManager.PERMISSION_GRANTED
-                            if (hasPermission) {
-                                audioViewModel.handleEvent(AudioEvent.StartRecording)
-                            } else {
-                                recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            }
-                        },
-                    )
-                }
-            },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-        ) { paddingValues ->
-            MessageList(
-                messages = state.messages,
-                modifier = Modifier.padding(paddingValues),
-                playingMessage = audioState.playingMessage,
-                onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
-                onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
-            )
-        }
-
-        // Image preview overlay — shown above the scaffold when a picked image is ready.
-        // pickedImage is captured as a local val so the lambda captures a stable reference
-        // rather than relying on a non-null assertion against live state.
-        if (imageState.isPreviewVisible) {
-            val pickedImage = imageState.pickedImage
-            if (pickedImage?.path != null) {
-                ImagePreview(
-                    imagePath = pickedImage.path,
-                    onSend = {
-                        viewModel.handleEvent(MessagesEvent.SendImageMessage(pickedImage))
-                        imageViewModel.handleEvent(ImageEvent.HidePreview)
-                    },
-                    onCancel = { imageViewModel.handleEvent(ImageEvent.CancelPick) },
+    ChatThemeProvider(YaloChat.config.theme) {
+        Box {
+            Scaffold(
+                topBar = {
+                    ChatAppBar(title = YaloChat.config.name, onBack = onBack)
+                },
+                bottomBar = {
+                    if (audioState.isRecording) {
+                        WaveformRecorder(
+                            audioData = audioState.audioData,
+                            onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
+                            onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
+                        )
+                    } else {
+                        ChatInput(
+                            userMessage = state.userMessage,
+                            onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
+                            onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
+                            onAttachmentClick = { showPickerSheet = true },
+                            onMicClick = {
+                                val hasPermission = ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.RECORD_AUDIO,
+                                ) == PackageManager.PERMISSION_GRANTED
+                                if (hasPermission) {
+                                    audioViewModel.handleEvent(AudioEvent.StartRecording)
+                                } else {
+                                    recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                }
+                            },
+                        )
+                    }
+                },
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+            ) { paddingValues ->
+                MessageList(
+                    messages = state.messages,
+                    modifier = Modifier.padding(paddingValues),
+                    playingMessage = audioState.playingMessage,
+                    onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
+                    onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
                 )
             }
-        }
-    }
 
-    // Bottom sheet for picker source selection (gallery vs. camera).
-    if (showPickerSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showPickerSheet = false },
-            sheetState = rememberModalBottomSheetState(),
-        ) {
-            TextButton(
-                onClick = {
-                    showPickerSheet = false
-                    imageViewModel.handleEvent(ImageEvent.PickFromGallery)
-                },
-            ) {
-                Text("Choose from Gallery")
-            }
-            TextButton(
-                onClick = {
-                    showPickerSheet = false
-                    imageViewModel.handleEvent(ImageEvent.PickFromCamera)
-                },
-            ) {
-                Text("Take Photo")
+            // Image preview overlay — shown above the scaffold when a picked image is ready.
+            // pickedImage is captured as a local val so the lambda captures a stable reference
+            // rather than relying on a non-null assertion against live state.
+            if (imageState.isPreviewVisible) {
+                val pickedImage = imageState.pickedImage
+                if (pickedImage?.path != null) {
+                    ImagePreview(
+                        imagePath = pickedImage.path,
+                        onSend = {
+                            viewModel.handleEvent(MessagesEvent.SendImageMessage(pickedImage))
+                            imageViewModel.handleEvent(ImageEvent.HidePreview)
+                        },
+                        onCancel = { imageViewModel.handleEvent(ImageEvent.CancelPick) },
+                    )
+                }
             }
         }
-    }
+
+        // Bottom sheet for picker source selection (gallery vs. camera).
+        if (showPickerSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showPickerSheet = false },
+                sheetState = rememberModalBottomSheetState(),
+            ) {
+                TextButton(
+                    onClick = {
+                        showPickerSheet = false
+                        imageViewModel.handleEvent(ImageEvent.PickFromGallery)
+                    },
+                ) {
+                    Text("Choose from Gallery")
+                }
+                TextButton(
+                    onClick = {
+                        showPickerSheet = false
+                        imageViewModel.handleEvent(ImageEvent.PickFromCamera)
+                    },
+                ) {
+                    Text("Take Photo")
+                }
+            }
+        }
+    } // end ChatThemeProvider
 }
