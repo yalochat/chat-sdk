@@ -34,8 +34,6 @@ dependencies:
   flutter_markdown_plus: ^1.0.7
   url_launcher: ^6.3.1
   ecache: ^2.2.0
-  chat_sdk_proto:
-    path: ../proto/dart/
 
 
 dev_dependencies:
