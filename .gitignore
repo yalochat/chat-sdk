@@ -20,7 +20,9 @@ dist/**
 
 coverage/**
 
-flutter_sdk/pubspec.lock
+# Flutter recommends not pushing
+# pubspeck.lock in libraries
+flutter-sdk/pubspec.lock
 .dir-locals.el
 
 # IntelliJ related

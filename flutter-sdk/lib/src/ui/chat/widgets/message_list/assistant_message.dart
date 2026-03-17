@@ -7,6 +7,7 @@ import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AssistantMessage extends StatelessWidget {
   final ChatMessage message;
@@ -33,10 +34,19 @@ class AssistantMessage extends StatelessWidget {
                 child: Markdown(
                   data: message.content,
                   shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   styleSheet: MarkdownStyleSheet(
                     textAlign: WrapAlignment.start,
                     p: chatThemeCubit.chatTheme.assistantMessageTextStyle,
                   ),
+                  onTapLink: (String text, String? href, String title) {
+                    if (href != null) {
+                      launchUrl(
+                        Uri.parse(href),
+                        mode: LaunchMode.externalApplication,
+                      );
+                    }
+                  },
                 ),
               ),
               MessageType.product => AssistantProductMessage(

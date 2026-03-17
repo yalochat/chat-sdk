@@ -122,7 +122,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
             chatStatusText: '',
           ),
         };
-
         return result;
       },
     );
@@ -393,7 +392,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     Emitter<MessagesState> emit,
   ) {
     log.info('Expanding message with id ${event.messageId}');
-
     final messageIndex = state.messages.indexWhere(
       (m) => m.id == event.messageId,
     );

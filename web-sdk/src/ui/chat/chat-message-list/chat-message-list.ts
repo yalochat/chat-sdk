@@ -47,6 +47,7 @@ export default class ChatMessageList extends LitElement {
     .agent-message {
       justify-content: flex-start;
       display: flow;
+      padding-left: 0.5rem;
     }
 
     .bubble {
@@ -188,16 +189,20 @@ export default class ChatMessageList extends LitElement {
                   ? html`<span class="bubble">${chatMessage.content}</span>`
                   : html`<p>
                       ${unsafeHTML(
-                        snarkdown(dompurify.sanitize(chatMessage.content))
+                        dompurify.sanitize(
+                          snarkdown(
+                            this._chatMessageListController.highlightLinks(
+                              chatMessage.content
+                            )
+                          )
+                        )
                       )}
                     </p>`}
               </li>
             `;
           }
         )}
-        <li class="loader">
-          ${this.isLoading ? html`<span class="spinner"></span>` : nothing}
-        </li>
+        <li class="loader"></li>
       </ul>
     `;
   }
