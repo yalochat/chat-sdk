@@ -101,7 +101,7 @@ data class ChatTheme(
     // ── Shape ─────────────────────────────────────────────────────────────────
     /**
      * Corner radius applied to both user and agent message bubbles.
-     * Declared as [CornerBasedShape] (covers [RoundedCornerShape], [CutCornerShape], etc.)
+     * Declared as [CornerBasedShape] (covers [RoundedCornerShape], `CutCornerShape`, etc.)
      * so that Compose's stability analysis can verify the field is immutable.
      */
     val bubbleShape: CornerBasedShape = RoundedCornerShape(12.dp),

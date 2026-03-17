@@ -84,7 +84,7 @@ internal class YaloChatApiService(
                 YaloAuthRequest(
                     channelId = channelId,
                     organizationId = organizationId,
-                    timestamp = System.currentTimeMillis() / 1000L,
+                    timestamp = System.currentTimeMillis(),
                 )
             )
         }
@@ -135,7 +135,7 @@ internal class YaloChatApiService(
             3 -> "$rawPayload="
             else -> rawPayload
         }.replace('-', '+').replace('_', '/')
-        val decoded = String(Base64.Default.decode(padded))
+        val decoded = String(Base64.Default.decode(padded), Charsets.UTF_8)
         Regex(""""user_id"\s*:\s*"([^"]+)"""").find(decoded)?.groupValues?.get(1) ?: ""
     } catch (_: Exception) {
         ""

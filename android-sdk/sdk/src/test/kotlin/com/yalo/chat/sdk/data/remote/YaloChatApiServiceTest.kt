@@ -98,6 +98,7 @@ class YaloChatApiServiceTest {
         }
         val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
         assertIs<Result.Error<Unit>>(service.sendTextMessage(testRequest))
+        assertTrue(authHandled)
     }
 
     @Test
