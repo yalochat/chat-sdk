@@ -19,6 +19,9 @@ env:
 jobs:
   generate-bindings:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./proto
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
