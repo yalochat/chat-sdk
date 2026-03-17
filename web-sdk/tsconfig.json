@@ -27,7 +27,8 @@
       "@domain/*": ["src/domain/*"],
       "@i18n/*": ["src/i18n/*"],
       "@log/*": ["src/log/*"],
-      "@ui/*": ["src/ui/*"]
+      "@ui/*": ["src/ui/*"],
+      "@proto": ["../proto/typescript"]
     },
     "plugins": [
       {

@@ -16,6 +16,7 @@ export default defineConfig(({ command }) => {
         '@i18n': resolve(__dirname, 'src/i18n'),
         '@log': resolve(__dirname, 'src/log'),
         '@ui': resolve(__dirname, 'src/ui'),
+        '@proto': resolve(__dirname, '../proto/typescript'),
       },
     },
     publicDir: command === 'build' ? false : 'public',
