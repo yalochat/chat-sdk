@@ -185,11 +185,12 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     // polling does not continue while the host app shows other screens.
     // Keyed to both ViewModels so disposal always targets the current instances.
     // audioViewModel cleanup stops an in-progress recording or playback on screen exit.
-    DisposableEffect(viewModel, audioViewModel) {
+    DisposableEffect(viewModel, audioViewModel, imageViewModel) {
         onDispose {
             viewModel.handleEvent(MessagesEvent.ClearMessages)
             audioViewModel.handleEvent(AudioEvent.CancelRecording)
             audioViewModel.handleEvent(AudioEvent.Stop)
+            imageViewModel.handleEvent(ImageEvent.CancelPick)
         }
     }
 

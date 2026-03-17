@@ -11,7 +11,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 // dynamically — avoids per-composable read tracking overhead of compositionLocalOf.
 // Access via LocalChatTheme.current inside any SDK composable.
 internal val LocalChatTheme = staticCompositionLocalOf<ChatTheme> {
-    error("No ChatTheme found — ChatScreen must be used after YaloChat.init()")
+    error("No ChatTheme in composition — LocalChatTheme.current can only be read inside ChatThemeProvider")
 }
 
 // Provides [theme] to all SDK composables in [content].

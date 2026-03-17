@@ -12,8 +12,8 @@ import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.repository.AudioRepository
 import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -30,7 +30,7 @@ internal class AudioRepositoryLocal(
     // Guarded by the coroutine dispatcher — recorder/player mutated from suspend functions,
     // @Volatile ensures cross-thread visibility for the completion listener assignment of player.
     @Volatile private var recorder: MediaRecorder? = null
-    private var currentFile: File? = null
+    @Volatile private var currentFile: File? = null
     @Volatile private var player: MediaPlayer? = null
     @Volatile private var isRecording = false
 
