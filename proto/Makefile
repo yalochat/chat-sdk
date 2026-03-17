@@ -2,7 +2,7 @@
 flutter_sdk_out_path = ../flutter-sdk/lib/src/domain/models/
 typescript_sdk_out_path = ../web-sdk/src/domain/models/
 
-proto: proto_go proto_ts proto_dart
+proto: proto_go proto_webchat proto_flutter
 
 proto_go:
 	mkdir -p golang
@@ -13,12 +13,12 @@ proto_go:
 		   `find events -name '*.proto' -print | sort`
 .PHONY: proto_go
 
-proto_ts:
+proto_webchat:
 	mkdir -p $(typescript_sdk_out_path)
 	protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=$(typescript_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_ts
 
-proto_dart:
+proto_flutter:
 	mkdir -p $(flutter_sdk_out_path)
 	protoc --dart_out=$(flutter_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_dart
