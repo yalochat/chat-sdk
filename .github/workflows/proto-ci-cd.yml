@@ -1,0 +1,94 @@
+name: Generate Bindings
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'proto/**'
+      - '.github/workflows/proto-ci-cd.yml'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  BUN_VERSION: "1.3.10"
+  GO_VERSION: "1.26.1"
+  DART_VERSION: "3.11.1"
+  PROTOC_VERSION: "34.0"
+
+jobs:
+  generate-bindings:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./proto
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: Install protobuf compiler
+        run: |
+          PROTOC_VERSION=${{ env.PROTOC_VERSION }}
+          PROTOC_ZIP=protoc-${PROTOC_VERSION}-linux-x86_64.zip
+          curl -LO https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP}
+          sudo unzip -o ${PROTOC_ZIP} -d /usr/local bin/protoc
+          sudo unzip -o ${PROTOC_ZIP} -d /usr/local 'include/*'
+          rm -f ${PROTOC_ZIP}
+          protoc --version
+
+      - name: Install Go tools
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.11
+          go install github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto@v0.5.0
+
+      - name: Install Bun dependencies
+        run: bun ci
+
+      - name: Install Dart protoc plugin
+        run: dart pub global activate protoc_plugin
+
+      - name: Configure git
+        run: |
+          git config user.name "DevEx self service"
+          git config user.email "developer-acceleration@yalo.com"
+
+      - name: Generate bindings
+        run: make proto
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          git add -A
+          if git diff --staged --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check-changes.outputs.changes == 'true'
+        run: |
+          git commit -m "[skip ci] chore: generate bindings
+
+          Co-Authored-By: DevEx self service <developer-acceleration@yalo.com>"
+          git push origin ${{ github.head_ref }}

@@ -1,0 +1,364 @@
+syntax = "proto3";
+
+package yalo.external_channel.in_app.sdk.v1;
+
+option go_package = "github.com/yalochat/chat-sdk/proto/golang/events/external_channel/in_app/sdk/v1";
+
+import "google/protobuf/timestamp.proto";
+
+// ---------------------------------------------------------------------------
+// Envelope
+// ---------------------------------------------------------------------------
+
+// SdkMessage is the top-level wrapper sent over the bidirectional stream.
+// Exactly one payload field is set per message; the oneof lets the Go runtime
+// expose a type-switch-friendly isSdkMessage_Payload interface.
+message SdkMessage {
+  // A client-generated id that can be used to correlate requests with responses.
+  string correlation_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+
+  oneof payload {
+    // Bi-directional
+    TextMessageRequest       text_message_request        = 10;
+    TextMessageResponse      text_message_response       = 11;
+    VoiceMessageRequest      voice_message_request       = 12;
+    VoiceMessageResponse     voice_message_response      = 13;
+    ImageMessageRequest      image_message_request       = 14;
+    ImageMessageResponse     image_message_response      = 15;
+    MessageReceiptRequest    message_receipt_request     = 16;
+    MessageReceiptResponse   message_receipt_response    = 17;
+
+    // Client → channel
+    AddToCartRequest         add_to_cart_request         = 20;
+    AddToCartResponse        add_to_cart_response        = 21;
+    RemoveFromCartRequest    remove_from_cart_request    = 22;
+    RemoveFromCartResponse   remove_from_cart_response   = 23;
+    ClearCartRequest         clear_cart_request          = 24;
+    ClearCartResponse        clear_cart_response         = 25;
+    GuidanceCardRequest      guidance_card_request       = 26;
+    GuidanceCardResponse     guidance_card_response      = 27;
+    AddPromotionRequest      add_promotion_request       = 28;
+    AddPromotionResponse     add_promotion_response      = 29;
+
+    // Channel → client
+    PromotionMessageRequest  promotion_message_request   = 30;
+    PromotionMessageResponse promotion_message_response  = 31;
+    ProductMessageRequest    product_message_request     = 32;
+    ProductMessageResponse   product_message_response    = 33;
+    ChatStatusRequest        chat_status_request         = 34;
+    ChatStatusResponse       chat_status_response        = 35;
+    CustomActionRequest      custom_action_request       = 36;
+    CustomActionResponse     custom_action_response      = 37;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Common enums
+// ---------------------------------------------------------------------------
+
+// ResponseStatus indicates whether a channel operation succeeded or failed.
+enum ResponseStatus {
+  RESPONSE_STATUS_UNSPECIFIED = 0;
+  RESPONSE_STATUS_SUCCESS = 1;
+  RESPONSE_STATUS_ERROR = 2;
+}
+
+// MessageRole identifies the originator of a message in the conversation.
+enum MessageRole {
+  MESSAGE_ROLE_UNSPECIFIED = 0;
+  MESSAGE_ROLE_USER = 1;
+  MESSAGE_ROLE_AGENT = 2;
+}
+
+// MessageStatus tracks the delivery lifecycle of a single message.
+enum MessageStatus {
+  MESSAGE_STATUS_UNSPECIFIED = 0;
+  MESSAGE_STATUS_DELIVERED = 1;
+  MESSAGE_STATUS_IN_PROGRESS = 2;
+  MESSAGE_STATUS_READ = 3;
+  MESSAGE_STATUS_ERROR = 4;
+  MESSAGE_STATUS_SENT = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Text message  (bi-directional)
+// ---------------------------------------------------------------------------
+
+// TextMessage holds the payload of a plain-text conversation turn.
+message TextMessage {
+  optional string message_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string text = 3;
+  MessageStatus status = 4;
+  MessageRole role = 5;
+}
+
+// TextMessageRequest is sent by either party to deliver a text message.
+message TextMessageRequest {
+  TextMessage content = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// TextMessageResponse acknowledges a TextMessageRequest and returns the assigned message id.
+message TextMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string message_id = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Voice message  (bi-directional)
+// ---------------------------------------------------------------------------
+
+// VoiceMessage holds the payload of a voice-note conversation turn.
+message VoiceMessage {
+  optional string message_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string media_url = 3;
+  // Amplitude samples used to render the waveform preview in the UI.
+  repeated float amplitudes_preview = 4;
+  double duration = 5;
+  string media_type = 6;
+  MessageStatus status = 7;
+  MessageRole role = 8;
+}
+
+// VoiceMessageRequest is sent by either party to deliver a voice note.
+message VoiceMessageRequest {
+  VoiceMessage content = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  repeated string quick_replies = 3;
+}
+
+// VoiceMessageResponse acknowledges a VoiceMessageRequest and returns the assigned message id.
+message VoiceMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string message_id = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Image message  (bi-directional)
+// ---------------------------------------------------------------------------
+
+// ImageMessage holds the payload of an image conversation turn.
+message ImageMessage {
+  optional string message_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  optional string text = 3;
+  string media_url = 4;
+  string media_type = 5;
+  MessageStatus status = 6;
+  MessageRole role = 7;
+}
+
+// ImageMessageRequest is sent by either party to deliver an image.
+message ImageMessageRequest {
+  ImageMessage content = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  repeated string quick_replies = 3;
+}
+
+// ImageMessageResponse acknowledges an ImageMessageRequest and returns the assigned message id.
+message ImageMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string message_id = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Message receipt  (bi-directional)
+// ---------------------------------------------------------------------------
+
+// MessageReceiptRequest notifies the other party of a message status change.
+message MessageReceiptRequest {
+  MessageStatus status = 1;
+  string message_id = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  repeated string quick_replies = 4;
+}
+
+// MessageReceiptResponse acknowledges a MessageReceiptRequest.
+message MessageReceiptResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Cart operations  (client → channel)
+// ---------------------------------------------------------------------------
+
+// AddToCartRequest asks the channel to add a SKU to the active cart.
+message AddToCartRequest {
+  string sku = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  // Double because some clients need fractional quantities (e.g. FEMSA).
+  double quantity = 3;
+}
+
+// AddToCartResponse acknowledges an AddToCartRequest.
+message AddToCartResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// RemoveFromCartRequest asks the channel to remove a SKU from the active cart.
+message RemoveFromCartRequest {
+  string sku = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  // If omitted the entire SKU line is removed from the cart.
+  optional double quantity = 3;
+}
+
+// RemoveFromCartResponse acknowledges a RemoveFromCartRequest.
+message RemoveFromCartResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ClearCartRequest asks the channel to empty the active cart entirely.
+message ClearCartRequest {
+  google.protobuf.Timestamp timestamp = 1;
+}
+
+// ClearCartResponse acknowledges a ClearCartRequest.
+message ClearCartResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Guidance cards  (client → channel)
+// ---------------------------------------------------------------------------
+
+// GuidanceCardRequest asks the channel to return the current guidance cards.
+message GuidanceCardRequest {
+  google.protobuf.Timestamp timestamp = 1;
+}
+
+// GuidanceCardResponse returns the guidance cards to display to the user.
+message GuidanceCardResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string guidance_title = 3;
+  string guidance_description = 4;
+  repeated string guidance_cards = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Promotions  (client → channel)
+// ---------------------------------------------------------------------------
+
+// AddPromotionRequest asks the channel to apply a promotion to the active cart.
+message AddPromotionRequest {
+  string promotion_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// AddPromotionResponse acknowledges an AddPromotionRequest.
+message AddPromotionResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Promotion message  (channel → client)
+// ---------------------------------------------------------------------------
+
+// PromotionMessageRequest delivers a promotional offer to the client UI.
+message PromotionMessageRequest {
+  string promotion_id = 1;
+  string title = 2;
+  string gain = 3;
+  string description = 4;
+  string image_url = 5;
+  string footer = 6;
+  google.protobuf.Timestamp timestamp = 7;
+}
+
+// PromotionMessageResponse acknowledges a PromotionMessageRequest.
+message PromotionMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Product message — carousels and list  (channel → client)
+// ---------------------------------------------------------------------------
+
+// Product represents a single catalog item with pricing and quantity metadata.
+message Product {
+  string sku = 1;
+  string name = 2;
+  double price = 3;
+  repeated string images_url = 4;
+  // When set, sale_price takes precedence over price.
+  optional double sale_price = 5;
+  // Units per package (e.g. items inside a box). Used to compute quantity steps.
+  double subunits = 6;
+  // Increment step when adjusting primary units.
+  double unit_step = 7;
+  // ICU message-format string for the unit name, supports plurals via {amount}.
+  // e.g. "{amount, plural, one {box} other {boxes}}"
+  string unit_name = 8;
+  // ICU message-format string for the subunit name, supports plurals via {amount}.
+  optional string subunit_name = 9;
+  // Increment step when adjusting subunits.
+  double subunit_step = 10;
+  double units_added = 11;
+  double subunits_added = 12;
+}
+
+// ProductMessageRequest delivers a list of products rendered as a vertical list or horizontal carousel.
+message ProductMessageRequest {
+  // Orientation controls how the product list is rendered in the client UI.
+  enum Orientation {
+    ORIENTATION_UNSPECIFIED = 0;
+    ORIENTATION_VERTICAL = 1;
+    ORIENTATION_HORIZONTAL = 2; // Carousel
+  }
+  repeated Product products = 1;
+  Orientation orientation = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// ProductMessageResponse acknowledges a ProductMessageRequest.
+message ProductMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Chat status  (channel → client)
+// ---------------------------------------------------------------------------
+
+// ChatStatusRequest pushes a custom status string to display in the chat UI.
+message ChatStatusRequest {
+  string status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ChatStatusResponse acknowledges a ChatStatusRequest.
+message ChatStatusResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Custom agent action  (channel → client)
+// ---------------------------------------------------------------------------
+
+// CustomActionRequest triggers a client-side action identified by action_id.
+message CustomActionRequest {
+  string action_id = 1;
+  string payload = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// CustomActionResponse returns the result of a CustomActionRequest.
+message CustomActionResponse {
+  ResponseStatus status = 1;
+  string payload = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "proto",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ts-proto": "^2.11.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
