@@ -3,9 +3,9 @@ name: Generate Bindings
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-  paths:
-    - 'proto/**'
-    - '.github/workflows/proto-ci-cd.yml'
+    paths:
+      - 'proto/**'
+      - '.github/workflows/proto-ci-cd.yml'
 
 permissions:
   contents: write
