@@ -18,7 +18,7 @@ env:
 
 jobs:
   generate-bindings:
-    runs-on: [self-hosted, devex-yrk]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
