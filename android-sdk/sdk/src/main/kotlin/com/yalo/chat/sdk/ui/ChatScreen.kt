@@ -45,6 +45,7 @@ import com.yalo.chat.sdk.ui.chat.MessagesEvent
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.chat.WaveformRecorder
 import com.yalo.chat.sdk.ui.chat.isRecording
+import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,12 +164,13 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
     // When recording stops successfully, insert the voice message.
     // Guards:
     //  1. audioStatus must be Initial — prevents sending on ErrorStoppingRecording.
-    //  2. audioData.fileName must be non-empty — prevents sending after CancelRecording
-    //     (cancelRecording() resets audioData to an empty AudioData before transitioning).
+    //  2. fileName must be non-empty — prevents sending after CancelRecording,
+    //     which resets audioData (including fileName) before transitioning to Initial.
     val wasRecording = remember { mutableStateOf(false) }
     LaunchedEffect(audioState.isRecording) {
         if (wasRecording.value && !audioState.isRecording
             && audioState.audioStatus is AudioStatus.Initial
+            && audioState.audioData.fileName.isNotEmpty()
         ) {
             viewModel.handleEvent(MessagesEvent.SendVoiceMessage(audioState.audioData))
         }
@@ -183,14 +185,19 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
 
     // Stop sync and reset state when the screen leaves composition so background
     // polling does not continue while the host app shows other screens.
-    // Keyed to viewModel so disposal always targets the current instance.
-    DisposableEffect(viewModel) {
-        onDispose { viewModel.handleEvent(MessagesEvent.ClearMessages) }
+    // Keyed to both ViewModels so disposal always targets the current instances.
+    // audioViewModel cleanup stops an in-progress recording or playback on screen exit.
+    DisposableEffect(viewModel, audioViewModel) {
+        onDispose {
+            viewModel.handleEvent(MessagesEvent.ClearMessages)
+            audioViewModel.handleEvent(AudioEvent.CancelRecording)
+            audioViewModel.handleEvent(AudioEvent.Stop)
+        }
     }
 
     // ── Scaffold ──────────────────────────────────────────────────────────────
 
-
+    ChatThemeProvider(YaloChat.config.theme) {
     Box {
         Scaffold(
             topBar = {
@@ -275,4 +282,5 @@ fun ChatScreen(onBack: (() -> Unit)? = null) {
             }
         }
     }
+    } // end ChatThemeProvider
 }

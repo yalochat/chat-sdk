@@ -5,20 +5,18 @@ package com.yalo.chat.sdk.ui.chat
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// When the text field is blank a Mic icon replaces the Send button — tapping it starts
+// When the text field is blank a mic icon replaces the Send button — tapping it starts
 // recording and ChatScreen switches to WaveformRecorder. onMicClick defaults to a no-op.
 @Composable
 internal fun ChatInput(
@@ -28,6 +26,7 @@ internal fun ChatInput(
     onAttachmentClick: () -> Unit,
     onMicClick: () -> Unit = {},
 ) {
+    val theme = LocalChatTheme.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -36,29 +35,41 @@ internal fun ChatInput(
     ) {
         IconButton(onClick = onAttachmentClick) {
             Icon(
-                imageVector = Icons.Filled.Add,
+                imageVector = theme.attachIcon,
                 contentDescription = "Attach image",
+                tint = theme.attachIconColor,
             )
         }
         TextField(
             value = userMessage,
             onValueChange = onUserMessageChange,
             modifier = Modifier.weight(1f),
-            placeholder = { Text("Type a message…") },
+            placeholder = { Text("Type a message…", style = theme.hintTextStyle) },
             singleLine = true,
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = theme.inputTextFieldColor,
+                focusedContainerColor = theme.inputTextFieldColor,
+                unfocusedIndicatorColor = theme.inputTextFieldBorderColor,
+                focusedIndicatorColor = theme.sendButtonColor,
+                focusedTextColor = theme.actionIconColor,
+                unfocusedTextColor = theme.actionIconColor,
+                cursorColor = theme.sendButtonColor,
+            ),
         )
         if (userMessage.isBlank()) {
             IconButton(onClick = onMicClick) {
                 Icon(
-                    imageVector = Icons.Filled.Mic,
+                    imageVector = theme.recordAudioIcon,
                     contentDescription = "Record voice message",
+                    tint = theme.actionIconColor,
                 )
             }
         } else {
             IconButton(onClick = onSendMessage) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    imageVector = theme.sendButtonIcon,
                     contentDescription = "Send",
+                    tint = theme.sendButtonColor,
                 )
             }
         }
