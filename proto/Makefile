@@ -1,8 +1,17 @@
 
-flutter_sdk_out_path = ../flutter-sdk/lib/src/domain/models/
-typescript_sdk_out_path = ../web-sdk/src/domain/models/
+flutter_sdk_out_path = ./dart/
+typescript_sdk_out_path = ./typescript/
 
-proto: proto_go proto_webchat proto_flutter
+flutter_sdk_models_path = ../flutter-sdk/lib/src/domain/models
+webchat_sdk_models_path = ../web-sdk/src/domain/models
+
+proto: proto_go proto_ts proto_dart symlinks
+
+symlinks:
+	ln -sfn ../../../../../proto/dart/events $(flutter_sdk_models_path)/events
+	ln -sfn ../../../../proto/typescript/events $(webchat_sdk_models_path)/events
+	ln -sfn ../../../../proto/typescript/google $(webchat_sdk_models_path)/google
+.PHONY: symlinks
 
 proto_go:
 	mkdir -p golang
@@ -13,12 +22,12 @@ proto_go:
 		   `find events -name '*.proto' -print | sort`
 .PHONY: proto_go
 
-proto_webchat:
+proto_ts:
 	mkdir -p $(typescript_sdk_out_path)
 	protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_opt=enumsAsLiterals=true --ts_proto_out=$(typescript_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_ts
 
-proto_flutter:
+proto_dart:
 	mkdir -p $(flutter_sdk_out_path)
 	protoc --dart_out=$(flutter_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_dart
