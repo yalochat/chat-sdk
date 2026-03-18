@@ -25,7 +25,8 @@ A Kotlin-native Android library that embeds the Yalo Chat interface into any And
 | Android Studio | Ladybug 2024.2+ |
 | Android Gradle Plugin | 8.7+ |
 | Kotlin | 2.0.21 |
-| Min SDK | API 23 (Android 6.0) |
+| Min SDK (library) | API 21 (Android 5.0) |
+| Min SDK (demo app) | API 23 (Android 6.0) |
 | Target SDK | API 35 |
 
 ---
@@ -65,9 +66,9 @@ Edit `local.properties`:
 sdk.dir=/path/to/your/Android/sdk   # set automatically by Android Studio
 
 yalo.apiBaseUrl=https://your-yalo-api-base-url
-yalo.flowKey=your-flow-key
-yalo.authToken=your-auth-token
-yalo.userToken=your-user-token
+yalo.channelName=your-channel-name
+yalo.channelId=your-channel-id
+yalo.organizationId=your-organization-id
 ```
 
 > `local.properties` is gitignored — credentials are never committed.
@@ -168,11 +169,10 @@ Call `YaloChat.init()` once before rendering `ChatScreen` — typically in your 
 ```kotlin
 YaloChat.init(
     config = YaloChatConfig(
-        name       = "Support Chat",
-        flowKey    = "your-flow-key",
-        authToken  = "your-auth-token",
-        userToken  = "your-user-token",
-        apiBaseUrl = "https://your-api-base-url",
+        channelName    = "Support Chat",
+        channelId      = "your-channel-id",
+        organizationId = "your-organization-id",
+        apiBaseUrl     = "https://your-api-base-url",
     ),
     context = this,
 )

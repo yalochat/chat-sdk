@@ -43,11 +43,11 @@ internal class YaloMessageRepositoryRemote(
                 UnsupportedOperationException("Only text messages are supported in Phase 2 M1")
             )
         }
-        val nowSecs = Clock.System.now().epochSeconds
+        val nowMs = Clock.System.now().toEpochMilliseconds()
         val request = YaloTextMessageRequest(
-            timestamp = nowSecs,
+            timestamp = nowMs,
             content = YaloTextMessage(
-                timestamp = message.timestamp / 1000,
+                timestamp = message.timestamp,
                 text = message.content,
                 status = message.status.value,
                 role = message.role.value,
@@ -56,7 +56,7 @@ internal class YaloMessageRepositoryRemote(
         return apiService.sendTextMessage(request)
     }
 
-    // Single-shot fetch — returns all messages newer than the given Unix second timestamp.
+    // Single-shot fetch — returns all messages newer than the given Unix millisecond timestamp.
     // The cache is NOT applied here so callers get the full list.
     override suspend fun fetchMessages(since: Long): Result<List<ChatMessage>> =
         when (val result = apiService.fetchMessages(since)) {
@@ -70,7 +70,7 @@ internal class YaloMessageRepositoryRemote(
     // flutter-sdk YaloMessageRepositoryRemote._startPolling().
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         while (true) {
-            val since = Clock.System.now().epochSeconds - lookbackSecs
+            val since = Clock.System.now().toEpochMilliseconds() - lookbackSecs * 1_000L
             when (val result = apiService.fetchMessages(since)) {
                 is Result.Ok -> {
                     val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }

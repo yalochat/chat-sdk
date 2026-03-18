@@ -29,20 +29,31 @@ import kotlin.test.assertTrue
 
 class YaloMessageRepositoryRemoteTest {
 
+    // Minimal JWT whose payload {"user_id":"test-user"} is used to satisfy auth calls.
+    private val fakeJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" +
+        ".eyJ1c2VyX2lkIjoidGVzdC11c2VyIn0" +
+        ".fakesig"
+
+    // Wraps responses in a MockEngine that auto-handles /auth before serving data responses
+    // from the provided list. /auth never consumes a response slot.
     private fun buildRepo(responses: List<String>): YaloMessageRepositoryRemote {
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
         var callIndex = 0
-        val engine = MockEngine {
-            val body = if (callIndex < responses.size) responses[callIndex++] else "[]"
-            respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                val body = if (callIndex < responses.size) responses[callIndex++] else "[]"
+                respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
         }
         val client = HttpClient(engine) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         val apiService = YaloChatApiService(
             apiBaseUrl = "https://api.test",
-            authToken = "auth",
-            userToken = "user",
-            flowKey = "flow",
+            channelId = "channel-id",
+            organizationId = "org-id",
             httpClient = client,
         )
         return YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)
@@ -136,21 +147,28 @@ class YaloMessageRepositoryRemoteTest {
     fun `pollIncomingMessages continues polling after network error`() = runTest {
         // Mirrors Flutter _startPolling(): on error the loop continues without restarting.
         // First call returns 500, second call returns a message — first() collects it.
-        var callIndex = 0
-        val engine = MockEngine {
-            callIndex++
-            if (callIndex == 1) respondError(HttpStatusCode.InternalServerError)
-            else respond(
-                messageJson("id-1", "After error"),
-                HttpStatusCode.OK,
-                headersOf(HttpHeaders.ContentType, "application/json"),
-            )
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
+        var dataCallIndex = 0
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                dataCallIndex++
+                if (dataCallIndex == 1) respondError(HttpStatusCode.InternalServerError)
+                else respond(
+                    messageJson("id-1", "After error"),
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
         }
         val client = HttpClient(engine) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         val apiService = YaloChatApiService(
-            apiBaseUrl = "https://api.test", authToken = "a", userToken = "u", flowKey = "f",
+            apiBaseUrl = "https://api.test",
+            channelId = "channel-id",
+            organizationId = "org-id",
             httpClient = client,
         )
         val repo = YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)

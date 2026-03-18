@@ -25,6 +25,7 @@ internal fun ChatInput(
     onSendMessage: () -> Unit,
     onAttachmentClick: () -> Unit,
     onMicClick: () -> Unit = {},
+    showAttachmentButton: Boolean = true,
 ) {
     val theme = LocalChatTheme.current
     Row(
@@ -33,12 +34,14 @@ internal fun ChatInput(
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onAttachmentClick) {
-            Icon(
-                imageVector = theme.attachIcon,
-                contentDescription = "Attach image",
-                tint = theme.attachIconColor,
-            )
+        if (showAttachmentButton) {
+            IconButton(onClick = onAttachmentClick) {
+                Icon(
+                    imageVector = theme.attachIcon,
+                    contentDescription = "Attach image",
+                    tint = theme.attachIconColor,
+                )
+            }
         }
         TextField(
             value = userMessage,

@@ -36,10 +36,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "YALO_API_BASE_URL", "\"${localProp("yalo.apiBaseUrl")}\"")
-        buildConfigField("String", "YALO_FLOW_KEY",    "\"${localProp("yalo.flowKey")}\"")
-        buildConfigField("String", "YALO_AUTH_TOKEN",  "\"${localProp("yalo.authToken")}\"")
-        buildConfigField("String", "YALO_USER_TOKEN",  "\"${localProp("yalo.userToken")}\"")
+        buildConfigField("String", "YALO_API_BASE_URL",    "\"${localProp("yalo.apiBaseUrl")}\"")
+        buildConfigField("String", "YALO_CHANNEL_NAME",   "\"${localProp("yalo.channelName")}\"")
+        buildConfigField("String", "YALO_CHANNEL_ID",     "\"${localProp("yalo.channelId")}\"")
+        buildConfigField("String", "YALO_ORGANIZATION_ID","\"${localProp("yalo.organizationId")}\"")
     }
 
     compileOptions {

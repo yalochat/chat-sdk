@@ -40,8 +40,8 @@ internal fun AudioMessageItem(
                 tint = if (isPlaying) theme.pauseAudioIconColor else theme.playAudioIconColor,
             )
         }
-        // barColor inherits LocalContentColor — set correctly by the enclosing Surface in MessageItem
-        // (onPrimary / onSurfaceVariant depending on user vs. agent bubble).
+        // barColor inherits LocalContentColor — set by the enclosing Surface in MessageItem
+        // based on the bubble's theme text/icon colors.
         Waveform(
             amplitudes = message.amplitudes,
             modifier = Modifier

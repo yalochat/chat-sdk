@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,12 +35,12 @@ internal fun MessageItem(
     val isUser = message.role == MessageRole.USER
 
     val bubbleColor = if (isUser) theme.userBubbleColor else theme.agentBubbleColor
+    val roleTextStyle = if (isUser) theme.userMessageTextStyle else theme.assistantMessageTextStyle
+    // Merge with bodyMedium so a partial override (e.g. only color) preserves base font
+    // size and weight — consistent with how timerTextStyle and modalHeaderStyle are merged.
+    val messageTextStyle = MaterialTheme.typography.bodyMedium.merge(roleTextStyle)
     // contentColor drives LocalContentColor inside the Surface — Waveform uses it for bar color.
-    val contentColor = if (isUser) {
-        theme.userMessageTextStyle.color.takeOrElse { theme.actionIconColor }
-    } else {
-        theme.assistantMessageTextStyle.color.takeOrElse { theme.actionIconColor }
-    }
+    val contentColor = roleTextStyle.color.takeOrElse { theme.actionIconColor }
 
     Row(
         modifier = Modifier
@@ -57,7 +58,7 @@ internal fun MessageItem(
                 when (message.type) {
                     MessageType.Text -> Text(
                         text = message.content,
-                        style = if (isUser) theme.userMessageTextStyle else theme.assistantMessageTextStyle,
+                        style = messageTextStyle,
                     )
                     MessageType.Image -> AsyncImage(
                         // fileName holds the local file path for user-sent images (set by
@@ -78,11 +79,11 @@ internal fun MessageItem(
                     )
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",
-                        style = if (isUser) theme.userMessageTextStyle else theme.assistantMessageTextStyle,
+                        style = messageTextStyle,
                     )
                     else -> Text(
                         text = "[${message.type.value}]",
-                        style = if (isUser) theme.userMessageTextStyle else theme.assistantMessageTextStyle,
+                        style = messageTextStyle,
                     )
                 }
             }

@@ -8,6 +8,7 @@ import com.yalo.chat.sdk.data.remote.model.YaloTextMessage
 import com.yalo.chat.sdk.data.remote.model.YaloTextMessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandler
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -24,16 +25,33 @@ import kotlin.test.assertTrue
 
 class YaloChatApiServiceTest {
 
-    private fun apiService(handler: io.ktor.client.engine.mock.MockRequestHandler): YaloChatApiService {
-        val engine = MockEngine(handler)
+    // A minimal JWT whose payload decodes to {"user_id":"test-user"}.
+    // Header:  {"alg":"HS256","typ":"JWT"} → eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+    // Payload: {"user_id":"test-user"}     → eyJ1c2VyX2lkIjoidGVzdC11c2VyIn0
+    private val fakeJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" +
+        ".eyJ1c2VyX2lkIjoidGVzdC11c2VyIn0" +
+        ".fakesig"
+    private val fakeUserId = "test-user"
+    private val fakeChannelId = "channel-id"
+
+    // Wraps a request handler in a MockEngine that auto-responds to /auth before
+    // delegating all other requests to the provided handler.
+    private fun apiService(handler: MockRequestHandler): YaloChatApiService {
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                handler(request)
+            }
+        }
         val client = HttpClient(engine) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         return YaloChatApiService(
             apiBaseUrl = "https://api.test",
-            authToken = "auth-token",
-            userToken = "user-token",
-            flowKey = "flow-key",
+            channelId = fakeChannelId,
+            organizationId = "org-id",
             httpClient = client,
         )
     }
@@ -65,8 +83,22 @@ class YaloChatApiServiceTest {
 
     @Test
     fun `sendTextMessage returns Error on network exception`() = runTest {
-        val service = apiService { throw RuntimeException("no network") }
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
+        var authHandled = false
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                authHandled = true
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                throw RuntimeException("no network")
+            }
+        }
+        val client = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
         assertIs<Result.Error<Unit>>(service.sendTextMessage(testRequest))
+        assertTrue(authHandled)
     }
 
     @Test
@@ -77,9 +109,20 @@ class YaloChatApiServiceTest {
             respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
         service.sendTextMessage(testRequest)
-        assertEquals("Bearer auth-token", capturedHeaders?.get("Authorization"))
-        assertEquals("user-token", capturedHeaders?.get("x-user-id"))
-        assertEquals("flow-key", capturedHeaders?.get("x-channel-id"))
+        assertEquals("Bearer $fakeJwt", capturedHeaders?.get("Authorization"))
+        assertEquals(fakeUserId, capturedHeaders?.get("x-user-id"))
+        assertEquals(fakeChannelId, capturedHeaders?.get("x-channel-id"))
+    }
+
+    @Test
+    fun `sendTextMessage uses webchat inbound_messages endpoint`() = runTest {
+        var capturedUrl: io.ktor.http.Url? = null
+        val service = apiService { request ->
+            capturedUrl = request.url
+            respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        service.sendTextMessage(testRequest)
+        assertTrue(capturedUrl?.encodedPath?.endsWith("/webchat/inbound_messages") == true)
     }
 
     // ── fetchMessages ──────────────────────────────────────────────────────────
@@ -119,7 +162,18 @@ class YaloChatApiServiceTest {
 
     @Test
     fun `fetchMessages returns Error on network exception`() = runTest {
-        val service = apiService { throw RuntimeException("timeout") }
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                throw RuntimeException("timeout")
+            }
+        }
+        val client = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
         assertIs<Result.Error<*>>(service.fetchMessages(since = 0L))
     }
 
@@ -132,5 +186,49 @@ class YaloChatApiServiceTest {
         }
         service.fetchMessages(since = 12345L)
         assertEquals("12345", capturedUrl?.parameters?.get("since"))
+    }
+
+    @Test
+    fun `fetchMessages uses webchat messages endpoint`() = runTest {
+        var capturedUrl: io.ktor.http.Url? = null
+        val service = apiService { request ->
+            capturedUrl = request.url
+            respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+        }
+        service.fetchMessages(since = 0L)
+        assertTrue(capturedUrl?.encodedPath?.endsWith("/webchat/messages") == true)
+    }
+
+    // ── Authentication ─────────────────────────────────────────────────────────
+
+    @Test
+    fun `auth failure propagates as Error from sendTextMessage`() = runTest {
+        val engine = MockEngine { respondError(HttpStatusCode.Unauthorized) }
+        val client = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
+        assertIs<Result.Error<Unit>>(service.sendTextMessage(testRequest))
+    }
+
+    @Test
+    fun `token is cached and auth is called only once for two consecutive requests`() = runTest {
+        var authCallCount = 0
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                authCallCount++
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val client = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
+        service.fetchMessages(since = 0L)
+        service.fetchMessages(since = 0L)
+        assertEquals(1, authCallCount)
     }
 }

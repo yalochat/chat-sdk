@@ -7,16 +7,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -30,10 +38,6 @@ import androidx.compose.ui.unit.sp
  * ```
  * For larger overrides, use [ChatTheme.fromMaterialTheme] to inherit the host app's
  * Material color scheme automatically.
- *
- * Only properties that are consumed by current SDK composables are included here.
- * Theme properties for future composables (product carousel, quick reply, etc.) will
- * be added when those composables are implemented.
  */
 @Immutable
 data class ChatTheme(
@@ -47,6 +51,8 @@ data class ChatTheme(
     val inputTextFieldColor: Color = Color(0xFFFFFFFF),
     val inputTextFieldBorderColor: Color = Color(0xFFE8E8E8),
     val sendButtonColor: Color = Color(0xFF2207F1),
+    /** Foreground (icon/text) color on the send button. */
+    val sendButtonForegroundColor: Color = Color(0xFFFFFFFF),
     /** Waveform bar color during live recording. */
     val waveColor: Color = Color(0xFF5C5EE8),
     val actionIconColor: Color = Color(0xFF000000),
@@ -56,20 +62,52 @@ data class ChatTheme(
     val playAudioIconColor: Color = Color(0xFF7C8086),
     val pauseAudioIconColor: Color = Color(0xFF7C8086),
     val attachIconColor: Color = Color(0xFF7C8086),
+    val cameraIconColor: Color = Color(0xFF7C8086),
+    val galleryIconColor: Color = Color(0xFF7C8086),
+    val trashIconColor: Color = Color(0xFF7C8086),
+    val currencyIconColor: Color = Color(0xFF2207F1),
+    val numericControlIconColor: Color = Color(0xFF7C8086),
+    val imagePlaceholderIconColor: Color = Color(0xFF7C8086),
     val imagePlaceholderBackgroundColor: Color = Color(0xFFF9FAFC),
+    /** Background of product cards in the product carousel. */
+    val cardBackgroundColor: Color = Color(0xFFFFFFFF),
+    /** Border color of product cards. */
+    val cardBorderColor: Color = Color(0xFFE8E8E8),
+    /** Background of the attachment picker bottom sheet. */
+    val attachmentPickerBackgroundColor: Color = Color(0xFFF1F5FC),
+    /** Background color for sale/discount price chips on product cards. */
+    val productPriceBackgroundColor: Color = Color(0xFFEEF0FF),
+    /** Text color for the per-subunit price label on product cards. */
+    val pricePerSubunitColor: Color = Color(0xFF7C8086),
+    /** Border color of the picker buttons in the attachment sheet. */
+    val pickerButtonBorderColor: Color = Color(0xFFE8E8E8),
+    /** Background of quick reply chip buttons. */
+    val quickReplyColor: Color = Color(0xFFF9FAFC),
+    /** Border color of quick reply chip buttons. */
+    val quickReplyBorderColor: Color = Color(0xFFE8E8E8),
     // ── Text styles ───────────────────────────────────────────────────────────
     val userMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
     val assistantMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
     val modalHeaderStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 18.sp, fontWeight = FontWeight.Bold),
     val hintTextStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE)),
     val timerTextStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
+    val quickReplyStyle: TextStyle = TextStyle(color = Color(0xFF000000)),
+    val productTitleStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp, fontWeight = FontWeight.Bold),
+    val productSubunitsStyle: TextStyle = TextStyle(color = Color(0xFF7C8086), fontSize = 12.sp),
+    val productPriceStyle: TextStyle = TextStyle(color = Color(0xFF2207F1), fontWeight = FontWeight.Bold),
+    val productSalePriceStrikeStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE), textDecoration = TextDecoration.LineThrough),
+    val pricePerSubunitStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
+    val expandControlsStyle: TextStyle = TextStyle(color = Color(0xFF2207F1)),
     // ── Shape ─────────────────────────────────────────────────────────────────
     /**
      * Corner radius applied to both user and agent message bubbles.
-     * Declared as [CornerBasedShape] (covers [RoundedCornerShape], [CutCornerShape], etc.)
+     * Declared as [CornerBasedShape] (covers [RoundedCornerShape], `CutCornerShape`, etc.)
      * so that Compose's stability analysis can verify the field is immutable.
      */
     val bubbleShape: CornerBasedShape = RoundedCornerShape(12.dp),
+    // ── Image ─────────────────────────────────────────────────────────────────
+    /** Optional URL for the channel avatar displayed in the app bar. Loaded by Coil. */
+    val chatIconImage: String? = null,
     // ── Icons ─────────────────────────────────────────────────────────────────
     val sendButtonIcon: ImageVector = Icons.AutoMirrored.Filled.Send,
     val recordAudioIcon: ImageVector = Icons.Filled.Mic,
@@ -79,6 +117,15 @@ data class ChatTheme(
     val pauseAudioIcon: ImageVector = Icons.Filled.Pause,
     /** Opens the attachment picker (gallery / camera). */
     val attachIcon: ImageVector = Icons.Filled.Add,
+    val cameraIcon: ImageVector = Icons.Filled.CameraAlt,
+    val galleryIcon: ImageVector = Icons.Filled.Image,
+    val trashIcon: ImageVector = Icons.Filled.Delete,
+    val imagePlaceholderIcon: ImageVector = Icons.Filled.Image,
+    val shopIcon: ImageVector = Icons.Filled.Storefront,
+    val cartIcon: ImageVector = Icons.Filled.ShoppingCart,
+    val currencyIcon: ImageVector = Icons.Filled.AttachMoney,
+    val addIcon: ImageVector = Icons.Filled.Add,
+    val removeIcon: ImageVector = Icons.Filled.Remove,
 ) {
     companion object {
         /**
@@ -96,6 +143,7 @@ data class ChatTheme(
             backgroundColor = colorScheme.surface,
             appBarBackgroundColor = colorScheme.surfaceContainer,
             sendButtonColor = colorScheme.primary,
+            sendButtonForegroundColor = colorScheme.onPrimary,
             waveColor = colorScheme.primary,
             actionIconColor = colorScheme.onSurface,
             userMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = 16.sp),
@@ -105,11 +153,18 @@ data class ChatTheme(
             inputTextFieldBorderColor = colorScheme.outline,
             cancelRecordingIconColor = colorScheme.onSurfaceVariant,
             attachIconColor = colorScheme.onSurfaceVariant,
+            cameraIconColor = colorScheme.onSurfaceVariant,
+            galleryIconColor = colorScheme.onSurfaceVariant,
             playAudioIconColor = colorScheme.onSurfaceVariant,
             pauseAudioIconColor = colorScheme.onSurfaceVariant,
             userBubbleColor = colorScheme.surfaceVariant,
             agentBubbleColor = colorScheme.surfaceContainerHighest,
             imagePlaceholderBackgroundColor = colorScheme.surfaceVariant,
+            cardBackgroundColor = colorScheme.surface,
+            cardBorderColor = colorScheme.outlineVariant,
+            attachmentPickerBackgroundColor = colorScheme.surfaceContainerHigh,
+            quickReplyColor = colorScheme.surfaceVariant,
+            quickReplyBorderColor = colorScheme.outline,
         )
     }
 }
