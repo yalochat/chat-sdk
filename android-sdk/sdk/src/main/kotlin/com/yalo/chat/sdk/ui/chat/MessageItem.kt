@@ -24,16 +24,12 @@ import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// onShopPressed/onCartPressed are threaded through from ChatScreen for future wiring to
-// product card tap targets when the product carousel message type is implemented.
 @Composable
 internal fun MessageItem(
     message: ChatMessage,
     playingMessage: ChatMessage? = null,
     onPlayAudio: (ChatMessage) -> Unit = {},
     onStopAudio: () -> Unit = {},
-    onShopPressed: (() -> Unit)? = null,
-    onCartPressed: (() -> Unit)? = null,
 ) {
     val theme = LocalChatTheme.current
     val isUser = message.role == MessageRole.USER

@@ -17,9 +17,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 
 // reverseLayout puts the newest message at the bottom, matching chat convention.
 // Items are sorted newest-first so item[0] lands at the bottom of the reversed column.
-// Audio/action callbacks are optional — only wired for screens that have an AudioViewModel.
-// onShopPressed/onCartPressed are passed through to MessageItem for product messages;
-// they will be connected to product card UI when the product carousel is implemented.
+// Audio callbacks are optional — only wired for screens that have an AudioViewModel.
 @Composable
 internal fun MessageList(
     messages: List<ChatMessage>,
@@ -27,8 +25,6 @@ internal fun MessageList(
     playingMessage: ChatMessage? = null,
     onPlayAudio: (ChatMessage) -> Unit = {},
     onStopAudio: () -> Unit = {},
-    onShopPressed: (() -> Unit)? = null,
-    onCartPressed: (() -> Unit)? = null,
 ) {
     if (messages.isEmpty()) {
         Box(
@@ -52,8 +48,6 @@ internal fun MessageList(
                 playingMessage = playingMessage,
                 onPlayAudio = onPlayAudio,
                 onStopAudio = onStopAudio,
-                onShopPressed = onShopPressed,
-                onCartPressed = onCartPressed,
             )
         }
     }

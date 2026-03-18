@@ -209,7 +209,12 @@ fun ChatScreen(
         Box {
             Scaffold(
                 topBar = {
-                    appBar?.invoke() ?: ChatAppBar(title = YaloChat.config.channelName, onBack = onBack)
+                    appBar?.invoke() ?: ChatAppBar(
+                        title = YaloChat.config.channelName,
+                        onBack = onBack,
+                        onShopPressed = onShopPressed,
+                        onCartPressed = onCartPressed,
+                    )
                 },
                 bottomBar = {
                     if (audioState.isRecording) {
@@ -247,8 +252,6 @@ fun ChatScreen(
                     playingMessage = audioState.playingMessage,
                     onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
                     onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
-                    onShopPressed = onShopPressed,
-                    onCartPressed = onCartPressed,
                 )
             }
 
