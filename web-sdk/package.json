@@ -16,6 +16,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "^2.11.0",
     "@lit/context": "^1.1.6",
     "@lit/localize": "^0.12.2",
     "dompurify": "^3.3.3",
