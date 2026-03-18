@@ -30,10 +30,14 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class AudioViewModelTest {
 
-    private val dispatcher = UnconfinedTestDispatcher()
+    // Reassigned in setUp() so each test gets its own TestCoroutineScheduler — prevents
+    // long-lived viewModelScope coroutines (e.g. completionJob on an infinite SharedFlow)
+    // from leaking uncaught exceptions into a later test's runTest check.
+    private var dispatcher = UnconfinedTestDispatcher()
 
     @BeforeTest
     fun setUp() {
+        dispatcher = UnconfinedTestDispatcher()
         Dispatchers.setMain(dispatcher)
     }
 
