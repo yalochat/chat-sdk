@@ -53,6 +53,12 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 fun ChatScreen(
     onBack: (() -> Unit)? = null,
     showAttachmentButton: Boolean = true,
+    /** Replaces the default app bar when non-null. Mirrors Flutter's Chat(appBar:) slot. */
+    appBar: (@Composable () -> Unit)? = null,
+    /** Called when the user taps the shop action in a product message. Mirrors Flutter's Chat(onShopPressed:). */
+    onShopPressed: (() -> Unit)? = null,
+    /** Called when the user taps the cart action in a product message. Mirrors Flutter's Chat(onCartPressed:). */
+    onCartPressed: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()
@@ -203,7 +209,7 @@ fun ChatScreen(
         Box {
             Scaffold(
                 topBar = {
-                    ChatAppBar(title = YaloChat.config.channelName, onBack = onBack)
+                    appBar?.invoke() ?: ChatAppBar(title = YaloChat.config.channelName, onBack = onBack)
                 },
                 bottomBar = {
                     if (audioState.isRecording) {
@@ -241,6 +247,8 @@ fun ChatScreen(
                     playingMessage = audioState.playingMessage,
                     onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
                     onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
+                    onShopPressed = onShopPressed,
+                    onCartPressed = onCartPressed,
                 )
             }
 
