@@ -364,7 +364,7 @@ message CustomActionResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Auth  (REST: client → server)
+// Auth  (REST: client -> server)
 // ---------------------------------------------------------------------------
 
 // AuthRequest is the body of POST /auth used to obtain an initial access token.
