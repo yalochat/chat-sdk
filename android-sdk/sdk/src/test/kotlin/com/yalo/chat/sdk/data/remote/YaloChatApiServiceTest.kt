@@ -122,7 +122,7 @@ class YaloChatApiServiceTest {
             respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
         service.sendTextMessage(testRequest)
-        assertTrue(capturedUrl?.encodedPath?.contains("/webchat/inbound_messages") == true)
+        assertTrue(capturedUrl?.encodedPath?.endsWith("/webchat/inbound_messages") == true)
     }
 
     // ── fetchMessages ──────────────────────────────────────────────────────────
@@ -196,7 +196,7 @@ class YaloChatApiServiceTest {
             respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
         service.fetchMessages(since = 0L)
-        assertTrue(capturedUrl?.encodedPath?.contains("/webchat/messages") == true)
+        assertTrue(capturedUrl?.encodedPath?.endsWith("/webchat/messages") == true)
     }
 
     // ── Authentication ─────────────────────────────────────────────────────────

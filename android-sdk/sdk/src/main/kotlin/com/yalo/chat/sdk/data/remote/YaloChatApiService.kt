@@ -26,10 +26,14 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 private const val HEADER_USER_ID = "x-user-id"
 private const val HEADER_CHANNEL_ID = "x-channel-id"
 private const val HEADER_AUTHORIZATION = "Authorization"
+private const val CLAIM_USER_ID = "user_id"
 // Refresh 30 s before actual expiry to avoid a race between expiry check and the API call.
 private const val TOKEN_REFRESH_BUFFER_MS = 30_000L
 
@@ -144,18 +148,19 @@ internal class YaloChatApiService(
         userId = extractUserIdFromJwt(auth.accessToken)
     }
 
-    // JWT payloads use URL-safe base64 without padding. Normalise to standard base64 with
-    // padding so kotlin.io.encoding.Base64.Default (which requires padding) can decode it.
+    // JWT payloads use URL-safe base64 without padding. Add padding so
+    // Base64.UrlSafe (which requires it) can decode, then parse the JSON
+    // payload properly instead of using a regex on the raw string.
     @OptIn(ExperimentalEncodingApi::class)
     private fun extractUserIdFromJwt(token: String): String = try {
         val rawPayload = token.split(".").getOrNull(1) ?: return ""
-        val padded = when (rawPayload.length % 4) {
-            2 -> "$rawPayload=="
-            3 -> "$rawPayload="
-            else -> rawPayload
-        }.replace('-', '+').replace('_', '/')
-        val decoded = String(Base64.Default.decode(padded), Charsets.UTF_8)
-        Regex(""""user_id"\s*:\s*"([^"]+)"""").find(decoded)?.groupValues?.get(1) ?: ""
+        val padding = when (rawPayload.length % 4) {
+            2 -> "=="
+            3 -> "="
+            else -> ""
+        }
+        val decoded = String(Base64.UrlSafe.decode(rawPayload + padding), Charsets.UTF_8)
+        Json.parseToJsonElement(decoded).jsonObject[CLAIM_USER_ID]?.jsonPrimitive?.contentOrNull ?: ""
     } catch (_: Exception) {
         ""
     }
