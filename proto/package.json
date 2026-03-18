@@ -8,5 +8,6 @@
   },
   "peerDependencies": {
     "typescript": "^5"
-  }
+  },
+  "version": "1.0.0"
 }
