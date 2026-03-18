@@ -1366,3 +1366,53 @@ final $typed_data.Uint8List customActionResponseDescriptor = $convert.base64Deco
     'NoYW5uZWwuaW5fYXBwLnNkay52MS5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEhgKB3BheWxvYWQY'
     'AiABKAlSB3BheWxvYWQSOAoJdGltZXN0YW1wGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbW'
     'VzdGFtcFIJdGltZXN0YW1w');
+
+@$core.Deprecated('Use authRequestDescriptor instead')
+const AuthRequest$json = {
+  '1': 'AuthRequest',
+  '2': [
+    {'1': 'user_type', '3': 1, '4': 1, '5': 9, '10': 'userType'},
+    {'1': 'channel_id', '3': 2, '4': 1, '5': 9, '10': 'channelId'},
+    {'1': 'organization_id', '3': 3, '4': 1, '5': 9, '10': 'organizationId'},
+    {'1': 'timestamp', '3': 4, '4': 1, '5': 3, '10': 'timestamp'},
+  ],
+};
+
+/// Descriptor for `AuthRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List authRequestDescriptor = $convert.base64Decode(
+    'CgtBdXRoUmVxdWVzdBIbCgl1c2VyX3R5cGUYASABKAlSCHVzZXJUeXBlEh0KCmNoYW5uZWxfaW'
+    'QYAiABKAlSCWNoYW5uZWxJZBInCg9vcmdhbml6YXRpb25faWQYAyABKAlSDm9yZ2FuaXphdGlv'
+    'bklkEhwKCXRpbWVzdGFtcBgEIAEoA1IJdGltZXN0YW1w');
+
+@$core.Deprecated('Use refreshTokenRequestDescriptor instead')
+const RefreshTokenRequest$json = {
+  '1': 'RefreshTokenRequest',
+  '2': [
+    {'1': 'grant_type', '3': 1, '4': 1, '5': 9, '10': 'grantType'},
+    {'1': 'refresh_token', '3': 2, '4': 1, '5': 9, '10': 'refreshToken'},
+  ],
+};
+
+/// Descriptor for `RefreshTokenRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List refreshTokenRequestDescriptor = $convert.base64Decode(
+    'ChNSZWZyZXNoVG9rZW5SZXF1ZXN0Eh0KCmdyYW50X3R5cGUYASABKAlSCWdyYW50VHlwZRIjCg'
+    '1yZWZyZXNoX3Rva2VuGAIgASgJUgxyZWZyZXNoVG9rZW4=');
+
+@$core.Deprecated('Use authResponseDescriptor instead')
+const AuthResponse$json = {
+  '1': 'AuthResponse',
+  '2': [
+    {'1': 'access_token', '3': 1, '4': 1, '5': 9, '10': 'accessToken'},
+    {'1': 'token_type', '3': 2, '4': 1, '5': 9, '10': 'tokenType'},
+    {'1': 'expires_in', '3': 3, '4': 1, '5': 3, '10': 'expiresIn'},
+    {'1': 'refresh_token', '3': 4, '4': 1, '5': 9, '10': 'refreshToken'},
+    {'1': 'client_id', '3': 5, '4': 1, '5': 9, '10': 'clientId'},
+  ],
+};
+
+/// Descriptor for `AuthResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List authResponseDescriptor = $convert.base64Decode(
+    'CgxBdXRoUmVzcG9uc2USIQoMYWNjZXNzX3Rva2VuGAEgASgJUgthY2Nlc3NUb2tlbhIdCgp0b2'
+    'tlbl90eXBlGAIgASgJUgl0b2tlblR5cGUSHQoKZXhwaXJlc19pbhgDIAEoA1IJZXhwaXJlc0lu'
+    'EiMKDXJlZnJlc2hfdG9rZW4YBCABKAlSDHJlZnJlc2hUb2tlbhIbCgljbGllbnRfaWQYBSABKA'
+    'lSCGNsaWVudElk');

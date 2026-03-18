@@ -517,6 +517,33 @@ export interface CustomActionResponse {
   timestamp: Date | undefined;
 }
 
+/** AuthRequest is the body of POST /auth used to obtain an initial access token. */
+export interface AuthRequest {
+  userType: string;
+  channelId: string;
+  organizationId: string;
+  /** Unix timestamp in seconds. */
+  timestamp: number;
+}
+
+/**
+ * RefreshTokenRequest is the body of POST /oauth/token used to refresh an
+ * expired access token via the refresh_token grant.
+ */
+export interface RefreshTokenRequest {
+  grantType: string;
+  refreshToken: string;
+}
+
+/** AuthResponse is returned by both POST /auth and POST /oauth/token. */
+export interface AuthResponse {
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  refreshToken: string;
+  clientId: string;
+}
+
 function createBaseSdkMessage(): SdkMessage {
   return {
     correlationId: "",
@@ -4322,6 +4349,354 @@ export const CustomActionResponse: MessageFns<CustomActionResponse> = {
   },
 };
 
+function createBaseAuthRequest(): AuthRequest {
+  return { userType: "", channelId: "", organizationId: "", timestamp: 0 };
+}
+
+export const AuthRequest: MessageFns<AuthRequest> = {
+  encode(message: AuthRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userType !== "") {
+      writer.uint32(10).string(message.userType);
+    }
+    if (message.channelId !== "") {
+      writer.uint32(18).string(message.channelId);
+    }
+    if (message.organizationId !== "") {
+      writer.uint32(26).string(message.organizationId);
+    }
+    if (message.timestamp !== 0) {
+      writer.uint32(32).int64(message.timestamp);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AuthRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAuthRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.userType = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.channelId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.organizationId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.timestamp = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AuthRequest {
+    return {
+      userType: isSet(object.userType)
+        ? globalThis.String(object.userType)
+        : isSet(object.user_type)
+        ? globalThis.String(object.user_type)
+        : "",
+      channelId: isSet(object.channelId)
+        ? globalThis.String(object.channelId)
+        : isSet(object.channel_id)
+        ? globalThis.String(object.channel_id)
+        : "",
+      organizationId: isSet(object.organizationId)
+        ? globalThis.String(object.organizationId)
+        : isSet(object.organization_id)
+        ? globalThis.String(object.organization_id)
+        : "",
+      timestamp: isSet(object.timestamp) ? globalThis.Number(object.timestamp) : 0,
+    };
+  },
+
+  toJSON(message: AuthRequest): unknown {
+    const obj: any = {};
+    if (message.userType !== "") {
+      obj.userType = message.userType;
+    }
+    if (message.channelId !== "") {
+      obj.channelId = message.channelId;
+    }
+    if (message.organizationId !== "") {
+      obj.organizationId = message.organizationId;
+    }
+    if (message.timestamp !== 0) {
+      obj.timestamp = Math.round(message.timestamp);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AuthRequest>, I>>(base?: I): AuthRequest {
+    return AuthRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AuthRequest>, I>>(object: I): AuthRequest {
+    const message = createBaseAuthRequest();
+    message.userType = object.userType ?? "";
+    message.channelId = object.channelId ?? "";
+    message.organizationId = object.organizationId ?? "";
+    message.timestamp = object.timestamp ?? 0;
+    return message;
+  },
+};
+
+function createBaseRefreshTokenRequest(): RefreshTokenRequest {
+  return { grantType: "", refreshToken: "" };
+}
+
+export const RefreshTokenRequest: MessageFns<RefreshTokenRequest> = {
+  encode(message: RefreshTokenRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.grantType !== "") {
+      writer.uint32(10).string(message.grantType);
+    }
+    if (message.refreshToken !== "") {
+      writer.uint32(18).string(message.refreshToken);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RefreshTokenRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRefreshTokenRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.grantType = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.refreshToken = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RefreshTokenRequest {
+    return {
+      grantType: isSet(object.grantType)
+        ? globalThis.String(object.grantType)
+        : isSet(object.grant_type)
+        ? globalThis.String(object.grant_type)
+        : "",
+      refreshToken: isSet(object.refreshToken)
+        ? globalThis.String(object.refreshToken)
+        : isSet(object.refresh_token)
+        ? globalThis.String(object.refresh_token)
+        : "",
+    };
+  },
+
+  toJSON(message: RefreshTokenRequest): unknown {
+    const obj: any = {};
+    if (message.grantType !== "") {
+      obj.grantType = message.grantType;
+    }
+    if (message.refreshToken !== "") {
+      obj.refreshToken = message.refreshToken;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RefreshTokenRequest>, I>>(base?: I): RefreshTokenRequest {
+    return RefreshTokenRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RefreshTokenRequest>, I>>(object: I): RefreshTokenRequest {
+    const message = createBaseRefreshTokenRequest();
+    message.grantType = object.grantType ?? "";
+    message.refreshToken = object.refreshToken ?? "";
+    return message;
+  },
+};
+
+function createBaseAuthResponse(): AuthResponse {
+  return { accessToken: "", tokenType: "", expiresIn: 0, refreshToken: "", clientId: "" };
+}
+
+export const AuthResponse: MessageFns<AuthResponse> = {
+  encode(message: AuthResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.accessToken !== "") {
+      writer.uint32(10).string(message.accessToken);
+    }
+    if (message.tokenType !== "") {
+      writer.uint32(18).string(message.tokenType);
+    }
+    if (message.expiresIn !== 0) {
+      writer.uint32(24).int64(message.expiresIn);
+    }
+    if (message.refreshToken !== "") {
+      writer.uint32(34).string(message.refreshToken);
+    }
+    if (message.clientId !== "") {
+      writer.uint32(42).string(message.clientId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AuthResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAuthResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.accessToken = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.tokenType = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.expiresIn = longToNumber(reader.int64());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.refreshToken = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.clientId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AuthResponse {
+    return {
+      accessToken: isSet(object.accessToken)
+        ? globalThis.String(object.accessToken)
+        : isSet(object.access_token)
+        ? globalThis.String(object.access_token)
+        : "",
+      tokenType: isSet(object.tokenType)
+        ? globalThis.String(object.tokenType)
+        : isSet(object.token_type)
+        ? globalThis.String(object.token_type)
+        : "",
+      expiresIn: isSet(object.expiresIn)
+        ? globalThis.Number(object.expiresIn)
+        : isSet(object.expires_in)
+        ? globalThis.Number(object.expires_in)
+        : 0,
+      refreshToken: isSet(object.refreshToken)
+        ? globalThis.String(object.refreshToken)
+        : isSet(object.refresh_token)
+        ? globalThis.String(object.refresh_token)
+        : "",
+      clientId: isSet(object.clientId)
+        ? globalThis.String(object.clientId)
+        : isSet(object.client_id)
+        ? globalThis.String(object.client_id)
+        : "",
+    };
+  },
+
+  toJSON(message: AuthResponse): unknown {
+    const obj: any = {};
+    if (message.accessToken !== "") {
+      obj.accessToken = message.accessToken;
+    }
+    if (message.tokenType !== "") {
+      obj.tokenType = message.tokenType;
+    }
+    if (message.expiresIn !== 0) {
+      obj.expiresIn = Math.round(message.expiresIn);
+    }
+    if (message.refreshToken !== "") {
+      obj.refreshToken = message.refreshToken;
+    }
+    if (message.clientId !== "") {
+      obj.clientId = message.clientId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AuthResponse>, I>>(base?: I): AuthResponse {
+    return AuthResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AuthResponse>, I>>(object: I): AuthResponse {
+    const message = createBaseAuthResponse();
+    message.accessToken = object.accessToken ?? "";
+    message.tokenType = object.tokenType ?? "";
+    message.expiresIn = object.expiresIn ?? 0;
+    message.refreshToken = object.refreshToken ?? "";
+    message.clientId = object.clientId ?? "";
+    return message;
+  },
+};
+
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
@@ -4354,6 +4729,17 @@ function fromJsonTimestamp(o: any): Date {
   } else {
     return fromTimestamp(Timestamp.fromJSON(o));
   }
+}
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
 }
 
 function isSet(value: any): boolean {
