@@ -8,9 +8,9 @@ webchat_sdk_models_path = ../web-sdk/src/domain/models
 proto: proto_go proto_ts proto_dart symlinks
 
 symlinks:
-	ln -sfn $(CURDIR)/dart/events $(flutter_sdk_models_path)/events
-	ln -sfn $(CURDIR)/typescript/events $(webchat_sdk_models_path)/events
-	ln -sfn $(CURDIR)/typescript/google $(webchat_sdk_models_path)/google
+	ln -sfn ../../../../../proto/dart/events $(flutter_sdk_models_path)/events
+	ln -sfn ../../../../proto/typescript/events $(webchat_sdk_models_path)/events
+	ln -sfn ../../../../proto/typescript/google $(webchat_sdk_models_path)/google
 .PHONY: symlinks
 
 proto_go:
