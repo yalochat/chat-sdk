@@ -3,7 +3,10 @@
 package com.yalo.chat.sdk.domain.model
 
 // Port of MessageStatus enum from flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
+// and proto/events/external_channel/in_app/sdk/sdk_message.proto.
+// Proto adds UNSPECIFIED as the zero-value sentinel.
 enum class MessageStatus(val value: String) {
+    UNSPECIFIED("UNSPECIFIED"),
     SENT("SENT"),
     DELIVERED("DELIVERED"),
     READ("READ"),
