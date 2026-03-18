@@ -46,12 +46,13 @@ private const val TOKEN_REFRESH_BUFFER_MS = 30_000L
 // When splitting to KMP: YaloChat.kt moves to androidMain and provides the Android engine;
 // an iosMain counterpart provides the Darwin engine.
 internal class YaloChatApiService(
-    private val apiBaseUrl: String,
+    apiBaseUrl: String,
     private val channelId: String,
     private val organizationId: String,
     // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
     internal val httpClient: HttpClient,
 ) {
+    private val apiBaseUrl = apiBaseUrl.trimEnd('/').removeSuffix("/webchat")
     private val tokenMutex = Mutex()
     private var accessToken: String? = null
     private var storedRefreshToken: String? = null
@@ -81,45 +82,59 @@ internal class YaloChatApiService(
             doAuthenticate()
         }
 
-    private suspend fun doAuthenticate(): Result<Pair<String, String>> = try {
-        val response = httpClient.post("$apiBaseUrl/auth") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                YaloAuthRequest(
-                    channelId = channelId,
-                    organizationId = organizationId,
-                    timestamp = System.currentTimeMillis(),
+    private suspend fun doAuthenticate(): Result<Pair<String, String>> {
+        return try {
+            val response = httpClient.post("$apiBaseUrl/auth") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    YaloAuthRequest(
+                        channelId = channelId,
+                        organizationId = organizationId,
+                        timestamp = System.currentTimeMillis(),
+                    )
                 )
-            )
+            }
+            if (response.status.isSuccess()) {
+                val auth: YaloAuthResponse = response.body()
+                cacheTokens(auth)
+                if (userId.isEmpty()) {
+                    accessToken = null
+                    storedRefreshToken = null
+                    return Result.Error(RuntimeException("auth succeeded but user_id could not be extracted from JWT"))
+                }
+                Result.Ok(auth.accessToken to userId)
+            } else {
+                Result.Error(RuntimeException("HTTP ${response.status.value}: auth failed"))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
         }
-        if (response.status.isSuccess()) {
-            val auth: YaloAuthResponse = response.body()
-            cacheTokens(auth)
-            Result.Ok(auth.accessToken to userId)
-        } else {
-            Result.Error(RuntimeException("HTTP ${response.status.value}: auth failed"))
-        }
-    } catch (e: Exception) {
-        Result.Error(e)
     }
 
-    private suspend fun doRefreshToken(refreshToken: String): Result<Pair<String, String>> = try {
-        val response = httpClient.submitForm(
-            url = "$apiBaseUrl/oauth/token",
-            formParameters = Parameters.build {
-                append("grant_type", "refresh_token")
-                append("refresh_token", refreshToken)
-            },
-        )
-        if (response.status.isSuccess()) {
-            val auth: YaloAuthResponse = response.body()
-            cacheTokens(auth)
-            Result.Ok(auth.accessToken to userId)
-        } else {
-            Result.Error(RuntimeException("HTTP ${response.status.value}: token refresh failed"))
+    private suspend fun doRefreshToken(refreshToken: String): Result<Pair<String, String>> {
+        return try {
+            val response = httpClient.submitForm(
+                url = "$apiBaseUrl/oauth/token",
+                formParameters = Parameters.build {
+                    append("grant_type", "refresh_token")
+                    append("refresh_token", refreshToken)
+                },
+            )
+            if (response.status.isSuccess()) {
+                val auth: YaloAuthResponse = response.body()
+                cacheTokens(auth)
+                if (userId.isEmpty()) {
+                    accessToken = null
+                    storedRefreshToken = null
+                    return Result.Error(RuntimeException("token refresh succeeded but user_id could not be extracted from JWT"))
+                }
+                Result.Ok(auth.accessToken to userId)
+            } else {
+                Result.Error(RuntimeException("HTTP ${response.status.value}: token refresh failed"))
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
         }
-    } catch (e: Exception) {
-        Result.Error(e)
     }
 
     private fun cacheTokens(auth: YaloAuthResponse) {

@@ -71,7 +71,7 @@ class AudioViewModelTest {
     // ── StartRecording ────────────────────────────────────────────────────────
 
     @Test
-    fun `StartRecording transitions to RecordingAudio status`() = runTest {
+    fun `StartRecording transitions to RecordingAudio status`() = runTest(dispatcher) {
         val vm = viewModel()
 
         vm.handleEvent(AudioEvent.StartRecording)
@@ -82,7 +82,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `StartRecording resets amplitudes to AMPLITUDE_DATA_POINTS default values`() = runTest {
+    fun `StartRecording resets amplitudes to AMPLITUDE_DATA_POINTS default values`() = runTest(dispatcher) {
         val vm = viewModel()
 
         vm.handleEvent(AudioEvent.StartRecording)
@@ -93,7 +93,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `StartRecording failure sets ErrorRecordingAudio status`() = runTest {
+    fun `StartRecording failure sets ErrorRecordingAudio status`() = runTest(dispatcher) {
         val vm = viewModel(FakeAudioRepository(recordingError = RuntimeException("mic not found")))
 
         vm.handleEvent(AudioEvent.StartRecording)
@@ -106,7 +106,7 @@ class AudioViewModelTest {
     // ── Amplitude streaming ───────────────────────────────────────────────────
 
     @Test
-    fun `amplitude samples advance the live amplitudes list`() = runTest {
+    fun `amplitude samples advance the live amplitudes list`() = runTest(dispatcher) {
         val samples = listOf(-10.0, -15.0, -20.0)
         val vm = viewModel(FakeAudioRepository(amplitudeValues = samples))
 
@@ -117,7 +117,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `amplitude streaming increments duration by RECORD_TICK_MS per sample`() = runTest {
+    fun `amplitude streaming increments duration by RECORD_TICK_MS per sample`() = runTest(dispatcher) {
         val samples = listOf(-10.0, -15.0, -20.0)
         val vm = viewModel(FakeAudioRepository(amplitudeValues = samples))
 
@@ -130,7 +130,7 @@ class AudioViewModelTest {
     // ── StopRecording ─────────────────────────────────────────────────────────
 
     @Test
-    fun `StopRecording transitions to Initial status`() = runTest {
+    fun `StopRecording transitions to Initial status`() = runTest(dispatcher) {
         val vm = viewModel()
 
         vm.handleEvent(AudioEvent.StartRecording)
@@ -142,7 +142,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `StopRecording carries duration from repository result`() = runTest {
+    fun `StopRecording carries duration from repository result`() = runTest(dispatcher) {
         val audioData = AudioData(fileName = "fake.m4a", durationMs = 3000L)
         val vm = viewModel(FakeAudioRepository(recordedAudioData = audioData))
 
@@ -154,7 +154,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `StopRecording failure sets ErrorStoppingRecording status`() = runTest {
+    fun `StopRecording failure sets ErrorStoppingRecording status`() = runTest(dispatcher) {
         val repo = object : AudioRepository {
             override suspend fun startRecording(): Result<String> = Result.Ok("fake.m4a")
             override suspend fun stopRecording(): Result<AudioData> =
@@ -179,7 +179,7 @@ class AudioViewModelTest {
     // ── CancelRecording ───────────────────────────────────────────────────────
 
     @Test
-    fun `CancelRecording transitions to Initial status with empty audioData`() = runTest {
+    fun `CancelRecording transitions to Initial status with empty audioData`() = runTest(dispatcher) {
         val vm = viewModel(FakeAudioRepository(
             recordedAudioData = AudioData(fileName = "fake.m4a", durationMs = 1000L),
         ))
@@ -198,7 +198,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `CancelRecording resets amplitudes to defaults`() = runTest {
+    fun `CancelRecording resets amplitudes to defaults`() = runTest(dispatcher) {
         val samples = listOf(-10.0, -15.0, -20.0)
         val vm = viewModel(FakeAudioRepository(amplitudeValues = samples))
 
@@ -214,7 +214,7 @@ class AudioViewModelTest {
     // ── Play ──────────────────────────────────────────────────────────────────
 
     @Test
-    fun `Play sets playingMessage and status to PlayingAudio`() = runTest {
+    fun `Play sets playingMessage and status to PlayingAudio`() = runTest(dispatcher) {
         val message = voiceMessage()
         val vm = viewModel()
 
@@ -226,7 +226,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `Play with non-Voice message type is a no-op`() = runTest {
+    fun `Play with non-Voice message type is a no-op`() = runTest(dispatcher) {
         val message = ChatMessage(
             type = MessageType.Text,
             role = MessageRole.USER,
@@ -243,7 +243,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `Play with null fileName is a no-op`() = runTest {
+    fun `Play with null fileName is a no-op`() = runTest(dispatcher) {
         val message = ChatMessage(
             type = MessageType.Voice,
             role = MessageRole.USER,
@@ -259,7 +259,7 @@ class AudioViewModelTest {
     }
 
     @Test
-    fun `Play failure sets ErrorPlayingAudio status`() = runTest {
+    fun `Play failure sets ErrorPlayingAudio status`() = runTest(dispatcher) {
         val message = voiceMessage()
         val vm = viewModel(FakeAudioRepository(playbackError = RuntimeException("codec error")))
 
@@ -273,7 +273,7 @@ class AudioViewModelTest {
     // ── Stop ──────────────────────────────────────────────────────────────────
 
     @Test
-    fun `Stop clears playingMessage and resets status to Initial`() = runTest {
+    fun `Stop clears playingMessage and resets status to Initial`() = runTest(dispatcher) {
         val message = voiceMessage()
         val vm = viewModel()
 
@@ -291,7 +291,7 @@ class AudioViewModelTest {
     // ── SubscribeToPlaybackCompletion ─────────────────────────────────────────
 
     @Test
-    fun `SubscribeToPlaybackCompletion clears playingMessage when playback ends`() = runTest {
+    fun `SubscribeToPlaybackCompletion clears playingMessage when playback ends`() = runTest(dispatcher) {
         val message = voiceMessage()
         val repo = FakeAudioRepository()
         val vm = AudioViewModel(repo)
