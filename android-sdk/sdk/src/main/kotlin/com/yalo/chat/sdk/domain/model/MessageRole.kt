@@ -3,8 +3,10 @@
 package com.yalo.chat.sdk.domain.model
 
 // Port of MessageRole enum from flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
-// Flutter: user('USER'), assistant('AGENT')
+// and proto/events/external_channel/in_app/sdk/sdk_message.proto.
+// Flutter: user('USER'), assistant('AGENT'). Proto adds UNSPECIFIED as the zero-value sentinel.
 enum class MessageRole(val value: String) {
+    UNSPECIFIED("UNSPECIFIED"),
     USER("USER"),
     AGENT("AGENT");
 
