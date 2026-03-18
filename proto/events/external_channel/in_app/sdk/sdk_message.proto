@@ -362,3 +362,32 @@ message CustomActionResponse {
   string payload = 2;
   google.protobuf.Timestamp timestamp = 3;
 }
+
+// ---------------------------------------------------------------------------
+// Auth  (REST: client -> server)
+// ---------------------------------------------------------------------------
+
+// AuthRequest is the body of POST /auth used to obtain an initial access token.
+message AuthRequest {
+  string user_type = 1;
+  string channel_id = 2;
+  string organization_id = 3;
+  // Unix timestamp in seconds.
+  int64 timestamp = 4;
+}
+
+// RefreshTokenRequest is the body of POST /oauth/token used to refresh an
+// expired access token via the refresh_token grant.
+message RefreshTokenRequest {
+  string grant_type = 1;
+  string refresh_token = 2;
+}
+
+// AuthResponse is returned by both POST /auth and POST /oauth/token.
+message AuthResponse {
+  string access_token = 1;
+  string token_type = 2;
+  int64 expires_in = 3;
+  string refresh_token = 4;
+  string client_id = 5;
+}

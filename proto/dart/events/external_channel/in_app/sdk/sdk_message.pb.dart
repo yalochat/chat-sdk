@@ -12,6 +12,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart'
     as $0;
@@ -3314,6 +3315,272 @@ class CustomActionResponse extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(3);
   @$pb.TagNumber(3)
   $0.Timestamp ensureTimestamp() => $_ensure(2);
+}
+
+/// AuthRequest is the body of POST /auth used to obtain an initial access token.
+class AuthRequest extends $pb.GeneratedMessage {
+  factory AuthRequest({
+    $core.String? userType,
+    $core.String? channelId,
+    $core.String? organizationId,
+    $fixnum.Int64? timestamp,
+  }) {
+    final result = create();
+    if (userType != null) result.userType = userType;
+    if (channelId != null) result.channelId = channelId;
+    if (organizationId != null) result.organizationId = organizationId;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  AuthRequest._();
+
+  factory AuthRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory AuthRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'AuthRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userType')
+    ..aOS(2, _omitFieldNames ? '' : 'channelId')
+    ..aOS(3, _omitFieldNames ? '' : 'organizationId')
+    ..aInt64(4, _omitFieldNames ? '' : 'timestamp')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  AuthRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  AuthRequest copyWith(void Function(AuthRequest) updates) =>
+      super.copyWith((message) => updates(message as AuthRequest))
+          as AuthRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AuthRequest create() => AuthRequest._();
+  @$core.override
+  AuthRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static AuthRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AuthRequest>(create);
+  static AuthRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get userType => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userType($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasUserType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserType() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get channelId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set channelId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasChannelId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearChannelId() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get organizationId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set organizationId($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasOrganizationId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearOrganizationId() => $_clearField(3);
+
+  /// Unix timestamp in seconds.
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get timestamp => $_getI64(3);
+  @$pb.TagNumber(4)
+  set timestamp($fixnum.Int64 value) => $_setInt64(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasTimestamp() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTimestamp() => $_clearField(4);
+}
+
+/// RefreshTokenRequest is the body of POST /oauth/token used to refresh an
+/// expired access token via the refresh_token grant.
+class RefreshTokenRequest extends $pb.GeneratedMessage {
+  factory RefreshTokenRequest({
+    $core.String? grantType,
+    $core.String? refreshToken,
+  }) {
+    final result = create();
+    if (grantType != null) result.grantType = grantType;
+    if (refreshToken != null) result.refreshToken = refreshToken;
+    return result;
+  }
+
+  RefreshTokenRequest._();
+
+  factory RefreshTokenRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RefreshTokenRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RefreshTokenRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'grantType')
+    ..aOS(2, _omitFieldNames ? '' : 'refreshToken')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RefreshTokenRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RefreshTokenRequest copyWith(void Function(RefreshTokenRequest) updates) =>
+      super.copyWith((message) => updates(message as RefreshTokenRequest))
+          as RefreshTokenRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RefreshTokenRequest create() => RefreshTokenRequest._();
+  @$core.override
+  RefreshTokenRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static RefreshTokenRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RefreshTokenRequest>(create);
+  static RefreshTokenRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get grantType => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set grantType($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasGrantType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearGrantType() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get refreshToken => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set refreshToken($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasRefreshToken() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRefreshToken() => $_clearField(2);
+}
+
+/// AuthResponse is returned by both POST /auth and POST /oauth/token.
+class AuthResponse extends $pb.GeneratedMessage {
+  factory AuthResponse({
+    $core.String? accessToken,
+    $core.String? tokenType,
+    $fixnum.Int64? expiresIn,
+    $core.String? refreshToken,
+    $core.String? clientId,
+  }) {
+    final result = create();
+    if (accessToken != null) result.accessToken = accessToken;
+    if (tokenType != null) result.tokenType = tokenType;
+    if (expiresIn != null) result.expiresIn = expiresIn;
+    if (refreshToken != null) result.refreshToken = refreshToken;
+    if (clientId != null) result.clientId = clientId;
+    return result;
+  }
+
+  AuthResponse._();
+
+  factory AuthResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory AuthResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'AuthResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'accessToken')
+    ..aOS(2, _omitFieldNames ? '' : 'tokenType')
+    ..aInt64(3, _omitFieldNames ? '' : 'expiresIn')
+    ..aOS(4, _omitFieldNames ? '' : 'refreshToken')
+    ..aOS(5, _omitFieldNames ? '' : 'clientId')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  AuthResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  AuthResponse copyWith(void Function(AuthResponse) updates) =>
+      super.copyWith((message) => updates(message as AuthResponse))
+          as AuthResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static AuthResponse create() => AuthResponse._();
+  @$core.override
+  AuthResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static AuthResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<AuthResponse>(create);
+  static AuthResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get accessToken => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set accessToken($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasAccessToken() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAccessToken() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get tokenType => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set tokenType($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTokenType() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTokenType() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get expiresIn => $_getI64(2);
+  @$pb.TagNumber(3)
+  set expiresIn($fixnum.Int64 value) => $_setInt64(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasExpiresIn() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearExpiresIn() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get refreshToken => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set refreshToken($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasRefreshToken() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRefreshToken() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get clientId => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set clientId($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasClientId() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearClientId() => $_clearField(5);
 }
 
 const $core.bool _omitFieldNames =
