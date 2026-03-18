@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -7,6 +9,22 @@ plugins {
     alias(libs.plugins.sqldelight)
 }
 
+// Read the API base URL from local.properties (gitignored).
+// This keeps the URL out of the repository — mirroring Flutter's --dart-define pattern.
+// CI pipelines inject YALO_API_BASE_URL as an environment variable instead.
+val localProps = Properties().also { props ->
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { props.load(it) }
+}
+val yaloApiBaseUrl: String = (System.getenv("YALO_API_BASE_URL")
+    ?: localProps.getProperty("yalo.apiBaseUrl", "")).also { url ->
+    if (url.isEmpty()) logger.warn(
+        "WARNING: YALO_API_BASE_URL is not set. " +
+        "Add yalo.apiBaseUrl to local.properties or set the YALO_API_BASE_URL env variable. " +
+        "The SDK will fail at runtime when connecting to the backend."
+    )
+}
+
 android {
     namespace = "com.yalo.chat.sdk"
     compileSdk = 35
@@ -14,6 +32,7 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
+        buildConfigField("String", "YALO_API_BASE_URL", "\"$yaloApiBaseUrl\"")
     }
 
     compileOptions {

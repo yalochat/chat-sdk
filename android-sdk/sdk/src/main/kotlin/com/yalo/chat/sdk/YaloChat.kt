@@ -23,11 +23,6 @@ import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 
-// Production Yalo Chat API base URL. Not exposed in YaloChatConfig — consumers should not
-// need to know or configure the backend URL. Pass apiBaseUrl to init() only when overriding
-// for testing or staging environments.
-internal const val YALO_API_BASE_URL = "https://api.yalochat.com"
-
 object YaloChat {
 
     private var _config: YaloChatConfig? = null
@@ -43,13 +38,7 @@ object YaloChat {
     // and ImageRepositoryLocal for the FileProvider / content resolver.
     // KMP note: when splitting to KMP, YaloChat.kt moves to androidMain; iosMain
     // counterpart will provide NativeSqliteDriver without a Context.
-    fun init(
-        config: YaloChatConfig,
-        context: Context,
-        // Not part of YaloChatConfig — the API base URL is an SDK implementation detail.
-        // Override only for testing or staging; production builds use YALO_API_BASE_URL.
-        apiBaseUrl: String = YALO_API_BASE_URL,
-    ) {
+    fun init(config: YaloChatConfig, context: Context) {
         // Tear down any previous instance before re-initialising (idempotent re-init).
         _syncService?.stop()
         _httpClient?.close()
@@ -61,7 +50,7 @@ object YaloChat {
         _httpClient = httpClient
 
         val apiService = YaloChatApiService(
-            apiBaseUrl = apiBaseUrl,
+            apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
             channelId = config.channelId,
             organizationId = config.organizationId,
             httpClient = httpClient,

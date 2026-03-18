@@ -25,7 +25,6 @@ class MainActivity : ComponentActivity() {
                 channelId = BuildConfig.YALO_CHANNEL_ID,
                 organizationId = BuildConfig.YALO_ORGANIZATION_ID,
             ),
-            apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
             context = this,
         )
         setContent {
