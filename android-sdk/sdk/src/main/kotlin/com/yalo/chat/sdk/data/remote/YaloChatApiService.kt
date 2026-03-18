@@ -66,13 +66,17 @@ internal class YaloChatApiService(
         tokenMutex.withLock {
             val token = accessToken
             if (token != null && System.currentTimeMillis() < tokenExpiresAt - TOKEN_REFRESH_BUFFER_MS) {
+                if (userId.isEmpty()) return@withLock Result.Error(RuntimeException("auth succeeded but user_id could not be extracted from JWT"))
                 return@withLock Result.Ok(token to userId)
             }
             val rt = storedRefreshToken
             if (rt != null) {
                 val refreshResult = doRefreshToken(rt)
                 if (refreshResult is Result.Ok) return@withLock refreshResult
-                // Refresh failed — fall through to full re-auth.
+                // Refresh failed — clear stale tokens so the next call goes straight to re-auth
+                // instead of retrying the refresh and doubling auth traffic.
+                accessToken = null
+                storedRefreshToken = null
             }
             doAuthenticate()
         }

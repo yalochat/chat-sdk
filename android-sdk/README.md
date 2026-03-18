@@ -66,6 +66,7 @@ Edit `local.properties`:
 sdk.dir=/path/to/your/Android/sdk   # set automatically by Android Studio
 
 yalo.apiBaseUrl=https://your-yalo-api-base-url
+yalo.channelName=your-channel-name
 yalo.channelId=your-channel-id
 yalo.organizationId=your-organization-id
 ```

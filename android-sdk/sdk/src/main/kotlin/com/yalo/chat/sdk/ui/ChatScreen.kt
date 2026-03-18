@@ -53,8 +53,6 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 fun ChatScreen(
     onBack: (() -> Unit)? = null,
     showAttachmentButton: Boolean = true,
-    onShopPressed: (() -> Unit)? = null,
-    onCartPressed: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()

@@ -120,7 +120,7 @@ data class ChatTheme(
     val cameraIcon: ImageVector = Icons.Filled.CameraAlt,
     val galleryIcon: ImageVector = Icons.Filled.Image,
     val trashIcon: ImageVector = Icons.Filled.Delete,
-    val imagePlaceHolderIcon: ImageVector = Icons.Filled.Image,
+    val imagePlaceholderIcon: ImageVector = Icons.Filled.Image,
     val shopIcon: ImageVector = Icons.Filled.Storefront,
     val cartIcon: ImageVector = Icons.Filled.ShoppingCart,
     val currencyIcon: ImageVector = Icons.Filled.AttachMoney,
