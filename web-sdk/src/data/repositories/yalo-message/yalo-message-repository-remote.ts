@@ -8,6 +8,11 @@ import type {
   PollCallback,
   YaloMessageRepository,
 } from './yalo-message-repository';
+import {
+  MessageRole,
+  MessageStatus,
+  type SdkMessage,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
 interface JwtPayload {
   user_id: string;
@@ -47,7 +52,21 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     const userId = this._decodeUserId(token);
 
     try {
-      const timestamp = Date.now();
+      const timestamp = new Date();
+
+      const body: SdkMessage = {
+        correlationId: message.id?.toString() || '',
+        textMessageRequest: {
+          content: {
+            timestamp: undefined,
+            text: message.content,
+            status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+            role: MessageRole.MESSAGE_ROLE_USER,
+          },
+          timestamp: message.timestamp,
+        },
+        timestamp: timestamp,
+      };
       const response = await fetch(
         `${this._baseUrl}/webchat/inbound_messages`,
         {
@@ -59,15 +78,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
             'x-user-id': userId,
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            content: {
-              timestamp,
-              text: message.content,
-              status: message.status,
-              role: message.role,
-            },
-            timestamp,
-          }),
+          body: JSON.stringify(body),
         }
       );
 
