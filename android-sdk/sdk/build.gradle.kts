@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.protobuf)
 }
 
 // Read the API base URL from local.properties (gitignored).
@@ -60,6 +61,25 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+// Protobuf — generate Kotlin/Java lite classes from sdk_message.proto at build time.
+// The .proto source lives in the shared proto/ directory (../../proto relative to this module).
+// Generated output goes to build/generated/source/proto/ and is NOT committed.
+// Run the Makefile proto_kotlin target for manual generation or CI reference.
+protobuf {
+    protoc {
+        // Must match libs.versions.protobuf in libs.versions.toml.
+        artifact = "com.google.protobuf:protoc:4.29.3"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") { option("lite") }
+                create("kotlin") { option("lite") }
+            }
+        }
     }
 }
 
@@ -120,6 +140,9 @@ dependencies {
     // SQLDelight — KMP-ready persistence (no Room)
     implementation(libs.sqldelight.android.driver)
     implementation(libs.sqldelight.coroutines.extensions)
+
+    // Protobuf lite runtime — required by the generated Kotlin/Java proto classes.
+    implementation(libs.protobuf.kotlin.lite)
 
     // Unit tests (JVM — no emulator required)
     testImplementation(libs.junit)

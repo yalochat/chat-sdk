@@ -13,6 +13,8 @@ coroutines = "1.9.0"
 hilt = "2.56"
 junit = "4.13.2"
 coil = "3.0.4"
+protobuf = "4.29.3"
+protobuf-plugin = "0.9.4"
 
 [libraries]
 # Compose
@@ -64,6 +66,9 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 # Coil — async image loading
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 
+# Protobuf — generated data classes from sdk_message.proto (javalite = Android-optimised runtime)
+protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
+
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
@@ -77,3 +82,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }
