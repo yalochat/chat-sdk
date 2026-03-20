@@ -233,7 +233,6 @@ export interface SdkMessage {
 
 /** TextMessage holds the payload of a plain-text conversation turn. */
 export interface TextMessage {
-  messageId?: string | undefined;
   timestamp: Date | undefined;
   text: string;
   status: MessageStatus;
@@ -255,7 +254,6 @@ export interface TextMessageResponse {
 
 /** VoiceMessage holds the payload of a voice-note conversation turn. */
 export interface VoiceMessage {
-  messageId?: string | undefined;
   timestamp: Date | undefined;
   mediaUrl: string;
   /** Amplitude samples used to render the waveform preview in the UI. */
@@ -282,7 +280,6 @@ export interface VoiceMessageResponse {
 
 /** ImageMessage holds the payload of an image conversation turn. */
 export interface ImageMessage {
-  messageId?: string | undefined;
   timestamp: Date | undefined;
   text?: string | undefined;
   mediaUrl: string;
@@ -1271,25 +1268,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
 };
 
 function createBaseTextMessage(): TextMessage {
-  return { messageId: undefined, timestamp: undefined, text: "", status: 0, role: 0 };
+  return { timestamp: undefined, text: "", status: 0, role: 0 };
 }
 
 export const TextMessage: MessageFns<TextMessage> = {
   encode(message: TextMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.messageId !== undefined) {
-      writer.uint32(10).string(message.messageId);
-    }
     if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
     }
     if (message.text !== "") {
-      writer.uint32(26).string(message.text);
+      writer.uint32(18).string(message.text);
     }
     if (message.status !== 0) {
-      writer.uint32(32).int32(message.status);
+      writer.uint32(24).int32(message.status);
     }
     if (message.role !== 0) {
-      writer.uint32(40).int32(message.role);
+      writer.uint32(32).int32(message.role);
     }
     return writer;
   },
@@ -1306,7 +1300,7 @@ export const TextMessage: MessageFns<TextMessage> = {
             break;
           }
 
-          message.messageId = reader.string();
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
         case 2: {
@@ -1314,27 +1308,19 @@ export const TextMessage: MessageFns<TextMessage> = {
             break;
           }
 
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
           message.text = reader.string();
           continue;
         }
-        case 4: {
-          if (tag !== 32) {
+        case 3: {
+          if (tag !== 24) {
             break;
           }
 
           message.status = reader.int32() as any;
           continue;
         }
-        case 5: {
-          if (tag !== 40) {
+        case 4: {
+          if (tag !== 32) {
             break;
           }
 
@@ -1352,11 +1338,6 @@ export const TextMessage: MessageFns<TextMessage> = {
 
   fromJSON(object: any): TextMessage {
     return {
-      messageId: isSet(object.messageId)
-        ? globalThis.String(object.messageId)
-        : isSet(object.message_id)
-        ? globalThis.String(object.message_id)
-        : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       text: isSet(object.text) ? globalThis.String(object.text) : "",
       status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
@@ -1366,9 +1347,6 @@ export const TextMessage: MessageFns<TextMessage> = {
 
   toJSON(message: TextMessage): unknown {
     const obj: any = {};
-    if (message.messageId !== undefined) {
-      obj.messageId = message.messageId;
-    }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
@@ -1389,7 +1367,6 @@ export const TextMessage: MessageFns<TextMessage> = {
   },
   fromPartial<I extends Exact<DeepPartial<TextMessage>, I>>(object: I): TextMessage {
     const message = createBaseTextMessage();
-    message.messageId = object.messageId ?? undefined;
     message.timestamp = object.timestamp ?? undefined;
     message.text = object.text ?? "";
     message.status = object.status ?? 0;
@@ -1573,45 +1550,33 @@ export const TextMessageResponse: MessageFns<TextMessageResponse> = {
 };
 
 function createBaseVoiceMessage(): VoiceMessage {
-  return {
-    messageId: undefined,
-    timestamp: undefined,
-    mediaUrl: "",
-    amplitudesPreview: [],
-    duration: 0,
-    mediaType: "",
-    status: 0,
-    role: 0,
-  };
+  return { timestamp: undefined, mediaUrl: "", amplitudesPreview: [], duration: 0, mediaType: "", status: 0, role: 0 };
 }
 
 export const VoiceMessage: MessageFns<VoiceMessage> = {
   encode(message: VoiceMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.messageId !== undefined) {
-      writer.uint32(10).string(message.messageId);
-    }
     if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
     }
     if (message.mediaUrl !== "") {
-      writer.uint32(26).string(message.mediaUrl);
+      writer.uint32(18).string(message.mediaUrl);
     }
-    writer.uint32(34).fork();
+    writer.uint32(26).fork();
     for (const v of message.amplitudesPreview) {
       writer.float(v);
     }
     writer.join();
     if (message.duration !== 0) {
-      writer.uint32(41).double(message.duration);
+      writer.uint32(33).double(message.duration);
     }
     if (message.mediaType !== "") {
-      writer.uint32(50).string(message.mediaType);
+      writer.uint32(42).string(message.mediaType);
     }
     if (message.status !== 0) {
-      writer.uint32(56).int32(message.status);
+      writer.uint32(48).int32(message.status);
     }
     if (message.role !== 0) {
-      writer.uint32(64).int32(message.role);
+      writer.uint32(56).int32(message.role);
     }
     return writer;
   },
@@ -1628,7 +1593,7 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
             break;
           }
 
-          message.messageId = reader.string();
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
         case 2: {
@@ -1636,25 +1601,17 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
             break;
           }
 
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
           message.mediaUrl = reader.string();
           continue;
         }
-        case 4: {
-          if (tag === 37) {
+        case 3: {
+          if (tag === 29) {
             message.amplitudesPreview.push(reader.float());
 
             continue;
           }
 
-          if (tag === 34) {
+          if (tag === 26) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
               message.amplitudesPreview.push(reader.float());
@@ -1665,32 +1622,32 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
 
           break;
         }
-        case 5: {
-          if (tag !== 41) {
+        case 4: {
+          if (tag !== 33) {
             break;
           }
 
           message.duration = reader.double();
           continue;
         }
-        case 6: {
-          if (tag !== 50) {
+        case 5: {
+          if (tag !== 42) {
             break;
           }
 
           message.mediaType = reader.string();
           continue;
         }
-        case 7: {
-          if (tag !== 56) {
+        case 6: {
+          if (tag !== 48) {
             break;
           }
 
           message.status = reader.int32() as any;
           continue;
         }
-        case 8: {
-          if (tag !== 64) {
+        case 7: {
+          if (tag !== 56) {
             break;
           }
 
@@ -1708,11 +1665,6 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
 
   fromJSON(object: any): VoiceMessage {
     return {
-      messageId: isSet(object.messageId)
-        ? globalThis.String(object.messageId)
-        : isSet(object.message_id)
-        ? globalThis.String(object.message_id)
-        : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       mediaUrl: isSet(object.mediaUrl)
         ? globalThis.String(object.mediaUrl)
@@ -1737,9 +1689,6 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
 
   toJSON(message: VoiceMessage): unknown {
     const obj: any = {};
-    if (message.messageId !== undefined) {
-      obj.messageId = message.messageId;
-    }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
@@ -1769,7 +1718,6 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
   },
   fromPartial<I extends Exact<DeepPartial<VoiceMessage>, I>>(object: I): VoiceMessage {
     const message = createBaseVoiceMessage();
-    message.messageId = object.messageId ?? undefined;
     message.timestamp = object.timestamp ?? undefined;
     message.mediaUrl = object.mediaUrl ?? "";
     message.amplitudesPreview = object.amplitudesPreview?.map((e) => e) || [];
@@ -1976,39 +1924,28 @@ export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
 };
 
 function createBaseImageMessage(): ImageMessage {
-  return {
-    messageId: undefined,
-    timestamp: undefined,
-    text: undefined,
-    mediaUrl: "",
-    mediaType: "",
-    status: 0,
-    role: 0,
-  };
+  return { timestamp: undefined, text: undefined, mediaUrl: "", mediaType: "", status: 0, role: 0 };
 }
 
 export const ImageMessage: MessageFns<ImageMessage> = {
   encode(message: ImageMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.messageId !== undefined) {
-      writer.uint32(10).string(message.messageId);
-    }
     if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
     }
     if (message.text !== undefined) {
-      writer.uint32(26).string(message.text);
+      writer.uint32(18).string(message.text);
     }
     if (message.mediaUrl !== "") {
-      writer.uint32(34).string(message.mediaUrl);
+      writer.uint32(26).string(message.mediaUrl);
     }
     if (message.mediaType !== "") {
-      writer.uint32(42).string(message.mediaType);
+      writer.uint32(34).string(message.mediaType);
     }
     if (message.status !== 0) {
-      writer.uint32(48).int32(message.status);
+      writer.uint32(40).int32(message.status);
     }
     if (message.role !== 0) {
-      writer.uint32(56).int32(message.role);
+      writer.uint32(48).int32(message.role);
     }
     return writer;
   },
@@ -2025,7 +1962,7 @@ export const ImageMessage: MessageFns<ImageMessage> = {
             break;
           }
 
-          message.messageId = reader.string();
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
         case 2: {
@@ -2033,7 +1970,7 @@ export const ImageMessage: MessageFns<ImageMessage> = {
             break;
           }
 
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          message.text = reader.string();
           continue;
         }
         case 3: {
@@ -2041,7 +1978,7 @@ export const ImageMessage: MessageFns<ImageMessage> = {
             break;
           }
 
-          message.text = reader.string();
+          message.mediaUrl = reader.string();
           continue;
         }
         case 4: {
@@ -2049,27 +1986,19 @@ export const ImageMessage: MessageFns<ImageMessage> = {
             break;
           }
 
-          message.mediaUrl = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
           message.mediaType = reader.string();
           continue;
         }
-        case 6: {
-          if (tag !== 48) {
+        case 5: {
+          if (tag !== 40) {
             break;
           }
 
           message.status = reader.int32() as any;
           continue;
         }
-        case 7: {
-          if (tag !== 56) {
+        case 6: {
+          if (tag !== 48) {
             break;
           }
 
@@ -2087,11 +2016,6 @@ export const ImageMessage: MessageFns<ImageMessage> = {
 
   fromJSON(object: any): ImageMessage {
     return {
-      messageId: isSet(object.messageId)
-        ? globalThis.String(object.messageId)
-        : isSet(object.message_id)
-        ? globalThis.String(object.message_id)
-        : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       text: isSet(object.text) ? globalThis.String(object.text) : undefined,
       mediaUrl: isSet(object.mediaUrl)
@@ -2111,9 +2035,6 @@ export const ImageMessage: MessageFns<ImageMessage> = {
 
   toJSON(message: ImageMessage): unknown {
     const obj: any = {};
-    if (message.messageId !== undefined) {
-      obj.messageId = message.messageId;
-    }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
@@ -2140,7 +2061,6 @@ export const ImageMessage: MessageFns<ImageMessage> = {
   },
   fromPartial<I extends Exact<DeepPartial<ImageMessage>, I>>(object: I): ImageMessage {
     const message = createBaseImageMessage();
-    message.messageId = object.messageId ?? undefined;
     message.timestamp = object.timestamp ?? undefined;
     message.text = object.text ?? undefined;
     message.mediaUrl = object.mediaUrl ?? "";

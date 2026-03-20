@@ -660,19 +660,19 @@ func (m *TextMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.Role != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Role))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x20
 	}
 	if m.Status != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Status))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x18
 	}
 	if len(m.Text) > 0 {
 		i -= len(m.Text)
 		copy(dAtA[i:], m.Text)
 		i = encodeVarint(dAtA, i, uint64(len(m.Text)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x12
 	}
 	if m.Timestamp != nil {
 		if vtmsg, ok := interface{}(m.Timestamp).(interface {
@@ -693,13 +693,6 @@ func (m *TextMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 			copy(dAtA[i:], encoded)
 			i = encodeVarint(dAtA, i, uint64(len(encoded)))
 		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.MessageId != nil {
-		i -= len(*m.MessageId)
-		copy(dAtA[i:], *m.MessageId)
-		i = encodeVarint(dAtA, i, uint64(len(*m.MessageId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -871,25 +864,25 @@ func (m *VoiceMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.Role != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Role))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x38
 	}
 	if m.Status != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Status))
 		i--
-		dAtA[i] = 0x38
+		dAtA[i] = 0x30
 	}
 	if len(m.MediaType) > 0 {
 		i -= len(m.MediaType)
 		copy(dAtA[i:], m.MediaType)
 		i = encodeVarint(dAtA, i, uint64(len(m.MediaType)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x2a
 	}
 	if m.Duration != 0 {
 		i -= 8
 		binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Duration))))
 		i--
-		dAtA[i] = 0x29
+		dAtA[i] = 0x21
 	}
 	if len(m.AmplitudesPreview) > 0 {
 		for iNdEx := len(m.AmplitudesPreview) - 1; iNdEx >= 0; iNdEx-- {
@@ -899,14 +892,14 @@ func (m *VoiceMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		}
 		i = encodeVarint(dAtA, i, uint64(len(m.AmplitudesPreview)*4))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if len(m.MediaUrl) > 0 {
 		i -= len(m.MediaUrl)
 		copy(dAtA[i:], m.MediaUrl)
 		i = encodeVarint(dAtA, i, uint64(len(m.MediaUrl)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x12
 	}
 	if m.Timestamp != nil {
 		if vtmsg, ok := interface{}(m.Timestamp).(interface {
@@ -927,13 +920,6 @@ func (m *VoiceMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 			copy(dAtA[i:], encoded)
 			i = encodeVarint(dAtA, i, uint64(len(encoded)))
 		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.MessageId != nil {
-		i -= len(*m.MessageId)
-		copy(dAtA[i:], *m.MessageId)
-		i = encodeVarint(dAtA, i, uint64(len(*m.MessageId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1114,33 +1100,33 @@ func (m *ImageMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.Role != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Role))
 		i--
-		dAtA[i] = 0x38
+		dAtA[i] = 0x30
 	}
 	if m.Status != 0 {
 		i = encodeVarint(dAtA, i, uint64(m.Status))
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x28
 	}
 	if len(m.MediaType) > 0 {
 		i -= len(m.MediaType)
 		copy(dAtA[i:], m.MediaType)
 		i = encodeVarint(dAtA, i, uint64(len(m.MediaType)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x22
 	}
 	if len(m.MediaUrl) > 0 {
 		i -= len(m.MediaUrl)
 		copy(dAtA[i:], m.MediaUrl)
 		i = encodeVarint(dAtA, i, uint64(len(m.MediaUrl)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if m.Text != nil {
 		i -= len(*m.Text)
 		copy(dAtA[i:], *m.Text)
 		i = encodeVarint(dAtA, i, uint64(len(*m.Text)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x12
 	}
 	if m.Timestamp != nil {
 		if vtmsg, ok := interface{}(m.Timestamp).(interface {
@@ -1161,13 +1147,6 @@ func (m *ImageMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 			copy(dAtA[i:], encoded)
 			i = encodeVarint(dAtA, i, uint64(len(encoded)))
 		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.MessageId != nil {
-		i -= len(*m.MessageId)
-		copy(dAtA[i:], *m.MessageId)
-		i = encodeVarint(dAtA, i, uint64(len(*m.MessageId)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -3398,10 +3377,6 @@ func (m *TextMessage) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	if m.MessageId != nil {
-		l = len(*m.MessageId)
-		n += 1 + l + sov(uint64(l))
-	}
 	if m.Timestamp != nil {
 		if size, ok := interface{}(m.Timestamp).(interface {
 			SizeVT() int
@@ -3483,10 +3458,6 @@ func (m *VoiceMessage) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	if m.MessageId != nil {
-		l = len(*m.MessageId)
-		n += 1 + l + sov(uint64(l))
-	}
 	if m.Timestamp != nil {
 		if size, ok := interface{}(m.Timestamp).(interface {
 			SizeVT() int
@@ -3584,10 +3555,6 @@ func (m *ImageMessage) SizeVT() (n int) {
 	}
 	var l int
 	_ = l
-	if m.MessageId != nil {
-		l = len(*m.MessageId)
-		n += 1 + l + sov(uint64(l))
-	}
 	if m.Timestamp != nil {
 		if size, ok := interface{}(m.Timestamp).(interface {
 			SizeVT() int
@@ -5607,39 +5574,6 @@ func (m *TextMessage) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MessageId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			s := string(dAtA[iNdEx:postIndex])
-			m.MessageId = &s
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
 			}
 			var msglen int
@@ -5682,7 +5616,7 @@ func (m *TextMessage) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Text", wireType)
 			}
@@ -5714,7 +5648,7 @@ func (m *TextMessage) UnmarshalVT(dAtA []byte) error {
 			}
 			m.Text = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
@@ -5733,7 +5667,7 @@ func (m *TextMessage) UnmarshalVT(dAtA []byte) error {
 					break
 				}
 			}
-		case 5:
+		case 4:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Role", wireType)
 			}
@@ -6082,39 +6016,6 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MessageId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			s := string(dAtA[iNdEx:postIndex])
-			m.MessageId = &s
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
 			}
 			var msglen int
@@ -6157,7 +6058,7 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MediaUrl", wireType)
 			}
@@ -6189,7 +6090,7 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 			}
 			m.MediaUrl = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType == 5 {
 				var v uint32
 				if (iNdEx + 4) > l {
@@ -6243,7 +6144,7 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field AmplitudesPreview", wireType)
 			}
-		case 5:
+		case 4:
 			if wireType != 1 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Duration", wireType)
 			}
@@ -6254,7 +6155,7 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 			v = uint64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
 			m.Duration = float64(math.Float64frombits(v))
-		case 6:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MediaType", wireType)
 			}
@@ -6286,7 +6187,7 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 			}
 			m.MediaType = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 6:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
@@ -6305,7 +6206,7 @@ func (m *VoiceMessage) UnmarshalVT(dAtA []byte) error {
 					break
 				}
 			}
-		case 8:
+		case 7:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Role", wireType)
 			}
@@ -6686,39 +6587,6 @@ func (m *ImageMessage) UnmarshalVT(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MessageId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			s := string(dAtA[iNdEx:postIndex])
-			m.MessageId = &s
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
 			}
 			var msglen int
@@ -6761,7 +6629,7 @@ func (m *ImageMessage) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Text", wireType)
 			}
@@ -6794,7 +6662,7 @@ func (m *ImageMessage) UnmarshalVT(dAtA []byte) error {
 			s := string(dAtA[iNdEx:postIndex])
 			m.Text = &s
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MediaUrl", wireType)
 			}
@@ -6826,7 +6694,7 @@ func (m *ImageMessage) UnmarshalVT(dAtA []byte) error {
 			}
 			m.MediaUrl = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MediaType", wireType)
 			}
@@ -6858,7 +6726,7 @@ func (m *ImageMessage) UnmarshalVT(dAtA []byte) error {
 			}
 			m.MediaType = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 6:
+		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
@@ -6877,7 +6745,7 @@ func (m *ImageMessage) UnmarshalVT(dAtA []byte) error {
 					break
 				}
 			}
-		case 7:
+		case 6:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Role", wireType)
 			}

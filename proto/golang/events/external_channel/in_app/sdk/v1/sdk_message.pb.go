@@ -726,11 +726,10 @@ func (*SdkMessage_CustomActionResponse) isSdkMessage_Payload() {}
 // TextMessage holds the payload of a plain-text conversation turn.
 type TextMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     *string                `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3,oneof" json:"message_id,omitempty"`
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Text          string                 `protobuf:"bytes,3,opt,name=text,proto3" json:"text,omitempty"`
-	Status        MessageStatus          `protobuf:"varint,4,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
-	Role          MessageRole            `protobuf:"varint,5,opt,name=role,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageRole" json:"role,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
+	Status        MessageStatus          `protobuf:"varint,3,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
+	Role          MessageRole            `protobuf:"varint,4,opt,name=role,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageRole" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -763,13 +762,6 @@ func (x *TextMessage) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TextMessage.ProtoReflect.Descriptor instead.
 func (*TextMessage) Descriptor() ([]byte, []int) {
 	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *TextMessage) GetMessageId() string {
-	if x != nil && x.MessageId != nil {
-		return *x.MessageId
-	}
-	return ""
 }
 
 func (x *TextMessage) GetTimestamp() *timestamppb.Timestamp {
@@ -917,15 +909,14 @@ func (x *TextMessageResponse) GetMessageId() string {
 // VoiceMessage holds the payload of a voice-note conversation turn.
 type VoiceMessage struct {
 	state     protoimpl.MessageState `protogen:"open.v1"`
-	MessageId *string                `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3,oneof" json:"message_id,omitempty"`
-	Timestamp *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	MediaUrl  string                 `protobuf:"bytes,3,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
+	Timestamp *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	MediaUrl  string                 `protobuf:"bytes,2,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
 	// Amplitude samples used to render the waveform preview in the UI.
-	AmplitudesPreview []float32     `protobuf:"fixed32,4,rep,packed,name=amplitudes_preview,json=amplitudesPreview,proto3" json:"amplitudes_preview,omitempty"`
-	Duration          float64       `protobuf:"fixed64,5,opt,name=duration,proto3" json:"duration,omitempty"`
-	MediaType         string        `protobuf:"bytes,6,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
-	Status            MessageStatus `protobuf:"varint,7,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
-	Role              MessageRole   `protobuf:"varint,8,opt,name=role,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageRole" json:"role,omitempty"`
+	AmplitudesPreview []float32     `protobuf:"fixed32,3,rep,packed,name=amplitudes_preview,json=amplitudesPreview,proto3" json:"amplitudes_preview,omitempty"`
+	Duration          float64       `protobuf:"fixed64,4,opt,name=duration,proto3" json:"duration,omitempty"`
+	MediaType         string        `protobuf:"bytes,5,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	Status            MessageStatus `protobuf:"varint,6,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
+	Role              MessageRole   `protobuf:"varint,7,opt,name=role,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageRole" json:"role,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -958,13 +949,6 @@ func (x *VoiceMessage) ProtoReflect() protoreflect.Message {
 // Deprecated: Use VoiceMessage.ProtoReflect.Descriptor instead.
 func (*VoiceMessage) Descriptor() ([]byte, []int) {
 	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *VoiceMessage) GetMessageId() string {
-	if x != nil && x.MessageId != nil {
-		return *x.MessageId
-	}
-	return ""
 }
 
 func (x *VoiceMessage) GetTimestamp() *timestamppb.Timestamp {
@@ -1141,13 +1125,12 @@ func (x *VoiceMessageResponse) GetMessageId() string {
 // ImageMessage holds the payload of an image conversation turn.
 type ImageMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     *string                `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3,oneof" json:"message_id,omitempty"`
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Text          *string                `protobuf:"bytes,3,opt,name=text,proto3,oneof" json:"text,omitempty"`
-	MediaUrl      string                 `protobuf:"bytes,4,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
-	MediaType     string                 `protobuf:"bytes,5,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
-	Status        MessageStatus          `protobuf:"varint,6,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
-	Role          MessageRole            `protobuf:"varint,7,opt,name=role,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageRole" json:"role,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Text          *string                `protobuf:"bytes,2,opt,name=text,proto3,oneof" json:"text,omitempty"`
+	MediaUrl      string                 `protobuf:"bytes,3,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
+	MediaType     string                 `protobuf:"bytes,4,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	Status        MessageStatus          `protobuf:"varint,5,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
+	Role          MessageRole            `protobuf:"varint,6,opt,name=role,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageRole" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1180,13 +1163,6 @@ func (x *ImageMessage) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ImageMessage.ProtoReflect.Descriptor instead.
 func (*ImageMessage) Descriptor() ([]byte, []int) {
 	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *ImageMessage) GetMessageId() string {
-	if x != nil && x.MessageId != nil {
-		return *x.MessageId
-	}
-	return ""
 }
 
 func (x *ImageMessage) GetTimestamp() *timestamppb.Timestamp {
@@ -3026,15 +3002,12 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\x14chat_status_response\x18# \x01(\v27.yalo.external_channel.in_app.sdk.v1.ChatStatusResponseH\x00R\x12chatStatusResponse\x12n\n" +
 	"\x15custom_action_request\x18$ \x01(\v28.yalo.external_channel.in_app.sdk.v1.CustomActionRequestH\x00R\x13customActionRequest\x12q\n" +
 	"\x16custom_action_response\x18% \x01(\v29.yalo.external_channel.in_app.sdk.v1.CustomActionResponseH\x00R\x14customActionResponseB\t\n" +
-	"\apayload\"\xa0\x02\n" +
-	"\vTextMessage\x12\"\n" +
-	"\n" +
-	"message_id\x18\x01 \x01(\tH\x00R\tmessageId\x88\x01\x01\x128\n" +
-	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x12\n" +
-	"\x04text\x18\x03 \x01(\tR\x04text\x12J\n" +
-	"\x06status\x18\x04 \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status\x12D\n" +
-	"\x04role\x18\x05 \x01(\x0e20.yalo.external_channel.in_app.sdk.v1.MessageRoleR\x04roleB\r\n" +
-	"\v_message_id\"\x9a\x01\n" +
+	"\apayload\"\xed\x01\n" +
+	"\vTextMessage\x128\n" +
+	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x12\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\x12J\n" +
+	"\x06status\x18\x03 \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status\x12D\n" +
+	"\x04role\x18\x04 \x01(\x0e20.yalo.external_channel.in_app.sdk.v1.MessageRoleR\x04role\"\x9a\x01\n" +
 	"\x12TextMessageRequest\x12J\n" +
 	"\acontent\x18\x01 \x01(\v20.yalo.external_channel.in_app.sdk.v1.TextMessageR\acontent\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xbb\x01\n" +
@@ -3042,19 +3015,16 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\x0e23.yalo.external_channel.in_app.sdk.v1.ResponseStatusR\x06status\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\tR\tmessageId\"\x94\x03\n" +
-	"\fVoiceMessage\x12\"\n" +
+	"message_id\x18\x03 \x01(\tR\tmessageId\"\xe1\x02\n" +
+	"\fVoiceMessage\x128\n" +
+	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1b\n" +
+	"\tmedia_url\x18\x02 \x01(\tR\bmediaUrl\x12-\n" +
+	"\x12amplitudes_preview\x18\x03 \x03(\x02R\x11amplitudesPreview\x12\x1a\n" +
+	"\bduration\x18\x04 \x01(\x01R\bduration\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tH\x00R\tmessageId\x88\x01\x01\x128\n" +
-	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1b\n" +
-	"\tmedia_url\x18\x03 \x01(\tR\bmediaUrl\x12-\n" +
-	"\x12amplitudes_preview\x18\x04 \x03(\x02R\x11amplitudesPreview\x12\x1a\n" +
-	"\bduration\x18\x05 \x01(\x01R\bduration\x12\x1d\n" +
-	"\n" +
-	"media_type\x18\x06 \x01(\tR\tmediaType\x12J\n" +
-	"\x06status\x18\a \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status\x12D\n" +
-	"\x04role\x18\b \x01(\x0e20.yalo.external_channel.in_app.sdk.v1.MessageRoleR\x04roleB\r\n" +
-	"\v_message_id\"\xc1\x01\n" +
+	"media_type\x18\x05 \x01(\tR\tmediaType\x12J\n" +
+	"\x06status\x18\x06 \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status\x12D\n" +
+	"\x04role\x18\a \x01(\x0e20.yalo.external_channel.in_app.sdk.v1.MessageRoleR\x04role\"\xc1\x01\n" +
 	"\x13VoiceMessageRequest\x12K\n" +
 	"\acontent\x18\x01 \x01(\v21.yalo.external_channel.in_app.sdk.v1.VoiceMessageR\acontent\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12#\n" +
@@ -3063,18 +3033,15 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\x0e23.yalo.external_channel.in_app.sdk.v1.ResponseStatusR\x06status\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\tR\tmessageId\"\xeb\x02\n" +
-	"\fImageMessage\x12\"\n" +
+	"message_id\x18\x03 \x01(\tR\tmessageId\"\xb8\x02\n" +
+	"\fImageMessage\x128\n" +
+	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x17\n" +
+	"\x04text\x18\x02 \x01(\tH\x00R\x04text\x88\x01\x01\x12\x1b\n" +
+	"\tmedia_url\x18\x03 \x01(\tR\bmediaUrl\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tH\x00R\tmessageId\x88\x01\x01\x128\n" +
-	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x17\n" +
-	"\x04text\x18\x03 \x01(\tH\x01R\x04text\x88\x01\x01\x12\x1b\n" +
-	"\tmedia_url\x18\x04 \x01(\tR\bmediaUrl\x12\x1d\n" +
-	"\n" +
-	"media_type\x18\x05 \x01(\tR\tmediaType\x12J\n" +
-	"\x06status\x18\x06 \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status\x12D\n" +
-	"\x04role\x18\a \x01(\x0e20.yalo.external_channel.in_app.sdk.v1.MessageRoleR\x04roleB\r\n" +
-	"\v_message_idB\a\n" +
+	"media_type\x18\x04 \x01(\tR\tmediaType\x12J\n" +
+	"\x06status\x18\x05 \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status\x12D\n" +
+	"\x04role\x18\x06 \x01(\x0e20.yalo.external_channel.in_app.sdk.v1.MessageRoleR\x04roleB\a\n" +
 	"\x05_text\"\xc1\x01\n" +
 	"\x13ImageMessageRequest\x12K\n" +
 	"\acontent\x18\x01 \x01(\v21.yalo.external_channel.in_app.sdk.v1.ImageMessageR\acontent\x128\n" +
@@ -3409,8 +3376,6 @@ func file_events_external_channel_in_app_sdk_sdk_message_proto_init() {
 		(*SdkMessage_CustomActionRequest)(nil),
 		(*SdkMessage_CustomActionResponse)(nil),
 	}
-	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[1].OneofWrappers = []any{}
-	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[4].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[7].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[14].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[24].OneofWrappers = []any{}
