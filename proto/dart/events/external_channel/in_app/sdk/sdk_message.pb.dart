@@ -3583,6 +3583,176 @@ class AuthResponse extends $pb.GeneratedMessage {
   void clearClientId() => $_clearField(5);
 }
 
+/// PollMessageItem represents a single message entry returned by the message
+/// poll endpoint. The message field reuses SdkMessage so all payload types
+/// (text, image, voice, etc.) are supported without duplication.
+class PollMessageItem extends $pb.GeneratedMessage {
+  factory PollMessageItem({
+    $core.String? id,
+    SdkMessage? message,
+    $0.Timestamp? date,
+    $core.String? userId,
+    MessageStatus? status,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (message != null) result.message = message;
+    if (date != null) result.date = date;
+    if (userId != null) result.userId = userId;
+    if (status != null) result.status = status;
+    return result;
+  }
+
+  PollMessageItem._();
+
+  factory PollMessageItem.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory PollMessageItem.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PollMessageItem',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOM<SdkMessage>(2, _omitFieldNames ? '' : 'message',
+        subBuilder: SdkMessage.create)
+    ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'date',
+        subBuilder: $0.Timestamp.create)
+    ..aOS(4, _omitFieldNames ? '' : 'userId')
+    ..aE<MessageStatus>(5, _omitFieldNames ? '' : 'status',
+        enumValues: MessageStatus.values)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PollMessageItem clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PollMessageItem copyWith(void Function(PollMessageItem) updates) =>
+      super.copyWith((message) => updates(message as PollMessageItem))
+          as PollMessageItem;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PollMessageItem create() => PollMessageItem._();
+  @$core.override
+  PollMessageItem createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static PollMessageItem getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<PollMessageItem>(create);
+  static PollMessageItem? _defaultInstance;
+
+  /// Server-assigned unique identifier for this poll entry.
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  /// The SDK message payload, including its timestamp and oneof payload.
+  @$pb.TagNumber(2)
+  SdkMessage get message => $_getN(1);
+  @$pb.TagNumber(2)
+  set message(SdkMessage value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => $_clearField(2);
+  @$pb.TagNumber(2)
+  SdkMessage ensureMessage() => $_ensure(1);
+
+  /// Wall-clock time at which the message was recorded on the server.
+  @$pb.TagNumber(3)
+  $0.Timestamp get date => $_getN(2);
+  @$pb.TagNumber(3)
+  set date($0.Timestamp value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasDate() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDate() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $0.Timestamp ensureDate() => $_ensure(2);
+
+  /// Identifier of the user associated with this message.
+  @$pb.TagNumber(4)
+  $core.String get userId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set userId($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasUserId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearUserId() => $_clearField(4);
+
+  /// Current delivery status of the message.
+  @$pb.TagNumber(5)
+  MessageStatus get status => $_getN(4);
+  @$pb.TagNumber(5)
+  set status(MessageStatus value) => $_setField(5, value);
+  @$pb.TagNumber(5)
+  $core.bool hasStatus() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearStatus() => $_clearField(5);
+}
+
+/// MessagePollResponse is returned by the message poll REST endpoint and
+/// contains the list of pending messages the client should process.
+class MessagePollResponse extends $pb.GeneratedMessage {
+  factory MessagePollResponse({
+    $core.Iterable<PollMessageItem>? messages,
+  }) {
+    final result = create();
+    if (messages != null) result.messages.addAll(messages);
+    return result;
+  }
+
+  MessagePollResponse._();
+
+  factory MessagePollResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory MessagePollResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MessagePollResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..pPM<PollMessageItem>(1, _omitFieldNames ? '' : 'messages',
+        subBuilder: PollMessageItem.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MessagePollResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MessagePollResponse copyWith(void Function(MessagePollResponse) updates) =>
+      super.copyWith((message) => updates(message as MessagePollResponse))
+          as MessagePollResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MessagePollResponse create() => MessagePollResponse._();
+  @$core.override
+  MessagePollResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static MessagePollResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MessagePollResponse>(create);
+  static MessagePollResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<PollMessageItem> get messages => $_getList(0);
+}
+
 const $core.bool _omitFieldNames =
     $core.bool.fromEnvironment('protobuf.omit_field_names');
 const $core.bool _omitMessageNames =

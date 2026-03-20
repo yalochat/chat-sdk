@@ -55,6 +55,7 @@ const MessageStatus$json = {
     {'1': 'MESSAGE_STATUS_READ', '2': 3},
     {'1': 'MESSAGE_STATUS_ERROR', '2': 4},
     {'1': 'MESSAGE_STATUS_SENT', '2': 5},
+    {'1': 'MESSAGE_STATUS_IN_DELIVERY', '2': 6},
   ],
 };
 
@@ -63,7 +64,7 @@ final $typed_data.Uint8List messageStatusDescriptor = $convert.base64Decode(
     'Cg1NZXNzYWdlU3RhdHVzEh4KGk1FU1NBR0VfU1RBVFVTX1VOU1BFQ0lGSUVEEAASHAoYTUVTU0'
     'FHRV9TVEFUVVNfREVMSVZFUkVEEAESHgoaTUVTU0FHRV9TVEFUVVNfSU5fUFJPR1JFU1MQAhIX'
     'ChNNRVNTQUdFX1NUQVRVU19SRUFEEAMSGAoUTUVTU0FHRV9TVEFUVVNfRVJST1IQBBIXChNNRV'
-    'NTQUdFX1NUQVRVU19TRU5UEAU=');
+    'NTQUdFX1NUQVRVU19TRU5UEAUSHgoaTUVTU0FHRV9TVEFUVVNfSU5fREVMSVZFUlkQBg==');
 
 @$core.Deprecated('Use sdkMessageDescriptor instead')
 const SdkMessage$json = {
@@ -1416,3 +1417,64 @@ final $typed_data.Uint8List authResponseDescriptor = $convert.base64Decode(
     'tlbl90eXBlGAIgASgJUgl0b2tlblR5cGUSHQoKZXhwaXJlc19pbhgDIAEoA1IJZXhwaXJlc0lu'
     'EiMKDXJlZnJlc2hfdG9rZW4YBCABKAlSDHJlZnJlc2hUb2tlbhIbCgljbGllbnRfaWQYBSABKA'
     'lSCGNsaWVudElk');
+
+@$core.Deprecated('Use pollMessageItemDescriptor instead')
+const PollMessageItem$json = {
+  '1': 'PollMessageItem',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {
+      '1': 'message',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.SdkMessage',
+      '10': 'message'
+    },
+    {
+      '1': 'date',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'date'
+    },
+    {'1': 'user_id', '3': 4, '4': 1, '5': 9, '10': 'userId'},
+    {
+      '1': 'status',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '10': 'status'
+    },
+  ],
+};
+
+/// Descriptor for `PollMessageItem`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pollMessageItemDescriptor = $convert.base64Decode(
+    'Cg9Qb2xsTWVzc2FnZUl0ZW0SDgoCaWQYASABKAlSAmlkEkkKB21lc3NhZ2UYAiABKAsyLy55YW'
+    'xvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5TZGtNZXNzYWdlUgdtZXNzYWdlEi4K'
+    'BGRhdGUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgRkYXRlEhcKB3VzZXJfaW'
+    'QYBCABKAlSBnVzZXJJZBJKCgZzdGF0dXMYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwu'
+    'aW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dXM=');
+
+@$core.Deprecated('Use messagePollResponseDescriptor instead')
+const MessagePollResponse$json = {
+  '1': 'MessagePollResponse',
+  '2': [
+    {
+      '1': 'messages',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.PollMessageItem',
+      '10': 'messages'
+    },
+  ],
+};
+
+/// Descriptor for `MessagePollResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List messagePollResponseDescriptor = $convert.base64Decode(
+    'ChNNZXNzYWdlUG9sbFJlc3BvbnNlElAKCG1lc3NhZ2VzGAEgAygLMjQueWFsby5leHRlcm5hbF'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjEuUG9sbE1lc3NhZ2VJdGVtUghtZXNzYWdlcw==');
