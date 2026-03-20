@@ -74,6 +74,8 @@ class MessageStatus extends $pb.ProtobufEnum {
       MessageStatus._(4, _omitEnumNames ? '' : 'MESSAGE_STATUS_ERROR');
   static const MessageStatus MESSAGE_STATUS_SENT =
       MessageStatus._(5, _omitEnumNames ? '' : 'MESSAGE_STATUS_SENT');
+  static const MessageStatus MESSAGE_STATUS_IN_DELIVERY =
+      MessageStatus._(6, _omitEnumNames ? '' : 'MESSAGE_STATUS_IN_DELIVERY');
 
   static const $core.List<MessageStatus> values = <MessageStatus>[
     MESSAGE_STATUS_UNSPECIFIED,
@@ -82,10 +84,11 @@ class MessageStatus extends $pb.ProtobufEnum {
     MESSAGE_STATUS_READ,
     MESSAGE_STATUS_ERROR,
     MESSAGE_STATUS_SENT,
+    MESSAGE_STATUS_IN_DELIVERY,
   ];
 
   static final $core.List<MessageStatus?> _byValue =
-      $pb.ProtobufEnum.$_initByValueList(values, 5);
+      $pb.ProtobufEnum.$_initByValueList(values, 6);
   static MessageStatus? valueOf($core.int value) =>
       value < 0 || value >= _byValue.length ? null : _byValue[value];
 

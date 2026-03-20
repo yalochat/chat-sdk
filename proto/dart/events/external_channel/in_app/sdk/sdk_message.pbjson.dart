@@ -55,6 +55,7 @@ const MessageStatus$json = {
     {'1': 'MESSAGE_STATUS_READ', '2': 3},
     {'1': 'MESSAGE_STATUS_ERROR', '2': 4},
     {'1': 'MESSAGE_STATUS_SENT', '2': 5},
+    {'1': 'MESSAGE_STATUS_IN_DELIVERY', '2': 6},
   ],
 };
 
@@ -63,7 +64,7 @@ final $typed_data.Uint8List messageStatusDescriptor = $convert.base64Decode(
     'Cg1NZXNzYWdlU3RhdHVzEh4KGk1FU1NBR0VfU1RBVFVTX1VOU1BFQ0lGSUVEEAASHAoYTUVTU0'
     'FHRV9TVEFUVVNfREVMSVZFUkVEEAESHgoaTUVTU0FHRV9TVEFUVVNfSU5fUFJPR1JFU1MQAhIX'
     'ChNNRVNTQUdFX1NUQVRVU19SRUFEEAMSGAoUTUVTU0FHRV9TVEFUVVNfRVJST1IQBBIXChNNRV'
-    'NTQUdFX1NUQVRVU19TRU5UEAU=');
+    'NTQUdFX1NUQVRVU19TRU5UEAUSHgoaTUVTU0FHRV9TVEFUVVNfSU5fREVMSVZFUlkQBg==');
 
 @$core.Deprecated('Use sdkMessageDescriptor instead')
 const SdkMessage$json = {
@@ -382,26 +383,17 @@ const TextMessage$json = {
   '1': 'TextMessage',
   '2': [
     {
-      '1': 'message_id',
-      '3': 1,
-      '4': 1,
-      '5': 9,
-      '9': 0,
-      '10': 'messageId',
-      '17': true
-    },
-    {
       '1': 'timestamp',
-      '3': 2,
+      '3': 1,
       '4': 1,
       '5': 11,
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'text', '3': 3, '4': 1, '5': 9, '10': 'text'},
+    {'1': 'text', '3': 2, '4': 1, '5': 9, '10': 'text'},
     {
       '1': 'status',
-      '3': 4,
+      '3': 3,
       '4': 1,
       '5': 14,
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
@@ -409,26 +401,22 @@ const TextMessage$json = {
     },
     {
       '1': 'role',
-      '3': 5,
+      '3': 4,
       '4': 1,
       '5': 14,
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
       '10': 'role'
     },
   ],
-  '8': [
-    {'1': '_message_id'},
-  ],
 };
 
 /// Descriptor for `TextMessage`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List textMessageDescriptor = $convert.base64Decode(
-    'CgtUZXh0TWVzc2FnZRIiCgptZXNzYWdlX2lkGAEgASgJSABSCW1lc3NhZ2VJZIgBARI4Cgl0aW'
-    '1lc3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXASEgoE'
-    'dGV4dBgDIAEoCVIEdGV4dBJKCgZzdGF0dXMYBCABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZW'
-    'wuaW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dXMSRAoEcm9sZRgFIAEoDjIwLnlh'
-    'bG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VSb2xlUgRyb2xlQg0KC1'
-    '9tZXNzYWdlX2lk');
+    'CgtUZXh0TWVzc2FnZRI4Cgl0aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZX'
+    'N0YW1wUgl0aW1lc3RhbXASEgoEdGV4dBgCIAEoCVIEdGV4dBJKCgZzdGF0dXMYAyABKA4yMi55'
+    'YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dX'
+    'MSRAoEcm9sZRgEIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1l'
+    'c3NhZ2VSb2xlUgRyb2xl');
 
 @$core.Deprecated('Use textMessageRequestDescriptor instead')
 const TextMessageRequest$json = {
@@ -495,35 +483,26 @@ const VoiceMessage$json = {
   '1': 'VoiceMessage',
   '2': [
     {
-      '1': 'message_id',
-      '3': 1,
-      '4': 1,
-      '5': 9,
-      '9': 0,
-      '10': 'messageId',
-      '17': true
-    },
-    {
       '1': 'timestamp',
-      '3': 2,
+      '3': 1,
       '4': 1,
       '5': 11,
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'media_url', '3': 3, '4': 1, '5': 9, '10': 'mediaUrl'},
+    {'1': 'media_url', '3': 2, '4': 1, '5': 9, '10': 'mediaUrl'},
     {
       '1': 'amplitudes_preview',
-      '3': 4,
+      '3': 3,
       '4': 3,
       '5': 2,
       '10': 'amplitudesPreview'
     },
-    {'1': 'duration', '3': 5, '4': 1, '5': 1, '10': 'duration'},
-    {'1': 'media_type', '3': 6, '4': 1, '5': 9, '10': 'mediaType'},
+    {'1': 'duration', '3': 4, '4': 1, '5': 1, '10': 'duration'},
+    {'1': 'media_type', '3': 5, '4': 1, '5': 9, '10': 'mediaType'},
     {
       '1': 'status',
-      '3': 7,
+      '3': 6,
       '4': 1,
       '5': 14,
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
@@ -531,28 +510,24 @@ const VoiceMessage$json = {
     },
     {
       '1': 'role',
-      '3': 8,
+      '3': 7,
       '4': 1,
       '5': 14,
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
       '10': 'role'
     },
   ],
-  '8': [
-    {'1': '_message_id'},
-  ],
 };
 
 /// Descriptor for `VoiceMessage`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List voiceMessageDescriptor = $convert.base64Decode(
-    'CgxWb2ljZU1lc3NhZ2USIgoKbWVzc2FnZV9pZBgBIAEoCUgAUgltZXNzYWdlSWSIAQESOAoJdG'
-    'ltZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEhsK'
-    'CW1lZGlhX3VybBgDIAEoCVIIbWVkaWFVcmwSLQoSYW1wbGl0dWRlc19wcmV2aWV3GAQgAygCUh'
-    'FhbXBsaXR1ZGVzUHJldmlldxIaCghkdXJhdGlvbhgFIAEoAVIIZHVyYXRpb24SHQoKbWVkaWFf'
-    'dHlwZRgGIAEoCVIJbWVkaWFUeXBlEkoKBnN0YXR1cxgHIAEoDjIyLnlhbG8uZXh0ZXJuYWxfY2'
-    'hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VTdGF0dXNSBnN0YXR1cxJECgRyb2xlGAggASgO'
-    'MjAueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuTWVzc2FnZVJvbGVSBHJvbG'
-    'VCDQoLX21lc3NhZ2VfaWQ=');
+    'CgxWb2ljZU1lc3NhZ2USOAoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbW'
+    'VzdGFtcFIJdGltZXN0YW1wEhsKCW1lZGlhX3VybBgCIAEoCVIIbWVkaWFVcmwSLQoSYW1wbGl0'
+    'dWRlc19wcmV2aWV3GAMgAygCUhFhbXBsaXR1ZGVzUHJldmlldxIaCghkdXJhdGlvbhgEIAEoAV'
+    'IIZHVyYXRpb24SHQoKbWVkaWFfdHlwZRgFIAEoCVIJbWVkaWFUeXBlEkoKBnN0YXR1cxgGIAEo'
+    'DjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VTdGF0dXNSBn'
+    'N0YXR1cxJECgRyb2xlGAcgASgOMjAueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
+    'djEuTWVzc2FnZVJvbGVSBHJvbGU=');
 
 @$core.Deprecated('Use voiceMessageRequestDescriptor instead')
 const VoiceMessageRequest$json = {
@@ -621,28 +596,19 @@ const ImageMessage$json = {
   '1': 'ImageMessage',
   '2': [
     {
-      '1': 'message_id',
-      '3': 1,
-      '4': 1,
-      '5': 9,
-      '9': 0,
-      '10': 'messageId',
-      '17': true
-    },
-    {
       '1': 'timestamp',
-      '3': 2,
+      '3': 1,
       '4': 1,
       '5': 11,
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'text', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'text', '17': true},
-    {'1': 'media_url', '3': 4, '4': 1, '5': 9, '10': 'mediaUrl'},
-    {'1': 'media_type', '3': 5, '4': 1, '5': 9, '10': 'mediaType'},
+    {'1': 'text', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'text', '17': true},
+    {'1': 'media_url', '3': 3, '4': 1, '5': 9, '10': 'mediaUrl'},
+    {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
     {
       '1': 'status',
-      '3': 6,
+      '3': 5,
       '4': 1,
       '5': 14,
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
@@ -650,7 +616,7 @@ const ImageMessage$json = {
     },
     {
       '1': 'role',
-      '3': 7,
+      '3': 6,
       '4': 1,
       '5': 14,
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
@@ -658,20 +624,18 @@ const ImageMessage$json = {
     },
   ],
   '8': [
-    {'1': '_message_id'},
     {'1': '_text'},
   ],
 };
 
 /// Descriptor for `ImageMessage`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List imageMessageDescriptor = $convert.base64Decode(
-    'CgxJbWFnZU1lc3NhZ2USIgoKbWVzc2FnZV9pZBgBIAEoCUgAUgltZXNzYWdlSWSIAQESOAoJdG'
-    'ltZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEhcK'
-    'BHRleHQYAyABKAlIAVIEdGV4dIgBARIbCgltZWRpYV91cmwYBCABKAlSCG1lZGlhVXJsEh0KCm'
-    '1lZGlhX3R5cGUYBSABKAlSCW1lZGlhVHlwZRJKCgZzdGF0dXMYBiABKA4yMi55YWxvLmV4dGVy'
-    'bmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dXMSRAoEcm9sZR'
-    'gHIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VSb2xl'
-    'UgRyb2xlQg0KC19tZXNzYWdlX2lkQgcKBV90ZXh0');
+    'CgxJbWFnZU1lc3NhZ2USOAoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbW'
+    'VzdGFtcFIJdGltZXN0YW1wEhcKBHRleHQYAiABKAlIAFIEdGV4dIgBARIbCgltZWRpYV91cmwY'
+    'AyABKAlSCG1lZGlhVXJsEh0KCm1lZGlhX3R5cGUYBCABKAlSCW1lZGlhVHlwZRJKCgZzdGF0dX'
+    'MYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3Rh'
+    'dHVzUgZzdGF0dXMSRAoEcm9sZRgGIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcH'
+    'Auc2RrLnYxLk1lc3NhZ2VSb2xlUgRyb2xlQgcKBV90ZXh0');
 
 @$core.Deprecated('Use imageMessageRequestDescriptor instead')
 const ImageMessageRequest$json = {
@@ -1416,3 +1380,64 @@ final $typed_data.Uint8List authResponseDescriptor = $convert.base64Decode(
     'tlbl90eXBlGAIgASgJUgl0b2tlblR5cGUSHQoKZXhwaXJlc19pbhgDIAEoA1IJZXhwaXJlc0lu'
     'EiMKDXJlZnJlc2hfdG9rZW4YBCABKAlSDHJlZnJlc2hUb2tlbhIbCgljbGllbnRfaWQYBSABKA'
     'lSCGNsaWVudElk');
+
+@$core.Deprecated('Use pollMessageItemDescriptor instead')
+const PollMessageItem$json = {
+  '1': 'PollMessageItem',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {
+      '1': 'message',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.SdkMessage',
+      '10': 'message'
+    },
+    {
+      '1': 'date',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'date'
+    },
+    {'1': 'user_id', '3': 4, '4': 1, '5': 9, '10': 'userId'},
+    {
+      '1': 'status',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '10': 'status'
+    },
+  ],
+};
+
+/// Descriptor for `PollMessageItem`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pollMessageItemDescriptor = $convert.base64Decode(
+    'Cg9Qb2xsTWVzc2FnZUl0ZW0SDgoCaWQYASABKAlSAmlkEkkKB21lc3NhZ2UYAiABKAsyLy55YW'
+    'xvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5TZGtNZXNzYWdlUgdtZXNzYWdlEi4K'
+    'BGRhdGUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgRkYXRlEhcKB3VzZXJfaW'
+    'QYBCABKAlSBnVzZXJJZBJKCgZzdGF0dXMYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwu'
+    'aW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dXM=');
+
+@$core.Deprecated('Use messagePollResponseDescriptor instead')
+const MessagePollResponse$json = {
+  '1': 'MessagePollResponse',
+  '2': [
+    {
+      '1': 'messages',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.PollMessageItem',
+      '10': 'messages'
+    },
+  ],
+};
+
+/// Descriptor for `MessagePollResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List messagePollResponseDescriptor = $convert.base64Decode(
+    'ChNNZXNzYWdlUG9sbFJlc3BvbnNlElAKCG1lc3NhZ2VzGAEgAygLMjQueWFsby5leHRlcm5hbF'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjEuUG9sbE1lc3NhZ2VJdGVtUghtZXNzYWdlcw==');

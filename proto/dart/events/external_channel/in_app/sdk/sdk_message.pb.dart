@@ -678,14 +678,12 @@ class SdkMessage extends $pb.GeneratedMessage {
 /// TextMessage holds the payload of a plain-text conversation turn.
 class TextMessage extends $pb.GeneratedMessage {
   factory TextMessage({
-    $core.String? messageId,
     $0.Timestamp? timestamp,
     $core.String? text,
     MessageStatus? status,
     MessageRole? role,
   }) {
     final result = create();
-    if (messageId != null) result.messageId = messageId;
     if (timestamp != null) result.timestamp = timestamp;
     if (text != null) result.text = text;
     if (status != null) result.status = status;
@@ -707,13 +705,12 @@ class TextMessage extends $pb.GeneratedMessage {
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'messageId')
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'text')
-    ..aE<MessageStatus>(4, _omitFieldNames ? '' : 'status',
+    ..aOS(2, _omitFieldNames ? '' : 'text')
+    ..aE<MessageStatus>(3, _omitFieldNames ? '' : 'status',
         enumValues: MessageStatus.values)
-    ..aE<MessageRole>(5, _omitFieldNames ? '' : 'role',
+    ..aE<MessageRole>(4, _omitFieldNames ? '' : 'role',
         enumValues: MessageRole.values)
     ..hasRequiredFields = false;
 
@@ -737,51 +734,42 @@ class TextMessage extends $pb.GeneratedMessage {
   static TextMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get messageId => $_getSZ(0);
+  $0.Timestamp get timestamp => $_getN(0);
   @$pb.TagNumber(1)
-  set messageId($core.String value) => $_setString(0, value);
+  set timestamp($0.Timestamp value) => $_setField(1, value);
   @$pb.TagNumber(1)
-  $core.bool hasMessageId() => $_has(0);
+  $core.bool hasTimestamp() => $_has(0);
   @$pb.TagNumber(1)
-  void clearMessageId() => $_clearField(1);
+  void clearTimestamp() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $0.Timestamp ensureTimestamp() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
+  $core.String get text => $_getSZ(1);
   @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
+  set text($core.String value) => $_setString(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
+  $core.bool hasText() => $_has(1);
   @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
+  void clearText() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get text => $_getSZ(2);
+  MessageStatus get status => $_getN(2);
   @$pb.TagNumber(3)
-  set text($core.String value) => $_setString(2, value);
+  set status(MessageStatus value) => $_setField(3, value);
   @$pb.TagNumber(3)
-  $core.bool hasText() => $_has(2);
+  $core.bool hasStatus() => $_has(2);
   @$pb.TagNumber(3)
-  void clearText() => $_clearField(3);
+  void clearStatus() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  MessageStatus get status => $_getN(3);
+  MessageRole get role => $_getN(3);
   @$pb.TagNumber(4)
-  set status(MessageStatus value) => $_setField(4, value);
+  set role(MessageRole value) => $_setField(4, value);
   @$pb.TagNumber(4)
-  $core.bool hasStatus() => $_has(3);
+  $core.bool hasRole() => $_has(3);
   @$pb.TagNumber(4)
-  void clearStatus() => $_clearField(4);
-
-  @$pb.TagNumber(5)
-  MessageRole get role => $_getN(4);
-  @$pb.TagNumber(5)
-  set role(MessageRole value) => $_setField(5, value);
-  @$pb.TagNumber(5)
-  $core.bool hasRole() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearRole() => $_clearField(5);
+  void clearRole() => $_clearField(4);
 }
 
 /// TextMessageRequest is sent by either party to deliver a text message.
@@ -945,7 +933,6 @@ class TextMessageResponse extends $pb.GeneratedMessage {
 /// VoiceMessage holds the payload of a voice-note conversation turn.
 class VoiceMessage extends $pb.GeneratedMessage {
   factory VoiceMessage({
-    $core.String? messageId,
     $0.Timestamp? timestamp,
     $core.String? mediaUrl,
     $core.Iterable<$core.double>? amplitudesPreview,
@@ -955,7 +942,6 @@ class VoiceMessage extends $pb.GeneratedMessage {
     MessageRole? role,
   }) {
     final result = create();
-    if (messageId != null) result.messageId = messageId;
     if (timestamp != null) result.timestamp = timestamp;
     if (mediaUrl != null) result.mediaUrl = mediaUrl;
     if (amplitudesPreview != null)
@@ -981,17 +967,16 @@ class VoiceMessage extends $pb.GeneratedMessage {
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'messageId')
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'mediaUrl')
+    ..aOS(2, _omitFieldNames ? '' : 'mediaUrl')
     ..p<$core.double>(
-        4, _omitFieldNames ? '' : 'amplitudesPreview', $pb.PbFieldType.KF)
-    ..aD(5, _omitFieldNames ? '' : 'duration')
-    ..aOS(6, _omitFieldNames ? '' : 'mediaType')
-    ..aE<MessageStatus>(7, _omitFieldNames ? '' : 'status',
+        3, _omitFieldNames ? '' : 'amplitudesPreview', $pb.PbFieldType.KF)
+    ..aD(4, _omitFieldNames ? '' : 'duration')
+    ..aOS(5, _omitFieldNames ? '' : 'mediaType')
+    ..aE<MessageStatus>(6, _omitFieldNames ? '' : 'status',
         enumValues: MessageStatus.values)
-    ..aE<MessageRole>(8, _omitFieldNames ? '' : 'role',
+    ..aE<MessageRole>(7, _omitFieldNames ? '' : 'role',
         enumValues: MessageRole.values)
     ..hasRequiredFields = false;
 
@@ -1015,73 +1000,64 @@ class VoiceMessage extends $pb.GeneratedMessage {
   static VoiceMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get messageId => $_getSZ(0);
+  $0.Timestamp get timestamp => $_getN(0);
   @$pb.TagNumber(1)
-  set messageId($core.String value) => $_setString(0, value);
+  set timestamp($0.Timestamp value) => $_setField(1, value);
   @$pb.TagNumber(1)
-  $core.bool hasMessageId() => $_has(0);
+  $core.bool hasTimestamp() => $_has(0);
   @$pb.TagNumber(1)
-  void clearMessageId() => $_clearField(1);
+  void clearTimestamp() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $0.Timestamp ensureTimestamp() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
+  $core.String get mediaUrl => $_getSZ(1);
   @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
+  set mediaUrl($core.String value) => $_setString(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
+  $core.bool hasMediaUrl() => $_has(1);
   @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get mediaUrl => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set mediaUrl($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMediaUrl() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMediaUrl() => $_clearField(3);
+  void clearMediaUrl() => $_clearField(2);
 
   /// Amplitude samples used to render the waveform preview in the UI.
+  @$pb.TagNumber(3)
+  $pb.PbList<$core.double> get amplitudesPreview => $_getList(2);
+
   @$pb.TagNumber(4)
-  $pb.PbList<$core.double> get amplitudesPreview => $_getList(3);
+  $core.double get duration => $_getN(3);
+  @$pb.TagNumber(4)
+  set duration($core.double value) => $_setDouble(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasDuration() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDuration() => $_clearField(4);
 
   @$pb.TagNumber(5)
-  $core.double get duration => $_getN(4);
+  $core.String get mediaType => $_getSZ(4);
   @$pb.TagNumber(5)
-  set duration($core.double value) => $_setDouble(4, value);
+  set mediaType($core.String value) => $_setString(4, value);
   @$pb.TagNumber(5)
-  $core.bool hasDuration() => $_has(4);
+  $core.bool hasMediaType() => $_has(4);
   @$pb.TagNumber(5)
-  void clearDuration() => $_clearField(5);
+  void clearMediaType() => $_clearField(5);
 
   @$pb.TagNumber(6)
-  $core.String get mediaType => $_getSZ(5);
+  MessageStatus get status => $_getN(5);
   @$pb.TagNumber(6)
-  set mediaType($core.String value) => $_setString(5, value);
+  set status(MessageStatus value) => $_setField(6, value);
   @$pb.TagNumber(6)
-  $core.bool hasMediaType() => $_has(5);
+  $core.bool hasStatus() => $_has(5);
   @$pb.TagNumber(6)
-  void clearMediaType() => $_clearField(6);
+  void clearStatus() => $_clearField(6);
 
   @$pb.TagNumber(7)
-  MessageStatus get status => $_getN(6);
+  MessageRole get role => $_getN(6);
   @$pb.TagNumber(7)
-  set status(MessageStatus value) => $_setField(7, value);
+  set role(MessageRole value) => $_setField(7, value);
   @$pb.TagNumber(7)
-  $core.bool hasStatus() => $_has(6);
+  $core.bool hasRole() => $_has(6);
   @$pb.TagNumber(7)
-  void clearStatus() => $_clearField(7);
-
-  @$pb.TagNumber(8)
-  MessageRole get role => $_getN(7);
-  @$pb.TagNumber(8)
-  set role(MessageRole value) => $_setField(8, value);
-  @$pb.TagNumber(8)
-  $core.bool hasRole() => $_has(7);
-  @$pb.TagNumber(8)
-  void clearRole() => $_clearField(8);
+  void clearRole() => $_clearField(7);
 }
 
 /// VoiceMessageRequest is sent by either party to deliver a voice note.
@@ -1251,7 +1227,6 @@ class VoiceMessageResponse extends $pb.GeneratedMessage {
 /// ImageMessage holds the payload of an image conversation turn.
 class ImageMessage extends $pb.GeneratedMessage {
   factory ImageMessage({
-    $core.String? messageId,
     $0.Timestamp? timestamp,
     $core.String? text,
     $core.String? mediaUrl,
@@ -1260,7 +1235,6 @@ class ImageMessage extends $pb.GeneratedMessage {
     MessageRole? role,
   }) {
     final result = create();
-    if (messageId != null) result.messageId = messageId;
     if (timestamp != null) result.timestamp = timestamp;
     if (text != null) result.text = text;
     if (mediaUrl != null) result.mediaUrl = mediaUrl;
@@ -1284,15 +1258,14 @@ class ImageMessage extends $pb.GeneratedMessage {
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'messageId')
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'text')
-    ..aOS(4, _omitFieldNames ? '' : 'mediaUrl')
-    ..aOS(5, _omitFieldNames ? '' : 'mediaType')
-    ..aE<MessageStatus>(6, _omitFieldNames ? '' : 'status',
+    ..aOS(2, _omitFieldNames ? '' : 'text')
+    ..aOS(3, _omitFieldNames ? '' : 'mediaUrl')
+    ..aOS(4, _omitFieldNames ? '' : 'mediaType')
+    ..aE<MessageStatus>(5, _omitFieldNames ? '' : 'status',
         enumValues: MessageStatus.values)
-    ..aE<MessageRole>(7, _omitFieldNames ? '' : 'role',
+    ..aE<MessageRole>(6, _omitFieldNames ? '' : 'role',
         enumValues: MessageRole.values)
     ..hasRequiredFields = false;
 
@@ -1316,69 +1289,60 @@ class ImageMessage extends $pb.GeneratedMessage {
   static ImageMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get messageId => $_getSZ(0);
+  $0.Timestamp get timestamp => $_getN(0);
   @$pb.TagNumber(1)
-  set messageId($core.String value) => $_setString(0, value);
+  set timestamp($0.Timestamp value) => $_setField(1, value);
   @$pb.TagNumber(1)
-  $core.bool hasMessageId() => $_has(0);
+  $core.bool hasTimestamp() => $_has(0);
   @$pb.TagNumber(1)
-  void clearMessageId() => $_clearField(1);
+  void clearTimestamp() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $0.Timestamp ensureTimestamp() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
+  $core.String get text => $_getSZ(1);
   @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
+  set text($core.String value) => $_setString(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
+  $core.bool hasText() => $_has(1);
   @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
+  void clearText() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $core.String get text => $_getSZ(2);
+  $core.String get mediaUrl => $_getSZ(2);
   @$pb.TagNumber(3)
-  set text($core.String value) => $_setString(2, value);
+  set mediaUrl($core.String value) => $_setString(2, value);
   @$pb.TagNumber(3)
-  $core.bool hasText() => $_has(2);
+  $core.bool hasMediaUrl() => $_has(2);
   @$pb.TagNumber(3)
-  void clearText() => $_clearField(3);
+  void clearMediaUrl() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get mediaUrl => $_getSZ(3);
+  $core.String get mediaType => $_getSZ(3);
   @$pb.TagNumber(4)
-  set mediaUrl($core.String value) => $_setString(3, value);
+  set mediaType($core.String value) => $_setString(3, value);
   @$pb.TagNumber(4)
-  $core.bool hasMediaUrl() => $_has(3);
+  $core.bool hasMediaType() => $_has(3);
   @$pb.TagNumber(4)
-  void clearMediaUrl() => $_clearField(4);
+  void clearMediaType() => $_clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get mediaType => $_getSZ(4);
+  MessageStatus get status => $_getN(4);
   @$pb.TagNumber(5)
-  set mediaType($core.String value) => $_setString(4, value);
+  set status(MessageStatus value) => $_setField(5, value);
   @$pb.TagNumber(5)
-  $core.bool hasMediaType() => $_has(4);
+  $core.bool hasStatus() => $_has(4);
   @$pb.TagNumber(5)
-  void clearMediaType() => $_clearField(5);
+  void clearStatus() => $_clearField(5);
 
   @$pb.TagNumber(6)
-  MessageStatus get status => $_getN(5);
+  MessageRole get role => $_getN(5);
   @$pb.TagNumber(6)
-  set status(MessageStatus value) => $_setField(6, value);
+  set role(MessageRole value) => $_setField(6, value);
   @$pb.TagNumber(6)
-  $core.bool hasStatus() => $_has(5);
+  $core.bool hasRole() => $_has(5);
   @$pb.TagNumber(6)
-  void clearStatus() => $_clearField(6);
-
-  @$pb.TagNumber(7)
-  MessageRole get role => $_getN(6);
-  @$pb.TagNumber(7)
-  set role(MessageRole value) => $_setField(7, value);
-  @$pb.TagNumber(7)
-  $core.bool hasRole() => $_has(6);
-  @$pb.TagNumber(7)
-  void clearRole() => $_clearField(7);
+  void clearRole() => $_clearField(6);
 }
 
 /// ImageMessageRequest is sent by either party to deliver an image.
@@ -3581,6 +3545,176 @@ class AuthResponse extends $pb.GeneratedMessage {
   $core.bool hasClientId() => $_has(4);
   @$pb.TagNumber(5)
   void clearClientId() => $_clearField(5);
+}
+
+/// PollMessageItem represents a single message entry returned by the message
+/// poll endpoint. The message field reuses SdkMessage so all payload types
+/// (text, image, voice, etc.) are supported without duplication.
+class PollMessageItem extends $pb.GeneratedMessage {
+  factory PollMessageItem({
+    $core.String? id,
+    SdkMessage? message,
+    $0.Timestamp? date,
+    $core.String? userId,
+    MessageStatus? status,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (message != null) result.message = message;
+    if (date != null) result.date = date;
+    if (userId != null) result.userId = userId;
+    if (status != null) result.status = status;
+    return result;
+  }
+
+  PollMessageItem._();
+
+  factory PollMessageItem.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory PollMessageItem.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PollMessageItem',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOM<SdkMessage>(2, _omitFieldNames ? '' : 'message',
+        subBuilder: SdkMessage.create)
+    ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'date',
+        subBuilder: $0.Timestamp.create)
+    ..aOS(4, _omitFieldNames ? '' : 'userId')
+    ..aE<MessageStatus>(5, _omitFieldNames ? '' : 'status',
+        enumValues: MessageStatus.values)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PollMessageItem clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PollMessageItem copyWith(void Function(PollMessageItem) updates) =>
+      super.copyWith((message) => updates(message as PollMessageItem))
+          as PollMessageItem;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PollMessageItem create() => PollMessageItem._();
+  @$core.override
+  PollMessageItem createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static PollMessageItem getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<PollMessageItem>(create);
+  static PollMessageItem? _defaultInstance;
+
+  /// Server-assigned unique identifier for this poll entry.
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  /// The SDK message payload, including its timestamp and oneof payload.
+  @$pb.TagNumber(2)
+  SdkMessage get message => $_getN(1);
+  @$pb.TagNumber(2)
+  set message(SdkMessage value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => $_clearField(2);
+  @$pb.TagNumber(2)
+  SdkMessage ensureMessage() => $_ensure(1);
+
+  /// Wall-clock time at which the message was recorded on the server.
+  @$pb.TagNumber(3)
+  $0.Timestamp get date => $_getN(2);
+  @$pb.TagNumber(3)
+  set date($0.Timestamp value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasDate() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDate() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $0.Timestamp ensureDate() => $_ensure(2);
+
+  /// Identifier of the user associated with this message.
+  @$pb.TagNumber(4)
+  $core.String get userId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set userId($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasUserId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearUserId() => $_clearField(4);
+
+  /// Current delivery status of the message.
+  @$pb.TagNumber(5)
+  MessageStatus get status => $_getN(4);
+  @$pb.TagNumber(5)
+  set status(MessageStatus value) => $_setField(5, value);
+  @$pb.TagNumber(5)
+  $core.bool hasStatus() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearStatus() => $_clearField(5);
+}
+
+/// MessagePollResponse is returned by the message poll REST endpoint and
+/// contains the list of pending messages the client should process.
+class MessagePollResponse extends $pb.GeneratedMessage {
+  factory MessagePollResponse({
+    $core.Iterable<PollMessageItem>? messages,
+  }) {
+    final result = create();
+    if (messages != null) result.messages.addAll(messages);
+    return result;
+  }
+
+  MessagePollResponse._();
+
+  factory MessagePollResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory MessagePollResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MessagePollResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..pPM<PollMessageItem>(1, _omitFieldNames ? '' : 'messages',
+        subBuilder: PollMessageItem.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MessagePollResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MessagePollResponse copyWith(void Function(MessagePollResponse) updates) =>
+      super.copyWith((message) => updates(message as MessagePollResponse))
+          as MessagePollResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MessagePollResponse create() => MessagePollResponse._();
+  @$core.override
+  MessagePollResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static MessagePollResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MessagePollResponse>(create);
+  static MessagePollResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<PollMessageItem> get messages => $_getList(0);
 }
 
 const $core.bool _omitFieldNames =
