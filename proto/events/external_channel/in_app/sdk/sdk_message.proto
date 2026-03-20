@@ -79,6 +79,7 @@ enum MessageStatus {
   MESSAGE_STATUS_READ = 3;
   MESSAGE_STATUS_ERROR = 4;
   MESSAGE_STATUS_SENT = 5;
+  MESSAGE_STATUS_IN_DELIVERY = 6;
 }
 
 // ---------------------------------------------------------------------------
@@ -390,4 +391,30 @@ message AuthResponse {
   int64 expires_in = 3;
   string refresh_token = 4;
   string client_id = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Message poll  (REST: server -> client)
+// ---------------------------------------------------------------------------
+
+// PollMessageItem represents a single message entry returned by the message
+// poll endpoint. The message field reuses SdkMessage so all payload types
+// (text, image, voice, etc.) are supported without duplication.
+message PollMessageItem {
+  // Server-assigned unique identifier for this poll entry.
+  string id = 1;
+  // The SDK message payload, including its timestamp and oneof payload.
+  SdkMessage message = 2;
+  // Wall-clock time at which the message was recorded on the server.
+  google.protobuf.Timestamp date = 3;
+  // Identifier of the user associated with this message.
+  string user_id = 4;
+  // Current delivery status of the message.
+  MessageStatus status = 5;
+}
+
+// MessagePollResponse is returned by the message poll REST endpoint and
+// contains the list of pending messages the client should process.
+message MessagePollResponse {
+  repeated PollMessageItem messages = 1;
 }
