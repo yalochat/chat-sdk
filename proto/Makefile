@@ -1,11 +1,12 @@
 
 flutter_sdk_out_path = ./dart/
 typescript_sdk_out_path = ./typescript/
+kotlin_out_path = ./kotlin/
 
 flutter_sdk_models_path = ../flutter-sdk/lib/src/domain/models
 webchat_sdk_models_path = ../web-sdk/src/domain/models
 
-proto: proto_go proto_ts proto_dart symlinks
+proto: proto_go proto_ts proto_dart proto_kotlin symlinks
 
 symlinks:
 	ln -sfn ../../../../../proto/dart/events $(flutter_sdk_models_path)/events
@@ -31,3 +32,14 @@ proto_dart:
 	mkdir -p $(flutter_sdk_out_path)
 	protoc --dart_out=$(flutter_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_dart
+
+# Android SDK: generate Java lite + Kotlin lite sources from the proto.
+# The Gradle protobuf plugin runs this automatically at build time (build/generated/source/proto/).
+# This target exists for CI reference, manual inspection, or if you need the generated files
+# outside a Gradle build (e.g. for static analysis or cross-SDK comparison).
+proto_kotlin:
+	mkdir -p $(kotlin_out_path)
+	protoc --java_out=lite:$(kotlin_out_path) \
+		   --kotlin_out=lite:$(kotlin_out_path) \
+		   `find events -name '*.proto' -print | sort`
+.PHONY: proto_kotlin

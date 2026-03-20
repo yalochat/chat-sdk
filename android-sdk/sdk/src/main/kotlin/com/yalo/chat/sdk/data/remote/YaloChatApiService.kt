@@ -5,8 +5,8 @@ package com.yalo.chat.sdk.data.remote
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.model.YaloAuthRequest
 import com.yalo.chat.sdk.data.remote.model.YaloAuthResponse
+import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
-import com.yalo.chat.sdk.data.remote.model.YaloTextMessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -56,7 +56,7 @@ internal class YaloChatApiService(
     // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
     internal val httpClient: HttpClient,
 ) {
-    private val apiBaseUrl = apiBaseUrl.trimEnd('/').removeSuffix("/webchat")
+    private val apiBaseUrl = apiBaseUrl.trimEnd('/').removeSuffix("/inapp").removeSuffix("/webchat")
     private val tokenMutex = Mutex()
     private var accessToken: String? = null
     private var storedRefreshToken: String? = null
@@ -167,13 +167,13 @@ internal class YaloChatApiService(
 
     // ── API calls ─────────────────────────────────────────────────────────────
 
-    // POST /webchat/inbound_messages — send a text message to the Yalo backend.
-    suspend fun sendTextMessage(request: YaloTextMessageRequest): Result<Unit> {
+    // POST /inapp/inbound_messages — send a message to the Yalo backend.
+    suspend fun sendTextMessage(request: SdkMessageBody): Result<Unit> {
         val tokenResult = ensureValidToken()
         if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
         val (token, uid) = (tokenResult as Result.Ok).result
         return try {
-            val response = httpClient.post("$apiBaseUrl/webchat/inbound_messages") {
+            val response = httpClient.post("$apiBaseUrl/inapp/inbound_messages") {
                 contentType(ContentType.Application.Json)
                 header(HEADER_USER_ID, uid)
                 header(HEADER_CHANNEL_ID, channelId)
@@ -187,13 +187,13 @@ internal class YaloChatApiService(
         }
     }
 
-    // GET /webchat/messages?since={timestamp} — fetch messages newer than the given timestamp.
+    // GET /inapp/messages?since={timestamp} — fetch messages newer than the given timestamp.
     suspend fun fetchMessages(since: Long): Result<List<YaloFetchMessagesResponse>> {
         val tokenResult = ensureValidToken()
         if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
         val (token, uid) = (tokenResult as Result.Ok).result
         return try {
-            val response = httpClient.get("$apiBaseUrl/webchat/messages") {
+            val response = httpClient.get("$apiBaseUrl/inapp/messages") {
                 parameter("since", since)
                 header(HEADER_USER_ID, uid)
                 header(HEADER_CHANNEL_ID, channelId)

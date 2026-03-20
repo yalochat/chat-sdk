@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +7,23 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.protobuf)
+}
+
+// Read the API base URL from local.properties (gitignored).
+// This keeps the URL out of the repository — mirroring Flutter's --dart-define pattern.
+// CI pipelines inject YALO_API_BASE_URL as an environment variable instead.
+val localProps = Properties().also { props ->
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { props.load(it) }
+}
+val yaloApiBaseUrl: String = (System.getenv("YALO_API_BASE_URL")
+    ?: localProps.getProperty("yalo.apiBaseUrl", "")).also { url ->
+    if (url.isEmpty()) logger.warn(
+        "WARNING: YALO_API_BASE_URL is not set. " +
+        "Add yalo.apiBaseUrl to local.properties or set the YALO_API_BASE_URL env variable. " +
+        "The SDK will fail at runtime when connecting to the backend."
+    )
 }
 
 android {
@@ -14,6 +33,8 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
+        val escapedUrl = yaloApiBaseUrl.trim().replace("\\", "\\\\").replace("\"", "\\\"")
+        buildConfigField("String", "YALO_API_BASE_URL", "\"$escapedUrl\"")
     }
 
     compileOptions {
@@ -41,6 +62,25 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
+}
+
+// Protobuf — generate Kotlin/Java lite classes from sdk_message.proto at build time.
+// The .proto source lives in the shared proto/ directory (../../proto relative to this module).
+// Generated output goes to build/generated/source/proto/ and is NOT committed.
+// Run the Makefile proto_kotlin target for manual generation or CI reference.
+protobuf {
+    protoc {
+        // Must match libs.versions.protobuf in libs.versions.toml.
+        artifact = "com.google.protobuf:protoc:4.29.3"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") { option("lite") }
+                create("kotlin") { option("lite") }
+            }
+        }
     }
 }
 
@@ -101,6 +141,9 @@ dependencies {
     // SQLDelight — KMP-ready persistence (no Room)
     implementation(libs.sqldelight.android.driver)
     implementation(libs.sqldelight.coroutines.extensions)
+
+    // Protobuf lite runtime — required by the generated Kotlin/Java proto classes.
+    implementation(libs.protobuf.kotlin.lite)
 
     // Unit tests (JVM — no emulator required)
     testImplementation(libs.junit)

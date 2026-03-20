@@ -9,6 +9,12 @@ enum class MessageRole(val value: String) {
     AGENT("AGENT");
 
     companion object {
-        fun fromString(value: String): MessageRole = entries.firstOrNull { it.value == value } ?: AGENT
+        // Accepts both the legacy short form ("USER", "AGENT") and the proto3 JSON enum name
+        // ("MESSAGE_ROLE_USER", "MESSAGE_ROLE_AGENT") so old and new API responses both parse.
+        fun fromString(value: String): MessageRole = when (value) {
+            "USER", "MESSAGE_ROLE_USER" -> USER
+            "AGENT", "MESSAGE_ROLE_AGENT" -> AGENT
+            else -> AGENT
+        }
     }
 }
