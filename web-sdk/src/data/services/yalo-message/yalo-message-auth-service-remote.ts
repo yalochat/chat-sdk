@@ -3,14 +3,7 @@
 import { Err, Ok, type Result } from '@domain/common/result';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type { YaloMessageAuthService } from './yalo-message-auth-service';
-
-interface AuthResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token: string;
-  client_id: string;
-}
+import { AuthResponse } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
 interface TokenCache {
   accessToken: string;
@@ -57,9 +50,9 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
         return new Err(new Error(`Auth failed: ${response.status}`));
       }
 
-      const data = (await response.json()) as AuthResponse;
+      const data = AuthResponse.fromJSON(await response.json());
       this._storeCache(data);
-      return new Ok(data.access_token);
+      return new Ok(data.accessToken);
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
     }
@@ -81,9 +74,9 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
         return new Err(new Error(`Refresh failed: ${response.status}`));
       }
 
-      const data = (await response.json()) as AuthResponse;
+      const data = AuthResponse.fromJSON(await response.json());
       this._storeCache(data);
-      return new Ok(data.access_token);
+      return new Ok(data.accessToken);
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
     }
@@ -91,9 +84,9 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
 
   private _storeCache(data: AuthResponse): void {
     this._cache = {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token,
-      expiresAt: Date.now() + data.expires_in * 1000,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      expiresAt: Date.now() + data.expiresIn * 1000,
     };
   }
 }

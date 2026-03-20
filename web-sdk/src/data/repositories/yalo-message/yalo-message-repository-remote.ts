@@ -8,17 +8,15 @@ import type {
   PollCallback,
   YaloMessageRepository,
 } from './yalo-message-repository';
+import {
+  MessageRole,
+  MessageStatus,
+  type SdkMessage,
+  PollMessageItem,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
 interface JwtPayload {
   user_id: string;
-}
-
-interface Message {
-  id: string;
-  message: { text: string; role: string };
-  date: string;
-  user_id: string;
-  status: string;
 }
 
 export class YaloMessageRepositoryRemote implements YaloMessageRepository {
@@ -47,7 +45,21 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     const userId = this._decodeUserId(token);
 
     try {
-      const timestamp = Date.now();
+      const timestamp = new Date();
+
+      const body: SdkMessage = {
+        correlationId: message.id?.toString() || '',
+        textMessageRequest: {
+          content: {
+            timestamp: undefined,
+            text: message.content,
+            status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+            role: MessageRole.MESSAGE_ROLE_USER,
+          },
+          timestamp: message.timestamp,
+        },
+        timestamp: timestamp,
+      };
       const response = await fetch(
         `${this._baseUrl}/webchat/inbound_messages`,
         {
@@ -59,15 +71,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
             'x-user-id': userId,
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            content: {
-              timestamp,
-              text: message.content,
-              status: message.status,
-              role: message.role,
-            },
-            timestamp,
-          }),
+          body: JSON.stringify(body),
         }
       );
 
@@ -106,19 +110,24 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
         if (!response.ok) return;
 
-        const data = (await response.json()) as Array<Message>;
+        const data = (await response.json()) as Array<PollMessageItem>;
 
         const newMessages = data
-          .filter((item) => !this._seenIds.has(item.id))
+          .filter(
+            (item) =>
+              !this._seenIds.has(item.id) &&
+              item.message?.textMessageRequest != null
+          )
           .map((item) => {
             this._seenIds.add(item.id);
+            const { text } = item.message!.textMessageRequest!.content!;
             return new ChatMessage({
               wiId: item.id,
-              role: item.message.role as ChatMessage['role'],
-              content: item.message.text,
+              role: 'AGENT',
+              content: text,
               type: 'text',
               status: 'DELIVERED',
-              timestamp: new Date(item.date),
+              timestamp: item.date ?? new Date(),
             });
           });
 
