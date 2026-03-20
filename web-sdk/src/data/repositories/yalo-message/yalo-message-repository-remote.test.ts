@@ -431,8 +431,6 @@ describe('YaloMessageRepositoryRemote', () => {
     });
   });
 
-  // ─── unsubscribeMessages ─────────────────────────────────────────
-
   describe('unsubscribeMessages', () => {
     it('stops polling after unsubscribe', async () => {
       const fetchSpy = mockOkFetch([]);
