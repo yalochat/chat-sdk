@@ -88,11 +88,10 @@ enum MessageStatus {
 
 // TextMessage holds the payload of a plain-text conversation turn.
 message TextMessage {
-  optional string message_id = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string text = 3;
-  MessageStatus status = 4;
-  MessageRole role = 5;
+  google.protobuf.Timestamp timestamp = 1;
+  string text = 2;
+  MessageStatus status = 3;
+  MessageRole role = 4;
 }
 
 // TextMessageRequest is sent by either party to deliver a text message.
@@ -114,15 +113,14 @@ message TextMessageResponse {
 
 // VoiceMessage holds the payload of a voice-note conversation turn.
 message VoiceMessage {
-  optional string message_id = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string media_url = 3;
+  google.protobuf.Timestamp timestamp = 1;
+  string media_url = 2;
   // Amplitude samples used to render the waveform preview in the UI.
-  repeated float amplitudes_preview = 4;
-  double duration = 5;
-  string media_type = 6;
-  MessageStatus status = 7;
-  MessageRole role = 8;
+  repeated float amplitudes_preview = 3;
+  double duration = 4;
+  string media_type = 5;
+  MessageStatus status = 6;
+  MessageRole role = 7;
 }
 
 // VoiceMessageRequest is sent by either party to deliver a voice note.
@@ -145,13 +143,12 @@ message VoiceMessageResponse {
 
 // ImageMessage holds the payload of an image conversation turn.
 message ImageMessage {
-  optional string message_id = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  optional string text = 3;
-  string media_url = 4;
-  string media_type = 5;
-  MessageStatus status = 6;
-  MessageRole role = 7;
+  google.protobuf.Timestamp timestamp = 1;
+  optional string text = 2;
+  string media_url = 3;
+  string media_type = 4;
+  MessageStatus status = 5;
+  MessageRole role = 6;
 }
 
 // ImageMessageRequest is sent by either party to deliver an image.
