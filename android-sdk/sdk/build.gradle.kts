@@ -33,7 +33,8 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
-        buildConfigField("String", "YALO_API_BASE_URL", "\"$yaloApiBaseUrl\"")
+        val escapedUrl = yaloApiBaseUrl.trim().replace("\\", "\\\\").replace("\"", "\\\"")
+        buildConfigField("String", "YALO_API_BASE_URL", "\"$escapedUrl\"")
     }
 
     compileOptions {

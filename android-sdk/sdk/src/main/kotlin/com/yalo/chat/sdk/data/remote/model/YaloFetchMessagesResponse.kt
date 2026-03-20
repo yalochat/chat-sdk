@@ -41,7 +41,9 @@ internal data class SdkPayloadDto(
 
 @Serializable
 internal data class SdkTextMessageResponseDto(
-    val content: SdkTextMessageContentDto,
+    // Nullable so a malformed TextMessageRequest (missing content) skips silently
+    // rather than throwing SerializationException and failing the entire fetch batch.
+    val content: SdkTextMessageContentDto? = null,
 )
 
 @Serializable

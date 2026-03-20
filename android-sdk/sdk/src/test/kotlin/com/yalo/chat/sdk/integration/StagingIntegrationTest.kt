@@ -10,9 +10,12 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -36,13 +39,20 @@ class StagingIntegrationTest {
     private val channelId = "c76f0984-db46-4b77-8591-ffbb27ab0e05"
     private val organizationId = "1000000219"
 
+    // Single shared client — closed after all tests via @AfterTest.
+    private val httpClient: HttpClient = buildHttpClient(engine = CIO.create(), debug = true)
+
+    @AfterTest
+    fun tearDown() {
+        httpClient.close()
+    }
+
     private fun buildRepo(pollingIntervalMs: Long = 500L): YaloMessageRepositoryRemote {
-        val client = buildHttpClient(engine = CIO.create(), debug = true)
         val apiService = YaloChatApiService(
             apiBaseUrl = apiBaseUrl,
             channelId = channelId,
             organizationId = organizationId,
-            httpClient = client,
+            httpClient = httpClient,
         )
         return YaloMessageRepositoryRemote(apiService, pollingIntervalMs = pollingIntervalMs)
     }
@@ -84,10 +94,11 @@ class StagingIntegrationTest {
             assertIs<Result.Ok<Unit>>(sendResult)
             println("[integration] sendMessage OK — content=${outgoing.content}")
 
-            // Poll for the agent reply — staging bot typically replies within ~5s.
-            val batch = repo.pollIncomingMessages().first()
+            // Poll for the agent reply — staging bot typically replies within ~30s.
+            // withTimeout ensures the test fails clearly instead of hanging CI.
+            val batch = withTimeout(30_000L) { repo.pollIncomingMessages().first() }
 
-            assertTrue(batch.isNotEmpty(), "Expected at least one message from agent")
+            assertTrue(batch.isNotEmpty(), "Expected at least one message from agent within 30s")
             val reply = batch.first()
             println("[integration] received ${batch.size} message(s), first: role=${reply.role} text=${reply.content.take(80)}")
 
@@ -106,12 +117,11 @@ class StagingIntegrationTest {
         if (!enabled) return
 
         runBlocking {
-            val client = buildHttpClient(engine = CIO.create(), debug = false)
             val apiService = YaloChatApiService(
                 apiBaseUrl = apiBaseUrl,
                 channelId = channelId,
                 organizationId = organizationId,
-                httpClient = client,
+                httpClient = httpClient,
             )
             val since = System.currentTimeMillis() - 10_000L
             val result = apiService.fetchMessages(since)
