@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -35,9 +36,29 @@ class StagingIntegrationTest {
 
     private val enabled = System.getenv("STAGING_INTEGRATION") == "1"
 
-    private val apiBaseUrl = "https://api-staging2.yalochat.com/public-api-gateway/v1/channels"
-    private val channelId = "c76f0984-db46-4b77-8591-ffbb27ab0e05"
-    private val organizationId = "1000000219"
+    // Credentials read from environment variables so no staging tenant IDs are committed.
+    // Set these alongside STAGING_INTEGRATION=1 when running manually:
+    //   STAGING_API_BASE_URL=https://api-staging2.yalochat.com/public-api-gateway/v1/channels
+    //   STAGING_CHANNEL_ID=<channel-id>
+    //   STAGING_ORGANIZATION_ID=<organization-id>
+    // Credentials read from environment variables — no staging tenant IDs committed to source.
+    // Set these alongside STAGING_INTEGRATION=1 when running manually:
+    //   STAGING_API_BASE_URL=https://api-staging2.yalochat.com/public-api-gateway/v1/channels
+    //   STAGING_CHANNEL_ID=<channel-id>
+    //   STAGING_ORGANIZATION_ID=<organization-id>
+    private val apiBaseUrl = System.getenv("STAGING_API_BASE_URL")
+        ?: "https://api-staging2.yalochat.com/public-api-gateway/v1/channels"
+    private var channelId: String = ""
+    private var organizationId: String = ""
+
+    @BeforeTest
+    fun setUp() {
+        if (!enabled) return
+        channelId = System.getenv("STAGING_CHANNEL_ID")
+            ?: error("STAGING_CHANNEL_ID env var is required when STAGING_INTEGRATION=1")
+        organizationId = System.getenv("STAGING_ORGANIZATION_ID")
+            ?: error("STAGING_ORGANIZATION_ID env var is required when STAGING_INTEGRATION=1")
+    }
 
     // Debug logging is off by default to avoid leaking Authorization headers into CI logs.
     // Set STAGING_HTTP_DEBUG=1 locally to enable request/response tracing.
