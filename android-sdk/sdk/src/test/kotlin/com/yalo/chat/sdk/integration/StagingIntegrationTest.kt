@@ -36,11 +36,6 @@ class StagingIntegrationTest {
 
     private val enabled = System.getenv("STAGING_INTEGRATION") == "1"
 
-    // Credentials read from environment variables so no staging tenant IDs are committed.
-    // Set these alongside STAGING_INTEGRATION=1 when running manually:
-    //   STAGING_API_BASE_URL=https://api-staging2.yalochat.com/public-api-gateway/v1/channels
-    //   STAGING_CHANNEL_ID=<channel-id>
-    //   STAGING_ORGANIZATION_ID=<organization-id>
     // Credentials read from environment variables — no staging tenant IDs committed to source.
     // Set these alongside STAGING_INTEGRATION=1 when running manually:
     //   STAGING_API_BASE_URL=https://api-staging2.yalochat.com/public-api-gateway/v1/channels
