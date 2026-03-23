@@ -39,8 +39,12 @@ class StagingIntegrationTest {
     private val channelId = "c76f0984-db46-4b77-8591-ffbb27ab0e05"
     private val organizationId = "1000000219"
 
+    // Debug logging is off by default to avoid leaking Authorization headers into CI logs.
+    // Set STAGING_HTTP_DEBUG=1 locally to enable request/response tracing.
+    private val httpDebug = System.getenv("STAGING_HTTP_DEBUG") == "1"
+
     // Single shared client — closed after all tests via @AfterTest.
-    private val httpClient: HttpClient = buildHttpClient(engine = CIO.create(), debug = true)
+    private val httpClient: HttpClient = buildHttpClient(engine = CIO.create(), debug = httpDebug)
 
     @AfterTest
     fun tearDown() {

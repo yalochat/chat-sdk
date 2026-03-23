@@ -14,7 +14,6 @@ hilt = "2.56"
 junit = "4.13.2"
 coil = "3.0.4"
 protobuf = "4.29.3"
-protobuf-plugin = "0.9.4"
 
 [libraries]
 # Compose
@@ -82,4 +81,3 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-protobuf = { id = "com.google.protobuf", version.ref = "protobuf-plugin" }

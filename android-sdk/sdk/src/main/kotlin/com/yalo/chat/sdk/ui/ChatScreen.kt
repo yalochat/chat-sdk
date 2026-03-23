@@ -55,9 +55,9 @@ fun ChatScreen(
     showAttachmentButton: Boolean = true,
     /** Replaces the default app bar when non-null. Mirrors Flutter's Chat(appBar:) slot. */
     appBar: (@Composable () -> Unit)? = null,
-    /** Called when the user taps the shop action in a product message. Mirrors Flutter's Chat(onShopPressed:). */
+    /** Called when the user taps the shop icon in the chat app bar. Mirrors Flutter's Chat(onShopPressed:). */
     onShopPressed: (() -> Unit)? = null,
-    /** Called when the user taps the cart action in a product message. Mirrors Flutter's Chat(onCartPressed:). */
+    /** Called when the user taps the cart icon in the chat app bar. Mirrors Flutter's Chat(onCartPressed:). */
     onCartPressed: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
