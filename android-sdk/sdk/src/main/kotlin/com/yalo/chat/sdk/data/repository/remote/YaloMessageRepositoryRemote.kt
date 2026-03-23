@@ -44,7 +44,7 @@ internal class YaloMessageRepositoryRemote(
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> {
         if (message.type != MessageType.Text) {
             return Result.Error(
-                UnsupportedOperationException("Only text messages are supported in Phase 2 M1")
+                UnsupportedOperationException("Only text messages can be sent to the backend")
             )
         }
         val now = Clock.System.now()

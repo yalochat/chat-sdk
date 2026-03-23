@@ -203,8 +203,8 @@ setContent {
 | `onBack` | `(() -> Unit)?` | If provided, a back arrow appears in the app bar. |
 | `showAttachmentButton` | `Boolean` | Show/hide the attachment (image) button. Defaults to `true`. |
 | `appBar` | `(@Composable () -> Unit)?` | Replaces the default app bar with a custom composable. |
-| `onShopPressed` | `(() -> Unit)?` | Called when the user taps the shop action in a product message. |
-| `onCartPressed` | `(() -> Unit)?` | Called when the user taps the cart action in a product message. |
+| `onShopPressed` | `(() -> Unit)?` | Called when the user taps the shop icon in the app bar. |
+| `onCartPressed` | `(() -> Unit)?` | Called when the user taps the cart icon in the app bar. |
 
 The SDK does not manage its own back stack — navigation is left to the host app.
 
