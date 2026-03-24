@@ -1,11 +1,23 @@
 # Changelog
 
-## [1.0.0](https://github.com/yalochat/chat-sdk/tree/1.0.0) (2026-03-18)
+## [1.1.0](https://github.com/yalochat/chat-sdk/tree/1.1.0) (2026-03-24)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/f3530dfcd66b13feaa862a3002248ec5b047435c...1.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.0.0...1.1.0)
 
 **Merged pull requests:**
 
+- feat: Added MessagePollresponse [\#69](https://github.com/yalochat/chat-sdk/pull/69) ([rodrigocusto](https://github.com/rodrigocusto))
+- Adds auth message and refresh token to proto [\#66](https://github.com/yalochat/chat-sdk/pull/66) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Symlink protos instead of copying [\#65](https://github.com/yalochat/chat-sdk/pull/65) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(android-sdk\): align public API with Flutter SDK — auth flow, endpoints, timestamps \(FDE-83\) [\#56](https://github.com/yalochat/chat-sdk/pull/56) ([pato-viccini](https://github.com/pato-viccini))
+
+## [proto/v1.0.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.0.0) (2026-03-18)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/f3530dfcd66b13feaa862a3002248ec5b047435c...proto/v1.0.0)
+
+**Merged pull requests:**
+
+- Release proto 1.0.0 [\#64](https://github.com/yalochat/chat-sdk/pull/64) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - fix: Add go module [\#63](https://github.com/yalochat/chat-sdk/pull/63) ([rodrigocusto](https://github.com/rodrigocusto))
 - fix: Fix typescript build [\#58](https://github.com/yalochat/chat-sdk/pull/58) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Adds protobuf bindings [\#57](https://github.com/yalochat/chat-sdk/pull/57) ([rodrigocusto](https://github.com/rodrigocusto))
