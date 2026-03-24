@@ -2,8 +2,35 @@
 
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ChatMessageRepositoryLocal } from './chat-message-repository-local';
+import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
+
+const DB_NAME = 'YaloChatMessages';
+const DB_VERSION = 2;
+
+function openDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      ChatMessageRepositoryLocal.upgrade(db);
+      TokenRepositoryLocal.upgrade(db);
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function deleteDb(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.deleteDatabase(DB_NAME);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
 
 const makeMessage = (
   overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}
@@ -17,27 +44,17 @@ const makeMessage = (
   });
 
 describe('ChatMessageRepositoryLocal', () => {
+  let db: IDBDatabase;
   let repo: ChatMessageRepositoryLocal;
 
-  beforeAll(async () => {
-    await new Promise<void>((resolve, reject) => {
-      const req = indexedDB.deleteDatabase('YaloChatMessages');
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
-  });
-
-  beforeEach(() => {
-    repo = new ChatMessageRepositoryLocal();
+  beforeEach(async () => {
+    db = await openDb();
+    repo = new ChatMessageRepositoryLocal(db);
   });
 
   afterEach(async () => {
-    await repo.close();
-    await new Promise<void>((resolve, reject) => {
-      const req = indexedDB.deleteDatabase('YaloChatMessages');
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
+    db.close();
+    await deleteDb();
   });
 
   describe('insertChatMessage', () => {

@@ -9,7 +9,7 @@ import {
 
 export default class YaloChatClient {
   private config: YaloChatClientConfig;
-  private chatWindowEl: YaloChatWindow | null = null;
+  chatWindowEl: YaloChatWindow | null = null;
   private targetEl: HTMLElement | null = null;
 
   constructor(config: YaloChatClientConfig) {
@@ -61,8 +61,14 @@ export default class YaloChatClient {
     const gap = 8;
     const bottom = window.innerHeight - rect.top + gap;
     const right = window.innerWidth - rect.right;
-    this.chatWindowEl.style.setProperty('--yalo-chat-inset-bottom', `${bottom}px`);
-    this.chatWindowEl.style.setProperty('--yalo-chat-inset-right', `${right}px`);
+    this.chatWindowEl.style.setProperty(
+      '--yalo-chat-inset-bottom',
+      `${bottom}px`
+    );
+    this.chatWindowEl.style.setProperty(
+      '--yalo-chat-inset-right',
+      `${right}px`
+    );
   }
 
   open(): void {

@@ -4,6 +4,10 @@ import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { PageInfo } from '@domain/common/page';
+import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
+import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
+import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
+import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
 
 export default class YaloChatWindowController implements ReactiveController {
   host: YaloChatWindow;
@@ -20,9 +24,65 @@ export default class YaloChatWindowController implements ReactiveController {
   private readonly _writingTimeoutMs = 30000;
   private _writingTimeout?: ReturnType<typeof setTimeout>;
 
+  private readonly _DB_NAME = 'YaloChatMessages';
+  private readonly _DB_VERSION = 2;
+
+  private _openDb(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this._DB_NAME, this._DB_VERSION);
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        ChatMessageRepositoryLocal.upgrade(db);
+        TokenRepositoryLocal.upgrade(db);
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
   constructor(host: YaloChatWindow) {
     this.host = host;
     this.host.addController(this);
+  }
+
+  // Method used to create all new dependencies to be injected to all components
+  async hostConnected() {
+    const db = await this._openDb();
+    this.host.chatMessageRepository = new ChatMessageRepositoryLocal(db);
+
+    const authService = new YaloMessageAuthServiceRemote(
+      import.meta.env.VITE_YALO_API_BASE_URL,
+      this.host.config
+    );
+    const tokenRepository = new TokenRepositoryLocal(db, authService);
+    this.host.yaloMessageRepository = new YaloMessageRepositoryRemote(
+      import.meta.env.VITE_YALO_API_BASE_URL,
+      this.host.config,
+      tokenRepository
+    );
+    this.host.logger.debug('Initialized with config', this.host.config);
+
+    const pages = await this.host.chatMessageRepository.getChatMessagePageDesc(
+      null, // First page
+      this._messagePageSize
+    );
+
+    if (pages.ok) {
+      this.chatMessages = [...pages.value.data];
+      this.pageInfo = pages.value.pageInfo;
+      this.host.logger.debug('Fetching messages succeeded', {
+        pageInfo: this.pageInfo,
+      });
+    } else {
+      this.host.logger.error('Unable to fetch messages');
+    }
+    this.host.requestUpdate();
+
+    // Subscribe to incoming message stream
+    this.host.yaloMessageRepository.subscribeToMessages(this.onMessageReceived);
+    console.log('juelagran', pages);
   }
 
   async sendTextMessage(e: CustomEvent) {
@@ -98,27 +158,6 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.requestUpdate();
     }
   };
-
-  async hostConnected() {
-    const pages = await this.host.chatMessageRepository.getChatMessagePageDesc(
-      null, // First page
-      this._messagePageSize
-    );
-
-    if (pages.ok) {
-      this.chatMessages = [...pages.value.data];
-      this.pageInfo = pages.value.pageInfo;
-      this.host.logger.debug('Fetching messages succeeded', {
-        pageInfo: this.pageInfo,
-      });
-    } else {
-      this.host.logger.error('Unable to fetch messages');
-    }
-    this.host.requestUpdate();
-
-    // Subscribe to incoming message stream
-    this.host.yaloMessageRepository.subscribeToMessages(this.onMessageReceived);
-  }
 
   hostDisconnected() {
     clearTimeout(this._writingTimeout);

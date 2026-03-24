@@ -2,7 +2,7 @@
 
 import { Err, Ok, type Result } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type { YaloMessageAuthService } from '@data/services/yalo-message/yalo-message-auth-service';
+import type { TokenRepository } from '@data/repositories/token/token-repository';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type {
   PollCallback,
@@ -22,7 +22,7 @@ interface JwtPayload {
 export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _baseUrl: string;
   private readonly _config: YaloChatClientConfig;
-  private readonly _authService: YaloMessageAuthService;
+  private readonly _tokenRepository: TokenRepository;
   private _pollTimeout?: ReturnType<typeof setTimeout>;
   private _seenIds = new Set<string>();
   private _pollInterval = 2000;
@@ -30,15 +30,15 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   constructor(
     baseUrl: string,
     config: YaloChatClientConfig,
-    authService: YaloMessageAuthService
+    tokenRepository: TokenRepository
   ) {
     this._baseUrl = baseUrl;
     this._config = config;
-    this._authService = authService;
+    this._tokenRepository = tokenRepository;
   }
 
   async insertMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
-    const authResult = await this._authService.auth();
+    const authResult = await this._tokenRepository.getToken();
     if (!authResult.ok) return authResult;
 
     const token = authResult.value;
@@ -87,7 +87,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   subscribeToMessages(callback: PollCallback): void {
     const poll = async () => {
-      const authResult = await this._authService.auth();
+      const authResult = await this._tokenRepository.getToken();
       if (!authResult.ok) return;
 
       const token = authResult.value;

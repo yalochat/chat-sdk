@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type { YaloMessageAuthService } from '@data/services/yalo-message/yalo-message-auth-service';
+import type { TokenRepository } from '@data/repositories/token/token-repository';
 import { YaloMessageRepositoryRemote } from './yalo-message-repository-remote';
 
 // Flush the microtask queue (promise chain) for the initial poll() call
@@ -24,12 +24,12 @@ const makeToken = (userId: string) => {
   return `header.${payload}.signature`;
 };
 
-const mockAuthService = (token: string): YaloMessageAuthService => ({
-  auth: vi.fn().mockResolvedValue(new Ok(token)),
+const mockTokenRepository = (token: string): TokenRepository => ({
+  getToken: vi.fn().mockResolvedValue(new Ok(token)),
 });
 
-const failingAuthService = (): YaloMessageAuthService => ({
-  auth: vi.fn().mockResolvedValue(new Err(new Error('auth failed'))),
+const failingTokenRepository = (): TokenRepository => ({
+  getToken: vi.fn().mockResolvedValue(new Err(new Error('auth failed'))),
 });
 
 const baseConfig = {
@@ -99,7 +99,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        failingAuthService()
+        failingTokenRepository()
       );
       const result = await repo.insertMessage(makeMessage());
 
@@ -114,7 +114,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       await repo.insertMessage(makeMessage());
 
@@ -132,7 +132,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       await repo.insertMessage(makeMessage());
 
@@ -150,7 +150,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       await repo.insertMessage(msg);
 
@@ -166,7 +166,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const result = await repo.insertMessage(msg);
 
@@ -180,7 +180,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const result = await repo.insertMessage(makeMessage());
 
@@ -198,7 +198,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const result = await repo.insertMessage(makeMessage());
 
@@ -212,7 +212,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const result = await repo.insertMessage(makeMessage());
 
@@ -229,7 +229,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        failingAuthService()
+        failingTokenRepository()
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -247,7 +247,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       repo.subscribeToMessages(vi.fn());
 
@@ -267,7 +267,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -289,7 +289,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -307,7 +307,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -337,7 +337,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -357,7 +357,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -374,7 +374,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
 
@@ -401,7 +401,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
@@ -418,7 +418,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       repo.subscribeToMessages(vi.fn());
 
@@ -439,7 +439,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       repo.subscribeToMessages(vi.fn());
 
@@ -461,7 +461,7 @@ describe('YaloMessageRepositoryRemote', () => {
       const repo = new YaloMessageRepositoryRemote(
         'https://api.example.com',
         baseConfig,
-        mockAuthService(token)
+        mockTokenRepository(token)
       );
       const callback = vi.fn();
 
