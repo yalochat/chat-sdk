@@ -204,8 +204,10 @@ export interface SdkMessage {
   imageMessageRequest?: ImageMessageRequest | undefined;
   imageMessageResponse?: ImageMessageResponse | undefined;
   messageReceiptRequest?: MessageReceiptRequest | undefined;
-  messageReceiptResponse?:
-    | MessageReceiptResponse
+  messageReceiptResponse?: MessageReceiptResponse | undefined;
+  attachmentMessageRequest?: AttachmentMessageRequest | undefined;
+  attachmentMessageResponse?:
+    | AttachmentMessageResponse
     | undefined;
   /** Client → channel */
   addToCartRequest?: AddToCartRequest | undefined;
@@ -262,6 +264,8 @@ export interface VoiceMessage {
   mediaType: string;
   status: MessageStatus;
   role: MessageRole;
+  byteCount: number;
+  fileName: string;
 }
 
 /** VoiceMessageRequest is sent by either party to deliver a voice note. */
@@ -286,6 +290,8 @@ export interface ImageMessage {
   mediaType: string;
   status: MessageStatus;
   role: MessageRole;
+  byteCount: number;
+  fileName: string;
 }
 
 /** ImageMessageRequest is sent by either party to deliver an image. */
@@ -297,6 +303,32 @@ export interface ImageMessageRequest {
 
 /** ImageMessageResponse acknowledges an ImageMessageRequest and returns the assigned message id. */
 export interface ImageMessageResponse {
+  status: ResponseStatus;
+  timestamp: Date | undefined;
+  messageId: string;
+}
+
+/** AttachmentMessage holds the payload of a file attachment conversation turn. */
+export interface AttachmentMessage {
+  timestamp: Date | undefined;
+  text?: string | undefined;
+  mediaUrl: string;
+  mediaType: string;
+  status: MessageStatus;
+  role: MessageRole;
+  byteCount: number;
+  fileName: string;
+}
+
+/** AttachmentMessageRequest is sent by either party to deliver a file attachment. */
+export interface AttachmentMessageRequest {
+  content: AttachmentMessage | undefined;
+  timestamp: Date | undefined;
+  quickReplies: string[];
+}
+
+/** AttachmentMessageResponse acknowledges an AttachmentMessageRequest and returns the assigned message id. */
+export interface AttachmentMessageResponse {
   status: ResponseStatus;
   timestamp: Date | undefined;
   messageId: string;
@@ -570,14 +602,6 @@ export interface PollMessageItem {
   status: MessageStatus;
 }
 
-/**
- * MessagePollResponse is returned by the message poll REST endpoint and
- * contains the list of pending messages the client should process.
- */
-export interface MessagePollResponse {
-  messages: PollMessageItem[];
-}
-
 function createBaseSdkMessage(): SdkMessage {
   return {
     correlationId: "",
@@ -590,6 +614,8 @@ function createBaseSdkMessage(): SdkMessage {
     imageMessageResponse: undefined,
     messageReceiptRequest: undefined,
     messageReceiptResponse: undefined,
+    attachmentMessageRequest: undefined,
+    attachmentMessageResponse: undefined,
     addToCartRequest: undefined,
     addToCartResponse: undefined,
     removeFromCartRequest: undefined,
@@ -642,6 +668,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.messageReceiptResponse !== undefined) {
       MessageReceiptResponse.encode(message.messageReceiptResponse, writer.uint32(138).fork()).join();
+    }
+    if (message.attachmentMessageRequest !== undefined) {
+      AttachmentMessageRequest.encode(message.attachmentMessageRequest, writer.uint32(146).fork()).join();
+    }
+    if (message.attachmentMessageResponse !== undefined) {
+      AttachmentMessageResponse.encode(message.attachmentMessageResponse, writer.uint32(154).fork()).join();
     }
     if (message.addToCartRequest !== undefined) {
       AddToCartRequest.encode(message.addToCartRequest, writer.uint32(162).fork()).join();
@@ -785,6 +817,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           }
 
           message.messageReceiptResponse = MessageReceiptResponse.decode(reader, reader.uint32());
+          continue;
+        }
+        case 18: {
+          if (tag !== 146) {
+            break;
+          }
+
+          message.attachmentMessageRequest = AttachmentMessageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 19: {
+          if (tag !== 154) {
+            break;
+          }
+
+          message.attachmentMessageResponse = AttachmentMessageResponse.decode(reader, reader.uint32());
           continue;
         }
         case 20: {
@@ -988,6 +1036,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.message_receipt_response)
         ? MessageReceiptResponse.fromJSON(object.message_receipt_response)
         : undefined,
+      attachmentMessageRequest: isSet(object.attachmentMessageRequest)
+        ? AttachmentMessageRequest.fromJSON(object.attachmentMessageRequest)
+        : isSet(object.attachment_message_request)
+        ? AttachmentMessageRequest.fromJSON(object.attachment_message_request)
+        : undefined,
+      attachmentMessageResponse: isSet(object.attachmentMessageResponse)
+        ? AttachmentMessageResponse.fromJSON(object.attachmentMessageResponse)
+        : isSet(object.attachment_message_response)
+        ? AttachmentMessageResponse.fromJSON(object.attachment_message_response)
+        : undefined,
       addToCartRequest: isSet(object.addToCartRequest)
         ? AddToCartRequest.fromJSON(object.addToCartRequest)
         : isSet(object.add_to_cart_request)
@@ -1113,6 +1171,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.messageReceiptResponse !== undefined) {
       obj.messageReceiptResponse = MessageReceiptResponse.toJSON(message.messageReceiptResponse);
     }
+    if (message.attachmentMessageRequest !== undefined) {
+      obj.attachmentMessageRequest = AttachmentMessageRequest.toJSON(message.attachmentMessageRequest);
+    }
+    if (message.attachmentMessageResponse !== undefined) {
+      obj.attachmentMessageResponse = AttachmentMessageResponse.toJSON(message.attachmentMessageResponse);
+    }
     if (message.addToCartRequest !== undefined) {
       obj.addToCartRequest = AddToCartRequest.toJSON(message.addToCartRequest);
     }
@@ -1202,6 +1266,14 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.messageReceiptResponse =
       (object.messageReceiptResponse !== undefined && object.messageReceiptResponse !== null)
         ? MessageReceiptResponse.fromPartial(object.messageReceiptResponse)
+        : undefined;
+    message.attachmentMessageRequest =
+      (object.attachmentMessageRequest !== undefined && object.attachmentMessageRequest !== null)
+        ? AttachmentMessageRequest.fromPartial(object.attachmentMessageRequest)
+        : undefined;
+    message.attachmentMessageResponse =
+      (object.attachmentMessageResponse !== undefined && object.attachmentMessageResponse !== null)
+        ? AttachmentMessageResponse.fromPartial(object.attachmentMessageResponse)
         : undefined;
     message.addToCartRequest = (object.addToCartRequest !== undefined && object.addToCartRequest !== null)
       ? AddToCartRequest.fromPartial(object.addToCartRequest)
@@ -1550,7 +1622,17 @@ export const TextMessageResponse: MessageFns<TextMessageResponse> = {
 };
 
 function createBaseVoiceMessage(): VoiceMessage {
-  return { timestamp: undefined, mediaUrl: "", amplitudesPreview: [], duration: 0, mediaType: "", status: 0, role: 0 };
+  return {
+    timestamp: undefined,
+    mediaUrl: "",
+    amplitudesPreview: [],
+    duration: 0,
+    mediaType: "",
+    status: 0,
+    role: 0,
+    byteCount: 0,
+    fileName: "",
+  };
 }
 
 export const VoiceMessage: MessageFns<VoiceMessage> = {
@@ -1577,6 +1659,12 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
     }
     if (message.role !== 0) {
       writer.uint32(56).int32(message.role);
+    }
+    if (message.byteCount !== 0) {
+      writer.uint32(64).int64(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      writer.uint32(74).string(message.fileName);
     }
     return writer;
   },
@@ -1654,6 +1742,22 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
           message.role = reader.int32() as any;
           continue;
         }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.byteCount = longToNumber(reader.int64());
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.fileName = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1684,6 +1788,16 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
         : "",
       status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
       role: isSet(object.role) ? messageRoleFromJSON(object.role) : 0,
+      byteCount: isSet(object.byteCount)
+        ? globalThis.Number(object.byteCount)
+        : isSet(object.byte_count)
+        ? globalThis.Number(object.byte_count)
+        : 0,
+      fileName: isSet(object.fileName)
+        ? globalThis.String(object.fileName)
+        : isSet(object.file_name)
+        ? globalThis.String(object.file_name)
+        : "",
     };
   },
 
@@ -1710,6 +1824,12 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
     if (message.role !== 0) {
       obj.role = messageRoleToJSON(message.role);
     }
+    if (message.byteCount !== 0) {
+      obj.byteCount = Math.round(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      obj.fileName = message.fileName;
+    }
     return obj;
   },
 
@@ -1725,6 +1845,8 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
     message.mediaType = object.mediaType ?? "";
     message.status = object.status ?? 0;
     message.role = object.role ?? 0;
+    message.byteCount = object.byteCount ?? 0;
+    message.fileName = object.fileName ?? "";
     return message;
   },
 };
@@ -1924,7 +2046,16 @@ export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
 };
 
 function createBaseImageMessage(): ImageMessage {
-  return { timestamp: undefined, text: undefined, mediaUrl: "", mediaType: "", status: 0, role: 0 };
+  return {
+    timestamp: undefined,
+    text: undefined,
+    mediaUrl: "",
+    mediaType: "",
+    status: 0,
+    role: 0,
+    byteCount: 0,
+    fileName: "",
+  };
 }
 
 export const ImageMessage: MessageFns<ImageMessage> = {
@@ -1946,6 +2077,12 @@ export const ImageMessage: MessageFns<ImageMessage> = {
     }
     if (message.role !== 0) {
       writer.uint32(48).int32(message.role);
+    }
+    if (message.byteCount !== 0) {
+      writer.uint32(56).int64(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      writer.uint32(66).string(message.fileName);
     }
     return writer;
   },
@@ -2005,6 +2142,22 @@ export const ImageMessage: MessageFns<ImageMessage> = {
           message.role = reader.int32() as any;
           continue;
         }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.byteCount = longToNumber(reader.int64());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.fileName = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -2030,6 +2183,16 @@ export const ImageMessage: MessageFns<ImageMessage> = {
         : "",
       status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
       role: isSet(object.role) ? messageRoleFromJSON(object.role) : 0,
+      byteCount: isSet(object.byteCount)
+        ? globalThis.Number(object.byteCount)
+        : isSet(object.byte_count)
+        ? globalThis.Number(object.byte_count)
+        : 0,
+      fileName: isSet(object.fileName)
+        ? globalThis.String(object.fileName)
+        : isSet(object.file_name)
+        ? globalThis.String(object.file_name)
+        : "",
     };
   },
 
@@ -2053,6 +2216,12 @@ export const ImageMessage: MessageFns<ImageMessage> = {
     if (message.role !== 0) {
       obj.role = messageRoleToJSON(message.role);
     }
+    if (message.byteCount !== 0) {
+      obj.byteCount = Math.round(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      obj.fileName = message.fileName;
+    }
     return obj;
   },
 
@@ -2067,6 +2236,8 @@ export const ImageMessage: MessageFns<ImageMessage> = {
     message.mediaType = object.mediaType ?? "";
     message.status = object.status ?? 0;
     message.role = object.role ?? 0;
+    message.byteCount = object.byteCount ?? 0;
+    message.fileName = object.fileName ?? "";
     return message;
   },
 };
@@ -2258,6 +2429,397 @@ export const ImageMessageResponse: MessageFns<ImageMessageResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ImageMessageResponse>, I>>(object: I): ImageMessageResponse {
     const message = createBaseImageMessageResponse();
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    message.messageId = object.messageId ?? "";
+    return message;
+  },
+};
+
+function createBaseAttachmentMessage(): AttachmentMessage {
+  return {
+    timestamp: undefined,
+    text: undefined,
+    mediaUrl: "",
+    mediaType: "",
+    status: 0,
+    role: 0,
+    byteCount: 0,
+    fileName: "",
+  };
+}
+
+export const AttachmentMessage: MessageFns<AttachmentMessage> = {
+  encode(message: AttachmentMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
+    }
+    if (message.text !== undefined) {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.mediaUrl !== "") {
+      writer.uint32(26).string(message.mediaUrl);
+    }
+    if (message.mediaType !== "") {
+      writer.uint32(34).string(message.mediaType);
+    }
+    if (message.status !== 0) {
+      writer.uint32(40).int32(message.status);
+    }
+    if (message.role !== 0) {
+      writer.uint32(48).int32(message.role);
+    }
+    if (message.byteCount !== 0) {
+      writer.uint32(56).int64(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      writer.uint32(66).string(message.fileName);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AttachmentMessage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAttachmentMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.mediaUrl = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.mediaType = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.role = reader.int32() as any;
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.byteCount = longToNumber(reader.int64());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.fileName = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AttachmentMessage {
+    return {
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      text: isSet(object.text) ? globalThis.String(object.text) : undefined,
+      mediaUrl: isSet(object.mediaUrl)
+        ? globalThis.String(object.mediaUrl)
+        : isSet(object.media_url)
+        ? globalThis.String(object.media_url)
+        : "",
+      mediaType: isSet(object.mediaType)
+        ? globalThis.String(object.mediaType)
+        : isSet(object.media_type)
+        ? globalThis.String(object.media_type)
+        : "",
+      status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
+      role: isSet(object.role) ? messageRoleFromJSON(object.role) : 0,
+      byteCount: isSet(object.byteCount)
+        ? globalThis.Number(object.byteCount)
+        : isSet(object.byte_count)
+        ? globalThis.Number(object.byte_count)
+        : 0,
+      fileName: isSet(object.fileName)
+        ? globalThis.String(object.fileName)
+        : isSet(object.file_name)
+        ? globalThis.String(object.file_name)
+        : "",
+    };
+  },
+
+  toJSON(message: AttachmentMessage): unknown {
+    const obj: any = {};
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.text !== undefined) {
+      obj.text = message.text;
+    }
+    if (message.mediaUrl !== "") {
+      obj.mediaUrl = message.mediaUrl;
+    }
+    if (message.mediaType !== "") {
+      obj.mediaType = message.mediaType;
+    }
+    if (message.status !== 0) {
+      obj.status = messageStatusToJSON(message.status);
+    }
+    if (message.role !== 0) {
+      obj.role = messageRoleToJSON(message.role);
+    }
+    if (message.byteCount !== 0) {
+      obj.byteCount = Math.round(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      obj.fileName = message.fileName;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AttachmentMessage>, I>>(base?: I): AttachmentMessage {
+    return AttachmentMessage.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AttachmentMessage>, I>>(object: I): AttachmentMessage {
+    const message = createBaseAttachmentMessage();
+    message.timestamp = object.timestamp ?? undefined;
+    message.text = object.text ?? undefined;
+    message.mediaUrl = object.mediaUrl ?? "";
+    message.mediaType = object.mediaType ?? "";
+    message.status = object.status ?? 0;
+    message.role = object.role ?? 0;
+    message.byteCount = object.byteCount ?? 0;
+    message.fileName = object.fileName ?? "";
+    return message;
+  },
+};
+
+function createBaseAttachmentMessageRequest(): AttachmentMessageRequest {
+  return { content: undefined, timestamp: undefined, quickReplies: [] };
+}
+
+export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
+  encode(message: AttachmentMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.content !== undefined) {
+      AttachmentMessage.encode(message.content, writer.uint32(10).fork()).join();
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    for (const v of message.quickReplies) {
+      writer.uint32(26).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AttachmentMessageRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAttachmentMessageRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.content = AttachmentMessage.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.quickReplies.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AttachmentMessageRequest {
+    return {
+      content: isSet(object.content) ? AttachmentMessage.fromJSON(object.content) : undefined,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      quickReplies: globalThis.Array.isArray(object?.quickReplies)
+        ? object.quickReplies.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.quick_replies)
+        ? object.quick_replies.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: AttachmentMessageRequest): unknown {
+    const obj: any = {};
+    if (message.content !== undefined) {
+      obj.content = AttachmentMessage.toJSON(message.content);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.quickReplies?.length) {
+      obj.quickReplies = message.quickReplies;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AttachmentMessageRequest>, I>>(base?: I): AttachmentMessageRequest {
+    return AttachmentMessageRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AttachmentMessageRequest>, I>>(object: I): AttachmentMessageRequest {
+    const message = createBaseAttachmentMessageRequest();
+    message.content = (object.content !== undefined && object.content !== null)
+      ? AttachmentMessage.fromPartial(object.content)
+      : undefined;
+    message.timestamp = object.timestamp ?? undefined;
+    message.quickReplies = object.quickReplies?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseAttachmentMessageResponse(): AttachmentMessageResponse {
+  return { status: 0, timestamp: undefined, messageId: "" };
+}
+
+export const AttachmentMessageResponse: MessageFns<AttachmentMessageResponse> = {
+  encode(message: AttachmentMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    if (message.messageId !== "") {
+      writer.uint32(26).string(message.messageId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): AttachmentMessageResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseAttachmentMessageResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.messageId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): AttachmentMessageResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      messageId: isSet(object.messageId)
+        ? globalThis.String(object.messageId)
+        : isSet(object.message_id)
+        ? globalThis.String(object.message_id)
+        : "",
+    };
+  },
+
+  toJSON(message: AttachmentMessageResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.messageId !== "") {
+      obj.messageId = message.messageId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<AttachmentMessageResponse>, I>>(base?: I): AttachmentMessageResponse {
+    return AttachmentMessageResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<AttachmentMessageResponse>, I>>(object: I): AttachmentMessageResponse {
+    const message = createBaseAttachmentMessageResponse();
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     message.messageId = object.messageId ?? "";
@@ -4780,68 +5342,6 @@ export const PollMessageItem: MessageFns<PollMessageItem> = {
     message.date = object.date ?? undefined;
     message.userId = object.userId ?? "";
     message.status = object.status ?? 0;
-    return message;
-  },
-};
-
-function createBaseMessagePollResponse(): MessagePollResponse {
-  return { messages: [] };
-}
-
-export const MessagePollResponse: MessageFns<MessagePollResponse> = {
-  encode(message: MessagePollResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.messages) {
-      PollMessageItem.encode(v!, writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): MessagePollResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMessagePollResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.messages.push(PollMessageItem.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MessagePollResponse {
-    return {
-      messages: globalThis.Array.isArray(object?.messages)
-        ? object.messages.map((e: any) => PollMessageItem.fromJSON(e))
-        : [],
-    };
-  },
-
-  toJSON(message: MessagePollResponse): unknown {
-    const obj: any = {};
-    if (message.messages?.length) {
-      obj.messages = message.messages.map((e) => PollMessageItem.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<MessagePollResponse>, I>>(base?: I): MessagePollResponse {
-    return MessagePollResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<MessagePollResponse>, I>>(object: I): MessagePollResponse {
-    const message = createBaseMessagePollResponse();
-    message.messages = object.messages?.map((e) => PollMessageItem.fromPartial(e)) || [];
     return message;
   },
 };

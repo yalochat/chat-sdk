@@ -7,31 +7,31 @@
 @file:Suppress("DEPRECATION")
 package yalo.external_channel.in_app.sdk.v1;
 
-@kotlin.jvm.JvmName("-initializeimageMessage")
-public inline fun imageMessage(block: yalo.external_channel.in_app.sdk.v1.ImageMessageKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage =
-  yalo.external_channel.in_app.sdk.v1.ImageMessageKt.Dsl._create(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage.newBuilder()).apply { block() }._build()
+@kotlin.jvm.JvmName("-initializeattachmentMessage")
+public inline fun attachmentMessage(block: yalo.external_channel.in_app.sdk.v1.AttachmentMessageKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage =
+  yalo.external_channel.in_app.sdk.v1.AttachmentMessageKt.Dsl._create(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage.newBuilder()).apply { block() }._build()
 /**
  * ```
- * ImageMessage holds the payload of an image conversation turn.
+ * AttachmentMessage holds the payload of a file attachment conversation turn.
  * ```
  *
- * Protobuf type `yalo.external_channel.in_app.sdk.v1.ImageMessage`
+ * Protobuf type `yalo.external_channel.in_app.sdk.v1.AttachmentMessage`
  */
-public object ImageMessageKt {
+public object AttachmentMessageKt {
   @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
   @com.google.protobuf.kotlin.ProtoDslMarker
   public class Dsl private constructor(
-    private val _builder: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage.Builder
+    private val _builder: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage.Builder
   ) {
     public companion object {
       @kotlin.jvm.JvmSynthetic
     @kotlin.PublishedApi
-      internal fun _create(builder: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage.Builder): Dsl = Dsl(builder)
+      internal fun _create(builder: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage.Builder): Dsl = Dsl(builder)
     }
 
     @kotlin.jvm.JvmSynthetic
   @kotlin.PublishedApi
-    internal fun _build(): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage = _builder.build()
+    internal fun _build(): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage = _builder.build()
 
     /**
      * `.google.protobuf.Timestamp timestamp = 1;`
@@ -57,7 +57,7 @@ public object ImageMessageKt {
       return _builder.hasTimestamp()
     }
 
-    public val ImageMessageKt.Dsl.timestampOrNull: com.google.protobuf.Timestamp?
+    public val AttachmentMessageKt.Dsl.timestampOrNull: com.google.protobuf.Timestamp?
       get() = _builder.timestampOrNull
 
     /**
@@ -201,9 +201,9 @@ public object ImageMessageKt {
     }
   }
 }
-public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage.copy(block: `yalo.external_channel.in_app.sdk.v1`.ImageMessageKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessage =
-  `yalo.external_channel.in_app.sdk.v1`.ImageMessageKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage.copy(block: `yalo.external_channel.in_app.sdk.v1`.AttachmentMessageKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessage =
+  `yalo.external_channel.in_app.sdk.v1`.AttachmentMessageKt.Dsl._create(this.toBuilder()).apply { block() }._build()
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageOrBuilder.timestampOrNull: com.google.protobuf.Timestamp?
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageOrBuilder.timestampOrNull: com.google.protobuf.Timestamp?
   get() = if (hasTimestamp()) getTimestamp() else null
 
