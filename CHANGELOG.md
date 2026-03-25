@@ -1,11 +1,22 @@
 # Changelog
 
-## [1.1.0](https://github.com/yalochat/chat-sdk/tree/1.1.0) (2026-03-24)
+## [1.2.0](https://github.com/yalochat/chat-sdk/tree/1.2.0) (2026-03-25)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.0.0...1.1.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.1.0...1.2.0)
 
 **Merged pull requests:**
 
+- feat: Add attachment message [\#71](https://github.com/yalochat/chat-sdk/pull/71) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Use protobuf for sending messages and auth [\#68](https://github.com/yalochat/chat-sdk/pull/68) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(android-sdk\): ChatScreen API callbacks, custom appBar slot, proto codegen \(FDE-80, FDE-81\) [\#67](https://github.com/yalochat/chat-sdk/pull/67) ([pato-viccini](https://github.com/pato-viccini))
+
+## [proto/v1.1.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.1.0) (2026-03-24)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.0.0...proto/v1.1.0)
+
+**Merged pull requests:**
+
+- Release proto 1.1.0 [\#70](https://github.com/yalochat/chat-sdk/pull/70) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Added MessagePollresponse [\#69](https://github.com/yalochat/chat-sdk/pull/69) ([rodrigocusto](https://github.com/rodrigocusto))
 - Adds auth message and refresh token to proto [\#66](https://github.com/yalochat/chat-sdk/pull/66) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Symlink protos instead of copying [\#65](https://github.com/yalochat/chat-sdk/pull/65) ([rodrigocusto](https://github.com/rodrigocusto))
