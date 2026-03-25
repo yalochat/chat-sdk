@@ -34,31 +34,7 @@ public object TextMessageKt {
     internal fun _build(): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessage = _builder.build()
 
     /**
-     * `optional string message_id = 1;`
-     */
-    public var messageId: kotlin.String
-      @kotlin.jvm.JvmName("getMessageId")
-        get() = _builder.messageId
-      @kotlin.jvm.JvmName("setMessageId")
-        set(value) {
-        _builder.messageId = value
-      }
-    /**
-     * `optional string message_id = 1;`
-     */
-    public fun clearMessageId() {
-      _builder.clearMessageId()
-    }
-    /**
-     * `optional string message_id = 1;`
-     * @return Whether the messageId field is set.
-     */
-    public fun hasMessageId(): kotlin.Boolean {
-      return _builder.hasMessageId()
-    }
-
-    /**
-     * `.google.protobuf.Timestamp timestamp = 2;`
+     * `.google.protobuf.Timestamp timestamp = 1;`
      */
     public var timestamp: com.google.protobuf.Timestamp
       @kotlin.jvm.JvmName("getTimestamp")
@@ -68,13 +44,13 @@ public object TextMessageKt {
         _builder.timestamp = value
       }
     /**
-     * `.google.protobuf.Timestamp timestamp = 2;`
+     * `.google.protobuf.Timestamp timestamp = 1;`
      */
     public fun clearTimestamp() {
       _builder.clearTimestamp()
     }
     /**
-     * `.google.protobuf.Timestamp timestamp = 2;`
+     * `.google.protobuf.Timestamp timestamp = 1;`
      * @return Whether the timestamp field is set.
      */
     public fun hasTimestamp(): kotlin.Boolean {
@@ -85,7 +61,7 @@ public object TextMessageKt {
       get() = _builder.timestampOrNull
 
     /**
-     * `string text = 3;`
+     * `string text = 2;`
      */
     public var text: kotlin.String
       @kotlin.jvm.JvmName("getText")
@@ -95,14 +71,14 @@ public object TextMessageKt {
         _builder.text = value
       }
     /**
-     * `string text = 3;`
+     * `string text = 2;`
      */
     public fun clearText() {
       _builder.clearText()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 4;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 3;`
      */
     public var status: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus
       @kotlin.jvm.JvmName("getStatus")
@@ -119,14 +95,14 @@ public object TextMessageKt {
         _builder.statusValue = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 4;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 3;`
      */
     public fun clearStatus() {
       _builder.clearStatus()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 5;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 4;`
      */
     public var role: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageRole
       @kotlin.jvm.JvmName("getRole")
@@ -143,7 +119,7 @@ public object TextMessageKt {
         _builder.roleValue = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 5;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 4;`
      */
     public fun clearRole() {
       _builder.clearRole()

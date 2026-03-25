@@ -152,6 +152,24 @@ const SdkMessage$json = {
       '10': 'messageReceiptResponse'
     },
     {
+      '1': 'attachment_message_request',
+      '3': 18,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.AttachmentMessageRequest',
+      '9': 0,
+      '10': 'attachmentMessageRequest'
+    },
+    {
+      '1': 'attachment_message_response',
+      '3': 19,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse',
+      '9': 0,
+      '10': 'attachmentMessageResponse'
+    },
+    {
       '1': 'add_to_cart_request',
       '3': 20,
       '4': 1,
@@ -339,44 +357,49 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VSZWNlaXB0UmVxdWVzdEgAUhVtZXNzYWdl'
     'UmVjZWlwdFJlcXVlc3QSdwoYbWVzc2FnZV9yZWNlaXB0X3Jlc3BvbnNlGBEgASgLMjsueWFsby'
     '5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuTWVzc2FnZVJlY2VpcHRSZXNwb25zZUgA'
-    'UhZtZXNzYWdlUmVjZWlwdFJlc3BvbnNlEmYKE2FkZF90b19jYXJ0X3JlcXVlc3QYFCABKAsyNS'
-    '55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5BZGRUb0NhcnRSZXF1ZXN0SABS'
-    'EGFkZFRvQ2FydFJlcXVlc3QSaQoUYWRkX3RvX2NhcnRfcmVzcG9uc2UYFSABKAsyNi55YWxvLm'
-    'V4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5BZGRUb0NhcnRSZXNwb25zZUgAUhFhZGRU'
-    'b0NhcnRSZXNwb25zZRJ1ChhyZW1vdmVfZnJvbV9jYXJ0X3JlcXVlc3QYFiABKAsyOi55YWxvLm'
-    'V4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5SZW1vdmVGcm9tQ2FydFJlcXVlc3RIAFIV'
-    'cmVtb3ZlRnJvbUNhcnRSZXF1ZXN0EngKGXJlbW92ZV9mcm9tX2NhcnRfcmVzcG9uc2UYFyABKA'
-    'syOy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5SZW1vdmVGcm9tQ2FydFJl'
-    'c3BvbnNlSABSFnJlbW92ZUZyb21DYXJ0UmVzcG9uc2USZQoSY2xlYXJfY2FydF9yZXF1ZXN0GB'
-    'ggASgLMjUueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQ2xlYXJDYXJ0UmVx'
-    'dWVzdEgAUhBjbGVhckNhcnRSZXF1ZXN0EmgKE2NsZWFyX2NhcnRfcmVzcG9uc2UYGSABKAsyNi'
-    '55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5DbGVhckNhcnRSZXNwb25zZUgA'
-    'UhFjbGVhckNhcnRSZXNwb25zZRJuChVndWlkYW5jZV9jYXJkX3JlcXVlc3QYGiABKAsyOC55YW'
-    'xvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5HdWlkYW5jZUNhcmRSZXF1ZXN0SABS'
-    'E2d1aWRhbmNlQ2FyZFJlcXVlc3QScQoWZ3VpZGFuY2VfY2FyZF9yZXNwb25zZRgbIAEoCzI5Ln'
-    'lhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkd1aWRhbmNlQ2FyZFJlc3BvbnNl'
-    'SABSFGd1aWRhbmNlQ2FyZFJlc3BvbnNlEm4KFWFkZF9wcm9tb3Rpb25fcmVxdWVzdBgcIAEoCz'
-    'I4LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkFkZFByb21vdGlvblJlcXVl'
-    'c3RIAFITYWRkUHJvbW90aW9uUmVxdWVzdBJxChZhZGRfcHJvbW90aW9uX3Jlc3BvbnNlGB0gAS'
-    'gLMjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQWRkUHJvbW90aW9uUmVz'
-    'cG9uc2VIAFIUYWRkUHJvbW90aW9uUmVzcG9uc2USegoZcHJvbW90aW9uX21lc3NhZ2VfcmVxdW'
-    'VzdBgeIAEoCzI8LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlByb21vdGlv'
-    'bk1lc3NhZ2VSZXF1ZXN0SABSF3Byb21vdGlvbk1lc3NhZ2VSZXF1ZXN0En0KGnByb21vdGlvbl'
-    '9tZXNzYWdlX3Jlc3BvbnNlGB8gASgLMj0ueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5z'
-    'ZGsudjEuUHJvbW90aW9uTWVzc2FnZVJlc3BvbnNlSABSGHByb21vdGlvbk1lc3NhZ2VSZXNwb2'
-    '5zZRJ0Chdwcm9kdWN0X21lc3NhZ2VfcmVxdWVzdBggIAEoCzI6LnlhbG8uZXh0ZXJuYWxfY2hh'
-    'bm5lbC5pbl9hcHAuc2RrLnYxLlByb2R1Y3RNZXNzYWdlUmVxdWVzdEgAUhVwcm9kdWN0TWVzc2'
-    'FnZVJlcXVlc3QSdwoYcHJvZHVjdF9tZXNzYWdlX3Jlc3BvbnNlGCEgASgLMjsueWFsby5leHRl'
-    'cm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuUHJvZHVjdE1lc3NhZ2VSZXNwb25zZUgAUhZwcm'
-    '9kdWN0TWVzc2FnZVJlc3BvbnNlEmgKE2NoYXRfc3RhdHVzX3JlcXVlc3QYIiABKAsyNi55YWxv'
-    'LmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5DaGF0U3RhdHVzUmVxdWVzdEgAUhFjaG'
-    'F0U3RhdHVzUmVxdWVzdBJrChRjaGF0X3N0YXR1c19yZXNwb25zZRgjIAEoCzI3LnlhbG8uZXh0'
-    'ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkNoYXRTdGF0dXNSZXNwb25zZUgAUhJjaGF0U3'
-    'RhdHVzUmVzcG9uc2USbgoVY3VzdG9tX2FjdGlvbl9yZXF1ZXN0GCQgASgLMjgueWFsby5leHRl'
-    'cm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQ3VzdG9tQWN0aW9uUmVxdWVzdEgAUhNjdXN0b2'
-    '1BY3Rpb25SZXF1ZXN0EnEKFmN1c3RvbV9hY3Rpb25fcmVzcG9uc2UYJSABKAsyOS55YWxvLmV4'
-    'dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5DdXN0b21BY3Rpb25SZXNwb25zZUgAUhRjdX'
-    'N0b21BY3Rpb25SZXNwb25zZUIJCgdwYXlsb2Fk');
+    'UhZtZXNzYWdlUmVjZWlwdFJlc3BvbnNlEn0KGmF0dGFjaG1lbnRfbWVzc2FnZV9yZXF1ZXN0GB'
+    'IgASgLMj0ueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQXR0YWNobWVudE1l'
+    'c3NhZ2VSZXF1ZXN0SABSGGF0dGFjaG1lbnRNZXNzYWdlUmVxdWVzdBKAAQobYXR0YWNobWVudF'
+    '9tZXNzYWdlX3Jlc3BvbnNlGBMgASgLMj4ueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5z'
+    'ZGsudjEuQXR0YWNobWVudE1lc3NhZ2VSZXNwb25zZUgAUhlhdHRhY2htZW50TWVzc2FnZVJlc3'
+    'BvbnNlEmYKE2FkZF90b19jYXJ0X3JlcXVlc3QYFCABKAsyNS55YWxvLmV4dGVybmFsX2NoYW5u'
+    'ZWwuaW5fYXBwLnNkay52MS5BZGRUb0NhcnRSZXF1ZXN0SABSEGFkZFRvQ2FydFJlcXVlc3QSaQ'
+    'oUYWRkX3RvX2NhcnRfcmVzcG9uc2UYFSABKAsyNi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5f'
+    'YXBwLnNkay52MS5BZGRUb0NhcnRSZXNwb25zZUgAUhFhZGRUb0NhcnRSZXNwb25zZRJ1ChhyZW'
+    '1vdmVfZnJvbV9jYXJ0X3JlcXVlc3QYFiABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5f'
+    'YXBwLnNkay52MS5SZW1vdmVGcm9tQ2FydFJlcXVlc3RIAFIVcmVtb3ZlRnJvbUNhcnRSZXF1ZX'
+    'N0EngKGXJlbW92ZV9mcm9tX2NhcnRfcmVzcG9uc2UYFyABKAsyOy55YWxvLmV4dGVybmFsX2No'
+    'YW5uZWwuaW5fYXBwLnNkay52MS5SZW1vdmVGcm9tQ2FydFJlc3BvbnNlSABSFnJlbW92ZUZyb2'
+    '1DYXJ0UmVzcG9uc2USZQoSY2xlYXJfY2FydF9yZXF1ZXN0GBggASgLMjUueWFsby5leHRlcm5h'
+    'bF9jaGFubmVsLmluX2FwcC5zZGsudjEuQ2xlYXJDYXJ0UmVxdWVzdEgAUhBjbGVhckNhcnRSZX'
+    'F1ZXN0EmgKE2NsZWFyX2NhcnRfcmVzcG9uc2UYGSABKAsyNi55YWxvLmV4dGVybmFsX2NoYW5u'
+    'ZWwuaW5fYXBwLnNkay52MS5DbGVhckNhcnRSZXNwb25zZUgAUhFjbGVhckNhcnRSZXNwb25zZR'
+    'JuChVndWlkYW5jZV9jYXJkX3JlcXVlc3QYGiABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwu'
+    'aW5fYXBwLnNkay52MS5HdWlkYW5jZUNhcmRSZXF1ZXN0SABSE2d1aWRhbmNlQ2FyZFJlcXVlc3'
+    'QScQoWZ3VpZGFuY2VfY2FyZF9yZXNwb25zZRgbIAEoCzI5LnlhbG8uZXh0ZXJuYWxfY2hhbm5l'
+    'bC5pbl9hcHAuc2RrLnYxLkd1aWRhbmNlQ2FyZFJlc3BvbnNlSABSFGd1aWRhbmNlQ2FyZFJlc3'
+    'BvbnNlEm4KFWFkZF9wcm9tb3Rpb25fcmVxdWVzdBgcIAEoCzI4LnlhbG8uZXh0ZXJuYWxfY2hh'
+    'bm5lbC5pbl9hcHAuc2RrLnYxLkFkZFByb21vdGlvblJlcXVlc3RIAFITYWRkUHJvbW90aW9uUm'
+    'VxdWVzdBJxChZhZGRfcHJvbW90aW9uX3Jlc3BvbnNlGB0gASgLMjkueWFsby5leHRlcm5hbF9j'
+    'aGFubmVsLmluX2FwcC5zZGsudjEuQWRkUHJvbW90aW9uUmVzcG9uc2VIAFIUYWRkUHJvbW90aW'
+    '9uUmVzcG9uc2USegoZcHJvbW90aW9uX21lc3NhZ2VfcmVxdWVzdBgeIAEoCzI8LnlhbG8uZXh0'
+    'ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlByb21vdGlvbk1lc3NhZ2VSZXF1ZXN0SABSF3'
+    'Byb21vdGlvbk1lc3NhZ2VSZXF1ZXN0En0KGnByb21vdGlvbl9tZXNzYWdlX3Jlc3BvbnNlGB8g'
+    'ASgLMj0ueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuUHJvbW90aW9uTWVzc2'
+    'FnZVJlc3BvbnNlSABSGHByb21vdGlvbk1lc3NhZ2VSZXNwb25zZRJ0Chdwcm9kdWN0X21lc3Nh'
+    'Z2VfcmVxdWVzdBggIAEoCzI6LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLl'
+    'Byb2R1Y3RNZXNzYWdlUmVxdWVzdEgAUhVwcm9kdWN0TWVzc2FnZVJlcXVlc3QSdwoYcHJvZHVj'
+    'dF9tZXNzYWdlX3Jlc3BvbnNlGCEgASgLMjsueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC'
+    '5zZGsudjEuUHJvZHVjdE1lc3NhZ2VSZXNwb25zZUgAUhZwcm9kdWN0TWVzc2FnZVJlc3BvbnNl'
+    'EmgKE2NoYXRfc3RhdHVzX3JlcXVlc3QYIiABKAsyNi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
+    '5fYXBwLnNkay52MS5DaGF0U3RhdHVzUmVxdWVzdEgAUhFjaGF0U3RhdHVzUmVxdWVzdBJrChRj'
+    'aGF0X3N0YXR1c19yZXNwb25zZRgjIAEoCzI3LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcH'
+    'Auc2RrLnYxLkNoYXRTdGF0dXNSZXNwb25zZUgAUhJjaGF0U3RhdHVzUmVzcG9uc2USbgoVY3Vz'
+    'dG9tX2FjdGlvbl9yZXF1ZXN0GCQgASgLMjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC'
+    '5zZGsudjEuQ3VzdG9tQWN0aW9uUmVxdWVzdEgAUhNjdXN0b21BY3Rpb25SZXF1ZXN0EnEKFmN1'
+    'c3RvbV9hY3Rpb25fcmVzcG9uc2UYJSABKAsyOS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYX'
+    'BwLnNkay52MS5DdXN0b21BY3Rpb25SZXNwb25zZUgAUhRjdXN0b21BY3Rpb25SZXNwb25zZUIJ'
+    'CgdwYXlsb2Fk');
 
 @$core.Deprecated('Use textMessageDescriptor instead')
 const TextMessage$json = {
@@ -516,6 +539,8 @@ const VoiceMessage$json = {
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
       '10': 'role'
     },
+    {'1': 'byte_count', '3': 8, '4': 1, '5': 3, '10': 'byteCount'},
+    {'1': 'file_name', '3': 9, '4': 1, '5': 9, '10': 'fileName'},
   ],
 };
 
@@ -527,7 +552,8 @@ final $typed_data.Uint8List voiceMessageDescriptor = $convert.base64Decode(
     'IIZHVyYXRpb24SHQoKbWVkaWFfdHlwZRgFIAEoCVIJbWVkaWFUeXBlEkoKBnN0YXR1cxgGIAEo'
     'DjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VTdGF0dXNSBn'
     'N0YXR1cxJECgRyb2xlGAcgASgOMjAueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
-    'djEuTWVzc2FnZVJvbGVSBHJvbGU=');
+    'djEuTWVzc2FnZVJvbGVSBHJvbGUSHQoKYnl0ZV9jb3VudBgIIAEoA1IJYnl0ZUNvdW50EhsKCW'
+    'ZpbGVfbmFtZRgJIAEoCVIIZmlsZU5hbWU=');
 
 @$core.Deprecated('Use voiceMessageRequestDescriptor instead')
 const VoiceMessageRequest$json = {
@@ -622,6 +648,8 @@ const ImageMessage$json = {
       '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
       '10': 'role'
     },
+    {'1': 'byte_count', '3': 7, '4': 1, '5': 3, '10': 'byteCount'},
+    {'1': 'file_name', '3': 8, '4': 1, '5': 9, '10': 'fileName'},
   ],
   '8': [
     {'1': '_text'},
@@ -635,7 +663,8 @@ final $typed_data.Uint8List imageMessageDescriptor = $convert.base64Decode(
     'AyABKAlSCG1lZGlhVXJsEh0KCm1lZGlhX3R5cGUYBCABKAlSCW1lZGlhVHlwZRJKCgZzdGF0dX'
     'MYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3Rh'
     'dHVzUgZzdGF0dXMSRAoEcm9sZRgGIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcH'
-    'Auc2RrLnYxLk1lc3NhZ2VSb2xlUgRyb2xlQgcKBV90ZXh0');
+    'Auc2RrLnYxLk1lc3NhZ2VSb2xlUgRyb2xlEh0KCmJ5dGVfY291bnQYByABKANSCWJ5dGVDb3Vu'
+    'dBIbCglmaWxlX25hbWUYCCABKAlSCGZpbGVOYW1lQgcKBV90ZXh0');
 
 @$core.Deprecated('Use imageMessageRequestDescriptor instead')
 const ImageMessageRequest$json = {
@@ -698,6 +727,117 @@ final $typed_data.Uint8List imageMessageResponseDescriptor = $convert.base64Deco
     'NoYW5uZWwuaW5fYXBwLnNkay52MS5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFt'
     'cBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBIdCgptZXNzYW'
     'dlX2lkGAMgASgJUgltZXNzYWdlSWQ=');
+
+@$core.Deprecated('Use attachmentMessageDescriptor instead')
+const AttachmentMessage$json = {
+  '1': 'AttachmentMessage',
+  '2': [
+    {
+      '1': 'timestamp',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {'1': 'text', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'text', '17': true},
+    {'1': 'media_url', '3': 3, '4': 1, '5': 9, '10': 'mediaUrl'},
+    {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
+    {
+      '1': 'status',
+      '3': 5,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'role',
+      '3': 6,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
+      '10': 'role'
+    },
+    {'1': 'byte_count', '3': 7, '4': 1, '5': 3, '10': 'byteCount'},
+    {'1': 'file_name', '3': 8, '4': 1, '5': 9, '10': 'fileName'},
+  ],
+  '8': [
+    {'1': '_text'},
+  ],
+};
+
+/// Descriptor for `AttachmentMessage`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List attachmentMessageDescriptor = $convert.base64Decode(
+    'ChFBdHRhY2htZW50TWVzc2FnZRI4Cgl0aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idW'
+    'YuVGltZXN0YW1wUgl0aW1lc3RhbXASFwoEdGV4dBgCIAEoCUgAUgR0ZXh0iAEBEhsKCW1lZGlh'
+    'X3VybBgDIAEoCVIIbWVkaWFVcmwSHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEkoKBn'
+    'N0YXR1cxgFIAEoDjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3Nh'
+    'Z2VTdGF0dXNSBnN0YXR1cxJECgRyb2xlGAYgASgOMjAueWFsby5leHRlcm5hbF9jaGFubmVsLm'
+    'luX2FwcC5zZGsudjEuTWVzc2FnZVJvbGVSBHJvbGUSHQoKYnl0ZV9jb3VudBgHIAEoA1IJYnl0'
+    'ZUNvdW50EhsKCWZpbGVfbmFtZRgIIAEoCVIIZmlsZU5hbWVCBwoFX3RleHQ=');
+
+@$core.Deprecated('Use attachmentMessageRequestDescriptor instead')
+const AttachmentMessageRequest$json = {
+  '1': 'AttachmentMessageRequest',
+  '2': [
+    {
+      '1': 'content',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.AttachmentMessage',
+      '10': 'content'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {'1': 'quick_replies', '3': 3, '4': 3, '5': 9, '10': 'quickReplies'},
+  ],
+};
+
+/// Descriptor for `AttachmentMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List attachmentMessageRequestDescriptor = $convert.base64Decode(
+    'ChhBdHRhY2htZW50TWVzc2FnZVJlcXVlc3QSUAoHY29udGVudBgBIAEoCzI2LnlhbG8uZXh0ZX'
+    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkF0dGFjaG1lbnRNZXNzYWdlUgdjb250ZW50EjgK'
+    'CXRpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcB'
+    'IjCg1xdWlja19yZXBsaWVzGAMgAygJUgxxdWlja1JlcGxpZXM=');
+
+@$core.Deprecated('Use attachmentMessageResponseDescriptor instead')
+const AttachmentMessageResponse$json = {
+  '1': 'AttachmentMessageResponse',
+  '2': [
+    {
+      '1': 'status',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {'1': 'message_id', '3': 3, '4': 1, '5': 9, '10': 'messageId'},
+  ],
+};
+
+/// Descriptor for `AttachmentMessageResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List attachmentMessageResponseDescriptor = $convert.base64Decode(
+    'ChlBdHRhY2htZW50TWVzc2FnZVJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZX'
+    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGlt'
+    'ZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEh0KCm'
+    '1lc3NhZ2VfaWQYAyABKAlSCW1lc3NhZ2VJZA==');
 
 @$core.Deprecated('Use messageReceiptRequestDescriptor instead')
 const MessageReceiptRequest$json = {
@@ -1421,23 +1561,3 @@ final $typed_data.Uint8List pollMessageItemDescriptor = $convert.base64Decode(
     'BGRhdGUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgRkYXRlEhcKB3VzZXJfaW'
     'QYBCABKAlSBnVzZXJJZBJKCgZzdGF0dXMYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwu'
     'aW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dXM=');
-
-@$core.Deprecated('Use messagePollResponseDescriptor instead')
-const MessagePollResponse$json = {
-  '1': 'MessagePollResponse',
-  '2': [
-    {
-      '1': 'messages',
-      '3': 1,
-      '4': 3,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.PollMessageItem',
-      '10': 'messages'
-    },
-  ],
-};
-
-/// Descriptor for `MessagePollResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messagePollResponseDescriptor = $convert.base64Decode(
-    'ChNNZXNzYWdlUG9sbFJlc3BvbnNlElAKCG1lc3NhZ2VzGAEgAygLMjQueWFsby5leHRlcm5hbF'
-    '9jaGFubmVsLmluX2FwcC5zZGsudjEuUG9sbE1lc3NhZ2VJdGVtUghtZXNzYWdlcw==');

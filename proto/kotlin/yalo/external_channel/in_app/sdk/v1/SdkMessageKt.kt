@@ -292,6 +292,54 @@ public object SdkMessageKt {
     }
 
     /**
+     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageRequest attachment_message_request = 18;`
+     */
+    public var attachmentMessageRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageRequest
+      @kotlin.jvm.JvmName("getAttachmentMessageRequest")
+        get() = _builder.attachmentMessageRequest
+      @kotlin.jvm.JvmName("setAttachmentMessageRequest")
+        set(value) {
+        _builder.attachmentMessageRequest = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageRequest attachment_message_request = 18;`
+     */
+    public fun clearAttachmentMessageRequest() {
+      _builder.clearAttachmentMessageRequest()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageRequest attachment_message_request = 18;`
+     * @return Whether the attachmentMessageRequest field is set.
+     */
+    public fun hasAttachmentMessageRequest(): kotlin.Boolean {
+      return _builder.hasAttachmentMessageRequest()
+    }
+
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse attachment_message_response = 19;`
+     */
+    public var attachmentMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageResponse
+      @kotlin.jvm.JvmName("getAttachmentMessageResponse")
+        get() = _builder.attachmentMessageResponse
+      @kotlin.jvm.JvmName("setAttachmentMessageResponse")
+        set(value) {
+        _builder.attachmentMessageResponse = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse attachment_message_response = 19;`
+     */
+    public fun clearAttachmentMessageResponse() {
+      _builder.clearAttachmentMessageResponse()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse attachment_message_response = 19;`
+     * @return Whether the attachmentMessageResponse field is set.
+     */
+    public fun hasAttachmentMessageResponse(): kotlin.Boolean {
+      return _builder.hasAttachmentMessageResponse()
+    }
+
+    /**
      * ```
      * Client → channel
      * ```
@@ -784,6 +832,12 @@ public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOr
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.messageReceiptResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptResponse?
   get() = if (hasMessageReceiptResponse()) getMessageReceiptResponse() else null
+
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.attachmentMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageRequest?
+  get() = if (hasAttachmentMessageRequest()) getAttachmentMessageRequest() else null
+
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.attachmentMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageResponse?
+  get() = if (hasAttachmentMessageResponse()) getAttachmentMessageResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.addToCartRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AddToCartRequest?
   get() = if (hasAddToCartRequest()) getAddToCartRequest() else null

@@ -34,31 +34,7 @@ public object VoiceMessageKt {
     internal fun _build(): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VoiceMessage = _builder.build()
 
     /**
-     * `optional string message_id = 1;`
-     */
-    public var messageId: kotlin.String
-      @kotlin.jvm.JvmName("getMessageId")
-        get() = _builder.messageId
-      @kotlin.jvm.JvmName("setMessageId")
-        set(value) {
-        _builder.messageId = value
-      }
-    /**
-     * `optional string message_id = 1;`
-     */
-    public fun clearMessageId() {
-      _builder.clearMessageId()
-    }
-    /**
-     * `optional string message_id = 1;`
-     * @return Whether the messageId field is set.
-     */
-    public fun hasMessageId(): kotlin.Boolean {
-      return _builder.hasMessageId()
-    }
-
-    /**
-     * `.google.protobuf.Timestamp timestamp = 2;`
+     * `.google.protobuf.Timestamp timestamp = 1;`
      */
     public var timestamp: com.google.protobuf.Timestamp
       @kotlin.jvm.JvmName("getTimestamp")
@@ -68,13 +44,13 @@ public object VoiceMessageKt {
         _builder.timestamp = value
       }
     /**
-     * `.google.protobuf.Timestamp timestamp = 2;`
+     * `.google.protobuf.Timestamp timestamp = 1;`
      */
     public fun clearTimestamp() {
       _builder.clearTimestamp()
     }
     /**
-     * `.google.protobuf.Timestamp timestamp = 2;`
+     * `.google.protobuf.Timestamp timestamp = 1;`
      * @return Whether the timestamp field is set.
      */
     public fun hasTimestamp(): kotlin.Boolean {
@@ -85,7 +61,7 @@ public object VoiceMessageKt {
       get() = _builder.timestampOrNull
 
     /**
-     * `string media_url = 3;`
+     * `string media_url = 2;`
      */
     public var mediaUrl: kotlin.String
       @kotlin.jvm.JvmName("getMediaUrl")
@@ -95,7 +71,7 @@ public object VoiceMessageKt {
         _builder.mediaUrl = value
       }
     /**
-     * `string media_url = 3;`
+     * `string media_url = 2;`
      */
     public fun clearMediaUrl() {
       _builder.clearMediaUrl()
@@ -112,7 +88,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      */
      public val amplitudesPreview: com.google.protobuf.kotlin.DslList<kotlin.Float, AmplitudesPreviewProxy>
       @kotlin.jvm.JvmSynthetic
@@ -124,7 +100,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      * @param value The amplitudesPreview to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -136,7 +112,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      * @param value The amplitudesPreview to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -149,7 +125,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      * @param values The amplitudesPreview to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -161,7 +137,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      * @param values The amplitudesPreview to add.
      */
     @kotlin.jvm.JvmSynthetic
@@ -174,7 +150,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      * @param index The index to set the value at.
      * @param value The amplitudesPreview to set.
      */
@@ -187,7 +163,7 @@ public object VoiceMessageKt {
      * Amplitude samples used to render the waveform preview in the UI.
      * ```
      *
-     * `repeated float amplitudes_preview = 4;`
+     * `repeated float amplitudes_preview = 3;`
      */
     @kotlin.jvm.JvmSynthetic
 @kotlin.jvm.JvmName("clearAmplitudesPreview")
@@ -195,7 +171,7 @@ public object VoiceMessageKt {
       _builder.clearAmplitudesPreview()
     }
     /**
-     * `double duration = 5;`
+     * `double duration = 4;`
      */
     public var duration: kotlin.Double
       @kotlin.jvm.JvmName("getDuration")
@@ -205,14 +181,14 @@ public object VoiceMessageKt {
         _builder.duration = value
       }
     /**
-     * `double duration = 5;`
+     * `double duration = 4;`
      */
     public fun clearDuration() {
       _builder.clearDuration()
     }
 
     /**
-     * `string media_type = 6;`
+     * `string media_type = 5;`
      */
     public var mediaType: kotlin.String
       @kotlin.jvm.JvmName("getMediaType")
@@ -222,14 +198,14 @@ public object VoiceMessageKt {
         _builder.mediaType = value
       }
     /**
-     * `string media_type = 6;`
+     * `string media_type = 5;`
      */
     public fun clearMediaType() {
       _builder.clearMediaType()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 7;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 6;`
      */
     public var status: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus
       @kotlin.jvm.JvmName("getStatus")
@@ -246,14 +222,14 @@ public object VoiceMessageKt {
         _builder.statusValue = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 7;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 6;`
      */
     public fun clearStatus() {
       _builder.clearStatus()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 8;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 7;`
      */
     public var role: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageRole
       @kotlin.jvm.JvmName("getRole")
@@ -270,10 +246,44 @@ public object VoiceMessageKt {
         _builder.roleValue = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 8;`
+     * `.yalo.external_channel.in_app.sdk.v1.MessageRole role = 7;`
      */
     public fun clearRole() {
       _builder.clearRole()
+    }
+
+    /**
+     * `int64 byte_count = 8;`
+     */
+    public var byteCount: kotlin.Long
+      @kotlin.jvm.JvmName("getByteCount")
+        get() = _builder.byteCount
+      @kotlin.jvm.JvmName("setByteCount")
+        set(value) {
+        _builder.byteCount = value
+      }
+    /**
+     * `int64 byte_count = 8;`
+     */
+    public fun clearByteCount() {
+      _builder.clearByteCount()
+    }
+
+    /**
+     * `string file_name = 9;`
+     */
+    public var fileName: kotlin.String
+      @kotlin.jvm.JvmName("getFileName")
+        get() = _builder.fileName
+      @kotlin.jvm.JvmName("setFileName")
+        set(value) {
+        _builder.fileName = value
+      }
+    /**
+     * `string file_name = 9;`
+     */
+    public fun clearFileName() {
+      _builder.clearFileName()
     }
   }
 }
