@@ -6,44 +6,31 @@ import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChatMessageRepository } from './chat-message-repository';
 
-const DB_NAME = 'YaloChatMessages';
-const DB_VERSION = 1;
-const STORE_NAME = 'chatMessage';
-
 type ChatMessageData = ConstructorParameters<typeof ChatMessage>[0] & {
   id: number;
 };
 
 export class ChatMessageRepositoryLocal implements ChatMessageRepository {
-  private dbPromise: Promise<IDBDatabase>;
+  private static readonly _STORE_NAME = 'chatMessage';
 
-  constructor() {
-    this.dbPromise = this.openDb();
+  static upgrade(db: IDBDatabase): void {
+    if (!db.objectStoreNames.contains(ChatMessageRepositoryLocal._STORE_NAME)) {
+      const store = db.createObjectStore(
+        ChatMessageRepositoryLocal._STORE_NAME,
+        { keyPath: 'id', autoIncrement: true }
+      );
+      store.createIndex('timestamp', 'timestamp', { unique: false });
+    }
+  }
+
+  private db: IDBDatabase;
+
+  constructor(db: IDBDatabase) {
+    this.db = db;
   }
 
   async close(): Promise<void> {
-    const db = await this.dbPromise;
-    db.close();
-  }
-
-  private openDb(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          const store = db.createObjectStore(STORE_NAME, {
-            keyPath: 'id',
-            autoIncrement: true,
-          });
-          store.createIndex('timestamp', 'timestamp', { unique: false });
-        }
-      };
-
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
+    this.db.close();
   }
 
   async getChatMessagePageDesc(
@@ -51,10 +38,13 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
     pageSize: number
   ): Promise<Result<Page<ChatMessage>>> {
     try {
-      const db = await this.dbPromise;
+      const db = this.db;
       const data = await new Promise<ChatMessage[]>((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const store = tx.objectStore(STORE_NAME);
+        const tx = db.transaction(
+          ChatMessageRepositoryLocal._STORE_NAME,
+          'readonly'
+        );
+        const store = tx.objectStore(ChatMessageRepositoryLocal._STORE_NAME);
         const index = store.index('timestamp');
         const results: ChatMessage[] = [];
         let skipping = cursor !== null;
@@ -102,12 +92,15 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
 
   async insertChatMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
     try {
-      const db = await this.dbPromise;
+      const db = this.db;
       const { ...data } = message;
       delete data.id;
       const id = await new Promise<number>((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
+        const tx = db.transaction(
+          ChatMessageRepositoryLocal._STORE_NAME,
+          'readwrite'
+        );
+        const store = tx.objectStore(ChatMessageRepositoryLocal._STORE_NAME);
         const request = store.add(data);
         request.onsuccess = () => resolve(request.result as number);
         request.onerror = () => reject(request.error);
@@ -124,10 +117,13 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
       return new Err(new Error('Message must contain an id to replace'));
     }
     try {
-      const db = await this.dbPromise;
+      const db = this.db;
       await new Promise<void>((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
+        const tx = db.transaction(
+          ChatMessageRepositoryLocal._STORE_NAME,
+          'readwrite'
+        );
+        const store = tx.objectStore(ChatMessageRepositoryLocal._STORE_NAME);
         const request = store.put({ ...message });
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);

@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { LitElement } from 'lit';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import './yalo-chat-window';
 import type { YaloChatWindow } from './yalo-chat-window';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
@@ -18,6 +18,8 @@ const createElement = async (): Promise<YaloChatWindow> => {
   el.config = baseConfig;
   document.body.appendChild(el);
   await el.updateComplete;
+  // hostConnected is async wait until it finishes setting up the repositories
+  await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
   return el;
 };
 

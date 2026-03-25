@@ -10,6 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig(({ command }) => {
   const config = {
     resolve: {
+      preserveSymlinks: true,
       alias: {
         '@data': resolve(__dirname, 'src/data'),
         '@domain': resolve(__dirname, 'src/domain'),

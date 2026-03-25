@@ -11,7 +11,6 @@ import {
   type ChatMessageRepository,
   chatMessageRepositoryContext,
 } from '@data/repositories/chat-message/chat-message-repository-context';
-import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import { provide } from '@lit/context';
 import Logger from '@log/logger';
@@ -22,12 +21,6 @@ import {
   type YaloMessageRepository,
   yaloMessageRepositoryContext,
 } from '@data/repositories/yalo-message/yalo-message-repository-context';
-import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
-import {
-  yaloMessageAuthServiceContext,
-  type YaloMessageAuthService,
-} from '@data/services/yalo-message/yalo-message-auth-service-context';
-import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
 import { setLocale } from '@i18n/index';
 
 @customElement('yalo-chat-window')
@@ -81,31 +74,12 @@ export class YaloChatWindow extends LitElement {
   logger: Logger = new Logger();
 
   @provide({ context: chatMessageRepositoryContext })
-  chatMessageRepository: ChatMessageRepository =
-    new ChatMessageRepositoryLocal();
+  chatMessageRepository!: ChatMessageRepository;
 
   @provide({ context: yaloMessageRepositoryContext })
   yaloMessageRepository!: YaloMessageRepository;
 
-  @provide({ context: yaloMessageAuthServiceContext })
-  yaloMessageAuthService!: YaloMessageAuthService;
-
   private _chatWindowController = new YaloChatWindowController(this);
-
-  connectedCallback() {
-    super.connectedCallback();
-
-    this.yaloMessageAuthService = new YaloMessageAuthServiceRemote(
-      import.meta.env.VITE_YALO_API_BASE_URL,
-      this.config
-    );
-    this.yaloMessageRepository = new YaloMessageRepositoryRemote(
-      import.meta.env.VITE_YALO_API_BASE_URL,
-      this.config,
-      this.yaloMessageAuthService
-    );
-    this.logger.debug('Initialized with config', this.config);
-  }
 
   firstUpdated(): void {
     setLocale(this.config.locale || 'en');
