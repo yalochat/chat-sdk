@@ -50,7 +50,7 @@ object YaloChat {
         _httpClient = httpClient
 
         val apiService = YaloChatApiService(
-            apiBaseUrl = config.apiBaseUrl,
+            apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
             channelId = config.channelId,
             organizationId = config.organizationId,
             httpClient = httpClient,

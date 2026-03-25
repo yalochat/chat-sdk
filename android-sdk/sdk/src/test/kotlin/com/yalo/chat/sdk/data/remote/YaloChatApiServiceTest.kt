@@ -3,9 +3,10 @@
 package com.yalo.chat.sdk.data.remote
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkTextMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkTextMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
-import com.yalo.chat.sdk.data.remote.model.YaloTextMessage
-import com.yalo.chat.sdk.data.remote.model.YaloTextMessageRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandler
@@ -56,9 +57,13 @@ class YaloChatApiServiceTest {
         )
     }
 
-    private val testRequest = YaloTextMessageRequest(
-        timestamp = 1_000L,
-        content = YaloTextMessage(timestamp = 900L, text = "hello", status = "SENT", role = "USER"),
+    private val testRequest = SdkMessageBody(
+        correlationId = "test-correlation-id",
+        timestamp = "2024-01-01T00:00:00Z",
+        textMessageRequest = SdkTextMessageRequestBody(
+            content = SdkTextMessageBody(text = "hello", timestamp = "2024-01-01T00:00:00Z"),
+            timestamp = "2024-01-01T00:00:00Z",
+        ),
     )
 
     // ── sendTextMessage ────────────────────────────────────────────────────────
@@ -115,14 +120,14 @@ class YaloChatApiServiceTest {
     }
 
     @Test
-    fun `sendTextMessage uses webchat inbound_messages endpoint`() = runTest {
+    fun `sendTextMessage uses inapp inbound_messages endpoint`() = runTest {
         var capturedUrl: io.ktor.http.Url? = null
         val service = apiService { request ->
             capturedUrl = request.url
             respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
         service.sendTextMessage(testRequest)
-        assertTrue(capturedUrl?.encodedPath?.endsWith("/webchat/inbound_messages") == true)
+        assertTrue(capturedUrl?.encodedPath?.endsWith("/inapp/inbound_messages") == true)
     }
 
     // ── fetchMessages ──────────────────────────────────────────────────────────
@@ -130,7 +135,7 @@ class YaloChatApiServiceTest {
     @Test
     fun `fetchMessages returns Ok with parsed list on HTTP 200`() = runTest {
         val body = """
-            [{"id":"msg-1","message":{"text":"Hi","role":"AGENT"},"date":"2024-01-01T00:00:00Z","user_id":"u1","status":"DELIVERED"}]
+            [{"id":"msg-1","message":{"timestamp":{"seconds":1704067200,"nanos":0},"Payload":{"TextMessageRequest":{"content":{"text":"Hi"}}}},"date":"2024-01-01T00:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]
         """.trimIndent()
         val service = apiService {
             respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
@@ -139,7 +144,7 @@ class YaloChatApiServiceTest {
         assertIs<Result.Ok<List<YaloFetchMessagesResponse>>>(result)
         assertEquals(1, result.result.size)
         assertEquals("msg-1", result.result.first().id)
-        assertEquals("Hi", result.result.first().message.text)
+        assertEquals("Hi", result.result.first().message.payload.textMessageRequest?.content?.text)
     }
 
     @Test
@@ -189,14 +194,14 @@ class YaloChatApiServiceTest {
     }
 
     @Test
-    fun `fetchMessages uses webchat messages endpoint`() = runTest {
+    fun `fetchMessages uses inapp messages endpoint`() = runTest {
         var capturedUrl: io.ktor.http.Url? = null
         val service = apiService { request ->
             capturedUrl = request.url
             respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
         service.fetchMessages(since = 0L)
-        assertTrue(capturedUrl?.encodedPath?.endsWith("/webchat/messages") == true)
+        assertTrue(capturedUrl?.encodedPath?.endsWith("/inapp/messages") == true)
     }
 
     // ── Authentication ─────────────────────────────────────────────────────────

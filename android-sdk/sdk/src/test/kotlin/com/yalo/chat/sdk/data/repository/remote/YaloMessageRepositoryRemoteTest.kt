@@ -59,8 +59,10 @@ class YaloMessageRepositoryRemoteTest {
         return YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)
     }
 
-    private fun messageJson(id: String, text: String, role: String = "AGENT") =
-        """[{"id":"$id","message":{"text":"$text","role":"$role"},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"DELIVERED"}]"""
+    private fun messageJson(id: String, text: String, role: String? = null): String {
+        val roleField = if (role != null) ""","role":"$role"""" else ""
+        return """[{"id":"$id","message":{"timestamp":{"seconds":1704110400,"nanos":0},"Payload":{"TextMessageRequest":{"content":{"text":"$text"$roleField}}}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+    }
 
     // ── sendMessage ────────────────────────────────────────────────────────────
 
@@ -88,7 +90,7 @@ class YaloMessageRepositoryRemoteTest {
 
     @Test
     fun `fetchMessages maps response to ChatMessage`() = runTest {
-        val repo = buildRepo(listOf(messageJson("id-1", "Hello from server", "AGENT")))
+        val repo = buildRepo(listOf(messageJson("id-1", "Hello from server", "MESSAGE_ROLE_AGENT")))
         val result = repo.fetchMessages(since = 0L)
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(1, result.result.size)
@@ -131,8 +133,8 @@ class YaloMessageRepositoryRemoteTest {
     fun `pollIncomingMessages deduplicates — same wiId emitted only once across batches`() = runTest {
         // Poll 1: [id-1]. Poll 2: [id-1 (dup), id-2 (new)] → batch 2 = [id-2] only.
         val bothMessages = """[
-            {"id":"id-1","message":{"text":"First","role":"AGENT"},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"DELIVERED"},
-            {"id":"id-2","message":{"text":"Second","role":"AGENT"},"date":"2024-01-01T12:00:01Z","user_id":"u1","status":"DELIVERED"}
+            {"id":"id-1","message":{"timestamp":{"seconds":1704110400,"nanos":0},"Payload":{"TextMessageRequest":{"content":{"text":"First"}}}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"},
+            {"id":"id-2","message":{"timestamp":{"seconds":1704110401,"nanos":0},"Payload":{"TextMessageRequest":{"content":{"text":"Second"}}}},"date":"2024-01-01T12:00:01Z","user_id":"u1","status":"IN_DELIVERY"}
         ]"""
         val repo = buildRepo(listOf(messageJson("id-1", "First"), bothMessages))
         val batches = repo.pollIncomingMessages().take(2).toList()
@@ -156,7 +158,7 @@ class YaloMessageRepositoryRemoteTest {
                 dataCallIndex++
                 if (dataCallIndex == 1) respondError(HttpStatusCode.InternalServerError)
                 else respond(
-                    messageJson("id-1", "After error"),
+                    messageJson("id-1", "After error", "MESSAGE_ROLE_AGENT"),
                     HttpStatusCode.OK,
                     headersOf(HttpHeaders.ContentType, "application/json"),
                 )
@@ -178,10 +180,24 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun `pollIncomingMessages sets MessageRole from server role field`() = runTest {
-        val repo = buildRepo(listOf(messageJson("id-1", "Hey", "USER"), "[]"))
+    fun `pollIncomingMessages maps MESSAGE_ROLE_USER to USER`() = runTest {
+        val repo = buildRepo(listOf(messageJson("id-1", "Hey", "MESSAGE_ROLE_USER"), "[]"))
         val batch = repo.pollIncomingMessages().first()
         assertEquals(MessageRole.USER, batch.first().role)
+    }
+
+    @Test
+    fun `pollIncomingMessages maps MESSAGE_ROLE_AGENT to AGENT`() = runTest {
+        val repo = buildRepo(listOf(messageJson("id-1", "Hey", "MESSAGE_ROLE_AGENT"), "[]"))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(MessageRole.AGENT, batch.first().role)
+    }
+
+    @Test
+    fun `pollIncomingMessages defaults role to AGENT when role is absent`() = runTest {
+        val repo = buildRepo(listOf(messageJson("id-1", "Hey"), "[]"))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(MessageRole.AGENT, batch.first().role)
     }
 
     @Test
