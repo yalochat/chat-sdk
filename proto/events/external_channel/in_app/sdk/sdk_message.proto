@@ -443,5 +443,5 @@ message PollMessageItem {
   // Identifier of the user associated with this message.
   string user_id = 4;
   // Current delivery status of the message.
-  MessageStatus status = 5;
+  string status = 5;
 }
