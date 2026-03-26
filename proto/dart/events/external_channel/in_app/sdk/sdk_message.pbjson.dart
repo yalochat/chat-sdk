@@ -1543,14 +1543,7 @@ const PollMessageItem$json = {
       '10': 'date'
     },
     {'1': 'user_id', '3': 4, '4': 1, '5': 9, '10': 'userId'},
-    {
-      '1': 'status',
-      '3': 5,
-      '4': 1,
-      '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
-      '10': 'status'
-    },
+    {'1': 'status', '3': 5, '4': 1, '5': 9, '10': 'status'},
   ],
 };
 
@@ -1559,5 +1552,4 @@ final $typed_data.Uint8List pollMessageItemDescriptor = $convert.base64Decode(
     'Cg9Qb2xsTWVzc2FnZUl0ZW0SDgoCaWQYASABKAlSAmlkEkkKB21lc3NhZ2UYAiABKAsyLy55YW'
     'xvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5TZGtNZXNzYWdlUgdtZXNzYWdlEi4K'
     'BGRhdGUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgRkYXRlEhcKB3VzZXJfaW'
-    'QYBCABKAlSBnVzZXJJZBJKCgZzdGF0dXMYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwu'
-    'aW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dXM=');
+    'QYBCABKAlSBnVzZXJJZBIWCgZzdGF0dXMYBSABKAlSBnN0YXR1cw==');

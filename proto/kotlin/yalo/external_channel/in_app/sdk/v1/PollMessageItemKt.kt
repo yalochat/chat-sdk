@@ -168,28 +168,21 @@ public object PollMessageItemKt {
      * Current delivery status of the message.
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;`
+     * `string status = 5;`
      */
-    public var status: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus
+    public var status: kotlin.String
       @kotlin.jvm.JvmName("getStatus")
         get() = _builder.status
       @kotlin.jvm.JvmName("setStatus")
         set(value) {
         _builder.status = value
       }
-    public var statusValue: kotlin.Int
-      @kotlin.jvm.JvmName("getStatusValue")
-        get() = _builder.statusValue
-      @kotlin.jvm.JvmName("setStatusValue")
-        set(value) {
-        _builder.statusValue = value
-      }
     /**
      * ```
      * Current delivery status of the message.
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;`
+     * `string status = 5;`
      */
     public fun clearStatus() {
       _builder.clearStatus()

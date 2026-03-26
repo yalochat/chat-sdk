@@ -3137,7 +3137,7 @@ type PollMessageItem struct {
 	// Identifier of the user associated with this message.
 	UserId string `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Current delivery status of the message.
-	Status        MessageStatus `protobuf:"varint,5,opt,name=status,proto3,enum=yalo.external_channel.in_app.sdk.v1.MessageStatus" json:"status,omitempty"`
+	Status        string `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3200,11 +3200,11 @@ func (x *PollMessageItem) GetUserId() string {
 	return ""
 }
 
-func (x *PollMessageItem) GetStatus() MessageStatus {
+func (x *PollMessageItem) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
-	return MessageStatus_MESSAGE_STATUS_UNSPECIFIED
+	return ""
 }
 
 var File_events_external_channel_in_app_sdk_sdk_message_proto protoreflect.FileDescriptor
@@ -3437,13 +3437,13 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\n" +
 	"expires_in\x18\x03 \x01(\x03R\texpiresIn\x12#\n" +
 	"\rrefresh_token\x18\x04 \x01(\tR\frefreshToken\x12\x1b\n" +
-	"\tclient_id\x18\x05 \x01(\tR\bclientId\"\x81\x02\n" +
+	"\tclient_id\x18\x05 \x01(\tR\bclientId\"\xcd\x01\n" +
 	"\x0fPollMessageItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12I\n" +
 	"\amessage\x18\x02 \x01(\v2/.yalo.external_channel.in_app.sdk.v1.SdkMessageR\amessage\x12.\n" +
 	"\x04date\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12\x17\n" +
-	"\auser_id\x18\x04 \x01(\tR\x06userId\x12J\n" +
-	"\x06status\x18\x05 \x01(\x0e22.yalo.external_channel.in_app.sdk.v1.MessageStatusR\x06status*i\n" +
+	"\auser_id\x18\x04 \x01(\tR\x06userId\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status*i\n" +
 	"\x0eResponseStatus\x12\x1f\n" +
 	"\x1bRESPONSE_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17RESPONSE_STATUS_SUCCESS\x10\x01\x12\x19\n" +
@@ -3613,12 +3613,11 @@ var file_events_external_channel_in_app_sdk_sdk_message_proto_depIdxs = []int32{
 	42, // 89: yalo.external_channel.in_app.sdk.v1.CustomActionResponse.timestamp:type_name -> google.protobuf.Timestamp
 	4,  // 90: yalo.external_channel.in_app.sdk.v1.PollMessageItem.message:type_name -> yalo.external_channel.in_app.sdk.v1.SdkMessage
 	42, // 91: yalo.external_channel.in_app.sdk.v1.PollMessageItem.date:type_name -> google.protobuf.Timestamp
-	2,  // 92: yalo.external_channel.in_app.sdk.v1.PollMessageItem.status:type_name -> yalo.external_channel.in_app.sdk.v1.MessageStatus
-	93, // [93:93] is the sub-list for method output_type
-	93, // [93:93] is the sub-list for method input_type
-	93, // [93:93] is the sub-list for extension type_name
-	93, // [93:93] is the sub-list for extension extendee
-	0,  // [0:93] is the sub-list for field type_name
+	92, // [92:92] is the sub-list for method output_type
+	92, // [92:92] is the sub-list for method input_type
+	92, // [92:92] is the sub-list for extension type_name
+	92, // [92:92] is the sub-list for extension extendee
+	0,  // [0:92] is the sub-list for field type_name
 }
 
 func init() { file_events_external_channel_in_app_sdk_sdk_message_proto_init() }

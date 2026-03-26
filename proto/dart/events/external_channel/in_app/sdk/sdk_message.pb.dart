@@ -3961,7 +3961,7 @@ class PollMessageItem extends $pb.GeneratedMessage {
     SdkMessage? message,
     $0.Timestamp? date,
     $core.String? userId,
-    MessageStatus? status,
+    $core.String? status,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -3992,8 +3992,7 @@ class PollMessageItem extends $pb.GeneratedMessage {
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'date',
         subBuilder: $0.Timestamp.create)
     ..aOS(4, _omitFieldNames ? '' : 'userId')
-    ..aE<MessageStatus>(5, _omitFieldNames ? '' : 'status',
-        enumValues: MessageStatus.values)
+    ..aOS(5, _omitFieldNames ? '' : 'status')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4061,9 +4060,9 @@ class PollMessageItem extends $pb.GeneratedMessage {
 
   /// Current delivery status of the message.
   @$pb.TagNumber(5)
-  MessageStatus get status => $_getN(4);
+  $core.String get status => $_getSZ(4);
   @$pb.TagNumber(5)
-  set status(MessageStatus value) => $_setField(5, value);
+  set status($core.String value) => $_setString(4, value);
   @$pb.TagNumber(5)
   $core.bool hasStatus() => $_has(4);
   @$pb.TagNumber(5)

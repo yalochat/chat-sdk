@@ -3227,10 +3227,12 @@ func (m *PollMessageItem) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Status != 0 {
-		i = encodeVarint(dAtA, i, uint64(m.Status))
+	if len(m.Status) > 0 {
+		i -= len(m.Status)
+		copy(dAtA[i:], m.Status)
+		i = encodeVarint(dAtA, i, uint64(len(m.Status)))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x2a
 	}
 	if len(m.UserId) > 0 {
 		i -= len(m.UserId)
@@ -4721,8 +4723,9 @@ func (m *PollMessageItem) SizeVT() (n int) {
 	if l > 0 {
 		n += 1 + l + sov(uint64(l))
 	}
-	if m.Status != 0 {
-		n += 1 + sov(uint64(m.Status))
+	l = len(m.Status)
+	if l > 0 {
+		n += 1 + l + sov(uint64(l))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -11957,10 +11960,10 @@ func (m *PollMessageItem) UnmarshalVT(dAtA []byte) error {
 			m.UserId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
-			if wireType != 0 {
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
 			}
-			m.Status = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflow
@@ -11970,11 +11973,24 @@ func (m *PollMessageItem) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Status |= MessageStatus(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Status = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
