@@ -28,6 +28,7 @@ import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:drift_flutter/drift_flutter.dart';
@@ -59,11 +60,15 @@ List<SingleChildWidget> repositoryProviders(
     ),
 
     Provider<CameraService>(create: (_) => CameraServiceFile()),
+    Provider<FlutterSecureStorage>(
+      create: (_) => const FlutterSecureStorage(),
+    ),
     Provider<YaloMessageAuthService>(
-      create: (_) => YaloMessageAuthServiceRemote(
+      create: (context) => YaloMessageAuthServiceRemote(
         baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
         channelId: yaloClient.channelId,
         organizationId: yaloClient.organizationId,
+        storage: context.read<FlutterSecureStorage>(),
       ),
     ),
     Provider<YaloMessageService>(

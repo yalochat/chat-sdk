@@ -82,7 +82,6 @@ export default class YaloChatWindowController implements ReactiveController {
 
     // Subscribe to incoming message stream
     this.host.yaloMessageRepository.subscribeToMessages(this.onMessageReceived);
-    console.log('juelagran', pages);
   }
 
   async sendTextMessage(e: CustomEvent) {
