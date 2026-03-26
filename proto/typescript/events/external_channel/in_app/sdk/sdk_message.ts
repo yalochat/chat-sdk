@@ -599,7 +599,7 @@ export interface PollMessageItem {
   /** Identifier of the user associated with this message. */
   userId: string;
   /** Current delivery status of the message. */
-  status: MessageStatus;
+  status: string;
 }
 
 function createBaseSdkMessage(): SdkMessage {
@@ -5217,7 +5217,7 @@ export const AuthResponse: MessageFns<AuthResponse> = {
 };
 
 function createBasePollMessageItem(): PollMessageItem {
-  return { id: "", message: undefined, date: undefined, userId: "", status: 0 };
+  return { id: "", message: undefined, date: undefined, userId: "", status: "" };
 }
 
 export const PollMessageItem: MessageFns<PollMessageItem> = {
@@ -5234,8 +5234,8 @@ export const PollMessageItem: MessageFns<PollMessageItem> = {
     if (message.userId !== "") {
       writer.uint32(34).string(message.userId);
     }
-    if (message.status !== 0) {
-      writer.uint32(40).int32(message.status);
+    if (message.status !== "") {
+      writer.uint32(42).string(message.status);
     }
     return writer;
   },
@@ -5280,11 +5280,11 @@ export const PollMessageItem: MessageFns<PollMessageItem> = {
           continue;
         }
         case 5: {
-          if (tag !== 40) {
+          if (tag !== 42) {
             break;
           }
 
-          message.status = reader.int32() as any;
+          message.status = reader.string();
           continue;
         }
       }
@@ -5306,7 +5306,7 @@ export const PollMessageItem: MessageFns<PollMessageItem> = {
         : isSet(object.user_id)
         ? globalThis.String(object.user_id)
         : "",
-      status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
+      status: isSet(object.status) ? globalThis.String(object.status) : "",
     };
   },
 
@@ -5324,8 +5324,8 @@ export const PollMessageItem: MessageFns<PollMessageItem> = {
     if (message.userId !== "") {
       obj.userId = message.userId;
     }
-    if (message.status !== 0) {
-      obj.status = messageStatusToJSON(message.status);
+    if (message.status !== "") {
+      obj.status = message.status;
     }
     return obj;
   },
@@ -5341,7 +5341,7 @@ export const PollMessageItem: MessageFns<PollMessageItem> = {
       : undefined;
     message.date = object.date ?? undefined;
     message.userId = object.userId ?? "";
-    message.status = object.status ?? 0;
+    message.status = object.status ?? "";
     return message;
   },
 };

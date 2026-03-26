@@ -25823,19 +25823,20 @@ public final class SdkMessageOuterClass {
      * Current delivery status of the message.
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-     * @return The enum numeric value on the wire for status.
+     * <code>string status = 5;</code>
+     * @return The status.
      */
-    int getStatusValue();
+    java.lang.String getStatus();
     /**
      * <pre>
      * Current delivery status of the message.
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-     * @return The status.
+     * <code>string status = 5;</code>
+     * @return The bytes for status.
      */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus getStatus();
+    com.google.protobuf.ByteString
+        getStatusBytes();
   }
   /**
    * <pre>
@@ -25854,6 +25855,7 @@ public final class SdkMessageOuterClass {
     private PollMessageItem() {
       id_ = "";
       userId_ = "";
+      status_ = "";
     }
     private int bitField0_;
     public static final int ID_FIELD_NUMBER = 1;
@@ -26129,17 +26131,17 @@ public final class SdkMessageOuterClass {
     }
 
     public static final int STATUS_FIELD_NUMBER = 5;
-    private int status_;
+    private java.lang.String status_;
     /**
      * <pre>
      * Current delivery status of the message.
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-     * @return The enum numeric value on the wire for status.
+     * <code>string status = 5;</code>
+     * @return The status.
      */
     @java.lang.Override
-    public int getStatusValue() {
+    public java.lang.String getStatus() {
       return status_;
     }
     /**
@@ -26147,48 +26149,53 @@ public final class SdkMessageOuterClass {
      * Current delivery status of the message.
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-     * @return The status.
+     * <code>string status = 5;</code>
+     * @return The bytes for status.
      */
     @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus getStatus() {
-      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus.forNumber(status_);
-      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus.UNRECOGNIZED : result;
+    public com.google.protobuf.ByteString
+        getStatusBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(status_);
     }
     /**
      * <pre>
      * Current delivery status of the message.
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-     * @param value The enum numeric value on the wire for status to set.
-     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-     */
-    private void setStatusValue(int value) {
-        status_ = value;
-    }
-    /**
-     * <pre>
-     * Current delivery status of the message.
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
+     * <code>string status = 5;</code>
      * @param value The status to set.
      */
-    private void setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus value) {
-      status_ = value.getNumber();
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setStatus(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
 
+      status_ = value;
     }
     /**
      * <pre>
      * Current delivery status of the message.
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
+     * <code>string status = 5;</code>
      */
     private void clearStatus() {
 
-      status_ = 0;
+      status_ = getDefaultInstance().getStatus();
+    }
+    /**
+     * <pre>
+     * Current delivery status of the message.
+     * </pre>
+     *
+     * <code>string status = 5;</code>
+     * @param value The bytes for status to set.
+     */
+    private void setStatusBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      status_ = value.toStringUtf8();
+
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.PollMessageItem parseFrom(
@@ -26579,37 +26586,11 @@ public final class SdkMessageOuterClass {
        * Current delivery status of the message.
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-       * @return The enum numeric value on the wire for status.
-       */
-      @java.lang.Override
-      public int getStatusValue() {
-        return instance.getStatusValue();
-      }
-      /**
-       * <pre>
-       * Current delivery status of the message.
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-       * @param value The status to set.
-       * @return This builder for chaining.
-       */
-      public Builder setStatusValue(int value) {
-        copyOnWrite();
-        instance.setStatusValue(value);
-        return this;
-      }
-      /**
-       * <pre>
-       * Current delivery status of the message.
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
+       * <code>string status = 5;</code>
        * @return The status.
        */
       @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus getStatus() {
+      public java.lang.String getStatus() {
         return instance.getStatus();
       }
       /**
@@ -26617,12 +26598,25 @@ public final class SdkMessageOuterClass {
        * Current delivery status of the message.
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
-       * @param value The enum numeric value on the wire for status to set.
-       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * <code>string status = 5;</code>
+       * @return The bytes for status.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getStatusBytes() {
+        return instance.getStatusBytes();
+      }
+      /**
+       * <pre>
+       * Current delivery status of the message.
+       * </pre>
+       *
+       * <code>string status = 5;</code>
+       * @param value The status to set.
        * @return This builder for chaining.
        */
-      public Builder setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus value) {
+      public Builder setStatus(
+          java.lang.String value) {
         copyOnWrite();
         instance.setStatus(value);
         return this;
@@ -26632,12 +26626,27 @@ public final class SdkMessageOuterClass {
        * Current delivery status of the message.
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 5;</code>
+       * <code>string status = 5;</code>
        * @return This builder for chaining.
        */
       public Builder clearStatus() {
         copyOnWrite();
         instance.clearStatus();
+        return this;
+      }
+      /**
+       * <pre>
+       * Current delivery status of the message.
+       * </pre>
+       *
+       * <code>string status = 5;</code>
+       * @param value The bytes for status to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStatusBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setStatusBytes(value);
         return this;
       }
 
@@ -26666,7 +26675,7 @@ public final class SdkMessageOuterClass {
             };
             java.lang.String info =
                 "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0000\u0000\u0001\u0208\u0002\u1009" +
-                "\u0000\u0003\u1009\u0001\u0004\u0208\u0005\f";
+                "\u0000\u0003\u1009\u0001\u0004\u0208\u0005\u0208";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
