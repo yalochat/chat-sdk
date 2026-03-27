@@ -190,6 +190,8 @@ void main() {
                       -160.0 + random.nextDouble() * 160.0,
                   ],
                   duration: random.nextInt(500),
+                  byteCount: 0,
+                  mediaType: 'audio/wav',
                 ),
               ChatMessage(
                 id: 0,
@@ -229,6 +231,8 @@ void main() {
                   -160.0 + random.nextDouble() * 160.0,
               ],
               duration: random.nextInt(500),
+              byteCount: 0,
+              mediaType: 'audio/wav',
             ),
             ChatMessage.voice(
               id: 2,
@@ -240,6 +244,8 @@ void main() {
                   -160.0 + random.nextDouble() * 160,
               ],
               duration: random.nextInt(500),
+              byteCount: 0,
+              mediaType: 'audio/wav',
             ),
           ];
           when(
@@ -290,6 +296,8 @@ void main() {
                   timestamp: clock.now(),
                   content: '',
                   fileName: 'images/test-image.png',
+                  byteCount: 0,
+                  mediaType: 'image/png',
                 ),
               ],
             ),
@@ -317,6 +325,8 @@ void main() {
                 timestamp: clock.now(),
                 content: 'test content',
                 fileName: 'images/test-image.png',
+                byteCount: 0,
+                mediaType: 'image/png',
               ),
             ],
           ),

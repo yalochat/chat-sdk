@@ -9,19 +9,21 @@ import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class UserImageMessage extends StatelessWidget {
+class ImageMessage extends StatelessWidget {
   final ChatMessage message;
 
-  const UserImageMessage({super.key, required this.message});
+  const ImageMessage({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     assert(
       message.type == MessageType.image && message.fileName != null,
-      'UserImageMessage is only able to render image messages with non-empty fileName',
+      'ImageMessage is only able to render image messages with non-empty fileName',
     );
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    File imageFile = File(message.fileName!);
+    final textStyle = message.role == MessageRole.user
+        ? chatThemeCubit.chatTheme.userMessageTextStyle
+        : chatThemeCubit.chatTheme.assistantMessageTextStyle;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,16 +33,16 @@ class UserImageMessage extends StatelessWidget {
             borderRadius: BorderRadius.circular(SdkConstants.messageBorderRadius),
             child: FittedBox(
               fit: BoxFit.cover,
-              child: Image.file(imageFile)
+              child: Image.file(File(message.fileName!)),
             ),
           ),
         ),
         SizedBox(height: SdkConstants.columnItemSpace),
         if (message.content.isNotEmpty)
-        SelectableText(
-          message.content,
-          style: chatThemeCubit.chatTheme.userMessageTextStyle,
-        ),
+          SelectableText(
+            message.content,
+            style: textStyle,
+          ),
       ],
     );
   }

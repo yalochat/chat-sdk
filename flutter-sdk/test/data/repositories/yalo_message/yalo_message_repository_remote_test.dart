@@ -1,10 +1,15 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
@@ -18,13 +23,17 @@ class MockYaloChatClient extends Mock implements YaloChatClient {}
 
 class MockYaloMessageService extends Mock implements YaloMessageService {}
 
+class MockYaloMediaService extends Mock implements YaloMediaService {}
+
 void main() {
   group(YaloMessageRepositoryRemote, () {
     late MockYaloChatClient mockClient;
     late MockYaloMessageService mockMessageService;
+    late MockYaloMediaService mockMediaService;
     late YaloMessageRepositoryRemote repo;
 
     const fixedDate = '2024-01-01T00:00:00.000Z';
+    late Directory tempDir;
 
     final assistantResponseStub = proto.PollMessageItem(
       id: 'msg-1',
@@ -41,17 +50,42 @@ void main() {
       status: "IN_DELIVERY",
     );
 
+    final assistantImageResponseStub = proto.PollMessageItem(
+      id: 'img-1',
+      message: proto.SdkMessage(
+        imageMessageRequest: proto.ImageMessageRequest(
+          content: proto.ImageMessage(
+            mediaUrl: 'https://example.com/image.jpg',
+            text: 'Caption',
+            mediaType: 'image/jpeg',
+          ),
+        ),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
     setUpAll(() {
       registerFallbackValue(proto.SdkMessage());
+      registerFallbackValue(XFile(''));
     });
 
     setUp(() {
+      tempDir = Directory.systemTemp.createTempSync('yalo_test_');
       mockClient = MockYaloChatClient();
       mockMessageService = MockYaloMessageService();
+      mockMediaService = MockYaloMediaService();
       repo = YaloMessageRepositoryRemote(
         yaloChatClient: mockClient,
         messageService: mockMessageService,
+        mediaService: mockMediaService,
+        directory: () async => tempDir,
       );
+    });
+
+    tearDownAll(() {
+      tempDir.deleteSync(recursive: true);
     });
 
     tearDown(() {
@@ -163,6 +197,52 @@ void main() {
       );
 
       test(
+        'downloads image and emits message with local fileName',
+        () async {
+          final imageBytes = Uint8List.fromList([1, 2, 3]);
+          when(
+            () => mockMessageService.fetchMessages(any()),
+          ).thenAnswer((_) async => Result.ok([assistantImageResponseStub]));
+          when(
+            () => mockMediaService.downloadMedia(any()),
+          ).thenAnswer((_) async => Result.ok(imageBytes));
+
+          final message = await repo.messages().first;
+          repo.dispose();
+
+          expect(message.wiId, equals('img-1'));
+          expect(message.type, equals(MessageType.image));
+          expect(message.byteCount, equals(3));
+          expect(message.mediaType, equals('image/jpeg'));
+          expect(message.fileName, isNot(contains('http')));
+          expect(File(message.fileName!).existsSync(), isTrue);
+        },
+      );
+
+      test(
+        'does not emit image message when download fails',
+        () async {
+          final fetchCompleter = Completer<void>();
+          when(() => mockMessageService.fetchMessages(any())).thenAnswer((_) async {
+            if (!fetchCompleter.isCompleted) fetchCompleter.complete();
+            return Result.ok([assistantImageResponseStub]);
+          });
+          when(
+            () => mockMediaService.downloadMedia(any()),
+          ).thenAnswer((_) async => Result.error(Exception('network error')));
+
+          final received = <ChatMessage>[];
+          repo.messages().listen(received.add);
+
+          await fetchCompleter.future;
+          await Future.delayed(Duration.zero);
+          repo.dispose();
+
+          expect(received, isEmpty);
+        },
+      );
+
+      test(
         'emits TypingStop to the events stream when fetchMessages fails',
         () async {
           when(
@@ -234,41 +314,72 @@ void main() {
         },
       );
 
-      test(
-        'returns Result.error(FormatException) for voice messages without calling the client',
-        () async {
-          ChatMessage voiceMessage = ChatMessage.voice(
-            role: MessageRole.user,
-            timestamp: DateTime.utc(2024),
-            fileName: 'test.wav',
-            amplitudes: [-10.0, 0.0, -10.0],
-            duration: 3,
-          );
+      test('uploads and delegates to messageService.sendSdkMessage for voice messages', () async {
+        when(
+          () => mockMediaService.uploadMedia(any()),
+        ).thenAnswer((_) async => Result.ok(_makeUploadResponse()));
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
-          final result = await repo.sendMessage(voiceMessage);
+        final voiceMessage = ChatMessage.voice(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+          fileName: 'test.wav',
+          amplitudes: [-10.0, 0.0, -10.0],
+          duration: 3,
+          byteCount: 0,
+          mediaType: 'audio/wav',
+        );
 
-          expect(result, isA<Error<Unit>>());
-          expect((result as Error<Unit>).error, isA<FormatException>());
-          verifyNever(() => mockMessageService.sendSdkMessage(any()));
-        },
-      );
+        final result = await repo.sendMessage(voiceMessage);
 
-      test(
-        'returns Result.error(FormatException) for image messages without calling the client',
-        () async {
-          ChatMessage imageMessage = ChatMessage.image(
-            role: MessageRole.user,
-            timestamp: DateTime.utc(2024),
-            fileName: 'test.jpg',
-          );
+        expect(result, isA<Ok<Unit>>());
+        verify(() => mockMediaService.uploadMedia(any())).called(1);
+        verify(() => mockMessageService.sendSdkMessage(any())).called(1);
+      });
 
-          final result = await repo.sendMessage(imageMessage);
+      test('uploads and delegates to messageService.sendSdkMessage for image messages', () async {
+        when(
+          () => mockMediaService.uploadMedia(any()),
+        ).thenAnswer((_) async => Result.ok(_makeUploadResponse()));
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
-          expect(result, isA<Error<Unit>>());
-          expect((result as Error<Unit>).error, isA<FormatException>());
-          verifyNever(() => mockMessageService.sendSdkMessage(any()));
-        },
-      );
+        final imageMessage = ChatMessage.image(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+          fileName: 'test.jpg',
+          byteCount: 0,
+          mediaType: 'image/jpeg',
+        );
+
+        final result = await repo.sendMessage(imageMessage);
+
+        expect(result, isA<Ok<Unit>>());
+        verify(() => mockMediaService.uploadMedia(any())).called(1);
+        verify(() => mockMessageService.sendSdkMessage(any())).called(1);
+      });
+
+      test('returns Error without calling sendSdkMessage when upload fails', () async {
+        when(
+          () => mockMediaService.uploadMedia(any()),
+        ).thenAnswer((_) async => Result.error(Exception('upload failed')));
+
+        final imageMessage = ChatMessage.image(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+          fileName: 'test.jpg',
+          byteCount: 0,
+          mediaType: 'image/jpeg',
+        );
+
+        final result = await repo.sendMessage(imageMessage);
+
+        expect(result, isA<Error<Unit>>());
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
     });
 
     group('dispose', () {
@@ -303,3 +414,13 @@ void main() {
     });
   });
 }
+
+MediaUploadResponse _makeUploadResponse() => MediaUploadResponse(
+  id: 'media-1',
+  signedUrl: 'https://example.com/signed-url',
+  originalName: 'test.jpg',
+  type: 'image/jpeg',
+  metadata: {},
+  createdAt: DateTime.utc(2024),
+  expiresAt: DateTime.utc(2024, 1, 2),
+);

@@ -73,6 +73,8 @@ void main() {
                 fileName: 'test.wav',
                 amplitudes: [-34.0, -44.0],
                 duration: 2,
+                byteCount: 0,
+                mediaType: 'audio/wav',
               ),
             ),
           );
@@ -107,6 +109,8 @@ void main() {
             fileName: 'test.wav',
             amplitudes: [-34.0, -44.0],
             duration: 2,
+            byteCount: 0,
+            mediaType: 'audio/wav',
           ),
         ),
         act: (bloc) {
@@ -126,6 +130,8 @@ void main() {
                 fileName: 'test2.wav',
                 amplitudes: [-34.0, -44.0],
                 duration: 2,
+                byteCount: 0,
+                mediaType: 'audio/wav',
               ),
             ),
           );
@@ -189,6 +195,8 @@ void main() {
             fileName: 'test.wav',
             amplitudes: [-34.0, -44.0],
             duration: 2,
+            byteCount: 0,
+            mediaType: 'audio/wav',
           ),
         ),
         act: (bloc) {
@@ -208,6 +216,8 @@ void main() {
                 fileName: 'test2.wav',
                 amplitudes: [-34.0, -44.0],
                 duration: 2,
+                byteCount: 0,
+                mediaType: 'audio/wav',
               ),
             ),
           );
@@ -247,6 +257,8 @@ void main() {
             fileName: 'test.wav',
             amplitudes: [-34.0, -44.0],
             duration: 2,
+            byteCount: 0,
+            mediaType: 'audio/wav',
           ),
         ),
         act: (bloc) {
@@ -266,6 +278,8 @@ void main() {
                 fileName: 'test2.wav',
                 amplitudes: [-34.0, -44.0],
                 duration: 2,
+                byteCount: 0,
+                mediaType: 'audio/wav',
               ),
             ),
           );

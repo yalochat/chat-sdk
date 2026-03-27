@@ -8,12 +8,14 @@ import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/token_entry
 import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
 import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
 import 'package:http/http.dart';
+import 'package:logging/logging.dart';
 
 class YaloMessageServiceRemote implements YaloMessageService {
   final String _baseUrl;
   final String _channelId;
   final YaloMessageAuthService _authService;
   final Client _httpClient;
+  final Logger log = Logger('YaloMessagerepositoryremote');
 
   YaloMessageServiceRemote({
     required String baseUrl,
@@ -44,6 +46,8 @@ class YaloMessageServiceRemote implements YaloMessageService {
         },
         body: jsonEncode(request.toProto3Json()),
       );
+
+      log.info(jsonEncode(request.toProto3Json()));
 
       if (response.statusCode == 200) {
         return Result.ok(Unit());
