@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.yalo.chat.sdk.ui.theme.ChatTheme
+import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 
 // Port of flutter-sdk _createQuickReplyOverlay in chat_input.dart.
 // Flutter renders chips in a vertical Column floating above ChatInput via an Overlay
@@ -45,5 +48,16 @@ internal fun QuickReplies(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun QuickRepliesPreview() {
+    ChatThemeProvider(theme = ChatTheme()) {
+        QuickReplies(
+            quickReplies = listOf("Yes, please", "No thanks", "Maybe later"),
+            onChipClick = {},
+        )
     }
 }
