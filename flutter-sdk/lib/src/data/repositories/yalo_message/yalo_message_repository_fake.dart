@@ -128,13 +128,17 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
       _typingEventsStreamController.stream.asBroadcastStream();
 
   @override
-  Future<void> executeActions() async {
-
-  }
+  Future<void> executeActions() async {}
 
   @override
   void dispose() {
     _messagesStreamController.close();
     _typingEventsStreamController.close();
   }
+
+  @override
+  void pause() {}
+
+  @override
+  void resume() {}
 }
