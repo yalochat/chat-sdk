@@ -67,6 +67,8 @@ void main() {
           fileName: 'test.wav',
           amplitudes: [2.0, 3.0],
           duration: 300,
+          byteCount: 0,
+          mediaType: 'audio/wav',
         );
         ChatMessage productMessage = ChatMessage.product(
           role: MessageRole.user,
@@ -98,6 +100,8 @@ void main() {
           role: MessageRole.assistant,
           timestamp: clock.now(),
           fileName: 'test/image.png',
+          byteCount: 0,
+          mediaType: 'image/png',
           quickReplies: ['ok!', 'quick', 'Think!'],
         );
         await chatRepository.insertChatMessage(message);

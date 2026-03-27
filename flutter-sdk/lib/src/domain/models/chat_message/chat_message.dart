@@ -57,6 +57,12 @@ class ChatMessage extends Equatable {
   // Audio duration in ms
   final int? duration;
 
+  // File size in bytes (for image and voice messages)
+  final int? byteCount;
+
+  // MIME type of the media file (for image and voice messages)
+  final String? mediaType;
+
   // Products linked to the chat message
   final List<Product> products;
 
@@ -77,6 +83,8 @@ class ChatMessage extends Equatable {
     this.fileName,
     this.amplitudes,
     this.duration,
+    this.byteCount,
+    this.mediaType,
     this.products = const [],
     this.expand = false,
     this.quickReplies = const [],
@@ -94,6 +102,8 @@ class ChatMessage extends Equatable {
        amplitudes = null,
        fileName = null,
        duration = null,
+       byteCount = null,
+       mediaType = null,
        products = const [],
        expand = false;
 
@@ -106,6 +116,8 @@ class ChatMessage extends Equatable {
     required this.fileName,
     required this.amplitudes,
     required this.duration,
+    required this.byteCount,
+    required this.mediaType,
     this.quickReplies = const [],
   }) : type = MessageType.voice,
        products = const [],
@@ -120,6 +132,8 @@ class ChatMessage extends Equatable {
     required this.fileName,
     this.status = MessageStatus.inProgress,
     this.content = '',
+    required this.byteCount,
+    required this.mediaType,
     this.quickReplies = const [],
   }) : type = MessageType.image,
        amplitudes = null,
@@ -140,7 +154,9 @@ class ChatMessage extends Equatable {
        content = '',
        fileName = '',
        amplitudes = null,
-       duration = null;
+       duration = null,
+       byteCount = null,
+       mediaType = null;
 
   const ChatMessage.carousel({
     this.id,
@@ -155,7 +171,9 @@ class ChatMessage extends Equatable {
        content = '',
        fileName = '',
        amplitudes = null,
-       duration = null;
+       duration = null,
+       byteCount = null,
+       mediaType = null;
 
   // Creates a copy of a chat message
   ChatMessage copyWith({
@@ -168,6 +186,8 @@ class ChatMessage extends Equatable {
     String? fileName,
     List<double>? amplitudes,
     int? duration,
+    int? byteCount,
+    String? mediaType,
     List<Product>? products,
     bool? expand,
     List<String>? quickReplies,
@@ -183,6 +203,8 @@ class ChatMessage extends Equatable {
       fileName: fileName ?? this.fileName,
       amplitudes: amplitudes ?? this.amplitudes,
       duration: duration ?? this.duration,
+      byteCount: byteCount ?? this.byteCount,
+      mediaType: mediaType ?? this.mediaType,
       products: products ?? this.products,
       expand: expand ?? this.expand,
       quickReplies: quickReplies ?? this.quickReplies,
@@ -202,6 +224,8 @@ class ChatMessage extends Equatable {
     fileName,
     amplitudes,
     duration,
+    byteCount,
+    mediaType,
     products,
     expand,
     quickReplies,

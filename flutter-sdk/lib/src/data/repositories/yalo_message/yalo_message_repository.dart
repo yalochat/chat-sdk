@@ -18,6 +18,12 @@ abstract class YaloMessageRepository {
 
   Future<void> executeActions();
 
+  // Pauses polling (e.g. app backgrounded)
+  void pause();
+
+  // Resumes polling after a pause (e.g. app foregrounded)
+  void resume();
+
   // Method to free resources
   void dispose();
 }

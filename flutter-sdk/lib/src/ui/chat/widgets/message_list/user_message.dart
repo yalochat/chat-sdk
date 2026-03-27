@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-import 'user_image_message.dart';
+import 'image_message.dart';
 
 class UserMessage extends StatelessWidget {
   final ChatMessage message;
@@ -44,7 +44,7 @@ class UserMessage extends StatelessWidget {
                 textAlign: TextAlign.left,
               ),
               MessageType.voice => UserVoiceMessage(message: message),
-              MessageType.image => UserImageMessage(message: message),
+              MessageType.image => ImageMessage(message: message),
 
               // FIXME: Instead of throwing a special message could be rendered
               _ => throw UnimplementedError(

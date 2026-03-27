@@ -2,6 +2,8 @@
 
 import 'dart:math';
 
+import 'package:cross_file/cross_file.dart';
+
 import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/common/page.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
@@ -13,6 +15,7 @@ import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dar
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
+import 'package:flutter/widgets.dart' hide Page;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
 
@@ -20,7 +23,8 @@ import 'messages_event.dart';
 import 'messages_state.dart';
 
 /// A Bloc for managing the chat messages in messages list
-class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
+class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
+    with WidgetsBindingObserver {
   final Clock blocClock;
   final ChatMessageRepository _chatMessageRepository;
   final ImageRepository _imageRepository;
@@ -46,6 +50,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
            pageInfo: PageInfo(pageSize: pageSize),
          ),
        ) {
+    WidgetsBinding.instance.addObserver(this);
     on<ChatLoadMessages>(_handleFetchMessages);
     on<ChatSubscribeToEvents>(_handleEventsSubscription);
     on<ChatSubscribeToMessages>(_handleMessagesSubscription);
@@ -57,6 +62,27 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
     on<ChatClearQuickReplies>(_handleClearQuickReplies);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        log.info('App backgrounded — pausing polling');
+        _yaloMessageRepository.pause();
+      case AppLifecycleState.resumed:
+        log.info('App foregrounded — resuming polling');
+        _yaloMessageRepository.resume();
+      default:
+        break;
+    }
+  }
+
+  @override
+  Future<void> close() {
+    WidgetsBinding.instance.removeObserver(this);
+    return super.close();
   }
 
   // Event that handles the pagination of messages
@@ -111,7 +137,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     await emit.forEach(
       yaloMessageEvents,
       onData: (chatEvent) {
-        log.fine('Received chat event $chatEvent');
+        log.finest('Received chat event $chatEvent');
         final result = switch (chatEvent) {
           TypingStart() => state.copyWith(
             isSystemTypingMessage: true,
@@ -198,10 +224,18 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
       messageToInsert,
     );
-    _yaloMessageRepository.sendMessage(messageToInsert);
+
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Text message inserted successfully, id ${result.result.id}');
+        _yaloMessageRepository.sendMessage(result.result).then((sendResult) {
+          switch (sendResult) {
+            case Ok():
+              log.info('Text message sent successfully');
+            case Error():
+              log.severe('Failed to send text message', sendResult.error);
+          }
+        });
         emit(
           state.copyWith(
             // FIXME: Create a new way to track big message list copies
@@ -223,20 +257,37 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     Emitter<MessagesState> emit,
   ) async {
     log.info('Inserting voice message');
+    int byteCount;
+    try {
+      byteCount = await XFile(event.audioData.fileName).length();
+    } catch (e) {
+      log.warning('Unable to get byte count for voice file', e);
+      byteCount = 0;
+    }
     final messageToInsert = ChatMessage.voice(
       role: MessageRole.user,
       timestamp: blocClock.now(),
       fileName: event.audioData.fileName,
       amplitudes: event.audioData.amplitudesFilePreview,
       duration: event.audioData.duration,
+      byteCount: byteCount,
+      mediaType: 'audio/wav',
     );
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
       messageToInsert,
     );
-    _yaloMessageRepository.sendMessage(messageToInsert);
+
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Voice message inserted successfully, id ${result.result.id}');
+        _yaloMessageRepository.sendMessage(result.result).then((sendResult) {
+          switch (sendResult) {
+            case Ok():
+              log.info('Voice message sent successfully');
+            case Error():
+              log.severe('Failed to send voice message', sendResult.error);
+          }
+        });
         emit(state.copyWith(messages: [result.result, ...state.messages]));
         break;
       case Error<ChatMessage>():
@@ -270,15 +321,24 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
       timestamp: blocClock.now(),
       content: event.text,
       fileName: imageToInsert.path,
+      byteCount: imageToInsert.bytes.length,
+      mediaType: imageToInsert.mimeType,
     );
     Result<ChatMessage> result = await _chatMessageRepository.insertChatMessage(
       messageToInsert,
     );
 
-    _yaloMessageRepository.sendMessage(messageToInsert);
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Image message inserted successfully, id ${result.result.id}');
+        _yaloMessageRepository.sendMessage(result.result).then((sendResult) {
+          switch (sendResult) {
+            case Ok():
+              log.info('Image message sent successfully');
+            case Error():
+              log.severe('Failed to send image message', sendResult.error);
+          }
+        });
         emit(
           state.copyWith(
             messages: [result.result, ...state.messages],
