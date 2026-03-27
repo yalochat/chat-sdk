@@ -3,12 +3,13 @@
 package com.yalo.chat.sdk.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,12 +21,13 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 
 // Port of flutter-sdk _createQuickReplyOverlay in chat_input.dart.
 // Flutter renders chips in a vertical Column floating above ChatInput via an Overlay
-// widget anchored to the top-center of the input bar. In Compose we achieve the same
-// visual result by placing this composable directly above ChatInput inside the
-// Scaffold bottomBar Column — no Overlay machinery needed.
+// widget anchored to the top-center of the input bar. In Compose we approximate the
+// same visual result by placing this composable directly above ChatInput inside the
+// Scaffold bottomBar Column, instead of using an Overlay.
 //
-// Appearance/disappearance is animated (slide + fade) to avoid layout shifts,
-// mirroring the Overlay insert/remove behaviour in Flutter.
+// expandVertically/shrinkVertically animate the height from 0 to full smoothly so
+// the transition is not jarring to the user, even though the bottomBar height does
+// change and MessageList padding adjusts accordingly.
 @Composable
 internal fun QuickReplies(
     quickReplies: List<String>,
@@ -33,11 +35,13 @@ internal fun QuickReplies(
 ) {
     AnimatedVisibility(
         visible = quickReplies.isNotEmpty(),
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut(),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

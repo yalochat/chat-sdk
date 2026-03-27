@@ -2,12 +2,14 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -96,6 +98,8 @@ class QuickRepliesTest {
         assertEquals(MessageType.Text, userMessage?.type)
         // Chip row is now hidden.
         assertTrue(state.quickReplies.isEmpty())
+
+        vm.viewModelScope.cancel()
     }
 
     @Test
