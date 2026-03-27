@@ -260,7 +260,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     int byteCount;
     try {
       byteCount = await XFile(event.audioData.fileName).length();
-    } on Exception catch (e) {
+    } catch (e) {
       log.warning('Unable to get byte count for voice file', e);
       byteCount = 0;
     }
