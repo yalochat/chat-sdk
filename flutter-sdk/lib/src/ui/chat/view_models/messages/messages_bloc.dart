@@ -65,8 +65,8 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
-    switch (lifecycleState) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
         log.info('App backgrounded — pausing polling');
