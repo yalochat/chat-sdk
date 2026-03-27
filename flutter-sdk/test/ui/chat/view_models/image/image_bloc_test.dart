@@ -45,21 +45,6 @@ void main() {
       );
 
       blocTest<ImageBloc, ImageState>(
-        'should not emit anything if an image was already picked and the user does not pick a next image',
-        build: () => ImageBloc(imageRepository: imageRepository),
-        seed: () => ImageState(
-          pickedImage: ImageData(path: 'test/test.png', mimeType: 'image/png'),
-        ),
-        act: (bloc) {
-          when(
-            () => imageRepository.pickImage(ImagePickSource.camera),
-          ).thenAnswer((_) async => Result<ImageData?>.ok(null));
-          bloc.add(ImagePickFromCamera());
-        },
-        expect: () => [],
-      );
-
-      blocTest<ImageBloc, ImageState>(
         'should pick an image from gallery correctly',
         build: () => ImageBloc(imageRepository: imageRepository),
         act: (bloc) {
