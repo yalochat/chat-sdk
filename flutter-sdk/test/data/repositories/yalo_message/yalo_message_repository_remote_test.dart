@@ -390,6 +390,33 @@ void main() {
       });
     });
 
+    group('pause/resume', () {
+      test('pause stops polling', () {
+        repo.polling = true;
+        repo.pause();
+        expect(repo.polling, isFalse);
+      });
+
+      test('resume restarts polling after pause', () async {
+        when(
+          () => mockMessageService.fetchMessages(any()),
+        ).thenAnswer((_) async => Result.ok([]));
+
+        repo.messages(); // start polling
+        repo.pause();
+        expect(repo.polling, isFalse);
+
+        repo.resume();
+        expect(repo.polling, isTrue);
+      });
+
+      test('resume does nothing when not paused', () {
+        repo.polling = false;
+        repo.resume(); // should not start polling
+        expect(repo.polling, isFalse);
+      });
+    });
+
     group('executeActions', () {
       test('calls all registered actions', () async {
         bool firstCalled = false;

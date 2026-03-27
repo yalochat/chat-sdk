@@ -15,6 +15,7 @@ import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dar
 import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
+import 'package:flutter/widgets.dart' hide Page;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
 
@@ -22,7 +23,8 @@ import 'messages_event.dart';
 import 'messages_state.dart';
 
 /// A Bloc for managing the chat messages in messages list
-class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
+class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
+    with WidgetsBindingObserver {
   final Clock blocClock;
   final ChatMessageRepository _chatMessageRepository;
   final ImageRepository _imageRepository;
@@ -48,6 +50,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
            pageInfo: PageInfo(pageSize: pageSize),
          ),
        ) {
+    WidgetsBinding.instance.addObserver(this);
     on<ChatLoadMessages>(_handleFetchMessages);
     on<ChatSubscribeToEvents>(_handleEventsSubscription);
     on<ChatSubscribeToMessages>(_handleMessagesSubscription);
@@ -59,6 +62,27 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
     on<ChatClearQuickReplies>(_handleClearQuickReplies);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycleState) {
+    switch (lifecycleState) {
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        log.info('App backgrounded — pausing polling');
+        _yaloMessageRepository.pause();
+      case AppLifecycleState.resumed:
+        log.info('App foregrounded — resuming polling');
+        _yaloMessageRepository.resume();
+      default:
+        break;
+    }
+  }
+
+  @override
+  Future<void> close() {
+    WidgetsBinding.instance.removeObserver(this);
+    return super.close();
   }
 
   // Event that handles the pagination of messages
@@ -113,7 +137,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState> {
     await emit.forEach(
       yaloMessageEvents,
       onData: (chatEvent) {
-        log.fine('Received chat event $chatEvent');
+        log.finest('Received chat event $chatEvent');
         final result = switch (chatEvent) {
           TypingStart() => state.copyWith(
             isSystemTypingMessage: true,

@@ -18,6 +18,7 @@ import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -36,6 +37,7 @@ void main() {
     late MessagesBloc bloc;
 
     setUpAll(() {
+      TestWidgetsFlutterBinding.ensureInitialized();
       registerFallbackValue(
         ChatMessage(
           id: 0,
@@ -1650,6 +1652,34 @@ void main() {
         act: (bloc) => bloc.add(ChatClearMessages()),
         expect: () => [],
       );
+    });
+
+    group('lifecycle', () {
+      setUp(() {
+        when(() => yaloMessageRepository.pause()).thenReturn(null);
+        when(() => yaloMessageRepository.resume()).thenReturn(null);
+      });
+
+      test('pauses polling when app is backgrounded', () {
+        bloc.didChangeAppLifecycleState(AppLifecycleState.paused);
+        verify(() => yaloMessageRepository.pause()).called(1);
+      });
+
+      test('pauses polling when app is hidden', () {
+        bloc.didChangeAppLifecycleState(AppLifecycleState.hidden);
+        verify(() => yaloMessageRepository.pause()).called(1);
+      });
+
+      test('resumes polling when app is foregrounded', () {
+        bloc.didChangeAppLifecycleState(AppLifecycleState.resumed);
+        verify(() => yaloMessageRepository.resume()).called(1);
+      });
+
+      test('does not pause or resume on inactive state', () {
+        bloc.didChangeAppLifecycleState(AppLifecycleState.inactive);
+        verifyNever(() => yaloMessageRepository.pause());
+        verifyNever(() => yaloMessageRepository.resume());
+      });
     });
   });
 }

@@ -31,9 +31,7 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
         log.info(
           'Image picked successfully with file name ${result.result?.path}',
         );
-        if (result.result != null) {
-          emit(state.copyWith(pickedImage: () => result.result));
-        }
+        emit(state.copyWith(pickedImage: () => result.result));
         break;
       case Error():
         log.severe('Unable to pick user image', result.error);

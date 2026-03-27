@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
+import 'package:chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
@@ -28,6 +29,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   final StreamController<ChatEvent> _typingEventsStreamController =
       StreamController();
   bool polling = false;
+  bool _paused = false;
   final int pollingRate = 1;
   final int pollingRateWindow = 5;
   final cache = SimpleCache<String, bool>(capacity: 500);
@@ -99,8 +101,12 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       final newMessagesResult = await messageService.fetchMessages(timestamp);
       switch (newMessagesResult) {
         case Ok():
+          final sorted = newMessagesResult.result.toList()
+            ..sort(
+              (a, b) => a.date.toDateTime().compareTo(b.date.toDateTime()),
+            );
           final translated = await Future.wait(
-            newMessagesResult.result.reversed.map(_translateMessageResponse),
+            sorted.map(_translateMessageResponse),
           );
           final messages = translated.whereType<ChatMessage>();
           if (messages.isNotEmpty) {
@@ -133,8 +139,24 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   @override
+  void pause() {
+    log.info('Polling paused');
+    _paused = true;
+    polling = false;
+  }
+
+  @override
+  void resume() {
+    if (!_paused) return;
+    log.info('Polling resumed');
+    _paused = false;
+    _startPolling();
+  }
+
+  @override
   void dispose() {
     polling = false;
+    _paused = false;
   }
 
   @override
@@ -162,18 +184,21 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       TypingStart(statusText: 'Writing message...'),
     );
     final timestamp = DateTime.now();
-    String? mediaSignedUrl;
+    MediaUploadResponse? mediaUploadResponse;
     if (chatMessage.type == MessageType.image ||
         chatMessage.type == MessageType.voice) {
+      log.info(chatMessage.fileName);
       final uploadResult = await mediaService.uploadMedia(
         XFile(chatMessage.fileName!),
       );
       switch (uploadResult) {
         case Ok(:final result):
-          mediaSignedUrl = result.signedUrl;
-          log.fine("Image uploaded successfully with URL: '$mediaSignedUrl'");
+          mediaUploadResponse = result;
+          log.fine(
+            "Image uploaded successfully with URL: '${mediaUploadResponse.signedUrl}'",
+          );
         case Error(:final error):
-          log.severe("Unable to upload image", error);
+          log.severe("Unable to upload media", error);
           return Result.error(error);
       }
     }
@@ -199,7 +224,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
             timestamp: Timestamp.fromDateTime(chatMessage.timestamp),
             text: chatMessage.content,
             fileName: chatMessage.fileName,
-            mediaUrl: mediaSignedUrl,
+            mediaUrl: mediaUploadResponse!.id,
             mediaType: chatMessage.mediaType,
             byteCount: Int64(chatMessage.byteCount!),
             status: messageStatus,
@@ -214,7 +239,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
           content: proto.VoiceMessage(
             timestamp: Timestamp.fromDateTime(chatMessage.timestamp),
             fileName: chatMessage.fileName,
-            mediaUrl: mediaSignedUrl,
+            mediaUrl: mediaUploadResponse!.id,
             amplitudesPreview: chatMessage.amplitudes,
             duration: chatMessage.duration?.toDouble(),
             mediaType: chatMessage.mediaType,

@@ -47,7 +47,14 @@ class YaloMessageServiceRemote implements YaloMessageService {
         body: jsonEncode(request.toProto3Json()),
       );
 
-      log.info(jsonEncode(request.toProto3Json()));
+      log.finest('$_baseUrl/inapp/inbound_messages');
+      log.finest({
+        'content-type': 'application/json',
+        'x-user-id': entry.userId,
+        'x-channel-id': _channelId,
+        'authorization': 'Bearer ${entry.accessToken}',
+      });
+      log.fine(jsonEncode(request.toProto3Json()));
 
       if (response.statusCode == 200) {
         return Result.ok(Unit());
@@ -83,6 +90,13 @@ class YaloMessageServiceRemote implements YaloMessageService {
           'authorization': 'Bearer ${entry.accessToken}',
         },
       );
+      log.finest(uri);
+      log.finest({
+        'x-user-id': entry.userId,
+        'x-channel-id': _channelId,
+        'authorization': 'Bearer ${entry.accessToken}',
+      });
+      log.finest(response.body);
       if (response.statusCode == 200) {
         final data = (jsonDecode(response.body) as List<dynamic>)
             .map((json) => PollMessageItem.create()..mergeFromProto3Json(json))

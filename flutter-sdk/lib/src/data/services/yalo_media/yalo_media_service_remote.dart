@@ -10,12 +10,14 @@ import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/token_entry
 import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:logging/logging.dart';
 import 'package:mime/mime.dart';
 
 class YaloMediaServiceRemote implements YaloMediaService {
   final String _baseUrl;
   final YaloMessageAuthService _authService;
   final Client _httpClient;
+  final Logger log = Logger('YaloMediaServiceRemote');
 
   YaloMediaServiceRemote({
     required String baseUrl,
@@ -41,6 +43,8 @@ class YaloMediaServiceRemote implements YaloMediaService {
         'POST',
         Uri.parse('$_baseUrl/all/media'),
       );
+
+      log.info('Sending mime type $mimeType');
       request.headers['Authorization'] = 'Bearer ${entry.accessToken}';
       request.files.add(
         MultipartFile.fromBytes(
@@ -58,6 +62,7 @@ class YaloMediaServiceRemote implements YaloMediaService {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
         return Result.ok(MediaUploadResponse.fromJson(json));
       } else {
+        log.severe('Unable to upload media', response.body);
         return Result.error(
           Exception('Failed to upload media: ${response.statusCode}'),
         );
