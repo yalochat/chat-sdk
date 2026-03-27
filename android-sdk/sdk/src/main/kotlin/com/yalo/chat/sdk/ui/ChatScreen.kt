@@ -9,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -37,6 +38,7 @@ import com.yalo.chat.sdk.ui.chat.AudioViewModel
 import com.yalo.chat.sdk.ui.chat.ChatAppBar
 import com.yalo.chat.sdk.ui.chat.ChatInput
 import com.yalo.chat.sdk.ui.chat.ImageEvent
+import com.yalo.chat.sdk.ui.chat.QuickReplies
 import com.yalo.chat.sdk.ui.chat.ImagePreview
 import com.yalo.chat.sdk.ui.chat.ImageSideEffect
 import com.yalo.chat.sdk.ui.chat.ImageViewModel
@@ -217,31 +219,46 @@ fun ChatScreen(
                     )
                 },
                 bottomBar = {
-                    if (audioState.isRecording) {
-                        WaveformRecorder(
-                            audioData = audioState.audioData,
-                            onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
-                            onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
-                        )
-                    } else {
-                        ChatInput(
-                            userMessage = state.userMessage,
-                            onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
-                            onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
-                            onAttachmentClick = { showPickerSheet = true },
-                            showAttachmentButton = showAttachmentButton,
-                            onMicClick = {
-                                val hasPermission = ContextCompat.checkSelfPermission(
-                                    context,
-                                    Manifest.permission.RECORD_AUDIO,
-                                ) == PackageManager.PERMISSION_GRANTED
-                                if (hasPermission) {
-                                    audioViewModel.handleEvent(AudioEvent.StartRecording)
-                                } else {
-                                    recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                                }
-                            },
-                        )
+                    // Quick replies float above the input as a vertical column of chips,
+                    // mirroring Flutter's _createQuickReplyOverlay in chat_input.dart.
+                    // Hidden during recording — user cannot tap a reply while recording audio.
+                    Column {
+                        if (!audioState.isRecording) {
+                            QuickReplies(
+                                quickReplies = state.quickReplies,
+                                onChipClick = { text ->
+                                    // Mirror Flutter: ChatSendTextMessage then ChatClearQuickReplies.
+                                    viewModel.handleEvent(MessagesEvent.SendTextMessage(text))
+                                    viewModel.handleEvent(MessagesEvent.ClearQuickReplies)
+                                },
+                            )
+                        }
+                        if (audioState.isRecording) {
+                            WaveformRecorder(
+                                audioData = audioState.audioData,
+                                onCancel = { audioViewModel.handleEvent(AudioEvent.CancelRecording) },
+                                onSend = { audioViewModel.handleEvent(AudioEvent.StopRecording) },
+                            )
+                        } else {
+                            ChatInput(
+                                userMessage = state.userMessage,
+                                onUserMessageChange = { viewModel.handleEvent(MessagesEvent.UpdateUserMessage(it)) },
+                                onSendMessage = { viewModel.handleEvent(MessagesEvent.SendTextMessage(state.userMessage)) },
+                                onAttachmentClick = { showPickerSheet = true },
+                                showAttachmentButton = showAttachmentButton,
+                                onMicClick = {
+                                    val hasPermission = ContextCompat.checkSelfPermission(
+                                        context,
+                                        Manifest.permission.RECORD_AUDIO,
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                    if (hasPermission) {
+                                        audioViewModel.handleEvent(AudioEvent.StartRecording)
+                                    } else {
+                                        recordAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                    }
+                                },
+                            )
+                        }
                     }
                 },
                 snackbarHost = { SnackbarHost(snackbarHostState) },
