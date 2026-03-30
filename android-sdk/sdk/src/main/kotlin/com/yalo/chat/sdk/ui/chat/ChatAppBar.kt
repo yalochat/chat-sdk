@@ -3,6 +3,8 @@
 package com.yalo.chat.sdk.ui.chat
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,8 +30,8 @@ import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Mirrors Flutter's ChatAppBar + ChatTitle:
-//  - chatIconImage avatar in the title row (when theme.chatIconImage is non-null)
-//  - statusText subtitle below the channel name, shown with AnimatedVisibility —
+//  - chatIconImage avatar aligned to the top of the title column (when theme.chatIconImage is non-null)
+//  - isTyping controls a height-animated subtitle below the channel name —
 //    mirrors Flutter's ChatTitle AnimatedContainer that collapses to 0 height when empty
 //  - onShopPressed / onCartPressed as icon buttons in actions (when non-null)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +39,7 @@ import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 internal fun ChatAppBar(
     title: String,
     statusText: String = "",
+    isTyping: Boolean = false,
     onBack: (() -> Unit)? = null,
     onShopPressed: (() -> Unit)? = null,
     onCartPressed: (() -> Unit)? = null,
@@ -44,7 +47,9 @@ internal fun ChatAppBar(
     val theme = LocalChatTheme.current
     TopAppBar(
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Alignment.Top so the avatar stays anchored to the title line rather than
+            // centering against the full column height when the subtitle is visible.
+            Row(verticalAlignment = Alignment.Top) {
                 if (theme.chatIconImage != null) {
                     AsyncImage(
                         model = theme.chatIconImage,
@@ -58,7 +63,11 @@ internal fun ChatAppBar(
                 }
                 Column {
                     Text(text = title)
-                    AnimatedVisibility(visible = statusText.isNotEmpty()) {
+                    AnimatedVisibility(
+                        visible = isTyping,
+                        enter = expandVertically(),
+                        exit = shrinkVertically(),
+                    ) {
                         Text(
                             text = statusText,
                             style = MaterialTheme.typography.bodySmall,

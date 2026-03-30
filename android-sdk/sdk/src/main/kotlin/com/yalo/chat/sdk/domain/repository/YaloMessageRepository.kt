@@ -20,7 +20,7 @@ interface YaloMessageRepository {
     // YaloMessageRepositoryRemote polls on a 1s interval with a 5s lookback window.
     fun pollIncomingMessages(): Flow<List<ChatMessage>>
 
-    // M7: typing event stream — mirrors Flutter's _typingEventsStreamController.
+    // Typing event stream — mirrors Flutter's _typingEventsStreamController.
     // TypingStart is emitted by sendMessage(); TypingStop is emitted when the poll receives
     // messages or encounters an error. FakeYaloMessageRepository returns emptyFlow().
     fun events(): Flow<ChatEvent>

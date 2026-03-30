@@ -215,6 +215,7 @@ fun ChatScreen(
                     appBar?.invoke() ?: ChatAppBar(
                         title = YaloChat.config.channelName,
                         statusText = state.chatStatusText,
+                        isTyping = state.isSystemTypingMessage,
                         onBack = onBack,
                         onShopPressed = onShopPressed,
                         onCartPressed = onCartPressed,

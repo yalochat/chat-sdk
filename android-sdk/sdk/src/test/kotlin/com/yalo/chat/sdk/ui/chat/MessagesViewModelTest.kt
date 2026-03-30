@@ -16,6 +16,7 @@ import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -87,9 +88,11 @@ class MessagesViewModelTest {
 
     // ── SubscribeToEvents / Typing Indicators ─────────────────────────────────
 
-    @Test
-    fun `SubscribeToEvents on TypingStart sets isSystemTypingMessage true and chatStatusText`() = runTest {
-        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
+    // Returns a ViewModel backed by a controllable events flow, already subscribed.
+    // Mirrors the production path: SubscribeToEvents dispatched in LaunchedEffect(Unit).
+    private fun viewModelWithEvents(
+        eventsFlow: MutableSharedFlow<ChatEvent> = MutableSharedFlow(extraBufferCapacity = Channel.UNLIMITED),
+    ): Pair<MessagesViewModel, MutableSharedFlow<ChatEvent>> {
         val yaloRepo = object : YaloMessageRepository {
             override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
             override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
@@ -98,8 +101,14 @@ class MessagesViewModelTest {
         }
         val vm = viewModel(yaloRepo = yaloRepo)
         vm.handleEvent(MessagesEvent.SubscribeToEvents)
+        return vm to eventsFlow
+    }
 
-        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+    @Test
+    fun `SubscribeToEvents on TypingStart sets isSystemTypingMessage true and chatStatusText`() = runTest {
+        val (vm, events) = viewModelWithEvents()
+
+        events.emit(ChatEvent.TypingStart("Writing message..."))
 
         assertTrue(vm.state.value.isSystemTypingMessage)
         assertEquals("Writing message...", vm.state.value.chatStatusText)
@@ -107,18 +116,10 @@ class MessagesViewModelTest {
 
     @Test
     fun `SubscribeToEvents on TypingStop resets isSystemTypingMessage and chatStatusText`() = runTest {
-        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 2)
-        val yaloRepo = object : YaloMessageRepository {
-            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
-            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
-            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
-            override fun events(): Flow<ChatEvent> = eventsFlow
-        }
-        val vm = viewModel(yaloRepo = yaloRepo)
-        vm.handleEvent(MessagesEvent.SubscribeToEvents)
+        val (vm, events) = viewModelWithEvents()
 
-        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
-        eventsFlow.emit(ChatEvent.TypingStop)
+        events.emit(ChatEvent.TypingStart("Writing message..."))
+        events.emit(ChatEvent.TypingStop)
 
         assertFalse(vm.state.value.isSystemTypingMessage)
         assertEquals("", vm.state.value.chatStatusText)
@@ -126,18 +127,10 @@ class MessagesViewModelTest {
 
     @Test
     fun `SubscribeToEvents is idempotent — calling twice does not duplicate state updates`() = runTest {
-        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
-        val yaloRepo = object : YaloMessageRepository {
-            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
-            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
-            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
-            override fun events(): Flow<ChatEvent> = eventsFlow
-        }
-        val vm = viewModel(yaloRepo = yaloRepo)
-        vm.handleEvent(MessagesEvent.SubscribeToEvents)
+        val (vm, events) = viewModelWithEvents()
         vm.handleEvent(MessagesEvent.SubscribeToEvents) // second call is a no-op
 
-        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+        events.emit(ChatEvent.TypingStart("Writing message..."))
 
         // State should reflect exactly one TypingStart — not doubled.
         assertTrue(vm.state.value.isSystemTypingMessage)
@@ -147,16 +140,8 @@ class MessagesViewModelTest {
 
     @Test
     fun `ClearMessages resets typing indicator state`() = runTest {
-        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
-        val yaloRepo = object : YaloMessageRepository {
-            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
-            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
-            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
-            override fun events(): Flow<ChatEvent> = eventsFlow
-        }
-        val vm = viewModel(yaloRepo = yaloRepo)
-        vm.handleEvent(MessagesEvent.SubscribeToEvents)
-        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+        val (vm, events) = viewModelWithEvents()
+        events.emit(ChatEvent.TypingStart("Writing message..."))
         assertTrue(vm.state.value.isSystemTypingMessage)
 
         vm.handleEvent(MessagesEvent.ClearMessages)

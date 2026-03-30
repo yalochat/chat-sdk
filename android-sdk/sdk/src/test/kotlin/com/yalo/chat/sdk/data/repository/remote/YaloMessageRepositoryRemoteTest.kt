@@ -242,7 +242,7 @@ class YaloMessageRepositoryRemoteTest {
         collectJob.cancel()
         assertEquals(1, collectedEvents.size)
         assertIs<ChatEvent.TypingStart>(collectedEvents[0])
-        assertEquals("Writing message...", (collectedEvents[0] as ChatEvent.TypingStart).statusText)
+        assertEquals("Writing message...", (collectedEvents[0] as ChatEvent.TypingStart).statusText) // matches TYPING_STATUS_TEXT
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
