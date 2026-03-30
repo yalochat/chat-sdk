@@ -4,6 +4,7 @@ package com.yalo.chat.sdk.data
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -12,6 +13,7 @@ import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -27,6 +29,7 @@ class MessageSyncServiceTest {
             override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
             override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
             override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flowOf(*batches)
+            override fun events(): Flow<ChatEvent> = emptyFlow()
         }
 
     private fun msg(id: Long, content: String = "msg $id") = ChatMessage(
