@@ -3,6 +3,7 @@
 package com.yalo.chat.sdk.domain.repository
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import kotlinx.coroutines.flow.Flow
 
@@ -18,4 +19,9 @@ interface YaloMessageRepository {
     // FakeYaloMessageRepository returns emptyFlow() (no-op for Phase 1 tests).
     // YaloMessageRepositoryRemote polls on a 1s interval with a 5s lookback window.
     fun pollIncomingMessages(): Flow<List<ChatMessage>>
+
+    // M7: typing event stream — mirrors Flutter's _typingEventsStreamController.
+    // TypingStart is emitted by sendMessage(); TypingStop is emitted when the poll receives
+    // messages or encounters an error. FakeYaloMessageRepository returns emptyFlow().
+    fun events(): Flow<ChatEvent>
 }

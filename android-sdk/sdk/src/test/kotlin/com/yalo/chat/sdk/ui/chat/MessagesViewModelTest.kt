@@ -5,18 +5,23 @@ package com.yalo.chat.sdk.ui.chat
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
+import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -25,6 +30,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
@@ -79,6 +85,86 @@ class MessagesViewModelTest {
         assertIs<ChatStatus.Failure>(vm.state.value.chatStatus)
     }
 
+    // ── SubscribeToEvents / Typing Indicators ─────────────────────────────────
+
+    @Test
+    fun `SubscribeToEvents on TypingStart sets isSystemTypingMessage true and chatStatusText`() = runTest {
+        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
+        val yaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = eventsFlow
+        }
+        val vm = viewModel(yaloRepo = yaloRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToEvents)
+
+        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+
+        assertTrue(vm.state.value.isSystemTypingMessage)
+        assertEquals("Writing message...", vm.state.value.chatStatusText)
+    }
+
+    @Test
+    fun `SubscribeToEvents on TypingStop resets isSystemTypingMessage and chatStatusText`() = runTest {
+        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 2)
+        val yaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = eventsFlow
+        }
+        val vm = viewModel(yaloRepo = yaloRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToEvents)
+
+        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+        eventsFlow.emit(ChatEvent.TypingStop)
+
+        assertFalse(vm.state.value.isSystemTypingMessage)
+        assertEquals("", vm.state.value.chatStatusText)
+    }
+
+    @Test
+    fun `SubscribeToEvents is idempotent — calling twice does not duplicate state updates`() = runTest {
+        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
+        val yaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = eventsFlow
+        }
+        val vm = viewModel(yaloRepo = yaloRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToEvents)
+        vm.handleEvent(MessagesEvent.SubscribeToEvents) // second call is a no-op
+
+        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+
+        // State should reflect exactly one TypingStart — not doubled.
+        assertTrue(vm.state.value.isSystemTypingMessage)
+        assertEquals("Writing message...", vm.state.value.chatStatusText)
+        vm.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `ClearMessages resets typing indicator state`() = runTest {
+        val eventsFlow = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
+        val yaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = eventsFlow
+        }
+        val vm = viewModel(yaloRepo = yaloRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToEvents)
+        eventsFlow.emit(ChatEvent.TypingStart("Writing message..."))
+        assertTrue(vm.state.value.isSystemTypingMessage)
+
+        vm.handleEvent(MessagesEvent.ClearMessages)
+
+        assertFalse(vm.state.value.isSystemTypingMessage)
+        assertEquals("", vm.state.value.chatStatusText)
+    }
+
     // ── UpdateUserMessage ─────────────────────────────────────────────────────
 
     @Test
@@ -116,12 +202,12 @@ class MessagesViewModelTest {
     @Test
     fun `SendTextMessage marks optimistic message as ERROR when remote send fails`() = runTest {
         val chatRepo = FakeChatMessageRepository()
-        val failingYaloRepo = object : com.yalo.chat.sdk.domain.repository.YaloMessageRepository {
+        val failingYaloRepo = object : YaloMessageRepository {
             override suspend fun sendMessage(message: ChatMessage) =
                 Result.Error<Unit>(RuntimeException("network error"))
             override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
-            override fun pollIncomingMessages(): kotlinx.coroutines.flow.Flow<List<ChatMessage>> =
-                kotlinx.coroutines.flow.emptyFlow()
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = emptyFlow()
         }
         val vm = viewModel(yaloRepo = failingYaloRepo, chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SendTextMessage("hello"))

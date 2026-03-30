@@ -10,6 +10,7 @@ import com.google.protobuf.timestamp
 import yalo.external_channel.in_app.sdk.v1.sdkMessage
 import yalo.external_channel.in_app.sdk.v1.textMessageRequest
 import yalo.external_channel.in_app.sdk.v1.textMessage
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -17,6 +18,8 @@ import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -39,14 +42,22 @@ internal class YaloMessageRepositoryRemote(
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
+    // M7: hot SharedFlow for typing events — mirrors Flutter's _typingEventsStreamController.
+    // extraBufferCapacity = 1 ensures tryEmit() succeeds even if the collector is briefly busy.
+    private val _events = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 1)
+    override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
+
     // Sends a text message to the Yalo backend.
     // Non-text types (image, audio) are stored locally only; the backend rejects them.
+    // Emits TypingStart immediately so the app bar shows the typing indicator while the
+    // agent prepares a response — mirrors Flutter's sendMessage() in YaloMessageRepositoryRemote.
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> {
         if (message.type != MessageType.Text) {
             return Result.Error(
                 UnsupportedOperationException("Only text messages can be sent to the backend")
             )
         }
+        _events.tryEmit(ChatEvent.TypingStart("Writing message..."))
         val now = Clock.System.now()
         val nowIso = now.toString()
         // Build the canonical proto SdkMessage using the Kotlin DSL generated from sdk_message.proto.
@@ -87,9 +98,18 @@ internal class YaloMessageRepositoryRemote(
             when (val result = apiService.fetchMessages(since)) {
                 is Result.Ok -> {
                     val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }
-                    if (batch.isNotEmpty()) emit(batch)
+                    if (batch.isNotEmpty()) {
+                        // Messages arrived — agent has replied, dismiss the typing indicator.
+                        // Mirrors Flutter: TypingStop emitted before adding messages to stream.
+                        _events.tryEmit(ChatEvent.TypingStop)
+                        emit(batch)
+                    }
                 }
-                is Result.Error -> Unit // swallow, loop continues — mirrors Flutter SDK
+                is Result.Error -> {
+                    // Fetch failed — clear typing indicator so it doesn't get stuck.
+                    // Mirrors Flutter: TypingStop emitted in the catch block.
+                    _events.tryEmit(ChatEvent.TypingStop)
+                }
             }
             delay(pollingIntervalMs)
         }
