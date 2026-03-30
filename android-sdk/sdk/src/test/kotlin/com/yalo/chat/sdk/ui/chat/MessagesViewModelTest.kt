@@ -125,15 +125,23 @@ class MessagesViewModelTest {
     }
 
     @Test
-    fun `SubscribeToEvents is idempotent — calling twice does not duplicate state updates`() = runTest {
+    fun `SubscribeToEvents is idempotent — second job does not survive ClearMessages`() = runTest {
         val (vm, events) = viewModelWithEvents()
-        vm.handleEvent(MessagesEvent.SubscribeToEvents) // second call is a no-op
+        vm.handleEvent(MessagesEvent.SubscribeToEvents) // second call must be a no-op
+
+        events.emit(ChatEvent.TypingStart("Writing message..."))
+        assertTrue(vm.state.value.isSystemTypingMessage)
+
+        // ClearMessages should cancel the single tracked eventsJob.
+        // If idempotency is broken, a second uncancelled job survives here
+        // and the next TypingStart would still update state.
+        vm.handleEvent(MessagesEvent.ClearMessages)
+        assertFalse(vm.state.value.isSystemTypingMessage)
 
         events.emit(ChatEvent.TypingStart("Writing message..."))
 
-        // State should reflect exactly one TypingStart — not doubled.
-        assertTrue(vm.state.value.isSystemTypingMessage)
-        assertEquals("Writing message...", vm.state.value.chatStatusText)
+        // State must NOT update — no active subscriber should remain.
+        assertFalse(vm.state.value.isSystemTypingMessage)
         vm.viewModelScope.cancel()
     }
 
