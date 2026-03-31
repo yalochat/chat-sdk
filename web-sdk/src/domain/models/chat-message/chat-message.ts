@@ -11,6 +11,7 @@ export const MessageTypes = [
   'productCarousel',
   'promotion',
   'quickReply',
+  'attachment',
   'unknown',
 ] as const;
 export type MessageType = (typeof MessageTypes)[number];
@@ -115,5 +116,21 @@ export class ChatMessage {
     quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'image' });
+  }
+
+  static attachment(params: {
+    role: MessageRole;
+    timestamp: Date;
+    fileName: string;
+    id?: number;
+    wiId?: string;
+    status?: MessageStatus;
+    content?: string;
+    byteCount?: number;
+    mediaType?: string;
+    blob?: Blob;
+    quickReplies?: string[];
+  }): ChatMessage {
+    return new ChatMessage({ ...params, type: 'attachment' });
   }
 }

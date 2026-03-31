@@ -100,19 +100,19 @@ export class ChatFooter extends LitElement {
       display: flex;
     }
 
-    .attachment-button {
-      width: 10%;
-      appearance: none;
-      border: none;
-      outline: none;
-      background: none;
-      color: var(--yalo-chat-attachment-button-color);
+    label[for='file-picker'] {
       display: flex;
-      padding: 0;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
+      color: var(--yalo-chat-attachment-button-color);
+      border-radius: 50%;
+      transition: background 200ms ease;
+    }
+
+    label[for='file-picker']:hover {
+      background: rgba(0, 0, 0, 0.06);
     }
 
     input[type='file'] {
@@ -178,24 +178,37 @@ export class ChatFooter extends LitElement {
     if (!file) return;
 
     const isImage = file.type.startsWith('image/');
-    if (!isImage) return;
-
-    const imageMessage = ChatMessage.image({
-      role: 'USER',
-      timestamp: new Date(),
-      fileName: file.name,
-      content: '',
-      byteCount: file.size,
-      mediaType: file.type,
-      blob: file,
-    });
+    const message = isImage
+      ? ChatMessage.image({
+          role: 'USER',
+          timestamp: new Date(),
+          fileName: file.name,
+          content: '',
+          byteCount: file.size,
+          mediaType: file.type,
+          blob: file,
+        })
+      : ChatMessage.attachment({
+          role: 'USER',
+          timestamp: new Date(),
+          fileName: file.name,
+          content: '',
+          byteCount: file.size,
+          mediaType: file.type,
+          blob: file,
+        });
 
     this.dispatchEvent(
-      new CustomEvent('yalo-chat-send-image-message', {
-        detail: { message: imageMessage, file },
-        bubbles: true,
-        composed: true,
-      })
+      new CustomEvent(
+        isImage
+          ? 'yalo-chat-send-image-message'
+          : 'yalo-chat-send-attachment-message',
+        {
+          detail: { message, file },
+          bubbles: true,
+          composed: true,
+        }
+      )
     );
 
     input.value = '';

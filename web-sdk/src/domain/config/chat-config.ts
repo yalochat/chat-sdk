@@ -7,6 +7,7 @@ export interface SdkIcons {
   attachment?: string;
   play?: string;
   pause?: string;
+  document?: string;
 }
 
 export interface YaloChatClientConfig {
@@ -27,4 +28,5 @@ export const defaultIcons: SdkIcons = {
   attachment: '<span class="material-symbols-outlined">add</span>',
   play: '<span class="material-symbols-outlined">play_arrow</span>',
   pause: '<span class="material-symbols-outlined">pause</span>',
+  document: '<span class="material-symbols-outlined">description</span>',
 };

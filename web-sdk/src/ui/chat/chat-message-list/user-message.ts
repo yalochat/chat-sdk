@@ -5,6 +5,7 @@ import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import './image-message';
 import './voice-message';
+import './attachment-message';
 
 @customElement('user-message')
 export class UserMessage extends LitElement {
@@ -54,6 +55,10 @@ export class UserMessage extends LitElement {
         return html`<div class="image-bubble">
           <image-message .message=${this.message}></image-message>
         </div>`;
+      case 'attachment':
+        return html`<span class="bubble">
+          <attachment-message .message=${this.message}></attachment-message>
+        </span>`;
       case 'text':
       default:
         return html`<span class="bubble">${this.message.content}</span>`;

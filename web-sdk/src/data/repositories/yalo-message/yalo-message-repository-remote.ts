@@ -102,6 +102,26 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
           timestamp: timestamp,
         };
         break;
+      case 'attachment':
+        body = {
+          correlationId: message.id?.toString() || '',
+          attachmentMessageRequest: {
+            content: {
+              timestamp: message.timestamp,
+              text: message.content,
+              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+              role: MessageRole.MESSAGE_ROLE_USER,
+              mediaUrl: mediaId ?? message.fileName!,
+              mediaType: message.mediaType!,
+              byteCount: message.byteCount!,
+              fileName: message.fileName!,
+            },
+            timestamp: timestamp,
+            quickReplies: [],
+          },
+          timestamp: timestamp,
+        };
+        break;
       default:
         throw Error('UnimplementedError');
     }
@@ -119,7 +139,9 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     try {
       let mediaId: string | undefined;
       if (
-        (message.type === 'image' || message.type === 'voice') &&
+        (message.type === 'image' ||
+          message.type === 'voice' ||
+          message.type === 'attachment') &&
         message.blob
       ) {
         const file = new File(
@@ -193,6 +215,19 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         fileName: content.fileName,
         amplitudes: content.amplitudesPreview,
         duration: content.duration,
+        mediaType: content.mediaType,
+        byteCount: content.byteCount,
+        wiId: item.id,
+      });
+    }
+
+    if (msg.attachmentMessageRequest?.content) {
+      const content = msg.attachmentMessageRequest.content;
+      return ChatMessage.attachment({
+        role: 'AGENT',
+        timestamp,
+        fileName: content.mediaUrl || content.fileName,
+        content: content.text ?? '',
         mediaType: content.mediaType,
         byteCount: content.byteCount,
         wiId: item.id,

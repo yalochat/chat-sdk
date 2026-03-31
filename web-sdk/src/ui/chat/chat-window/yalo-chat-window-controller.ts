@@ -158,6 +158,41 @@ export default class YaloChatWindowController implements ReactiveController {
     }, this._writingTimeoutMs);
   }
 
+  async sendAttachmentMessage(e: CustomEvent) {
+    const { message: attachmentMessage } = e.detail as {
+      message: ChatMessage;
+      file: File;
+    };
+
+    const localResult =
+      await this.host.chatMessageRepository.insertChatMessage(attachmentMessage);
+
+    if (localResult.ok) {
+      this.host.logger.debug('Attachment message inserted locally');
+      this.chatMessages = [localResult.value, ...this.chatMessages];
+      this.host.requestUpdate();
+      const yaloResult = await this.host.yaloMessageRepository.insertMessage(
+        localResult.value
+      );
+      if (!yaloResult.ok) {
+        this.host.logger.error('Unable to send attachment message to Yalo', {
+          error: yaloResult.error,
+        });
+      }
+    } else {
+      this.host.logger.error('Unable to insert attachment message locally', {
+        error: localResult.error,
+      });
+    }
+
+    this.isWriting = true;
+    this.host.requestUpdate();
+    this._writingTimeout = setTimeout(() => {
+      this.isWriting = false;
+      this.host.requestUpdate();
+    }, this._writingTimeoutMs);
+  }
+
   async sendImageMessage(e: CustomEvent) {
     const { message: imageMessage } = e.detail as {
       message: ChatMessage;
