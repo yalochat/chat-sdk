@@ -15,11 +15,11 @@ class WaveformPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final barWidth = size.width / _amplitudes.length;
     for (var i = 0; i < _amplitudes.length; i++) {
       // Convert from dbfs to 0 to 1.
       final amplitude = pow(10, (_amplitudes[i] / 20)).toDouble();
       final height = max(0.05 * size.height, amplitude * size.height);
-      final barWidth = size.width / _amplitudes.length;
       final rect = Rect.fromCenter(
         center: Offset(i * barWidth, size.height / 2),
         width: barWidth * 0.8,

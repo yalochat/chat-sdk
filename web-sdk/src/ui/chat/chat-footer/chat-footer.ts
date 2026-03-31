@@ -15,7 +15,7 @@ import { ChatFooterController } from './chat-footer-controller';
 import { AudioRecordingController } from './audio-recording-controller';
 import { loggerContext, type Logger } from '@log/logger-context';
 
-import './waveform-recorder.ts';
+import '@ui/chat/waveform-painter/waveform-painter';
 
 @customElement('chat-footer')
 @localized()
@@ -150,6 +150,10 @@ export class ChatFooter extends LitElement {
           <div class="chat-input-box">
             ${this._audioController.status === 'recording'
               ? html`<waveform-recorder
+                  time=${this._audioController.formatTime(
+                    this._audioController.elapsedMs
+                  )}
+                  .amplitudes=${this._audioController.amplitudes}
                   @yalo-chat-stop-voice-message=${() =>
                     this._handleStopRecording()}
                 ></waveform-recorder>`

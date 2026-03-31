@@ -14,6 +14,7 @@ export interface YaloChatClientConfig {
   image?: string;
   locale?: string;
   icons?: SdkIcons;
+  audioWaveformColor?: string;
 }
 
 export const defaultIcons: SdkIcons = {
