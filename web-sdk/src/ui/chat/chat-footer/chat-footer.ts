@@ -27,6 +27,7 @@ export class ChatFooter extends LitElement {
       --yalo-chat-input-font-size: 16px;
       --yalo-chat-send-btn-background: #2207f1;
       --yalo-chat-send-btn-color: white;
+      --yalo-chat-attachment-button-color: #7c8086;
     }
 
     .chat-form {
@@ -44,6 +45,7 @@ export class ChatFooter extends LitElement {
 
     .chat-input {
       font-size: var(--yalo-chat-input-font-size);
+      line-height: 1.5;
       appearance: none;
       max-height: calc(1.5em * 3 + var(--yalo-chat-column-item-space) * 2);
       box-sizing: border-box;
@@ -93,6 +95,29 @@ export class ChatFooter extends LitElement {
       font-size: 1.5rem;
       font-family: 'Material Symbols Outlined';
     }
+
+    .chat-input-container {
+      display: flex;
+    }
+
+    .attachment-button {
+      width: 10%;
+      appearance: none;
+      border: none;
+      outline: none;
+      background: none;
+      color: var(--yalo-chat-attachment-button-color);
+      display: flex;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    input[type='file'] {
+      display: none;
+    }
   `;
 
   @consume({ context: loggerContext })
@@ -111,7 +136,10 @@ export class ChatFooter extends LitElement {
   private _audioController = new AudioRecordingController(this);
 
   private _handleActionClick(e: Event) {
-    if (this._audioController.status === 'recording') return;
+    if (this._audioController.status === 'recording') {
+      this._handleSendVoiceMessage();
+      return;
+    }
     if (this.hasText) {
       this._chatFootercontroller.sendTextMessage(e);
     } else {
@@ -119,14 +147,16 @@ export class ChatFooter extends LitElement {
     }
   }
 
-  private async _handleStopRecording() {
+  private async _handleSendVoiceMessage() {
     const result = await this._audioController.stopRecording();
+
     const voiceMessage = ChatMessage.voice({
       role: 'USER',
       timestamp: new Date(),
       fileName: `voice-${Date.now()}.webm`,
       amplitudes: result.amplitudes,
       duration: result.duration,
+      blob: result.blob,
     });
 
     this.dispatchEvent(
@@ -136,6 +166,39 @@ export class ChatFooter extends LitElement {
         composed: true,
       })
     );
+  }
+
+  private async _handleStopRecording() {
+    await this._audioController.stopRecording();
+  }
+
+  private _handleFilePicked(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) return;
+
+    const imageMessage = ChatMessage.image({
+      role: 'USER',
+      timestamp: new Date(),
+      fileName: file.name,
+      content: '',
+      byteCount: file.size,
+      mediaType: file.type,
+      blob: file,
+    });
+
+    this.dispatchEvent(
+      new CustomEvent('yalo-chat-send-image-message', {
+        detail: { message: imageMessage, file },
+        bubbles: true,
+        composed: true,
+      })
+    );
+
+    input.value = '';
   }
 
   render() {
@@ -157,15 +220,27 @@ export class ChatFooter extends LitElement {
                   @yalo-chat-stop-voice-message=${() =>
                     this._handleStopRecording()}
                 ></waveform-recorder>`
-              : html` <textarea
-                  id="yalo-chat-input"
-                  class="chat-input"
-                  rows="1"
-                  placeholder="${msg('Write a message...')}"
-                  @input=${() => this._chatFootercontroller.handleOnInput()}
-                  @keydown=${(e: KeyboardEvent) =>
-                    this._chatFootercontroller.handleOnKeyDown(e)}
-                ></textarea>`}
+              : html` <div class="chat-input-container">
+                  <textarea
+                    id="yalo-chat-input"
+                    class="chat-input"
+                    rows="1"
+                    placeholder="${msg('Write a message...')}"
+                    @input=${() => this._chatFootercontroller.handleOnInput()}
+                    @keydown=${(e: KeyboardEvent) =>
+                      this._chatFootercontroller.handleOnKeyDown(e)}
+                  ></textarea>
+                  <label for="file-picker">
+                    ${unsafeHTML(this.config.icons?.attachment)}
+                  </label>
+                  <input
+                    id="file-picker"
+                    type="file"
+                    class="attachment-button"
+                    accept="image/*,.pdf"
+                    @change=${(e: Event) => this._handleFilePicked(e)}
+                  />
+                </div>`}
           </div>
           <button
             class="chat-action-button"

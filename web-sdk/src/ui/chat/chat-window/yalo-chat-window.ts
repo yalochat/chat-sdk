@@ -118,6 +118,8 @@ export class YaloChatWindow extends LitElement {
             this._chatWindowController.sendTextMessage(e)}
           @yalo-chat-send-voice-message=${(e: CustomEvent) =>
             this._chatWindowController.sendVoiceMessage(e)}
+          @yalo-chat-send-image-message=${(e: CustomEvent) =>
+            this._chatWindowController.sendImageMessage(e)}
         >
         </chat-footer>
       </div>

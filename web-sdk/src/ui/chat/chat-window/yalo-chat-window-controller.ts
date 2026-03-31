@@ -58,15 +58,17 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.config
     );
     const tokenRepository = new TokenRepositoryLocal(db, authService);
+    const mediaService = new YaloMediaServiceRemote(
+      import.meta.env.VITE_YALO_API_BASE_URL,
+      tokenRepository
+    );
     this.host.yaloMessageRepository = new YaloMessageRepositoryRemote(
       import.meta.env.VITE_YALO_API_BASE_URL,
       this.host.config,
-      tokenRepository
+      tokenRepository,
+      mediaService
     );
-    this.host.yaloMediaService = new YaloMediaServiceRemote(
-      import.meta.env.VITE_YALO_API_BASE_URL,
-      tokenRepository
-    );
+    this.host.yaloMediaService = mediaService;
     this.host.logger.debug('Initialized with config', this.host.config);
 
     const pages = await this.host.chatMessageRepository.getChatMessagePageDesc(
@@ -144,6 +146,41 @@ export default class YaloChatWindowController implements ReactiveController {
       }
     } else {
       this.host.logger.error('Unable to insert voice message locally', {
+        error: localResult.error,
+      });
+    }
+
+    this.isWriting = true;
+    this.host.requestUpdate();
+    this._writingTimeout = setTimeout(() => {
+      this.isWriting = false;
+      this.host.requestUpdate();
+    }, this._writingTimeoutMs);
+  }
+
+  async sendImageMessage(e: CustomEvent) {
+    const { message: imageMessage } = e.detail as {
+      message: ChatMessage;
+      file: File;
+    };
+
+    const localResult =
+      await this.host.chatMessageRepository.insertChatMessage(imageMessage);
+
+    if (localResult.ok) {
+      this.host.logger.debug('Image message inserted locally');
+      this.chatMessages = [localResult.value, ...this.chatMessages];
+      this.host.requestUpdate();
+      const yaloResult = await this.host.yaloMessageRepository.insertMessage(
+        localResult.value
+      );
+      if (!yaloResult.ok) {
+        this.host.logger.error('Unable to send image message to Yalo', {
+          error: yaloResult.error,
+        });
+      }
+    } else {
+      this.host.logger.error('Unable to insert image message locally', {
         error: localResult.error,
       });
     }

@@ -37,6 +37,7 @@ export class ChatMessage {
   readonly duration?: number;
   readonly byteCount?: number;
   readonly mediaType?: string;
+  readonly blob?: Blob;
   readonly quickReplies: string[];
 
   constructor(params: {
@@ -52,6 +53,7 @@ export class ChatMessage {
     duration?: number;
     byteCount?: number;
     mediaType?: string;
+    blob?: Blob;
     quickReplies?: string[];
   }) {
     this.id = params.id;
@@ -66,6 +68,7 @@ export class ChatMessage {
     this.duration = params.duration;
     this.byteCount = params.byteCount;
     this.mediaType = params.mediaType;
+    this.blob = params.blob;
     this.quickReplies = params.quickReplies ?? [];
   }
 
@@ -92,6 +95,7 @@ export class ChatMessage {
     status?: MessageStatus;
     byteCount?: number;
     mediaType?: string;
+    blob?: Blob;
     quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'voice' });
@@ -107,6 +111,7 @@ export class ChatMessage {
     content?: string;
     byteCount?: number;
     mediaType?: string;
+    blob?: Blob;
     quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'image' });

@@ -14,6 +14,7 @@ import {
   SdkMessage,
   PollMessageItem,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
 
 interface JwtPayload {
   user_id: string;
@@ -23,6 +24,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _baseUrl: string;
   private readonly _config: YaloChatClientConfig;
   private readonly _tokenRepository: TokenRepository;
+  private readonly _mediaService: YaloMediaService;
   private _pollTimeout?: ReturnType<typeof setTimeout>;
   private _seenIds = new Set<string>();
   private _pollInterval = 2000;
@@ -30,14 +32,16 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   constructor(
     baseUrl: string,
     config: YaloChatClientConfig,
-    tokenRepository: TokenRepository
+    tokenRepository: TokenRepository,
+    mediaService: YaloMediaService
   ) {
     this._baseUrl = baseUrl;
     this._config = config;
     this._tokenRepository = tokenRepository;
+    this._mediaService = mediaService;
   }
 
-  private _createSdkMessage(message: ChatMessage): SdkMessage {
+  private _createSdkMessage(message: ChatMessage, mediaId?: string): SdkMessage {
     const timestamp = new Date();
 
     let body: SdkMessage | undefined;
@@ -66,8 +70,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
               text: message.content,
               status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
               role: MessageRole.MESSAGE_ROLE_USER,
-              // Change for message id from media API
-              mediaUrl: message.fileName!,
+              mediaUrl: mediaId ?? message.fileName!,
               mediaType: message.mediaType!,
               byteCount: message.byteCount!,
               fileName: message.fileName!,
@@ -86,7 +89,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
               timestamp: message.timestamp,
               status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
               role: MessageRole.MESSAGE_ROLE_USER,
-              mediaUrl: message.fileName!,
+              mediaUrl: mediaId ?? message.fileName!,
               mediaType: message.mediaType!,
               byteCount: message.byteCount!,
               fileName: message.fileName!,
@@ -114,7 +117,22 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     const userId = this._decodeUserId(token);
 
     try {
-      const body = this._createSdkMessage(message);
+      let mediaId: string | undefined;
+      if (
+        (message.type === 'image' || message.type === 'voice') &&
+        message.blob
+      ) {
+        const file = new File(
+          [message.blob],
+          message.fileName ?? `media-${Date.now()}`,
+          { type: message.mediaType ?? message.blob.type }
+        );
+        const uploadResult = await this._mediaService.uploadMedia(file);
+        if (!uploadResult.ok) return uploadResult;
+        mediaId = uploadResult.value.id;
+      }
+
+      const body = this._createSdkMessage(message, mediaId);
       const response = await fetch(
         `${this._baseUrl}/webchat/inbound_messages`,
         {
@@ -139,6 +157,51 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
+  private _translateMessageResponse(
+    item: PollMessageItem
+  ): ChatMessage | null {
+    const timestamp = item.date ?? new Date();
+    const msg = item.message!;
+
+    if (msg.textMessageRequest?.content) {
+      return ChatMessage.text({
+        role: 'AGENT',
+        timestamp,
+        content: msg.textMessageRequest.content.text,
+        wiId: item.id,
+      });
+    }
+
+    if (msg.imageMessageRequest?.content) {
+      const content = msg.imageMessageRequest.content;
+      return ChatMessage.image({
+        role: 'AGENT',
+        timestamp,
+        fileName: content.mediaUrl || content.fileName,
+        content: content.text ?? '',
+        mediaType: content.mediaType,
+        byteCount: content.byteCount,
+        wiId: item.id,
+      });
+    }
+
+    if (msg.voiceMessageRequest?.content) {
+      const content = msg.voiceMessageRequest.content;
+      return ChatMessage.voice({
+        role: 'AGENT',
+        timestamp,
+        fileName: content.fileName,
+        amplitudes: content.amplitudesPreview,
+        duration: content.duration,
+        mediaType: content.mediaType,
+        byteCount: content.byteCount,
+        wiId: item.id,
+      });
+    }
+
+    return null;
+  }
+
   subscribeToMessages(callback: PollCallback): void {
     const poll = async () => {
       const authResult = await this._tokenRepository.getToken();
@@ -148,12 +211,11 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       const userId = this._decodeUserId(token);
 
       try {
-        //const params = new URLSearchParams({
-        //  since: String(Math.floor(Date.now() - 5000)),
-        //});
+        const params = new URLSearchParams({
+          since: String(Math.floor(Date.now() - 5000)),
+        });
         const response = await fetch(
-          //`${this._baseUrl}/webchat/messages?${params}`,
-          `${this._baseUrl}/webchat/messages`,
+          `${this._baseUrl}/webchat/messages?${params}`,
           {
             method: 'GET',
             headers: {
@@ -172,22 +234,13 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
         const newMessages = data
           .filter(
-            (item) =>
-              !this._seenIds.has(item.id) &&
-              item.message?.textMessageRequest != null
+            (item) => !this._seenIds.has(item.id) && item.message != null
           )
           .map((item) => {
             this._seenIds.add(item.id);
-            const { text } = item.message!.textMessageRequest!.content!;
-            return new ChatMessage({
-              wiId: item.id,
-              role: 'AGENT',
-              content: text,
-              type: 'text',
-              status: 'DELIVERED',
-              timestamp: item.date ?? new Date(),
-            });
-          });
+            return this._translateMessageResponse(item);
+          })
+          .filter((msg): msg is ChatMessage => msg !== null);
 
         if (newMessages.length > 0) callback(newMessages);
       } catch {
