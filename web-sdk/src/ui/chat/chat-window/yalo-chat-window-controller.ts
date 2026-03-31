@@ -8,6 +8,7 @@ import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
 import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
+import { YaloMediaServiceRemote } from '@data/services/yalo-media/yalo-media-service-remote';
 
 export default class YaloChatWindowController implements ReactiveController {
   host: YaloChatWindow;
@@ -62,6 +63,10 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.config,
       tokenRepository
     );
+    this.host.yaloMediaService = new YaloMediaServiceRemote(
+      import.meta.env.VITE_YALO_API_BASE_URL,
+      tokenRepository
+    );
     this.host.logger.debug('Initialized with config', this.host.config);
 
     const pages = await this.host.chatMessageRepository.getChatMessagePageDesc(
@@ -94,6 +99,14 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.logger.debug('Message inserted successfully');
       this.chatMessages = [localResult.value, ...this.chatMessages];
       this.host.requestUpdate();
+      const yaloResult = await this.host.yaloMessageRepository.insertMessage(
+        localResult.value
+      );
+      if (!yaloResult.ok) {
+        this.host.logger.error('Unable to send message to Yalo', {
+          error: yaloResult.error,
+        });
+      }
     } else {
       this.host.logger.error('Unable to insert message locally', {
         error: localResult.error,
@@ -106,14 +119,41 @@ export default class YaloChatWindowController implements ReactiveController {
       this.isWriting = false;
       this.host.requestUpdate();
     }, this._writingTimeoutMs);
+  }
 
-    const yaloResult =
-      await this.host.yaloMessageRepository.insertMessage(textMessage);
-    if (!yaloResult.ok) {
-      this.host.logger.error('Unable to send message to Yalo', {
-        error: yaloResult.error,
+  async sendVoiceMessage(e: CustomEvent) {
+    const { message: voiceMessage } = e.detail as {
+      message: ChatMessage;
+      blob: Blob;
+    };
+
+    const localResult =
+      await this.host.chatMessageRepository.insertChatMessage(voiceMessage);
+
+    if (localResult.ok) {
+      this.host.logger.debug('Voice message inserted locally');
+      this.chatMessages = [localResult.value, ...this.chatMessages];
+      this.host.requestUpdate();
+      const yaloResult = await this.host.yaloMessageRepository.insertMessage(
+        localResult.value
+      );
+      if (!yaloResult.ok) {
+        this.host.logger.error('Unable to send voice message to Yalo', {
+          error: yaloResult.error,
+        });
+      }
+    } else {
+      this.host.logger.error('Unable to insert voice message locally', {
+        error: localResult.error,
       });
     }
+
+    this.isWriting = true;
+    this.host.requestUpdate();
+    this._writingTimeout = setTimeout(() => {
+      this.isWriting = false;
+      this.host.requestUpdate();
+    }, this._writingTimeoutMs);
   }
 
   async fetchNextPage() {

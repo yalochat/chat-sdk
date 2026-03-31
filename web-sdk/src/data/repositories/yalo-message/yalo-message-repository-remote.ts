@@ -11,7 +11,7 @@ import type {
 import {
   MessageRole,
   MessageStatus,
-  type SdkMessage,
+  SdkMessage,
   PollMessageItem,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
@@ -37,6 +37,75 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     this._tokenRepository = tokenRepository;
   }
 
+  private _createSdkMessage(message: ChatMessage): SdkMessage {
+    const timestamp = new Date();
+
+    let body: SdkMessage | undefined;
+    switch (message.type) {
+      case 'text':
+        body = {
+          correlationId: message.id?.toString() || '',
+          textMessageRequest: {
+            content: {
+              timestamp: message.timestamp,
+              text: message.content,
+              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+              role: MessageRole.MESSAGE_ROLE_USER,
+            },
+            timestamp: timestamp,
+          },
+          timestamp: timestamp,
+        };
+        break;
+      case 'image':
+        body = {
+          correlationId: message.id?.toString() || '',
+          imageMessageRequest: {
+            content: {
+              timestamp: message.timestamp,
+              text: message.content,
+              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+              role: MessageRole.MESSAGE_ROLE_USER,
+              // Change for message id from media API
+              mediaUrl: message.fileName!,
+              mediaType: message.mediaType!,
+              byteCount: message.byteCount!,
+              fileName: message.fileName!,
+            },
+            timestamp: timestamp,
+            quickReplies: [],
+          },
+          timestamp: timestamp,
+        };
+        break;
+      case 'voice':
+        body = {
+          correlationId: message.id?.toString() || '',
+          voiceMessageRequest: {
+            content: {
+              timestamp: message.timestamp,
+              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+              role: MessageRole.MESSAGE_ROLE_USER,
+              mediaUrl: message.fileName!,
+              mediaType: message.mediaType!,
+              byteCount: message.byteCount!,
+              fileName: message.fileName!,
+              amplitudesPreview: message.amplitudes!,
+              duration: message.duration!,
+            },
+            timestamp: timestamp,
+            quickReplies: [],
+          },
+          timestamp: timestamp,
+        };
+        break;
+      default:
+        throw Error('UnimplementedError');
+    }
+
+    return body;
+  }
+
   async insertMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
     const authResult = await this._tokenRepository.getToken();
     if (!authResult.ok) return authResult;
@@ -45,33 +114,18 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     const userId = this._decodeUserId(token);
 
     try {
-      const timestamp = new Date();
-
-      const body: SdkMessage = {
-        correlationId: message.id?.toString() || '',
-        textMessageRequest: {
-          content: {
-            timestamp: undefined,
-            text: message.content,
-            status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
-            role: MessageRole.MESSAGE_ROLE_USER,
-          },
-          timestamp: message.timestamp,
-        },
-        timestamp: timestamp,
-      };
+      const body = this._createSdkMessage(message);
       const response = await fetch(
         `${this._baseUrl}/webchat/inbound_messages`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            accept: 'application/json, text/plain, */*',
             'x-channel-id': this._config.channelId,
             'x-user-id': userId,
-            Authorization: `Bearer ${token}`,
+            authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(body),
+          body: JSON.stringify(SdkMessage.toJSON(body)),
         }
       );
 
@@ -94,14 +148,17 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       const userId = this._decodeUserId(token);
 
       try {
-        const params = new URLSearchParams({
-          timestamp: String(Math.floor(Date.now() - 5000)),
-        });
+        //const params = new URLSearchParams({
+        //  since: String(Math.floor(Date.now() - 5000)),
+        //});
         const response = await fetch(
-          `${this._baseUrl}/webchat/messages?${params}`,
+          //`${this._baseUrl}/webchat/messages?${params}`,
+          `${this._baseUrl}/webchat/messages`,
           {
+            method: 'GET',
             headers: {
-              Authorization: `Bearer ${token}`,
+              authorization: `Bearer ${token}`,
+              accept: 'application/json',
               'x-channel-id': this._config.channelId,
               'x-user-id': userId,
             },
@@ -110,7 +167,8 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
         if (!response.ok) return;
 
-        const data = (await response.json()) as Array<PollMessageItem>;
+        const json = (await response.json()) as Array<unknown>;
+        const data = json.map((item) => PollMessageItem.fromJSON(item));
 
         const newMessages = data
           .filter(

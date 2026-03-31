@@ -35,6 +35,8 @@ export class ChatMessage {
   readonly fileName?: string;
   readonly amplitudes?: number[];
   readonly duration?: number;
+  readonly byteCount?: number;
+  readonly mediaType?: string;
   readonly quickReplies: string[];
 
   constructor(params: {
@@ -48,6 +50,8 @@ export class ChatMessage {
     fileName?: string;
     amplitudes?: number[];
     duration?: number;
+    byteCount?: number;
+    mediaType?: string;
     quickReplies?: string[];
   }) {
     this.id = params.id;
@@ -60,6 +64,8 @@ export class ChatMessage {
     this.fileName = params.fileName;
     this.amplitudes = params.amplitudes;
     this.duration = params.duration;
+    this.byteCount = params.byteCount;
+    this.mediaType = params.mediaType;
     this.quickReplies = params.quickReplies ?? [];
   }
 
@@ -84,6 +90,8 @@ export class ChatMessage {
     id?: number;
     wiId?: string;
     status?: MessageStatus;
+    byteCount?: number;
+    mediaType?: string;
     quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'voice' });
@@ -97,6 +105,8 @@ export class ChatMessage {
     wiId?: string;
     status?: MessageStatus;
     content?: string;
+    byteCount?: number;
+    mediaType?: string;
     quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'image' });
