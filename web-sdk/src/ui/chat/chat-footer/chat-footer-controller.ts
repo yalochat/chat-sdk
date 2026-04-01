@@ -19,6 +19,7 @@ export class ChatFooterController implements ReactiveController {
     this.host.textArea.value = '';
     this.host.textArea.style.height = 'auto';
     this.host.textArea.style.overflowY = 'hidden';
+    this.host.hasText = false;
     this.host.logger.debug(`sending text message "${value}"`);
     const chatMessageToInsert = ChatMessage.text({
       role: 'USER',
@@ -45,6 +46,7 @@ export class ChatFooterController implements ReactiveController {
     if (el.scrollHeight > maxHeight) {
       el.style.overflowY = 'scroll';
     }
+    this.host.hasText = el.value.trim().length > 0;
     this.host.requestUpdate();
   }
 
