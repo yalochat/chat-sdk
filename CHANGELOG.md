@@ -1,11 +1,29 @@
 # Changelog
 
-## [1.2.0](https://github.com/yalochat/chat-sdk/tree/1.2.0) (2026-03-25)
+## [1.3.0](https://github.com/yalochat/chat-sdk/tree/1.3.0) (2026-04-01)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.1.0...1.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.2.0...1.3.0)
 
 **Merged pull requests:**
 
+- feat: Adds VideoMessage SDK Message and refactor VoiceNoteMessage [\#80](https://github.com/yalochat/chat-sdk/pull/80) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Add media elements for web-sdk [\#78](https://github.com/yalochat/chat-sdk/pull/78) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(android-sdk\): Quick Reply Chips — Phase 2 M6 \(FDE-96\) [\#76](https://github.com/yalochat/chat-sdk/pull/76) ([pato-viccini](https://github.com/pato-viccini))
+- Media flutter [\#75](https://github.com/yalochat/chat-sdk/pull/75) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Refactor repositories in favor of protobuf schemas [\#74](https://github.com/yalochat/chat-sdk/pull/74) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix: Fix message status in the proto [\#73](https://github.com/yalochat/chat-sdk/pull/73) ([rodrigocusto](https://github.com/rodrigocusto))
+
+## [proto/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.2.0) (2026-03-25)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.2.0...proto/bindings/go/v1.2.0)
+
+## [proto/v1.2.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.2.0) (2026-03-25)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.1.0...proto/v1.2.0)
+
+**Merged pull requests:**
+
+- Release proto 1.2.0 [\#72](https://github.com/yalochat/chat-sdk/pull/72) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Add attachment message [\#71](https://github.com/yalochat/chat-sdk/pull/71) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Use protobuf for sending messages and auth [\#68](https://github.com/yalochat/chat-sdk/pull/68) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(android-sdk\): ChatScreen API callbacks, custom appBar slot, proto codegen \(FDE-80, FDE-81\) [\#67](https://github.com/yalochat/chat-sdk/pull/67) ([pato-viccini](https://github.com/pato-viccini))
