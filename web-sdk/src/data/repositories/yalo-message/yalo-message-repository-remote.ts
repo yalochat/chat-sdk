@@ -41,7 +41,10 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     this._mediaService = mediaService;
   }
 
-  private _createSdkMessage(message: ChatMessage, mediaId?: string): SdkMessage {
+  private _createSdkMessage(
+    message: ChatMessage,
+    mediaId?: string
+  ): SdkMessage {
     const timestamp = new Date();
 
     let body: SdkMessage | undefined;
@@ -179,9 +182,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
-  private _translateMessageResponse(
-    item: PollMessageItem
-  ): ChatMessage | null {
+  private _translateMessageResponse(item: PollMessageItem): ChatMessage | null {
     const timestamp = item.date ?? new Date();
     const msg = item.message!;
 
@@ -268,9 +269,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         const data = json.map((item) => PollMessageItem.fromJSON(item));
 
         const newMessages = data
-          .filter(
-            (item) => !this._seenIds.has(item.id) && item.message != null
-          )
+          .filter((item) => !this._seenIds.has(item.id) && item.message != null)
           .map((item) => {
             this._seenIds.add(item.id);
             return this._translateMessageResponse(item);
