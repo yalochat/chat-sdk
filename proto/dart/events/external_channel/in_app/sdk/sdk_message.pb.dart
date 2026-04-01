@@ -26,8 +26,8 @@ export 'sdk_message.pbenum.dart';
 enum SdkMessage_Payload {
   textMessageRequest,
   textMessageResponse,
-  voiceMessageRequest,
-  voiceMessageResponse,
+  voiceNoteMessageRequest,
+  voiceNoteMessageResponse,
   imageMessageRequest,
   imageMessageResponse,
   messageReceiptRequest,
@@ -52,6 +52,8 @@ enum SdkMessage_Payload {
   chatStatusResponse,
   customActionRequest,
   customActionResponse,
+  videoMessageRequest,
+  videoMessageResponse,
   notSet
 }
 
@@ -64,8 +66,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     $0.Timestamp? timestamp,
     TextMessageRequest? textMessageRequest,
     TextMessageResponse? textMessageResponse,
-    VoiceMessageRequest? voiceMessageRequest,
-    VoiceMessageResponse? voiceMessageResponse,
+    VoiceNoteMessageRequest? voiceNoteMessageRequest,
+    VoiceNoteMessageResponse? voiceNoteMessageResponse,
     ImageMessageRequest? imageMessageRequest,
     ImageMessageResponse? imageMessageResponse,
     MessageReceiptRequest? messageReceiptRequest,
@@ -90,6 +92,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     ChatStatusResponse? chatStatusResponse,
     CustomActionRequest? customActionRequest,
     CustomActionResponse? customActionResponse,
+    VideoMessageRequest? videoMessageRequest,
+    VideoMessageResponse? videoMessageResponse,
   }) {
     final result = create();
     if (correlationId != null) result.correlationId = correlationId;
@@ -98,10 +102,10 @@ class SdkMessage extends $pb.GeneratedMessage {
       result.textMessageRequest = textMessageRequest;
     if (textMessageResponse != null)
       result.textMessageResponse = textMessageResponse;
-    if (voiceMessageRequest != null)
-      result.voiceMessageRequest = voiceMessageRequest;
-    if (voiceMessageResponse != null)
-      result.voiceMessageResponse = voiceMessageResponse;
+    if (voiceNoteMessageRequest != null)
+      result.voiceNoteMessageRequest = voiceNoteMessageRequest;
+    if (voiceNoteMessageResponse != null)
+      result.voiceNoteMessageResponse = voiceNoteMessageResponse;
     if (imageMessageRequest != null)
       result.imageMessageRequest = imageMessageRequest;
     if (imageMessageResponse != null)
@@ -145,6 +149,10 @@ class SdkMessage extends $pb.GeneratedMessage {
       result.customActionRequest = customActionRequest;
     if (customActionResponse != null)
       result.customActionResponse = customActionResponse;
+    if (videoMessageRequest != null)
+      result.videoMessageRequest = videoMessageRequest;
+    if (videoMessageResponse != null)
+      result.videoMessageResponse = videoMessageResponse;
     return result;
   }
 
@@ -161,8 +169,8 @@ class SdkMessage extends $pb.GeneratedMessage {
       _SdkMessage_PayloadByTag = {
     10: SdkMessage_Payload.textMessageRequest,
     11: SdkMessage_Payload.textMessageResponse,
-    12: SdkMessage_Payload.voiceMessageRequest,
-    13: SdkMessage_Payload.voiceMessageResponse,
+    12: SdkMessage_Payload.voiceNoteMessageRequest,
+    13: SdkMessage_Payload.voiceNoteMessageResponse,
     14: SdkMessage_Payload.imageMessageRequest,
     15: SdkMessage_Payload.imageMessageResponse,
     16: SdkMessage_Payload.messageReceiptRequest,
@@ -187,6 +195,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     35: SdkMessage_Payload.chatStatusResponse,
     36: SdkMessage_Payload.customActionRequest,
     37: SdkMessage_Payload.customActionResponse,
+    38: SdkMessage_Payload.videoMessageRequest,
+    39: SdkMessage_Payload.videoMessageResponse,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -222,7 +232,9 @@ class SdkMessage extends $pb.GeneratedMessage {
       34,
       35,
       36,
-      37
+      37,
+      38,
+      39
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -231,11 +243,12 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: TextMessageRequest.create)
     ..aOM<TextMessageResponse>(11, _omitFieldNames ? '' : 'textMessageResponse',
         subBuilder: TextMessageResponse.create)
-    ..aOM<VoiceMessageRequest>(12, _omitFieldNames ? '' : 'voiceMessageRequest',
-        subBuilder: VoiceMessageRequest.create)
-    ..aOM<VoiceMessageResponse>(
-        13, _omitFieldNames ? '' : 'voiceMessageResponse',
-        subBuilder: VoiceMessageResponse.create)
+    ..aOM<VoiceNoteMessageRequest>(
+        12, _omitFieldNames ? '' : 'voiceNoteMessageRequest',
+        subBuilder: VoiceNoteMessageRequest.create)
+    ..aOM<VoiceNoteMessageResponse>(
+        13, _omitFieldNames ? '' : 'voiceNoteMessageResponse',
+        subBuilder: VoiceNoteMessageResponse.create)
     ..aOM<ImageMessageRequest>(14, _omitFieldNames ? '' : 'imageMessageRequest',
         subBuilder: ImageMessageRequest.create)
     ..aOM<ImageMessageResponse>(
@@ -298,6 +311,11 @@ class SdkMessage extends $pb.GeneratedMessage {
     ..aOM<CustomActionResponse>(
         37, _omitFieldNames ? '' : 'customActionResponse',
         subBuilder: CustomActionResponse.create)
+    ..aOM<VideoMessageRequest>(38, _omitFieldNames ? '' : 'videoMessageRequest',
+        subBuilder: VideoMessageRequest.create)
+    ..aOM<VideoMessageResponse>(
+        39, _omitFieldNames ? '' : 'videoMessageResponse',
+        subBuilder: VideoMessageResponse.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -346,6 +364,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(35)
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
+  @$pb.TagNumber(38)
+  @$pb.TagNumber(39)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -376,6 +396,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(35)
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
+  @$pb.TagNumber(38)
+  @$pb.TagNumber(39)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -423,26 +445,28 @@ class SdkMessage extends $pb.GeneratedMessage {
   TextMessageResponse ensureTextMessageResponse() => $_ensure(3);
 
   @$pb.TagNumber(12)
-  VoiceMessageRequest get voiceMessageRequest => $_getN(4);
+  VoiceNoteMessageRequest get voiceNoteMessageRequest => $_getN(4);
   @$pb.TagNumber(12)
-  set voiceMessageRequest(VoiceMessageRequest value) => $_setField(12, value);
+  set voiceNoteMessageRequest(VoiceNoteMessageRequest value) =>
+      $_setField(12, value);
   @$pb.TagNumber(12)
-  $core.bool hasVoiceMessageRequest() => $_has(4);
+  $core.bool hasVoiceNoteMessageRequest() => $_has(4);
   @$pb.TagNumber(12)
-  void clearVoiceMessageRequest() => $_clearField(12);
+  void clearVoiceNoteMessageRequest() => $_clearField(12);
   @$pb.TagNumber(12)
-  VoiceMessageRequest ensureVoiceMessageRequest() => $_ensure(4);
+  VoiceNoteMessageRequest ensureVoiceNoteMessageRequest() => $_ensure(4);
 
   @$pb.TagNumber(13)
-  VoiceMessageResponse get voiceMessageResponse => $_getN(5);
+  VoiceNoteMessageResponse get voiceNoteMessageResponse => $_getN(5);
   @$pb.TagNumber(13)
-  set voiceMessageResponse(VoiceMessageResponse value) => $_setField(13, value);
+  set voiceNoteMessageResponse(VoiceNoteMessageResponse value) =>
+      $_setField(13, value);
   @$pb.TagNumber(13)
-  $core.bool hasVoiceMessageResponse() => $_has(5);
+  $core.bool hasVoiceNoteMessageResponse() => $_has(5);
   @$pb.TagNumber(13)
-  void clearVoiceMessageResponse() => $_clearField(13);
+  void clearVoiceNoteMessageResponse() => $_clearField(13);
   @$pb.TagNumber(13)
-  VoiceMessageResponse ensureVoiceMessageResponse() => $_ensure(5);
+  VoiceNoteMessageResponse ensureVoiceNoteMessageResponse() => $_ensure(5);
 
   @$pb.TagNumber(14)
   ImageMessageRequest get imageMessageRequest => $_getN(6);
@@ -719,6 +743,28 @@ class SdkMessage extends $pb.GeneratedMessage {
   void clearCustomActionResponse() => $_clearField(37);
   @$pb.TagNumber(37)
   CustomActionResponse ensureCustomActionResponse() => $_ensure(29);
+
+  @$pb.TagNumber(38)
+  VideoMessageRequest get videoMessageRequest => $_getN(30);
+  @$pb.TagNumber(38)
+  set videoMessageRequest(VideoMessageRequest value) => $_setField(38, value);
+  @$pb.TagNumber(38)
+  $core.bool hasVideoMessageRequest() => $_has(30);
+  @$pb.TagNumber(38)
+  void clearVideoMessageRequest() => $_clearField(38);
+  @$pb.TagNumber(38)
+  VideoMessageRequest ensureVideoMessageRequest() => $_ensure(30);
+
+  @$pb.TagNumber(39)
+  VideoMessageResponse get videoMessageResponse => $_getN(31);
+  @$pb.TagNumber(39)
+  set videoMessageResponse(VideoMessageResponse value) => $_setField(39, value);
+  @$pb.TagNumber(39)
+  $core.bool hasVideoMessageResponse() => $_has(31);
+  @$pb.TagNumber(39)
+  void clearVideoMessageResponse() => $_clearField(39);
+  @$pb.TagNumber(39)
+  VideoMessageResponse ensureVideoMessageResponse() => $_ensure(31);
 }
 
 /// TextMessage holds the payload of a plain-text conversation turn.
@@ -1130,9 +1176,9 @@ class VoiceMessage extends $pb.GeneratedMessage {
   void clearFileName() => $_clearField(9);
 }
 
-/// VoiceMessageRequest is sent by either party to deliver a voice note.
-class VoiceMessageRequest extends $pb.GeneratedMessage {
-  factory VoiceMessageRequest({
+/// VoiceNoteMessageRequest is sent by either party to deliver a voice note.
+class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
+  factory VoiceNoteMessageRequest({
     VoiceMessage? content,
     $0.Timestamp? timestamp,
     $core.Iterable<$core.String>? quickReplies,
@@ -1144,17 +1190,17 @@ class VoiceMessageRequest extends $pb.GeneratedMessage {
     return result;
   }
 
-  VoiceMessageRequest._();
+  VoiceNoteMessageRequest._();
 
-  factory VoiceMessageRequest.fromBuffer($core.List<$core.int> data,
+  factory VoiceNoteMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory VoiceMessageRequest.fromJson($core.String json,
+  factory VoiceNoteMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VoiceMessageRequest',
+      _omitMessageNames ? '' : 'VoiceNoteMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
@@ -1166,23 +1212,24 @@ class VoiceMessageRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VoiceMessageRequest clone() => deepCopy();
+  VoiceNoteMessageRequest clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VoiceMessageRequest copyWith(void Function(VoiceMessageRequest) updates) =>
-      super.copyWith((message) => updates(message as VoiceMessageRequest))
-          as VoiceMessageRequest;
+  VoiceNoteMessageRequest copyWith(
+          void Function(VoiceNoteMessageRequest) updates) =>
+      super.copyWith((message) => updates(message as VoiceNoteMessageRequest))
+          as VoiceNoteMessageRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VoiceMessageRequest create() => VoiceMessageRequest._();
+  static VoiceNoteMessageRequest create() => VoiceNoteMessageRequest._();
   @$core.override
-  VoiceMessageRequest createEmptyInstance() => create();
+  VoiceNoteMessageRequest createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static VoiceMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VoiceMessageRequest>(create);
-  static VoiceMessageRequest? _defaultInstance;
+  static VoiceNoteMessageRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<VoiceNoteMessageRequest>(create);
+  static VoiceNoteMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   VoiceMessage get content => $_getN(0);
@@ -1210,9 +1257,9 @@ class VoiceMessageRequest extends $pb.GeneratedMessage {
   $pb.PbList<$core.String> get quickReplies => $_getList(2);
 }
 
-/// VoiceMessageResponse acknowledges a VoiceMessageRequest and returns the assigned message id.
-class VoiceMessageResponse extends $pb.GeneratedMessage {
-  factory VoiceMessageResponse({
+/// VoiceNoteMessageResponse acknowledges a VoiceNoteMessageRequest and returns the assigned message id.
+class VoiceNoteMessageResponse extends $pb.GeneratedMessage {
+  factory VoiceNoteMessageResponse({
     ResponseStatus? status,
     $0.Timestamp? timestamp,
     $core.String? messageId,
@@ -1224,17 +1271,17 @@ class VoiceMessageResponse extends $pb.GeneratedMessage {
     return result;
   }
 
-  VoiceMessageResponse._();
+  VoiceNoteMessageResponse._();
 
-  factory VoiceMessageResponse.fromBuffer($core.List<$core.int> data,
+  factory VoiceNoteMessageResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory VoiceMessageResponse.fromJson($core.String json,
+  factory VoiceNoteMessageResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VoiceMessageResponse',
+      _omitMessageNames ? '' : 'VoiceNoteMessageResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
@@ -1246,23 +1293,24 @@ class VoiceMessageResponse extends $pb.GeneratedMessage {
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VoiceMessageResponse clone() => deepCopy();
+  VoiceNoteMessageResponse clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VoiceMessageResponse copyWith(void Function(VoiceMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as VoiceMessageResponse))
-          as VoiceMessageResponse;
+  VoiceNoteMessageResponse copyWith(
+          void Function(VoiceNoteMessageResponse) updates) =>
+      super.copyWith((message) => updates(message as VoiceNoteMessageResponse))
+          as VoiceNoteMessageResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static VoiceMessageResponse create() => VoiceMessageResponse._();
+  static VoiceNoteMessageResponse create() => VoiceNoteMessageResponse._();
   @$core.override
-  VoiceMessageResponse createEmptyInstance() => create();
+  VoiceNoteMessageResponse createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static VoiceMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VoiceMessageResponse>(create);
-  static VoiceMessageResponse? _defaultInstance;
+  static VoiceNoteMessageResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<VoiceNoteMessageResponse>(create);
+  static VoiceNoteMessageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ResponseStatus get status => $_getN(0);
@@ -1883,6 +1931,327 @@ class AttachmentMessageResponse extends $pb.GeneratedMessage {
   static AttachmentMessageResponse getDefault() => _defaultInstance ??=
       $pb.GeneratedMessage.$_defaultFor<AttachmentMessageResponse>(create);
   static AttachmentMessageResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ResponseStatus get status => $_getN(0);
+  @$pb.TagNumber(1)
+  set status(ResponseStatus value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $core.String get messageId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set messageId($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasMessageId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearMessageId() => $_clearField(3);
+}
+
+/// VideoMessage holds the payload of a video conversation turn.
+class VideoMessage extends $pb.GeneratedMessage {
+  factory VideoMessage({
+    $0.Timestamp? timestamp,
+    $core.String? text,
+    $core.String? mediaUrl,
+    $core.String? mediaType,
+    MessageStatus? status,
+    MessageRole? role,
+    $fixnum.Int64? byteCount,
+    $core.String? fileName,
+    $core.double? duration,
+  }) {
+    final result = create();
+    if (timestamp != null) result.timestamp = timestamp;
+    if (text != null) result.text = text;
+    if (mediaUrl != null) result.mediaUrl = mediaUrl;
+    if (mediaType != null) result.mediaType = mediaType;
+    if (status != null) result.status = status;
+    if (role != null) result.role = role;
+    if (byteCount != null) result.byteCount = byteCount;
+    if (fileName != null) result.fileName = fileName;
+    if (duration != null) result.duration = duration;
+    return result;
+  }
+
+  VideoMessage._();
+
+  factory VideoMessage.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory VideoMessage.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'VideoMessage',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..aOS(2, _omitFieldNames ? '' : 'text')
+    ..aOS(3, _omitFieldNames ? '' : 'mediaUrl')
+    ..aOS(4, _omitFieldNames ? '' : 'mediaType')
+    ..aE<MessageStatus>(5, _omitFieldNames ? '' : 'status',
+        enumValues: MessageStatus.values)
+    ..aE<MessageRole>(6, _omitFieldNames ? '' : 'role',
+        enumValues: MessageRole.values)
+    ..aInt64(7, _omitFieldNames ? '' : 'byteCount')
+    ..aOS(8, _omitFieldNames ? '' : 'fileName')
+    ..aD(9, _omitFieldNames ? '' : 'duration')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  VideoMessage clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  VideoMessage copyWith(void Function(VideoMessage) updates) =>
+      super.copyWith((message) => updates(message as VideoMessage))
+          as VideoMessage;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static VideoMessage create() => VideoMessage._();
+  @$core.override
+  VideoMessage createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static VideoMessage getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<VideoMessage>(create);
+  static VideoMessage? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $0.Timestamp get timestamp => $_getN(0);
+  @$pb.TagNumber(1)
+  set timestamp($0.Timestamp value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTimestamp() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTimestamp() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $0.Timestamp ensureTimestamp() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.String get text => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set text($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasText() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearText() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get mediaUrl => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set mediaUrl($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasMediaUrl() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearMediaUrl() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get mediaType => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set mediaType($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasMediaType() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearMediaType() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  MessageStatus get status => $_getN(4);
+  @$pb.TagNumber(5)
+  set status(MessageStatus value) => $_setField(5, value);
+  @$pb.TagNumber(5)
+  $core.bool hasStatus() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearStatus() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  MessageRole get role => $_getN(5);
+  @$pb.TagNumber(6)
+  set role(MessageRole value) => $_setField(6, value);
+  @$pb.TagNumber(6)
+  $core.bool hasRole() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearRole() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get byteCount => $_getI64(6);
+  @$pb.TagNumber(7)
+  set byteCount($fixnum.Int64 value) => $_setInt64(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasByteCount() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearByteCount() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get fileName => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set fileName($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasFileName() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearFileName() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.double get duration => $_getN(8);
+  @$pb.TagNumber(9)
+  set duration($core.double value) => $_setDouble(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasDuration() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearDuration() => $_clearField(9);
+}
+
+/// VideoMessageRequest is sent by either party to deliver a video.
+class VideoMessageRequest extends $pb.GeneratedMessage {
+  factory VideoMessageRequest({
+    VideoMessage? content,
+    $0.Timestamp? timestamp,
+    $core.Iterable<$core.String>? quickReplies,
+  }) {
+    final result = create();
+    if (content != null) result.content = content;
+    if (timestamp != null) result.timestamp = timestamp;
+    if (quickReplies != null) result.quickReplies.addAll(quickReplies);
+    return result;
+  }
+
+  VideoMessageRequest._();
+
+  factory VideoMessageRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory VideoMessageRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'VideoMessageRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOM<VideoMessage>(1, _omitFieldNames ? '' : 'content',
+        subBuilder: VideoMessage.create)
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..pPS(3, _omitFieldNames ? '' : 'quickReplies')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  VideoMessageRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  VideoMessageRequest copyWith(void Function(VideoMessageRequest) updates) =>
+      super.copyWith((message) => updates(message as VideoMessageRequest))
+          as VideoMessageRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static VideoMessageRequest create() => VideoMessageRequest._();
+  @$core.override
+  VideoMessageRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static VideoMessageRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<VideoMessageRequest>(create);
+  static VideoMessageRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  VideoMessage get content => $_getN(0);
+  @$pb.TagNumber(1)
+  set content(VideoMessage value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasContent() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearContent() => $_clearField(1);
+  @$pb.TagNumber(1)
+  VideoMessage ensureContent() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $pb.PbList<$core.String> get quickReplies => $_getList(2);
+}
+
+/// VideoMessageResponse acknowledges a VideoMessageRequest and returns the assigned message id.
+class VideoMessageResponse extends $pb.GeneratedMessage {
+  factory VideoMessageResponse({
+    ResponseStatus? status,
+    $0.Timestamp? timestamp,
+    $core.String? messageId,
+  }) {
+    final result = create();
+    if (status != null) result.status = status;
+    if (timestamp != null) result.timestamp = timestamp;
+    if (messageId != null) result.messageId = messageId;
+    return result;
+  }
+
+  VideoMessageResponse._();
+
+  factory VideoMessageResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory VideoMessageResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'VideoMessageResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
+        enumValues: ResponseStatus.values)
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..aOS(3, _omitFieldNames ? '' : 'messageId')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  VideoMessageResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  VideoMessageResponse copyWith(void Function(VideoMessageResponse) updates) =>
+      super.copyWith((message) => updates(message as VideoMessageResponse))
+          as VideoMessageResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static VideoMessageResponse create() => VideoMessageResponse._();
+  @$core.override
+  VideoMessageResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static VideoMessageResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<VideoMessageResponse>(create);
+  static VideoMessageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ResponseStatus get status => $_getN(0);

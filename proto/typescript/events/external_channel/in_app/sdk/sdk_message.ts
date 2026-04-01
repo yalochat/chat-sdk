@@ -199,15 +199,17 @@ export interface SdkMessage {
   /** Bi-directional */
   textMessageRequest?: TextMessageRequest | undefined;
   textMessageResponse?: TextMessageResponse | undefined;
-  voiceMessageRequest?: VoiceMessageRequest | undefined;
-  voiceMessageResponse?: VoiceMessageResponse | undefined;
+  voiceNoteMessageRequest?: VoiceNoteMessageRequest | undefined;
+  voiceNoteMessageResponse?: VoiceNoteMessageResponse | undefined;
   imageMessageRequest?: ImageMessageRequest | undefined;
   imageMessageResponse?: ImageMessageResponse | undefined;
   messageReceiptRequest?: MessageReceiptRequest | undefined;
   messageReceiptResponse?: MessageReceiptResponse | undefined;
   attachmentMessageRequest?: AttachmentMessageRequest | undefined;
-  attachmentMessageResponse?:
-    | AttachmentMessageResponse
+  attachmentMessageResponse?: AttachmentMessageResponse | undefined;
+  videoMessageRequest?: VideoMessageRequest | undefined;
+  videoMessageResponse?:
+    | VideoMessageResponse
     | undefined;
   /** Client → channel */
   addToCartRequest?: AddToCartRequest | undefined;
@@ -268,15 +270,15 @@ export interface VoiceMessage {
   fileName: string;
 }
 
-/** VoiceMessageRequest is sent by either party to deliver a voice note. */
-export interface VoiceMessageRequest {
+/** VoiceNoteMessageRequest is sent by either party to deliver a voice note. */
+export interface VoiceNoteMessageRequest {
   content: VoiceMessage | undefined;
   timestamp: Date | undefined;
   quickReplies: string[];
 }
 
-/** VoiceMessageResponse acknowledges a VoiceMessageRequest and returns the assigned message id. */
-export interface VoiceMessageResponse {
+/** VoiceNoteMessageResponse acknowledges a VoiceNoteMessageRequest and returns the assigned message id. */
+export interface VoiceNoteMessageResponse {
   status: ResponseStatus;
   timestamp: Date | undefined;
   messageId: string;
@@ -329,6 +331,33 @@ export interface AttachmentMessageRequest {
 
 /** AttachmentMessageResponse acknowledges an AttachmentMessageRequest and returns the assigned message id. */
 export interface AttachmentMessageResponse {
+  status: ResponseStatus;
+  timestamp: Date | undefined;
+  messageId: string;
+}
+
+/** VideoMessage holds the payload of a video conversation turn. */
+export interface VideoMessage {
+  timestamp: Date | undefined;
+  text?: string | undefined;
+  mediaUrl: string;
+  mediaType: string;
+  status: MessageStatus;
+  role: MessageRole;
+  byteCount: number;
+  fileName: string;
+  duration: number;
+}
+
+/** VideoMessageRequest is sent by either party to deliver a video. */
+export interface VideoMessageRequest {
+  content: VideoMessage | undefined;
+  timestamp: Date | undefined;
+  quickReplies: string[];
+}
+
+/** VideoMessageResponse acknowledges a VideoMessageRequest and returns the assigned message id. */
+export interface VideoMessageResponse {
   status: ResponseStatus;
   timestamp: Date | undefined;
   messageId: string;
@@ -608,14 +637,16 @@ function createBaseSdkMessage(): SdkMessage {
     timestamp: undefined,
     textMessageRequest: undefined,
     textMessageResponse: undefined,
-    voiceMessageRequest: undefined,
-    voiceMessageResponse: undefined,
+    voiceNoteMessageRequest: undefined,
+    voiceNoteMessageResponse: undefined,
     imageMessageRequest: undefined,
     imageMessageResponse: undefined,
     messageReceiptRequest: undefined,
     messageReceiptResponse: undefined,
     attachmentMessageRequest: undefined,
     attachmentMessageResponse: undefined,
+    videoMessageRequest: undefined,
+    videoMessageResponse: undefined,
     addToCartRequest: undefined,
     addToCartResponse: undefined,
     removeFromCartRequest: undefined,
@@ -651,11 +682,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.textMessageResponse !== undefined) {
       TextMessageResponse.encode(message.textMessageResponse, writer.uint32(90).fork()).join();
     }
-    if (message.voiceMessageRequest !== undefined) {
-      VoiceMessageRequest.encode(message.voiceMessageRequest, writer.uint32(98).fork()).join();
+    if (message.voiceNoteMessageRequest !== undefined) {
+      VoiceNoteMessageRequest.encode(message.voiceNoteMessageRequest, writer.uint32(98).fork()).join();
     }
-    if (message.voiceMessageResponse !== undefined) {
-      VoiceMessageResponse.encode(message.voiceMessageResponse, writer.uint32(106).fork()).join();
+    if (message.voiceNoteMessageResponse !== undefined) {
+      VoiceNoteMessageResponse.encode(message.voiceNoteMessageResponse, writer.uint32(106).fork()).join();
     }
     if (message.imageMessageRequest !== undefined) {
       ImageMessageRequest.encode(message.imageMessageRequest, writer.uint32(114).fork()).join();
@@ -674,6 +705,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.attachmentMessageResponse !== undefined) {
       AttachmentMessageResponse.encode(message.attachmentMessageResponse, writer.uint32(154).fork()).join();
+    }
+    if (message.videoMessageRequest !== undefined) {
+      VideoMessageRequest.encode(message.videoMessageRequest, writer.uint32(306).fork()).join();
+    }
+    if (message.videoMessageResponse !== undefined) {
+      VideoMessageResponse.encode(message.videoMessageResponse, writer.uint32(314).fork()).join();
     }
     if (message.addToCartRequest !== undefined) {
       AddToCartRequest.encode(message.addToCartRequest, writer.uint32(162).fork()).join();
@@ -776,7 +813,7 @@ export const SdkMessage: MessageFns<SdkMessage> = {
             break;
           }
 
-          message.voiceMessageRequest = VoiceMessageRequest.decode(reader, reader.uint32());
+          message.voiceNoteMessageRequest = VoiceNoteMessageRequest.decode(reader, reader.uint32());
           continue;
         }
         case 13: {
@@ -784,7 +821,7 @@ export const SdkMessage: MessageFns<SdkMessage> = {
             break;
           }
 
-          message.voiceMessageResponse = VoiceMessageResponse.decode(reader, reader.uint32());
+          message.voiceNoteMessageResponse = VoiceNoteMessageResponse.decode(reader, reader.uint32());
           continue;
         }
         case 14: {
@@ -833,6 +870,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           }
 
           message.attachmentMessageResponse = AttachmentMessageResponse.decode(reader, reader.uint32());
+          continue;
+        }
+        case 38: {
+          if (tag !== 306) {
+            break;
+          }
+
+          message.videoMessageRequest = VideoMessageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 39: {
+          if (tag !== 314) {
+            break;
+          }
+
+          message.videoMessageResponse = VideoMessageResponse.decode(reader, reader.uint32());
           continue;
         }
         case 20: {
@@ -1006,15 +1059,15 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.text_message_response)
         ? TextMessageResponse.fromJSON(object.text_message_response)
         : undefined,
-      voiceMessageRequest: isSet(object.voiceMessageRequest)
-        ? VoiceMessageRequest.fromJSON(object.voiceMessageRequest)
-        : isSet(object.voice_message_request)
-        ? VoiceMessageRequest.fromJSON(object.voice_message_request)
+      voiceNoteMessageRequest: isSet(object.voiceNoteMessageRequest)
+        ? VoiceNoteMessageRequest.fromJSON(object.voiceNoteMessageRequest)
+        : isSet(object.voice_note_message_request)
+        ? VoiceNoteMessageRequest.fromJSON(object.voice_note_message_request)
         : undefined,
-      voiceMessageResponse: isSet(object.voiceMessageResponse)
-        ? VoiceMessageResponse.fromJSON(object.voiceMessageResponse)
-        : isSet(object.voice_message_response)
-        ? VoiceMessageResponse.fromJSON(object.voice_message_response)
+      voiceNoteMessageResponse: isSet(object.voiceNoteMessageResponse)
+        ? VoiceNoteMessageResponse.fromJSON(object.voiceNoteMessageResponse)
+        : isSet(object.voice_note_message_response)
+        ? VoiceNoteMessageResponse.fromJSON(object.voice_note_message_response)
         : undefined,
       imageMessageRequest: isSet(object.imageMessageRequest)
         ? ImageMessageRequest.fromJSON(object.imageMessageRequest)
@@ -1045,6 +1098,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         ? AttachmentMessageResponse.fromJSON(object.attachmentMessageResponse)
         : isSet(object.attachment_message_response)
         ? AttachmentMessageResponse.fromJSON(object.attachment_message_response)
+        : undefined,
+      videoMessageRequest: isSet(object.videoMessageRequest)
+        ? VideoMessageRequest.fromJSON(object.videoMessageRequest)
+        : isSet(object.video_message_request)
+        ? VideoMessageRequest.fromJSON(object.video_message_request)
+        : undefined,
+      videoMessageResponse: isSet(object.videoMessageResponse)
+        ? VideoMessageResponse.fromJSON(object.videoMessageResponse)
+        : isSet(object.video_message_response)
+        ? VideoMessageResponse.fromJSON(object.video_message_response)
         : undefined,
       addToCartRequest: isSet(object.addToCartRequest)
         ? AddToCartRequest.fromJSON(object.addToCartRequest)
@@ -1153,11 +1216,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.textMessageResponse !== undefined) {
       obj.textMessageResponse = TextMessageResponse.toJSON(message.textMessageResponse);
     }
-    if (message.voiceMessageRequest !== undefined) {
-      obj.voiceMessageRequest = VoiceMessageRequest.toJSON(message.voiceMessageRequest);
+    if (message.voiceNoteMessageRequest !== undefined) {
+      obj.voiceNoteMessageRequest = VoiceNoteMessageRequest.toJSON(message.voiceNoteMessageRequest);
     }
-    if (message.voiceMessageResponse !== undefined) {
-      obj.voiceMessageResponse = VoiceMessageResponse.toJSON(message.voiceMessageResponse);
+    if (message.voiceNoteMessageResponse !== undefined) {
+      obj.voiceNoteMessageResponse = VoiceNoteMessageResponse.toJSON(message.voiceNoteMessageResponse);
     }
     if (message.imageMessageRequest !== undefined) {
       obj.imageMessageRequest = ImageMessageRequest.toJSON(message.imageMessageRequest);
@@ -1176,6 +1239,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.attachmentMessageResponse !== undefined) {
       obj.attachmentMessageResponse = AttachmentMessageResponse.toJSON(message.attachmentMessageResponse);
+    }
+    if (message.videoMessageRequest !== undefined) {
+      obj.videoMessageRequest = VideoMessageRequest.toJSON(message.videoMessageRequest);
+    }
+    if (message.videoMessageResponse !== undefined) {
+      obj.videoMessageResponse = VideoMessageResponse.toJSON(message.videoMessageResponse);
     }
     if (message.addToCartRequest !== undefined) {
       obj.addToCartRequest = AddToCartRequest.toJSON(message.addToCartRequest);
@@ -1247,12 +1316,14 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.textMessageResponse = (object.textMessageResponse !== undefined && object.textMessageResponse !== null)
       ? TextMessageResponse.fromPartial(object.textMessageResponse)
       : undefined;
-    message.voiceMessageRequest = (object.voiceMessageRequest !== undefined && object.voiceMessageRequest !== null)
-      ? VoiceMessageRequest.fromPartial(object.voiceMessageRequest)
-      : undefined;
-    message.voiceMessageResponse = (object.voiceMessageResponse !== undefined && object.voiceMessageResponse !== null)
-      ? VoiceMessageResponse.fromPartial(object.voiceMessageResponse)
-      : undefined;
+    message.voiceNoteMessageRequest =
+      (object.voiceNoteMessageRequest !== undefined && object.voiceNoteMessageRequest !== null)
+        ? VoiceNoteMessageRequest.fromPartial(object.voiceNoteMessageRequest)
+        : undefined;
+    message.voiceNoteMessageResponse =
+      (object.voiceNoteMessageResponse !== undefined && object.voiceNoteMessageResponse !== null)
+        ? VoiceNoteMessageResponse.fromPartial(object.voiceNoteMessageResponse)
+        : undefined;
     message.imageMessageRequest = (object.imageMessageRequest !== undefined && object.imageMessageRequest !== null)
       ? ImageMessageRequest.fromPartial(object.imageMessageRequest)
       : undefined;
@@ -1275,6 +1346,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       (object.attachmentMessageResponse !== undefined && object.attachmentMessageResponse !== null)
         ? AttachmentMessageResponse.fromPartial(object.attachmentMessageResponse)
         : undefined;
+    message.videoMessageRequest = (object.videoMessageRequest !== undefined && object.videoMessageRequest !== null)
+      ? VideoMessageRequest.fromPartial(object.videoMessageRequest)
+      : undefined;
+    message.videoMessageResponse = (object.videoMessageResponse !== undefined && object.videoMessageResponse !== null)
+      ? VideoMessageResponse.fromPartial(object.videoMessageResponse)
+      : undefined;
     message.addToCartRequest = (object.addToCartRequest !== undefined && object.addToCartRequest !== null)
       ? AddToCartRequest.fromPartial(object.addToCartRequest)
       : undefined;
@@ -1851,12 +1928,12 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
   },
 };
 
-function createBaseVoiceMessageRequest(): VoiceMessageRequest {
+function createBaseVoiceNoteMessageRequest(): VoiceNoteMessageRequest {
   return { content: undefined, timestamp: undefined, quickReplies: [] };
 }
 
-export const VoiceMessageRequest: MessageFns<VoiceMessageRequest> = {
-  encode(message: VoiceMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
+  encode(message: VoiceNoteMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.content !== undefined) {
       VoiceMessage.encode(message.content, writer.uint32(10).fork()).join();
     }
@@ -1869,10 +1946,10 @@ export const VoiceMessageRequest: MessageFns<VoiceMessageRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): VoiceMessageRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): VoiceNoteMessageRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseVoiceMessageRequest();
+    const message = createBaseVoiceNoteMessageRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -1909,7 +1986,7 @@ export const VoiceMessageRequest: MessageFns<VoiceMessageRequest> = {
     return message;
   },
 
-  fromJSON(object: any): VoiceMessageRequest {
+  fromJSON(object: any): VoiceNoteMessageRequest {
     return {
       content: isSet(object.content) ? VoiceMessage.fromJSON(object.content) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
@@ -1921,7 +1998,7 @@ export const VoiceMessageRequest: MessageFns<VoiceMessageRequest> = {
     };
   },
 
-  toJSON(message: VoiceMessageRequest): unknown {
+  toJSON(message: VoiceNoteMessageRequest): unknown {
     const obj: any = {};
     if (message.content !== undefined) {
       obj.content = VoiceMessage.toJSON(message.content);
@@ -1935,11 +2012,11 @@ export const VoiceMessageRequest: MessageFns<VoiceMessageRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<VoiceMessageRequest>, I>>(base?: I): VoiceMessageRequest {
-    return VoiceMessageRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<VoiceNoteMessageRequest>, I>>(base?: I): VoiceNoteMessageRequest {
+    return VoiceNoteMessageRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<VoiceMessageRequest>, I>>(object: I): VoiceMessageRequest {
-    const message = createBaseVoiceMessageRequest();
+  fromPartial<I extends Exact<DeepPartial<VoiceNoteMessageRequest>, I>>(object: I): VoiceNoteMessageRequest {
+    const message = createBaseVoiceNoteMessageRequest();
     message.content = (object.content !== undefined && object.content !== null)
       ? VoiceMessage.fromPartial(object.content)
       : undefined;
@@ -1949,12 +2026,12 @@ export const VoiceMessageRequest: MessageFns<VoiceMessageRequest> = {
   },
 };
 
-function createBaseVoiceMessageResponse(): VoiceMessageResponse {
+function createBaseVoiceNoteMessageResponse(): VoiceNoteMessageResponse {
   return { status: 0, timestamp: undefined, messageId: "" };
 }
 
-export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
-  encode(message: VoiceMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const VoiceNoteMessageResponse: MessageFns<VoiceNoteMessageResponse> = {
+  encode(message: VoiceNoteMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.status !== 0) {
       writer.uint32(8).int32(message.status);
     }
@@ -1967,10 +2044,10 @@ export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): VoiceMessageResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): VoiceNoteMessageResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseVoiceMessageResponse();
+    const message = createBaseVoiceNoteMessageResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -2007,7 +2084,7 @@ export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
     return message;
   },
 
-  fromJSON(object: any): VoiceMessageResponse {
+  fromJSON(object: any): VoiceNoteMessageResponse {
     return {
       status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
@@ -2019,7 +2096,7 @@ export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
     };
   },
 
-  toJSON(message: VoiceMessageResponse): unknown {
+  toJSON(message: VoiceNoteMessageResponse): unknown {
     const obj: any = {};
     if (message.status !== 0) {
       obj.status = responseStatusToJSON(message.status);
@@ -2033,11 +2110,11 @@ export const VoiceMessageResponse: MessageFns<VoiceMessageResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<VoiceMessageResponse>, I>>(base?: I): VoiceMessageResponse {
-    return VoiceMessageResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<VoiceNoteMessageResponse>, I>>(base?: I): VoiceNoteMessageResponse {
+    return VoiceNoteMessageResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<VoiceMessageResponse>, I>>(object: I): VoiceMessageResponse {
-    const message = createBaseVoiceMessageResponse();
+  fromPartial<I extends Exact<DeepPartial<VoiceNoteMessageResponse>, I>>(object: I): VoiceNoteMessageResponse {
+    const message = createBaseVoiceNoteMessageResponse();
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     message.messageId = object.messageId ?? "";
@@ -2820,6 +2897,414 @@ export const AttachmentMessageResponse: MessageFns<AttachmentMessageResponse> = 
   },
   fromPartial<I extends Exact<DeepPartial<AttachmentMessageResponse>, I>>(object: I): AttachmentMessageResponse {
     const message = createBaseAttachmentMessageResponse();
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    message.messageId = object.messageId ?? "";
+    return message;
+  },
+};
+
+function createBaseVideoMessage(): VideoMessage {
+  return {
+    timestamp: undefined,
+    text: undefined,
+    mediaUrl: "",
+    mediaType: "",
+    status: 0,
+    role: 0,
+    byteCount: 0,
+    fileName: "",
+    duration: 0,
+  };
+}
+
+export const VideoMessage: MessageFns<VideoMessage> = {
+  encode(message: VideoMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
+    }
+    if (message.text !== undefined) {
+      writer.uint32(18).string(message.text);
+    }
+    if (message.mediaUrl !== "") {
+      writer.uint32(26).string(message.mediaUrl);
+    }
+    if (message.mediaType !== "") {
+      writer.uint32(34).string(message.mediaType);
+    }
+    if (message.status !== 0) {
+      writer.uint32(40).int32(message.status);
+    }
+    if (message.role !== 0) {
+      writer.uint32(48).int32(message.role);
+    }
+    if (message.byteCount !== 0) {
+      writer.uint32(56).int64(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      writer.uint32(66).string(message.fileName);
+    }
+    if (message.duration !== 0) {
+      writer.uint32(73).double(message.duration);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): VideoMessage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseVideoMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.mediaUrl = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.mediaType = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.role = reader.int32() as any;
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.byteCount = longToNumber(reader.int64());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.fileName = reader.string();
+          continue;
+        }
+        case 9: {
+          if (tag !== 73) {
+            break;
+          }
+
+          message.duration = reader.double();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): VideoMessage {
+    return {
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      text: isSet(object.text) ? globalThis.String(object.text) : undefined,
+      mediaUrl: isSet(object.mediaUrl)
+        ? globalThis.String(object.mediaUrl)
+        : isSet(object.media_url)
+        ? globalThis.String(object.media_url)
+        : "",
+      mediaType: isSet(object.mediaType)
+        ? globalThis.String(object.mediaType)
+        : isSet(object.media_type)
+        ? globalThis.String(object.media_type)
+        : "",
+      status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
+      role: isSet(object.role) ? messageRoleFromJSON(object.role) : 0,
+      byteCount: isSet(object.byteCount)
+        ? globalThis.Number(object.byteCount)
+        : isSet(object.byte_count)
+        ? globalThis.Number(object.byte_count)
+        : 0,
+      fileName: isSet(object.fileName)
+        ? globalThis.String(object.fileName)
+        : isSet(object.file_name)
+        ? globalThis.String(object.file_name)
+        : "",
+      duration: isSet(object.duration) ? globalThis.Number(object.duration) : 0,
+    };
+  },
+
+  toJSON(message: VideoMessage): unknown {
+    const obj: any = {};
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.text !== undefined) {
+      obj.text = message.text;
+    }
+    if (message.mediaUrl !== "") {
+      obj.mediaUrl = message.mediaUrl;
+    }
+    if (message.mediaType !== "") {
+      obj.mediaType = message.mediaType;
+    }
+    if (message.status !== 0) {
+      obj.status = messageStatusToJSON(message.status);
+    }
+    if (message.role !== 0) {
+      obj.role = messageRoleToJSON(message.role);
+    }
+    if (message.byteCount !== 0) {
+      obj.byteCount = Math.round(message.byteCount);
+    }
+    if (message.fileName !== "") {
+      obj.fileName = message.fileName;
+    }
+    if (message.duration !== 0) {
+      obj.duration = message.duration;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<VideoMessage>, I>>(base?: I): VideoMessage {
+    return VideoMessage.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<VideoMessage>, I>>(object: I): VideoMessage {
+    const message = createBaseVideoMessage();
+    message.timestamp = object.timestamp ?? undefined;
+    message.text = object.text ?? undefined;
+    message.mediaUrl = object.mediaUrl ?? "";
+    message.mediaType = object.mediaType ?? "";
+    message.status = object.status ?? 0;
+    message.role = object.role ?? 0;
+    message.byteCount = object.byteCount ?? 0;
+    message.fileName = object.fileName ?? "";
+    message.duration = object.duration ?? 0;
+    return message;
+  },
+};
+
+function createBaseVideoMessageRequest(): VideoMessageRequest {
+  return { content: undefined, timestamp: undefined, quickReplies: [] };
+}
+
+export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
+  encode(message: VideoMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.content !== undefined) {
+      VideoMessage.encode(message.content, writer.uint32(10).fork()).join();
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    for (const v of message.quickReplies) {
+      writer.uint32(26).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): VideoMessageRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseVideoMessageRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.content = VideoMessage.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.quickReplies.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): VideoMessageRequest {
+    return {
+      content: isSet(object.content) ? VideoMessage.fromJSON(object.content) : undefined,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      quickReplies: globalThis.Array.isArray(object?.quickReplies)
+        ? object.quickReplies.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.quick_replies)
+        ? object.quick_replies.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: VideoMessageRequest): unknown {
+    const obj: any = {};
+    if (message.content !== undefined) {
+      obj.content = VideoMessage.toJSON(message.content);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.quickReplies?.length) {
+      obj.quickReplies = message.quickReplies;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<VideoMessageRequest>, I>>(base?: I): VideoMessageRequest {
+    return VideoMessageRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<VideoMessageRequest>, I>>(object: I): VideoMessageRequest {
+    const message = createBaseVideoMessageRequest();
+    message.content = (object.content !== undefined && object.content !== null)
+      ? VideoMessage.fromPartial(object.content)
+      : undefined;
+    message.timestamp = object.timestamp ?? undefined;
+    message.quickReplies = object.quickReplies?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseVideoMessageResponse(): VideoMessageResponse {
+  return { status: 0, timestamp: undefined, messageId: "" };
+}
+
+export const VideoMessageResponse: MessageFns<VideoMessageResponse> = {
+  encode(message: VideoMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    if (message.messageId !== "") {
+      writer.uint32(26).string(message.messageId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): VideoMessageResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseVideoMessageResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.messageId = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): VideoMessageResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      messageId: isSet(object.messageId)
+        ? globalThis.String(object.messageId)
+        : isSet(object.message_id)
+        ? globalThis.String(object.message_id)
+        : "",
+    };
+  },
+
+  toJSON(message: VideoMessageResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.messageId !== "") {
+      obj.messageId = message.messageId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<VideoMessageResponse>, I>>(base?: I): VideoMessageResponse {
+    return VideoMessageResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<VideoMessageResponse>, I>>(object: I): VideoMessageResponse {
+    const message = createBaseVideoMessageResponse();
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     message.messageId = object.messageId ?? "";
