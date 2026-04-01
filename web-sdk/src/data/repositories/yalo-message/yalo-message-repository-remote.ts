@@ -87,7 +87,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       case 'voice':
         body = {
           correlationId: message.id?.toString() || '',
-          voiceMessageRequest: {
+          voiceNoteMessageRequest: {
             content: {
               timestamp: message.timestamp,
               status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
@@ -208,8 +208,8 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       });
     }
 
-    if (msg.voiceMessageRequest?.content) {
-      const content = msg.voiceMessageRequest.content;
+    if (msg.voiceNoteMessageRequest?.content) {
+      const content = msg.voiceNoteMessageRequest.content;
       return ChatMessage.voice({
         role: 'AGENT',
         timestamp,

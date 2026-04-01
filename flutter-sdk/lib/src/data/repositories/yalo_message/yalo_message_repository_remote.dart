@@ -235,7 +235,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       MessageType.voice => proto.SdkMessage(
         correlationId: chatMessage.id.toString(),
         timestamp: Timestamp.fromDateTime(timestamp),
-        voiceMessageRequest: proto.VoiceMessageRequest(
+        voiceNoteMessageRequest: proto.VoiceNoteMessageRequest(
           content: proto.VoiceMessage(
             timestamp: Timestamp.fromDateTime(chatMessage.timestamp),
             fileName: chatMessage.fileName,
