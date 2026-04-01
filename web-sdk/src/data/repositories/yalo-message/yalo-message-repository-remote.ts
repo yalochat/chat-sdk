@@ -105,6 +105,27 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
           timestamp: timestamp,
         };
         break;
+      case 'video':
+        body = {
+          correlationId: message.id?.toString() || '',
+          videoMessageRequest: {
+            content: {
+              timestamp: message.timestamp,
+              text: message.content,
+              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+              role: MessageRole.MESSAGE_ROLE_USER,
+              mediaUrl: mediaId ?? message.fileName!,
+              mediaType: message.mediaType!,
+              byteCount: message.byteCount!,
+              fileName: message.fileName!,
+              duration: message.duration!,
+            },
+            timestamp: timestamp,
+            quickReplies: [],
+          },
+          timestamp: timestamp,
+        };
+        break;
       case 'attachment':
         body = {
           correlationId: message.id?.toString() || '',
@@ -144,6 +165,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       if (
         (message.type === 'image' ||
           message.type === 'voice' ||
+          message.type === 'video' ||
           message.type === 'attachment') &&
         message.blob
       ) {
@@ -215,6 +237,20 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         timestamp,
         fileName: content.fileName,
         amplitudes: content.amplitudesPreview,
+        duration: content.duration,
+        mediaType: content.mediaType,
+        byteCount: content.byteCount,
+        wiId: item.id,
+      });
+    }
+
+    if (msg.videoMessageRequest?.content) {
+      const content = msg.videoMessageRequest.content;
+      return ChatMessage.video({
+        role: 'AGENT',
+        timestamp,
+        fileName: content.mediaUrl || content.fileName,
+        content: content.text ?? '',
         duration: content.duration,
         mediaType: content.mediaType,
         byteCount: content.byteCount,

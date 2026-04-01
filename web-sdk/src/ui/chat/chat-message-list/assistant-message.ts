@@ -6,7 +6,9 @@ import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import snarkdown from 'snarkdown';
 import dompurify from 'dompurify';
+import './attachment-message';
 import './image-message';
+import './video-message';
 import './voice-message';
 
 @customElement('assistant-message')
@@ -32,11 +34,16 @@ export class AssistantMessage extends LitElement {
       max-width: 90%;
     }
 
-    .image-bubble {
+    .image-bubble,
+    .video-bubble {
       max-width: 90%;
       border-radius: 1.125rem;
       border-bottom-left-radius: 0.25rem;
       overflow: hidden;
+    }
+
+    .attachment-bubble {
+      max-width: 90%;
     }
   `;
 
@@ -56,6 +63,14 @@ export class AssistantMessage extends LitElement {
       case 'image':
         return html`<div class="image-bubble">
           <image-message .message=${this.message}></image-message>
+        </div>`;
+      case 'video':
+        return html`<div class="video-bubble">
+          <video-message .message=${this.message}></video-message>
+        </div>`;
+      case 'attachment':
+        return html`<div class="attachment-bubble">
+          <attachment-message .message=${this.message}></attachment-message>
         </div>`;
       case 'text':
       default:
