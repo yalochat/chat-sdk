@@ -101,12 +101,14 @@ internal class YaloMessageRepositoryRemote(
             when (val result = apiService.fetchMessages(since)) {
                 is Result.Ok -> {
                     val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }
-                    if (batch.isNotEmpty()) {
-                        // Messages arrived — agent has replied, dismiss the typing indicator.
-                        // Mirrors Flutter: TypingStop emitted before adding messages to stream.
+                    // Emit TypingStop whenever the server returned any messages, not just
+                    // when the filtered batch is non-empty. Without this, a poll that returns
+                    // only non-text or fully-deduplicated messages would leave the typing
+                    // indicator stuck indefinitely.
+                    if (result.result.isNotEmpty()) {
                         _events.tryEmit(ChatEvent.TypingStop)
-                        emit(batch)
                     }
+                    if (batch.isNotEmpty()) emit(batch)
                 }
                 is Result.Error -> {
                     // Fetch failed — clear typing indicator so it doesn't get stuck.

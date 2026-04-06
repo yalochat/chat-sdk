@@ -6,6 +6,7 @@ import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 // Port of flutter-sdk/lib/src/data/repositories/yalo_message_repository.dart
 // Phase 1: implemented by FakeYaloMessageRepository (in-memory hardcoded messages).
@@ -23,5 +24,5 @@ interface YaloMessageRepository {
     // Typing event stream — mirrors Flutter's _typingEventsStreamController.
     // TypingStart is emitted by sendMessage(); TypingStop is emitted when the poll receives
     // messages or encounters an error. FakeYaloMessageRepository returns emptyFlow().
-    fun events(): Flow<ChatEvent>
+    fun events(): Flow<ChatEvent> = emptyFlow()
 }

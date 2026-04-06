@@ -38,6 +38,7 @@ import kotlin.test.assertTrue
 class MessagesViewModelTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
+    private val trackedVms = mutableListOf<MessagesViewModel>()
 
     @BeforeTest
     fun setup() {
@@ -46,6 +47,8 @@ class MessagesViewModelTest {
 
     @AfterTest
     fun tearDown() {
+        trackedVms.forEach { it.viewModelScope.cancel() }
+        trackedVms.clear()
         Dispatchers.resetMain()
     }
 
@@ -98,7 +101,7 @@ class MessagesViewModelTest {
             override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
             override fun events(): Flow<ChatEvent> = eventsFlow
         }
-        val vm = viewModel(yaloRepo = yaloRepo)
+        val vm = viewModel(yaloRepo = yaloRepo).also { trackedVms.add(it) }
         vm.handleEvent(MessagesEvent.SubscribeToEvents)
         return vm to eventsFlow
     }

@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -62,7 +63,7 @@ internal fun ChatAppBar(
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Column {
-                    Text(text = title)
+                    Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     AnimatedVisibility(
                         visible = isTyping,
                         enter = expandVertically(),
@@ -71,6 +72,8 @@ internal fun ChatAppBar(
                         Text(
                             text = statusText,
                             style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
