@@ -3,6 +3,7 @@
 package com.yalo.chat.sdk.data.repository.fake
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -24,6 +25,9 @@ class FakeYaloMessageRepository : YaloMessageRepository {
 
     // No-op: Phase 1 has no remote polling — the fake repo provides seed data only.
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+
+    // No-op: fake repo emits no typing events.
+    override fun events(): Flow<ChatEvent> = emptyFlow()
 
     companion object {
         val SEED_MESSAGES: List<ChatMessage> = listOf(

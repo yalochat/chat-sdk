@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.domain.model.AudioData
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -38,6 +39,9 @@ internal class MessagesViewModel(
     // Keeps the active subscription job so SubscribeToMessages is idempotent.
     private var subscriptionJob: Job? = null
 
+    // Keeps the active events job so SubscribeToEvents is idempotent.
+    private var eventsJob: Job? = null
+
     // Incrementing counter seeded from current epoch-ms so optimistic temp IDs:
     //  1. Never collide across sessions (different session → different starting time)
     //  2. Sort at the bottom in ORDER BY id ASC (most recent, correct chat position)
@@ -49,16 +53,19 @@ internal class MessagesViewModel(
         when (event) {
             is MessagesEvent.LoadMessages -> loadMessages()
             is MessagesEvent.SubscribeToMessages -> subscribeToMessages()
+            is MessagesEvent.SubscribeToEvents -> subscribeToEvents()
             is MessagesEvent.SendTextMessage -> sendTextMessage(event.text)
             is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
             is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
-                // Cancel and reset subscriptionJob so SubscribeToMessages restarts polling
+                // Cancel and reset both jobs so SubscribeToMessages / SubscribeToEvents restart
                 // correctly if the host app re-enters ChatScreen without destroying the ViewModel.
                 subscriptionJob?.cancel()
                 subscriptionJob = null
+                eventsJob?.cancel()
+                eventsJob = null
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
@@ -82,6 +89,24 @@ internal class MessagesViewModel(
                         chatStatus = ChatStatus.Failure,
                         isLoading = false,
                     )
+                }
+            }
+        }
+    }
+
+    // Mirrors Flutter's _handleEventsSubscription: collects ChatEvent from the repository
+    // and maps TypingStart/TypingStop to isSystemTypingMessage + chatStatusText in state.
+    private fun subscribeToEvents() {
+        if (eventsJob?.isActive == true) return
+        eventsJob = viewModelScope.launch {
+            yaloMessageRepository.events().collect { event ->
+                when (event) {
+                    is ChatEvent.TypingStart -> _state.update {
+                        it.copy(isSystemTypingMessage = true, chatStatusText = event.statusText)
+                    }
+                    is ChatEvent.TypingStop -> _state.update {
+                        it.copy(isSystemTypingMessage = false, chatStatusText = "")
+                    }
                 }
             }
         }

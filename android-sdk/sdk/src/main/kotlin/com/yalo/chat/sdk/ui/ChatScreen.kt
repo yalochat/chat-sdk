@@ -189,6 +189,7 @@ fun ChatScreen(
     LaunchedEffect(Unit) {
         viewModel.handleEvent(MessagesEvent.LoadMessages)
         viewModel.handleEvent(MessagesEvent.SubscribeToMessages)
+        viewModel.handleEvent(MessagesEvent.SubscribeToEvents)
         audioViewModel.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
     }
 
@@ -213,6 +214,8 @@ fun ChatScreen(
                 topBar = {
                     appBar?.invoke() ?: ChatAppBar(
                         title = YaloChat.config.channelName,
+                        statusText = state.chatStatusText,
+                        isTyping = state.isSystemTypingMessage,
                         onBack = onBack,
                         onShopPressed = onShopPressed,
                         onCartPressed = onCartPressed,

@@ -10,13 +10,17 @@ import com.google.protobuf.timestamp
 import yalo.external_channel.in_app.sdk.v1.sdkMessage
 import yalo.external_channel.in_app.sdk.v1.textMessageRequest
 import yalo.external_channel.in_app.sdk.v1.textMessage
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -39,14 +43,24 @@ internal class YaloMessageRepositoryRemote(
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
+    // Hot SharedFlow for typing events — mirrors Flutter's _typingEventsStreamController.
+    // UNLIMITED buffer prevents event loss when TypingStart and TypingStop are emitted in
+    // rapid succession (e.g. a poll cycle that errors immediately after a send).
+    private val _events = MutableSharedFlow<ChatEvent>(extraBufferCapacity = Channel.UNLIMITED)
+    override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
+
     // Sends a text message to the Yalo backend.
     // Non-text types (image, audio) are stored locally only; the backend rejects them.
+    // TypingStart is emitted eagerly before the HTTP call — this gives instant feedback
+    // that the message was submitted. If the send fails, the indicator clears on the next
+    // poll error cycle (~1s). This matches Flutter's sendMessage() behavior exactly.
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> {
         if (message.type != MessageType.Text) {
             return Result.Error(
                 UnsupportedOperationException("Only text messages can be sent to the backend")
             )
         }
+        _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
         val now = Clock.System.now()
         val nowIso = now.toString()
         // Build the canonical proto SdkMessage using the Kotlin DSL generated from sdk_message.proto.
@@ -87,9 +101,20 @@ internal class YaloMessageRepositoryRemote(
             when (val result = apiService.fetchMessages(since)) {
                 is Result.Ok -> {
                     val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }
+                    // Emit TypingStop whenever the server returned any messages, not just
+                    // when the filtered batch is non-empty. Without this, a poll that returns
+                    // only non-text or fully-deduplicated messages would leave the typing
+                    // indicator stuck indefinitely.
+                    if (result.result.isNotEmpty()) {
+                        _events.tryEmit(ChatEvent.TypingStop)
+                    }
                     if (batch.isNotEmpty()) emit(batch)
                 }
-                is Result.Error -> Unit // swallow, loop continues — mirrors Flutter SDK
+                is Result.Error -> {
+                    // Fetch failed — clear typing indicator so it doesn't get stuck.
+                    // Mirrors Flutter: TypingStop emitted in the catch block.
+                    _events.tryEmit(ChatEvent.TypingStop)
+                }
             }
             delay(pollingIntervalMs)
         }
@@ -123,6 +148,11 @@ internal class YaloMessageRepositoryRemote(
         )
     }
 }
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+// Status text shown in the app bar while the agent is composing a reply.
+// Extracted as a constant for maintainability and to ease M12 localization.
+private const val TYPING_STATUS_TEXT = "Writing message..."
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────
 // kotlinx-datetime's Instant.parse() handles all standard ISO 8601 variants

@@ -4,6 +4,7 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -20,12 +21,16 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 class YaloMessageRepositoryRemoteTest {
 
@@ -215,5 +220,101 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(1, batch.size)
         assertEquals("Eventually", batch.first().content)
         assertTrue(batch.first().role == MessageRole.AGENT)
+    }
+
+    // ── events() — typing indicator lifecycle ─────────────────────────────────
+
+    // UnconfinedTestDispatcher is needed so the collect coroutine starts eagerly before
+    // sendMessage()/pollIncomingMessages() call tryEmit() — SharedFlow with replay=0 drops
+    // emissions that have no active subscribers at the time of emission.
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `sendMessage text emits TypingStart on events flow`() = runTest(UnconfinedTestDispatcher()) {
+        val repo = buildRepo(listOf("{}"))
+        val message = ChatMessage(
+            role = MessageRole.USER, type = MessageType.Text,
+            status = MessageStatus.SENT, content = "hello",
+        )
+        val collectedEvents = mutableListOf<ChatEvent>()
+        // UnconfinedTestDispatcher: launch runs eagerly so collect is active before sendMessage.
+        val collectJob = launch { repo.events().collect { collectedEvents.add(it) } }
+        repo.sendMessage(message)
+        yield() // drain unconfined event queue before cancelling
+        collectJob.cancel()
+        assertEquals(1, collectedEvents.size)
+        assertIs<ChatEvent.TypingStart>(collectedEvents[0])
+        assertEquals("Writing message...", (collectedEvents[0] as ChatEvent.TypingStart).statusText) // matches TYPING_STATUS_TEXT
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `sendMessage non-text does not emit TypingStart`() = runTest(UnconfinedTestDispatcher()) {
+        val repo = buildRepo(emptyList())
+        val message = ChatMessage(
+            role = MessageRole.USER, type = MessageType.Image,
+            status = MessageStatus.SENT, content = "",
+        )
+        val collectedEvents = mutableListOf<ChatEvent>()
+        val collectJob = launch { repo.events().collect { collectedEvents.add(it) } }
+        repo.sendMessage(message)
+        yield() // drain unconfined event queue before cancelling
+        collectJob.cancel()
+        assertTrue(collectedEvents.isEmpty())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `pollIncomingMessages emits TypingStop when messages are received`() = runTest(UnconfinedTestDispatcher()) {
+        val repo = buildRepo(listOf(messageJson("id-1", "Hi")))
+        val collectedEvents = mutableListOf<ChatEvent>()
+        val collectJob = launch { repo.events().collect { collectedEvents.add(it) } }
+        // Consume the first non-empty batch — TypingStop should be emitted before it.
+        repo.pollIncomingMessages().first()
+        // yield() drains the unconfined event queue so collectJob processes the TypingStop
+        // before we cancel it. Without this, collectJob.cancel() races with the pending delivery.
+        yield()
+        collectJob.cancel()
+        assertEquals(1, collectedEvents.size)
+        assertIs<ChatEvent.TypingStop>(collectedEvents[0])
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `pollIncomingMessages emits TypingStop on network error`() = runTest(UnconfinedTestDispatcher()) {
+        val authResponse = """{"access_token":"$fakeJwt","refresh_token":"rt","expires_in":3600}"""
+        var dataCallIndex = 0
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                dataCallIndex++
+                if (dataCallIndex == 1) respondError(HttpStatusCode.InternalServerError)
+                // Second call returns a message so pollIncomingMessages().first() can complete.
+                else respond(
+                    messageJson("id-1", "After error"),
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
+        }
+        val client = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+        }
+        val apiService = YaloChatApiService(
+            apiBaseUrl = "https://api.test",
+            channelId = "channel-id",
+            organizationId = "org-id",
+            httpClient = client,
+        )
+        val repo = YaloMessageRepositoryRemote(apiService, pollingIntervalMs = 0L)
+        val collectedEvents = mutableListOf<ChatEvent>()
+        val collectJob = launch { repo.events().collect { collectedEvents.add(it) } }
+        // first() completes after the second (successful) poll cycle.
+        repo.pollIncomingMessages().first()
+        yield() // drain unconfined event queue before cancelling
+        collectJob.cancel()
+        // First error poll → TypingStop; second successful poll → another TypingStop.
+        assertTrue(collectedEvents.isNotEmpty())
+        assertTrue(collectedEvents.all { it is ChatEvent.TypingStop })
     }
 }

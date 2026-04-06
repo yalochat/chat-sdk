@@ -14,4 +14,6 @@ sealed class MessagesEvent {
     data class UpdateUserMessage(val value: String) : MessagesEvent()
     data object ClearMessages : MessagesEvent()
     data object ClearQuickReplies : MessagesEvent()
+    // Mirrors Flutter's ChatSubscribeToEvents — starts collecting the typing events flow.
+    data object SubscribeToEvents : MessagesEvent()
 }

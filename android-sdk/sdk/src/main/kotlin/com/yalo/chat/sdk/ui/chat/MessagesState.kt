@@ -14,4 +14,8 @@ data class MessagesState(
     val chatStatus: ChatStatus = ChatStatus.Initial,
     val quickReplies: List<String> = emptyList(),
     val pageInfo: PageInfo = PageInfo(),
+    // Typing indicator — mirrors Flutter's isSystemTypingMessage + chatStatusText fields.
+    // Set to true + the status string when TypingStart is received; reset on TypingStop.
+    val isSystemTypingMessage: Boolean = false,
+    val chatStatusText: String = "",
 )
