@@ -22,14 +22,16 @@ message SdkMessage {
     // Bi-directional
     TextMessageRequest       text_message_request        = 10;
     TextMessageResponse      text_message_response       = 11;
-    VoiceMessageRequest      voice_message_request       = 12;
-    VoiceMessageResponse     voice_message_response      = 13;
+    VoiceNoteMessageRequest  voice_note_message_request  = 12;
+    VoiceNoteMessageResponse voice_note_message_response = 13;
     ImageMessageRequest       image_message_request        = 14;
     ImageMessageResponse      image_message_response       = 15;
     MessageReceiptRequest     message_receipt_request      = 16;
     MessageReceiptResponse    message_receipt_response     = 17;
     AttachmentMessageRequest  attachment_message_request   = 18;
     AttachmentMessageResponse attachment_message_response  = 19;
+    VideoMessageRequest       video_message_request        = 38;
+    VideoMessageResponse      video_message_response       = 39;
 
     // Client → channel
     AddToCartRequest         add_to_cart_request         = 20;
@@ -127,15 +129,15 @@ message VoiceMessage {
   string file_name = 9;
 }
 
-// VoiceMessageRequest is sent by either party to deliver a voice note.
-message VoiceMessageRequest {
+// VoiceNoteMessageRequest is sent by either party to deliver a voice note.
+message VoiceNoteMessageRequest {
   VoiceMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
   repeated string quick_replies = 3;
 }
 
-// VoiceMessageResponse acknowledges a VoiceMessageRequest and returns the assigned message id.
-message VoiceMessageResponse {
+// VoiceNoteMessageResponse acknowledges a VoiceNoteMessageRequest and returns the assigned message id.
+message VoiceNoteMessageResponse {
   ResponseStatus status = 1;
   google.protobuf.Timestamp timestamp = 2;
   string message_id = 3;
@@ -196,6 +198,37 @@ message AttachmentMessageRequest {
 
 // AttachmentMessageResponse acknowledges an AttachmentMessageRequest and returns the assigned message id.
 message AttachmentMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string message_id = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Video message  (bi-directional)
+// ---------------------------------------------------------------------------
+
+// VideoMessage holds the payload of a video conversation turn.
+message VideoMessage {
+  google.protobuf.Timestamp timestamp = 1;
+  optional string text = 2;
+  string media_url = 3;
+  string media_type = 4;
+  MessageStatus status = 5;
+  MessageRole role = 6;
+  int64 byte_count = 7;
+  string file_name = 8;
+  double duration = 9;
+}
+
+// VideoMessageRequest is sent by either party to deliver a video.
+message VideoMessageRequest {
+  VideoMessage content = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  repeated string quick_replies = 3;
+}
+
+// VideoMessageResponse acknowledges a VideoMessageRequest and returns the assigned message id.
+message VideoMessageResponse {
   ResponseStatus status = 1;
   google.protobuf.Timestamp timestamp = 2;
   string message_id = 3;

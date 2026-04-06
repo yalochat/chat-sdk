@@ -33,7 +33,7 @@ const getTextarea = (el: YaloChatWindow): HTMLTextAreaElement =>
 
 const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
   getFooter(el).shadowRoot?.querySelector(
-    '.chat-send-button'
+    '.chat-action-button'
   ) as unknown as HTMLButtonElement;
 
 describe('YaloChatWindow', () => {
@@ -94,6 +94,10 @@ describe('YaloChatWindow', () => {
 
       const textarea = getTextarea(el);
       textarea.value = 'Hello world';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
 
       const received = new Promise<ChatMessage>((resolve) => {
         el.addEventListener(
@@ -119,6 +123,10 @@ describe('YaloChatWindow', () => {
 
       const textarea = getTextarea(el);
       textarea.value = 'Hello world';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
       getSendButton(el).click();
 
       expect(textarea.value).toBe('');

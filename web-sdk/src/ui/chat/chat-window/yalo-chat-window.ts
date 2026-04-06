@@ -21,6 +21,10 @@ import {
   type YaloMessageRepository,
   yaloMessageRepositoryContext,
 } from '@data/repositories/yalo-message/yalo-message-repository-context';
+import {
+  type YaloMediaService,
+  yaloMediaServiceContext,
+} from '@data/services/yalo-media/yalo-media-service-context';
 import { setLocale } from '@i18n/index';
 
 @customElement('yalo-chat-window')
@@ -79,6 +83,9 @@ export class YaloChatWindow extends LitElement {
   @provide({ context: yaloMessageRepositoryContext })
   yaloMessageRepository!: YaloMessageRepository;
 
+  @provide({ context: yaloMediaServiceContext })
+  yaloMediaService!: YaloMediaService;
+
   private _chatWindowController = new YaloChatWindowController(this);
 
   firstUpdated(): void {
@@ -109,6 +116,12 @@ export class YaloChatWindow extends LitElement {
         <chat-footer
           @yalo-chat-send-text-message=${(e: CustomEvent) =>
             this._chatWindowController.sendTextMessage(e)}
+          @yalo-chat-send-voice-message=${(e: CustomEvent) =>
+            this._chatWindowController.sendVoiceMessage(e)}
+          @yalo-chat-send-image-message=${(e: CustomEvent) =>
+            this._chatWindowController.sendImageMessage(e)}
+          @yalo-chat-send-attachment-message=${(e: CustomEvent) =>
+            this._chatWindowController.sendAttachmentMessage(e)}
         >
         </chat-footer>
       </div>

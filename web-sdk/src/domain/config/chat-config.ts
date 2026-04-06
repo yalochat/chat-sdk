@@ -3,6 +3,11 @@
 export interface SdkIcons {
   close?: string;
   send?: string;
+  mic?: string;
+  attachment?: string;
+  play?: string;
+  pause?: string;
+  document?: string;
 }
 
 export interface YaloChatClientConfig {
@@ -13,9 +18,15 @@ export interface YaloChatClientConfig {
   image?: string;
   locale?: string;
   icons?: SdkIcons;
+  audioWaveformColor?: string;
 }
 
 export const defaultIcons: SdkIcons = {
   close: '<span class="material-symbols-outlined">close</span>',
   send: '<span class="material-symbols-outlined">send</span>',
+  mic: '<span class="material-symbols-outlined">mic</span>',
+  attachment: '<span class="material-symbols-outlined">add</span>',
+  play: '<span class="material-symbols-outlined">play_arrow</span>',
+  pause: '<span class="material-symbols-outlined">pause</span>',
+  document: '<span class="material-symbols-outlined">description</span>',
 };

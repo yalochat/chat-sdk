@@ -19,6 +19,7 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
         ChatMessageRepositoryLocal._STORE_NAME,
         { keyPath: 'id', autoIncrement: true }
       );
+      store.createIndex('wiId', 'wiId', { unique: true });
       store.createIndex('timestamp', 'timestamp', { unique: false });
     }
   }

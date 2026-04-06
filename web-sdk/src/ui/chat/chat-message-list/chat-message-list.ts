@@ -8,10 +8,9 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { loggerContext, type Logger } from '@log/logger-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
-import snarkdown from 'snarkdown';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import dompurify from 'dompurify';
 import ChatMessageListController from './chat-message-list-controller';
+import './user-message';
+import './assistant-message';
 
 @customElement('chat-message-list')
 export default class ChatMessageList extends LitElement {
@@ -186,18 +185,10 @@ export default class ChatMessageList extends LitElement {
                   : 'agent-message'}"
               >
                 ${isUser
-                  ? html`<span class="bubble">${chatMessage.content}</span>`
-                  : html`<p>
-                      ${unsafeHTML(
-                        dompurify.sanitize(
-                          snarkdown(
-                            this._chatMessageListController.highlightLinks(
-                              chatMessage.content
-                            )
-                          )
-                        )
-                      )}
-                    </p>`}
+                  ? html`<user-message .message=${chatMessage}></user-message>`
+                  : html`<assistant-message
+                      .message=${chatMessage}
+                    ></assistant-message>`}
               </li>
             `;
           }
