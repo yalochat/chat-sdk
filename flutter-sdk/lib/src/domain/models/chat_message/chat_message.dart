@@ -16,6 +16,7 @@ enum MessageType {
   text('text'),
   image('image'),
   voice('voice'),
+  video('video'),
   product('product'),
   productCarousel('productCarousel'),
   promotion('promotion'),
@@ -122,6 +123,23 @@ class ChatMessage extends Equatable {
   }) : type = MessageType.voice,
        products = const [],
        content = '',
+       expand = false;
+
+  const ChatMessage.video({
+    this.id,
+    this.wiId,
+    required this.role,
+    required this.timestamp,
+    required this.fileName,
+    required this.duration,
+    required this.byteCount,
+    required this.mediaType,
+    this.status = MessageStatus.inProgress,
+    this.content = '',
+    this.quickReplies = const [],
+  }) : type = MessageType.video,
+       amplitudes = null,
+       products = const [],
        expand = false;
 
   const ChatMessage.image({

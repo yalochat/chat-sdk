@@ -44,7 +44,9 @@ class YaloMediaServiceRemote implements YaloMediaService {
         Uri.parse('$_baseUrl/all/media'),
       );
 
-      log.info('Sending mime type $mimeType');
+      log.fine(
+        'Sending mime type $mimeType, for file ${file.name} ${file.mimeType}',
+      );
       request.headers['Authorization'] = 'Bearer ${entry.accessToken}';
       request.files.add(
         MultipartFile.fromBytes(

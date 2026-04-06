@@ -88,6 +88,37 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
             );
             return null;
         }
+      case proto.SdkMessage_Payload.videoMessageRequest:
+        final content = item.message.videoMessageRequest.content;
+        final downloadResult = await mediaService.downloadMedia(
+          content.mediaUrl,
+        );
+        switch (downloadResult) {
+          case Ok(:final Uint8List result):
+            final mimeType = content.mediaType.isNotEmpty
+                ? content.mediaType
+                : (lookupMimeType(content.mediaUrl) ?? 'video/mp4');
+            final ext = extensionFromMime(mimeType) ?? 'mp4';
+            final dir = await _directory();
+            final localPath = '${dir.path}/${const Uuid().v4()}.$ext';
+            await File(localPath).writeAsBytes(result);
+            return ChatMessage.video(
+              role: MessageRole.assistant,
+              timestamp: item.date.toDateTime(),
+              content: content.text,
+              fileName: localPath,
+              duration: content.duration.toInt(),
+              mediaType: mimeType,
+              byteCount: result.length,
+              wiId: item.id,
+            );
+          case Error(:final error):
+            log.severe(
+              'Failed to download video for message ${item.id}',
+              error,
+            );
+            return null;
+        }
       case _:
         throw UnimplementedError();
     }
@@ -186,7 +217,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     final timestamp = DateTime.now();
     MediaUploadResponse? mediaUploadResponse;
     if (chatMessage.type == MessageType.image ||
-        chatMessage.type == MessageType.voice) {
+        chatMessage.type == MessageType.voice ||
+        chatMessage.type == MessageType.video) {
       log.info(chatMessage.fileName);
       final uploadResult = await mediaService.uploadMedia(
         XFile(chatMessage.fileName!),
@@ -241,6 +273,23 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
             fileName: chatMessage.fileName,
             mediaUrl: mediaUploadResponse!.id,
             amplitudesPreview: chatMessage.amplitudes,
+            duration: chatMessage.duration?.toDouble(),
+            mediaType: chatMessage.mediaType,
+            byteCount: Int64(chatMessage.byteCount!),
+            status: messageStatus,
+            role: proto.MessageRole.MESSAGE_ROLE_USER,
+          ),
+        ),
+      ),
+      MessageType.video => proto.SdkMessage(
+        correlationId: chatMessage.id.toString(),
+        timestamp: Timestamp.fromDateTime(timestamp),
+        videoMessageRequest: proto.VideoMessageRequest(
+          content: proto.VideoMessage(
+            timestamp: Timestamp.fromDateTime(chatMessage.timestamp),
+            text: chatMessage.content,
+            fileName: chatMessage.fileName,
+            mediaUrl: mediaUploadResponse!.id,
             duration: chatMessage.duration?.toDouble(),
             mediaType: chatMessage.mediaType,
             byteCount: Int64(chatMessage.byteCount!),

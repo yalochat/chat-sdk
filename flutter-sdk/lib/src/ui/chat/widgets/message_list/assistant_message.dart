@@ -3,6 +3,7 @@
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/assistant_product_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/image_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/video_message.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,7 @@ class AssistantMessage extends StatelessWidget {
                 ),
               ),
               MessageType.image => ImageMessage(message: message),
+              MessageType.video => VideoMessage(message: message),
               MessageType.product => AssistantProductMessage(
                 message: message,
                 direction: Axis.vertical,

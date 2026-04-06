@@ -37,6 +37,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   protobuf: ^6.0.0
   fixnum: ^1.1.1
+  video_player: ^2.11.1
 
 
 dev_dependencies:
