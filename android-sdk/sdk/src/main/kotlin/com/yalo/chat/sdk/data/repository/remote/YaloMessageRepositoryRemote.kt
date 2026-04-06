@@ -149,7 +149,7 @@ internal class YaloMessageRepositoryRemote(
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 // Status text shown in the app bar while the agent is composing a reply.
-// Extracted as a constant for testability and to ease M12 localization.
+// Extracted as a constant for maintainability and to ease M12 localization.
 private const val TYPING_STATUS_TEXT = "Writing message..."
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────

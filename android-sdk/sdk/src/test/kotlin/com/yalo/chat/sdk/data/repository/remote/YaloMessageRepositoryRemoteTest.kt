@@ -239,6 +239,7 @@ class YaloMessageRepositoryRemoteTest {
         // UnconfinedTestDispatcher: launch runs eagerly so collect is active before sendMessage.
         val collectJob = launch { repo.events().collect { collectedEvents.add(it) } }
         repo.sendMessage(message)
+        yield() // drain unconfined event queue before cancelling
         collectJob.cancel()
         assertEquals(1, collectedEvents.size)
         assertIs<ChatEvent.TypingStart>(collectedEvents[0])
@@ -256,6 +257,7 @@ class YaloMessageRepositoryRemoteTest {
         val collectedEvents = mutableListOf<ChatEvent>()
         val collectJob = launch { repo.events().collect { collectedEvents.add(it) } }
         repo.sendMessage(message)
+        yield() // drain unconfined event queue before cancelling
         collectJob.cancel()
         assertTrue(collectedEvents.isEmpty())
     }
