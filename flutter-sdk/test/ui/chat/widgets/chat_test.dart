@@ -1,7 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_app_bar.dart';
@@ -12,13 +11,8 @@ import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:record_platform_interface/record_platform_interface.dart';
-
-class MockPathProviderPlatform extends Mock
-    with MockPlatformInterfaceMixin
-    implements PathProviderPlatform {}
+import 'package:record/record.dart';
 
 class MockRecordPlatform extends Mock
     with MockPlatformInterfaceMixin
@@ -29,26 +23,16 @@ void main() {
     late YaloChatClient client;
 
     setUpAll(() {
-      final MockPathProviderPlatform mockPathProvider =
-          MockPathProviderPlatform();
-      PathProviderPlatform.instance = mockPathProvider;
-      when(() => mockPathProvider.getApplicationSupportPath())
-          .thenAnswer((_) async => Directory.systemTemp.path);
-      when(() => mockPathProvider.getTemporaryPath())
-          .thenAnswer((_) async => Directory.systemTemp.path);
-
       final MockRecordPlatform mockRecordPlatform = MockRecordPlatform();
       RecordPlatform.instance = mockRecordPlatform;
-      when(() => mockRecordPlatform.create(any()))
-          .thenAnswer((_) async {});
-      when(() => mockRecordPlatform.getAmplitude(any()))
-          .thenAnswer(
-            (_) async => Amplitude(current: -160.0, max: -160.0),
-          );
-      when(() => mockRecordPlatform.dispose(any()))
-          .thenAnswer((_) async {});
-      when(() => mockRecordPlatform.onStateChanged(any()))
-          .thenAnswer((_) => const Stream.empty());
+      when(() => mockRecordPlatform.create(any())).thenAnswer((_) async {});
+      when(
+        () => mockRecordPlatform.getAmplitude(any()),
+      ).thenAnswer((_) async => Amplitude(current: -160.0, max: -160.0));
+      when(() => mockRecordPlatform.dispose(any())).thenAnswer((_) async {});
+      when(
+        () => mockRecordPlatform.onStateChanged(any()),
+      ).thenAnswer((_) => const Stream.empty());
     });
 
     setUp(() {
@@ -124,13 +108,11 @@ void main() {
 
     group('theme', () {
       testWidgets('should apply background color from theme', (tester) async {
-        await pumpChat(
-          tester,
-          theme: ChatTheme(backgroundColor: Colors.red),
-        );
+        await pumpChat(tester, theme: ChatTheme(backgroundColor: Colors.red));
 
-        final Scaffold scaffold =
-            tester.widget<Scaffold>(find.byType(Scaffold));
+        final Scaffold scaffold = tester.widget<Scaffold>(
+          find.byType(Scaffold),
+        );
         expect(scaffold.backgroundColor, equals(Colors.red));
 
         await disposeChat(tester);
@@ -143,10 +125,7 @@ void main() {
       ) async {
         await pumpChat(tester, onShopPressed: () {});
 
-        expect(
-          find.byIcon(const ChatTheme().shopIcon),
-          findsOneWidget,
-        );
+        expect(find.byIcon(const ChatTheme().shopIcon), findsOneWidget);
 
         await disposeChat(tester);
       });
@@ -156,10 +135,7 @@ void main() {
       ) async {
         await pumpChat(tester, onCartPressed: () {});
 
-        expect(
-          find.byIcon(const ChatTheme().cartIcon),
-          findsOneWidget,
-        );
+        expect(find.byIcon(const ChatTheme().cartIcon), findsOneWidget);
 
         await disposeChat(tester);
       });
