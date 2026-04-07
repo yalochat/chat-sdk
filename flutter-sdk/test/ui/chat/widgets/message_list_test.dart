@@ -6,6 +6,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
+import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
@@ -41,6 +42,10 @@ class MockUrlLauncherPlatform extends Mock
     with MockPlatformInterfaceMixin
     implements UrlLauncherPlatform {}
 
+class MockVideoPlayerPlatform extends Mock
+    with MockPlatformInterfaceMixin
+    implements VideoPlayerPlatform {}
+
 void main() {
   group(MessageList, () {
     late ChatThemeCubit chatThemeCubit;
@@ -54,6 +59,19 @@ void main() {
     setUpAll(() {
       registerFallbackValue(const LaunchOptions());
       registerFallbackValue(PreferredLaunchMode.platformDefault);
+      registerFallbackValue(
+        DataSource(sourceType: DataSourceType.file, uri: 'file:///test.mp4'),
+      );
+      registerFallbackValue(
+        VideoCreationOptions(
+          dataSource: DataSource(
+            sourceType: DataSourceType.file,
+            uri: 'file:///test.mp4',
+          ),
+          viewType: VideoViewType.textureView,
+        ),
+      );
+      registerFallbackValue(const VideoViewOptions(playerId: 0));
     });
 
     setUp(() {
@@ -340,6 +358,313 @@ void main() {
         final textFinder = find.text('test content');
         expect(textFinder, findsOneWidget);
       });
+    });
+
+    group('user video messages', () {
+      late MockVideoPlayerPlatform mockVideoPlayerPlatform;
+
+      setUp(() {
+        mockVideoPlayerPlatform = MockVideoPlayerPlatform();
+        VideoPlayerPlatform.instance = mockVideoPlayerPlatform;
+
+        final StreamController<VideoEvent> videoStreamController =
+            StreamController<VideoEvent>();
+        videoStreamController.add(
+          VideoEvent(
+            eventType: VideoEventType.initialized,
+            size: const Size(100, 100),
+            duration: const Duration(seconds: 10),
+          ),
+        );
+
+        when(() => mockVideoPlayerPlatform.init())
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.create(any()))
+            .thenAnswer((_) async => 0);
+        when(() => mockVideoPlayerPlatform.createWithOptions(any()))
+            .thenAnswer((_) async => 0);
+        when(() => mockVideoPlayerPlatform.videoEventsFor(any()))
+            .thenAnswer((_) => videoStreamController.stream);
+        when(() => mockVideoPlayerPlatform.dispose(any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.setLooping(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.setVolume(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.play(any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.pause(any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.getPosition(any()))
+            .thenAnswer((_) async => Duration.zero);
+        when(() => mockVideoPlayerPlatform.buildView(any()))
+            .thenReturn(const SizedBox());
+        when(() => mockVideoPlayerPlatform.buildViewWithOptions(any()))
+            .thenReturn(const SizedBox());
+        when(() => mockVideoPlayerPlatform.setPlaybackSpeed(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.setMixWithOthers(any()))
+            .thenAnswer((_) async {});
+      });
+
+      testWidgets(
+        'should render a user video message with a loading indicator before initialization',
+        (tester) async {
+          final StreamController<VideoEvent> pendingStreamController =
+              StreamController<VideoEvent>();
+          when(() => mockVideoPlayerPlatform.videoEventsFor(any()))
+              .thenAnswer((_) => pendingStreamController.stream);
+
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pump();
+
+          expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+          await pendingStreamController.close();
+        },
+      );
+
+      testWidgets(
+        'should render a user video message with play icon after initialization',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pumpAndSettle();
+
+          expect(find.byIcon(Icons.play_circle_fill), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'should render video message content text when provided',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  content: 'video caption text',
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pumpAndSettle();
+
+          expect(find.text('video caption text'), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'should not render content text when content is empty',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  content: '',
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pumpAndSettle();
+
+          expect(find.byType(SelectableText), findsNothing);
+        },
+      );
+
+      testWidgets(
+        'should hide play icon and show pause capability when tapped',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.user,
+                  timestamp: clock.now(),
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pumpAndSettle();
+
+          expect(find.byIcon(Icons.play_circle_fill), findsOneWidget);
+
+          await tester.tap(find.byType(GestureDetector).first);
+          await tester.pump();
+
+          verify(() => mockVideoPlayerPlatform.play(any())).called(1);
+        },
+      );
+    });
+
+    group('assistant video messages', () {
+      late MockVideoPlayerPlatform mockVideoPlayerPlatform;
+
+      setUp(() {
+        mockVideoPlayerPlatform = MockVideoPlayerPlatform();
+        VideoPlayerPlatform.instance = mockVideoPlayerPlatform;
+
+        final StreamController<VideoEvent> videoStreamController =
+            StreamController<VideoEvent>();
+        videoStreamController.add(
+          VideoEvent(
+            eventType: VideoEventType.initialized,
+            size: const Size(100, 100),
+            duration: const Duration(seconds: 10),
+          ),
+        );
+
+        when(() => mockVideoPlayerPlatform.init())
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.create(any()))
+            .thenAnswer((_) async => 0);
+        when(() => mockVideoPlayerPlatform.createWithOptions(any()))
+            .thenAnswer((_) async => 0);
+        when(() => mockVideoPlayerPlatform.videoEventsFor(any()))
+            .thenAnswer((_) => videoStreamController.stream);
+        when(() => mockVideoPlayerPlatform.dispose(any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.setLooping(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.setVolume(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.play(any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.pause(any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.getPosition(any()))
+            .thenAnswer((_) async => Duration.zero);
+        when(() => mockVideoPlayerPlatform.buildView(any()))
+            .thenReturn(const SizedBox());
+        when(() => mockVideoPlayerPlatform.buildViewWithOptions(any()))
+            .thenReturn(const SizedBox());
+        when(() => mockVideoPlayerPlatform.setPlaybackSpeed(any(), any()))
+            .thenAnswer((_) async {});
+        when(() => mockVideoPlayerPlatform.setMixWithOthers(any()))
+            .thenAnswer((_) async {});
+      });
+
+      testWidgets(
+        'should render an assistant video message with play icon',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pumpAndSettle();
+
+          expect(find.byIcon(Icons.play_circle_fill), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'should render assistant video message with content text',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage.video(
+                  id: 1,
+                  role: MessageRole.assistant,
+                  timestamp: clock.now(),
+                  content: 'assistant video caption',
+                  fileName: 'video.mp4',
+                  duration: 10,
+                  byteCount: 1024,
+                  mediaType: 'video/mp4',
+                ),
+              ],
+            ),
+          );
+          when(() => imageBloc.state).thenReturn(ImageState());
+          when(() => audioBloc.state).thenReturn(AudioState());
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.pumpAndSettle();
+
+          expect(find.text('assistant video caption'), findsOneWidget);
+        },
+      );
     });
 
     group('assistant text messages', () {
