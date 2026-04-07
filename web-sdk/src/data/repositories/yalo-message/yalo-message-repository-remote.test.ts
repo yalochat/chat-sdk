@@ -78,6 +78,42 @@ const makePollItem = (id: string, text: string, date?: Date) => ({
   status: 0,
 });
 
+const makeVideoPollItem = (
+  id: string,
+  opts: {
+    mediaUrl?: string;
+    mediaType?: string;
+    byteCount?: number;
+    fileName?: string;
+    duration?: number;
+    text?: string;
+    date?: Date;
+  } = {}
+) => ({
+  id,
+  message: {
+    correlationId: '',
+    timestamp: new Date(),
+    videoMessageRequest: {
+      timestamp: new Date(),
+      content: {
+        mediaUrl: opts.mediaUrl ?? 'https://example.com/video.mp4',
+        mediaType: opts.mediaType ?? 'video/mp4',
+        byteCount: opts.byteCount ?? 1024,
+        fileName: opts.fileName ?? 'video.mp4',
+        duration: opts.duration ?? 30,
+        text: opts.text,
+        timestamp: undefined,
+        status: 1,
+        role: 2,
+      },
+    },
+  },
+  date: opts.date,
+  userId: 'user-1',
+  status: 0,
+});
+
 const mockOkFetch = (body: unknown = {}, status = 200) =>
   vi.fn().mockResolvedValue({
     ok: true,
@@ -232,6 +268,71 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('oops');
+    });
+
+    it('includes videoMessageRequest in body for video messages', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const msg = makeMessage({
+        type: 'video',
+        fileName: 'clip.mp4',
+        mediaType: 'video/mp4',
+        byteCount: 2048,
+        duration: 15,
+        content: 'my caption',
+      });
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.insertMessage(msg);
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.videoMessageRequest).toBeDefined();
+      expect(body.videoMessageRequest.content.mediaUrl).toBe('clip.mp4');
+      expect(body.videoMessageRequest.content.mediaType).toBe('video/mp4');
+      expect(body.videoMessageRequest.content.byteCount).toBe(2048);
+      expect(body.videoMessageRequest.content.fileName).toBe('clip.mp4');
+      expect(body.videoMessageRequest.content.duration).toBe(15);
+      expect(body.videoMessageRequest.content.text).toBe('my caption');
+      expect(body.textMessageRequest).toBeUndefined();
+    });
+
+    it('uploads media before sending video when blob is present', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const mediaService: YaloMediaService = {
+        uploadMedia: vi.fn().mockResolvedValue(new Ok({ id: 'media-123' })),
+        downloadMedia: vi.fn().mockResolvedValue(new Ok({})),
+      };
+      const msg = makeMessage({
+        type: 'video',
+        fileName: 'clip.mp4',
+        mediaType: 'video/mp4',
+        byteCount: 2048,
+        duration: 15,
+        blob: new Blob(['fake-video-data'], { type: 'video/mp4' }),
+      });
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mediaService
+      );
+      await repo.insertMessage(msg);
+
+      expect(mediaService.uploadMedia).toHaveBeenCalledOnce();
+      const uploadedFile = (mediaService.uploadMedia as ReturnType<typeof vi.fn>)
+        .mock.calls[0][0] as File;
+      expect(uploadedFile.name).toBe('clip.mp4');
+      expect(uploadedFile.type).toBe('video/mp4');
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.videoMessageRequest.content.mediaUrl).toBe('media-123');
     });
   });
 
@@ -452,6 +553,46 @@ describe('YaloMessageRepositoryRemote', () => {
       // advanceTimersByTimeAsync runs the scheduled timer AND awaits the async poll callback
       await vi.advanceTimersByTimeAsync(2000);
       expect(fetchSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('translates video poll items into ChatMessage.video', async () => {
+      const date = new Date('2026-03-15T10:00:00Z');
+      const items = [
+        makeVideoPollItem('vid-1', {
+          mediaUrl: 'https://cdn.example.com/v.mp4',
+          mediaType: 'video/mp4',
+          byteCount: 5000,
+          duration: 60,
+          text: 'Watch this',
+          date,
+        }),
+      ];
+      vi.stubGlobal('fetch', mockOkFetch(items));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      await flushPoll();
+
+      expect(callback).toHaveBeenCalledOnce();
+      const [messages] = callback.mock.calls[0];
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toBeInstanceOf(ChatMessage);
+      expect(messages[0].type).toBe('video');
+      expect(messages[0].role).toBe('AGENT');
+      expect(messages[0].fileName).toBe('https://cdn.example.com/v.mp4');
+      expect(messages[0].duration).toBe(60);
+      expect(messages[0].mediaType).toBe('video/mp4');
+      expect(messages[0].byteCount).toBe(5000);
+      expect(messages[0].content).toBe('Watch this');
+      expect(messages[0].wiId).toBe('vid-1');
+      expect(messages[0].timestamp).toEqual(date);
     });
   });
 

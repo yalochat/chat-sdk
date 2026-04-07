@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { playwright } from '@vitest/browser-playwright';
 import type { UserConfig } from 'vite';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import { version } from './package.json';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -37,6 +37,7 @@ export default defineConfig(({ command }) => {
       },
       coverage: {
         provider: 'istanbul',
+        exclude: ['**/**/sdk_message.ts', '**/google/**/*'],
       },
     },
   } satisfies UserConfig;
