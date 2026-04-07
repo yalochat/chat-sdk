@@ -37,6 +37,7 @@ export default defineConfig(({ command }) => {
       },
       coverage: {
         provider: 'istanbul',
+        exclude: ['**/**/sdk_message.ts', '**/google/**/*'],
       },
     },
   } satisfies UserConfig;
