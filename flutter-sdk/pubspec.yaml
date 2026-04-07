@@ -37,6 +37,7 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   protobuf: ^6.0.0
   fixnum: ^1.1.1
+  video_player: ^2.11.1
 
 
 dev_dependencies:
@@ -49,6 +50,7 @@ dev_dependencies:
   build_runner: ^2.10.4
   json_serializable: ^6.11.2
   url_launcher_platform_interface: any
+  video_player_platform_interface: any
   plugin_platform_interface: any
 
 flutter:

@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'image_message.dart';
+import 'video_message.dart';
 
 class UserMessage extends StatelessWidget {
   final ChatMessage message;
@@ -45,6 +46,7 @@ class UserMessage extends StatelessWidget {
               ),
               MessageType.voice => UserVoiceMessage(message: message),
               MessageType.image => ImageMessage(message: message),
+              MessageType.video => VideoMessage(message: message),
 
               // FIXME: Instead of throwing a special message could be rendered
               _ => throw UnimplementedError(

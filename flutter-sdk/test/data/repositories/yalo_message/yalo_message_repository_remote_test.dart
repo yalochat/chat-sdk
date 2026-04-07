@@ -66,6 +66,23 @@ void main() {
       status: 'IN_DELIVERY',
     );
 
+    final assistantVideoResponseStub = proto.PollMessageItem(
+      id: 'vid-1',
+      message: proto.SdkMessage(
+        videoMessageRequest: proto.VideoMessageRequest(
+          content: proto.VideoMessage(
+            mediaUrl: 'https://example.com/video.mp4',
+            text: 'Video caption',
+            mediaType: 'video/mp4',
+            duration: 15.0,
+          ),
+        ),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
     setUpAll(() {
       registerFallbackValue(proto.SdkMessage());
       registerFallbackValue(XFile(''));
@@ -243,6 +260,54 @@ void main() {
       );
 
       test(
+        'downloads video and emits message with local fileName',
+        () async {
+          final videoBytes = Uint8List.fromList([0, 0, 0, 1, 2, 3]);
+          when(
+            () => mockMessageService.fetchMessages(any()),
+          ).thenAnswer((_) async => Result.ok([assistantVideoResponseStub]));
+          when(
+            () => mockMediaService.downloadMedia(any()),
+          ).thenAnswer((_) async => Result.ok(videoBytes));
+
+          final message = await repo.messages().first;
+          repo.dispose();
+
+          expect(message.wiId, equals('vid-1'));
+          expect(message.type, equals(MessageType.video));
+          expect(message.content, equals('Video caption'));
+          expect(message.duration, equals(15));
+          expect(message.byteCount, equals(6));
+          expect(message.mediaType, equals('video/mp4'));
+          expect(message.fileName, isNot(contains('http')));
+          expect(File(message.fileName!).existsSync(), isTrue);
+        },
+      );
+
+      test(
+        'does not emit video message when download fails',
+        () async {
+          final fetchCompleter = Completer<void>();
+          when(() => mockMessageService.fetchMessages(any())).thenAnswer((_) async {
+            if (!fetchCompleter.isCompleted) fetchCompleter.complete();
+            return Result.ok([assistantVideoResponseStub]);
+          });
+          when(
+            () => mockMediaService.downloadMedia(any()),
+          ).thenAnswer((_) async => Result.error(Exception('network error')));
+
+          final received = <ChatMessage>[];
+          repo.messages().listen(received.add);
+
+          await fetchCompleter.future;
+          await Future.delayed(Duration.zero);
+          repo.dispose();
+
+          expect(received, isEmpty);
+        },
+      );
+
+      test(
         'emits TypingStop to the events stream when fetchMessages fails',
         () async {
           when(
@@ -360,6 +425,50 @@ void main() {
         expect(result, isA<Ok<Unit>>());
         verify(() => mockMediaService.uploadMedia(any())).called(1);
         verify(() => mockMessageService.sendSdkMessage(any())).called(1);
+      });
+
+      test('uploads and delegates to messageService.sendSdkMessage for video messages', () async {
+        when(
+          () => mockMediaService.uploadMedia(any()),
+        ).thenAnswer((_) async => Result.ok(_makeUploadResponse()));
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        final videoMessage = ChatMessage.video(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+          fileName: 'test.mp4',
+          duration: 10,
+          byteCount: 1024,
+          mediaType: 'video/mp4',
+        );
+
+        final result = await repo.sendMessage(videoMessage);
+
+        expect(result, isA<Ok<Unit>>());
+        verify(() => mockMediaService.uploadMedia(any())).called(1);
+        verify(() => mockMessageService.sendSdkMessage(any())).called(1);
+      });
+
+      test('returns Error without calling sendSdkMessage when video upload fails', () async {
+        when(
+          () => mockMediaService.uploadMedia(any()),
+        ).thenAnswer((_) async => Result.error(Exception('upload failed')));
+
+        final videoMessage = ChatMessage.video(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+          fileName: 'test.mp4',
+          duration: 10,
+          byteCount: 1024,
+          mediaType: 'video/mp4',
+        );
+
+        final result = await repo.sendMessage(videoMessage);
+
+        expect(result, isA<Error<Unit>>());
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
       });
 
       test('returns Error without calling sendSdkMessage when upload fails', () async {
