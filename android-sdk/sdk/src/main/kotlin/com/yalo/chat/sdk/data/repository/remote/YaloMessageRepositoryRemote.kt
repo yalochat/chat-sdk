@@ -191,9 +191,6 @@ internal class YaloMessageRepositoryRemote(
     // For image messages, downloads from CDN and saves to tempDir.
     private suspend fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean): ChatMessage? {
         if (deduplicate && cache.get(id) != null) return null
-        // Cache before the payload check so non-text/image messages are not
-        // re-evaluated on every poll cycle.
-        if (deduplicate) cache.set(id, true)
 
         val ts = parseIso8601(date)
         val hashOffset = ((id.hashCode() % 1000) + 1000) % 1000
@@ -201,6 +198,7 @@ internal class YaloMessageRepositoryRemote(
 
         // Text message
         message.textMessageRequest?.content?.let { textContent ->
+            if (deduplicate) cache.set(id, true)
             return ChatMessage(
                 id = stableId,
                 wiId = id,
@@ -212,11 +210,13 @@ internal class YaloMessageRepositoryRemote(
             )
         }
 
-        // Image message — download from CDN and save locally
+        // Image message — download from CDN and save locally.
+        // Cache is set only after a successful download so a transient CDN failure
+        // does not permanently blacklist the message from future poll cycles.
         message.imageMessageRequest?.content?.let { imgContent ->
             val dir = tempDir ?: return null
             return when (val downloadResult = apiService.downloadMedia(imgContent.mediaUrl)) {
-                is Result.Error -> null // skip silently — mirrors Flutter's log + return null
+                is Result.Error -> null // skip silently — will retry on next poll cycle
                 is Result.Ok -> {
                     val bytes = downloadResult.result
                     val mimeType = imgContent.mediaType.takeIf { it.isNotEmpty() } ?: "image/jpeg"
@@ -230,6 +230,7 @@ internal class YaloMessageRepositoryRemote(
                     } catch (_: Exception) {
                         return null
                     }
+                    if (deduplicate) cache.set(id, true)
                     ChatMessage(
                         id = stableId,
                         wiId = id,
@@ -246,7 +247,9 @@ internal class YaloMessageRepositoryRemote(
             }
         }
 
-        return null // unknown payload type — skip silently
+        // Unknown payload type — cache so it is not re-evaluated on every poll cycle.
+        if (deduplicate) cache.set(id, true)
+        return null
     }
 }
 
