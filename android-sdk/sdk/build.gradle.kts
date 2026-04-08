@@ -80,6 +80,7 @@ sqldelight {
     databases {
         create("ChatDatabase") {
             packageName.set("com.yalo.chat.sdk.database")
+            version = 2
         }
     }
 }

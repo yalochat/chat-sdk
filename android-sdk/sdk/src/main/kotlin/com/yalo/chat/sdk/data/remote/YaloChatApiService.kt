@@ -5,12 +5,15 @@ package com.yalo.chat.sdk.data.remote
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.model.YaloAuthRequest
 import com.yalo.chat.sdk.data.remote.model.YaloAuthResponse
+import com.yalo.chat.sdk.data.remote.model.MediaUploadResponse
 import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -168,7 +171,7 @@ internal class YaloChatApiService(
     // ── API calls ─────────────────────────────────────────────────────────────
 
     // POST /inapp/inbound_messages — send a message to the Yalo backend.
-    suspend fun sendTextMessage(request: SdkMessageBody): Result<Unit> {
+    suspend fun sendMessage(request: SdkMessageBody): Result<Unit> {
         val tokenResult = ensureValidToken()
         if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
         val (token, uid) = (tokenResult as Result.Ok).result
@@ -186,6 +189,54 @@ internal class YaloChatApiService(
             Result.Error(e)
         }
     }
+
+    // POST /all/media — multipart upload of a media file (image or voice).
+    // Returns 201 with MediaUploadResponse JSON; the `id` field is used as `mediaUrl` in protos.
+    // Mirrors Flutter's YaloMediaServiceRemote.uploadMedia().
+    suspend fun uploadMedia(
+        bytes: ByteArray,
+        filename: String,
+        mimeType: String,
+    ): Result<MediaUploadResponse> {
+        val tokenResult = ensureValidToken()
+        if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
+        val (token, _) = (tokenResult as Result.Ok).result
+        return try {
+            val response = httpClient.submitFormWithBinaryData(
+                url = "$apiBaseUrl/all/media",
+                formData = formData {
+                    append(
+                        key = "file",
+                        value = bytes,
+                        headers = io.ktor.http.Headers.build {
+                            append(io.ktor.http.HttpHeaders.ContentType, mimeType)
+                            append(
+                                io.ktor.http.HttpHeaders.ContentDisposition,
+                                "filename=\"$filename\""
+                            )
+                        },
+                    )
+                },
+            ) {
+                header(HEADER_AUTHORIZATION, "Bearer $token")
+            }
+            if (response.status.value == 201) Result.Ok(response.body())
+            else Result.Error(RuntimeException("HTTP ${response.status.value}: media upload failed"))
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    // GET <mediaUrl> — download media bytes from CDN. No auth header required (signed URL).
+    // Mirrors Flutter's YaloMediaServiceRemote.downloadMedia().
+    suspend fun downloadMedia(url: String): Result<ByteArray> =
+        try {
+            val response = httpClient.get(url)
+            if (response.status.isSuccess()) Result.Ok(response.body<ByteArray>())
+            else Result.Error(RuntimeException("HTTP ${response.status.value}: media download failed"))
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
 
     // GET /inapp/messages?since={timestamp} — fetch messages newer than the given timestamp.
     suspend fun fetchMessages(since: Long): Result<List<YaloFetchMessagesResponse>> {
@@ -220,14 +271,7 @@ internal fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, deb
                 logger = object : io.ktor.client.plugins.logging.Logger {
                     override fun log(message: String) { println(message) }
                 }
-                // HEADERS only — avoids logging request/response bodies in plaintext.
-                level = io.ktor.client.plugins.logging.LogLevel.HEADERS
-                // Redact sensitive headers so they never appear in Logcat.
-                sanitizeHeader { header ->
-                    header == io.ktor.http.HttpHeaders.Authorization ||
-                        header.equals(HEADER_USER_ID, ignoreCase = true) ||
-                        header.equals(HEADER_CHANNEL_ID, ignoreCase = true)
-                }
+                level = io.ktor.client.plugins.logging.LogLevel.INFO
             }
         }
     }

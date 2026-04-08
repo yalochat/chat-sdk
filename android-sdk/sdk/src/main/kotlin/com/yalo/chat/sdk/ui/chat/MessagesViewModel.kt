@@ -160,8 +160,6 @@ internal class MessagesViewModel(
         }
     }
 
-    // Voice messages are not sent to the remote API — same local-only pattern as images.
-    // amplitudesPreview is persisted so the waveform renders correctly on replay.
     private fun sendVoiceMessage(audioData: AudioData) {
         if (audioData.fileName.isEmpty()) return
         viewModelScope.launch {
@@ -174,17 +172,21 @@ internal class MessagesViewModel(
                 fileName = audioData.fileName,
                 amplitudes = audioData.amplitudesPreview,
                 duration = audioData.durationMs,
+                mediaType = "audio/mp4",
             )
-            if (chatMessageRepository.insertMessage(message) is Result.Error) {
-                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            when (chatMessageRepository.insertMessage(message)) {
+                is Result.Ok -> launch {
+                    if (yaloMessageRepository.sendMessage(message) is Result.Error) {
+                        chatMessageRepository.updateMessage(
+                            message.copy(status = MessageStatus.ERROR)
+                        )
+                    }
+                }
+                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }
         }
     }
 
-    // Inserts an image message locally. Images are not sent to the remote API in Phase 2 —
-    // the backend does not yet accept image payloads (YaloMessageRepository.sendMessage()
-    // returns Result.Error for non-text types). Local-only insertion keeps the message
-    // visible in the chat with status SENT.
     private fun sendImageMessage(imageData: ImageData) {
         if (imageData.path == null) return
         viewModelScope.launch {
@@ -195,9 +197,17 @@ internal class MessagesViewModel(
                 type = MessageType.Image,
                 status = MessageStatus.SENT,
                 fileName = imageData.path,
+                mediaType = imageData.mimeType,
             )
-            if (chatMessageRepository.insertMessage(message) is Result.Error) {
-                _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+            when (chatMessageRepository.insertMessage(message)) {
+                is Result.Ok -> launch {
+                    if (yaloMessageRepository.sendMessage(message) is Result.Error) {
+                        chatMessageRepository.updateMessage(
+                            message.copy(status = MessageStatus.ERROR)
+                        )
+                    }
+                }
+                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
             }
         }
     }

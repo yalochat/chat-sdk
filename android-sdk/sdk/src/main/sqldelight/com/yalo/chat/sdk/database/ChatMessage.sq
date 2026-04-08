@@ -14,6 +14,8 @@ CREATE TABLE chat_message (
     file_name       TEXT,
     amplitudes      TEXT,
     duration        INTEGER,
+    byte_count      INTEGER,
+    media_type      TEXT,
     products        TEXT,
     quick_replies   TEXT,
     timestamp       INTEGER NOT NULL
@@ -23,8 +25,8 @@ CREATE TABLE chat_message (
 insertOrReplace:
 INSERT OR REPLACE INTO chat_message (
     id, wi_id, role, content, type, status,
-    file_name, amplitudes, duration, products, quick_replies, timestamp
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    file_name, amplitudes, duration, byte_count, media_type, products, quick_replies, timestamp
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- First page: most recent messages, ordered newest-first.
 -- Port of Flutter getMessagesFirstPage(limit).

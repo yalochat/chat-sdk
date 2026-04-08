@@ -1,0 +1,2 @@
+ALTER TABLE chat_message ADD COLUMN byte_count INTEGER;
+ALTER TABLE chat_message ADD COLUMN media_type TEXT;

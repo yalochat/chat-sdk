@@ -73,7 +73,7 @@ class YaloChatApiServiceTest {
         val service = apiService {
             respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        assertIs<Result.Ok<Unit>>(service.sendTextMessage(testRequest))
+        assertIs<Result.Ok<Unit>>(service.sendMessage(testRequest))
     }
 
     @Test
@@ -81,7 +81,7 @@ class YaloChatApiServiceTest {
         val service = apiService {
             respondError(HttpStatusCode.InternalServerError)
         }
-        val result = service.sendTextMessage(testRequest)
+        val result = service.sendMessage(testRequest)
         assertIs<Result.Error<Unit>>(result)
         assertTrue(result.error.message?.contains("500") == true)
     }
@@ -102,7 +102,7 @@ class YaloChatApiServiceTest {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
-        assertIs<Result.Error<Unit>>(service.sendTextMessage(testRequest))
+        assertIs<Result.Error<Unit>>(service.sendMessage(testRequest))
         assertTrue(authHandled)
     }
 
@@ -113,7 +113,7 @@ class YaloChatApiServiceTest {
             capturedHeaders = request.headers
             respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        service.sendTextMessage(testRequest)
+        service.sendMessage(testRequest)
         assertEquals("Bearer $fakeJwt", capturedHeaders?.get("Authorization"))
         assertEquals(fakeUserId, capturedHeaders?.get("x-user-id"))
         assertEquals(fakeChannelId, capturedHeaders?.get("x-channel-id"))
@@ -126,7 +126,7 @@ class YaloChatApiServiceTest {
             capturedUrl = request.url
             respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        service.sendTextMessage(testRequest)
+        service.sendMessage(testRequest)
         assertTrue(capturedUrl?.encodedPath?.endsWith("/inapp/inbound_messages") == true)
     }
 
@@ -135,7 +135,7 @@ class YaloChatApiServiceTest {
     @Test
     fun `fetchMessages returns Ok with parsed list on HTTP 200`() = runTest {
         val body = """
-            [{"id":"msg-1","message":{"timestamp":{"seconds":1704067200,"nanos":0},"Payload":{"TextMessageRequest":{"content":{"text":"Hi"}}}},"date":"2024-01-01T00:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]
+            [{"id":"msg-1","message":{"timestamp":"2024-01-01T00:00:00Z","textMessageRequest":{"content":{"text":"Hi"}}},"date":"2024-01-01T00:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]
         """.trimIndent()
         val service = apiService {
             respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
@@ -144,7 +144,7 @@ class YaloChatApiServiceTest {
         assertIs<Result.Ok<List<YaloFetchMessagesResponse>>>(result)
         assertEquals(1, result.result.size)
         assertEquals("msg-1", result.result.first().id)
-        assertEquals("Hi", result.result.first().message.payload.textMessageRequest?.content?.text)
+        assertEquals("Hi", result.result.first().message.textMessageRequest?.content?.text)
     }
 
     @Test
@@ -213,7 +213,7 @@ class YaloChatApiServiceTest {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
-        assertIs<Result.Error<Unit>>(service.sendTextMessage(testRequest))
+        assertIs<Result.Error<Unit>>(service.sendMessage(testRequest))
     }
 
     @Test

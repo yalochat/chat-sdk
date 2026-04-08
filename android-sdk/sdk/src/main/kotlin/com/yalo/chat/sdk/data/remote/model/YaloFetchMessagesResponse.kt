@@ -6,8 +6,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 // JSON-encoded SdkMessage envelope returned by GET /inapp/messages.
-// The backend serialises the proto oneof field name in PascalCase ("Payload", "TextMessageRequest")
-// so @SerialName is required to match those keys exactly.
+// The server uses proto3 JSON encoding: camelCase field names, Timestamp as ISO 8601 string.
+// Unknown fields are ignored via ignoreUnknownKeys = true on the Json instance.
 @Serializable
 internal data class YaloFetchMessagesResponse(
     val id: String,
@@ -17,27 +17,16 @@ internal data class YaloFetchMessagesResponse(
     val status: String,
 )
 
+// Proto3 JSON for SdkMessage — the oneof payload field is inlined at this level
+// using its camelCase field name (e.g. "textMessageRequest", not "Payload"/"TextMessageRequest").
+// All fields are nullable so unknown/future message types skip silently in toChatMessage().
 @Serializable
 internal data class SdkMessageResponseDto(
-    val timestamp: ProtoTimestampDto? = null,
-    // Default to empty payload so unknown/future message types don't cause SerializationException
-    // and crash the entire fetch batch — they are silently skipped in toChatMessage().
-    @SerialName("Payload") val payload: SdkPayloadDto = SdkPayloadDto(),
+    val textMessageRequest: SdkTextMessageResponseDto? = null,
+    val imageMessageRequest: SdkImageMessageResponseDto? = null,
 )
 
-// google.protobuf.Timestamp JSON encoding: {seconds, nanos}.
-@Serializable
-internal data class ProtoTimestampDto(
-    val seconds: Long,
-    val nanos: Int = 0,
-)
-
-// oneof payload — only one field is set per message.
-// Future milestones will add VoiceMessageRequest, ImageMessageRequest, etc.
-@Serializable
-internal data class SdkPayloadDto(
-    @SerialName("TextMessageRequest") val textMessageRequest: SdkTextMessageResponseDto? = null,
-)
+// ── Text ──────────────────────────────────────────────────────────────────────
 
 @Serializable
 internal data class SdkTextMessageResponseDto(
@@ -51,5 +40,23 @@ internal data class SdkTextMessageContentDto(
     val text: String,
     // Proto MessageRole JSON encoding: "MESSAGE_ROLE_USER" or "MESSAGE_ROLE_AGENT".
     // Omitted when the value is the default (MESSAGE_ROLE_UNSPECIFIED = 0).
+    val role: String? = null,
+)
+
+// ── Image ─────────────────────────────────────────────────────────────────────
+
+@Serializable
+internal data class SdkImageMessageResponseDto(
+    val content: SdkImageMessageContentDto? = null,
+)
+
+@Serializable
+internal data class SdkImageMessageContentDto(
+    // URL of the media file on the CDN — used to download the image bytes.
+    val mediaUrl: String,
+    // MIME type as declared by the sender; may be empty string if not set.
+    val mediaType: String = "",
+    // Optional caption text accompanying the image.
+    val text: String? = null,
     val role: String? = null,
 )

@@ -55,9 +55,17 @@ object YaloChat {
             organizationId = config.organizationId,
             httpClient = httpClient,
         )
-        val yaloRepo = YaloMessageRepositoryRemote(apiService)
+        val yaloRepo = YaloMessageRepositoryRemote(
+            apiService = apiService,
+            tempDir = context.applicationContext.cacheDir,
+        )
 
-        val driver = AndroidSqliteDriver(ChatDatabase.Schema, context.applicationContext, "chat.db")
+        val driver = AndroidSqliteDriver(
+            schema = ChatDatabase.Schema,
+            context = context.applicationContext,
+            name = "chat.db",
+            callback = AndroidSqliteDriver.Callback(ChatDatabase.Schema),
+        )
         _driver = driver
         val db = createDatabase(driver)
         val localRepo = LocalChatMessageRepository(db.chatMessageQueries)

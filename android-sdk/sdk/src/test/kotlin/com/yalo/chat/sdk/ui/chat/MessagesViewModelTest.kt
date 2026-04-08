@@ -9,6 +9,7 @@ import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
+import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
@@ -357,5 +358,96 @@ class MessagesViewModelTest {
         vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = "/storage/img.jpg")))
 
         assertIs<ChatStatus.Failure>(vm.state.value.chatStatus)
+    }
+
+    @Test
+    fun `SendImageMessage marks optimistic message as ERROR when remote send fails`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val failingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("upload failed"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = emptyFlow()
+        }
+        val vm = viewModel(yaloRepo = failingYaloRepo, chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+
+        vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = "/storage/img.jpg")))
+
+        val result = chatRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.first().status)
+        vm.viewModelScope.cancel()
+    }
+
+    // ── SendVoiceMessage ──────────────────────────────────────────────────────
+
+    @Test
+    fun `SendVoiceMessage inserts voice message into local repo`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+
+        vm.handleEvent(MessagesEvent.SendVoiceMessage(AudioData(fileName = "voice.m4a", durationMs = 3000L)))
+
+        val messages = vm.state.value.messages
+        assertEquals(1, messages.size)
+        assertEquals(MessageType.Voice, messages.first().type)
+        assertEquals("voice.m4a", messages.first().fileName)
+        assertEquals(MessageRole.USER, messages.first().role)
+        assertEquals(MessageStatus.SENT, messages.first().status)
+        vm.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `SendVoiceMessage with empty fileName is a no-op`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+
+        vm.handleEvent(MessagesEvent.SendVoiceMessage(AudioData(fileName = "")))
+
+        assertTrue(vm.state.value.messages.isEmpty())
+        vm.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `SendVoiceMessage updates chatStatus to Failure when insert fails`() = runTest {
+        val failingChatRepo = object : ChatMessageRepository {
+            override suspend fun getMessages(cursor: Long?, limit: Int) =
+                Result.Ok(emptyList<ChatMessage>())
+            override suspend fun insertMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("disk full"))
+            override suspend fun insertMessages(messages: List<ChatMessage>) = Result.Ok(Unit)
+            override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
+            override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
+        }
+        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo)
+
+        vm.handleEvent(MessagesEvent.SendVoiceMessage(AudioData(fileName = "voice.m4a", durationMs = 1000L)))
+
+        assertIs<ChatStatus.Failure>(vm.state.value.chatStatus)
+    }
+
+    @Test
+    fun `SendVoiceMessage marks optimistic message as ERROR when remote send fails`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val failingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("upload failed"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = emptyFlow()
+        }
+        val vm = viewModel(yaloRepo = failingYaloRepo, chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+
+        vm.handleEvent(MessagesEvent.SendVoiceMessage(AudioData(fileName = "voice.m4a", durationMs = 3000L)))
+
+        val result = chatRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.first().status)
+        vm.viewModelScope.cancel()
     }
 }

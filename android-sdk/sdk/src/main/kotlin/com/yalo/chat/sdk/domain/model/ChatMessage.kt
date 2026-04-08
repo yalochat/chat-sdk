@@ -15,6 +15,10 @@ data class ChatMessage(
     val fileName: String? = null,
     val amplitudes: List<Double> = emptyList(),
     val duration: Long? = null,
+    // File size in bytes — included in the proto payload for image and voice messages.
+    val byteCount: Long? = null,
+    // MIME type of the media file — e.g. "image/jpeg", "audio/mp4".
+    val mediaType: String? = null,
     val products: List<Product> = emptyList(),
     val quickReplies: List<QuickReply> = emptyList(),
     val timestamp: Long = System.currentTimeMillis(),
