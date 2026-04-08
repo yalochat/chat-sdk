@@ -51,18 +51,19 @@ Add the icon font, the SDK script, and initialize the client:
 
 `target` is the `id` of an HTML element on the page. The chat window will render next to that element.
 
+
 ## Configuration
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `channelId` | `string` | Yes | Your channel identifier |
-| `organizationId` | `string` | Yes | Your organization identifier |
-| `channelName` | `string` | Yes | Name displayed in the chat header |
-| `target` | `string` | Yes | ID of the HTML element the widget attaches to |
-| `image` | `string` | No | URL for the channel avatar image |
-| `locale` | `string` | No | Locale for the chat UI (e.g. `"es"`, `"en"`) |
-| `icons` | `SdkIcons` | No | Custom icon overrides (see below) |
-| `audioWaveformColor` | `string` | No | Color for the audio waveform visualization |
+| Property             | Type       | Required | Description                                   |
+|----------------------|------------|----------|-----------------------------------------------|
+| `channelId`          | `string`   | Yes      | Your channel identifier                       |
+| `organizationId`     | `string`   | Yes      | Your organization identifier                  |
+| `channelName`        | `string`   | Yes      | Name displayed in the chat header             |
+| `target`             | `string`   | Yes      | ID of the HTML element the widget attaches to |
+| `image`              | `string`   | No       | URL for the channel avatar image              |
+| `locale`             | `string`   | No       | Locale for the chat UI (e.g. `"es"`, `"en"`)  |
+| `icons`              | `SdkIcons` | No       | Custom icon overrides (see below)             |
+| `audioWaveformColor` | `string`   | No       | Color for the audio waveform visualization    |
 
 ### Custom icons
 
