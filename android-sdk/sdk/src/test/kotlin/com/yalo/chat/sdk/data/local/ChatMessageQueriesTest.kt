@@ -47,6 +47,8 @@ class ChatMessageQueriesTest {
         file_name = null,
         amplitudes = null,
         duration = null,
+        byte_count = null,
+        media_type = null,
         products = null,
         quick_replies = null,
         timestamp = timestamp,

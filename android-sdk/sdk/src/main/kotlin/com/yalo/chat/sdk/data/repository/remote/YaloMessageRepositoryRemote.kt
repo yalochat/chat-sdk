@@ -4,6 +4,11 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.data.remote.model.SdkImageMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkImageMessageRequestBody
+import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkVoiceMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkVoiceNoteMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.data.remote.model.toBody
 import com.google.protobuf.timestamp
@@ -16,6 +21,7 @@ import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import java.io.File
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -29,16 +35,13 @@ import kotlinx.datetime.Instant
 // Polling: 1s interval, 5s lookback window, LRU deduplication cache (capacity 500).
 // Network errors in the polling flow are swallowed and the loop continues — mirrors
 // flutter-sdk _startPolling() which logs the error and falls through to Future.delayed.
-// Only text messages are mapped for now; voice/image payloads are skipped silently.
-//
-// KMP note: java.text.* and java.time.* have been replaced with kotlinx-datetime.
-// java.util.UUID is still used for correlationId generation — a KMP-compatible alternative
-// (e.g. kotlin.uuid.Uuid, available in Kotlin 2.0 experimental) can replace it when needed.
 internal class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
     // Exposed as internal so tests can override the interval without waiting.
     internal val pollingIntervalMs: Long = 1_000L,
     private val lookbackSecs: Long = 5L,
+    // Directory where downloaded agent media is saved. Mirrors Flutter's _directory.
+    private val tempDir: File? = null,
 ) : YaloMessageRepository {
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
@@ -49,38 +52,102 @@ internal class YaloMessageRepositoryRemote(
     private val _events = MutableSharedFlow<ChatEvent>(extraBufferCapacity = Channel.UNLIMITED)
     override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
 
-    // Sends a text message to the Yalo backend.
-    // Non-text types (image, audio) are stored locally only; the backend rejects them.
-    // TypingStart is emitted eagerly before the HTTP call — this gives instant feedback
-    // that the message was submitted. If the send fails, the indicator clears on the next
-    // poll error cycle (~1s). This matches Flutter's sendMessage() behavior exactly.
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> {
-        if (message.type != MessageType.Text) {
-            return Result.Error(
-                UnsupportedOperationException("Only text messages can be sent to the backend")
-            )
-        }
-        _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
         val now = Clock.System.now()
         val nowIso = now.toString()
-        // Build the canonical proto SdkMessage using the Kotlin DSL generated from sdk_message.proto.
-        // toBody() converts it to the @Serializable HTTP adapter accepted by Ktor.
         val protoTs = timestamp {
             seconds = now.epochSeconds
             nanos = now.nanosecondsOfSecond
         }
-        val protoMsg = sdkMessage {
-            correlationId = java.util.UUID.randomUUID().toString()
-            timestamp = protoTs
-            textMessageRequest = textMessageRequest {
-                content = textMessage {
-                    text = message.content
+
+        return when (message.type) {
+            MessageType.Text -> {
+                _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
+                val protoMsg = sdkMessage {
+                    correlationId = java.util.UUID.randomUUID().toString()
                     timestamp = protoTs
+                    textMessageRequest = textMessageRequest {
+                        content = textMessage {
+                            text = message.content
+                            timestamp = protoTs
+                        }
+                        timestamp = protoTs
+                    }
                 }
-                timestamp = protoTs
+                apiService.sendMessage(protoMsg.toBody(nowIso))
             }
+
+            MessageType.Image -> {
+                val filePath = message.fileName
+                    ?: return Result.Error(IllegalArgumentException("image message missing fileName"))
+                val mimeType = message.mediaType ?: "image/jpeg"
+                _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
+                val bytes = try {
+                    File(filePath).readBytes()
+                } catch (e: Exception) {
+                    return Result.Error(e)
+                }
+                when (val uploadResult = apiService.uploadMedia(bytes, File(filePath).name, mimeType)) {
+                    is Result.Error -> Result.Error(uploadResult.error)
+                    is Result.Ok -> {
+                        val mediaUrl = uploadResult.result.id
+                        val body = SdkMessageBody(
+                            correlationId = java.util.UUID.randomUUID().toString(),
+                            timestamp = nowIso,
+                            imageMessageRequest = SdkImageMessageRequestBody(
+                                content = SdkImageMessageBody(
+                                    timestamp = nowIso,
+                                    text = message.content.takeIf { it.isNotEmpty() },
+                                    mediaUrl = mediaUrl,
+                                    mediaType = mimeType,
+                                    byteCount = bytes.size.toLong(),
+                                    fileName = File(filePath).name,
+                                ),
+                                timestamp = nowIso,
+                            ),
+                        )
+                        apiService.sendMessage(body)
+                    }
+                }
+            }
+
+            MessageType.Voice -> {
+                val filePath = message.fileName
+                    ?: return Result.Error(IllegalArgumentException("voice message missing fileName"))
+                val mimeType = message.mediaType ?: "audio/mp4"
+                _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
+                val bytes = try {
+                    File(filePath).readBytes()
+                } catch (e: Exception) {
+                    return Result.Error(e)
+                }
+                when (val uploadResult = apiService.uploadMedia(bytes, File(filePath).name, mimeType)) {
+                    is Result.Error -> Result.Error(uploadResult.error)
+                    is Result.Ok -> {
+                        val mediaUrl = uploadResult.result.id
+                        val body = SdkMessageBody(
+                            correlationId = java.util.UUID.randomUUID().toString(),
+                            timestamp = nowIso,
+                            voiceNoteMessageRequest = SdkVoiceNoteMessageRequestBody(
+                                content = SdkVoiceMessageBody(
+                                    timestamp = nowIso,
+                                    mediaUrl = mediaUrl,
+                                    mediaType = mimeType,
+                                    byteCount = bytes.size.toLong(),
+                                    fileName = File(filePath).name,
+                                    amplitudesPreview = message.amplitudes.map { it.toFloat() },
+                                    duration = message.duration?.toDouble(),
+                                ),
+                                timestamp = nowIso,
+                            ),
+                        )
+                        apiService.sendMessage(body)
+                    }
+                }
+            }
+
+            else -> Result.Error(UnsupportedOperationException("Message type ${message.type} is not supported"))
         }
-        return apiService.sendTextMessage(protoMsg.toBody(nowIso))
     }
 
     // Single-shot fetch — returns all messages newer than the given Unix millisecond timestamp.
@@ -112,7 +179,6 @@ internal class YaloMessageRepositoryRemote(
                 }
                 is Result.Error -> {
                     // Fetch failed — clear typing indicator so it doesn't get stuck.
-                    // Mirrors Flutter: TypingStop emitted in the catch block.
                     _events.tryEmit(ChatEvent.TypingStop)
                 }
             }
@@ -120,50 +186,77 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
-    private fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean): ChatMessage? {
+    // Translates a poll response item to a ChatMessage.
+    // Handles text and image payloads; skips unknown types silently.
+    // For image messages, downloads from CDN and saves to tempDir.
+    private suspend fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean): ChatMessage? {
         if (deduplicate && cache.get(id) != null) return null
-        // Cache before the payload check so non-text messages (voice, image) are not
-        // re-evaluated on every poll cycle. Without this, a message with no textMessageRequest
-        // would never be cached and would be redundantly processed until it leaves the lookback window.
+        // Cache before the payload check so non-text/image messages are not
+        // re-evaluated on every poll cycle.
         if (deduplicate) cache.set(id, true)
-        // Only text messages are handled for now; skip other payload types silently.
-        val textContent = message.payload.textMessageRequest?.content ?: return null
+
         val ts = parseIso8601(date)
-        // Build a collision-resistant Long primary key:
-        //   upper: second-precision epoch (handles server dates with no sub-second component)
-        //   lower: 0–999 from wiId hash, so messages in the same second get distinct ids.
-        // For ts == 0 (malformed date) the id is just the hash offset — sorts before real messages.
         val hashOffset = ((id.hashCode() % 1000) + 1000) % 1000
         val stableId = if (ts != 0L) (ts / 1000L) * 1000L + hashOffset else hashOffset.toLong()
-        return ChatMessage(
-            id = stableId,
-            wiId = id,
-            // Proto MessageRole JSON: "MESSAGE_ROLE_USER" / "MESSAGE_ROLE_AGENT".
-            // Null/unspecified (default=0, omitted by proto3 JSON) falls back to AGENT.
-            role = MessageRole.fromString(textContent.role ?: ""),
-            type = MessageType.Text,
-            status = MessageStatus.DELIVERED,
-            content = textContent.text,
-            timestamp = ts,
-        )
+
+        // Text message
+        message.textMessageRequest?.content?.let { textContent ->
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.fromString(textContent.role ?: ""),
+                type = MessageType.Text,
+                status = MessageStatus.DELIVERED,
+                content = textContent.text,
+                timestamp = ts,
+            )
+        }
+
+        // Image message — download from CDN and save locally
+        message.imageMessageRequest?.content?.let { imgContent ->
+            val dir = tempDir ?: return null
+            return when (val downloadResult = apiService.downloadMedia(imgContent.mediaUrl)) {
+                is Result.Error -> null // skip silently — mirrors Flutter's log + return null
+                is Result.Ok -> {
+                    val bytes = downloadResult.result
+                    val mimeType = imgContent.mediaType.takeIf { it.isNotEmpty() } ?: "image/jpeg"
+                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
+                        if (it == "jpeg") "jpg" else it
+                    }
+                    val localPath = try {
+                        val file = File(dir, "${java.util.UUID.randomUUID()}.$ext")
+                        file.writeBytes(bytes)
+                        file.absolutePath
+                    } catch (_: Exception) {
+                        return null
+                    }
+                    ChatMessage(
+                        id = stableId,
+                        wiId = id,
+                        role = MessageRole.fromString(imgContent.role ?: "MESSAGE_ROLE_AGENT"),
+                        type = MessageType.Image,
+                        status = MessageStatus.DELIVERED,
+                        content = imgContent.text ?: "",
+                        fileName = localPath,
+                        mediaType = mimeType,
+                        byteCount = bytes.size.toLong(),
+                        timestamp = ts,
+                    )
+                }
+            }
+        }
+
+        return null // unknown payload type — skip silently
     }
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-// Status text shown in the app bar while the agent is composing a reply.
-// Extracted as a constant for maintainability and to ease M12 localization.
 private const val TYPING_STATUS_TEXT = "Writing message..."
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────
-// kotlinx-datetime's Instant.parse() handles all standard ISO 8601 variants
-// (with/without millis, Z suffix, ±HH:MM offsets) and is fully KMP-compatible —
-// no java.text.SimpleDateFormat, ThreadLocal, or TimeZone needed.
-
 private fun parseIso8601(date: String): Long =
     try {
         Instant.parse(date).toEpochMilliseconds()
     } catch (_: Exception) {
-        // Fallback to 0 so malformed dates sort before all real messages
-        // rather than jumping to "now" and breaking chronological ordering.
         0L
     }

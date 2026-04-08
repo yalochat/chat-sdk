@@ -14,7 +14,11 @@ internal data class SdkMessageBody(
     val correlationId: String,
     val timestamp: String,
     val textMessageRequest: SdkTextMessageRequestBody? = null,
+    val imageMessageRequest: SdkImageMessageRequestBody? = null,
+    val voiceNoteMessageRequest: SdkVoiceNoteMessageRequestBody? = null,
 )
+
+// ── Text ──────────────────────────────────────────────────────────────────────
 
 @Serializable
 internal data class SdkTextMessageRequestBody(
@@ -28,9 +32,50 @@ internal data class SdkTextMessageBody(
     val timestamp: String,
 )
 
+// ── Image ─────────────────────────────────────────────────────────────────────
+// Mirrors proto ImageMessageRequest / ImageMessage.
+
+@Serializable
+internal data class SdkImageMessageRequestBody(
+    val content: SdkImageMessageBody,
+    val timestamp: String,
+)
+
+@Serializable
+internal data class SdkImageMessageBody(
+    val timestamp: String,
+    val text: String? = null,
+    val mediaUrl: String,
+    val mediaType: String,
+    val byteCount: Long,
+    val fileName: String,
+)
+
+// ── Voice note ────────────────────────────────────────────────────────────────
+// Mirrors proto VoiceNoteMessageRequest / VoiceMessage.
+
+@Serializable
+internal data class SdkVoiceNoteMessageRequestBody(
+    val content: SdkVoiceMessageBody,
+    val timestamp: String,
+)
+
+@Serializable
+internal data class SdkVoiceMessageBody(
+    val timestamp: String,
+    val mediaUrl: String,
+    val mediaType: String,
+    val byteCount: Long,
+    val fileName: String,
+    val amplitudesPreview: List<Float> = emptyList(),
+    val duration: Double? = null,
+)
+
+// ── Converter ─────────────────────────────────────────────────────────────────
+
 // Converts a proto-generated SdkMessage to the JSON-serializable body sent to the backend.
 // isoTimestamp is the ISO 8601 wall-clock string already computed by the caller so we don't
-// re-convert the proto Timestamp (which would lose the exact string form used elsewhere).
+// re-convert the proto Timestamp.
 internal fun SdkMessageOuterClass.SdkMessage.toBody(isoTimestamp: String): SdkMessageBody =
     SdkMessageBody(
         correlationId = correlationId,
