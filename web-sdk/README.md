@@ -84,6 +84,10 @@ var client = new YaloChatSdk.YaloChatClient({
 
 Available icon keys: `close`, `send`, `mic`, `attachment`, `play`, `pause`, `document`.
 
+## Theming
+
+The widget can be fully customized with CSS custom properties. See the [Theming API](doc/theming.md) for the complete list of variables.
+
 ## Methods
 
 | Method | Description |

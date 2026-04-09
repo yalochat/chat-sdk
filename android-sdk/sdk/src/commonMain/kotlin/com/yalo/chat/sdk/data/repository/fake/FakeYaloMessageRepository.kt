@@ -8,7 +8,6 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
-import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -71,13 +70,7 @@ class FakeYaloMessageRepository : YaloMessageRepository {
                 role = MessageRole.AGENT,
                 type = MessageType.Product,
                 status = MessageStatus.DELIVERED,
-                content = "Check out these products:",
-                products = listOf(
-                    Product(sku = "p1", name = "Organic Milk 1L", price = 25.50, unitName = "unit", unitStep = 1.0),
-                    Product(sku = "p2", name = "Free-range Eggs x12", price = 42.00, salePrice = 38.00, unitName = "unit", unitStep = 1.0),
-                    Product(sku = "p3", name = "Whole Wheat Bread 600g", price = 18.00, unitName = "unit", unitStep = 1.0),
-                    Product(sku = "p4", name = "Greek Yogurt 500g", price = 30.00, unitName = "unit", unitStep = 1.0),
-                ),
+                content = "Check out this product:",
                 timestamp = Clock.System.now().toEpochMilliseconds() - 20_000,
             ),
             ChatMessage(
@@ -95,11 +88,6 @@ class FakeYaloMessageRepository : YaloMessageRepository {
                 type = MessageType.ProductCarousel,
                 status = MessageStatus.DELIVERED,
                 content = "Here are some options:",
-                products = listOf(
-                    Product(sku = "c1", name = "Organic Milk 1L", price = 25.50, unitName = "unit", unitStep = 1.0),
-                    Product(sku = "c2", name = "Free-range Eggs x12", price = 42.00, salePrice = 38.00, unitName = "unit", unitStep = 1.0),
-                    Product(sku = "c3", name = "Whole Wheat Bread 600g", price = 18.00, unitName = "unit", unitStep = 1.0),
-                ),
                 timestamp = Clock.System.now().toEpochMilliseconds() - 8_000,
             ),
             ChatMessage(

@@ -165,7 +165,9 @@ export default class YaloChatWindowController implements ReactiveController {
     };
 
     const localResult =
-      await this.host.chatMessageRepository.insertChatMessage(attachmentMessage);
+      await this.host.chatMessageRepository.insertChatMessage(
+        attachmentMessage
+      );
 
     if (localResult.ok) {
       this.host.logger.debug('Attachment message inserted locally');
