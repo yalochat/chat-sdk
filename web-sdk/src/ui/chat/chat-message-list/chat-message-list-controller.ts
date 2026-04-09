@@ -1,18 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { PropertyValues, ReactiveController } from 'lit';
-import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type ChatMessageList from './chat-message-list';
 
 export default class ChatMessageListController implements ReactiveController {
   host: ChatMessageList;
 
-  observer?: IntersectionObserver;
+  intersectionObserver?: IntersectionObserver;
 
-  private readonly _scrollActivityThreshold = 25;
-  private _scrollHeightBeforeFetch = 0;
-  private _scrollTopBeforeFetch = 0;
-  private _newMessageInserted = false;
+  // Negative scroll threshold since the flow direction will be
+  // column-reversed
+  private readonly _scrollThreshold = -500.0;
 
   constructor(host: ChatMessageList) {
     this.host = host;
@@ -22,22 +20,21 @@ export default class ChatMessageListController implements ReactiveController {
   hostConnected() {}
 
   hostUpdated(): void {
-    if (!this.observer) {
+    if (!this.intersectionObserver) {
       const intersectionOptions: IntersectionObserverInit = {
         root: this.host.messageList,
         rootMargin: '10px',
         threshold: 1.0,
       };
 
-      this.observer = new IntersectionObserver((entries) => {
+      this.intersectionObserver = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) {
-          this._scrollHeightBeforeFetch = this.host.messageList.scrollHeight;
-          this._scrollTopBeforeFetch = this.host.messageList.scrollTop;
           this.host.dispatchEvent(new Event('yalo-chat-fetch-next-page'));
         }
       }, intersectionOptions);
 
-      this.observer.observe(this.host.loader);
+      this.intersectionObserver.observe(this.host.loader);
+      this.host.messageList.scrollTop = 0;
     }
   }
 
@@ -45,25 +42,10 @@ export default class ChatMessageListController implements ReactiveController {
     if (!changedProperties.has('chatMessages')) return;
 
     const messageList = this.host.messageList;
-    const isPagination = this._scrollHeightBeforeFetch > 0;
 
-    if (isPagination) {
-      const heightDelta =
-        messageList.scrollHeight - this._scrollHeightBeforeFetch;
-      messageList.scrollTop = this._scrollTopBeforeFetch + heightDelta;
-      this._scrollHeightBeforeFetch = 0;
-      this._scrollTopBeforeFetch = 0;
-      return;
-    }
-
-    const previousMessages =
-      changedProperties.get('chatMessages') as ChatMessage[] | undefined;
-    this._newMessageInserted =
-      previousMessages !== undefined &&
-      this.host.chatMessages[0]?.id !== previousMessages[0]?.id;
-
-    if (this._newMessageInserted && messageList.scrollTop < this._scrollActivityThreshold) {
+    if (messageList.scrollTop > this._scrollThreshold) {
       messageList.scrollTop = 0;
+      return;
     }
   }
 
@@ -72,6 +54,6 @@ export default class ChatMessageListController implements ReactiveController {
   }
 
   hostDisconnected() {
-    this.observer?.disconnect();
+    this.intersectionObserver?.disconnect();
   }
 }
