@@ -54,6 +54,12 @@ message SdkMessage {
     ChatStatusResponse       chat_status_response        = 35;
     CustomActionRequest      custom_action_request       = 36;
     CustomActionResponse     custom_action_response      = 37;
+
+    // Channel → client
+    ButtonsMessageRequest    buttons_message_request     = 40;
+    ButtonsMessageResponse   buttons_message_response    = 41;
+    CTAMessageRequest        cta_message_request         = 42;
+    CTAMessageResponse       cta_message_response        = 43;
   }
 }
 
@@ -428,6 +434,66 @@ message CustomActionResponse {
   ResponseStatus status = 1;
   string payload = 2;
   google.protobuf.Timestamp timestamp = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Buttons message  (channel → client)
+// Used to render text option buttons the user can tap to reply.
+// ---------------------------------------------------------------------------
+
+// ButtonsMessage holds the content of a buttons message.
+message ButtonsMessage {
+  string header = 1;
+  string body = 2;
+  string footer = 3;
+  // At least one button text must be provided.
+  repeated string buttons = 4;
+}
+
+// ButtonsMessageRequest delivers a set of text option buttons to the client UI.
+message ButtonsMessageRequest {
+  ButtonsMessage content = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ButtonsMessageResponse acknowledges a ButtonsMessageRequest.
+message ButtonsMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string message_id = 3;
+}
+
+// ---------------------------------------------------------------------------
+// CTA message  (channel → client)
+// Used to render link buttons the user can tap to open a URL.
+// ---------------------------------------------------------------------------
+
+// CTAButton represents a single call-to-action link button.
+message CTAButton {
+  string text = 1;
+  string url = 2;
+}
+
+// CTAMessage holds the content of a CTA message.
+message CTAMessage {
+  string header = 1;
+  string body = 2;
+  string footer = 3;
+  // At least one CTA button must be provided.
+  repeated CTAButton buttons = 4;
+}
+
+// CTAMessageRequest delivers a set of link buttons to the client UI.
+message CTAMessageRequest {
+  CTAMessage content = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// CTAMessageResponse acknowledges a CTAMessageRequest.
+message CTAMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  string message_id = 3;
 }
 
 // ---------------------------------------------------------------------------
