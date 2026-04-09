@@ -5,6 +5,11 @@ package com.yalo.chat.sdk.data.repository.remote
 // Bounded LRU cache used by YaloMessageRepositoryRemote to deduplicate inbound
 // messages within the polling lookback window.
 // Mirrors the ecache SimpleCache used in the Flutter SDK (capacity = 500).
+//
+// Thread-safety: NOT thread-safe by design. All access must be confined to a single
+// coroutine. YaloMessageRepositoryRemote enforces this — the cache is only accessed
+// inside pollIncomingMessages(), and MessageSyncService guarantees at most one active
+// collector at a time via its job.isActive guard.
 internal class SimpleCache<K, V>(private val capacity: Int) {
 
     init {

@@ -91,9 +91,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.coroutines.test)
             implementation(libs.ktor.client.mock)
-            // JVM SQLite driver — only runs on JVM test host (Android + future Kotlin/Native tests
-            // use platform-specific drivers set up in their own source sets)
-            implementation(libs.sqldelight.jdbc.driver)
         }
 
         val androidUnitTest by getting {
@@ -101,6 +98,9 @@ kotlin {
                 implementation(libs.junit)
                 // CIO engine required by StagingIntegrationTest (JVM-only, not available in commonTest)
                 implementation(libs.ktor.client.cio)
+                // JVM SQLite driver — only runs on JVM test host (Android unit tests).
+                // Moved from commonTest because sqldelight-jdbc-driver has no Kotlin/Native support.
+                implementation(libs.sqldelight.jdbc.driver)
             }
         }
     }
