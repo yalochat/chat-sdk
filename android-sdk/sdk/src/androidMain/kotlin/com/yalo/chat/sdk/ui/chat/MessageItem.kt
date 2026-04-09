@@ -30,9 +30,37 @@ internal fun MessageItem(
     playingMessage: ChatMessage? = null,
     onPlayAudio: (ChatMessage) -> Unit = {},
     onStopAudio: () -> Unit = {},
+    onEvent: (MessagesEvent) -> Unit = {},
 ) {
     val theme = LocalChatTheme.current
     val isUser = message.role == MessageRole.USER
+
+    // Product messages render their own card borders/backgrounds, so they bypass the bubble
+    // Surface. This mirrors Flutter's AssistantMessage which uses a padding Container rather
+    // than a colored bubble for product types.
+    if (message.type == MessageType.Product || message.type == MessageType.ProductCarousel) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.Start,
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                when (message.type) {
+                    MessageType.Product -> ProductListMessage(
+                        message = message,
+                        onEvent = onEvent,
+                    )
+                    MessageType.ProductCarousel -> ProductCarouselMessage(
+                        message = message,
+                        onEvent = onEvent,
+                    )
+                    else -> Unit
+                }
+            }
+        }
+        return
+    }
 
     val bubbleColor = if (isUser) theme.userBubbleColor else theme.agentBubbleColor
     val roleTextStyle = if (isUser) theme.userMessageTextStyle else theme.assistantMessageTextStyle

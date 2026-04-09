@@ -6,7 +6,8 @@ import kotlinx.datetime.Clock
 
 // Port of flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
 // timestamp is epoch millis (Long) instead of DateTime — avoids any Android dependency.
-// expand is intentionally excluded: it is a transient UI concern not persisted in DB.
+// expand is a transient UI flag — it is NOT persisted in DB and always defaults to false
+// when messages are loaded from storage. Toggled in-memory by ChatToggleMessageExpand.
 data class ChatMessage(
     val id: Long? = null,
     val wiId: String? = null,
@@ -22,6 +23,8 @@ data class ChatMessage(
     // MIME type of the media file — e.g. "image/jpeg", "audio/mp4".
     val mediaType: String? = null,
     val products: List<Product> = emptyList(),
+    // Transient UI state — not stored in DB. Defaults to false on every load from storage.
+    val expand: Boolean = false,
     val quickReplies: List<QuickReply> = emptyList(),
     val timestamp: Long = Clock.System.now().toEpochMilliseconds(),
 )

@@ -58,6 +58,10 @@ internal class MessagesViewModel(
             is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
             is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
+            is MessagesEvent.ChatToggleMessageExpand -> toggleMessageExpand(event.messageId)
+            is MessagesEvent.ChatUpdateProductQuantity -> updateProductQuantity(
+                event.messageId, event.productSku, event.unitType, event.quantity
+            )
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
                 // Cancel and reset both jobs so SubscribeToMessages / SubscribeToEvents restart
@@ -109,6 +113,44 @@ internal class MessagesViewModel(
                     }
                 }
             }
+        }
+    }
+
+    // Mirrors Flutter's ChatToggleMessageExpand handler.
+    // Toggles expand in-memory; expand is never persisted to DB.
+    private fun toggleMessageExpand(messageId: Long) {
+        _state.update { state ->
+            state.copy(
+                messages = state.messages.map { msg ->
+                    if (msg.id == messageId) msg.copy(expand = !msg.expand) else msg
+                }
+            )
+        }
+    }
+
+    // Mirrors Flutter's ChatUpdateProductQuantity handler.
+    // Updates unitsAdded or subunitsAdded on the matching product inside the matching message.
+    private fun updateProductQuantity(
+        messageId: Long,
+        productSku: String,
+        unitType: UnitType,
+        quantity: Double,
+    ) {
+        _state.update { state ->
+            state.copy(
+                messages = state.messages.map { msg ->
+                    if (msg.id != messageId) return@map msg
+                    msg.copy(
+                        products = msg.products.map { product ->
+                            if (product.sku != productSku) return@map product
+                            when (unitType) {
+                                UnitType.UNIT -> product.copy(unitsAdded = quantity)
+                                UnitType.SUBUNIT -> product.copy(subunitsAdded = quantity)
+                            }
+                        }
+                    )
+                }
+            )
         }
     }
 
