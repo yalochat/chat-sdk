@@ -11,8 +11,6 @@ package com.yalo.chat.sdk.ui.chat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,8 +22,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.MessageRole
+import com.yalo.chat.sdk.domain.model.MessageStatus
+import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.Product
+import com.yalo.chat.sdk.ui.theme.ChatTheme
+import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 private const val CAROUSEL_CARD_WIDTH_DP = 180
@@ -119,5 +124,32 @@ internal fun ProductCarouselMessage(
                 }
             }
         }
+    }
+}
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+private val CAROUSEL_PREVIEW_PRODUCTS = listOf(
+    Product(sku = "c1", name = "Organic Milk 1L", price = 25.50, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+    Product(sku = "c2", name = "Free-range Eggs x12", price = 42.00, salePrice = 38.00, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+    Product(sku = "c3", name = "Whole Wheat Bread 600g", price = 18.00, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+    Product(sku = "c4", name = "Greek Yogurt 500g", price = 30.00, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+)
+
+@Preview(showBackground = true, name = "Carousel (collapsed)")
+@Composable
+private fun ProductCarouselMessagePreview() {
+    ChatThemeProvider(ChatTheme.Default) {
+        ProductCarouselMessage(
+            message = ChatMessage(
+                id = 2L,
+                role = MessageRole.AGENT,
+                type = MessageType.ProductCarousel,
+                status = MessageStatus.DELIVERED,
+                products = CAROUSEL_PREVIEW_PRODUCTS,
+                expand = false,
+            ),
+            onEvent = {},
+        )
     }
 }

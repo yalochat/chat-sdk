@@ -21,8 +21,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.MessageRole
+import com.yalo.chat.sdk.domain.model.MessageStatus
+import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.Product
+import com.yalo.chat.sdk.ui.theme.ChatTheme
+import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 private const val COLLAPSED_MAX_ITEMS = 3
@@ -47,7 +54,7 @@ internal fun ProductListMessage(
                 shape = RoundedCornerShape(12.dp),
                 color = theme.cardBackgroundColor,
                 border = BorderStroke(1.dp, theme.cardBorderColor),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     ProductHorizontalCard(
@@ -110,5 +117,50 @@ internal fun ProductListMessage(
                 )
             }
         }
+    }
+}
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+private val PREVIEW_PRODUCTS = listOf(
+    Product(sku = "p1", name = "Organic Milk 1L", price = 25.50, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+    Product(sku = "p2", name = "Free-range Eggs x12", price = 42.00, salePrice = 38.00, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+    Product(sku = "p3", name = "Whole Wheat Bread 600g", price = 18.00, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+    Product(sku = "p4", name = "Greek Yogurt 500g", price = 30.00, imagesUrl = emptyList(), unitName = "unit", unitStep = 1.0),
+)
+
+@Preview(showBackground = true, name = "Collapsed (3 visible + Show more)")
+@Composable
+private fun ProductListMessageCollapsedPreview() {
+    ChatThemeProvider(ChatTheme.Default) {
+        ProductListMessage(
+            message = ChatMessage(
+                id = 1L,
+                role = MessageRole.AGENT,
+                type = MessageType.Product,
+                status = MessageStatus.DELIVERED,
+                products = PREVIEW_PRODUCTS,
+                expand = false,
+            ),
+            onEvent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Expanded (all 4 visible)")
+@Composable
+private fun ProductListMessageExpandedPreview() {
+    ChatThemeProvider(ChatTheme.Default) {
+        ProductListMessage(
+            message = ChatMessage(
+                id = 1L,
+                role = MessageRole.AGENT,
+                type = MessageType.Product,
+                status = MessageStatus.DELIVERED,
+                products = PREVIEW_PRODUCTS,
+                expand = true,
+            ),
+            onEvent = {},
+        )
     }
 }
