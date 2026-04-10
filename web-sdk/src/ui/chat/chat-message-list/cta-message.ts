@@ -1,8 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('cta-message')
 export class CTAMessage extends LitElement {
@@ -56,11 +60,19 @@ export class CTAMessage extends LitElement {
     }
 
     .arrow {
-      font-family: 'Material Symbols Outlined';
-      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
       flex-shrink: 0;
     }
+
+    .material-symbols-outlined {
+      font-size: 1.5rem;
+      font-family: 'Material Symbols Outlined';
+    }
   `;
+
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -82,7 +94,9 @@ export class CTAMessage extends LitElement {
         ${this.message.ctaButtons.map(
           (btn) =>
             html`<a href=${btn.url} target="_blank" rel="noopener noreferrer"
-              >${btn.text}<span class="arrow">arrow_forward</span></a
+              >${btn.text}<span class="arrow"
+                >${unsafeHTML(this.config.icons?.arrowForward)}</span
+              ></
             >`
         )}
       </div>

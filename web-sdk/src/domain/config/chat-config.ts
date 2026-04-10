@@ -8,6 +8,7 @@ export interface SdkIcons {
   play?: string;
   pause?: string;
   document?: string;
+  arrowForward?: string;
 }
 
 export interface YaloChatClientConfig {
@@ -29,4 +30,6 @@ export const defaultIcons: SdkIcons = {
   play: '<span class="material-symbols-outlined">play_arrow</span>',
   pause: '<span class="material-symbols-outlined">pause</span>',
   document: '<span class="material-symbols-outlined">description</span>',
+  arrowForward:
+    '<span class="material-symbols-outlined">arrow_forward</span>',
 };
