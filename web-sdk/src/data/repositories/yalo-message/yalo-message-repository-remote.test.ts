@@ -114,6 +114,66 @@ const makeVideoPollItem = (
   status: 0,
 });
 
+const makeButtonsPollItem = (
+  id: string,
+  opts: {
+    header?: string;
+    body?: string;
+    footer?: string;
+    buttons?: string[];
+    date?: Date;
+  } = {}
+) => ({
+  id,
+  message: {
+    correlationId: '',
+    timestamp: new Date(),
+    buttonsMessageRequest: {
+      timestamp: new Date(),
+      content: {
+        header: opts.header ?? '',
+        body: opts.body ?? 'Pick one',
+        footer: opts.footer ?? '',
+        buttons: opts.buttons ?? ['Option A', 'Option B'],
+      },
+    },
+  },
+  date: opts.date,
+  userId: 'user-1',
+  status: 0,
+});
+
+const makeCTAPollItem = (
+  id: string,
+  opts: {
+    header?: string;
+    body?: string;
+    footer?: string;
+    buttons?: { text: string; url: string }[];
+    date?: Date;
+  } = {}
+) => ({
+  id,
+  message: {
+    correlationId: '',
+    timestamp: new Date(),
+    ctaMessageRequest: {
+      timestamp: new Date(),
+      content: {
+        header: opts.header ?? '',
+        body: opts.body ?? 'Check these links',
+        footer: opts.footer ?? '',
+        buttons: opts.buttons ?? [
+          { text: 'Visit', url: 'https://example.com' },
+        ],
+      },
+    },
+  },
+  date: opts.date,
+  userId: 'user-1',
+  status: 0,
+});
+
 const mockOkFetch = (body: unknown = {}, status = 200) =>
   vi.fn().mockResolvedValue({
     ok: true,
@@ -593,6 +653,90 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(messages[0].content).toBe('Watch this');
       expect(messages[0].wiId).toBe('vid-1');
       expect(messages[0].timestamp).toEqual(date);
+    });
+
+    it('translates buttons poll items into ChatMessage.buttons', async () => {
+      const date = new Date('2026-05-01T08:00:00Z');
+      const items = [
+        makeButtonsPollItem('btn-1', {
+          header: 'Choose',
+          body: 'Pick one option',
+          footer: 'Tap a button',
+          buttons: ['Yes', 'No', 'Maybe'],
+          date,
+        }),
+      ];
+      vi.stubGlobal('fetch', mockOkFetch(items));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      await flushPoll();
+
+      expect(callback).toHaveBeenCalledOnce();
+      const [messages] = callback.mock.calls[0];
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        type: 'buttons',
+        role: 'AGENT',
+        header: 'Choose',
+        content: 'Pick one option',
+        footer: 'Tap a button',
+        buttons: ['Yes', 'No', 'Maybe'],
+        wiId: 'btn-1',
+        timestamp: date,
+      });
+    });
+
+    it('translates CTA poll items into ChatMessage.cta', async () => {
+      const date = new Date('2026-05-02T09:00:00Z');
+      const items = [
+        makeCTAPollItem('cta-1', {
+          header: 'Links',
+          body: 'Check these out',
+          footer: 'Powered by Yalo',
+          buttons: [
+            { text: 'Google', url: 'https://google.com' },
+            { text: 'GitHub', url: 'https://github.com' },
+          ],
+          date,
+        }),
+      ];
+      vi.stubGlobal('fetch', mockOkFetch(items));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      await flushPoll();
+
+      expect(callback).toHaveBeenCalledOnce();
+      const [messages] = callback.mock.calls[0];
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        type: 'cta',
+        role: 'AGENT',
+        header: 'Links',
+        content: 'Check these out',
+        footer: 'Powered by Yalo',
+        ctaButtons: [
+          { text: 'Google', url: 'https://google.com' },
+          { text: 'GitHub', url: 'https://github.com' },
+        ],
+        wiId: 'cta-1',
+        timestamp: date,
+      });
     });
   });
 

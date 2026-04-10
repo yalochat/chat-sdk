@@ -110,6 +110,8 @@ export class YaloChatWindow extends LitElement {
             .isWriting=${this._chatWindowController.isWriting}
             @yalo-chat-fetch-next-page=${() =>
               this._chatWindowController.fetchNextPage()}
+            @yalo-chat-send-text-message=${(e: CustomEvent) =>
+              this._chatWindowController.sendTextMessage(e)}
           >
           </chat-message-list>
         </main>
