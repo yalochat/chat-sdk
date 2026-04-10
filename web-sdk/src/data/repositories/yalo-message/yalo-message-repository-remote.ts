@@ -271,6 +271,32 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       });
     }
 
+    if (msg.buttonsMessageRequest?.content) {
+      const content = msg.buttonsMessageRequest.content;
+      return ChatMessage.buttons({
+        role: 'AGENT',
+        timestamp,
+        buttons: content.buttons,
+        content: content.body,
+        header: content.header,
+        footer: content.footer,
+        wiId: item.id,
+      });
+    }
+
+    if (msg.ctaMessageRequest?.content) {
+      const content = msg.ctaMessageRequest.content;
+      return ChatMessage.cta({
+        role: 'AGENT',
+        timestamp,
+        ctaButtons: content.buttons.map((b) => ({ text: b.text, url: b.url })),
+        content: content.body,
+        header: content.header,
+        footer: content.footer,
+        wiId: item.id,
+      });
+    }
+
     return null;
   }
 

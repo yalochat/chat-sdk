@@ -1,0 +1,298 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+
+import { afterEach, describe, expect, it } from 'vitest';
+import { html, LitElement } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import { ContextProvider } from '@lit/context';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { loggerContext, type Logger } from '@log/logger-context';
+import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import './chat-message-list';
+import type ChatMessageList from './chat-message-list';
+
+const config: YaloChatClientConfig = {
+  channelId: 'ch-1',
+  organizationId: 'org-1',
+  channelName: 'Test',
+  target: 'target',
+};
+
+const noopLogger: Logger = {
+  info: () => {},
+  warning: () => {},
+  severe: () => {},
+} as unknown as Logger;
+
+@customElement('test-context-provider')
+class TestContextProvider extends LitElement {
+  // These providers are consumed by child components via @lit/context.
+  // The fields are unused directly but must exist for context propagation.
+  _configProvider = new ContextProvider(this, {
+    context: yaloChatClientConfigContext,
+    initialValue: config,
+  });
+  _loggerProvider = new ContextProvider(this, {
+    context: loggerContext,
+    initialValue: noopLogger,
+  });
+
+  render() {
+    return html`<slot></slot>`;
+  }
+}
+
+const renderList = async (messages: ChatMessage[]) => {
+  const wrapper = document.createElement(
+    'test-context-provider'
+  ) as TestContextProvider;
+  const list = document.createElement('chat-message-list') as ChatMessageList;
+  list.chatMessages = messages;
+  wrapper.appendChild(list);
+  document.body.appendChild(wrapper);
+  await wrapper.updateComplete;
+  await list.updateComplete;
+  return list;
+};
+
+const timestamp = new Date('2026-01-01T00:00:00Z');
+
+describe('ChatMessageList', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  describe('assistant messages', () => {
+    it('renders text as assistant-message with a <p> tag', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 1,
+          role: 'AGENT',
+          timestamp,
+          content: 'Hello',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      expect(assistant).not.toBeNull();
+      const p = assistant!.shadowRoot!.querySelector('p');
+      expect(p!.textContent).toContain('Hello');
+    });
+
+    it('renders voice as assistant-message with voice-message', async () => {
+      const list = await renderList([
+        ChatMessage.voice({
+          id: 2,
+          role: 'AGENT',
+          timestamp,
+          fileName: 'note.ogg',
+          amplitudes: [0.1],
+          duration: 3,
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const bubble = assistant!.shadowRoot!.querySelector('.voice-bubble');
+      expect(bubble!.querySelector('voice-message')).not.toBeNull();
+    });
+
+    it('renders image as assistant-message with image-message', async () => {
+      const list = await renderList([
+        ChatMessage.image({
+          id: 3,
+          role: 'AGENT',
+          timestamp,
+          fileName: 'photo.png',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const bubble = assistant!.shadowRoot!.querySelector('.image-bubble');
+      expect(bubble!.querySelector('image-message')).not.toBeNull();
+    });
+
+    it('renders video as assistant-message with video-message', async () => {
+      const list = await renderList([
+        ChatMessage.video({
+          id: 4,
+          role: 'AGENT',
+          timestamp,
+          fileName: 'clip.mp4',
+          duration: 10,
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const bubble = assistant!.shadowRoot!.querySelector('.video-bubble');
+      expect(bubble!.querySelector('video-message')).not.toBeNull();
+    });
+
+    it('renders attachment as assistant-message with attachment-message', async () => {
+      const list = await renderList([
+        ChatMessage.attachment({
+          id: 5,
+          role: 'AGENT',
+          timestamp,
+          fileName: 'doc.pdf',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const bubble = assistant!.shadowRoot!.querySelector('.attachment-bubble');
+      expect(bubble!.querySelector('attachment-message')).not.toBeNull();
+    });
+
+    it('renders buttons as assistant-message with buttons-message', async () => {
+      const list = await renderList([
+        ChatMessage.buttons({
+          id: 6,
+          role: 'AGENT',
+          timestamp,
+          buttons: ['Yes', 'No'],
+          content: 'Pick one',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const bubble = assistant!.shadowRoot!.querySelector('.buttons-bubble');
+      expect(bubble!.querySelector('buttons-message')).not.toBeNull();
+    });
+
+    it('renders cta as assistant-message with cta-message', async () => {
+      const list = await renderList([
+        ChatMessage.cta({
+          id: 7,
+          role: 'AGENT',
+          timestamp,
+          ctaButtons: [{ text: 'Visit', url: 'https://example.com' }],
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const bubble = assistant!.shadowRoot!.querySelector('.cta-bubble');
+      expect(bubble!.querySelector('cta-message')).not.toBeNull();
+    });
+
+    it('falls back to text rendering for unknown type', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 8,
+          role: 'AGENT',
+          type: 'unknown',
+          timestamp,
+          content: 'fallback',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const p = assistant!.shadowRoot!.querySelector('p');
+      expect(p!.textContent).toContain('fallback');
+    });
+  });
+
+  describe('user messages', () => {
+    it('renders text as user-message with bubble content', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 10,
+          role: 'USER',
+          timestamp,
+          content: 'Hi there',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message');
+      expect(user).not.toBeNull();
+      const bubble = user!.shadowRoot!.querySelector('.bubble');
+      expect(bubble!.textContent).toContain('Hi there');
+    });
+
+    it('renders voice as user-message with voice-message', async () => {
+      const list = await renderList([
+        ChatMessage.voice({
+          id: 11,
+          role: 'USER',
+          timestamp,
+          fileName: 'rec.ogg',
+          amplitudes: [0.2],
+          duration: 4,
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message');
+      const bubble = user!.shadowRoot!.querySelector('.voice-bubble');
+      expect(bubble!.querySelector('voice-message')).not.toBeNull();
+    });
+
+    it('renders image as user-message with image-message', async () => {
+      const list = await renderList([
+        ChatMessage.image({
+          id: 12,
+          role: 'USER',
+          timestamp,
+          fileName: 'selfie.jpg',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message');
+      const bubble = user!.shadowRoot!.querySelector('.image-bubble');
+      expect(bubble!.querySelector('image-message')).not.toBeNull();
+    });
+
+    it('renders attachment as user-message with attachment-message', async () => {
+      const list = await renderList([
+        ChatMessage.attachment({
+          id: 13,
+          role: 'USER',
+          timestamp,
+          fileName: 'report.pdf',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message');
+      const bubble = user!.shadowRoot!.querySelector('.bubble');
+      expect(bubble!.querySelector('attachment-message')).not.toBeNull();
+    });
+
+    it('falls back to text rendering for unknown type', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 14,
+          role: 'USER',
+          type: 'unknown',
+          timestamp,
+          content: 'user fallback',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message');
+      const bubble = user!.shadowRoot!.querySelector('.bubble');
+      expect(bubble!.textContent).toContain('user fallback');
+    });
+  });
+
+  describe('message routing', () => {
+    it('renders AGENT messages as assistant-message and USER messages as user-message', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 20,
+          role: 'AGENT',
+          timestamp,
+          content: 'agent msg',
+        }),
+        ChatMessage.text({
+          id: 21,
+          role: 'USER',
+          timestamp,
+          content: 'user msg',
+        }),
+      ]);
+
+      const assistants =
+        list.shadowRoot!.querySelectorAll('assistant-message');
+      const users = list.shadowRoot!.querySelectorAll('user-message');
+      expect(assistants).toHaveLength(1);
+      expect(users).toHaveLength(1);
+    });
+  });
+});

@@ -7,6 +7,8 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import snarkdown from 'snarkdown';
 import dompurify from 'dompurify';
 import './attachment-message';
+import './buttons-message';
+import './cta-message';
 import './image-message';
 import './video-message';
 import './voice-message';
@@ -15,6 +17,8 @@ import './voice-message';
 export class AssistantMessage extends LitElement {
   static styles = css`
     :host {
+      --yalo-chat-cta-buttons-border-color: #dde4ec;
+      --yalo-chat-link-button-color: #2207f1;
       display: flow;
       justify-content: flex-start;
       margin: 0.25rem 0.5rem;
@@ -27,7 +31,7 @@ export class AssistantMessage extends LitElement {
     }
 
     a {
-      color: var(--yalo-chat-send-btn-background, #2207f1);
+      color: var(--yalo-chat-link-button-color);
     }
 
     .voice-bubble {
@@ -44,6 +48,13 @@ export class AssistantMessage extends LitElement {
 
     .attachment-bubble {
       max-width: 90%;
+    }
+
+    .buttons-bubble,
+    .cta-bubble {
+      max-width: 90%;
+      border: 1px solid var(--yalo-chat-cta-buttons-border-color);
+      border-radius: 1rem;
     }
   `;
 
@@ -71,6 +82,14 @@ export class AssistantMessage extends LitElement {
       case 'attachment':
         return html`<div class="attachment-bubble">
           <attachment-message .message=${this.message}></attachment-message>
+        </div>`;
+      case 'buttons':
+        return html`<div class="buttons-bubble">
+          <buttons-message .message=${this.message}></buttons-message>
+        </div>`;
+      case 'cta':
+        return html`<div class="cta-bubble">
+          <cta-message .message=${this.message}></cta-message>
         </div>`;
       case 'text':
       default:
