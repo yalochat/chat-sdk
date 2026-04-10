@@ -3,9 +3,7 @@
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import snarkdown from 'snarkdown';
-import dompurify from 'dompurify';
+import { renderMarkdown } from './render-markdown';
 import './attachment-message';
 import './buttons-message';
 import './cta-message';
@@ -17,7 +15,7 @@ import './voice-message';
 export class AssistantMessage extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-cta-buttons-border-color: #dde4ec;
+      --yalo-chat-cta-buttons-border-color: #9db1c8;
       --yalo-chat-link-button-color: #2207f1;
       display: flow;
       justify-content: flex-start;
@@ -53,17 +51,11 @@ export class AssistantMessage extends LitElement {
     .buttons-bubble,
     .cta-bubble {
       max-width: 90%;
-      border: 1px solid var(--yalo-chat-cta-buttons-border-color);
-      border-radius: 1rem;
     }
   `;
 
   @property({ attribute: false })
   message!: ChatMessage;
-
-  private _highlightLinks(text: string): string {
-    return text.replace(/(?<!\]\()https?:\/\/[^\s)]+/g, '[$&]($&)');
-  }
 
   render() {
     switch (this.message.type) {
@@ -94,11 +86,7 @@ export class AssistantMessage extends LitElement {
       case 'text':
       default:
         return html`<p>
-          ${unsafeHTML(
-            dompurify.sanitize(
-              snarkdown(this._highlightLinks(this.message.content))
-            )
-          )}
+          ${renderMarkdown(this.message.content)}
         </p>`;
     }
   }

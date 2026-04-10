@@ -3,6 +3,7 @@
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { renderMarkdown } from './render-markdown';
 import ButtonsMessageController from './buttons-message-controller';
 
 @customElement('buttons-message')
@@ -40,6 +41,7 @@ export class ButtonsMessage extends LitElement {
     .buttons {
       display: flex;
       flex-direction: column;
+      gap: var(--yalo-chat-buttons-gap);
     }
 
     .buttons-message {
@@ -50,12 +52,17 @@ export class ButtonsMessage extends LitElement {
     button {
       padding: var(--yalo-chat-buttons-padding);
       border: none;
-      border-top: 1px solid var(--yalo-chat-cta-buttons-border-color);
+      border: 1px solid var(--yalo-chat-cta-buttons-border-color);
+      border-radius: var(--yalo-chat-buttons-border-radius);
       background: var(--yalo-chat-buttons-background);
       color: var(--yalo-chat-buttons-color);
       cursor: pointer;
       font-size: var(--yalo-chat-buttons-font-size);
       word-break: break-word;
+    }
+
+    button:hover {
+      background-color: #dde4ec;
     }
   `;
 
@@ -69,7 +76,7 @@ export class ButtonsMessage extends LitElement {
           ? html`<div class="header">${this.message.header}</div>`
           : null}
         ${this.message.content
-          ? html`<div class="body">${this.message.content}</div>`
+          ? html`<div class="body">${renderMarkdown(this.message.content)}</div>`
           : null}
         ${this.message.footer
           ? html`<div class="footer">${this.message.footer}</div>`

@@ -7,6 +7,7 @@ import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { renderMarkdown } from './render-markdown';
 
 @customElement('cta-message')
 export class CTAMessage extends LitElement {
@@ -14,9 +15,11 @@ export class CTAMessage extends LitElement {
     :host {
       --yalo-chat-cta-footer-color: #7c8086;
       --yalo-chat-cta-border-radius: 0.5rem;
+      --yalo-chat-cta-gap: 0.5rem;
       --yalo-chat-cta-color: #1111111;
       --yalo-chat-cta-font-size: 0.875rem;
       --yalo-chat-cta-padding: 0.5rem;
+      --yalo-chat-cta-button-padding: 0.5rem;
     }
 
     .cta-message {
@@ -43,15 +46,17 @@ export class CTAMessage extends LitElement {
     .buttons {
       display: flex;
       flex-direction: column;
+      gap: var(--yalo-chat-cta-gap);
     }
 
     a {
+      padding: var(--yalo-chat-cta-button-padding);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      padding: var(--yalo-chat-cta-padding);
-      border-top: 1px solid var(--yalo-chat-cta-buttons-border-color);
+      border: 1px solid var(--yalo-chat-cta-buttons-border-color);
+      border-radius: var(--yalo-chat-cta-border-radius);
       color: var(--yalo-chat-cta-color);
       text-align: center;
       text-decoration: none;
@@ -59,14 +64,19 @@ export class CTAMessage extends LitElement {
       word-break: break-word;
     }
 
+    a:hover {
+      background-color: #dde4ec;
+    }
+
     .arrow {
       display: flex;
       align-items: center;
       flex-shrink: 0;
+      font-size: 1.25rem;
     }
 
     .material-symbols-outlined {
-      font-size: 1.5rem;
+      font-size: 1rem;
       font-family: 'Material Symbols Outlined';
     }
   `;
@@ -84,7 +94,9 @@ export class CTAMessage extends LitElement {
           ? html`<div class="header">${this.message.header}</div>`
           : null}
         ${this.message.content
-          ? html`<div class="body">${this.message.content}</div>`
+          ? html`<div class="body">
+              ${renderMarkdown(this.message.content)}
+            </div>`
           : null}
         ${this.message.footer
           ? html`<div class="footer">${this.message.footer}</div>`
@@ -93,11 +105,12 @@ export class CTAMessage extends LitElement {
       <div class="buttons">
         ${this.message.ctaButtons.map(
           (btn) =>
-            html`<a href=${btn.url} target="_blank" rel="noopener noreferrer"
-              >${btn.text}<span class="arrow"
-                >${unsafeHTML(this.config.icons?.arrowForward)}</span
-              ></
-            >`
+            html`<a href=${btn.url} target="_blank" rel="noopener noreferrer">
+              ${btn.text}
+              <span class="arrow">
+                ${unsafeHTML(this.config.icons?.arrowForward)}
+              </span>
+            </a>`
         )}
       </div>
     `;
