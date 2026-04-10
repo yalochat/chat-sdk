@@ -58,6 +58,10 @@ internal class MessagesViewModel(
             is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
             is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
+            is MessagesEvent.ChatToggleMessageExpand -> toggleMessageExpand(event.messageId)
+            is MessagesEvent.ChatUpdateProductQuantity -> updateProductQuantity(
+                event.messageId, event.productSku, event.unitType, event.quantity
+            )
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
                 // Cancel and reset both jobs so SubscribeToMessages / SubscribeToEvents restart
@@ -112,6 +116,54 @@ internal class MessagesViewModel(
         }
     }
 
+    // Mirrors Flutter's ChatToggleMessageExpand handler.
+    // Toggles expand in-memory; expand is never persisted to DB.
+    private fun toggleMessageExpand(messageId: Long) {
+        _state.update { state ->
+            state.copy(
+                messages = state.messages.map { msg ->
+                    if (msg.id == messageId) msg.copy(expand = !msg.expand) else msg
+                }
+            )
+        }
+    }
+
+    // Mirrors Flutter's ChatUpdateProductQuantity handler.
+    // Updates unitsAdded or subunitsAdded on the matching product inside the matching message,
+    // then persists the updated message to the local DB (mirrors Flutter's replaceChatMessage
+    // call — products are stored as JSON in the products column so quantities survive
+    // subsequent observeMessages emissions).
+    private fun updateProductQuantity(
+        messageId: Long,
+        productSku: String,
+        unitType: UnitType,
+        quantity: Double,
+    ) {
+        var updatedMessage: ChatMessage? = null
+        _state.update { state ->
+            val newMessages = state.messages.map { msg ->
+                if (msg.id != messageId) return@map msg
+                msg.copy(
+                    products = msg.products.map { product ->
+                        if (product.sku != productSku) return@map product
+                        when (unitType) {
+                            UnitType.UNIT -> product.copy(unitsAdded = quantity)
+                            UnitType.SUBUNIT -> product.copy(subunitsAdded = quantity)
+                        }
+                    }
+                ).also { updatedMessage = it }
+            }
+            state.copy(messages = newMessages)
+        }
+        updatedMessage?.let { msg ->
+            viewModelScope.launch {
+                chatMessageRepository.updateMessage(msg)
+                // observeMessages() will re-emit with the persisted quantities — no
+                // extra state update needed here.
+            }
+        }
+    }
+
     private fun subscribeToMessages() {
         // Return early if already collecting — makes this call idempotent.
         if (subscriptionJob?.isActive == true) return
@@ -122,10 +174,21 @@ internal class MessagesViewModel(
         // so the UI always reads from a single source of truth (SQLDelight / fake repo).
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
-                _state.update {
-                    it.copy(
+                _state.update { currentState ->
+                    // Only overwrite quickReplies when a NEW QuickReply message arrived —
+                    // i.e. the derived value differs from what the previous message list
+                    // produced. This mirrors Flutter's messages_bloc which only sets
+                    // quickReplies from the specific incoming message, not by re-scanning
+                    // the full list on every update. Without this guard, ClearQuickReplies
+                    // is immediately undone the moment any subsequent message is inserted
+                    // (e.g. a user image send triggers observeMessages, which found the old
+                    // QuickReply message and restored its replies).
+                    val previousDerived = currentState.messages.extractQuickReplies()
+                    val newDerived = messages.extractQuickReplies()
+                    val quickReplies = if (newDerived != previousDerived) newDerived else currentState.quickReplies
+                    currentState.copy(
                         messages = messages,
-                        quickReplies = messages.extractQuickReplies(),
+                        quickReplies = quickReplies,
                     )
                 }
             }

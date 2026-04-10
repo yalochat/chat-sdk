@@ -66,6 +66,7 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", v
 
 # Coil — async image loading
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 # Protobuf — generated data classes from sdk_message.proto (javalite = Android-optimised runtime)
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }

@@ -9,6 +9,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.Product
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -523,6 +524,79 @@ class YaloMessageRepositoryRemoteTest {
         collectJob.cancel()
         assertEquals(1, collectedEvents.size)
         assertIs<ChatEvent.TypingStop>(collectedEvents[0])
+    }
+
+    // ── pollIncomingMessages — product messages ────────────────────────────────
+
+    private fun productMessageJson(
+        id: String,
+        orientation: String,
+        products: List<Map<String, Any>> = emptyList(),
+    ): String {
+        val productsJson = products.joinToString(",") { p ->
+            """{"sku":"${p["sku"]}","name":"${p["name"]}","price":${p["price"]},"imagesUrl":${p["imagesUrl"] ?: "[]"},"unitName":"${p["unitName"] ?: ""}","unitStep":${p["unitStep"] ?: 1.0}}"""
+        }
+        return """[{"id":"$id","message":{"productMessageRequest":{"products":[$productsJson],"orientation":"$orientation"}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+    }
+
+    @Test
+    fun `fetchMessages maps productMessageRequest vertical orientation to Product type`() = runTest {
+        val json = productMessageJson("prod-1", "ORIENTATION_VERTICAL")
+        val repo = buildRepo(listOf(json))
+        val result = repo.fetchMessages(since = 0L)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(1, result.result.size)
+        assertEquals(MessageType.Product, result.result.first().type)
+        assertEquals(MessageRole.AGENT, result.result.first().role)
+        assertEquals(MessageStatus.DELIVERED, result.result.first().status)
+    }
+
+    @Test
+    fun `fetchMessages maps productMessageRequest horizontal orientation to ProductCarousel type`() = runTest {
+        val json = productMessageJson("prod-2", "ORIENTATION_HORIZONTAL")
+        val repo = buildRepo(listOf(json))
+        val result = repo.fetchMessages(since = 0L)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageType.ProductCarousel, result.result.first().type)
+    }
+
+    @Test
+    fun `fetchMessages maps productMessageRequest unspecified orientation to Product type`() = runTest {
+        val json = productMessageJson("prod-3", "ORIENTATION_UNSPECIFIED")
+        val repo = buildRepo(listOf(json))
+        val result = repo.fetchMessages(since = 0L)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageType.Product, result.result.first().type)
+    }
+
+    @Test
+    fun `fetchMessages maps product fields correctly`() = runTest {
+        val json = productMessageJson(
+            id = "prod-4",
+            orientation = "ORIENTATION_VERTICAL",
+            products = listOf(
+                mapOf("sku" to "p1", "name" to "Milk", "price" to 10.0, "imagesUrl" to """["https://img.example.com/milk.jpg"]""", "unitName" to "unit", "unitStep" to 1.0),
+            ),
+        )
+        val repo = buildRepo(listOf(json))
+        val result = repo.fetchMessages(since = 0L)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val products: List<Product> = result.result.first().products
+        assertEquals(1, products.size)
+        assertEquals("p1", products.first().sku)
+        assertEquals("Milk", products.first().name)
+        assertEquals(10.0, products.first().price)
+        assertEquals(listOf("https://img.example.com/milk.jpg"), products.first().imagesUrl)
+    }
+
+    @Test
+    fun `pollIncomingMessages emits product message`() = runTest {
+        val json = productMessageJson("prod-5", "ORIENTATION_VERTICAL")
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals(MessageType.Product, batch.first().type)
+        assertEquals(MessageRole.AGENT, batch.first().role)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

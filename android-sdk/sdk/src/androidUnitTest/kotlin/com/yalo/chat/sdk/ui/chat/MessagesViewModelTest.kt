@@ -12,6 +12,7 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ImageData
 import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import androidx.lifecycle.viewModelScope
@@ -311,6 +312,31 @@ class MessagesViewModelTest {
         vm.viewModelScope.cancel()
     }
 
+    @Test
+    fun `ClearQuickReplies not restored when subsequent non-QuickReply message arrives`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        // Seed a QuickReply message so quickReplies are populated
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Pick one:",
+                quickReplies = listOf("Option A", "Option B"))
+        )
+        assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
+        // User taps a chip → clear
+        vm.handleEvent(MessagesEvent.ClearQuickReplies)
+        assertTrue(vm.state.value.quickReplies.isEmpty())
+        // A new non-QuickReply message arrives (e.g. user sends text) —
+        // quick replies must NOT be restored.
+        chatRepo.insertMessage(
+            ChatMessage(id = 2L, role = MessageRole.USER, type = MessageType.Text,
+                status = MessageStatus.SENT, content = "Option A")
+        )
+        assertTrue(vm.state.value.quickReplies.isEmpty(), "quickReplies must not be restored after ClearQuickReplies")
+        vm.viewModelScope.cancel()
+    }
+
     // ── SendImageMessage ──────────────────────────────────────────────────────
 
     @Test
@@ -449,5 +475,172 @@ class MessagesViewModelTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(MessageStatus.ERROR, result.result.first().status)
         vm.viewModelScope.cancel()
+    }
+
+    // ── ChatToggleMessageExpand ───────────────────────────────────────────────
+
+    @Test
+    fun `ChatToggleMessageExpand toggles expand from false to true`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(
+                    Product(sku = "sku-1", name = "Apple", price = 1.0),
+                ))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        assertFalse(vm.state.value.messages.first().expand)
+
+        vm.handleEvent(MessagesEvent.ChatToggleMessageExpand(messageId = 1L))
+
+        assertTrue(vm.state.value.messages.first().expand)
+    }
+
+    @Test
+    fun `ChatToggleMessageExpand toggles expand back to false on second call`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 2L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(
+                    Product(sku = "sku-1", name = "Apple", price = 1.0),
+                ))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(MessagesEvent.ChatToggleMessageExpand(messageId = 2L))
+        assertTrue(vm.state.value.messages.first().expand)
+
+        vm.handleEvent(MessagesEvent.ChatToggleMessageExpand(messageId = 2L))
+        assertFalse(vm.state.value.messages.first().expand)
+    }
+
+    @Test
+    fun `ChatToggleMessageExpand does not affect other messages`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 10L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED)
+        )
+        chatRepo.insertMessage(
+            ChatMessage(id = 11L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED)
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(MessagesEvent.ChatToggleMessageExpand(messageId = 10L))
+
+        val messages = vm.state.value.messages.sortedBy { it.id }
+        assertTrue(messages.first { it.id == 10L }.expand)
+        assertFalse(messages.first { it.id == 11L }.expand)
+    }
+
+    // ── ChatUpdateProductQuantity ─────────────────────────────────────────────
+
+    @Test
+    fun `ChatUpdateProductQuantity updates unitsAdded on matching product`() = runTest {
+        val product = Product(sku = "sku-1", name = "Apple", price = 1.0, unitsAdded = 0.0, unitStep = 1.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 5L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 5L,
+                productSku = "sku-1",
+                unitType = UnitType.UNIT,
+                quantity = 3.0,
+            )
+        )
+
+        val updatedProduct = vm.state.value.messages.first().products.first()
+        assertEquals(3.0, updatedProduct.unitsAdded)
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity updates subunitsAdded on matching product`() = runTest {
+        val product = Product(sku = "sku-2", name = "Milk", price = 2.0, subunitsAdded = 0.0, subunitStep = 0.5)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 6L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 6L,
+                productSku = "sku-2",
+                unitType = UnitType.SUBUNIT,
+                quantity = 1.5,
+            )
+        )
+
+        val updatedProduct = vm.state.value.messages.first().products.first()
+        assertEquals(1.5, updatedProduct.subunitsAdded)
+        assertEquals(0.0, updatedProduct.unitsAdded)
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity does not affect other products in same message`() = runTest {
+        val p1 = Product(sku = "a", name = "A", price = 1.0, unitsAdded = 0.0)
+        val p2 = Product(sku = "b", name = "B", price = 2.0, unitsAdded = 0.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 7L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(p1, p2))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 7L,
+                productSku = "a",
+                unitType = UnitType.UNIT,
+                quantity = 5.0,
+            )
+        )
+
+        val products = vm.state.value.messages.first().products
+        assertEquals(5.0, products.first { it.sku == "a" }.unitsAdded)
+        assertEquals(0.0, products.first { it.sku == "b" }.unitsAdded)
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity does not affect other messages`() = runTest {
+        val product = Product(sku = "x", name = "X", price = 1.0, unitsAdded = 0.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 8L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        chatRepo.insertMessage(
+            ChatMessage(id = 9L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product.copy()))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 8L,
+                productSku = "x",
+                unitType = UnitType.UNIT,
+                quantity = 10.0,
+            )
+        )
+
+        val messages = vm.state.value.messages.sortedBy { it.id }
+        assertEquals(10.0, messages.first { it.id == 8L }.products.first().unitsAdded)
+        assertEquals(0.0, messages.first { it.id == 9L }.products.first().unitsAdded)
     }
 }

@@ -239,14 +239,15 @@ internal class YaloChatApiService(
             Result.Error(e)
         }
 
-    // GET /inapp/messages?since={timestamp} — fetch messages newer than the given timestamp.
-    suspend fun fetchMessages(since: Long): Result<List<YaloFetchMessagesResponse>> {
+    // GET /inapp/messages — fetch all messages; deduplication is handled client-side.
+    // NOTE: Flutter SDK has a FIXME disabling the `since` query param ("wait for backend fix"),
+    // so we match Flutter and omit it. Client-side deduplication via SimpleCache handles repeats.
+    suspend fun fetchMessages(): Result<List<YaloFetchMessagesResponse>> {
         val tokenResult = ensureValidToken()
         if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
         val (token, uid) = (tokenResult as Result.Ok).result
         return try {
             val response = httpClient.get("$apiBaseUrl/inapp/messages") {
-                parameter("since", since)
                 header(HEADER_USER_ID, uid)
                 header(HEADER_CHANNEL_ID, channelId)
                 header(HEADER_AUTHORIZATION, "Bearer $token")

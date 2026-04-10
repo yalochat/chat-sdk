@@ -15,6 +15,8 @@ import com.yalo.chat.sdk.data.local.createDatabase
 import com.yalo.chat.sdk.domain.repository.ImagePickerRepository
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.buildHttpClient
+import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
+import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.database.ChatDatabase
 import com.yalo.chat.sdk.ui.chat.AudioViewModel
@@ -45,6 +47,33 @@ object YaloChat {
         _driver?.close()
 
         _config = config
+
+        val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
+        val audioRepo = AudioRepositoryLocal(context.applicationContext)
+
+        if (config.useFakeRepository) {
+            val fakeYaloRepo = FakeYaloMessageRepository()
+            val fakeLocalRepo = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
+            val fakeSyncService = MessageSyncService(
+                yaloRepo = fakeYaloRepo,
+                localRepo = fakeLocalRepo,
+                onSyncError = {},
+            )
+            _syncService = fakeSyncService
+            _viewModelFactory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+                    modelClass.isAssignableFrom(MessagesViewModel::class.java) ->
+                        MessagesViewModel(fakeYaloRepo, fakeLocalRepo, fakeSyncService) as T
+                    modelClass.isAssignableFrom(ImageViewModel::class.java) ->
+                        ImageViewModel(imageRepo) as T
+                    modelClass.isAssignableFrom(AudioViewModel::class.java) ->
+                        AudioViewModel(audioRepo) as T
+                    else -> error("Unsupported ViewModel class: $modelClass")
+                }
+            }
+            return
+        }
 
         val httpClient = buildHttpClient(Android.create(), debug = BuildConfig.DEBUG)
         _httpClient = httpClient
@@ -79,9 +108,6 @@ object YaloChat {
             onSyncError = { e -> android.util.Log.e("MessageSyncService", "insertMessages failed", e) },
         )
         _syncService = syncService
-
-        val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
-        val audioRepo = AudioRepositoryLocal(context.applicationContext)
 
         _viewModelFactory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

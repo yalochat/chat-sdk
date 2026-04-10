@@ -85,8 +85,7 @@ class StagingIntegrationTest {
 
         runBlocking {
             val repo = buildRepo()
-            val since = System.currentTimeMillis() - 60_000L
-            val result = repo.fetchMessages(since)
+            val result = repo.fetchMessages(since = 0L)
 
             if (result is Result.Error) println("[integration] fetchMessages ERROR: ${result.error}")
             assertIs<Result.Ok<*>>(result)
@@ -143,8 +142,7 @@ class StagingIntegrationTest {
                 organizationId = organizationId,
                 httpClient = httpClient,
             )
-            val since = System.currentTimeMillis() - 10_000L
-            val result = apiService.fetchMessages(since)
+            val result = apiService.fetchMessages()
             if (result is Result.Error) println("[integration] fetchMessages ERROR: ${result.error}")
             assertIs<Result.Ok<*>>(result)
             println("[integration] /inapp/messages responded OK")

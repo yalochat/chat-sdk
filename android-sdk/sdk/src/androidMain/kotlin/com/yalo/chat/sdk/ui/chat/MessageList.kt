@@ -25,6 +25,7 @@ internal fun MessageList(
     playingMessage: ChatMessage? = null,
     onPlayAudio: (ChatMessage) -> Unit = {},
     onStopAudio: () -> Unit = {},
+    onEvent: (MessagesEvent) -> Unit = {},
 ) {
     if (messages.isEmpty()) {
         Box(
@@ -48,6 +49,7 @@ internal fun MessageList(
                 playingMessage = playingMessage,
                 onPlayAudio = onPlayAudio,
                 onStopAudio = onStopAudio,
+                onEvent = onEvent,
             )
         }
     }
