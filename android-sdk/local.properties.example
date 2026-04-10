@@ -14,3 +14,7 @@ yalo.apiBaseUrl=https://your-yalo-api-base-url
 yalo.channelName=your-channel-name
 yalo.channelId=your-channel-id
 yalo.organizationId=your-organization-id
+
+# Set to true to use FakeYaloMessageRepository with seed data (no network calls).
+# Set to false (or omit) to use the real backend. Defaults to false.
+yalo.useFakeRepository=false

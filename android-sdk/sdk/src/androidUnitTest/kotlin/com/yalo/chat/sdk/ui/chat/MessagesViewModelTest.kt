@@ -312,6 +312,31 @@ class MessagesViewModelTest {
         vm.viewModelScope.cancel()
     }
 
+    @Test
+    fun `ClearQuickReplies not restored when subsequent non-QuickReply message arrives`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        // Seed a QuickReply message so quickReplies are populated
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Pick one:",
+                quickReplies = listOf("Option A", "Option B"))
+        )
+        assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
+        // User taps a chip → clear
+        vm.handleEvent(MessagesEvent.ClearQuickReplies)
+        assertTrue(vm.state.value.quickReplies.isEmpty())
+        // A new non-QuickReply message arrives (e.g. user sends text) —
+        // quick replies must NOT be restored.
+        chatRepo.insertMessage(
+            ChatMessage(id = 2L, role = MessageRole.USER, type = MessageType.Text,
+                status = MessageStatus.SENT, content = "Option A")
+        )
+        assertTrue(vm.state.value.quickReplies.isEmpty(), "quickReplies must not be restored after ClearQuickReplies")
+        vm.viewModelScope.cancel()
+    }
+
     // ── SendImageMessage ──────────────────────────────────────────────────────
 
     @Test

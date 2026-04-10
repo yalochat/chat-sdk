@@ -84,7 +84,8 @@ internal fun MessageItem(
         ) {
             Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                 when (message.type) {
-                    MessageType.Text -> Text(
+                    MessageType.Text,
+                    MessageType.QuickReply -> Text(
                         text = message.content,
                         style = messageTextStyle,
                     )

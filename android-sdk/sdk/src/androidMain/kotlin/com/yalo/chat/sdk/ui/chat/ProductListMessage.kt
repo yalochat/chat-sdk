@@ -58,7 +58,6 @@ internal fun ProductListMessage(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     ProductHorizontalCard(
-                        message = message,
                         product = product,
                         onAddUnit = {
                             onEvent(

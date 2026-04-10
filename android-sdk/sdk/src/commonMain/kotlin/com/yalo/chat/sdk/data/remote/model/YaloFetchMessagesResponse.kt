@@ -24,6 +24,7 @@ internal data class YaloFetchMessagesResponse(
 internal data class SdkMessageResponseDto(
     val textMessageRequest: SdkTextMessageResponseDto? = null,
     val imageMessageRequest: SdkImageMessageResponseDto? = null,
+    val productMessageRequest: SdkProductMessageResponseDto? = null,
 )
 
 // ── Text ──────────────────────────────────────────────────────────────────────
@@ -41,6 +42,35 @@ internal data class SdkTextMessageContentDto(
     // Proto MessageRole JSON encoding: "MESSAGE_ROLE_USER" or "MESSAGE_ROLE_AGENT".
     // Omitted when the value is the default (MESSAGE_ROLE_UNSPECIFIED = 0).
     val role: String? = null,
+)
+
+// ── Product ───────────────────────────────────────────────────────────────────
+
+// Proto3 JSON for ProductMessageRequest.
+// orientation: "ORIENTATION_VERTICAL" → Product list, "ORIENTATION_HORIZONTAL" → ProductCarousel.
+@Serializable
+internal data class SdkProductMessageResponseDto(
+    val products: List<SdkProductDto> = emptyList(),
+    // Proto3 JSON enum value name, e.g. "ORIENTATION_VERTICAL" or "ORIENTATION_HORIZONTAL".
+    // Absent when unspecified — treated as vertical (list) in toChatMessage().
+    val orientation: String? = null,
+)
+
+// Mirrors proto Product message fields (proto3 JSON camelCase encoding).
+@Serializable
+internal data class SdkProductDto(
+    val sku: String,
+    val name: String,
+    val price: Double,
+    val imagesUrl: List<String> = emptyList(),
+    val salePrice: Double? = null,
+    val subunits: Double = 1.0,
+    val unitStep: Double = 1.0,
+    val unitName: String = "",
+    val subunitName: String? = null,
+    val subunitStep: Double = 1.0,
+    val unitsAdded: Double = 0.0,
+    val subunitsAdded: Double = 0.0,
 )
 
 // ── Image ─────────────────────────────────────────────────────────────────────

@@ -28,6 +28,10 @@ val yaloApiBaseUrl: String = (System.getenv("YALO_API_BASE_URL")
 }
 
 kotlin {
+    compilerOptions {
+        // expect/actual classes are stable enough for use — suppress the Beta warning.
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
@@ -78,8 +82,10 @@ kotlin {
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.lifecycle.runtime.ktx)
 
-            // Coil — async image loading
+            // Coil — async image loading (coil-network-okhttp adds the network fetcher required
+            // for HTTP/HTTPS URLs; coil-compose alone only handles local files and drawables).
             implementation(libs.coil.compose)
+            implementation(libs.coil.network.okhttp)
         }
 
         iosMain.dependencies {

@@ -51,5 +51,6 @@ internal fun ProductQuantityStepper(
 }
 
 // Formats a double quantity: shows integer if whole number, otherwise shows decimal.
-private fun formatQuantity(value: Double): String =
+// Shared by ProductCard.kt — kept internal so it's visible within the package.
+internal fun formatQuantity(value: Double): String =
     if (value == kotlin.math.floor(value)) value.toLong().toString() else value.toString()

@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
@@ -85,7 +84,6 @@ private fun ProductImage(
 
 @Composable
 internal fun ProductHorizontalCard(
-    message: ChatMessage,
     product: Product,
     onAddUnit: () -> Unit,
     onRemoveUnit: () -> Unit,
@@ -136,7 +134,6 @@ internal fun ProductHorizontalCard(
 
 @Composable
 internal fun ProductVerticalCard(
-    message: ChatMessage,
     product: Product,
     onAddUnit: () -> Unit,
     onRemoveUnit: () -> Unit,
@@ -186,6 +183,3 @@ private fun subunitsLabel(product: Product): String? =
     } else null
 
 private fun formatPrice(price: Double): String = "%.2f".format(price)
-
-private fun formatQuantity(value: Double): String =
-    if (value == kotlin.math.floor(value)) value.toLong().toString() else value.toString()

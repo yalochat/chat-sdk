@@ -34,6 +34,7 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 private const val CAROUSEL_CARD_WIDTH_DP = 180
+private const val COLLAPSED_MAX_ITEMS = 3
 
 @Composable
 internal fun ProductCarouselMessage(
@@ -45,8 +46,8 @@ internal fun ProductCarouselMessage(
     val expand = message.expand
     val messageId = message.id ?: return
 
-    val visibleProducts = if (expand) products else products.take(3)
-    val showToggle = products.size > 3
+    val visibleProducts = if (expand) products else products.take(COLLAPSED_MAX_ITEMS)
+    val showToggle = products.size > COLLAPSED_MAX_ITEMS
 
     LazyRow {
         items(visibleProducts, key = { it.sku }) { product ->
@@ -60,7 +61,6 @@ internal fun ProductCarouselMessage(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     ProductVerticalCard(
-                        message = message,
                         product = product,
                         onAddUnit = {
                             onEvent(
