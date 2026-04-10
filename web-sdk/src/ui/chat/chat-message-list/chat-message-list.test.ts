@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { ContextProvider } from '@lit/context';
@@ -268,6 +268,38 @@ describe('ChatMessageList', () => {
       const user = list.shadowRoot!.querySelector('user-message');
       const bubble = user!.shadowRoot!.querySelector('.bubble');
       expect(bubble!.textContent).toContain('user fallback');
+    });
+  });
+
+  describe('buttons interaction', () => {
+    it('dispatches yalo-chat-send-text-message with button text when clicked', async () => {
+      const list = await renderList([
+        ChatMessage.buttons({
+          id: 30,
+          role: 'AGENT',
+          timestamp,
+          buttons: ['Yes', 'No'],
+          content: 'Pick one',
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-send-text-message', listener);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const buttonsMsg = assistant.shadowRoot!.querySelector('buttons-message')!;
+      const buttons = buttonsMsg.shadowRoot!.querySelectorAll('button');
+      expect(buttons).toHaveLength(2);
+
+      buttons[0].click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'Yes',
+      });
     });
   });
 
