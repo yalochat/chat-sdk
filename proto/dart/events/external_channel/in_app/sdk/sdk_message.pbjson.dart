@@ -66,6 +66,26 @@ final $typed_data.Uint8List messageStatusDescriptor = $convert.base64Decode(
     'ChNNRVNTQUdFX1NUQVRVU19SRUFEEAMSGAoUTUVTU0FHRV9TVEFUVVNfRVJST1IQBBIXChNNRV'
     'NTQUdFX1NUQVRVU19TRU5UEAUSHgoaTUVTU0FHRV9TVEFUVVNfSU5fREVMSVZFUlkQBg==');
 
+@$core.Deprecated('Use sdkCommandDescriptor instead')
+const SdkCommand$json = {
+  '1': 'SdkCommand',
+  '2': [
+    {'1': 'SDK_COMMAND_UNSPECIFIED', '2': 0},
+    {'1': 'SDK_COMMAND_ADD_TO_CART', '2': 1},
+    {'1': 'SDK_COMMAND_REMOVE_FROM_CART', '2': 2},
+    {'1': 'SDK_COMMAND_CLEAR_CART', '2': 3},
+    {'1': 'SDK_COMMAND_GUIDANCE_CARD', '2': 4},
+    {'1': 'SDK_COMMAND_ADD_PROMOTION', '2': 5},
+  ],
+};
+
+/// Descriptor for `SdkCommand`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List sdkCommandDescriptor = $convert.base64Decode(
+    'CgpTZGtDb21tYW5kEhsKF1NES19DT01NQU5EX1VOU1BFQ0lGSUVEEAASGwoXU0RLX0NPTU1BTk'
+    'RfQUREX1RPX0NBUlQQARIgChxTREtfQ09NTUFORF9SRU1PVkVfRlJPTV9DQVJUEAISGgoWU0RL'
+    'X0NPTU1BTkRfQ0xFQVJfQ0FSVBADEh0KGVNES19DT01NQU5EX0dVSURBTkNFX0NBUkQQBBIdCh'
+    'lTREtfQ09NTUFORF9BRERfUFJPTU9USU9OEAU=');
+
 @$core.Deprecated('Use sdkMessageDescriptor instead')
 const SdkMessage$json = {
   '1': 'SdkMessage',
@@ -385,6 +405,24 @@ const SdkMessage$json = {
       '9': 0,
       '10': 'ctaMessageResponse'
     },
+    {
+      '1': 'get_commands_request',
+      '3': 44,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest',
+      '9': 0,
+      '10': 'getCommandsRequest'
+    },
+    {
+      '1': 'get_commands_response',
+      '3': 45,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse',
+      '9': 0,
+      '10': 'getCommandsResponse'
+    },
   ],
   '8': [
     {'1': 'payload'},
@@ -465,7 +503,11 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'Vzc2FnZV9yZXF1ZXN0GCogASgLMjYueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
     'djEuQ1RBTWVzc2FnZVJlcXVlc3RIAFIRY3RhTWVzc2FnZVJlcXVlc3QSawoUY3RhX21lc3NhZ2'
     'VfcmVzcG9uc2UYKyABKAsyNy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5D'
-    'VEFNZXNzYWdlUmVzcG9uc2VIAFISY3RhTWVzc2FnZVJlc3BvbnNlQgkKB3BheWxvYWQ=');
+    'VEFNZXNzYWdlUmVzcG9uc2VIAFISY3RhTWVzc2FnZVJlc3BvbnNlEmsKFGdldF9jb21tYW5kc1'
+    '9yZXF1ZXN0GCwgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuR2V0'
+    'Q29tbWFuZHNSZXF1ZXN0SABSEmdldENvbW1hbmRzUmVxdWVzdBJuChVnZXRfY29tbWFuZHNfcm'
+    'VzcG9uc2UYLSABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5HZXRD'
+    'b21tYW5kc1Jlc3BvbnNlSABSE2dldENvbW1hbmRzUmVzcG9uc2VCCQoHcGF5bG9hZA==');
 
 @$core.Deprecated('Use textMessageDescriptor instead')
 const TextMessage$json = {
@@ -1822,6 +1864,55 @@ final $typed_data.Uint8List cTAMessageResponseDescriptor = $convert.base64Decode
     'FubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3RhbXAY'
     'AiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXASHQoKbWVzc2FnZV'
     '9pZBgDIAEoCVIJbWVzc2FnZUlk');
+
+@$core.Deprecated('Use getCommandsRequestDescriptor instead')
+const GetCommandsRequest$json = {
+  '1': 'GetCommandsRequest',
+  '2': [
+    {
+      '1': 'timestamp',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `GetCommandsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getCommandsRequestDescriptor = $convert.base64Decode(
+    'ChJHZXRDb21tYW5kc1JlcXVlc3QSOAoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYn'
+    'VmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
+
+@$core.Deprecated('Use getCommandsResponseDescriptor instead')
+const GetCommandsResponse$json = {
+  '1': 'GetCommandsResponse',
+  '2': [
+    {
+      '1': 'commands',
+      '3': 1,
+      '4': 3,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.SdkCommand',
+      '10': 'commands'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `GetCommandsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getCommandsResponseDescriptor = $convert.base64Decode(
+    'ChNHZXRDb21tYW5kc1Jlc3BvbnNlEksKCGNvbW1hbmRzGAEgAygOMi8ueWFsby5leHRlcm5hbF'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjEuU2RrQ29tbWFuZFIIY29tbWFuZHMSOAoJdGltZXN0YW1w'
+    'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use authRequestDescriptor instead')
 const AuthRequest$json = {

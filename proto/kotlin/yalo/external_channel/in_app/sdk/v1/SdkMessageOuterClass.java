@@ -356,6 +356,136 @@ public final class SdkMessageOuterClass {
     // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v1.MessageStatus)
   }
 
+  /**
+   * <pre>
+   * SdkCommand enumerates the commands the SDK is able to execute on the client.
+   * </pre>
+   *
+   * Protobuf enum {@code yalo.external_channel.in_app.sdk.v1.SdkCommand}
+   */
+  public enum SdkCommand
+      implements com.google.protobuf.Internal.EnumLite {
+    /**
+     * <code>SDK_COMMAND_UNSPECIFIED = 0;</code>
+     */
+    SDK_COMMAND_UNSPECIFIED(0),
+    /**
+     * <code>SDK_COMMAND_ADD_TO_CART = 1;</code>
+     */
+    SDK_COMMAND_ADD_TO_CART(1),
+    /**
+     * <code>SDK_COMMAND_REMOVE_FROM_CART = 2;</code>
+     */
+    SDK_COMMAND_REMOVE_FROM_CART(2),
+    /**
+     * <code>SDK_COMMAND_CLEAR_CART = 3;</code>
+     */
+    SDK_COMMAND_CLEAR_CART(3),
+    /**
+     * <code>SDK_COMMAND_GUIDANCE_CARD = 4;</code>
+     */
+    SDK_COMMAND_GUIDANCE_CARD(4),
+    /**
+     * <code>SDK_COMMAND_ADD_PROMOTION = 5;</code>
+     */
+    SDK_COMMAND_ADD_PROMOTION(5),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>SDK_COMMAND_UNSPECIFIED = 0;</code>
+     */
+    public static final int SDK_COMMAND_UNSPECIFIED_VALUE = 0;
+    /**
+     * <code>SDK_COMMAND_ADD_TO_CART = 1;</code>
+     */
+    public static final int SDK_COMMAND_ADD_TO_CART_VALUE = 1;
+    /**
+     * <code>SDK_COMMAND_REMOVE_FROM_CART = 2;</code>
+     */
+    public static final int SDK_COMMAND_REMOVE_FROM_CART_VALUE = 2;
+    /**
+     * <code>SDK_COMMAND_CLEAR_CART = 3;</code>
+     */
+    public static final int SDK_COMMAND_CLEAR_CART_VALUE = 3;
+    /**
+     * <code>SDK_COMMAND_GUIDANCE_CARD = 4;</code>
+     */
+    public static final int SDK_COMMAND_GUIDANCE_CARD_VALUE = 4;
+    /**
+     * <code>SDK_COMMAND_ADD_PROMOTION = 5;</code>
+     */
+    public static final int SDK_COMMAND_ADD_PROMOTION_VALUE = 5;
+
+
+    @java.lang.Override
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The number of the enum to look for.
+     * @return The enum associated with the given number.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static SdkCommand valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static SdkCommand forNumber(int value) {
+      switch (value) {
+        case 0: return SDK_COMMAND_UNSPECIFIED;
+        case 1: return SDK_COMMAND_ADD_TO_CART;
+        case 2: return SDK_COMMAND_REMOVE_FROM_CART;
+        case 3: return SDK_COMMAND_CLEAR_CART;
+        case 4: return SDK_COMMAND_GUIDANCE_CARD;
+        case 5: return SDK_COMMAND_ADD_PROMOTION;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<SdkCommand>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        SdkCommand> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<SdkCommand>() {
+            @java.lang.Override
+            public SdkCommand findValueByNumber(int number) {
+              return SdkCommand.forNumber(number);
+            }
+          };
+
+    public static com.google.protobuf.Internal.EnumVerifier 
+        internalGetVerifier() {
+      return SdkCommandVerifier.INSTANCE;
+    }
+
+    private static final class SdkCommandVerifier implements 
+         com.google.protobuf.Internal.EnumVerifier { 
+            static final com.google.protobuf.Internal.EnumVerifier
+                INSTANCE = new SdkCommandVerifier();
+            @java.lang.Override
+            public boolean isInRange(int number) {
+              return SdkCommand.forNumber(number) != null;
+            }
+          };
+
+    private final int value;
+
+    private SdkCommand(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v1.SdkCommand)
+  }
+
   public interface SdkMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.SdkMessage)
       com.google.protobuf.MessageLiteOrBuilder {
@@ -797,6 +927,36 @@ public final class SdkMessageOuterClass {
      */
     yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse getCtaMessageResponse();
 
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     * @return Whether the getCommandsRequest field is set.
+     */
+    boolean hasGetCommandsRequest();
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     * @return The getCommandsRequest.
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getGetCommandsRequest();
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     * @return Whether the getCommandsResponse field is set.
+     */
+    boolean hasGetCommandsResponse();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     * @return The getCommandsResponse.
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getGetCommandsResponse();
+
     public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessage.PayloadCase getPayloadCase();
   }
   /**
@@ -855,6 +1015,8 @@ public final class SdkMessageOuterClass {
       BUTTONS_MESSAGE_RESPONSE(41),
       CTA_MESSAGE_REQUEST(42),
       CTA_MESSAGE_RESPONSE(43),
+      GET_COMMANDS_REQUEST(44),
+      GET_COMMANDS_RESPONSE(45),
       PAYLOAD_NOT_SET(0);
       private final int value;
       private PayloadCase(int value) {
@@ -904,6 +1066,8 @@ public final class SdkMessageOuterClass {
           case 41: return BUTTONS_MESSAGE_RESPONSE;
           case 42: return CTA_MESSAGE_REQUEST;
           case 43: return CTA_MESSAGE_RESPONSE;
+          case 44: return GET_COMMANDS_REQUEST;
+          case 45: return GET_COMMANDS_RESPONSE;
           case 0: return PAYLOAD_NOT_SET;
           default: return null;
         }
@@ -2889,6 +3053,130 @@ public final class SdkMessageOuterClass {
       }
     }
 
+    public static final int GET_COMMANDS_REQUEST_FIELD_NUMBER = 44;
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     */
+    @java.lang.Override
+    public boolean hasGetCommandsRequest() {
+      return payloadCase_ == 44;
+    }
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getGetCommandsRequest() {
+      if (payloadCase_ == 44) {
+         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.getDefaultInstance();
+    }
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 44;
+    }
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 44 &&
+          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 44;
+    }
+    /**
+     * <pre>
+     * Client → channel
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     */
+    private void clearGetCommandsRequest() {
+      if (payloadCase_ == 44) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int GET_COMMANDS_RESPONSE_FIELD_NUMBER = 45;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     */
+    @java.lang.Override
+    public boolean hasGetCommandsResponse() {
+      return payloadCase_ == 45;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getGetCommandsResponse() {
+      if (payloadCase_ == 45) {
+         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 45;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 45 &&
+          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 45;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     */
+    private void clearGetCommandsResponse() {
+      if (payloadCase_ == 45) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessage parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -4848,6 +5136,126 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
+      /**
+       * <pre>
+       * Client → channel
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+       */
+      @java.lang.Override
+      public boolean hasGetCommandsRequest() {
+        return instance.hasGetCommandsRequest();
+      }
+      /**
+       * <pre>
+       * Client → channel
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getGetCommandsRequest() {
+        return instance.getGetCommandsRequest();
+      }
+      /**
+       * <pre>
+       * Client → channel
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+       */
+      public Builder setGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
+        copyOnWrite();
+        instance.setGetCommandsRequest(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Client → channel
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+       */
+      public Builder setGetCommandsRequest(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.Builder builderForValue) {
+        copyOnWrite();
+        instance.setGetCommandsRequest(builderForValue.build());
+        return this;
+      }
+      /**
+       * <pre>
+       * Client → channel
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+       */
+      public Builder mergeGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
+        copyOnWrite();
+        instance.mergeGetCommandsRequest(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Client → channel
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+       */
+      public Builder clearGetCommandsRequest() {
+        copyOnWrite();
+        instance.clearGetCommandsRequest();
+        return this;
+      }
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+       */
+      @java.lang.Override
+      public boolean hasGetCommandsResponse() {
+        return instance.hasGetCommandsResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getGetCommandsResponse() {
+        return instance.getGetCommandsResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+       */
+      public Builder setGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
+        copyOnWrite();
+        instance.setGetCommandsResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+       */
+      public Builder setGetCommandsResponse(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.Builder builderForValue) {
+        copyOnWrite();
+        instance.setGetCommandsResponse(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+       */
+      public Builder mergeGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
+        copyOnWrite();
+        instance.mergeGetCommandsResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+       */
+      public Builder clearGetCommandsResponse() {
+        copyOnWrite();
+        instance.clearGetCommandsResponse();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.SdkMessage)
     }
     @java.lang.Override
@@ -4903,14 +5311,16 @@ public final class SdkMessageOuterClass {
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.class,
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.class,
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.class,
             };
             java.lang.String info =
-                "\u0000$\u0001\u0001\u0001+$\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<\u0000" +
+                "\u0000&\u0001\u0001\u0001-&\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<\u0000" +
                 "\u000b<\u0000\f<\u0000\r<\u0000\u000e<\u0000\u000f<\u0000\u0010<\u0000\u0011<\u0000" +
                 "\u0012<\u0000\u0013<\u0000\u0014<\u0000\u0015<\u0000\u0016<\u0000\u0017<\u0000\u0018" +
                 "<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c<\u0000\u001d<\u0000\u001e<\u0000" +
                 "\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$<\u0000%<\u0000&<\u0000\'<\u0000(" +
-                "<\u0000)<\u0000*<\u0000+<\u0000";
+                "<\u0000)<\u0000*<\u0000+<\u0000,<\u0000-<\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -30907,6 +31317,901 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<CTAMessageResponse> PARSER;
 
     public static com.google.protobuf.Parser<CTAMessageResponse> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface GetCommandsRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+  }
+  /**
+   * <pre>
+   * GetCommandsRequest is sent by the client to declare that it is ready to
+   * receive the list of commands it is able to execute.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsRequest}
+   */
+  public  static final class GetCommandsRequest extends
+      com.google.protobuf.GeneratedMessageLite<
+          GetCommandsRequest, GetCommandsRequest.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+      GetCommandsRequestOrBuilder {
+    private GetCommandsRequest() {
+    }
+    private int bitField0_;
+    public static final int TIMESTAMP_FIELD_NUMBER = 1;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * GetCommandsRequest is sent by the client to declare that it is ready to
+     * receive the list of commands it is able to execute.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequestOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "timestamp_",
+            };
+            java.lang.String info =
+                "\u0000\u0001\u0000\u0001\u0001\u0001\u0001\u0000\u0000\u0000\u0001\u1009\u0000";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest DEFAULT_INSTANCE;
+    static {
+      GetCommandsRequest defaultInstance = new GetCommandsRequest();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        GetCommandsRequest.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<GetCommandsRequest> PARSER;
+
+    public static com.google.protobuf.Parser<GetCommandsRequest> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface GetCommandsResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @return A list containing the commands.
+     */
+    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand> getCommandsList();
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @return The count of commands.
+     */
+    int getCommandsCount();
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param index The index of the element to return.
+     * @return The commands at the given index.
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand getCommands(int index);
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @return A list containing the enum numeric values on the wire for commands.
+     */
+    java.util.List<java.lang.Integer>
+    getCommandsValueList();
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param index The index of the value to return.
+     * @return The enum numeric value on the wire of commands at the given index.
+     */
+    int getCommandsValue(int index);
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+  }
+  /**
+   * <pre>
+   * GetCommandsResponse declares which commands the SDK is able to execute,
+   * so the channel can decide which ones it may dispatch back to the client.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsResponse}
+   */
+  public  static final class GetCommandsResponse extends
+      com.google.protobuf.GeneratedMessageLite<
+          GetCommandsResponse, GetCommandsResponse.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+      GetCommandsResponseOrBuilder {
+    private GetCommandsResponse() {
+      commands_ = emptyIntList();
+    }
+    private int bitField0_;
+    public static final int COMMANDS_FIELD_NUMBER = 1;
+    private com.google.protobuf.Internal.IntList commands_;
+    private static final com.google.protobuf.Internal.IntListAdapter.IntConverter<
+        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand> commands_converter_ =
+            new com.google.protobuf.Internal.IntListAdapter.IntConverter<
+                yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand>() {
+              @java.lang.Override
+              public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand convert(int from) {
+                yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand.forNumber(from);
+                return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand.UNRECOGNIZED : result;
+              }
+            };
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @return A list containing the commands.
+     */
+    @java.lang.Override
+    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand> getCommandsList() {
+      return new com.google.protobuf.Internal.IntListAdapter<
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand>(commands_, commands_converter_);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @return The count of commands.
+     */
+    @java.lang.Override
+    public int getCommandsCount() {
+      return commands_.size();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param index The index of the element to return.
+     * @return The commands at the given index.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand getCommands(int index) {
+      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand.forNumber(commands_.getInt(index));
+      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @return A list containing the enum numeric values on the wire for commands.
+     */
+    @java.lang.Override
+    public java.util.List<java.lang.Integer>
+    getCommandsValueList() {
+      return commands_;
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param index The index of the value to return.
+     * @return The enum numeric value on the wire of commands at the given index.
+     */
+    @java.lang.Override
+    public int getCommandsValue(int index) {
+      return commands_.getInt(index);
+    }
+    private int commandsMemoizedSerializedSize;
+    private void ensureCommandsIsMutable() {
+      com.google.protobuf.Internal.IntList tmp = commands_;
+      if (!tmp.isModifiable()) {
+        commands_ =
+            com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
+      }
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param index The index to set the value at.
+     * @param value The commands to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setCommands(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand value) {
+      value.getClass();  // minimal bytecode null check
+      ensureCommandsIsMutable();
+      commands_.setInt(index, value.getNumber());
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param value The commands to add.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addCommands(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand value) {
+      value.getClass();  // minimal bytecode null check
+      ensureCommandsIsMutable();
+      commands_.addInt(value.getNumber());
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param values The commands to add.
+     */
+    private void addAllCommands(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand> values) {
+      ensureCommandsIsMutable();
+      for (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand value : values) {
+        commands_.addInt(value.getNumber());
+      }
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;`
+     */
+    private void clearCommands() {
+      commands_ = emptyIntList();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param value The enum numeric value on the wire for commands to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setCommandsValue(
+        int index, int value) {
+      ensureCommandsIsMutable();
+      commands_.setInt(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param value The enum numeric value on the wire for commands to add.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void addCommandsValue(int value) {
+      ensureCommandsIsMutable();
+      commands_.addInt(value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+     * @param values The enum numeric values on the wire for commands to add.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void addAllCommandsValue(
+        java.lang.Iterable<java.lang.Integer> values) {
+      ensureCommandsIsMutable();
+      for (int value : values) {
+        commands_.addInt(value);
+      }
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * GetCommandsResponse declares which commands the SDK is able to execute,
+     * so the channel can decide which ones it may dispatch back to the client.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponseOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @return A list containing the commands.
+       */
+      @java.lang.Override
+      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand> getCommandsList() {
+        return instance.getCommandsList();
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @return The count of commands.
+       */
+      @java.lang.Override
+      public int getCommandsCount() {
+        return instance.getCommandsCount();
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param index The index of the element to return.
+       * @return The commands at the given index.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand getCommands(int index) {
+        return instance.getCommands(index);
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param index The index to set the value at.
+       * @param value The commands to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCommands(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand value) {
+        copyOnWrite();
+        instance.setCommands(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param value The commands to add.
+       * @return This builder for chaining.
+       */
+      public Builder addCommands(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand value) {
+        copyOnWrite();
+        instance.addCommands(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param values The commands to add.
+       * @return This builder for chaining.
+       */
+      public Builder addAllCommands(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkCommand> values) {
+        copyOnWrite();
+        instance.addAllCommands(values);  return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCommands() {
+        copyOnWrite();
+        instance.clearCommands();
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @return A list containing the enum numeric values on the wire for commands.
+       */
+      @java.lang.Override
+      public java.util.List<java.lang.Integer>
+      getCommandsValueList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getCommandsValueList());
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param index The index of the value to return.
+       * @return The enum numeric value on the wire of commands at the given index.
+       */
+      @java.lang.Override
+      public int getCommandsValue(int index) {
+        return instance.getCommandsValue(index);
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param index The index to set the value at.
+       * @param value The enum numeric value on the wire for commands to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCommandsValue(
+          int index, int value) {
+        copyOnWrite();
+        instance.setCommandsValue(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param value The enum numeric value on the wire for commands to add.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder addCommandsValue(int value) {
+        copyOnWrite();
+        instance.addCommandsValue(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.SdkCommand commands = 1;</code>
+       * @param values The enum numeric values on the wire for commands to add.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder addAllCommandsValue(
+          java.lang.Iterable<java.lang.Integer> values) {
+        copyOnWrite();
+        instance.addAllCommandsValue(values);
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "commands_",
+              "timestamp_",
+            };
+            java.lang.String info =
+                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0001\u0000\u0001,\u0002\u1009\u0000" +
+                "";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse DEFAULT_INSTANCE;
+    static {
+      GetCommandsResponse defaultInstance = new GetCommandsResponse();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        GetCommandsResponse.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<GetCommandsResponse> PARSER;
+
+    public static com.google.protobuf.Parser<GetCommandsResponse> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }

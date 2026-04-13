@@ -950,6 +950,66 @@ public object SdkMessageKt {
     public fun hasCtaMessageResponse(): kotlin.Boolean {
       return _builder.hasCtaMessageResponse()
     }
+
+    /**
+     * ```
+     * Client → channel
+     * ```
+     *
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;`
+     */
+    public var getCommandsRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest
+      @kotlin.jvm.JvmName("getGetCommandsRequest")
+        get() = _builder.getCommandsRequest
+      @kotlin.jvm.JvmName("setGetCommandsRequest")
+        set(value) {
+        _builder.getCommandsRequest = value
+      }
+    /**
+     * ```
+     * Client → channel
+     * ```
+     *
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;`
+     */
+    public fun clearGetCommandsRequest() {
+      _builder.clearGetCommandsRequest()
+    }
+    /**
+     * ```
+     * Client → channel
+     * ```
+     *
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;`
+     * @return Whether the getCommandsRequest field is set.
+     */
+    public fun hasGetCommandsRequest(): kotlin.Boolean {
+      return _builder.hasGetCommandsRequest()
+    }
+
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;`
+     */
+    public var getCommandsResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse
+      @kotlin.jvm.JvmName("getGetCommandsResponse")
+        get() = _builder.getCommandsResponse
+      @kotlin.jvm.JvmName("setGetCommandsResponse")
+        set(value) {
+        _builder.getCommandsResponse = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;`
+     */
+    public fun clearGetCommandsResponse() {
+      _builder.clearGetCommandsResponse()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;`
+     * @return Whether the getCommandsResponse field is set.
+     */
+    public fun hasGetCommandsResponse(): kotlin.Boolean {
+      return _builder.hasGetCommandsResponse()
+    }
     public val payloadCase: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessage.PayloadCase
     @kotlin.jvm.JvmName("getPayloadCase")
       get() = _builder.payloadCase
@@ -1066,4 +1126,10 @@ public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOr
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.ctaMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse?
   get() = if (hasCtaMessageResponse()) getCtaMessageResponse() else null
+
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest?
+  get() = if (hasGetCommandsRequest()) getGetCommandsRequest() else null
+
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse?
+  get() = if (hasGetCommandsResponse()) getGetCommandsResponse() else null
 

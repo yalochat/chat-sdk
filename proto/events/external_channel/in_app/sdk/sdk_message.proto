@@ -60,6 +60,10 @@ message SdkMessage {
     ButtonsMessageResponse   buttons_message_response    = 41;
     CTAMessageRequest        cta_message_request         = 42;
     CTAMessageResponse       cta_message_response        = 43;
+
+    // Client → channel
+    GetCommandsRequest       get_commands_request        = 44;
+    GetCommandsResponse      get_commands_response       = 45;
   }
 }
 
@@ -494,6 +498,33 @@ message CTAMessageResponse {
   ResponseStatus status = 1;
   google.protobuf.Timestamp timestamp = 2;
   string message_id = 3;
+}
+
+// ---------------------------------------------------------------------------
+// Get commands  (client → channel)
+// ---------------------------------------------------------------------------
+
+// SdkCommand enumerates the commands the SDK is able to execute on the client.
+enum SdkCommand {
+  SDK_COMMAND_UNSPECIFIED = 0;
+  SDK_COMMAND_ADD_TO_CART = 1;
+  SDK_COMMAND_REMOVE_FROM_CART = 2;
+  SDK_COMMAND_CLEAR_CART = 3;
+  SDK_COMMAND_GUIDANCE_CARD = 4;
+  SDK_COMMAND_ADD_PROMOTION = 5;
+}
+
+// GetCommandsRequest is sent by the client to declare that it is ready to
+// receive the list of commands it is able to execute.
+message GetCommandsRequest {
+  google.protobuf.Timestamp timestamp = 1;
+}
+
+// GetCommandsResponse declares which commands the SDK is able to execute,
+// so the channel can decide which ones it may dispatch back to the client.
+message GetCommandsResponse {
+  repeated SdkCommand commands = 1;
+  google.protobuf.Timestamp timestamp = 2;
 }
 
 // ---------------------------------------------------------------------------

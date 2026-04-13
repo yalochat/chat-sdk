@@ -49,10 +49,6 @@ export default class ChatMessageListController implements ReactiveController {
     }
   }
 
-  highlightLinks(text: string): string {
-    return text.replace(/(?<!\]\()https?:\/\/[^\s)]+/g, '[$&]($&)');
-  }
-
   hostDisconnected() {
     this.intersectionObserver?.disconnect();
   }

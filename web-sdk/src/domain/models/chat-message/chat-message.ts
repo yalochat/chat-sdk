@@ -3,6 +3,11 @@
 export const MessageRoles = ['USER', 'AGENT'] as const;
 export type MessageRole = (typeof MessageRoles)[number];
 
+export type CTAButton = {
+  readonly text: string;
+  readonly url: string;
+};
+
 export const MessageTypes = [
   'text',
   'image',
@@ -13,6 +18,8 @@ export const MessageTypes = [
   'quickReply',
   'video',
   'attachment',
+  'buttons',
+  'cta',
   'unknown',
 ] as const;
 export type MessageType = (typeof MessageTypes)[number];
@@ -41,6 +48,10 @@ export class ChatMessage {
   readonly mediaType?: string;
   readonly blob?: Blob;
   readonly quickReplies: string[];
+  readonly header?: string;
+  readonly footer?: string;
+  readonly buttons: string[];
+  readonly ctaButtons: CTAButton[];
 
   constructor(params: {
     role: MessageRole;
@@ -57,6 +68,10 @@ export class ChatMessage {
     mediaType?: string;
     blob?: Blob;
     quickReplies?: string[];
+    header?: string;
+    footer?: string;
+    buttons?: string[];
+    ctaButtons?: CTAButton[];
   }) {
     this.id = params.id;
     this.wiId = params.wiId;
@@ -72,6 +87,10 @@ export class ChatMessage {
     this.mediaType = params.mediaType;
     this.blob = params.blob;
     this.quickReplies = params.quickReplies ?? [];
+    this.header = params.header;
+    this.footer = params.footer;
+    this.buttons = params.buttons ?? [];
+    this.ctaButtons = params.ctaButtons ?? [];
   }
 
   static text(params: {
@@ -150,5 +169,33 @@ export class ChatMessage {
     quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'attachment' });
+  }
+
+  static buttons(params: {
+    role: MessageRole;
+    timestamp: Date;
+    buttons: string[];
+    id?: number;
+    wiId?: string;
+    status?: MessageStatus;
+    content?: string;
+    header?: string;
+    footer?: string;
+  }): ChatMessage {
+    return new ChatMessage({ ...params, type: 'buttons' });
+  }
+
+  static cta(params: {
+    role: MessageRole;
+    timestamp: Date;
+    ctaButtons: CTAButton[];
+    id?: number;
+    wiId?: string;
+    status?: MessageStatus;
+    content?: string;
+    header?: string;
+    footer?: string;
+  }): ChatMessage {
+    return new ChatMessage({ ...params, type: 'cta' });
   }
 }
