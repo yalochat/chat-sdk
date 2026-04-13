@@ -302,7 +302,7 @@ class AudioViewModelTest {
     fun `SubscribeToPlaybackCompletion clears playingMessage when playback ends`() = runTest(dispatcher) {
         val message = voiceMessage()
         val repo = FakeAudioRepository()
-        val vm = AudioViewModel(repo)
+        val vm = viewModel(repo)
 
         vm.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
         vm.handleEvent(AudioEvent.Play(message))
