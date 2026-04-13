@@ -9,6 +9,7 @@ import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message
 import 'package:chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
 import 'package:chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
@@ -119,6 +120,30 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
             );
             return null;
         }
+      case proto.SdkMessage_Payload.buttonsMessageRequest:
+        final content = item.message.buttonsMessageRequest.content;
+        return ChatMessage.buttons(
+          role: MessageRole.assistant,
+          timestamp: item.date.toDateTime(),
+          content: content.body,
+          header: content.hasHeader() ? content.header : null,
+          footer: content.hasFooter() ? content.footer : null,
+          buttons: content.buttons.toList(),
+          wiId: item.id,
+        );
+      case proto.SdkMessage_Payload.ctaMessageRequest:
+        final content = item.message.ctaMessageRequest.content;
+        return ChatMessage.cta(
+          role: MessageRole.assistant,
+          timestamp: item.date.toDateTime(),
+          content: content.body,
+          header: content.hasHeader() ? content.header : null,
+          footer: content.hasFooter() ? content.footer : null,
+          ctaButtons: content.buttons
+              .map((b) => CTAButton(text: b.text, url: b.url))
+              .toList(),
+          wiId: item.id,
+        );
       case _:
         throw UnimplementedError();
     }
@@ -303,6 +328,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       MessageType.promotion => null,
       MessageType.quickReply => null,
       MessageType.unknown => null,
+      MessageType.buttons => null,
+      MessageType.cta => null,
     };
 
     if (requestToSend == null) {

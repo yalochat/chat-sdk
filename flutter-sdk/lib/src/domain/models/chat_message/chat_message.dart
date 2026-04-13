@@ -3,6 +3,8 @@
 import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:equatable/equatable.dart';
 
+import 'cta_button.dart';
+
 enum MessageRole {
   user('USER'),
   assistant('AGENT');
@@ -21,6 +23,8 @@ enum MessageType {
   productCarousel('productCarousel'),
   promotion('promotion'),
   quickReply('quickReply'),
+  buttons('buttons'),
+  cta('cta'),
 
   unknown('unknown');
 
@@ -73,6 +77,18 @@ class ChatMessage extends Equatable {
 
   final List<String> quickReplies;
 
+  // Optional header text shown above the message content
+  final String? header;
+
+  // Optional footer text shown below the message content
+  final String? footer;
+
+  // Reply buttons rendered for buttons messages
+  final List<String> buttons;
+
+  // CTA buttons (text + URL) rendered for cta messages
+  final List<CTAButton> ctaButtons;
+
   const ChatMessage({
     this.id,
     this.wiId,
@@ -89,6 +105,10 @@ class ChatMessage extends Equatable {
     this.products = const [],
     this.expand = false,
     this.quickReplies = const [],
+    this.header,
+    this.footer,
+    this.buttons = const [],
+    this.ctaButtons = const [],
   });
 
   const ChatMessage.text({
@@ -106,7 +126,11 @@ class ChatMessage extends Equatable {
        byteCount = null,
        mediaType = null,
        products = const [],
-       expand = false;
+       expand = false,
+       header = null,
+       footer = null,
+       buttons = const [],
+       ctaButtons = const [];
 
   const ChatMessage.voice({
     this.id,
@@ -123,7 +147,11 @@ class ChatMessage extends Equatable {
   }) : type = MessageType.voice,
        products = const [],
        content = '',
-       expand = false;
+       expand = false,
+       header = null,
+       footer = null,
+       buttons = const [],
+       ctaButtons = const [];
 
   const ChatMessage.video({
     this.id,
@@ -140,7 +168,11 @@ class ChatMessage extends Equatable {
   }) : type = MessageType.video,
        amplitudes = null,
        products = const [],
-       expand = false;
+       expand = false,
+       header = null,
+       footer = null,
+       buttons = const [],
+       ctaButtons = const [];
 
   const ChatMessage.image({
     this.id,
@@ -157,7 +189,11 @@ class ChatMessage extends Equatable {
        amplitudes = null,
        duration = null,
        products = const [],
-       expand = false;
+       expand = false,
+       header = null,
+       footer = null,
+       buttons = const [],
+       ctaButtons = const [];
 
   const ChatMessage.product({
     this.id,
@@ -174,7 +210,11 @@ class ChatMessage extends Equatable {
        amplitudes = null,
        duration = null,
        byteCount = null,
-       mediaType = null;
+       mediaType = null,
+       header = null,
+       footer = null,
+       buttons = const [],
+       ctaButtons = const [];
 
   const ChatMessage.carousel({
     this.id,
@@ -191,7 +231,53 @@ class ChatMessage extends Equatable {
        amplitudes = null,
        duration = null,
        byteCount = null,
-       mediaType = null;
+       mediaType = null,
+       header = null,
+       footer = null,
+       buttons = const [],
+       ctaButtons = const [];
+
+  const ChatMessage.buttons({
+    this.id,
+    this.wiId,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    this.content = '',
+    this.header,
+    this.footer,
+    this.buttons = const [],
+  }) : type = MessageType.buttons,
+       fileName = null,
+       amplitudes = null,
+       duration = null,
+       byteCount = null,
+       mediaType = null,
+       products = const [],
+       expand = false,
+       quickReplies = const [],
+       ctaButtons = const [];
+
+  const ChatMessage.cta({
+    this.id,
+    this.wiId,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    this.content = '',
+    this.header,
+    this.footer,
+    this.ctaButtons = const [],
+  }) : type = MessageType.cta,
+       fileName = null,
+       amplitudes = null,
+       duration = null,
+       byteCount = null,
+       mediaType = null,
+       products = const [],
+       expand = false,
+       quickReplies = const [],
+       buttons = const [];
 
   // Creates a copy of a chat message
   ChatMessage copyWith({
@@ -210,6 +296,10 @@ class ChatMessage extends Equatable {
     bool? expand,
     List<String>? quickReplies,
     DateTime? timestamp,
+    String? header,
+    String? footer,
+    List<String>? buttons,
+    List<CTAButton>? ctaButtons,
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -227,6 +317,10 @@ class ChatMessage extends Equatable {
       expand: expand ?? this.expand,
       quickReplies: quickReplies ?? this.quickReplies,
       timestamp: timestamp ?? this.timestamp,
+      header: header ?? this.header,
+      footer: footer ?? this.footer,
+      buttons: buttons ?? this.buttons,
+      ctaButtons: ctaButtons ?? this.ctaButtons,
     );
   }
 
@@ -248,5 +342,9 @@ class ChatMessage extends Equatable {
     expand,
     quickReplies,
     timestamp,
+    header,
+    footer,
+    buttons,
+    ctaButtons,
   ];
 }
