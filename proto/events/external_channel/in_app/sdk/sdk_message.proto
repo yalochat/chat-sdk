@@ -515,8 +515,9 @@ enum SdkCommand {
 }
 
 // GetCommandsRequest is sent by the client to declare that it is ready to
-// receive the list of commands it is able to execute. The body is intentionally empty.
+// receive the list of commands it is able to execute.
 message GetCommandsRequest {
+  google.protobuf.Timestamp timestamp = 1;
 }
 
 // GetCommandsResponse declares which commands the SDK is able to execute,
