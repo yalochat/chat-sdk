@@ -795,15 +795,15 @@ func (m *SdkMessage_CtaMessageResponse) MarshalToSizedBufferVT(dAtA []byte) (int
 	}
 	return len(dAtA) - i, nil
 }
-func (m *SdkMessage_RegisterCommandsRequest) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SdkMessage_GetCommandsRequest) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SdkMessage_RegisterCommandsRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SdkMessage_GetCommandsRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
-	if m.RegisterCommandsRequest != nil {
-		size, err := m.RegisterCommandsRequest.MarshalToSizedBufferVT(dAtA[:i])
+	if m.GetCommandsRequest != nil {
+		size, err := m.GetCommandsRequest.MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -816,15 +816,15 @@ func (m *SdkMessage_RegisterCommandsRequest) MarshalToSizedBufferVT(dAtA []byte)
 	}
 	return len(dAtA) - i, nil
 }
-func (m *SdkMessage_MessageStatusRequest) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SdkMessage_GetCommandsResponse) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *SdkMessage_MessageStatusRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SdkMessage_GetCommandsResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	i := len(dAtA)
-	if m.MessageStatusRequest != nil {
-		size, err := m.MessageStatusRequest.MarshalToSizedBufferVT(dAtA[:i])
+	if m.GetCommandsResponse != nil {
+		size, err := m.GetCommandsResponse.MarshalToSizedBufferVT(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -834,27 +834,6 @@ func (m *SdkMessage_MessageStatusRequest) MarshalToSizedBufferVT(dAtA []byte) (i
 		dAtA[i] = 0x2
 		i--
 		dAtA[i] = 0xea
-	}
-	return len(dAtA) - i, nil
-}
-func (m *SdkMessage_MessageStatusResponse) MarshalToVT(dAtA []byte) (int, error) {
-	size := m.SizeVT()
-	return m.MarshalToSizedBufferVT(dAtA[:size])
-}
-
-func (m *SdkMessage_MessageStatusResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	if m.MessageStatusResponse != nil {
-		size, err := m.MessageStatusResponse.MarshalToSizedBufferVT(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarint(dAtA, i, uint64(size))
-		i--
-		dAtA[i] = 0x2
-		i--
-		dAtA[i] = 0xf2
 	}
 	return len(dAtA) - i, nil
 }
@@ -3899,7 +3878,7 @@ func (m *CTAMessageResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MessageStatusRequest) MarshalVT() (dAtA []byte, err error) {
+func (m *GetCommandsRequest) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -3912,12 +3891,12 @@ func (m *MessageStatusRequest) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MessageStatusRequest) MarshalToVT(dAtA []byte) (int, error) {
+func (m *GetCommandsRequest) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *MessageStatusRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *GetCommandsRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -3929,44 +3908,10 @@ func (m *MessageStatusRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) 
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
-	if m.Timestamp != nil {
-		if vtmsg, ok := interface{}(m.Timestamp).(interface {
-			MarshalToSizedBufferVT([]byte) (int, error)
-		}); ok {
-			size, err := vtmsg.MarshalToSizedBufferVT(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarint(dAtA, i, uint64(size))
-		} else {
-			encoded, err := proto.Marshal(m.Timestamp)
-			if err != nil {
-				return 0, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = encodeVarint(dAtA, i, uint64(len(encoded)))
-		}
-		i--
-		dAtA[i] = 0x1a
-	}
-	if m.Status != 0 {
-		i = encodeVarint(dAtA, i, uint64(m.Status))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.MessageId) > 0 {
-		i -= len(m.MessageId)
-		copy(dAtA[i:], m.MessageId)
-		i = encodeVarint(dAtA, i, uint64(len(m.MessageId)))
-		i--
-		dAtA[i] = 0xa
-	}
 	return len(dAtA) - i, nil
 }
 
-func (m *MessageStatusResponse) MarshalVT() (dAtA []byte, err error) {
+func (m *GetCommandsResponse) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -3979,72 +3924,12 @@ func (m *MessageStatusResponse) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MessageStatusResponse) MarshalToVT(dAtA []byte) (int, error) {
+func (m *GetCommandsResponse) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *MessageStatusResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
-	if m == nil {
-		return 0, nil
-	}
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.unknownFields != nil {
-		i -= len(m.unknownFields)
-		copy(dAtA[i:], m.unknownFields)
-	}
-	if m.Timestamp != nil {
-		if vtmsg, ok := interface{}(m.Timestamp).(interface {
-			MarshalToSizedBufferVT([]byte) (int, error)
-		}); ok {
-			size, err := vtmsg.MarshalToSizedBufferVT(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarint(dAtA, i, uint64(size))
-		} else {
-			encoded, err := proto.Marshal(m.Timestamp)
-			if err != nil {
-				return 0, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = encodeVarint(dAtA, i, uint64(len(encoded)))
-		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.Status != 0 {
-		i = encodeVarint(dAtA, i, uint64(m.Status))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *RegisterCommandsRequest) MarshalVT() (dAtA []byte, err error) {
-	if m == nil {
-		return nil, nil
-	}
-	size := m.SizeVT()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBufferVT(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *RegisterCommandsRequest) MarshalToVT(dAtA []byte) (int, error) {
-	size := m.SizeVT()
-	return m.MarshalToSizedBufferVT(dAtA[:size])
-}
-
-func (m *RegisterCommandsRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *GetCommandsResponse) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -4806,38 +4691,26 @@ func (m *SdkMessage_CtaMessageResponse) SizeVT() (n int) {
 	}
 	return n
 }
-func (m *SdkMessage_RegisterCommandsRequest) SizeVT() (n int) {
+func (m *SdkMessage_GetCommandsRequest) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.RegisterCommandsRequest != nil {
-		l = m.RegisterCommandsRequest.SizeVT()
+	if m.GetCommandsRequest != nil {
+		l = m.GetCommandsRequest.SizeVT()
 		n += 2 + l + sov(uint64(l))
 	}
 	return n
 }
-func (m *SdkMessage_MessageStatusRequest) SizeVT() (n int) {
+func (m *SdkMessage_GetCommandsResponse) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.MessageStatusRequest != nil {
-		l = m.MessageStatusRequest.SizeVT()
-		n += 2 + l + sov(uint64(l))
-	}
-	return n
-}
-func (m *SdkMessage_MessageStatusResponse) SizeVT() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.MessageStatusResponse != nil {
-		l = m.MessageStatusResponse.SizeVT()
+	if m.GetCommandsResponse != nil {
+		l = m.GetCommandsResponse.SizeVT()
 		n += 2 + l + sov(uint64(l))
 	}
 	return n
@@ -6089,57 +5962,17 @@ func (m *CTAMessageResponse) SizeVT() (n int) {
 	return n
 }
 
-func (m *MessageStatusRequest) SizeVT() (n int) {
+func (m *GetCommandsRequest) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.MessageId)
-	if l > 0 {
-		n += 1 + l + sov(uint64(l))
-	}
-	if m.Status != 0 {
-		n += 1 + sov(uint64(m.Status))
-	}
-	if m.Timestamp != nil {
-		if size, ok := interface{}(m.Timestamp).(interface {
-			SizeVT() int
-		}); ok {
-			l = size.SizeVT()
-		} else {
-			l = proto.Size(m.Timestamp)
-		}
-		n += 1 + l + sov(uint64(l))
-	}
 	n += len(m.unknownFields)
 	return n
 }
 
-func (m *MessageStatusResponse) SizeVT() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Status != 0 {
-		n += 1 + sov(uint64(m.Status))
-	}
-	if m.Timestamp != nil {
-		if size, ok := interface{}(m.Timestamp).(interface {
-			SizeVT() int
-		}); ok {
-			l = size.SizeVT()
-		} else {
-			l = proto.Size(m.Timestamp)
-		}
-		n += 1 + l + sov(uint64(l))
-	}
-	n += len(m.unknownFields)
-	return n
-}
-
-func (m *RegisterCommandsRequest) SizeVT() (n int) {
+func (m *GetCommandsResponse) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -7781,7 +7614,7 @@ func (m *SdkMessage) UnmarshalVT(dAtA []byte) error {
 			iNdEx = postIndex
 		case 44:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RegisterCommandsRequest", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GetCommandsRequest", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -7808,21 +7641,21 @@ func (m *SdkMessage) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if oneof, ok := m.Payload.(*SdkMessage_RegisterCommandsRequest); ok {
-				if err := oneof.RegisterCommandsRequest.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			if oneof, ok := m.Payload.(*SdkMessage_GetCommandsRequest); ok {
+				if err := oneof.GetCommandsRequest.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
 			} else {
-				v := &RegisterCommandsRequest{}
+				v := &GetCommandsRequest{}
 				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
-				m.Payload = &SdkMessage_RegisterCommandsRequest{RegisterCommandsRequest: v}
+				m.Payload = &SdkMessage_GetCommandsRequest{GetCommandsRequest: v}
 			}
 			iNdEx = postIndex
 		case 45:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MessageStatusRequest", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GetCommandsResponse", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -7849,57 +7682,16 @@ func (m *SdkMessage) UnmarshalVT(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if oneof, ok := m.Payload.(*SdkMessage_MessageStatusRequest); ok {
-				if err := oneof.MessageStatusRequest.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
+			if oneof, ok := m.Payload.(*SdkMessage_GetCommandsResponse); ok {
+				if err := oneof.GetCommandsResponse.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
 			} else {
-				v := &MessageStatusRequest{}
+				v := &GetCommandsResponse{}
 				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 					return err
 				}
-				m.Payload = &SdkMessage_MessageStatusRequest{MessageStatusRequest: v}
-			}
-			iNdEx = postIndex
-		case 46:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MessageStatusResponse", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if oneof, ok := m.Payload.(*SdkMessage_MessageStatusResponse); ok {
-				if err := oneof.MessageStatusResponse.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
-				}
-			} else {
-				v := &MessageStatusResponse{}
-				if err := v.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
-				}
-				m.Payload = &SdkMessage_MessageStatusResponse{MessageStatusResponse: v}
+				m.Payload = &SdkMessage_GetCommandsResponse{GetCommandsResponse: v}
 			}
 			iNdEx = postIndex
 		default:
@@ -14849,7 +14641,7 @@ func (m *CTAMessageResponse) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MessageStatusRequest) UnmarshalVT(dAtA []byte) error {
+func (m *GetCommandsRequest) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -14872,107 +14664,12 @@ func (m *MessageStatusRequest) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MessageStatusRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetCommandsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MessageStatusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetCommandsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MessageId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.MessageId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
-			}
-			m.Status = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Status |= MessageStatus(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Timestamp == nil {
-				m.Timestamp = &timestamppb.Timestamp{}
-			}
-			if unmarshal, ok := interface{}(m.Timestamp).(interface {
-				UnmarshalVT([]byte) error
-			}); ok {
-				if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
-				}
-			} else {
-				if err := proto.Unmarshal(dAtA[iNdEx:postIndex], m.Timestamp); err != nil {
-					return err
-				}
-			}
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
@@ -14995,7 +14692,7 @@ func (m *MessageStatusRequest) UnmarshalVT(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MessageStatusResponse) UnmarshalVT(dAtA []byte) error {
+func (m *GetCommandsResponse) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -15018,124 +14715,10 @@ func (m *MessageStatusResponse) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MessageStatusResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: GetCommandsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MessageStatusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
-			}
-			m.Status = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Status |= ResponseStatus(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Timestamp == nil {
-				m.Timestamp = &timestamppb.Timestamp{}
-			}
-			if unmarshal, ok := interface{}(m.Timestamp).(interface {
-				UnmarshalVT([]byte) error
-			}); ok {
-				if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
-				}
-			} else {
-				if err := proto.Unmarshal(dAtA[iNdEx:postIndex], m.Timestamp); err != nil {
-					return err
-				}
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skip(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLength
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.unknownFields = append(m.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *RegisterCommandsRequest) UnmarshalVT(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflow
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: RegisterCommandsRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RegisterCommandsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GetCommandsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

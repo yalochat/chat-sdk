@@ -932,41 +932,30 @@ public final class SdkMessageOuterClass {
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
-     * @return Whether the registerCommandsRequest field is set.
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     * @return Whether the getCommandsRequest field is set.
      */
-    boolean hasRegisterCommandsRequest();
+    boolean hasGetCommandsRequest();
     /**
      * <pre>
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
-     * @return The registerCommandsRequest.
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
+     * @return The getCommandsRequest.
      */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest getRegisterCommandsRequest();
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getGetCommandsRequest();
 
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
-     * @return Whether the messageStatusRequest field is set.
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     * @return Whether the getCommandsResponse field is set.
      */
-    boolean hasMessageStatusRequest();
+    boolean hasGetCommandsResponse();
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
-     * @return The messageStatusRequest.
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
+     * @return The getCommandsResponse.
      */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest getMessageStatusRequest();
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     * @return Whether the messageStatusResponse field is set.
-     */
-    boolean hasMessageStatusResponse();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     * @return The messageStatusResponse.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse getMessageStatusResponse();
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getGetCommandsResponse();
 
     public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessage.PayloadCase getPayloadCase();
   }
@@ -1026,9 +1015,8 @@ public final class SdkMessageOuterClass {
       BUTTONS_MESSAGE_RESPONSE(41),
       CTA_MESSAGE_REQUEST(42),
       CTA_MESSAGE_RESPONSE(43),
-      REGISTER_COMMANDS_REQUEST(44),
-      MESSAGE_STATUS_REQUEST(45),
-      MESSAGE_STATUS_RESPONSE(46),
+      GET_COMMANDS_REQUEST(44),
+      GET_COMMANDS_RESPONSE(45),
       PAYLOAD_NOT_SET(0);
       private final int value;
       private PayloadCase(int value) {
@@ -1078,9 +1066,8 @@ public final class SdkMessageOuterClass {
           case 41: return BUTTONS_MESSAGE_RESPONSE;
           case 42: return CTA_MESSAGE_REQUEST;
           case 43: return CTA_MESSAGE_RESPONSE;
-          case 44: return REGISTER_COMMANDS_REQUEST;
-          case 45: return MESSAGE_STATUS_REQUEST;
-          case 46: return MESSAGE_STATUS_RESPONSE;
+          case 44: return GET_COMMANDS_REQUEST;
+          case 45: return GET_COMMANDS_RESPONSE;
           case 0: return PAYLOAD_NOT_SET;
           default: return null;
         }
@@ -3066,16 +3053,16 @@ public final class SdkMessageOuterClass {
       }
     }
 
-    public static final int REGISTER_COMMANDS_REQUEST_FIELD_NUMBER = 44;
+    public static final int GET_COMMANDS_REQUEST_FIELD_NUMBER = 44;
     /**
      * <pre>
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
      */
     @java.lang.Override
-    public boolean hasRegisterCommandsRequest() {
+    public boolean hasGetCommandsRequest() {
       return payloadCase_ == 44;
     }
     /**
@@ -3083,24 +3070,24 @@ public final class SdkMessageOuterClass {
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
      */
     @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest getRegisterCommandsRequest() {
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getGetCommandsRequest() {
       if (payloadCase_ == 44) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest) payload_;
+         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest) payload_;
       }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.getDefaultInstance();
+      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.getDefaultInstance();
     }
     /**
      * <pre>
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setRegisterCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest value) {
+    private void setGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
       value.getClass();  // minimal bytecode null check
       payload_ = value;
       payloadCase_ = 44;
@@ -3110,14 +3097,14 @@ public final class SdkMessageOuterClass {
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeRegisterCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest value) {
+    private void mergeGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
       value.getClass();  // minimal bytecode null check
       if (payloadCase_ == 44 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest) payload_)
+          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest) payload_)
             .mergeFrom(value).buildPartial();
       } else {
         payload_ = value;
@@ -3129,51 +3116,51 @@ public final class SdkMessageOuterClass {
      * Client → channel
      * </pre>
      *
-     * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
      */
-    private void clearRegisterCommandsRequest() {
+    private void clearGetCommandsRequest() {
       if (payloadCase_ == 44) {
         payloadCase_ = 0;
         payload_ = null;
       }
     }
 
-    public static final int MESSAGE_STATUS_REQUEST_FIELD_NUMBER = 45;
+    public static final int GET_COMMANDS_RESPONSE_FIELD_NUMBER = 45;
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
      */
     @java.lang.Override
-    public boolean hasMessageStatusRequest() {
+    public boolean hasGetCommandsResponse() {
       return payloadCase_ == 45;
     }
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
      */
     @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest getMessageStatusRequest() {
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getGetCommandsResponse() {
       if (payloadCase_ == 45) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest) payload_;
+         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse) payload_;
       }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.getDefaultInstance();
+      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.getDefaultInstance();
     }
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setMessageStatusRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest value) {
+    private void setGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
       value.getClass();  // minimal bytecode null check
       payload_ = value;
       payloadCase_ = 45;
     }
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeMessageStatusRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest value) {
+    private void mergeGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
       value.getClass();  // minimal bytecode null check
       if (payloadCase_ == 45 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest) payload_)
+          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse) payload_)
             .mergeFrom(value).buildPartial();
       } else {
         payload_ = value;
@@ -3181,62 +3168,10 @@ public final class SdkMessageOuterClass {
       payloadCase_ = 45;
     }
     /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+     * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
      */
-    private void clearMessageStatusRequest() {
+    private void clearGetCommandsResponse() {
       if (payloadCase_ == 45) {
-        payloadCase_ = 0;
-        payload_ = null;
-      }
-    }
-
-    public static final int MESSAGE_STATUS_RESPONSE_FIELD_NUMBER = 46;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     */
-    @java.lang.Override
-    public boolean hasMessageStatusResponse() {
-      return payloadCase_ == 46;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse getMessageStatusResponse() {
-      if (payloadCase_ == 46) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse) payload_;
-      }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.getDefaultInstance();
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setMessageStatusResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse value) {
-      value.getClass();  // minimal bytecode null check
-      payload_ = value;
-      payloadCase_ = 46;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeMessageStatusResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse value) {
-      value.getClass();  // minimal bytecode null check
-      if (payloadCase_ == 46 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse) payload_)
-            .mergeFrom(value).buildPartial();
-      } else {
-        payload_ = value;
-      }
-      payloadCase_ = 46;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-     */
-    private void clearMessageStatusResponse() {
-      if (payloadCase_ == 46) {
         payloadCase_ = 0;
         payload_ = null;
       }
@@ -5206,33 +5141,33 @@ public final class SdkMessageOuterClass {
        * Client → channel
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
        */
       @java.lang.Override
-      public boolean hasRegisterCommandsRequest() {
-        return instance.hasRegisterCommandsRequest();
+      public boolean hasGetCommandsRequest() {
+        return instance.hasGetCommandsRequest();
       }
       /**
        * <pre>
        * Client → channel
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
        */
       @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest getRegisterCommandsRequest() {
-        return instance.getRegisterCommandsRequest();
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getGetCommandsRequest() {
+        return instance.getGetCommandsRequest();
       }
       /**
        * <pre>
        * Client → channel
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
        */
-      public Builder setRegisterCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest value) {
+      public Builder setGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
         copyOnWrite();
-        instance.setRegisterCommandsRequest(value);
+        instance.setGetCommandsRequest(value);
         return this;
       }
       /**
@@ -5240,12 +5175,12 @@ public final class SdkMessageOuterClass {
        * Client → channel
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
        */
-      public Builder setRegisterCommandsRequest(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.Builder builderForValue) {
+      public Builder setGetCommandsRequest(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.Builder builderForValue) {
         copyOnWrite();
-        instance.setRegisterCommandsRequest(builderForValue.build());
+        instance.setGetCommandsRequest(builderForValue.build());
         return this;
       }
       /**
@@ -5253,11 +5188,11 @@ public final class SdkMessageOuterClass {
        * Client → channel
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
        */
-      public Builder mergeRegisterCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest value) {
+      public Builder mergeGetCommandsRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest value) {
         copyOnWrite();
-        instance.mergeRegisterCommandsRequest(value);
+        instance.mergeGetCommandsRequest(value);
         return this;
       }
       /**
@@ -5265,107 +5200,59 @@ public final class SdkMessageOuterClass {
        * Client → channel
        * </pre>
        *
-       * <code>.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;</code>
        */
-      public Builder clearRegisterCommandsRequest() {
+      public Builder clearGetCommandsRequest() {
         copyOnWrite();
-        instance.clearRegisterCommandsRequest();
+        instance.clearGetCommandsRequest();
         return this;
       }
 
       /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
        */
       @java.lang.Override
-      public boolean hasMessageStatusRequest() {
-        return instance.hasMessageStatusRequest();
+      public boolean hasGetCommandsResponse() {
+        return instance.hasGetCommandsResponse();
       }
       /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
        */
       @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest getMessageStatusRequest() {
-        return instance.getMessageStatusRequest();
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getGetCommandsResponse() {
+        return instance.getGetCommandsResponse();
       }
       /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
        */
-      public Builder setMessageStatusRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest value) {
+      public Builder setGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
         copyOnWrite();
-        instance.setMessageStatusRequest(value);
+        instance.setGetCommandsResponse(value);
         return this;
       }
       /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
        */
-      public Builder setMessageStatusRequest(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.Builder builderForValue) {
+      public Builder setGetCommandsResponse(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.Builder builderForValue) {
         copyOnWrite();
-        instance.setMessageStatusRequest(builderForValue.build());
+        instance.setGetCommandsResponse(builderForValue.build());
         return this;
       }
       /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
        */
-      public Builder mergeMessageStatusRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest value) {
+      public Builder mergeGetCommandsResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse value) {
         copyOnWrite();
-        instance.mergeMessageStatusRequest(value);
+        instance.mergeGetCommandsResponse(value);
         return this;
       }
       /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;</code>
+       * <code>.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;</code>
        */
-      public Builder clearMessageStatusRequest() {
+      public Builder clearGetCommandsResponse() {
         copyOnWrite();
-        instance.clearMessageStatusRequest();
-        return this;
-      }
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-       */
-      @java.lang.Override
-      public boolean hasMessageStatusResponse() {
-        return instance.hasMessageStatusResponse();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse getMessageStatusResponse() {
-        return instance.getMessageStatusResponse();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-       */
-      public Builder setMessageStatusResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse value) {
-        copyOnWrite();
-        instance.setMessageStatusResponse(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-       */
-      public Builder setMessageStatusResponse(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.Builder builderForValue) {
-        copyOnWrite();
-        instance.setMessageStatusResponse(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-       */
-      public Builder mergeMessageStatusResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse value) {
-        copyOnWrite();
-        instance.mergeMessageStatusResponse(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;</code>
-       */
-      public Builder clearMessageStatusResponse() {
-        copyOnWrite();
-        instance.clearMessageStatusResponse();
+        instance.clearGetCommandsResponse();
         return this;
       }
 
@@ -5424,17 +5311,16 @@ public final class SdkMessageOuterClass {
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.class,
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.class,
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.class,
             };
             java.lang.String info =
-                "\u0000\'\u0001\u0001\u0001.\'\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<" +
-                "\u0000\u000b<\u0000\f<\u0000\r<\u0000\u000e<\u0000\u000f<\u0000\u0010<\u0000\u0011" +
-                "<\u0000\u0012<\u0000\u0013<\u0000\u0014<\u0000\u0015<\u0000\u0016<\u0000\u0017<\u0000" +
-                "\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c<\u0000\u001d<\u0000\u001e" +
-                "<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$<\u0000%<\u0000&<\u0000\'<" +
-                "\u0000(<\u0000)<\u0000*<\u0000+<\u0000,<\u0000-<\u0000.<\u0000";
+                "\u0000&\u0001\u0001\u0001-&\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<\u0000" +
+                "\u000b<\u0000\f<\u0000\r<\u0000\u000e<\u0000\u000f<\u0000\u0010<\u0000\u0011<\u0000" +
+                "\u0012<\u0000\u0013<\u0000\u0014<\u0000\u0015<\u0000\u0016<\u0000\u0017<\u0000\u0018" +
+                "<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c<\u0000\u001d<\u0000\u001e<\u0000" +
+                "\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$<\u0000%<\u0000&<\u0000\'<\u0000(" +
+                "<\u0000)<\u0000*<\u0000+<\u0000,<\u0000-<\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -31435,244 +31321,69 @@ public final class SdkMessageOuterClass {
     }
   }
 
-  public interface MessageStatusRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.MessageStatusRequest)
+  public interface GetCommandsRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
       com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>string message_id = 1;</code>
-     * @return The messageId.
-     */
-    java.lang.String getMessageId();
-    /**
-     * <code>string message_id = 1;</code>
-     * @return The bytes for messageId.
-     */
-    com.google.protobuf.ByteString
-        getMessageIdBytes();
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    int getStatusValue();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     * @return The status.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus getStatus();
-
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     * @return Whether the timestamp field is set.
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     * @return The timestamp.
-     */
-    com.google.protobuf.Timestamp getTimestamp();
   }
   /**
    * <pre>
-   * MessageStatusRequest informs the channel of a delivery status change for a
-   * message previously sent to the user (delivered, read, errored, etc.).
+   * GetCommandsRequest is sent by the client to declare that it is ready to
+   * receive the list of commands it is able to execute. The body is intentionally empty.
    * </pre>
    *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.MessageStatusRequest}
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsRequest}
    */
-  public  static final class MessageStatusRequest extends
+  public  static final class GetCommandsRequest extends
       com.google.protobuf.GeneratedMessageLite<
-          MessageStatusRequest, MessageStatusRequest.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.MessageStatusRequest)
-      MessageStatusRequestOrBuilder {
-    private MessageStatusRequest() {
-      messageId_ = "";
+          GetCommandsRequest, GetCommandsRequest.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+      GetCommandsRequestOrBuilder {
+    private GetCommandsRequest() {
     }
-    private int bitField0_;
-    public static final int MESSAGE_ID_FIELD_NUMBER = 1;
-    private java.lang.String messageId_;
-    /**
-     * <code>string message_id = 1;</code>
-     * @return The messageId.
-     */
-    @java.lang.Override
-    public java.lang.String getMessageId() {
-      return messageId_;
-    }
-    /**
-     * <code>string message_id = 1;</code>
-     * @return The bytes for messageId.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getMessageIdBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(messageId_);
-    }
-    /**
-     * <code>string message_id = 1;</code>
-     * @param value The messageId to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setMessageId(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      messageId_ = value;
-    }
-    /**
-     * <code>string message_id = 1;</code>
-     */
-    private void clearMessageId() {
-
-      messageId_ = getDefaultInstance().getMessageId();
-    }
-    /**
-     * <code>string message_id = 1;</code>
-     * @param value The bytes for messageId to set.
-     */
-    private void setMessageIdBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      messageId_ = value.toStringUtf8();
-
-    }
-
-    public static final int STATUS_FIELD_NUMBER = 2;
-    private int status_;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    @java.lang.Override
-    public int getStatusValue() {
-      return status_;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     * @return The status.
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus getStatus() {
-      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus.forNumber(status_);
-      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     * @param value The enum numeric value on the wire for status to set.
-     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-     */
-    private void setStatusValue(int value) {
-        status_ = value;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     * @param value The status to set.
-     */
-    private void setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus value) {
-      status_ = value.getNumber();
-
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-     */
-    private void clearStatus() {
-
-      status_ = 0;
-    }
-
-    public static final int TIMESTAMP_FIELD_NUMBER = 3;
-    private com.google.protobuf.Timestamp timestamp_;
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     */
-    @java.lang.Override
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     */
-    @java.lang.Override
-    public com.google.protobuf.Timestamp getTimestamp() {
-      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      timestamp_ = value;
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      if (timestamp_ != null &&
-          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
-        timestamp_ =
-          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
-      } else {
-        timestamp_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-     */
-    private void clearTimestamp() {
-      timestamp_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(byte[] data)
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(java.io.InputStream input)
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -31680,24 +31391,24 @@ public final class SdkMessageOuterClass {
           DEFAULT_INSTANCE, input, extensionRegistry);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseDelimitedFrom(java.io.InputStream input)
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseDelimitedFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -31708,173 +31419,30 @@ public final class SdkMessageOuterClass {
     public static Builder newBuilder() {
       return (Builder) DEFAULT_INSTANCE.createBuilder();
     }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest prototype) {
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest prototype) {
       return DEFAULT_INSTANCE.createBuilder(prototype);
     }
 
     /**
      * <pre>
-     * MessageStatusRequest informs the channel of a delivery status change for a
-     * message previously sent to the user (delivered, read, errored, etc.).
+     * GetCommandsRequest is sent by the client to declare that it is ready to
+     * receive the list of commands it is able to execute. The body is intentionally empty.
      * </pre>
      *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.MessageStatusRequest}
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsRequest}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.MessageStatusRequest)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequestOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.newBuilder()
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequestOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.newBuilder()
       private Builder() {
         super(DEFAULT_INSTANCE);
       }
 
 
-      /**
-       * <code>string message_id = 1;</code>
-       * @return The messageId.
-       */
-      @java.lang.Override
-      public java.lang.String getMessageId() {
-        return instance.getMessageId();
-      }
-      /**
-       * <code>string message_id = 1;</code>
-       * @return The bytes for messageId.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getMessageIdBytes() {
-        return instance.getMessageIdBytes();
-      }
-      /**
-       * <code>string message_id = 1;</code>
-       * @param value The messageId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setMessageId(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setMessageId(value);
-        return this;
-      }
-      /**
-       * <code>string message_id = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearMessageId() {
-        copyOnWrite();
-        instance.clearMessageId();
-        return this;
-      }
-      /**
-       * <code>string message_id = 1;</code>
-       * @param value The bytes for messageId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setMessageIdBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setMessageIdBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-       * @return The enum numeric value on the wire for status.
-       */
-      @java.lang.Override
-      public int getStatusValue() {
-        return instance.getStatusValue();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-       * @param value The status to set.
-       * @return This builder for chaining.
-       */
-      public Builder setStatusValue(int value) {
-        copyOnWrite();
-        instance.setStatusValue(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-       * @return The status.
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus getStatus() {
-        return instance.getStatus();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-       * @param value The enum numeric value on the wire for status to set.
-       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-       * @return This builder for chaining.
-       */
-      public Builder setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatus value) {
-        copyOnWrite();
-        instance.setStatus(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.MessageStatus status = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearStatus() {
-        copyOnWrite();
-        instance.clearStatus();
-        return this;
-      }
-
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-       */
-      @java.lang.Override
-      public boolean hasTimestamp() {
-        return instance.hasTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-       */
-      @java.lang.Override
-      public com.google.protobuf.Timestamp getTimestamp() {
-        return instance.getTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-       */
-      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.setTimestamp(value);
-        return this;
-        }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-       */
-      public Builder setTimestamp(
-          com.google.protobuf.Timestamp.Builder builderForValue) {
-        copyOnWrite();
-        instance.setTimestamp(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-       */
-      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.mergeTimestamp(value);
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
-       */
-      public Builder clearTimestamp() {  copyOnWrite();
-        instance.clearTimestamp();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.MessageStatusRequest)
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
     }
     @java.lang.Override
     @java.lang.SuppressWarnings({"ThrowNull"})
@@ -31883,34 +31451,28 @@ public final class SdkMessageOuterClass {
         java.lang.Object arg0, java.lang.Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest();
+          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest();
         }
         case NEW_BUILDER: {
           return new Builder();
         }
         case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
-              "messageId_",
-              "status_",
-              "timestamp_",
-            };
+            java.lang.Object[] objects = null;
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u0208\u0002\f" +
-                "\u0003\u1009\u0000";
+                "\u0000\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest> parser = PARSER;
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest> parser = PARSER;
           if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest.class) {
+            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.class) {
               parser = PARSER;
               if (parser == null) {
                 parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest>(
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest>(
                         DEFAULT_INSTANCE);
                 PARSER = parser;
               }
@@ -31930,434 +31492,30 @@ public final class SdkMessageOuterClass {
     }
 
 
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.MessageStatusRequest)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
+    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest DEFAULT_INSTANCE;
     static {
-      MessageStatusRequest defaultInstance = new MessageStatusRequest();
+      GetCommandsRequest defaultInstance = new GetCommandsRequest();
       // New instances are implicitly immutable so no need to make
       // immutable.
       DEFAULT_INSTANCE = defaultInstance;
       com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        MessageStatusRequest.class, defaultInstance);
+        GetCommandsRequest.class, defaultInstance);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest getDefaultInstance() {
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static volatile com.google.protobuf.Parser<MessageStatusRequest> PARSER;
+    private static volatile com.google.protobuf.Parser<GetCommandsRequest> PARSER;
 
-    public static com.google.protobuf.Parser<MessageStatusRequest> parser() {
+    public static com.google.protobuf.Parser<GetCommandsRequest> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
 
-  public interface MessageStatusResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.MessageStatusResponse)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    int getStatusValue();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The status.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus();
-
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return Whether the timestamp field is set.
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return The timestamp.
-     */
-    com.google.protobuf.Timestamp getTimestamp();
-  }
-  /**
-   * <pre>
-   * MessageStatusResponse acknowledges a MessageStatusRequest.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.MessageStatusResponse}
-   */
-  public  static final class MessageStatusResponse extends
-      com.google.protobuf.GeneratedMessageLite<
-          MessageStatusResponse, MessageStatusResponse.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.MessageStatusResponse)
-      MessageStatusResponseOrBuilder {
-    private MessageStatusResponse() {
-    }
-    private int bitField0_;
-    public static final int STATUS_FIELD_NUMBER = 1;
-    private int status_;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    @java.lang.Override
-    public int getStatusValue() {
-      return status_;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The status.
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus() {
-      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus.forNumber(status_);
-      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @param value The enum numeric value on the wire for status to set.
-     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-     */
-    private void setStatusValue(int value) {
-        status_ = value;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @param value The status to set.
-     */
-    private void setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus value) {
-      status_ = value.getNumber();
-
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     */
-    private void clearStatus() {
-
-      status_ = 0;
-    }
-
-    public static final int TIMESTAMP_FIELD_NUMBER = 2;
-    private com.google.protobuf.Timestamp timestamp_;
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public com.google.protobuf.Timestamp getTimestamp() {
-      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      timestamp_ = value;
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      if (timestamp_ != null &&
-          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
-        timestamp_ =
-          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
-      } else {
-        timestamp_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    private void clearTimestamp() {
-      timestamp_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * MessageStatusResponse acknowledges a MessageStatusRequest.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.MessageStatusResponse}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.MessageStatusResponse)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponseOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return The enum numeric value on the wire for status.
-       */
-      @java.lang.Override
-      public int getStatusValue() {
-        return instance.getStatusValue();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @param value The status to set.
-       * @return This builder for chaining.
-       */
-      public Builder setStatusValue(int value) {
-        copyOnWrite();
-        instance.setStatusValue(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return The status.
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus() {
-        return instance.getStatus();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @param value The enum numeric value on the wire for status to set.
-       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-       * @return This builder for chaining.
-       */
-      public Builder setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus value) {
-        copyOnWrite();
-        instance.setStatus(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearStatus() {
-        copyOnWrite();
-        instance.clearStatus();
-        return this;
-      }
-
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public boolean hasTimestamp() {
-        return instance.hasTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public com.google.protobuf.Timestamp getTimestamp() {
-        return instance.getTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.setTimestamp(value);
-        return this;
-        }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(
-          com.google.protobuf.Timestamp.Builder builderForValue) {
-        copyOnWrite();
-        instance.setTimestamp(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.mergeTimestamp(value);
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder clearTimestamp() {  copyOnWrite();
-        instance.clearTimestamp();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.MessageStatusResponse)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
-              "status_",
-              "timestamp_",
-            };
-            java.lang.String info =
-                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0000\u0000\u0001\f\u0002\u1009" +
-                "\u0000";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.MessageStatusResponse)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse DEFAULT_INSTANCE;
-    static {
-      MessageStatusResponse defaultInstance = new MessageStatusResponse();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        MessageStatusResponse.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<MessageStatusResponse> PARSER;
-
-    public static com.google.protobuf.Parser<MessageStatusResponse> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface RegisterCommandsRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest)
+  public interface GetCommandsResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
       com.google.protobuf.MessageLiteOrBuilder {
 
     /**
@@ -32402,18 +31560,18 @@ public final class SdkMessageOuterClass {
   }
   /**
    * <pre>
-   * RegisterCommandsRequest declares which commands the SDK is able to execute,
+   * GetCommandsResponse declares which commands the SDK is able to execute,
    * so the channel can decide which ones it may dispatch back to the client.
    * </pre>
    *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest}
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsResponse}
    */
-  public  static final class RegisterCommandsRequest extends
+  public  static final class GetCommandsResponse extends
       com.google.protobuf.GeneratedMessageLite<
-          RegisterCommandsRequest, RegisterCommandsRequest.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest)
-      RegisterCommandsRequestOrBuilder {
-    private RegisterCommandsRequest() {
+          GetCommandsResponse, GetCommandsResponse.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+      GetCommandsResponseOrBuilder {
+    private GetCommandsResponse() {
       commands_ = emptyIntList();
     }
     private int bitField0_;
@@ -32601,50 +31759,50 @@ public final class SdkMessageOuterClass {
       bitField0_ = (bitField0_ & ~0x00000001);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(byte[] data)
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, data, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(java.io.InputStream input)
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -32652,24 +31810,24 @@ public final class SdkMessageOuterClass {
           DEFAULT_INSTANCE, input, extensionRegistry);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseDelimitedFrom(java.io.InputStream input)
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseDelimitedFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageLite.parseFrom(
           DEFAULT_INSTANCE, input);
     }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest parseFrom(
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -32680,24 +31838,24 @@ public final class SdkMessageOuterClass {
     public static Builder newBuilder() {
       return (Builder) DEFAULT_INSTANCE.createBuilder();
     }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest prototype) {
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse prototype) {
       return DEFAULT_INSTANCE.createBuilder(prototype);
     }
 
     /**
      * <pre>
-     * RegisterCommandsRequest declares which commands the SDK is able to execute,
+     * GetCommandsResponse declares which commands the SDK is able to execute,
      * so the channel can decide which ones it may dispatch back to the client.
      * </pre>
      *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest}
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsResponse}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequestOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.newBuilder()
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponseOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.newBuilder()
       private Builder() {
         super(DEFAULT_INSTANCE);
       }
@@ -32871,7 +32029,7 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest)
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
     }
     @java.lang.Override
     @java.lang.SuppressWarnings({"ThrowNull"})
@@ -32880,7 +32038,7 @@ public final class SdkMessageOuterClass {
         java.lang.Object arg0, java.lang.Object arg1) {
       switch (method) {
         case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest();
+          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse();
         }
         case NEW_BUILDER: {
           return new Builder();
@@ -32900,13 +32058,13 @@ public final class SdkMessageOuterClass {
           return DEFAULT_INSTANCE;
         }
         case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest> parser = PARSER;
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse> parser = PARSER;
           if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest.class) {
+            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.class) {
               parser = PARSER;
               if (parser == null) {
                 parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest>(
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse>(
                         DEFAULT_INSTANCE);
                 PARSER = parser;
               }
@@ -32926,24 +32084,24 @@ public final class SdkMessageOuterClass {
     }
 
 
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsResponse)
+    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse DEFAULT_INSTANCE;
     static {
-      RegisterCommandsRequest defaultInstance = new RegisterCommandsRequest();
+      GetCommandsResponse defaultInstance = new GetCommandsResponse();
       // New instances are implicitly immutable so no need to make
       // immutable.
       DEFAULT_INSTANCE = defaultInstance;
       com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        RegisterCommandsRequest.class, defaultInstance);
+        GetCommandsResponse.class, defaultInstance);
     }
 
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest getDefaultInstance() {
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static volatile com.google.protobuf.Parser<RegisterCommandsRequest> PARSER;
+    private static volatile com.google.protobuf.Parser<GetCommandsResponse> PARSER;
 
-    public static com.google.protobuf.Parser<RegisterCommandsRequest> parser() {
+    public static com.google.protobuf.Parser<GetCommandsResponse> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }

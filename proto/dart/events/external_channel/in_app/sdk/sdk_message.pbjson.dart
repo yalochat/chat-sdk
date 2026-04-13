@@ -406,31 +406,22 @@ const SdkMessage$json = {
       '10': 'ctaMessageResponse'
     },
     {
-      '1': 'register_commands_request',
+      '1': 'get_commands_request',
       '3': 44,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest',
       '9': 0,
-      '10': 'registerCommandsRequest'
+      '10': 'getCommandsRequest'
     },
     {
-      '1': 'message_status_request',
+      '1': 'get_commands_response',
       '3': 45,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse',
       '9': 0,
-      '10': 'messageStatusRequest'
-    },
-    {
-      '1': 'message_status_response',
-      '3': 46,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse',
-      '9': 0,
-      '10': 'messageStatusResponse'
+      '10': 'getCommandsResponse'
     },
   ],
   '8': [
@@ -512,14 +503,11 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'Vzc2FnZV9yZXF1ZXN0GCogASgLMjYueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
     'djEuQ1RBTWVzc2FnZVJlcXVlc3RIAFIRY3RhTWVzc2FnZVJlcXVlc3QSawoUY3RhX21lc3NhZ2'
     'VfcmVzcG9uc2UYKyABKAsyNy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5D'
-    'VEFNZXNzYWdlUmVzcG9uc2VIAFISY3RhTWVzc2FnZVJlc3BvbnNlEnoKGXJlZ2lzdGVyX2NvbW'
-    '1hbmRzX3JlcXVlc3QYLCABKAsyPC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52'
-    'MS5SZWdpc3RlckNvbW1hbmRzUmVxdWVzdEgAUhdyZWdpc3RlckNvbW1hbmRzUmVxdWVzdBJxCh'
-    'ZtZXNzYWdlX3N0YXR1c19yZXF1ZXN0GC0gASgLMjkueWFsby5leHRlcm5hbF9jaGFubmVsLmlu'
-    'X2FwcC5zZGsudjEuTWVzc2FnZVN0YXR1c1JlcXVlc3RIAFIUbWVzc2FnZVN0YXR1c1JlcXVlc3'
-    'QSdAoXbWVzc2FnZV9zdGF0dXNfcmVzcG9uc2UYLiABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5u'
-    'ZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUmVzcG9uc2VIAFIVbWVzc2FnZVN0YXR1c1'
-    'Jlc3BvbnNlQgkKB3BheWxvYWQ=');
+    'VEFNZXNzYWdlUmVzcG9uc2VIAFISY3RhTWVzc2FnZVJlc3BvbnNlEmsKFGdldF9jb21tYW5kc1'
+    '9yZXF1ZXN0GCwgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuR2V0'
+    'Q29tbWFuZHNSZXF1ZXN0SABSEmdldENvbW1hbmRzUmVxdWVzdBJuChVnZXRfY29tbWFuZHNfcm'
+    'VzcG9uc2UYLSABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5HZXRD'
+    'b21tYW5kc1Jlc3BvbnNlSABSE2dldENvbW1hbmRzUmVzcG9uc2VCCQoHcGF5bG9hZA==');
 
 @$core.Deprecated('Use textMessageDescriptor instead')
 const TextMessage$json = {
@@ -1877,69 +1865,18 @@ final $typed_data.Uint8List cTAMessageResponseDescriptor = $convert.base64Decode
     'AiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXASHQoKbWVzc2FnZV'
     '9pZBgDIAEoCVIJbWVzc2FnZUlk');
 
-@$core.Deprecated('Use messageStatusRequestDescriptor instead')
-const MessageStatusRequest$json = {
-  '1': 'MessageStatusRequest',
-  '2': [
-    {'1': 'message_id', '3': 1, '4': 1, '5': 9, '10': 'messageId'},
-    {
-      '1': 'status',
-      '3': 2,
-      '4': 1,
-      '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'timestamp',
-      '3': 3,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Timestamp',
-      '10': 'timestamp'
-    },
-  ],
+@$core.Deprecated('Use getCommandsRequestDescriptor instead')
+const GetCommandsRequest$json = {
+  '1': 'GetCommandsRequest',
 };
 
-/// Descriptor for `MessageStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageStatusRequestDescriptor = $convert.base64Decode(
-    'ChRNZXNzYWdlU3RhdHVzUmVxdWVzdBIdCgptZXNzYWdlX2lkGAEgASgJUgltZXNzYWdlSWQSSg'
-    'oGc3RhdHVzGAIgASgOMjIueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuTWVz'
-    'c2FnZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi'
-    '5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
+/// Descriptor for `GetCommandsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getCommandsRequestDescriptor =
+    $convert.base64Decode('ChJHZXRDb21tYW5kc1JlcXVlc3Q=');
 
-@$core.Deprecated('Use messageStatusResponseDescriptor instead')
-const MessageStatusResponse$json = {
-  '1': 'MessageStatusResponse',
-  '2': [
-    {
-      '1': 'status',
-      '3': 1,
-      '4': 1,
-      '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'timestamp',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Timestamp',
-      '10': 'timestamp'
-    },
-  ],
-};
-
-/// Descriptor for `MessageStatusResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List messageStatusResponseDescriptor = $convert.base64Decode(
-    'ChVNZXNzYWdlU3RhdHVzUmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm5hbF'
-    '9jaGFubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3Rh'
-    'bXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
-
-@$core.Deprecated('Use registerCommandsRequestDescriptor instead')
-const RegisterCommandsRequest$json = {
-  '1': 'RegisterCommandsRequest',
+@$core.Deprecated('Use getCommandsResponseDescriptor instead')
+const GetCommandsResponse$json = {
+  '1': 'GetCommandsResponse',
   '2': [
     {
       '1': 'commands',
@@ -1960,11 +1897,11 @@ const RegisterCommandsRequest$json = {
   ],
 };
 
-/// Descriptor for `RegisterCommandsRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List registerCommandsRequestDescriptor = $convert.base64Decode(
-    'ChdSZWdpc3RlckNvbW1hbmRzUmVxdWVzdBJLCghjb21tYW5kcxgBIAMoDjIvLnlhbG8uZXh0ZX'
-    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlNka0NvbW1hbmRSCGNvbW1hbmRzEjgKCXRpbWVz'
-    'dGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
+/// Descriptor for `GetCommandsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getCommandsResponseDescriptor = $convert.base64Decode(
+    'ChNHZXRDb21tYW5kc1Jlc3BvbnNlEksKCGNvbW1hbmRzGAEgAygOMi8ueWFsby5leHRlcm5hbF'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjEuU2RrQ29tbWFuZFIIY29tbWFuZHMSOAoJdGltZXN0YW1w'
+    'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use authRequestDescriptor instead')
 const AuthRequest$json = {

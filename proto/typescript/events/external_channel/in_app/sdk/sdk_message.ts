@@ -313,9 +313,8 @@ export interface SdkMessage {
     | CTAMessageResponse
     | undefined;
   /** Client → channel */
-  registerCommandsRequest?: RegisterCommandsRequest | undefined;
-  messageStatusRequest?: MessageStatusRequest | undefined;
-  messageStatusResponse?: MessageStatusResponse | undefined;
+  getCommandsRequest?: GetCommandsRequest | undefined;
+  getCommandsResponse?: GetCommandsResponse | undefined;
 }
 
 /** TextMessage holds the payload of a plain-text conversation turn. */
@@ -716,26 +715,17 @@ export interface CTAMessageResponse {
 }
 
 /**
- * MessageStatusRequest informs the channel of a delivery status change for a
- * message previously sent to the user (delivered, read, errored, etc.).
+ * GetCommandsRequest is sent by the client to declare that it is ready to
+ * receive the list of commands it is able to execute. The body is intentionally empty.
  */
-export interface MessageStatusRequest {
-  messageId: string;
-  status: MessageStatus;
-  timestamp: Date | undefined;
-}
-
-/** MessageStatusResponse acknowledges a MessageStatusRequest. */
-export interface MessageStatusResponse {
-  status: ResponseStatus;
-  timestamp: Date | undefined;
+export interface GetCommandsRequest {
 }
 
 /**
- * RegisterCommandsRequest declares which commands the SDK is able to execute,
+ * GetCommandsResponse declares which commands the SDK is able to execute,
  * so the channel can decide which ones it may dispatch back to the client.
  */
-export interface RegisterCommandsRequest {
+export interface GetCommandsResponse {
   commands: SdkCommand[];
   timestamp: Date | undefined;
 }
@@ -827,9 +817,8 @@ function createBaseSdkMessage(): SdkMessage {
     buttonsMessageResponse: undefined,
     ctaMessageRequest: undefined,
     ctaMessageResponse: undefined,
-    registerCommandsRequest: undefined,
-    messageStatusRequest: undefined,
-    messageStatusResponse: undefined,
+    getCommandsRequest: undefined,
+    getCommandsResponse: undefined,
   };
 }
 
@@ -943,14 +932,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.ctaMessageResponse !== undefined) {
       CTAMessageResponse.encode(message.ctaMessageResponse, writer.uint32(346).fork()).join();
     }
-    if (message.registerCommandsRequest !== undefined) {
-      RegisterCommandsRequest.encode(message.registerCommandsRequest, writer.uint32(354).fork()).join();
+    if (message.getCommandsRequest !== undefined) {
+      GetCommandsRequest.encode(message.getCommandsRequest, writer.uint32(354).fork()).join();
     }
-    if (message.messageStatusRequest !== undefined) {
-      MessageStatusRequest.encode(message.messageStatusRequest, writer.uint32(362).fork()).join();
-    }
-    if (message.messageStatusResponse !== undefined) {
-      MessageStatusResponse.encode(message.messageStatusResponse, writer.uint32(370).fork()).join();
+    if (message.getCommandsResponse !== undefined) {
+      GetCommandsResponse.encode(message.getCommandsResponse, writer.uint32(362).fork()).join();
     }
     return writer;
   },
@@ -1255,7 +1241,7 @@ export const SdkMessage: MessageFns<SdkMessage> = {
             break;
           }
 
-          message.registerCommandsRequest = RegisterCommandsRequest.decode(reader, reader.uint32());
+          message.getCommandsRequest = GetCommandsRequest.decode(reader, reader.uint32());
           continue;
         }
         case 45: {
@@ -1263,15 +1249,7 @@ export const SdkMessage: MessageFns<SdkMessage> = {
             break;
           }
 
-          message.messageStatusRequest = MessageStatusRequest.decode(reader, reader.uint32());
-          continue;
-        }
-        case 46: {
-          if (tag !== 370) {
-            break;
-          }
-
-          message.messageStatusResponse = MessageStatusResponse.decode(reader, reader.uint32());
+          message.getCommandsResponse = GetCommandsResponse.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1461,20 +1439,15 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.cta_message_response)
         ? CTAMessageResponse.fromJSON(object.cta_message_response)
         : undefined,
-      registerCommandsRequest: isSet(object.registerCommandsRequest)
-        ? RegisterCommandsRequest.fromJSON(object.registerCommandsRequest)
-        : isSet(object.register_commands_request)
-        ? RegisterCommandsRequest.fromJSON(object.register_commands_request)
+      getCommandsRequest: isSet(object.getCommandsRequest)
+        ? GetCommandsRequest.fromJSON(object.getCommandsRequest)
+        : isSet(object.get_commands_request)
+        ? GetCommandsRequest.fromJSON(object.get_commands_request)
         : undefined,
-      messageStatusRequest: isSet(object.messageStatusRequest)
-        ? MessageStatusRequest.fromJSON(object.messageStatusRequest)
-        : isSet(object.message_status_request)
-        ? MessageStatusRequest.fromJSON(object.message_status_request)
-        : undefined,
-      messageStatusResponse: isSet(object.messageStatusResponse)
-        ? MessageStatusResponse.fromJSON(object.messageStatusResponse)
-        : isSet(object.message_status_response)
-        ? MessageStatusResponse.fromJSON(object.message_status_response)
+      getCommandsResponse: isSet(object.getCommandsResponse)
+        ? GetCommandsResponse.fromJSON(object.getCommandsResponse)
+        : isSet(object.get_commands_response)
+        ? GetCommandsResponse.fromJSON(object.get_commands_response)
         : undefined,
     };
   },
@@ -1589,14 +1562,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.ctaMessageResponse !== undefined) {
       obj.ctaMessageResponse = CTAMessageResponse.toJSON(message.ctaMessageResponse);
     }
-    if (message.registerCommandsRequest !== undefined) {
-      obj.registerCommandsRequest = RegisterCommandsRequest.toJSON(message.registerCommandsRequest);
+    if (message.getCommandsRequest !== undefined) {
+      obj.getCommandsRequest = GetCommandsRequest.toJSON(message.getCommandsRequest);
     }
-    if (message.messageStatusRequest !== undefined) {
-      obj.messageStatusRequest = MessageStatusRequest.toJSON(message.messageStatusRequest);
-    }
-    if (message.messageStatusResponse !== undefined) {
-      obj.messageStatusResponse = MessageStatusResponse.toJSON(message.messageStatusResponse);
+    if (message.getCommandsResponse !== undefined) {
+      obj.getCommandsResponse = GetCommandsResponse.toJSON(message.getCommandsResponse);
     }
     return obj;
   },
@@ -1724,17 +1694,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.ctaMessageResponse = (object.ctaMessageResponse !== undefined && object.ctaMessageResponse !== null)
       ? CTAMessageResponse.fromPartial(object.ctaMessageResponse)
       : undefined;
-    message.registerCommandsRequest =
-      (object.registerCommandsRequest !== undefined && object.registerCommandsRequest !== null)
-        ? RegisterCommandsRequest.fromPartial(object.registerCommandsRequest)
-        : undefined;
-    message.messageStatusRequest = (object.messageStatusRequest !== undefined && object.messageStatusRequest !== null)
-      ? MessageStatusRequest.fromPartial(object.messageStatusRequest)
+    message.getCommandsRequest = (object.getCommandsRequest !== undefined && object.getCommandsRequest !== null)
+      ? GetCommandsRequest.fromPartial(object.getCommandsRequest)
       : undefined;
-    message.messageStatusResponse =
-      (object.messageStatusResponse !== undefined && object.messageStatusResponse !== null)
-        ? MessageStatusResponse.fromPartial(object.messageStatusResponse)
-        : undefined;
+    message.getCommandsResponse = (object.getCommandsResponse !== undefined && object.getCommandsResponse !== null)
+      ? GetCommandsResponse.fromPartial(object.getCommandsResponse)
+      : undefined;
     return message;
   },
 };
@@ -6316,55 +6281,22 @@ export const CTAMessageResponse: MessageFns<CTAMessageResponse> = {
   },
 };
 
-function createBaseMessageStatusRequest(): MessageStatusRequest {
-  return { messageId: "", status: 0, timestamp: undefined };
+function createBaseGetCommandsRequest(): GetCommandsRequest {
+  return {};
 }
 
-export const MessageStatusRequest: MessageFns<MessageStatusRequest> = {
-  encode(message: MessageStatusRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.messageId !== "") {
-      writer.uint32(10).string(message.messageId);
-    }
-    if (message.status !== 0) {
-      writer.uint32(16).int32(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
-    }
+export const GetCommandsRequest: MessageFns<GetCommandsRequest> = {
+  encode(_: GetCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): MessageStatusRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCommandsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMessageStatusRequest();
+    const message = createBaseGetCommandsRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.messageId = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -6374,126 +6306,30 @@ export const MessageStatusRequest: MessageFns<MessageStatusRequest> = {
     return message;
   },
 
-  fromJSON(object: any): MessageStatusRequest {
-    return {
-      messageId: isSet(object.messageId)
-        ? globalThis.String(object.messageId)
-        : isSet(object.message_id)
-        ? globalThis.String(object.message_id)
-        : "",
-      status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-    };
+  fromJSON(_: any): GetCommandsRequest {
+    return {};
   },
 
-  toJSON(message: MessageStatusRequest): unknown {
+  toJSON(_: GetCommandsRequest): unknown {
     const obj: any = {};
-    if (message.messageId !== "") {
-      obj.messageId = message.messageId;
-    }
-    if (message.status !== 0) {
-      obj.status = messageStatusToJSON(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MessageStatusRequest>, I>>(base?: I): MessageStatusRequest {
-    return MessageStatusRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(base?: I): GetCommandsRequest {
+    return GetCommandsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MessageStatusRequest>, I>>(object: I): MessageStatusRequest {
-    const message = createBaseMessageStatusRequest();
-    message.messageId = object.messageId ?? "";
-    message.status = object.status ?? 0;
-    message.timestamp = object.timestamp ?? undefined;
+  fromPartial<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(_: I): GetCommandsRequest {
+    const message = createBaseGetCommandsRequest();
     return message;
   },
 };
 
-function createBaseMessageStatusResponse(): MessageStatusResponse {
-  return { status: 0, timestamp: undefined };
-}
-
-export const MessageStatusResponse: MessageFns<MessageStatusResponse> = {
-  encode(message: MessageStatusResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): MessageStatusResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseMessageStatusResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): MessageStatusResponse {
-    return {
-      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-    };
-  },
-
-  toJSON(message: MessageStatusResponse): unknown {
-    const obj: any = {};
-    if (message.status !== 0) {
-      obj.status = responseStatusToJSON(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<MessageStatusResponse>, I>>(base?: I): MessageStatusResponse {
-    return MessageStatusResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<MessageStatusResponse>, I>>(object: I): MessageStatusResponse {
-    const message = createBaseMessageStatusResponse();
-    message.status = object.status ?? 0;
-    message.timestamp = object.timestamp ?? undefined;
-    return message;
-  },
-};
-
-function createBaseRegisterCommandsRequest(): RegisterCommandsRequest {
+function createBaseGetCommandsResponse(): GetCommandsResponse {
   return { commands: [], timestamp: undefined };
 }
 
-export const RegisterCommandsRequest: MessageFns<RegisterCommandsRequest> = {
-  encode(message: RegisterCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetCommandsResponse: MessageFns<GetCommandsResponse> = {
+  encode(message: GetCommandsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     writer.uint32(10).fork();
     for (const v of message.commands) {
       writer.int32(v);
@@ -6505,10 +6341,10 @@ export const RegisterCommandsRequest: MessageFns<RegisterCommandsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RegisterCommandsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCommandsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseRegisterCommandsRequest();
+    const message = createBaseGetCommandsResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -6547,7 +6383,7 @@ export const RegisterCommandsRequest: MessageFns<RegisterCommandsRequest> = {
     return message;
   },
 
-  fromJSON(object: any): RegisterCommandsRequest {
+  fromJSON(object: any): GetCommandsResponse {
     return {
       commands: globalThis.Array.isArray(object?.commands)
         ? object.commands.map((e: any) => sdkCommandFromJSON(e))
@@ -6556,7 +6392,7 @@ export const RegisterCommandsRequest: MessageFns<RegisterCommandsRequest> = {
     };
   },
 
-  toJSON(message: RegisterCommandsRequest): unknown {
+  toJSON(message: GetCommandsResponse): unknown {
     const obj: any = {};
     if (message.commands?.length) {
       obj.commands = message.commands.map((e) => sdkCommandToJSON(e));
@@ -6567,11 +6403,11 @@ export const RegisterCommandsRequest: MessageFns<RegisterCommandsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RegisterCommandsRequest>, I>>(base?: I): RegisterCommandsRequest {
-    return RegisterCommandsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetCommandsResponse>, I>>(base?: I): GetCommandsResponse {
+    return GetCommandsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RegisterCommandsRequest>, I>>(object: I): RegisterCommandsRequest {
-    const message = createBaseRegisterCommandsRequest();
+  fromPartial<I extends Exact<DeepPartial<GetCommandsResponse>, I>>(object: I): GetCommandsResponse {
+    const message = createBaseGetCommandsResponse();
     message.commands = object.commands?.map((e) => e) || [];
     message.timestamp = object.timestamp ?? undefined;
     return message;

@@ -956,83 +956,59 @@ public object SdkMessageKt {
      * Client → channel
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;`
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;`
      */
-    public var registerCommandsRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest
-      @kotlin.jvm.JvmName("getRegisterCommandsRequest")
-        get() = _builder.registerCommandsRequest
-      @kotlin.jvm.JvmName("setRegisterCommandsRequest")
+    public var getCommandsRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest
+      @kotlin.jvm.JvmName("getGetCommandsRequest")
+        get() = _builder.getCommandsRequest
+      @kotlin.jvm.JvmName("setGetCommandsRequest")
         set(value) {
-        _builder.registerCommandsRequest = value
+        _builder.getCommandsRequest = value
       }
     /**
      * ```
      * Client → channel
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;`
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;`
      */
-    public fun clearRegisterCommandsRequest() {
-      _builder.clearRegisterCommandsRequest()
+    public fun clearGetCommandsRequest() {
+      _builder.clearGetCommandsRequest()
     }
     /**
      * ```
      * Client → channel
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v1.RegisterCommandsRequest register_commands_request = 44;`
-     * @return Whether the registerCommandsRequest field is set.
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest get_commands_request = 44;`
+     * @return Whether the getCommandsRequest field is set.
      */
-    public fun hasRegisterCommandsRequest(): kotlin.Boolean {
-      return _builder.hasRegisterCommandsRequest()
+    public fun hasGetCommandsRequest(): kotlin.Boolean {
+      return _builder.hasGetCommandsRequest()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;`
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;`
      */
-    public var messageStatusRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest
-      @kotlin.jvm.JvmName("getMessageStatusRequest")
-        get() = _builder.messageStatusRequest
-      @kotlin.jvm.JvmName("setMessageStatusRequest")
+    public var getCommandsResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse
+      @kotlin.jvm.JvmName("getGetCommandsResponse")
+        get() = _builder.getCommandsResponse
+      @kotlin.jvm.JvmName("setGetCommandsResponse")
         set(value) {
-        _builder.messageStatusRequest = value
+        _builder.getCommandsResponse = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;`
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;`
      */
-    public fun clearMessageStatusRequest() {
-      _builder.clearMessageStatusRequest()
+    public fun clearGetCommandsResponse() {
+      _builder.clearGetCommandsResponse()
     }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatusRequest message_status_request = 45;`
-     * @return Whether the messageStatusRequest field is set.
+     * `.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse get_commands_response = 45;`
+     * @return Whether the getCommandsResponse field is set.
      */
-    public fun hasMessageStatusRequest(): kotlin.Boolean {
-      return _builder.hasMessageStatusRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;`
-     */
-    public var messageStatusResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse
-      @kotlin.jvm.JvmName("getMessageStatusResponse")
-        get() = _builder.messageStatusResponse
-      @kotlin.jvm.JvmName("setMessageStatusResponse")
-        set(value) {
-        _builder.messageStatusResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;`
-     */
-    public fun clearMessageStatusResponse() {
-      _builder.clearMessageStatusResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageStatusResponse message_status_response = 46;`
-     * @return Whether the messageStatusResponse field is set.
-     */
-    public fun hasMessageStatusResponse(): kotlin.Boolean {
-      return _builder.hasMessageStatusResponse()
+    public fun hasGetCommandsResponse(): kotlin.Boolean {
+      return _builder.hasGetCommandsResponse()
     }
     public val payloadCase: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessage.PayloadCase
     @kotlin.jvm.JvmName("getPayloadCase")
@@ -1151,12 +1127,9 @@ public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOr
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.ctaMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse?
   get() = if (hasCtaMessageResponse()) getCtaMessageResponse() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.registerCommandsRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RegisterCommandsRequest?
-  get() = if (hasRegisterCommandsRequest()) getRegisterCommandsRequest() else null
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest?
+  get() = if (hasGetCommandsRequest()) getGetCommandsRequest() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.messageStatusRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusRequest?
-  get() = if (hasMessageStatusRequest()) getMessageStatusRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.messageStatusResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageStatusResponse?
-  get() = if (hasMessageStatusResponse()) getMessageStatusResponse() else null
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse?
+  get() = if (hasGetCommandsResponse()) getGetCommandsResponse() else null
 

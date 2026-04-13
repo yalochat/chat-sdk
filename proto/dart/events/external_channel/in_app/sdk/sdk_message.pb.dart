@@ -58,9 +58,8 @@ enum SdkMessage_Payload {
   buttonsMessageResponse,
   ctaMessageRequest,
   ctaMessageResponse,
-  registerCommandsRequest,
-  messageStatusRequest,
-  messageStatusResponse,
+  getCommandsRequest,
+  getCommandsResponse,
   notSet
 }
 
@@ -105,9 +104,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     ButtonsMessageResponse? buttonsMessageResponse,
     CTAMessageRequest? ctaMessageRequest,
     CTAMessageResponse? ctaMessageResponse,
-    RegisterCommandsRequest? registerCommandsRequest,
-    MessageStatusRequest? messageStatusRequest,
-    MessageStatusResponse? messageStatusResponse,
+    GetCommandsRequest? getCommandsRequest,
+    GetCommandsResponse? getCommandsResponse,
   }) {
     final result = create();
     if (correlationId != null) result.correlationId = correlationId;
@@ -174,12 +172,10 @@ class SdkMessage extends $pb.GeneratedMessage {
     if (ctaMessageRequest != null) result.ctaMessageRequest = ctaMessageRequest;
     if (ctaMessageResponse != null)
       result.ctaMessageResponse = ctaMessageResponse;
-    if (registerCommandsRequest != null)
-      result.registerCommandsRequest = registerCommandsRequest;
-    if (messageStatusRequest != null)
-      result.messageStatusRequest = messageStatusRequest;
-    if (messageStatusResponse != null)
-      result.messageStatusResponse = messageStatusResponse;
+    if (getCommandsRequest != null)
+      result.getCommandsRequest = getCommandsRequest;
+    if (getCommandsResponse != null)
+      result.getCommandsResponse = getCommandsResponse;
     return result;
   }
 
@@ -228,9 +224,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     41: SdkMessage_Payload.buttonsMessageResponse,
     42: SdkMessage_Payload.ctaMessageRequest,
     43: SdkMessage_Payload.ctaMessageResponse,
-    44: SdkMessage_Payload.registerCommandsRequest,
-    45: SdkMessage_Payload.messageStatusRequest,
-    46: SdkMessage_Payload.messageStatusResponse,
+    44: SdkMessage_Payload.getCommandsRequest,
+    45: SdkMessage_Payload.getCommandsResponse,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -274,8 +269,7 @@ class SdkMessage extends $pb.GeneratedMessage {
       42,
       43,
       44,
-      45,
-      46
+      45
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -367,15 +361,10 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: CTAMessageRequest.create)
     ..aOM<CTAMessageResponse>(43, _omitFieldNames ? '' : 'ctaMessageResponse',
         subBuilder: CTAMessageResponse.create)
-    ..aOM<RegisterCommandsRequest>(
-        44, _omitFieldNames ? '' : 'registerCommandsRequest',
-        subBuilder: RegisterCommandsRequest.create)
-    ..aOM<MessageStatusRequest>(
-        45, _omitFieldNames ? '' : 'messageStatusRequest',
-        subBuilder: MessageStatusRequest.create)
-    ..aOM<MessageStatusResponse>(
-        46, _omitFieldNames ? '' : 'messageStatusResponse',
-        subBuilder: MessageStatusResponse.create)
+    ..aOM<GetCommandsRequest>(44, _omitFieldNames ? '' : 'getCommandsRequest',
+        subBuilder: GetCommandsRequest.create)
+    ..aOM<GetCommandsResponse>(45, _omitFieldNames ? '' : 'getCommandsResponse',
+        subBuilder: GetCommandsResponse.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -432,7 +421,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(43)
   @$pb.TagNumber(44)
   @$pb.TagNumber(45)
-  @$pb.TagNumber(46)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -471,7 +459,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(43)
   @$pb.TagNumber(44)
   @$pb.TagNumber(45)
-  @$pb.TagNumber(46)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -889,39 +876,26 @@ class SdkMessage extends $pb.GeneratedMessage {
 
   /// Client → channel
   @$pb.TagNumber(44)
-  RegisterCommandsRequest get registerCommandsRequest => $_getN(36);
+  GetCommandsRequest get getCommandsRequest => $_getN(36);
   @$pb.TagNumber(44)
-  set registerCommandsRequest(RegisterCommandsRequest value) =>
-      $_setField(44, value);
+  set getCommandsRequest(GetCommandsRequest value) => $_setField(44, value);
   @$pb.TagNumber(44)
-  $core.bool hasRegisterCommandsRequest() => $_has(36);
+  $core.bool hasGetCommandsRequest() => $_has(36);
   @$pb.TagNumber(44)
-  void clearRegisterCommandsRequest() => $_clearField(44);
+  void clearGetCommandsRequest() => $_clearField(44);
   @$pb.TagNumber(44)
-  RegisterCommandsRequest ensureRegisterCommandsRequest() => $_ensure(36);
+  GetCommandsRequest ensureGetCommandsRequest() => $_ensure(36);
 
   @$pb.TagNumber(45)
-  MessageStatusRequest get messageStatusRequest => $_getN(37);
+  GetCommandsResponse get getCommandsResponse => $_getN(37);
   @$pb.TagNumber(45)
-  set messageStatusRequest(MessageStatusRequest value) => $_setField(45, value);
+  set getCommandsResponse(GetCommandsResponse value) => $_setField(45, value);
   @$pb.TagNumber(45)
-  $core.bool hasMessageStatusRequest() => $_has(37);
+  $core.bool hasGetCommandsResponse() => $_has(37);
   @$pb.TagNumber(45)
-  void clearMessageStatusRequest() => $_clearField(45);
+  void clearGetCommandsResponse() => $_clearField(45);
   @$pb.TagNumber(45)
-  MessageStatusRequest ensureMessageStatusRequest() => $_ensure(37);
-
-  @$pb.TagNumber(46)
-  MessageStatusResponse get messageStatusResponse => $_getN(38);
-  @$pb.TagNumber(46)
-  set messageStatusResponse(MessageStatusResponse value) =>
-      $_setField(46, value);
-  @$pb.TagNumber(46)
-  $core.bool hasMessageStatusResponse() => $_has(38);
-  @$pb.TagNumber(46)
-  void clearMessageStatusResponse() => $_clearField(46);
-  @$pb.TagNumber(46)
-  MessageStatusResponse ensureMessageStatusResponse() => $_ensure(38);
+  GetCommandsResponse ensureGetCommandsResponse() => $_ensure(37);
 }
 
 /// TextMessage holds the payload of a plain-text conversation turn.
@@ -4771,168 +4745,51 @@ class CTAMessageResponse extends $pb.GeneratedMessage {
   void clearMessageId() => $_clearField(3);
 }
 
-/// MessageStatusRequest informs the channel of a delivery status change for a
-/// message previously sent to the user (delivered, read, errored, etc.).
-class MessageStatusRequest extends $pb.GeneratedMessage {
-  factory MessageStatusRequest({
-    $core.String? messageId,
-    MessageStatus? status,
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (messageId != null) result.messageId = messageId;
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
+/// GetCommandsRequest is sent by the client to declare that it is ready to
+/// receive the list of commands it is able to execute. The body is intentionally empty.
+class GetCommandsRequest extends $pb.GeneratedMessage {
+  factory GetCommandsRequest() => create();
 
-  MessageStatusRequest._();
+  GetCommandsRequest._();
 
-  factory MessageStatusRequest.fromBuffer($core.List<$core.int> data,
+  factory GetCommandsRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory MessageStatusRequest.fromJson($core.String json,
+  factory GetCommandsRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'MessageStatusRequest',
+      _omitMessageNames ? '' : 'GetCommandsRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'messageId')
-    ..aE<MessageStatus>(2, _omitFieldNames ? '' : 'status',
-        enumValues: MessageStatus.values)
-    ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  MessageStatusRequest clone() => deepCopy();
+  GetCommandsRequest clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  MessageStatusRequest copyWith(void Function(MessageStatusRequest) updates) =>
-      super.copyWith((message) => updates(message as MessageStatusRequest))
-          as MessageStatusRequest;
+  GetCommandsRequest copyWith(void Function(GetCommandsRequest) updates) =>
+      super.copyWith((message) => updates(message as GetCommandsRequest))
+          as GetCommandsRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static MessageStatusRequest create() => MessageStatusRequest._();
+  static GetCommandsRequest create() => GetCommandsRequest._();
   @$core.override
-  MessageStatusRequest createEmptyInstance() => create();
+  GetCommandsRequest createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static MessageStatusRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<MessageStatusRequest>(create);
-  static MessageStatusRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get messageId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set messageId($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasMessageId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearMessageId() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  MessageStatus get status => $_getN(1);
-  @$pb.TagNumber(2)
-  set status(MessageStatus value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasStatus() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearStatus() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  $0.Timestamp get timestamp => $_getN(2);
-  @$pb.TagNumber(3)
-  set timestamp($0.Timestamp value) => $_setField(3, value);
-  @$pb.TagNumber(3)
-  $core.bool hasTimestamp() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearTimestamp() => $_clearField(3);
-  @$pb.TagNumber(3)
-  $0.Timestamp ensureTimestamp() => $_ensure(2);
+  static GetCommandsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetCommandsRequest>(create);
+  static GetCommandsRequest? _defaultInstance;
 }
 
-/// MessageStatusResponse acknowledges a MessageStatusRequest.
-class MessageStatusResponse extends $pb.GeneratedMessage {
-  factory MessageStatusResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
-
-  MessageStatusResponse._();
-
-  factory MessageStatusResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory MessageStatusResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'MessageStatusResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  MessageStatusResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  MessageStatusResponse copyWith(
-          void Function(MessageStatusResponse) updates) =>
-      super.copyWith((message) => updates(message as MessageStatusResponse))
-          as MessageStatusResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static MessageStatusResponse create() => MessageStatusResponse._();
-  @$core.override
-  MessageStatusResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static MessageStatusResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<MessageStatusResponse>(create);
-  static MessageStatusResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-}
-
-/// RegisterCommandsRequest declares which commands the SDK is able to execute,
+/// GetCommandsResponse declares which commands the SDK is able to execute,
 /// so the channel can decide which ones it may dispatch back to the client.
-class RegisterCommandsRequest extends $pb.GeneratedMessage {
-  factory RegisterCommandsRequest({
+class GetCommandsResponse extends $pb.GeneratedMessage {
+  factory GetCommandsResponse({
     $core.Iterable<SdkCommand>? commands,
     $0.Timestamp? timestamp,
   }) {
@@ -4942,17 +4799,17 @@ class RegisterCommandsRequest extends $pb.GeneratedMessage {
     return result;
   }
 
-  RegisterCommandsRequest._();
+  GetCommandsResponse._();
 
-  factory RegisterCommandsRequest.fromBuffer($core.List<$core.int> data,
+  factory GetCommandsResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory RegisterCommandsRequest.fromJson($core.String json,
+  factory GetCommandsResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'RegisterCommandsRequest',
+      _omitMessageNames ? '' : 'GetCommandsResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
@@ -4965,24 +4822,23 @@ class RegisterCommandsRequest extends $pb.GeneratedMessage {
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  RegisterCommandsRequest clone() => deepCopy();
+  GetCommandsResponse clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  RegisterCommandsRequest copyWith(
-          void Function(RegisterCommandsRequest) updates) =>
-      super.copyWith((message) => updates(message as RegisterCommandsRequest))
-          as RegisterCommandsRequest;
+  GetCommandsResponse copyWith(void Function(GetCommandsResponse) updates) =>
+      super.copyWith((message) => updates(message as GetCommandsResponse))
+          as GetCommandsResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static RegisterCommandsRequest create() => RegisterCommandsRequest._();
+  static GetCommandsResponse create() => GetCommandsResponse._();
   @$core.override
-  RegisterCommandsRequest createEmptyInstance() => create();
+  GetCommandsResponse createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static RegisterCommandsRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<RegisterCommandsRequest>(create);
-  static RegisterCommandsRequest? _defaultInstance;
+  static GetCommandsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetCommandsResponse>(create);
+  static GetCommandsResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   $pb.PbList<SdkCommand> get commands => $_getList(0);
