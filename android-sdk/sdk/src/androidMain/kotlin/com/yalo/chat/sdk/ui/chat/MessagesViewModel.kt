@@ -58,6 +58,10 @@ internal class MessagesViewModel(
             is MessagesEvent.SendImageMessage -> sendImageMessage(event.imageData)
             is MessagesEvent.SendVoiceMessage -> sendVoiceMessage(event.audioData)
             is MessagesEvent.UpdateUserMessage -> _state.update { it.copy(userMessage = event.value) }
+            is MessagesEvent.ChatToggleMessageExpand -> toggleMessageExpand(event.messageId)
+            is MessagesEvent.ChatUpdateProductQuantity -> updateProductQuantity(
+                event.messageId, event.productSku, event.unitType, event.quantity
+            )
             is MessagesEvent.ClearMessages -> {
                 syncService?.stop()
                 // Cancel and reset both jobs so SubscribeToMessages / SubscribeToEvents restart
@@ -112,6 +116,67 @@ internal class MessagesViewModel(
         }
     }
 
+    // Mirrors Flutter's ChatToggleMessageExpand handler.
+    // Toggles expand in-memory; expand is never persisted to DB.
+    private fun toggleMessageExpand(messageId: Long) {
+        _state.update { state ->
+            state.copy(
+                messages = state.messages.map { msg ->
+                    if (msg.id == messageId) msg.copy(expand = !msg.expand) else msg
+                }
+            )
+        }
+    }
+
+    // Mirrors Flutter's ChatUpdateProductQuantity handler.
+    // Updates unitsAdded or subunitsAdded on the matching product inside the matching message,
+    // then persists the updated message to the local DB (mirrors Flutter's replaceChatMessage
+    // call — products are stored as JSON in the products column so quantities survive
+    // subsequent observeMessages emissions).
+    private fun updateProductQuantity(
+        messageId: Long,
+        productSku: String,
+        unitType: UnitType,
+        quantity: Double,
+    ) {
+        var updatedMessage: ChatMessage? = null
+        _state.update { state ->
+            val newMessages = state.messages.map { msg ->
+                if (msg.id != messageId) return@map msg
+                msg.copy(
+                    products = msg.products.map { product ->
+                        if (product.sku != productSku) return@map product
+                        when (unitType) {
+                            // Mirrors Flutter: max(event.quantity, 0)
+                            UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
+                            // Mirrors Flutter: subunit overflow promotes to whole units.
+                            // Adding more subunits than a pack contains auto-increments
+                            // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
+                            // +2 units, 1 subunit remaining).
+                            UnitType.SUBUNIT -> {
+                                val clamped = maxOf(quantity, 0.0)
+                                val extraUnits = kotlin.math.floor(clamped / product.subunits)
+                                val remainingSubunits = clamped % product.subunits
+                                product.copy(
+                                    unitsAdded = product.unitsAdded + extraUnits,
+                                    subunitsAdded = remainingSubunits,
+                                )
+                            }
+                        }
+                    }
+                ).also { updatedMessage = it }
+            }
+            state.copy(messages = newMessages)
+        }
+        updatedMessage?.let { msg ->
+            viewModelScope.launch {
+                chatMessageRepository.updateMessage(msg)
+                // observeMessages() will re-emit with the persisted quantities — no
+                // extra state update needed here.
+            }
+        }
+    }
+
     private fun subscribeToMessages() {
         // Return early if already collecting — makes this call idempotent.
         if (subscriptionJob?.isActive == true) return
@@ -122,10 +187,35 @@ internal class MessagesViewModel(
         // so the UI always reads from a single source of truth (SQLDelight / fake repo).
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
-                _state.update {
-                    it.copy(
-                        messages = messages,
-                        quickReplies = messages.extractQuickReplies(),
+                _state.update { currentState ->
+                    // Preserve in-memory expand flags: DB never stores `expand` (it always
+                    // reads back as false), so re-mapping the observed list by id keeps
+                    // expanded/collapsed state alive across subsequent emissions.
+                    val expandById = currentState.messages.associate { it.id to it.expand }
+                    val mergedMessages = messages.map { msg ->
+                        if (expandById[msg.id] == true) msg.copy(expand = true) else msg
+                    }
+                    // Only overwrite quickReplies when a NEW QuickReply message arrived.
+                    // Detection is by wiId (server-assigned ID) so that re-sends of
+                    // the same content after ClearQuickReplies are correctly shown again.
+                    // Comparing list contents (previous approach) would treat a re-sent
+                    // QuickReply with identical options as "no change" and leave the chip
+                    // row empty. Without this guard entirely, ClearQuickReplies is undone
+                    // the moment any subsequent message is inserted (e.g. a user text send
+                    // triggers observeMessages, which would find the old QuickReply message
+                    // and restore its replies).
+                    val latestQrWiId = mergedMessages
+                        .lastOrNull { it.type == MessageType.QuickReply && it.role == MessageRole.AGENT }
+                        ?.wiId
+                    val quickReplies = if (latestQrWiId != null && latestQrWiId != currentState.lastQuickReplyMessageWiId) {
+                        mergedMessages.extractQuickReplies()
+                    } else {
+                        currentState.quickReplies
+                    }
+                    currentState.copy(
+                        messages = mergedMessages,
+                        quickReplies = quickReplies,
+                        lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
                     )
                 }
             }

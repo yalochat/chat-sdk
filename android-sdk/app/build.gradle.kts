@@ -36,9 +36,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "YALO_CHANNEL_NAME",   "\"${localProp("yalo.channelName")}\"")
-        buildConfigField("String", "YALO_CHANNEL_ID",     "\"${localProp("yalo.channelId")}\"")
-        buildConfigField("String", "YALO_ORGANIZATION_ID","\"${localProp("yalo.organizationId")}\"")
+        buildConfigField("String",  "YALO_CHANNEL_NAME",      "\"${localProp("yalo.channelName")}\"")
+        buildConfigField("String",  "YALO_CHANNEL_ID",        "\"${localProp("yalo.channelId")}\"")
+        buildConfigField("String",  "YALO_ORGANIZATION_ID",   "\"${localProp("yalo.organizationId")}\"")
+        buildConfigField("Boolean", "USE_FAKE_REPOSITORY",    localProps.getProperty("yalo.useFakeRepository", "false"))
     }
 
     compileOptions {

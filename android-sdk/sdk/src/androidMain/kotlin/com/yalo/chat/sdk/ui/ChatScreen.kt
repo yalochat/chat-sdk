@@ -272,6 +272,7 @@ fun ChatScreen(
                     playingMessage = audioState.playingMessage,
                     onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
                     onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },
+                    onEvent = { viewModel.handleEvent(it) },
                 )
             }
 

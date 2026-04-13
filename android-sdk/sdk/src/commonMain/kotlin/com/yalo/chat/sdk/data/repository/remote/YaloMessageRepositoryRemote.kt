@@ -17,6 +17,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -30,7 +31,9 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 // Port of flutter-sdk YaloMessageRepositoryRemote.
-// Polling: 1s interval, 5s lookback window, LRU deduplication cache (capacity 500).
+// Polling: 1s interval, LRU deduplication cache (capacity 500).
+// The `since` query param is intentionally omitted — Flutter FIXME disables it too
+// ("wait for backend fix"). Client-side deduplication via SimpleCache handles repeats.
 // Network errors in the polling flow are swallowed and the loop continues — mirrors
 // flutter-sdk _startPolling() which logs the error and falls through to Future.delayed.
 @OptIn(ExperimentalUuidApi::class)
@@ -38,7 +41,6 @@ internal class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
     // Exposed as internal so tests can override the interval without waiting.
     internal val pollingIntervalMs: Long = 1_000L,
-    private val lookbackSecs: Long = 5L,
     // Absolute path to the directory where downloaded agent media is saved.
     // Mirrors Flutter's _directory. Platform-specific path provided by YaloChat.kt.
     private val tempDir: String? = null,
@@ -142,10 +144,10 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
-    // Single-shot fetch — returns all messages newer than the given Unix millisecond timestamp.
-    // The cache is NOT applied here so callers get the full list.
+    // Single-shot fetch — returns all messages; deduplication disabled so callers get the full list.
+    // NOTE: `since` param is intentionally ignored — Flutter FIXME disables it too ("wait for backend fix").
     override suspend fun fetchMessages(since: Long): Result<List<ChatMessage>> =
-        when (val result = apiService.fetchMessages(since)) {
+        when (val result = apiService.fetchMessages()) {
             is Result.Ok -> Result.Ok(result.result.mapNotNull { it.toChatMessage(deduplicate = false) })
             is Result.Error -> Result.Error(result.error)
         }
@@ -156,15 +158,15 @@ internal class YaloMessageRepositoryRemote(
     // flutter-sdk YaloMessageRepositoryRemote._startPolling().
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         while (true) {
-            val since = Clock.System.now().toEpochMilliseconds() - lookbackSecs * 1_000L
-            when (val result = apiService.fetchMessages(since)) {
+            when (val result = apiService.fetchMessages()) {
                 is Result.Ok -> {
-                    val batch = result.result.mapNotNull { it.toChatMessage(deduplicate = true) }
+                    val raw = result.result
+                    val batch = raw.mapNotNull { it.toChatMessage(deduplicate = true) }
                     // Emit TypingStop whenever the server returned any messages, not just
                     // when the filtered batch is non-empty. Without this, a poll that returns
                     // only non-text or fully-deduplicated messages would leave the typing
                     // indicator stuck indefinitely.
-                    if (result.result.isNotEmpty()) {
+                    if (raw.isNotEmpty()) {
                         _events.tryEmit(ChatEvent.TypingStop)
                     }
                     if (batch.isNotEmpty()) emit(batch)
@@ -236,6 +238,38 @@ internal class YaloMessageRepositoryRemote(
             }
         }
 
+        // Product message — vertical list or horizontal carousel, determined by orientation.
+        // No media download needed: products carry embedded metadata (SKU, name, price, images URLs).
+        message.productMessageRequest?.let { productMsg ->
+            if (deduplicate) cache.set(id, true)
+            val type = if (productMsg.orientation == ORIENTATION_HORIZONTAL)
+                MessageType.ProductCarousel else MessageType.Product
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.AGENT,
+                type = type,
+                status = MessageStatus.DELIVERED,
+                timestamp = ts,
+                products = productMsg.products.map { p ->
+                    Product(
+                        sku = p.sku,
+                        name = p.name,
+                        price = p.price,
+                        imagesUrl = p.imagesUrl,
+                        salePrice = p.salePrice,
+                        subunits = p.subunits,
+                        unitStep = p.unitStep,
+                        unitName = p.unitName,
+                        subunitName = p.subunitName,
+                        subunitStep = p.subunitStep,
+                        unitsAdded = p.unitsAdded,
+                        subunitsAdded = p.subunitsAdded,
+                    )
+                },
+            )
+        }
+
         // Unknown payload type — cache so it is not re-evaluated on every poll cycle.
         if (deduplicate) cache.set(id, true)
         return null
@@ -244,6 +278,9 @@ internal class YaloMessageRepositoryRemote(
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 private const val TYPING_STATUS_TEXT = "Writing message..."
+// Proto3 JSON enum value name for horizontal orientation (carousel layout).
+// Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
+private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────
 private fun parseIso8601(date: String): Long =

@@ -13,12 +13,15 @@ import kotlinx.coroutines.flow.emptyFlow
 // Phase 2: implemented by YaloMessageRepositoryRemote (Ktor HTTP + polling).
 interface YaloMessageRepository {
     suspend fun sendMessage(message: ChatMessage): Result<Unit>
+    // NOTE: `since` is currently ignored by all implementations — the Flutter SDK has a FIXME
+    // disabling the backend `since` filter ("wait for backend fix"), so Android matches that
+    // behaviour. The parameter is kept to avoid a breaking interface change.
     suspend fun fetchMessages(since: Long): Result<List<ChatMessage>>
 
     // Phase 2: continuous polling flow — each emission is the batch of new messages
     // from one poll cycle. Empty batches are suppressed; only non-empty lists are emitted.
     // FakeYaloMessageRepository returns emptyFlow() (no-op for Phase 1 tests).
-    // YaloMessageRepositoryRemote polls on a 1s interval with a 5s lookback window.
+    // YaloMessageRepositoryRemote polls on a 1s interval; client-side deduplication via SimpleCache.
     fun pollIncomingMessages(): Flow<List<ChatMessage>>
 
     // Typing event stream — mirrors Flutter's _typingEventsStreamController.

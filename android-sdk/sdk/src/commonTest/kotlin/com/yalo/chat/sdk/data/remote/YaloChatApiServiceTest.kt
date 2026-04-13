@@ -22,6 +22,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class YaloChatApiServiceTest {
@@ -140,7 +141,7 @@ class YaloChatApiServiceTest {
         val service = apiService {
             respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        val result = service.fetchMessages(since = 1_000L)
+        val result = service.fetchMessages()
         assertIs<Result.Ok<List<YaloFetchMessagesResponse>>>(result)
         assertEquals(1, result.result.size)
         assertEquals("msg-1", result.result.first().id)
@@ -152,7 +153,7 @@ class YaloChatApiServiceTest {
         val service = apiService {
             respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        val result = service.fetchMessages(since = 0L)
+        val result = service.fetchMessages()
         assertIs<Result.Ok<List<YaloFetchMessagesResponse>>>(result)
         assertTrue(result.result.isEmpty())
     }
@@ -160,7 +161,7 @@ class YaloChatApiServiceTest {
     @Test
     fun `fetchMessages returns Error on HTTP 401`() = runTest {
         val service = apiService { respondError(HttpStatusCode.Unauthorized) }
-        val result = service.fetchMessages(since = 0L)
+        val result = service.fetchMessages()
         assertIs<Result.Error<*>>(result)
         assertTrue(result.error.message?.contains("401") == true)
     }
@@ -179,18 +180,19 @@ class YaloChatApiServiceTest {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
-        assertIs<Result.Error<*>>(service.fetchMessages(since = 0L))
+        assertIs<Result.Error<*>>(service.fetchMessages())
     }
 
     @Test
-    fun `fetchMessages sends since as query parameter`() = runTest {
+    fun `fetchMessages does not send since query parameter`() = runTest {
+        // Flutter FIXME disables the since param — we match that behaviour.
         var capturedUrl: io.ktor.http.Url? = null
         val service = apiService { request ->
             capturedUrl = request.url
             respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        service.fetchMessages(since = 12345L)
-        assertEquals("12345", capturedUrl?.parameters?.get("since"))
+        service.fetchMessages()
+        assertNull(capturedUrl?.parameters?.get("since"))
     }
 
     @Test
@@ -200,7 +202,7 @@ class YaloChatApiServiceTest {
             capturedUrl = request.url
             respond("[]", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        service.fetchMessages(since = 0L)
+        service.fetchMessages()
         assertTrue(capturedUrl?.encodedPath?.endsWith("/inapp/messages") == true)
     }
 
@@ -232,8 +234,8 @@ class YaloChatApiServiceTest {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
         }
         val service = YaloChatApiService("https://api.test", fakeChannelId, "org-id", client)
-        service.fetchMessages(since = 0L)
-        service.fetchMessages(since = 0L)
+        service.fetchMessages()
+        service.fetchMessages()
         assertEquals(1, authCallCount)
     }
 }
