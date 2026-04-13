@@ -62,9 +62,8 @@ message SdkMessage {
     CTAMessageResponse       cta_message_response        = 43;
 
     // Client → channel
-    RegisterCommandsRequest  register_commands_request   = 44;
-    MessageStatusRequest     message_status_request      = 45;
-    MessageStatusResponse    message_status_response     = 46;
+    GetCommandsRequest       get_commands_request        = 44;
+    GetCommandsResponse      get_commands_response       = 45;
   }
 }
 
@@ -502,25 +501,7 @@ message CTAMessageResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Message status  (client → channel)
-// ---------------------------------------------------------------------------
-
-// MessageStatusRequest informs the channel of a delivery status change for a
-// message previously sent to the user (delivered, read, errored, etc.).
-message MessageStatusRequest {
-  string message_id = 1;
-  MessageStatus status = 2;
-  google.protobuf.Timestamp timestamp = 3;
-}
-
-// MessageStatusResponse acknowledges a MessageStatusRequest.
-message MessageStatusResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-}
-
-// ---------------------------------------------------------------------------
-// Register commands  (client → channel)
+// Get commands  (client → channel)
 // ---------------------------------------------------------------------------
 
 // SdkCommand enumerates the commands the SDK is able to execute on the client.
@@ -533,9 +514,14 @@ enum SdkCommand {
   SDK_COMMAND_ADD_PROMOTION = 5;
 }
 
-// RegisterCommandsRequest declares which commands the SDK is able to execute,
+// GetCommandsRequest is sent by the client to declare that it is ready to
+// receive the list of commands it is able to execute. The body is intentionally empty.
+message GetCommandsRequest {
+}
+
+// GetCommandsResponse declares which commands the SDK is able to execute,
 // so the channel can decide which ones it may dispatch back to the client.
-message RegisterCommandsRequest {
+message GetCommandsResponse {
   repeated SdkCommand commands = 1;
   google.protobuf.Timestamp timestamp = 2;
 }
