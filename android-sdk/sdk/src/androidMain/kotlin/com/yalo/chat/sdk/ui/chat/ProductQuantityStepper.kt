@@ -29,11 +29,11 @@ internal fun ProductQuantityStepper(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier,
     ) {
-        IconButton(onClick = onRemove) {
+        IconButton(onClick = onRemove, enabled = value > 0.0) {
             Icon(
                 imageVector = theme.removeIcon,
                 contentDescription = "Remove",
-                tint = theme.numericControlIconColor,
+                tint = if (value > 0.0) theme.numericControlIconColor else theme.numericControlIconColor.copy(alpha = 0.38f),
             )
         }
         Text(

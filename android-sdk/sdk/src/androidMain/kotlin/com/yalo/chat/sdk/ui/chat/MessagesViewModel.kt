@@ -147,8 +147,21 @@ internal class MessagesViewModel(
                     products = msg.products.map { product ->
                         if (product.sku != productSku) return@map product
                         when (unitType) {
-                            UnitType.UNIT -> product.copy(unitsAdded = quantity)
-                            UnitType.SUBUNIT -> product.copy(subunitsAdded = quantity)
+                            // Mirrors Flutter: max(event.quantity, 0)
+                            UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
+                            // Mirrors Flutter: subunit overflow promotes to whole units.
+                            // Adding more subunits than a pack contains auto-increments
+                            // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
+                            // +2 units, 1 subunit remaining).
+                            UnitType.SUBUNIT -> {
+                                val clamped = maxOf(quantity, 0.0)
+                                val extraUnits = kotlin.math.floor(clamped / product.subunits)
+                                val remainingSubunits = clamped % product.subunits
+                                product.copy(
+                                    unitsAdded = product.unitsAdded + extraUnits,
+                                    subunitsAdded = remainingSubunits,
+                                )
+                            }
                         }
                     }
                 ).also { updatedMessage = it }
@@ -175,20 +188,34 @@ internal class MessagesViewModel(
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
                 _state.update { currentState ->
-                    // Only overwrite quickReplies when a NEW QuickReply message arrived —
-                    // i.e. the derived value differs from what the previous message list
-                    // produced. This mirrors Flutter's messages_bloc which only sets
-                    // quickReplies from the specific incoming message, not by re-scanning
-                    // the full list on every update. Without this guard, ClearQuickReplies
-                    // is immediately undone the moment any subsequent message is inserted
-                    // (e.g. a user image send triggers observeMessages, which found the old
-                    // QuickReply message and restored its replies).
-                    val previousDerived = currentState.messages.extractQuickReplies()
-                    val newDerived = messages.extractQuickReplies()
-                    val quickReplies = if (newDerived != previousDerived) newDerived else currentState.quickReplies
+                    // Preserve in-memory expand flags: DB never stores `expand` (it always
+                    // reads back as false), so re-mapping the observed list by id keeps
+                    // expanded/collapsed state alive across subsequent emissions.
+                    val expandById = currentState.messages.associate { it.id to it.expand }
+                    val mergedMessages = messages.map { msg ->
+                        if (expandById[msg.id] == true) msg.copy(expand = true) else msg
+                    }
+                    // Only overwrite quickReplies when a NEW QuickReply message arrived.
+                    // Detection is by wiId (server-assigned ID) so that re-sends of
+                    // the same content after ClearQuickReplies are correctly shown again.
+                    // Comparing list contents (previous approach) would treat a re-sent
+                    // QuickReply with identical options as "no change" and leave the chip
+                    // row empty. Without this guard entirely, ClearQuickReplies is undone
+                    // the moment any subsequent message is inserted (e.g. a user text send
+                    // triggers observeMessages, which would find the old QuickReply message
+                    // and restore its replies).
+                    val latestQrWiId = mergedMessages
+                        .lastOrNull { it.type == MessageType.QuickReply && it.role == MessageRole.AGENT }
+                        ?.wiId
+                    val quickReplies = if (latestQrWiId != null && latestQrWiId != currentState.lastQuickReplyMessageWiId) {
+                        mergedMessages.extractQuickReplies()
+                    } else {
+                        currentState.quickReplies
+                    }
                     currentState.copy(
-                        messages = messages,
+                        messages = mergedMessages,
                         quickReplies = quickReplies,
+                        lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
                     )
                 }
             }

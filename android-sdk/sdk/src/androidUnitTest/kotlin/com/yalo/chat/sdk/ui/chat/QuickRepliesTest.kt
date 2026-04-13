@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
 class QuickRepliesTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
+    private val trackedVms = mutableListOf<MessagesViewModel>()
 
     @BeforeTest
     fun setup() {
@@ -38,12 +39,14 @@ class QuickRepliesTest {
 
     @AfterTest
     fun tearDown() {
+        trackedVms.forEach { it.viewModelScope.cancel() }
+        trackedVms.clear()
         Dispatchers.resetMain()
     }
 
     private fun viewModel(
         chatRepo: FakeChatMessageRepository = FakeChatMessageRepository(),
-    ) = MessagesViewModel(FakeYaloMessageRepository(), chatRepo)
+    ) = MessagesViewModel(FakeYaloMessageRepository(), chatRepo).also { trackedVms.add(it) }
 
     // ── Visibility contract ───────────────────────────────────────────────────
 
@@ -58,7 +61,7 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "Pick an option:",
                 quickReplies = listOf("Yes", "No", "Maybe"),
             )
@@ -78,7 +81,7 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "Pick:",
                 quickReplies = listOf("Track order", "Cancel order"),
             )
@@ -98,8 +101,6 @@ class QuickRepliesTest {
         assertEquals(MessageType.Text, userMessage?.type)
         // Chip row is now hidden.
         assertTrue(state.quickReplies.isEmpty())
-
-        vm.viewModelScope.cancel()
     }
 
     @Test
@@ -107,7 +108,7 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "How can I help?",
                 quickReplies = listOf("Option A", "Option B", "Option C"),
             )

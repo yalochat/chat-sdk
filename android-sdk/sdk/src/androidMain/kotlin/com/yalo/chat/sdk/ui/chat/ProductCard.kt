@@ -120,7 +120,7 @@ internal fun ProductHorizontalCard(
             if (subunitsText != null) {
                 ProductQuantityStepper(
                     value = product.subunitsAdded,
-                    unitName = subunitsText,
+                    unitName = product.subunitName ?: "",
                     onAdd = onAddSubunit,
                     onRemove = onRemoveSubunit,
                 )
@@ -165,7 +165,7 @@ internal fun ProductVerticalCard(
         if (subunitsText != null) {
             ProductQuantityStepper(
                 value = product.subunitsAdded,
-                unitName = subunitsText,
+                unitName = product.subunitName ?: "",
                 onAdd = onAddSubunit,
                 onRemove = onRemoveSubunit,
             )
