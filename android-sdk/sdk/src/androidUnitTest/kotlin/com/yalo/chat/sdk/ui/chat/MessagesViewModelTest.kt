@@ -85,7 +85,7 @@ class MessagesViewModelTest {
             override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
             override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
         }
-        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo)
+        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo).also { trackedVms.add(it) }
         vm.handleEvent(MessagesEvent.LoadMessages)
         assertIs<ChatStatus.Failure>(vm.state.value.chatStatus)
     }
@@ -103,7 +103,7 @@ class MessagesViewModelTest {
             override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
             override fun events(): Flow<ChatEvent> = eventsFlow
         }
-        val vm = viewModel(yaloRepo = yaloRepo).also { trackedVms.add(it) }
+        val vm = viewModel(yaloRepo = yaloRepo)
         vm.handleEvent(MessagesEvent.SubscribeToEvents)
         return vm to eventsFlow
     }
@@ -379,7 +379,7 @@ class MessagesViewModelTest {
             override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
             override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
         }
-        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo)
+        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo).also { trackedVms.add(it) }
 
         vm.handleEvent(MessagesEvent.SendImageMessage(ImageData(path = "/storage/img.jpg")))
 
@@ -449,7 +449,7 @@ class MessagesViewModelTest {
             override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
             override fun observeMessages(): Flow<List<ChatMessage>> = MutableStateFlow(emptyList())
         }
-        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo)
+        val vm = MessagesViewModel(FakeYaloMessageRepository(), failingChatRepo).also { trackedVms.add(it) }
 
         vm.handleEvent(MessagesEvent.SendVoiceMessage(AudioData(fileName = "voice.m4a", durationMs = 1000L)))
 

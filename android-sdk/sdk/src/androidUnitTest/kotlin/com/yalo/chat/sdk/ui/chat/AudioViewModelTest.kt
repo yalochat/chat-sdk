@@ -173,7 +173,7 @@ class AudioViewModelTest {
             override fun onPlaybackCompleted(): Flow<Unit> = emptyFlow()
             override fun release() {}
         }
-        val vm = AudioViewModel(repo)
+        val vm = AudioViewModel(repo).also { vmsToClean.add(it) }
 
         vm.handleEvent(AudioEvent.StartRecording)
         vm.handleEvent(AudioEvent.StopRecording)

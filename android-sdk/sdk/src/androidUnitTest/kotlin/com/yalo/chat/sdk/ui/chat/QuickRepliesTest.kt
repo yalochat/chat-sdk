@@ -30,6 +30,7 @@ import kotlin.test.assertTrue
 class QuickRepliesTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
+    private val trackedVms = mutableListOf<MessagesViewModel>()
 
     @BeforeTest
     fun setup() {
@@ -38,12 +39,14 @@ class QuickRepliesTest {
 
     @AfterTest
     fun tearDown() {
+        trackedVms.forEach { it.viewModelScope.cancel() }
+        trackedVms.clear()
         Dispatchers.resetMain()
     }
 
     private fun viewModel(
         chatRepo: FakeChatMessageRepository = FakeChatMessageRepository(),
-    ) = MessagesViewModel(FakeYaloMessageRepository(), chatRepo)
+    ) = MessagesViewModel(FakeYaloMessageRepository(), chatRepo).also { trackedVms.add(it) }
 
     // ── Visibility contract ───────────────────────────────────────────────────
 
@@ -98,8 +101,6 @@ class QuickRepliesTest {
         assertEquals(MessageType.Text, userMessage?.type)
         // Chip row is now hidden.
         assertTrue(state.quickReplies.isEmpty())
-
-        vm.viewModelScope.cancel()
     }
 
     @Test
