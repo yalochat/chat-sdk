@@ -1,0 +1,26 @@
+name: YaloChatDemo
+options:
+  bundleIdPrefix: com.yalo.chat
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "16"
+  createIntermediateGroups: true
+
+targets:
+  YaloChatDemo:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: YaloChatDemo
+    settings:
+      base:
+        SWIFT_VERSION: 5.9
+        PRODUCT_BUNDLE_IDENTIFIER: com.yalo.chat.demo
+        DEVELOPMENT_TEAM: ""
+        INFOPLIST_FILE: YaloChatDemo/Info.plist
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - framework: ../android-sdk/sdk/build/XCFrameworks/release/ChatSdk.xcframework
+        embed: true
+        codeSign: true
