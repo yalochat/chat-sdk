@@ -95,6 +95,38 @@ class MessageStatus extends $pb.ProtobufEnum {
   const MessageStatus._(super.value, super.name);
 }
 
+/// SdkCommand enumerates the commands the SDK is able to execute on the client.
+class SdkCommand extends $pb.ProtobufEnum {
+  static const SdkCommand SDK_COMMAND_UNSPECIFIED =
+      SdkCommand._(0, _omitEnumNames ? '' : 'SDK_COMMAND_UNSPECIFIED');
+  static const SdkCommand SDK_COMMAND_ADD_TO_CART =
+      SdkCommand._(1, _omitEnumNames ? '' : 'SDK_COMMAND_ADD_TO_CART');
+  static const SdkCommand SDK_COMMAND_REMOVE_FROM_CART =
+      SdkCommand._(2, _omitEnumNames ? '' : 'SDK_COMMAND_REMOVE_FROM_CART');
+  static const SdkCommand SDK_COMMAND_CLEAR_CART =
+      SdkCommand._(3, _omitEnumNames ? '' : 'SDK_COMMAND_CLEAR_CART');
+  static const SdkCommand SDK_COMMAND_GUIDANCE_CARD =
+      SdkCommand._(4, _omitEnumNames ? '' : 'SDK_COMMAND_GUIDANCE_CARD');
+  static const SdkCommand SDK_COMMAND_ADD_PROMOTION =
+      SdkCommand._(5, _omitEnumNames ? '' : 'SDK_COMMAND_ADD_PROMOTION');
+
+  static const $core.List<SdkCommand> values = <SdkCommand>[
+    SDK_COMMAND_UNSPECIFIED,
+    SDK_COMMAND_ADD_TO_CART,
+    SDK_COMMAND_REMOVE_FROM_CART,
+    SDK_COMMAND_CLEAR_CART,
+    SDK_COMMAND_GUIDANCE_CARD,
+    SDK_COMMAND_ADD_PROMOTION,
+  ];
+
+  static final $core.List<SdkCommand?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 5);
+  static SdkCommand? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const SdkCommand._(super.value, super.name);
+}
+
 /// Orientation controls how the product list is rendered in the client UI.
 class ProductMessageRequest_Orientation extends $pb.ProtobufEnum {
   static const ProductMessageRequest_Orientation ORIENTATION_UNSPECIFIED =

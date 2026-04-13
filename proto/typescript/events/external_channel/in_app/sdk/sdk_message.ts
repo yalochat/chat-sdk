@@ -185,6 +185,76 @@ export function messageStatusToJSON(object: MessageStatus): string {
   }
 }
 
+/** SdkCommand enumerates the commands the SDK is able to execute on the client. */
+export const SdkCommand = {
+  SDK_COMMAND_UNSPECIFIED: 0,
+  SDK_COMMAND_ADD_TO_CART: 1,
+  SDK_COMMAND_REMOVE_FROM_CART: 2,
+  SDK_COMMAND_CLEAR_CART: 3,
+  SDK_COMMAND_GUIDANCE_CARD: 4,
+  SDK_COMMAND_ADD_PROMOTION: 5,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type SdkCommand = typeof SdkCommand[keyof typeof SdkCommand];
+
+export namespace SdkCommand {
+  export type SDK_COMMAND_UNSPECIFIED = typeof SdkCommand.SDK_COMMAND_UNSPECIFIED;
+  export type SDK_COMMAND_ADD_TO_CART = typeof SdkCommand.SDK_COMMAND_ADD_TO_CART;
+  export type SDK_COMMAND_REMOVE_FROM_CART = typeof SdkCommand.SDK_COMMAND_REMOVE_FROM_CART;
+  export type SDK_COMMAND_CLEAR_CART = typeof SdkCommand.SDK_COMMAND_CLEAR_CART;
+  export type SDK_COMMAND_GUIDANCE_CARD = typeof SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
+  export type SDK_COMMAND_ADD_PROMOTION = typeof SdkCommand.SDK_COMMAND_ADD_PROMOTION;
+  export type UNRECOGNIZED = typeof SdkCommand.UNRECOGNIZED;
+}
+
+export function sdkCommandFromJSON(object: any): SdkCommand {
+  switch (object) {
+    case 0:
+    case "SDK_COMMAND_UNSPECIFIED":
+      return SdkCommand.SDK_COMMAND_UNSPECIFIED;
+    case 1:
+    case "SDK_COMMAND_ADD_TO_CART":
+      return SdkCommand.SDK_COMMAND_ADD_TO_CART;
+    case 2:
+    case "SDK_COMMAND_REMOVE_FROM_CART":
+      return SdkCommand.SDK_COMMAND_REMOVE_FROM_CART;
+    case 3:
+    case "SDK_COMMAND_CLEAR_CART":
+      return SdkCommand.SDK_COMMAND_CLEAR_CART;
+    case 4:
+    case "SDK_COMMAND_GUIDANCE_CARD":
+      return SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
+    case 5:
+    case "SDK_COMMAND_ADD_PROMOTION":
+      return SdkCommand.SDK_COMMAND_ADD_PROMOTION;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return SdkCommand.UNRECOGNIZED;
+  }
+}
+
+export function sdkCommandToJSON(object: SdkCommand): string {
+  switch (object) {
+    case SdkCommand.SDK_COMMAND_UNSPECIFIED:
+      return "SDK_COMMAND_UNSPECIFIED";
+    case SdkCommand.SDK_COMMAND_ADD_TO_CART:
+      return "SDK_COMMAND_ADD_TO_CART";
+    case SdkCommand.SDK_COMMAND_REMOVE_FROM_CART:
+      return "SDK_COMMAND_REMOVE_FROM_CART";
+    case SdkCommand.SDK_COMMAND_CLEAR_CART:
+      return "SDK_COMMAND_CLEAR_CART";
+    case SdkCommand.SDK_COMMAND_GUIDANCE_CARD:
+      return "SDK_COMMAND_GUIDANCE_CARD";
+    case SdkCommand.SDK_COMMAND_ADD_PROMOTION:
+      return "SDK_COMMAND_ADD_PROMOTION";
+    case SdkCommand.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /**
  * SdkMessage is the top-level wrapper sent over the bidirectional stream.
  * Exactly one payload field is set per message; the oneof lets the Go runtime
@@ -239,7 +309,13 @@ export interface SdkMessage {
   buttonsMessageRequest?: ButtonsMessageRequest | undefined;
   buttonsMessageResponse?: ButtonsMessageResponse | undefined;
   ctaMessageRequest?: CTAMessageRequest | undefined;
-  ctaMessageResponse?: CTAMessageResponse | undefined;
+  ctaMessageResponse?:
+    | CTAMessageResponse
+    | undefined;
+  /** Client → channel */
+  registerCommandsRequest?: RegisterCommandsRequest | undefined;
+  messageStatusRequest?: MessageStatusRequest | undefined;
+  messageStatusResponse?: MessageStatusResponse | undefined;
 }
 
 /** TextMessage holds the payload of a plain-text conversation turn. */
@@ -639,6 +715,31 @@ export interface CTAMessageResponse {
   messageId: string;
 }
 
+/**
+ * MessageStatusRequest informs the channel of a delivery status change for a
+ * message previously sent to the user (delivered, read, errored, etc.).
+ */
+export interface MessageStatusRequest {
+  messageId: string;
+  status: MessageStatus;
+  timestamp: Date | undefined;
+}
+
+/** MessageStatusResponse acknowledges a MessageStatusRequest. */
+export interface MessageStatusResponse {
+  status: ResponseStatus;
+  timestamp: Date | undefined;
+}
+
+/**
+ * RegisterCommandsRequest declares which commands the SDK is able to execute,
+ * so the channel can decide which ones it may dispatch back to the client.
+ */
+export interface RegisterCommandsRequest {
+  commands: SdkCommand[];
+  timestamp: Date | undefined;
+}
+
 /** AuthRequest is the body of POST /auth used to obtain an initial access token. */
 export interface AuthRequest {
   userType: string;
@@ -726,6 +827,9 @@ function createBaseSdkMessage(): SdkMessage {
     buttonsMessageResponse: undefined,
     ctaMessageRequest: undefined,
     ctaMessageResponse: undefined,
+    registerCommandsRequest: undefined,
+    messageStatusRequest: undefined,
+    messageStatusResponse: undefined,
   };
 }
 
@@ -838,6 +942,15 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.ctaMessageResponse !== undefined) {
       CTAMessageResponse.encode(message.ctaMessageResponse, writer.uint32(346).fork()).join();
+    }
+    if (message.registerCommandsRequest !== undefined) {
+      RegisterCommandsRequest.encode(message.registerCommandsRequest, writer.uint32(354).fork()).join();
+    }
+    if (message.messageStatusRequest !== undefined) {
+      MessageStatusRequest.encode(message.messageStatusRequest, writer.uint32(362).fork()).join();
+    }
+    if (message.messageStatusResponse !== undefined) {
+      MessageStatusResponse.encode(message.messageStatusResponse, writer.uint32(370).fork()).join();
     }
     return writer;
   },
@@ -1137,6 +1250,30 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.ctaMessageResponse = CTAMessageResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 44: {
+          if (tag !== 354) {
+            break;
+          }
+
+          message.registerCommandsRequest = RegisterCommandsRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 45: {
+          if (tag !== 362) {
+            break;
+          }
+
+          message.messageStatusRequest = MessageStatusRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 46: {
+          if (tag !== 370) {
+            break;
+          }
+
+          message.messageStatusResponse = MessageStatusResponse.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1324,6 +1461,21 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.cta_message_response)
         ? CTAMessageResponse.fromJSON(object.cta_message_response)
         : undefined,
+      registerCommandsRequest: isSet(object.registerCommandsRequest)
+        ? RegisterCommandsRequest.fromJSON(object.registerCommandsRequest)
+        : isSet(object.register_commands_request)
+        ? RegisterCommandsRequest.fromJSON(object.register_commands_request)
+        : undefined,
+      messageStatusRequest: isSet(object.messageStatusRequest)
+        ? MessageStatusRequest.fromJSON(object.messageStatusRequest)
+        : isSet(object.message_status_request)
+        ? MessageStatusRequest.fromJSON(object.message_status_request)
+        : undefined,
+      messageStatusResponse: isSet(object.messageStatusResponse)
+        ? MessageStatusResponse.fromJSON(object.messageStatusResponse)
+        : isSet(object.message_status_response)
+        ? MessageStatusResponse.fromJSON(object.message_status_response)
+        : undefined,
     };
   },
 
@@ -1436,6 +1588,15 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.ctaMessageResponse !== undefined) {
       obj.ctaMessageResponse = CTAMessageResponse.toJSON(message.ctaMessageResponse);
+    }
+    if (message.registerCommandsRequest !== undefined) {
+      obj.registerCommandsRequest = RegisterCommandsRequest.toJSON(message.registerCommandsRequest);
+    }
+    if (message.messageStatusRequest !== undefined) {
+      obj.messageStatusRequest = MessageStatusRequest.toJSON(message.messageStatusRequest);
+    }
+    if (message.messageStatusResponse !== undefined) {
+      obj.messageStatusResponse = MessageStatusResponse.toJSON(message.messageStatusResponse);
     }
     return obj;
   },
@@ -1563,6 +1724,17 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.ctaMessageResponse = (object.ctaMessageResponse !== undefined && object.ctaMessageResponse !== null)
       ? CTAMessageResponse.fromPartial(object.ctaMessageResponse)
       : undefined;
+    message.registerCommandsRequest =
+      (object.registerCommandsRequest !== undefined && object.registerCommandsRequest !== null)
+        ? RegisterCommandsRequest.fromPartial(object.registerCommandsRequest)
+        : undefined;
+    message.messageStatusRequest = (object.messageStatusRequest !== undefined && object.messageStatusRequest !== null)
+      ? MessageStatusRequest.fromPartial(object.messageStatusRequest)
+      : undefined;
+    message.messageStatusResponse =
+      (object.messageStatusResponse !== undefined && object.messageStatusResponse !== null)
+        ? MessageStatusResponse.fromPartial(object.messageStatusResponse)
+        : undefined;
     return message;
   },
 };
@@ -6140,6 +6312,268 @@ export const CTAMessageResponse: MessageFns<CTAMessageResponse> = {
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     message.messageId = object.messageId ?? "";
+    return message;
+  },
+};
+
+function createBaseMessageStatusRequest(): MessageStatusRequest {
+  return { messageId: "", status: 0, timestamp: undefined };
+}
+
+export const MessageStatusRequest: MessageFns<MessageStatusRequest> = {
+  encode(message: MessageStatusRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.messageId !== "") {
+      writer.uint32(10).string(message.messageId);
+    }
+    if (message.status !== 0) {
+      writer.uint32(16).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MessageStatusRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMessageStatusRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.messageId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MessageStatusRequest {
+    return {
+      messageId: isSet(object.messageId)
+        ? globalThis.String(object.messageId)
+        : isSet(object.message_id)
+        ? globalThis.String(object.message_id)
+        : "",
+      status: isSet(object.status) ? messageStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: MessageStatusRequest): unknown {
+    const obj: any = {};
+    if (message.messageId !== "") {
+      obj.messageId = message.messageId;
+    }
+    if (message.status !== 0) {
+      obj.status = messageStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MessageStatusRequest>, I>>(base?: I): MessageStatusRequest {
+    return MessageStatusRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MessageStatusRequest>, I>>(object: I): MessageStatusRequest {
+    const message = createBaseMessageStatusRequest();
+    message.messageId = object.messageId ?? "";
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseMessageStatusResponse(): MessageStatusResponse {
+  return { status: 0, timestamp: undefined };
+}
+
+export const MessageStatusResponse: MessageFns<MessageStatusResponse> = {
+  encode(message: MessageStatusResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MessageStatusResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMessageStatusResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MessageStatusResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: MessageStatusResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MessageStatusResponse>, I>>(base?: I): MessageStatusResponse {
+    return MessageStatusResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MessageStatusResponse>, I>>(object: I): MessageStatusResponse {
+    const message = createBaseMessageStatusResponse();
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseRegisterCommandsRequest(): RegisterCommandsRequest {
+  return { commands: [], timestamp: undefined };
+}
+
+export const RegisterCommandsRequest: MessageFns<RegisterCommandsRequest> = {
+  encode(message: RegisterCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    writer.uint32(10).fork();
+    for (const v of message.commands) {
+      writer.int32(v);
+    }
+    writer.join();
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RegisterCommandsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRegisterCommandsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag === 8) {
+            message.commands.push(reader.int32() as any);
+
+            continue;
+          }
+
+          if (tag === 10) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.commands.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RegisterCommandsRequest {
+    return {
+      commands: globalThis.Array.isArray(object?.commands)
+        ? object.commands.map((e: any) => sdkCommandFromJSON(e))
+        : [],
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: RegisterCommandsRequest): unknown {
+    const obj: any = {};
+    if (message.commands?.length) {
+      obj.commands = message.commands.map((e) => sdkCommandToJSON(e));
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RegisterCommandsRequest>, I>>(base?: I): RegisterCommandsRequest {
+    return RegisterCommandsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RegisterCommandsRequest>, I>>(object: I): RegisterCommandsRequest {
+    const message = createBaseRegisterCommandsRequest();
+    message.commands = object.commands?.map((e) => e) || [];
+    message.timestamp = object.timestamp ?? undefined;
     return message;
   },
 };
