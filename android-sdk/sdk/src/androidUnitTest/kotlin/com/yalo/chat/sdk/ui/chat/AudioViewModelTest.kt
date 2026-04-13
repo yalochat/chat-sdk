@@ -9,8 +9,10 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.AudioRepository
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -35,6 +37,10 @@ class AudioViewModelTest {
     // from leaking uncaught exceptions into a later test's runTest check.
     private var dispatcher = UnconfinedTestDispatcher()
 
+    // All created VMs are cancelled in tearDown() before resetMain() to prevent live
+    // viewModelScope coroutines from dispatching on the now-reset main dispatcher.
+    private val vmsToClean = mutableListOf<AudioViewModel>()
+
     @BeforeTest
     fun setUp() {
         dispatcher = UnconfinedTestDispatcher()
@@ -43,6 +49,8 @@ class AudioViewModelTest {
 
     @AfterTest
     fun tearDown() {
+        vmsToClean.forEach { it.viewModelScope.cancel() }
+        vmsToClean.clear()
         Dispatchers.resetMain()
     }
 
@@ -53,8 +61,8 @@ class AudioViewModelTest {
         timestamp = 0L,
     )
 
-    private fun viewModel(repo: AudioRepository = FakeAudioRepository()) =
-        AudioViewModel(repo)
+    private fun viewModel(repo: AudioRepository = FakeAudioRepository()): AudioViewModel =
+        AudioViewModel(repo).also { vmsToClean.add(it) }
 
     // ── Initial state ─────────────────────────────────────────────────────────
 

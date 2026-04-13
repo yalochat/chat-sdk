@@ -175,6 +175,13 @@ internal class MessagesViewModel(
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
                 _state.update { currentState ->
+                    // Preserve in-memory expand flags: DB never stores `expand` (it always
+                    // reads back as false), so re-mapping the observed list by id keeps
+                    // expanded/collapsed state alive across subsequent emissions.
+                    val expandById = currentState.messages.associate { it.id to it.expand }
+                    val mergedMessages = messages.map { msg ->
+                        if (expandById[msg.id] == true) msg.copy(expand = true) else msg
+                    }
                     // Only overwrite quickReplies when a NEW QuickReply message arrived —
                     // i.e. the derived value differs from what the previous message list
                     // produced. This mirrors Flutter's messages_bloc which only sets
@@ -184,10 +191,10 @@ internal class MessagesViewModel(
                     // (e.g. a user image send triggers observeMessages, which found the old
                     // QuickReply message and restored its replies).
                     val previousDerived = currentState.messages.extractQuickReplies()
-                    val newDerived = messages.extractQuickReplies()
+                    val newDerived = mergedMessages.extractQuickReplies()
                     val quickReplies = if (newDerived != previousDerived) newDerived else currentState.quickReplies
                     currentState.copy(
-                        messages = messages,
+                        messages = mergedMessages,
                         quickReplies = quickReplies,
                     )
                 }

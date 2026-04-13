@@ -242,7 +242,7 @@ internal class YaloMessageRepositoryRemote(
         // No media download needed: products carry embedded metadata (SKU, name, price, images URLs).
         message.productMessageRequest?.let { productMsg ->
             if (deduplicate) cache.set(id, true)
-            val type = if (productMsg.orientation == "ORIENTATION_HORIZONTAL")
+            val type = if (productMsg.orientation == ORIENTATION_HORIZONTAL)
                 MessageType.ProductCarousel else MessageType.Product
             return ChatMessage(
                 id = stableId,
@@ -278,6 +278,9 @@ internal class YaloMessageRepositoryRemote(
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 private const val TYPING_STATUS_TEXT = "Writing message..."
+// Proto3 JSON enum value name for horizontal orientation (carousel layout).
+// Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
+private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────
 private fun parseIso8601(date: String): Long =

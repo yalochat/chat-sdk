@@ -57,7 +57,7 @@ class MessagesViewModelTest {
     private fun viewModel(
         yaloRepo: com.yalo.chat.sdk.domain.repository.YaloMessageRepository = FakeYaloMessageRepository(),
         chatRepo: FakeChatMessageRepository = FakeChatMessageRepository(),
-    ) = MessagesViewModel(yaloRepo, chatRepo)
+    ) = MessagesViewModel(yaloRepo, chatRepo).also { trackedVms.add(it) }
 
     // ── LoadMessages ─────────────────────────────────────────────────────────
 
