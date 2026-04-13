@@ -61,7 +61,7 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "Pick an option:",
                 quickReplies = listOf("Yes", "No", "Maybe"),
             )
@@ -81,7 +81,7 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "Pick:",
                 quickReplies = listOf("Track order", "Cancel order"),
             )
@@ -108,7 +108,7 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "How can I help?",
                 quickReplies = listOf("Option A", "Option B", "Option C"),
             )

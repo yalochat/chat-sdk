@@ -13,6 +13,10 @@ data class MessagesState(
     val isConnected: Boolean = false,
     val chatStatus: ChatStatus = ChatStatus.Initial,
     val quickReplies: List<String> = emptyList(),
+    // wiId of the most recent QuickReply message seen — used to detect genuinely new
+    // QuickReply messages without comparing list contents (which would miss re-sends
+    // with identical reply options after the user has cleared the chip row).
+    val lastQuickReplyMessageWiId: String? = null,
     val pageInfo: PageInfo = PageInfo(),
     // Typing indicator — mirrors Flutter's isSystemTypingMessage + chatStatusText fields.
     // Set to true + the status string when TypingStart is received; reset on TypingStop.

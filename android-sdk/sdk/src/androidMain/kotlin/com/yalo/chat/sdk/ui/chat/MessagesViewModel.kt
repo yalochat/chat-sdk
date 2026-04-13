@@ -182,20 +182,27 @@ internal class MessagesViewModel(
                     val mergedMessages = messages.map { msg ->
                         if (expandById[msg.id] == true) msg.copy(expand = true) else msg
                     }
-                    // Only overwrite quickReplies when a NEW QuickReply message arrived —
-                    // i.e. the derived value differs from what the previous message list
-                    // produced. This mirrors Flutter's messages_bloc which only sets
-                    // quickReplies from the specific incoming message, not by re-scanning
-                    // the full list on every update. Without this guard, ClearQuickReplies
-                    // is immediately undone the moment any subsequent message is inserted
-                    // (e.g. a user image send triggers observeMessages, which found the old
-                    // QuickReply message and restored its replies).
-                    val previousDerived = currentState.messages.extractQuickReplies()
-                    val newDerived = mergedMessages.extractQuickReplies()
-                    val quickReplies = if (newDerived != previousDerived) newDerived else currentState.quickReplies
+                    // Only overwrite quickReplies when a NEW QuickReply message arrived.
+                    // Detection is by wiId (server-assigned ID) so that re-sends of
+                    // the same content after ClearQuickReplies are correctly shown again.
+                    // Comparing list contents (previous approach) would treat a re-sent
+                    // QuickReply with identical options as "no change" and leave the chip
+                    // row empty. Without this guard entirely, ClearQuickReplies is undone
+                    // the moment any subsequent message is inserted (e.g. a user text send
+                    // triggers observeMessages, which would find the old QuickReply message
+                    // and restore its replies).
+                    val latestQrWiId = mergedMessages
+                        .lastOrNull { it.type == MessageType.QuickReply && it.role == MessageRole.AGENT }
+                        ?.wiId
+                    val quickReplies = if (latestQrWiId != null && latestQrWiId != currentState.lastQuickReplyMessageWiId) {
+                        mergedMessages.extractQuickReplies()
+                    } else {
+                        currentState.quickReplies
+                    }
                     currentState.copy(
                         messages = mergedMessages,
                         quickReplies = quickReplies,
+                        lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
                     )
                 }
             }

@@ -304,7 +304,7 @@ class MessagesViewModelTest {
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SubscribeToMessages)
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
                 quickReplies = listOf("Option A", "Option B"))
         )
@@ -319,7 +319,7 @@ class MessagesViewModelTest {
         vm.handleEvent(MessagesEvent.SubscribeToMessages)
         // Seed a QuickReply message so quickReplies are populated
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
                 quickReplies = listOf("Option A", "Option B"))
         )
@@ -334,6 +334,31 @@ class MessagesViewModelTest {
                 status = MessageStatus.SENT, content = "Option A")
         )
         assertTrue(vm.state.value.quickReplies.isEmpty(), "quickReplies must not be restored after ClearQuickReplies")
+        vm.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `ClearQuickReplies IS restored when a new QuickReply message with the same content arrives`() = runTest {
+        val chatRepo = FakeChatMessageRepository()
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.SubscribeToMessages)
+        // First QuickReply message
+        chatRepo.insertMessage(
+            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Pick one:",
+                quickReplies = listOf("Yes", "No"))
+        )
+        assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies)
+        vm.handleEvent(MessagesEvent.ClearQuickReplies)
+        assertTrue(vm.state.value.quickReplies.isEmpty())
+        // Backend re-sends a QuickReply with identical options — different message (different wiId).
+        // The chip row MUST reappear even though the content is the same as the cleared one.
+        chatRepo.insertMessage(
+            ChatMessage(id = 2L, wiId = "qr-wi-2", role = MessageRole.AGENT, type = MessageType.QuickReply,
+                status = MessageStatus.DELIVERED, content = "Pick one:",
+                quickReplies = listOf("Yes", "No"))
+        )
+        assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies, "chip row must reappear for a new QuickReply message even if content is identical")
         vm.viewModelScope.cancel()
     }
 

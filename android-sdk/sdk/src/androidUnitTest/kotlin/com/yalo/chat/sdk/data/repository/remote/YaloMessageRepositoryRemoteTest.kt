@@ -570,6 +570,17 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun `fetchMessages maps productMessageRequest absent orientation field to Product type`() = runTest {
+        // JSON with no "orientation" key at all — must default to vertical (Product list),
+        // not crash. Proto3 omits default-value fields on the wire; backend may omit it.
+        val json = """[{"id":"prod-null","message":{"productMessageRequest":{"products":[]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+        val repo = buildRepo(listOf(json))
+        val result = repo.fetchMessages(since = 0L)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageType.Product, result.result.first().type)
+    }
+
+    @Test
     fun `fetchMessages maps product fields correctly`() = runTest {
         val json = productMessageJson(
             id = "prod-4",
