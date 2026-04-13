@@ -185,6 +185,76 @@ export function messageStatusToJSON(object: MessageStatus): string {
   }
 }
 
+/** SdkCommand enumerates the commands the SDK is able to execute on the client. */
+export const SdkCommand = {
+  SDK_COMMAND_UNSPECIFIED: 0,
+  SDK_COMMAND_ADD_TO_CART: 1,
+  SDK_COMMAND_REMOVE_FROM_CART: 2,
+  SDK_COMMAND_CLEAR_CART: 3,
+  SDK_COMMAND_GUIDANCE_CARD: 4,
+  SDK_COMMAND_ADD_PROMOTION: 5,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type SdkCommand = typeof SdkCommand[keyof typeof SdkCommand];
+
+export namespace SdkCommand {
+  export type SDK_COMMAND_UNSPECIFIED = typeof SdkCommand.SDK_COMMAND_UNSPECIFIED;
+  export type SDK_COMMAND_ADD_TO_CART = typeof SdkCommand.SDK_COMMAND_ADD_TO_CART;
+  export type SDK_COMMAND_REMOVE_FROM_CART = typeof SdkCommand.SDK_COMMAND_REMOVE_FROM_CART;
+  export type SDK_COMMAND_CLEAR_CART = typeof SdkCommand.SDK_COMMAND_CLEAR_CART;
+  export type SDK_COMMAND_GUIDANCE_CARD = typeof SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
+  export type SDK_COMMAND_ADD_PROMOTION = typeof SdkCommand.SDK_COMMAND_ADD_PROMOTION;
+  export type UNRECOGNIZED = typeof SdkCommand.UNRECOGNIZED;
+}
+
+export function sdkCommandFromJSON(object: any): SdkCommand {
+  switch (object) {
+    case 0:
+    case "SDK_COMMAND_UNSPECIFIED":
+      return SdkCommand.SDK_COMMAND_UNSPECIFIED;
+    case 1:
+    case "SDK_COMMAND_ADD_TO_CART":
+      return SdkCommand.SDK_COMMAND_ADD_TO_CART;
+    case 2:
+    case "SDK_COMMAND_REMOVE_FROM_CART":
+      return SdkCommand.SDK_COMMAND_REMOVE_FROM_CART;
+    case 3:
+    case "SDK_COMMAND_CLEAR_CART":
+      return SdkCommand.SDK_COMMAND_CLEAR_CART;
+    case 4:
+    case "SDK_COMMAND_GUIDANCE_CARD":
+      return SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
+    case 5:
+    case "SDK_COMMAND_ADD_PROMOTION":
+      return SdkCommand.SDK_COMMAND_ADD_PROMOTION;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return SdkCommand.UNRECOGNIZED;
+  }
+}
+
+export function sdkCommandToJSON(object: SdkCommand): string {
+  switch (object) {
+    case SdkCommand.SDK_COMMAND_UNSPECIFIED:
+      return "SDK_COMMAND_UNSPECIFIED";
+    case SdkCommand.SDK_COMMAND_ADD_TO_CART:
+      return "SDK_COMMAND_ADD_TO_CART";
+    case SdkCommand.SDK_COMMAND_REMOVE_FROM_CART:
+      return "SDK_COMMAND_REMOVE_FROM_CART";
+    case SdkCommand.SDK_COMMAND_CLEAR_CART:
+      return "SDK_COMMAND_CLEAR_CART";
+    case SdkCommand.SDK_COMMAND_GUIDANCE_CARD:
+      return "SDK_COMMAND_GUIDANCE_CARD";
+    case SdkCommand.SDK_COMMAND_ADD_PROMOTION:
+      return "SDK_COMMAND_ADD_PROMOTION";
+    case SdkCommand.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /**
  * SdkMessage is the top-level wrapper sent over the bidirectional stream.
  * Exactly one payload field is set per message; the oneof lets the Go runtime
@@ -239,7 +309,12 @@ export interface SdkMessage {
   buttonsMessageRequest?: ButtonsMessageRequest | undefined;
   buttonsMessageResponse?: ButtonsMessageResponse | undefined;
   ctaMessageRequest?: CTAMessageRequest | undefined;
-  ctaMessageResponse?: CTAMessageResponse | undefined;
+  ctaMessageResponse?:
+    | CTAMessageResponse
+    | undefined;
+  /** Client → channel */
+  getCommandsRequest?: GetCommandsRequest | undefined;
+  getCommandsResponse?: GetCommandsResponse | undefined;
 }
 
 /** TextMessage holds the payload of a plain-text conversation turn. */
@@ -639,6 +714,23 @@ export interface CTAMessageResponse {
   messageId: string;
 }
 
+/**
+ * GetCommandsRequest is sent by the client to declare that it is ready to
+ * receive the list of commands it is able to execute.
+ */
+export interface GetCommandsRequest {
+  timestamp: Date | undefined;
+}
+
+/**
+ * GetCommandsResponse declares which commands the SDK is able to execute,
+ * so the channel can decide which ones it may dispatch back to the client.
+ */
+export interface GetCommandsResponse {
+  commands: SdkCommand[];
+  timestamp: Date | undefined;
+}
+
 /** AuthRequest is the body of POST /auth used to obtain an initial access token. */
 export interface AuthRequest {
   userType: string;
@@ -726,6 +818,8 @@ function createBaseSdkMessage(): SdkMessage {
     buttonsMessageResponse: undefined,
     ctaMessageRequest: undefined,
     ctaMessageResponse: undefined,
+    getCommandsRequest: undefined,
+    getCommandsResponse: undefined,
   };
 }
 
@@ -838,6 +932,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.ctaMessageResponse !== undefined) {
       CTAMessageResponse.encode(message.ctaMessageResponse, writer.uint32(346).fork()).join();
+    }
+    if (message.getCommandsRequest !== undefined) {
+      GetCommandsRequest.encode(message.getCommandsRequest, writer.uint32(354).fork()).join();
+    }
+    if (message.getCommandsResponse !== undefined) {
+      GetCommandsResponse.encode(message.getCommandsResponse, writer.uint32(362).fork()).join();
     }
     return writer;
   },
@@ -1137,6 +1237,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.ctaMessageResponse = CTAMessageResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 44: {
+          if (tag !== 354) {
+            break;
+          }
+
+          message.getCommandsRequest = GetCommandsRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 45: {
+          if (tag !== 362) {
+            break;
+          }
+
+          message.getCommandsResponse = GetCommandsResponse.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1324,6 +1440,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.cta_message_response)
         ? CTAMessageResponse.fromJSON(object.cta_message_response)
         : undefined,
+      getCommandsRequest: isSet(object.getCommandsRequest)
+        ? GetCommandsRequest.fromJSON(object.getCommandsRequest)
+        : isSet(object.get_commands_request)
+        ? GetCommandsRequest.fromJSON(object.get_commands_request)
+        : undefined,
+      getCommandsResponse: isSet(object.getCommandsResponse)
+        ? GetCommandsResponse.fromJSON(object.getCommandsResponse)
+        : isSet(object.get_commands_response)
+        ? GetCommandsResponse.fromJSON(object.get_commands_response)
+        : undefined,
     };
   },
 
@@ -1436,6 +1562,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.ctaMessageResponse !== undefined) {
       obj.ctaMessageResponse = CTAMessageResponse.toJSON(message.ctaMessageResponse);
+    }
+    if (message.getCommandsRequest !== undefined) {
+      obj.getCommandsRequest = GetCommandsRequest.toJSON(message.getCommandsRequest);
+    }
+    if (message.getCommandsResponse !== undefined) {
+      obj.getCommandsResponse = GetCommandsResponse.toJSON(message.getCommandsResponse);
     }
     return obj;
   },
@@ -1562,6 +1694,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       : undefined;
     message.ctaMessageResponse = (object.ctaMessageResponse !== undefined && object.ctaMessageResponse !== null)
       ? CTAMessageResponse.fromPartial(object.ctaMessageResponse)
+      : undefined;
+    message.getCommandsRequest = (object.getCommandsRequest !== undefined && object.getCommandsRequest !== null)
+      ? GetCommandsRequest.fromPartial(object.getCommandsRequest)
+      : undefined;
+    message.getCommandsResponse = (object.getCommandsResponse !== undefined && object.getCommandsResponse !== null)
+      ? GetCommandsResponse.fromPartial(object.getCommandsResponse)
       : undefined;
     return message;
   },
@@ -6140,6 +6278,154 @@ export const CTAMessageResponse: MessageFns<CTAMessageResponse> = {
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     message.messageId = object.messageId ?? "";
+    return message;
+  },
+};
+
+function createBaseGetCommandsRequest(): GetCommandsRequest {
+  return { timestamp: undefined };
+}
+
+export const GetCommandsRequest: MessageFns<GetCommandsRequest> = {
+  encode(message: GetCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCommandsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetCommandsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetCommandsRequest {
+    return { timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined };
+  },
+
+  toJSON(message: GetCommandsRequest): unknown {
+    const obj: any = {};
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(base?: I): GetCommandsRequest {
+    return GetCommandsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(object: I): GetCommandsRequest {
+    const message = createBaseGetCommandsRequest();
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseGetCommandsResponse(): GetCommandsResponse {
+  return { commands: [], timestamp: undefined };
+}
+
+export const GetCommandsResponse: MessageFns<GetCommandsResponse> = {
+  encode(message: GetCommandsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    writer.uint32(10).fork();
+    for (const v of message.commands) {
+      writer.int32(v);
+    }
+    writer.join();
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCommandsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetCommandsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag === 8) {
+            message.commands.push(reader.int32() as any);
+
+            continue;
+          }
+
+          if (tag === 10) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.commands.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetCommandsResponse {
+    return {
+      commands: globalThis.Array.isArray(object?.commands)
+        ? object.commands.map((e: any) => sdkCommandFromJSON(e))
+        : [],
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: GetCommandsResponse): unknown {
+    const obj: any = {};
+    if (message.commands?.length) {
+      obj.commands = message.commands.map((e) => sdkCommandToJSON(e));
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetCommandsResponse>, I>>(base?: I): GetCommandsResponse {
+    return GetCommandsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetCommandsResponse>, I>>(object: I): GetCommandsResponse {
+    const message = createBaseGetCommandsResponse();
+    message.commands = object.commands?.map((e) => e) || [];
+    message.timestamp = object.timestamp ?? undefined;
     return message;
   },
 };
