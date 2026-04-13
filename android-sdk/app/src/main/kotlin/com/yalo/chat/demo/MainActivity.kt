@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
                 channelName = BuildConfig.YALO_CHANNEL_NAME,
                 channelId = BuildConfig.YALO_CHANNEL_ID,
                 organizationId = BuildConfig.YALO_ORGANIZATION_ID,
+                apiBaseUrl = BuildConfig.YALO_API_BASE_URL,
                 useFakeRepository = BuildConfig.USE_FAKE_REPOSITORY,
             ),
             context = this,

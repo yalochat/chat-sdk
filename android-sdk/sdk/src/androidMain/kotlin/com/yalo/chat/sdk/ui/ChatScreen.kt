@@ -208,7 +208,7 @@ fun ChatScreen(
 
     // ── Scaffold ──────────────────────────────────────────────────────────────
 
-    ChatThemeProvider(YaloChat.config.theme) {
+    ChatThemeProvider(YaloChat.theme) {
         Box {
             Scaffold(
                 topBar = {
