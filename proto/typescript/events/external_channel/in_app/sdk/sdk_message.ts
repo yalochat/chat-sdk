@@ -716,9 +716,10 @@ export interface CTAMessageResponse {
 
 /**
  * GetCommandsRequest is sent by the client to declare that it is ready to
- * receive the list of commands it is able to execute. The body is intentionally empty.
+ * receive the list of commands it is able to execute.
  */
 export interface GetCommandsRequest {
+  timestamp: Date | undefined;
 }
 
 /**
@@ -6282,11 +6283,14 @@ export const CTAMessageResponse: MessageFns<CTAMessageResponse> = {
 };
 
 function createBaseGetCommandsRequest(): GetCommandsRequest {
-  return {};
+  return { timestamp: undefined };
 }
 
 export const GetCommandsRequest: MessageFns<GetCommandsRequest> = {
-  encode(_: GetCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: GetCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
+    }
     return writer;
   },
 
@@ -6297,6 +6301,14 @@ export const GetCommandsRequest: MessageFns<GetCommandsRequest> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -6306,20 +6318,24 @@ export const GetCommandsRequest: MessageFns<GetCommandsRequest> = {
     return message;
   },
 
-  fromJSON(_: any): GetCommandsRequest {
-    return {};
+  fromJSON(object: any): GetCommandsRequest {
+    return { timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined };
   },
 
-  toJSON(_: GetCommandsRequest): unknown {
+  toJSON(message: GetCommandsRequest): unknown {
     const obj: any = {};
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
     return obj;
   },
 
   create<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(base?: I): GetCommandsRequest {
     return GetCommandsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(_: I): GetCommandsRequest {
+  fromPartial<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(object: I): GetCommandsRequest {
     const message = createBaseGetCommandsRequest();
+    message.timestamp = object.timestamp ?? undefined;
     return message;
   },
 };

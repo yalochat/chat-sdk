@@ -1868,11 +1868,22 @@ final $typed_data.Uint8List cTAMessageResponseDescriptor = $convert.base64Decode
 @$core.Deprecated('Use getCommandsRequestDescriptor instead')
 const GetCommandsRequest$json = {
   '1': 'GetCommandsRequest',
+  '2': [
+    {
+      '1': 'timestamp',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
 };
 
 /// Descriptor for `GetCommandsRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getCommandsRequestDescriptor =
-    $convert.base64Decode('ChJHZXRDb21tYW5kc1JlcXVlc3Q=');
+final $typed_data.Uint8List getCommandsRequestDescriptor = $convert.base64Decode(
+    'ChJHZXRDb21tYW5kc1JlcXVlc3QSOAoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYn'
+    'VmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use getCommandsResponseDescriptor instead')
 const GetCommandsResponse$json = {

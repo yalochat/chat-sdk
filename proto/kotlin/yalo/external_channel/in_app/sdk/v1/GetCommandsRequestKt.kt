@@ -13,7 +13,7 @@ public inline fun getCommandsRequest(block: yalo.external_channel.in_app.sdk.v1.
 /**
  * ```
  * GetCommandsRequest is sent by the client to declare that it is ready to
- * receive the list of commands it is able to execute. The body is intentionally empty.
+ * receive the list of commands it is able to execute.
  * ```
  *
  * Protobuf type `yalo.external_channel.in_app.sdk.v1.GetCommandsRequest`
@@ -33,8 +33,38 @@ public object GetCommandsRequestKt {
     @kotlin.jvm.JvmSynthetic
   @kotlin.PublishedApi
     internal fun _build(): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest = _builder.build()
+
+    /**
+     * `.google.protobuf.Timestamp timestamp = 1;`
+     */
+    public var timestamp: com.google.protobuf.Timestamp
+      @kotlin.jvm.JvmName("getTimestamp")
+        get() = _builder.timestamp
+      @kotlin.jvm.JvmName("setTimestamp")
+        set(value) {
+        _builder.timestamp = value
+      }
+    /**
+     * `.google.protobuf.Timestamp timestamp = 1;`
+     */
+    public fun clearTimestamp() {
+      _builder.clearTimestamp()
+    }
+    /**
+     * `.google.protobuf.Timestamp timestamp = 1;`
+     * @return Whether the timestamp field is set.
+     */
+    public fun hasTimestamp(): kotlin.Boolean {
+      return _builder.hasTimestamp()
+    }
+
+    public val GetCommandsRequestKt.Dsl.timestampOrNull: com.google.protobuf.Timestamp?
+      get() = _builder.timestampOrNull
   }
 }
 public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.copy(block: `yalo.external_channel.in_app.sdk.v1`.GetCommandsRequestKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest =
   `yalo.external_channel.in_app.sdk.v1`.GetCommandsRequestKt.Dsl._create(this.toBuilder()).apply { block() }._build()
+
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequestOrBuilder.timestampOrNull: com.google.protobuf.Timestamp?
+  get() = if (hasTimestamp()) getTimestamp() else null
 

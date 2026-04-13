@@ -3764,9 +3764,10 @@ func (x *CTAMessageResponse) GetMessageId() string {
 }
 
 // GetCommandsRequest is sent by the client to declare that it is ready to
-// receive the list of commands it is able to execute. The body is intentionally empty.
+// receive the list of commands it is able to execute.
 type GetCommandsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3799,6 +3800,13 @@ func (x *GetCommandsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetCommandsRequest.ProtoReflect.Descriptor instead.
 func (*GetCommandsRequest) Descriptor() ([]byte, []int) {
 	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{44}
+}
+
+func (x *GetCommandsRequest) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
 }
 
 // GetCommandsResponse declares which commands the SDK is able to execute,
@@ -4412,8 +4420,9 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\x06status\x18\x01 \x01(\x0e23.yalo.external_channel.in_app.sdk.v1.ResponseStatusR\x06status\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\tR\tmessageId\"\x14\n" +
-	"\x12GetCommandsRequest\"\x9c\x01\n" +
+	"message_id\x18\x03 \x01(\tR\tmessageId\"N\n" +
+	"\x12GetCommandsRequest\x128\n" +
+	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x9c\x01\n" +
 	"\x13GetCommandsResponse\x12K\n" +
 	"\bcommands\x18\x01 \x03(\x0e2/.yalo.external_channel.in_app.sdk.v1.SdkCommandR\bcommands\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x90\x01\n" +
@@ -4653,15 +4662,16 @@ var file_events_external_channel_in_app_sdk_sdk_message_proto_depIdxs = []int32{
 	55,  // 111: yalo.external_channel.in_app.sdk.v1.CTAMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
 	0,   // 112: yalo.external_channel.in_app.sdk.v1.CTAMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v1.ResponseStatus
 	55,  // 113: yalo.external_channel.in_app.sdk.v1.CTAMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
-	3,   // 114: yalo.external_channel.in_app.sdk.v1.GetCommandsResponse.commands:type_name -> yalo.external_channel.in_app.sdk.v1.SdkCommand
-	55,  // 115: yalo.external_channel.in_app.sdk.v1.GetCommandsResponse.timestamp:type_name -> google.protobuf.Timestamp
-	5,   // 116: yalo.external_channel.in_app.sdk.v1.PollMessageItem.message:type_name -> yalo.external_channel.in_app.sdk.v1.SdkMessage
-	55,  // 117: yalo.external_channel.in_app.sdk.v1.PollMessageItem.date:type_name -> google.protobuf.Timestamp
-	118, // [118:118] is the sub-list for method output_type
-	118, // [118:118] is the sub-list for method input_type
-	118, // [118:118] is the sub-list for extension type_name
-	118, // [118:118] is the sub-list for extension extendee
-	0,   // [0:118] is the sub-list for field type_name
+	55,  // 114: yalo.external_channel.in_app.sdk.v1.GetCommandsRequest.timestamp:type_name -> google.protobuf.Timestamp
+	3,   // 115: yalo.external_channel.in_app.sdk.v1.GetCommandsResponse.commands:type_name -> yalo.external_channel.in_app.sdk.v1.SdkCommand
+	55,  // 116: yalo.external_channel.in_app.sdk.v1.GetCommandsResponse.timestamp:type_name -> google.protobuf.Timestamp
+	5,   // 117: yalo.external_channel.in_app.sdk.v1.PollMessageItem.message:type_name -> yalo.external_channel.in_app.sdk.v1.SdkMessage
+	55,  // 118: yalo.external_channel.in_app.sdk.v1.PollMessageItem.date:type_name -> google.protobuf.Timestamp
+	119, // [119:119] is the sub-list for method output_type
+	119, // [119:119] is the sub-list for method input_type
+	119, // [119:119] is the sub-list for extension type_name
+	119, // [119:119] is the sub-list for extension extendee
+	0,   // [0:119] is the sub-list for field type_name
 }
 
 func init() { file_events_external_channel_in_app_sdk_sdk_message_proto_init() }

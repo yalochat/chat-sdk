@@ -4746,9 +4746,15 @@ class CTAMessageResponse extends $pb.GeneratedMessage {
 }
 
 /// GetCommandsRequest is sent by the client to declare that it is ready to
-/// receive the list of commands it is able to execute. The body is intentionally empty.
+/// receive the list of commands it is able to execute.
 class GetCommandsRequest extends $pb.GeneratedMessage {
-  factory GetCommandsRequest() => create();
+  factory GetCommandsRequest({
+    $0.Timestamp? timestamp,
+  }) {
+    final result = create();
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
 
   GetCommandsRequest._();
 
@@ -4764,6 +4770,8 @@ class GetCommandsRequest extends $pb.GeneratedMessage {
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
+    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4784,6 +4792,17 @@ class GetCommandsRequest extends $pb.GeneratedMessage {
   static GetCommandsRequest getDefault() => _defaultInstance ??=
       $pb.GeneratedMessage.$_defaultFor<GetCommandsRequest>(create);
   static GetCommandsRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $0.Timestamp get timestamp => $_getN(0);
+  @$pb.TagNumber(1)
+  set timestamp($0.Timestamp value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTimestamp() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTimestamp() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $0.Timestamp ensureTimestamp() => $_ensure(0);
 }
 
 /// GetCommandsResponse declares which commands the SDK is able to execute,

@@ -31324,11 +31324,22 @@ public final class SdkMessageOuterClass {
   public interface GetCommandsRequestOrBuilder extends
       // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
       com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
   }
   /**
    * <pre>
    * GetCommandsRequest is sent by the client to declare that it is ready to
-   * receive the list of commands it is able to execute. The body is intentionally empty.
+   * receive the list of commands it is able to execute.
    * </pre>
    *
    * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsRequest}
@@ -31340,6 +31351,55 @@ public final class SdkMessageOuterClass {
       GetCommandsRequestOrBuilder {
     private GetCommandsRequest() {
     }
+    private int bitField0_;
+    public static final int TIMESTAMP_FIELD_NUMBER = 1;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -31426,7 +31486,7 @@ public final class SdkMessageOuterClass {
     /**
      * <pre>
      * GetCommandsRequest is sent by the client to declare that it is ready to
-     * receive the list of commands it is able to execute. The body is intentionally empty.
+     * receive the list of commands it is able to execute.
      * </pre>
      *
      * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.GetCommandsRequest}
@@ -31441,6 +31501,53 @@ public final class SdkMessageOuterClass {
         super(DEFAULT_INSTANCE);
       }
 
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
 
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.GetCommandsRequest)
     }
@@ -31457,9 +31564,12 @@ public final class SdkMessageOuterClass {
           return new Builder();
         }
         case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = null;
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "timestamp_",
+            };
             java.lang.String info =
-                "\u0000\u0000";
+                "\u0000\u0001\u0000\u0001\u0001\u0001\u0001\u0000\u0000\u0000\u0001\u1009\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
