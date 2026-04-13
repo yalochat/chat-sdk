@@ -590,8 +590,9 @@ class MessagesViewModelTest {
     }
 
     @Test
-    fun `ChatUpdateProductQuantity updates subunitsAdded on matching product`() = runTest {
-        val product = Product(sku = "sku-2", name = "Milk", price = 2.0, subunitsAdded = 0.0, subunitStep = 0.5)
+    fun `ChatUpdateProductQuantity updates subunitsAdded within pack size`() = runTest {
+        // quantity < product.subunits → no unit promotion, just sets subunitsAdded
+        val product = Product(sku = "sku-2", name = "Milk", price = 2.0, subunits = 12.0, subunitsAdded = 0.0, subunitStep = 1.0)
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(id = 6L, role = MessageRole.AGENT, type = MessageType.Product,
@@ -605,13 +606,88 @@ class MessagesViewModelTest {
                 messageId = 6L,
                 productSku = "sku-2",
                 unitType = UnitType.SUBUNIT,
-                quantity = 1.5,
+                quantity = 5.0,
             )
         )
 
         val updatedProduct = vm.state.value.messages.first().products.first()
-        assertEquals(1.5, updatedProduct.subunitsAdded)
+        assertEquals(5.0, updatedProduct.subunitsAdded)
         assertEquals(0.0, updatedProduct.unitsAdded)
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity promotes subunit overflow to whole units`() = runTest {
+        // Mirrors Flutter: adding more subunits than a pack contains auto-increments unitsAdded.
+        // 25 subunits with 12/pack → +2 whole units (floor(25/12)), 1 subunit remaining (25%12)
+        val product = Product(sku = "sku-3", name = "Eggs", price = 3.0, subunits = 12.0, unitsAdded = 0.0, subunitsAdded = 0.0, subunitStep = 1.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 12L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 12L,
+                productSku = "sku-3",
+                unitType = UnitType.SUBUNIT,
+                quantity = 25.0,
+            )
+        )
+
+        val updated = vm.state.value.messages.first().products.first()
+        assertEquals(2.0, updated.unitsAdded, "floor(25/12) = 2 extra whole units")
+        assertEquals(1.0, updated.subunitsAdded, "25 % 12 = 1 remaining subunit")
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity clamps negative unit quantity to zero`() = runTest {
+        val product = Product(sku = "sku-4", name = "Orange", price = 1.0, unitsAdded = 0.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 13L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 13L,
+                productSku = "sku-4",
+                unitType = UnitType.UNIT,
+                quantity = -1.0,
+            )
+        )
+
+        assertEquals(0.0, vm.state.value.messages.first().products.first().unitsAdded)
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity clamps negative subunit quantity to zero`() = runTest {
+        val product = Product(sku = "sku-5", name = "Lemon", price = 1.0, subunits = 12.0, subunitsAdded = 0.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 14L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val vm = viewModel(chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 14L,
+                productSku = "sku-5",
+                unitType = UnitType.SUBUNIT,
+                quantity = -5.0,
+            )
+        )
+
+        val updated = vm.state.value.messages.first().products.first()
+        assertEquals(0.0, updated.subunitsAdded)
+        assertEquals(0.0, updated.unitsAdded)
     }
 
     @Test

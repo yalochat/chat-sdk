@@ -147,8 +147,21 @@ internal class MessagesViewModel(
                     products = msg.products.map { product ->
                         if (product.sku != productSku) return@map product
                         when (unitType) {
-                            UnitType.UNIT -> product.copy(unitsAdded = quantity)
-                            UnitType.SUBUNIT -> product.copy(subunitsAdded = quantity)
+                            // Mirrors Flutter: max(event.quantity, 0)
+                            UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
+                            // Mirrors Flutter: subunit overflow promotes to whole units.
+                            // Adding more subunits than a pack contains auto-increments
+                            // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
+                            // +2 units, 1 subunit remaining).
+                            UnitType.SUBUNIT -> {
+                                val clamped = maxOf(quantity, 0.0)
+                                val extraUnits = kotlin.math.floor(clamped / product.subunits)
+                                val remainingSubunits = clamped % product.subunits
+                                product.copy(
+                                    unitsAdded = product.unitsAdded + extraUnits,
+                                    subunitsAdded = remainingSubunits,
+                                )
+                            }
                         }
                     }
                 ).also { updatedMessage = it }
