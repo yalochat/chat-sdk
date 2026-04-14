@@ -48,6 +48,16 @@ internal class YaloMessageRepositoryRemote(
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
+    // Highest message id assigned during the current polling session.
+    // Ensures new agent messages always sort AFTER previously-seen messages,
+    // even when the server's timestamp is later than the client's clock at the
+    // time of the next user send (which happens when the server takes a few
+    // seconds to generate a response — its timestamp then exceeds the user's
+    // subsequent message tempId, causing the wrong visual order).
+    // Reset to 0 on construction; seeded to Clock.System.now() on first poll.
+    // No atomic needed: pollIncomingMessages() is a single sequential coroutine.
+    private var pollHighWater: Long = 0L
+
     // Hot SharedFlow for typing events — mirrors Flutter's _typingEventsStreamController.
     // UNLIMITED buffer prevents event loss when TypingStart and TypingStop are emitted in
     // rapid succession (e.g. a poll cycle that errors immediately after a send).
@@ -161,14 +171,14 @@ internal class YaloMessageRepositoryRemote(
             when (val result = apiService.fetchMessages()) {
                 is Result.Ok -> {
                     val raw = result.result
+                    // Check for genuinely new messages BEFORE toChatMessage updates the cache.
+                    // Using raw.isNotEmpty() (old approach) caused TypingStop to fire on the
+                    // first poll after a send, because cached (already-seen) messages also
+                    // make raw non-empty, hiding the typing indicator before the agent replies.
+                    val hasNewMessages = raw.any { cache.get(it.id) == null }
                     val batch = raw.mapNotNull { it.toChatMessage(deduplicate = true) }
-                    // Emit TypingStop whenever the server returned any messages, not just
-                    // when the filtered batch is non-empty. Without this, a poll that returns
-                    // only non-text or fully-deduplicated messages would leave the typing
-                    // indicator stuck indefinitely.
-                    if (raw.isNotEmpty()) {
-                        _events.tryEmit(ChatEvent.TypingStop)
-                    }
+                        .let { ensureReceiptOrder(it) }
+                    if (hasNewMessages) _events.tryEmit(ChatEvent.TypingStop)
                     if (batch.isNotEmpty()) emit(batch)
                 }
                 is Result.Error -> {
@@ -177,6 +187,39 @@ internal class YaloMessageRepositoryRemote(
                 }
             }
             delay(pollingIntervalMs)
+        }
+    }
+
+    // Guarantees that every message in a polled batch has an id strictly greater
+    // than all previously-polled messages and the current client clock.
+    //
+    // Problem: stableId is derived from the SERVER timestamp, but user-message
+    // tempIds are derived from the CLIENT clock. When the server takes a few
+    // seconds to generate a response its timestamp can exceed the client's clock
+    // at the moment the user sends the next message. The agent response then gets
+    // a stableId > that user message's tempId and sorts AFTER it in ORDER BY id ASC,
+    // producing wrong visual order ("hey" appears before the reply to "hello").
+    //
+    // Fix: clamp each id to max(rawId, receiptFloor + batchIndex) where receiptFloor
+    // is the client clock at receipt time. This mirrors Flutter's prepend-to-front
+    // behaviour (newest message always at bottom) without changing the DB schema.
+    // fetchMessages() (startup cold load) is NOT affected — it bypasses this function.
+    private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
+        if (messages.isEmpty()) return messages
+        val receiptFloor = Clock.System.now().toEpochMilliseconds()
+        var cursor = maxOf(receiptFloor, pollHighWater + 1)
+        return messages.map { msg ->
+            val rawId = msg.id ?: return@map msg
+            val id = if (rawId < cursor) {
+                val assigned = cursor
+                cursor++
+                assigned
+            } else {
+                cursor = rawId + 1
+                rawId
+            }
+            if (id > pollHighWater) pollHighWater = id
+            if (id == rawId) msg else msg.copy(id = id)
         }
     }
 

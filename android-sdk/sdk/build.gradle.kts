@@ -115,6 +115,16 @@ kotlin {
     // They are JVM/Android-only (protobuf-kotlin-lite has no Kotlin/Native support).
     sourceSets.getByName("androidMain") {
         kotlin.srcDir("../../proto/kotlin")
+        // Exclude Kotlin DSL wrappers that reference Java types not yet generated in
+        // SdkMessageOuterClass.java (added by proto beb3ca9 without regenerating the Java file).
+        // These types (MessageStatusRequest/Response, RegisterCommandsRequest) are not
+        // used by the Android SDK and their unresolved-type references cause
+        // "Overload resolution ambiguity" on timestampOrNull across all other proto files.
+        kotlin.filter.exclude(
+            "**/MessageStatusRequestKt.kt",
+            "**/MessageStatusResponseKt.kt",
+            "**/RegisterCommandsRequestKt.kt",
+        )
     }
 }
 
