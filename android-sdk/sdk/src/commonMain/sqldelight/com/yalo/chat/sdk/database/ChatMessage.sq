@@ -1,6 +1,4 @@
 -- Copyright (c) Yalochat, Inc. All rights reserved.
--- Port of flutter-sdk/lib/src/data/services/database/chat_message.drift
--- Schema matches the Flutter Drift schema exactly (same column names and types).
 -- JSON columns (amplitudes, products, quick_replies, buttons, cta_buttons) are stored
 -- as TEXT and are encoded/decoded in the Kotlin repository layer.
 
@@ -34,14 +32,12 @@ INSERT OR REPLACE INTO chat_message (
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- First page: most recent messages, ordered newest-first.
--- Port of Flutter getMessagesFirstPage(limit).
 selectFirstPage:
 SELECT * FROM chat_message
 ORDER BY id DESC
 LIMIT :limit;
 
 -- Cursor page: messages with id < cursor, ordered newest-first.
--- Port of Flutter getMessagesPage(cursor, limit).
 selectPageBefore:
 SELECT * FROM chat_message
 WHERE id < :cursor

@@ -86,14 +86,12 @@ data class ChatTheme(
     val quickReplyColor: Color = Color(0xFFF9FAFC),
     /** Border color of quick reply chip buttons. */
     val quickReplyBorderColor: Color = Color(0xFFE8E8E8),
-    // Buttons message — port of Flutter SdkColors.buttonsMessage* light defaults.
     /** Background of buttons in a ButtonsMessage bubble (transparent by default). */
     val buttonsMessageButtonColor: Color = Color(0x00000000),
     /** Border color of buttons in a ButtonsMessage bubble. */
     val buttonsMessageButtonBorderColor: Color = Color(0xFFDDE4EC),
     /** Foreground (text/icon) color of buttons in a ButtonsMessage bubble. */
     val buttonsMessageButtonForegroundColor: Color = Color(0xFF111111),
-    // CTA message — port of Flutter SdkColors.ctaButton* light defaults.
     /** Background of CTA buttons (transparent by default). */
     val ctaButtonColor: Color = Color(0x00000000),
     /** Border color of CTA buttons. */
@@ -107,7 +105,6 @@ data class ChatTheme(
     val hintTextStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE)),
     val timerTextStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
     val quickReplyStyle: TextStyle = TextStyle(color = Color(0xFF000000)),
-    // Port of Flutter ChatTheme.messageHeaderStyle / messageFooterStyle.
     /** Bold header text shown above the body of a buttons or CTA message. */
     val messageHeaderStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontWeight = FontWeight.Bold),
     /** Subdued footer text shown below the body of a buttons or CTA message. */

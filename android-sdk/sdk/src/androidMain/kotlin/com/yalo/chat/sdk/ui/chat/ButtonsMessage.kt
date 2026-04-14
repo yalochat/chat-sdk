@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Port of flutter-sdk buttons_message.dart — ButtonsMessage widget.
 // Renders optional header + body text + optional footer + outlined reply buttons inside
 // the agent bubble. Tapping a button fires SendTextMessage with the label as content.
 @Composable

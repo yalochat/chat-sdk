@@ -24,10 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Port of flutter-sdk cta_message.dart — CtaMessage widget.
 // Renders optional header + body text + optional footer + CTA buttons that open URLs.
-// Button layout mirrors Flutter: text on the left, arrow icon on the right.
-// URL opening uses Intent.ACTION_VIEW (equivalent to Flutter's url_launcher).
+// Button layout: text on the left, arrow icon on the right.
+// URL opening uses Intent.ACTION_VIEW.
 @Composable
 internal fun CtaMessage(message: ChatMessage) {
     val theme = LocalChatTheme.current
@@ -71,8 +70,7 @@ internal fun CtaMessage(message: ChatMessage) {
                     contentColor = theme.ctaButtonForegroundColor,
                 ),
             ) {
-                // Text left-aligned, arrow icon on the right — mirrors Flutter's OutlinedButton.icon
-                // which swaps icon/label slots to achieve this layout.
+                // Text left-aligned, arrow icon on the right.
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),

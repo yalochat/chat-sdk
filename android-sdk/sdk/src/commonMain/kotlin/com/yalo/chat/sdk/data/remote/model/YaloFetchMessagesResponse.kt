@@ -84,7 +84,6 @@ internal data class SdkImageMessageContentDto(
 
 // ── Video ─────────────────────────────────────────────────────────────────────
 
-// Port of flutter-sdk videoMessageRequest handling in _translateMessageResponse.
 @Serializable
 internal data class SdkVideoMessageResponseDto(
     val content: SdkVideoMessageContentDto? = null,
@@ -103,7 +102,6 @@ internal data class SdkVideoMessageContentDto(
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 
-// Port of flutter-sdk buttonsMessageRequest — ButtonsMessage proto.
 @Serializable
 internal data class SdkButtonsMessageResponseDto(
     val content: SdkButtonsMessageContentDto? = null,
@@ -119,7 +117,6 @@ internal data class SdkButtonsMessageContentDto(
 
 // ── CTA ───────────────────────────────────────────────────────────────────────
 
-// Port of flutter-sdk ctaMessageRequest — CTAMessage proto.
 @Serializable
 internal data class SdkCtaMessageResponseDto(
     val content: SdkCtaMessageContentDto? = null,

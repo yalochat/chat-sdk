@@ -24,7 +24,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-// FDE-55: LocalChatMessageRepository tests.
 // Uses JdbcSqliteDriver (in-memory) — no Android emulator required.
 @OptIn(ExperimentalCoroutinesApi::class)
 class LocalChatMessageRepositoryTest {

@@ -2,7 +2,6 @@
 
 package com.yalo.chat.sdk.domain.model
 
-// Port of MessageType enum from flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
 // Unknown is the safe fallback for any unrecognized server value — never throws.
 sealed class MessageType(val value: String) {
     data object Text : MessageType("text")

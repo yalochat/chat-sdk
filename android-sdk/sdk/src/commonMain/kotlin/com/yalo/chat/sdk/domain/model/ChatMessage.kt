@@ -4,7 +4,6 @@ package com.yalo.chat.sdk.domain.model
 
 import kotlinx.datetime.Clock
 
-// Port of flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
 // timestamp is epoch millis (Long) instead of DateTime — avoids any Android dependency.
 // expand is a transient UI flag — it is NOT persisted in DB and always defaults to false
 // when messages are loaded from storage. Toggled in-memory by ChatToggleMessageExpand.
@@ -27,14 +26,11 @@ data class ChatMessage(
     val expand: Boolean = false,
     val quickReplies: List<QuickReply> = emptyList(),
     // Optional header/footer text for buttons and CTA messages.
-    // Port of flutter-sdk ChatMessage.header / ChatMessage.footer.
     val header: String? = null,
     val footer: String? = null,
     // Reply button labels for ButtonsMessage — tapping sends the label as a text message.
-    // Port of flutter-sdk ChatMessage.buttons.
     val buttons: List<String> = emptyList(),
     // CTA buttons (text + URL) for CtaMessage — tapping opens the URL in the browser.
-    // Port of flutter-sdk ChatMessage.ctaButtons.
     val ctaButtons: List<CtaButton> = emptyList(),
     val timestamp: Long = Clock.System.now().toEpochMilliseconds(),
 )

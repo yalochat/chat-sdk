@@ -1,9 +1,8 @@
--- Migration 2: add columns for buttons/CTA message types + align wi_id with Flutter schema.
--- Port of flutter-sdk chat_message.drift addition in PR #94 (cta-buttons-repo-flutter).
+-- Migration 2: add columns for buttons/CTA message types + add UNIQUE constraint on wi_id.
 --
 -- SQLite does not support ALTER TABLE ADD COLUMN ... UNIQUE, so we recreate the table
--- to add the UNIQUE constraint on wi_id (present in Flutter's Drift schema) while also
--- adding the four new columns (header, footer, buttons, cta_buttons).
+-- to add the UNIQUE constraint on wi_id while also adding the four new columns
+-- (header, footer, buttons, cta_buttons).
 
 CREATE TABLE chat_message_v2 (
     id              INTEGER NOT NULL PRIMARY KEY,

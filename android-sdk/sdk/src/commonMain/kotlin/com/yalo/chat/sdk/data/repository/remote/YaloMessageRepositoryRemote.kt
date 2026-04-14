@@ -31,12 +31,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-// Port of flutter-sdk YaloMessageRepositoryRemote.
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
-// The `since` query param is intentionally omitted — Flutter FIXME disables it too
-// ("wait for backend fix"). Client-side deduplication via SimpleCache handles repeats.
-// Network errors in the polling flow are swallowed and the loop continues — mirrors
-// flutter-sdk _startPolling() which logs the error and falls through to Future.delayed.
+// The `since` query param is intentionally omitted — backend fix pending.
+// Client-side deduplication via SimpleCache handles repeats.
+// Network errors in the polling flow are swallowed and the loop continues.
 @OptIn(ExperimentalUuidApi::class)
 internal class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
@@ -322,7 +320,6 @@ internal class YaloMessageRepositoryRemote(
 
         // Buttons message — body text + a list of reply labels rendered as outlined buttons.
         // Tapping a button sends the label as a text message (same as quick reply chips).
-        // Port of flutter-sdk buttonsMessageRequest case in _translateMessageResponse().
         message.buttonsMessageRequest?.content?.let { buttonsContent ->
             if (deduplicate) cache.set(id, true)
             return ChatMessage(
@@ -340,7 +337,6 @@ internal class YaloMessageRepositoryRemote(
         }
 
         // CTA message — body text + buttons that each open a URL in the browser.
-        // Port of flutter-sdk ctaMessageRequest case in _translateMessageResponse().
         message.ctaMessageRequest?.content?.let { ctaContent ->
             if (deduplicate) cache.set(id, true)
             return ChatMessage(

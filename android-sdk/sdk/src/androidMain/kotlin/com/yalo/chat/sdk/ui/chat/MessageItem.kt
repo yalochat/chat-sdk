@@ -57,9 +57,7 @@ internal fun MessageItem(
     val theme = LocalChatTheme.current
     val isUser = message.role == MessageRole.USER
 
-    // Product messages render their own card borders/backgrounds, so they bypass the bubble
-    // Surface. This mirrors Flutter's AssistantMessage which uses a padding Container rather
-    // than a colored bubble for product types.
+    // Product messages render their own card borders/backgrounds, so they bypass the bubble Surface.
     if (message.type == MessageType.Product || message.type == MessageType.ProductCarousel) {
         Row(
             modifier = Modifier
@@ -151,16 +149,10 @@ internal fun MessageItem(
     }
 }
 
-// Port of flutter-sdk video_message.dart — VideoMessage widget.
-//
-// Thumbnail: extracted from the local file using MediaMetadataRetriever (built-in Android,
-// no extra dependency). Falls back to a dark placeholder if extraction fails.
-//
+// Thumbnail: extracted from the local file using MediaMetadataRetriever.
+// Falls back to a dark placeholder if extraction fails.
 // Playback: tapping the thumbnail shows an in-process VideoView via AndroidView.
-// VideoView reads from the local file path directly (no FileProvider needed since
-// both the SDK and VideoView run in the same process and the file is private to the app).
-//
-// Caption: if message.content is non-empty it is shown below the video — mirrors Flutter.
+// Caption: shown below the video when message.content is non-empty.
 @Composable
 private fun VideoMessageItem(
     message: ChatMessage,

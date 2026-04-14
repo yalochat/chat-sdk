@@ -23,7 +23,6 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
-// Port of flutter-sdk ChatMessageRepositoryLocal (Drift) — same schema, same query semantics.
 // Free of Android-specific imports: ChatMessageQueries is injected, ioDispatcher is injectable.
 // KMP note: when splitting to KMP, pass the appropriate CoroutineDispatcher from the platform.
 internal class LocalChatMessageRepository(
@@ -32,7 +31,7 @@ internal class LocalChatMessageRepository(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ChatMessageRepository {
 
-    // GET first page (no cursor) or cursor page — mirrors Flutter getChatMessagePageDesc.
+    // GET first page (no cursor) or cursor page.
     override suspend fun getMessages(cursor: Long?, limit: Int): Result<List<ChatMessage>> =
         withContext(ioDispatcher) {
             try {
@@ -63,7 +62,6 @@ internal class LocalChatMessageRepository(
     }
 
     // Batch INSERT OR REPLACE in a single transaction — used by MessageSyncService.
-    // Port of Flutter insertChatMessage called in a loop inside a Drift transaction.
     override suspend fun insertMessages(messages: List<ChatMessage>): Result<Unit> {
         val nullIdMessage = messages.firstOrNull { it.id == null }
         if (nullIdMessage != null) return Result.Error(
@@ -96,7 +94,6 @@ internal class LocalChatMessageRepository(
         }
 
     // Live observation: emits updated list whenever chat_message table changes.
-    // Port of Flutter stream returned by Drift's watchX.
     // Uses SQLDelight coroutines-extensions asFlow + mapToList.
     override fun observeMessages(): Flow<List<ChatMessage>> =
         queries.observeConversation()
