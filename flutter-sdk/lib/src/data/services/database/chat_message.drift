@@ -11,6 +11,10 @@ CREATE TABLE chat_message (
   duration INTEGER,
   products TEXT,
   quick_replies TEXT,
+  header TEXT,
+  footer TEXT,
+  buttons TEXT,
+  cta_buttons TEXT,
   timestamp INTEGER NOT NULL
 );
 
@@ -28,6 +32,10 @@ getMessagesFirstPage(REQUIRED :limit AS INTEGER):
       duration,
       products,
       quick_replies,
+      header,
+      footer,
+      buttons,
+      cta_buttons,
       timestamp
     FROM chat_message
     ORDER BY id DESC
@@ -47,6 +55,10 @@ getMessagesPage(REQUIRED :cursor AS INTEGER, REQUIRED :limit AS INTEGER):
       duration,
       products,
       quick_replies,
+      header,
+      footer,
+      buttons,
+      cta_buttons,
       timestamp
     FROM chat_message
     WHERE id < :cursor

@@ -2,6 +2,8 @@
 
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/assistant_product_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/buttons_message.dart';
+import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/cta_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/image_message.dart';
 import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/video_message.dart';
 import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
@@ -61,6 +63,8 @@ class AssistantMessage extends StatelessWidget {
                 message: message,
                 direction: Axis.horizontal,
               ),
+              MessageType.buttons => ButtonsMessage(message: message),
+              MessageType.cta => CtaMessage(message: message),
               // FIXME: Instead of throwing a special message could be rendered
               _ => throw UnimplementedError(
                 'Unimplemented assistant message type ${message.type}',
