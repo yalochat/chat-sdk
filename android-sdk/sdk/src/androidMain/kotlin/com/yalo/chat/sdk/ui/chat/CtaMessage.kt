@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,33 +25,33 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Port of flutter-sdk cta_message.dart — CtaMessage widget.
-// Renders optional header + body text + CTA buttons that open URLs in the browser.
-// Uses an Android Intent (ACTION_VIEW) — no url_launcher dependency needed.
+// Renders optional header + body text + optional footer + CTA buttons that open URLs.
+// Button layout mirrors Flutter: text on the left, arrow icon on the right.
+// URL opening uses Intent.ACTION_VIEW (equivalent to Flutter's url_launcher).
 @Composable
 internal fun CtaMessage(message: ChatMessage) {
     val theme = LocalChatTheme.current
     val context = LocalContext.current
-    val textStyle = MaterialTheme.typography.bodyMedium.merge(theme.assistantMessageTextStyle)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         if (!message.header.isNullOrEmpty()) {
             Text(
                 text = message.header,
-                style = MaterialTheme.typography.titleSmall.merge(theme.assistantMessageTextStyle),
+                style = MaterialTheme.typography.bodyMedium.merge(theme.messageHeaderStyle),
                 modifier = Modifier.padding(bottom = 4.dp),
             )
         }
         if (message.content.isNotEmpty()) {
             Text(
                 text = message.content,
-                style = textStyle,
+                style = MaterialTheme.typography.bodyMedium.merge(theme.assistantMessageTextStyle),
                 modifier = Modifier.padding(bottom = 4.dp),
             )
         }
         if (!message.footer.isNullOrEmpty()) {
             Text(
                 text = message.footer,
-                style = MaterialTheme.typography.bodySmall.merge(theme.assistantMessageTextStyle),
+                style = MaterialTheme.typography.bodyMedium.merge(theme.messageFooterStyle),
                 modifier = Modifier.padding(bottom = 8.dp),
             )
         }
@@ -67,22 +65,25 @@ internal fun CtaMessage(message: ChatMessage) {
                     .fillMaxWidth()
                     .padding(top = 6.dp),
                 shape = RoundedCornerShape(8.dp),
-                border = BorderStroke(1.dp, theme.actionIconColor),
+                border = BorderStroke(1.dp, theme.ctaButtonBorderColor),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = theme.actionIconColor,
+                    containerColor = theme.ctaButtonColor,
+                    contentColor = theme.ctaButtonForegroundColor,
                 ),
             ) {
+                // Text left-aligned, arrow icon on the right — mirrors Flutter's OutlinedButton.icon
+                // which swaps icon/label slots to achieve this layout.
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
                         text = button.text,
-                        style = textStyle,
+                        style = MaterialTheme.typography.bodyMedium.merge(theme.ctaButtonTextStyle),
                         modifier = Modifier.weight(1f),
                     )
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        imageVector = theme.ctaArrowForwardIcon,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                     )

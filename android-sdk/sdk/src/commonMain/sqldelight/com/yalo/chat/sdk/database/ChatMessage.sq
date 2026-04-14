@@ -6,7 +6,7 @@
 
 CREATE TABLE chat_message (
     id              INTEGER NOT NULL PRIMARY KEY,
-    wi_id           TEXT,
+    wi_id           TEXT UNIQUE,
     role            TEXT NOT NULL,
     content         TEXT NOT NULL,
     type            TEXT NOT NULL,

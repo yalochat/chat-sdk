@@ -96,7 +96,6 @@ internal data class SdkVideoMessageContentDto(
     val mediaType: String = "",
     val text: String? = null,
     val role: String? = null,
-    val byteCount: Long? = null,
     val fileName: String = "",
     // Duration in seconds (proto double); stored as Long millis in ChatMessage.
     val duration: Double = 0.0,

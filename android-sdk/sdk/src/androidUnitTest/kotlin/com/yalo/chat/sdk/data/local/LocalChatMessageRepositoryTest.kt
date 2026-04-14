@@ -9,6 +9,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.Product
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -181,5 +182,84 @@ class LocalChatMessageRepositoryTest {
         val result = repo.getMessages(cursor = null, limit = 1)
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(MessageStatus.READ, result.result.first().status)
+    }
+
+    // ── Buttons message round-trip ────────────────────────────────────────────
+
+    @Test
+    fun `buttons message round-trips header, footer and button labels through DB`() = runTest {
+        val message = ChatMessage(
+            id = 1L,
+            wiId = "buttons-wi-1",
+            role = MessageRole.AGENT,
+            type = MessageType.Buttons,
+            status = MessageStatus.DELIVERED,
+            content = "Pick an option:",
+            header = "Order help",
+            footer = "Tap any option",
+            buttons = listOf("Track order", "Cancel order", "Contact support"),
+            timestamp = 1000L,
+        )
+        repo.insertMessage(message)
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(MessageType.Buttons, loaded.type)
+        assertEquals("Order help", loaded.header)
+        assertEquals("Tap any option", loaded.footer)
+        assertEquals(listOf("Track order", "Cancel order", "Contact support"), loaded.buttons)
+        assertEquals("Pick an option:", loaded.content)
+    }
+
+    @Test
+    fun `buttons message with null header and footer round-trips without error`() = runTest {
+        val message = ChatMessage(
+            id = 2L,
+            role = MessageRole.AGENT,
+            type = MessageType.Buttons,
+            status = MessageStatus.DELIVERED,
+            content = "Choose:",
+            buttons = listOf("Yes", "No"),
+            timestamp = 2000L,
+        )
+        repo.insertMessage(message)
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(null, loaded.header)
+        assertEquals(null, loaded.footer)
+        assertEquals(listOf("Yes", "No"), loaded.buttons)
+    }
+
+    // ── CTA message round-trip ────────────────────────────────────────────────
+
+    @Test
+    fun `CTA message round-trips header, footer and ctaButtons through DB`() = runTest {
+        val message = ChatMessage(
+            id = 3L,
+            wiId = "cta-wi-1",
+            role = MessageRole.AGENT,
+            type = MessageType.CTA,
+            status = MessageStatus.DELIVERED,
+            content = "Check out our catalog",
+            header = "Shop now",
+            footer = "Limited time offer",
+            ctaButtons = listOf(
+                CtaButton(text = "View Catalog", url = "https://example.com/catalog"),
+                CtaButton(text = "View Promotions", url = "https://example.com/promos"),
+            ),
+            timestamp = 3000L,
+        )
+        repo.insertMessage(message)
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(MessageType.CTA, loaded.type)
+        assertEquals("Shop now", loaded.header)
+        assertEquals("Limited time offer", loaded.footer)
+        assertEquals(2, loaded.ctaButtons.size)
+        assertEquals("View Catalog", loaded.ctaButtons[0].text)
+        assertEquals("https://example.com/catalog", loaded.ctaButtons[0].url)
+        assertEquals("View Promotions", loaded.ctaButtons[1].text)
     }
 }

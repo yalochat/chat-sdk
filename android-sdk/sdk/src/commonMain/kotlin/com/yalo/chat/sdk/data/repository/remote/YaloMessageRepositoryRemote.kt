@@ -172,15 +172,17 @@ internal class YaloMessageRepositoryRemote(
             when (val result = apiService.fetchMessages()) {
                 is Result.Ok -> {
                     val raw = result.result
-                    // Check for genuinely new messages BEFORE toChatMessage updates the cache.
-                    // Using raw.isNotEmpty() (old approach) caused TypingStop to fire on the
-                    // first poll after a send, because cached (already-seen) messages also
-                    // make raw non-empty, hiding the typing indicator before the agent replies.
-                    val hasNewMessages = raw.any { cache.get(it.id) == null }
                     val batch = raw.mapNotNull { it.toChatMessage(deduplicate = true) }
                         .let { ensureReceiptOrder(it) }
-                    if (hasNewMessages) _events.tryEmit(ChatEvent.TypingStop)
-                    if (batch.isNotEmpty()) emit(batch)
+                    // Mirror Flutter: TypingStop fires only when at least one NEW message
+                    // was successfully translated. toChatMessage(deduplicate=true) returns
+                    // null for already-cached items, so batch contains only new arrivals.
+                    // This prevents the indicator from dismissing on cached messages
+                    // (old raw.isNotEmpty() bug) AND on untranslatable unknown types.
+                    if (batch.isNotEmpty()) {
+                        _events.tryEmit(ChatEvent.TypingStop)
+                        emit(batch)
+                    }
                 }
                 is Result.Error -> {
                     // Fetch failed — clear typing indicator so it doesn't get stuck.
