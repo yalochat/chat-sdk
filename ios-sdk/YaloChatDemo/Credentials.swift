@@ -1,10 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Demo app credentials for the Yalo staging environment.
-// Mirrors android-sdk/local.properties — never commit real production credentials.
+// Demo app credentials — fill in real values before running.
+// Mirrors android-sdk/local.properties: never commit real credentials to source control.
 enum Credentials {
-    static let channelName = "Yalo Chat"
-    static let apiBaseUrl = "https://api-staging2.yalochat.com/public-api-gateway/v1/channels"
-    static let channelId = "c76f0984-db46-4b77-8591-ffbb27ab0e05"
-    static let organizationId = "1000000219"
+    static let channelName = "REPLACE_WITH_CHANNEL_NAME"
+    static let apiBaseUrl = "REPLACE_WITH_API_BASE_URL"
+    static let channelId = "REPLACE_WITH_CHANNEL_ID"
+    static let organizationId = "REPLACE_WITH_ORGANIZATION_ID"
 }
