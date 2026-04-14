@@ -124,30 +124,6 @@ public object SdkMessageKt {
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.TextMessageResponse text_message_response = 11;`
-     */
-    public var textMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessageResponse
-      @kotlin.jvm.JvmName("getTextMessageResponse")
-        get() = _builder.textMessageResponse
-      @kotlin.jvm.JvmName("setTextMessageResponse")
-        set(value) {
-        _builder.textMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.TextMessageResponse text_message_response = 11;`
-     */
-    public fun clearTextMessageResponse() {
-      _builder.clearTextMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.TextMessageResponse text_message_response = 11;`
-     * @return Whether the textMessageResponse field is set.
-     */
-    public fun hasTextMessageResponse(): kotlin.Boolean {
-      return _builder.hasTextMessageResponse()
-    }
-
-    /**
      * `.yalo.external_channel.in_app.sdk.v1.VoiceNoteMessageRequest voice_note_message_request = 12;`
      */
     public var voiceNoteMessageRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VoiceNoteMessageRequest
@@ -169,30 +145,6 @@ public object SdkMessageKt {
      */
     public fun hasVoiceNoteMessageRequest(): kotlin.Boolean {
       return _builder.hasVoiceNoteMessageRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.VoiceNoteMessageResponse voice_note_message_response = 13;`
-     */
-    public var voiceNoteMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VoiceNoteMessageResponse
-      @kotlin.jvm.JvmName("getVoiceNoteMessageResponse")
-        get() = _builder.voiceNoteMessageResponse
-      @kotlin.jvm.JvmName("setVoiceNoteMessageResponse")
-        set(value) {
-        _builder.voiceNoteMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.VoiceNoteMessageResponse voice_note_message_response = 13;`
-     */
-    public fun clearVoiceNoteMessageResponse() {
-      _builder.clearVoiceNoteMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.VoiceNoteMessageResponse voice_note_message_response = 13;`
-     * @return Whether the voiceNoteMessageResponse field is set.
-     */
-    public fun hasVoiceNoteMessageResponse(): kotlin.Boolean {
-      return _builder.hasVoiceNoteMessageResponse()
     }
 
     /**
@@ -220,30 +172,6 @@ public object SdkMessageKt {
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.ImageMessageResponse image_message_response = 15;`
-     */
-    public var imageMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageResponse
-      @kotlin.jvm.JvmName("getImageMessageResponse")
-        get() = _builder.imageMessageResponse
-      @kotlin.jvm.JvmName("setImageMessageResponse")
-        set(value) {
-        _builder.imageMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.ImageMessageResponse image_message_response = 15;`
-     */
-    public fun clearImageMessageResponse() {
-      _builder.clearImageMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.ImageMessageResponse image_message_response = 15;`
-     * @return Whether the imageMessageResponse field is set.
-     */
-    public fun hasImageMessageResponse(): kotlin.Boolean {
-      return _builder.hasImageMessageResponse()
-    }
-
-    /**
      * `.yalo.external_channel.in_app.sdk.v1.MessageReceiptRequest message_receipt_request = 16;`
      */
     public var messageReceiptRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptRequest
@@ -265,30 +193,6 @@ public object SdkMessageKt {
      */
     public fun hasMessageReceiptRequest(): kotlin.Boolean {
       return _builder.hasMessageReceiptRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageReceiptResponse message_receipt_response = 17;`
-     */
-    public var messageReceiptResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptResponse
-      @kotlin.jvm.JvmName("getMessageReceiptResponse")
-        get() = _builder.messageReceiptResponse
-      @kotlin.jvm.JvmName("setMessageReceiptResponse")
-        set(value) {
-        _builder.messageReceiptResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageReceiptResponse message_receipt_response = 17;`
-     */
-    public fun clearMessageReceiptResponse() {
-      _builder.clearMessageReceiptResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.MessageReceiptResponse message_receipt_response = 17;`
-     * @return Whether the messageReceiptResponse field is set.
-     */
-    public fun hasMessageReceiptResponse(): kotlin.Boolean {
-      return _builder.hasMessageReceiptResponse()
     }
 
     /**
@@ -316,30 +220,6 @@ public object SdkMessageKt {
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse attachment_message_response = 19;`
-     */
-    public var attachmentMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageResponse
-      @kotlin.jvm.JvmName("getAttachmentMessageResponse")
-        get() = _builder.attachmentMessageResponse
-      @kotlin.jvm.JvmName("setAttachmentMessageResponse")
-        set(value) {
-        _builder.attachmentMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse attachment_message_response = 19;`
-     */
-    public fun clearAttachmentMessageResponse() {
-      _builder.clearAttachmentMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.AttachmentMessageResponse attachment_message_response = 19;`
-     * @return Whether the attachmentMessageResponse field is set.
-     */
-    public fun hasAttachmentMessageResponse(): kotlin.Boolean {
-      return _builder.hasAttachmentMessageResponse()
-    }
-
-    /**
      * `.yalo.external_channel.in_app.sdk.v1.VideoMessageRequest video_message_request = 38;`
      */
     public var videoMessageRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VideoMessageRequest
@@ -361,30 +241,6 @@ public object SdkMessageKt {
      */
     public fun hasVideoMessageRequest(): kotlin.Boolean {
       return _builder.hasVideoMessageRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.VideoMessageResponse video_message_response = 39;`
-     */
-    public var videoMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VideoMessageResponse
-      @kotlin.jvm.JvmName("getVideoMessageResponse")
-        get() = _builder.videoMessageResponse
-      @kotlin.jvm.JvmName("setVideoMessageResponse")
-        set(value) {
-        _builder.videoMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.VideoMessageResponse video_message_response = 39;`
-     */
-    public fun clearVideoMessageResponse() {
-      _builder.clearVideoMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.VideoMessageResponse video_message_response = 39;`
-     * @return Whether the videoMessageResponse field is set.
-     */
-    public fun hasVideoMessageResponse(): kotlin.Boolean {
-      return _builder.hasVideoMessageResponse()
     }
 
     /**
@@ -796,51 +652,51 @@ public object SdkMessageKt {
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.CustomActionRequest custom_action_request = 36;`
+     * `.yalo.external_channel.in_app.sdk.v1.CustomCommandRequest custom_command_request = 36;`
      */
-    public var customActionRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomActionRequest
-      @kotlin.jvm.JvmName("getCustomActionRequest")
-        get() = _builder.customActionRequest
-      @kotlin.jvm.JvmName("setCustomActionRequest")
+    public var customCommandRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandRequest
+      @kotlin.jvm.JvmName("getCustomCommandRequest")
+        get() = _builder.customCommandRequest
+      @kotlin.jvm.JvmName("setCustomCommandRequest")
         set(value) {
-        _builder.customActionRequest = value
+        _builder.customCommandRequest = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.CustomActionRequest custom_action_request = 36;`
+     * `.yalo.external_channel.in_app.sdk.v1.CustomCommandRequest custom_command_request = 36;`
      */
-    public fun clearCustomActionRequest() {
-      _builder.clearCustomActionRequest()
+    public fun clearCustomCommandRequest() {
+      _builder.clearCustomCommandRequest()
     }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.CustomActionRequest custom_action_request = 36;`
-     * @return Whether the customActionRequest field is set.
+     * `.yalo.external_channel.in_app.sdk.v1.CustomCommandRequest custom_command_request = 36;`
+     * @return Whether the customCommandRequest field is set.
      */
-    public fun hasCustomActionRequest(): kotlin.Boolean {
-      return _builder.hasCustomActionRequest()
+    public fun hasCustomCommandRequest(): kotlin.Boolean {
+      return _builder.hasCustomCommandRequest()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.CustomActionResponse custom_action_response = 37;`
+     * `.yalo.external_channel.in_app.sdk.v1.CustomCommandResponse custom_command_response = 37;`
      */
-    public var customActionResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomActionResponse
-      @kotlin.jvm.JvmName("getCustomActionResponse")
-        get() = _builder.customActionResponse
-      @kotlin.jvm.JvmName("setCustomActionResponse")
+    public var customCommandResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandResponse
+      @kotlin.jvm.JvmName("getCustomCommandResponse")
+        get() = _builder.customCommandResponse
+      @kotlin.jvm.JvmName("setCustomCommandResponse")
         set(value) {
-        _builder.customActionResponse = value
+        _builder.customCommandResponse = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.CustomActionResponse custom_action_response = 37;`
+     * `.yalo.external_channel.in_app.sdk.v1.CustomCommandResponse custom_command_response = 37;`
      */
-    public fun clearCustomActionResponse() {
-      _builder.clearCustomActionResponse()
+    public fun clearCustomCommandResponse() {
+      _builder.clearCustomCommandResponse()
     }
     /**
-     * `.yalo.external_channel.in_app.sdk.v1.CustomActionResponse custom_action_response = 37;`
-     * @return Whether the customActionResponse field is set.
+     * `.yalo.external_channel.in_app.sdk.v1.CustomCommandResponse custom_command_response = 37;`
+     * @return Whether the customCommandResponse field is set.
      */
-    public fun hasCustomActionResponse(): kotlin.Boolean {
-      return _builder.hasCustomActionResponse()
+    public fun hasCustomCommandResponse(): kotlin.Boolean {
+      return _builder.hasCustomCommandResponse()
     }
 
     /**
@@ -1028,38 +884,20 @@ public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOr
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.textMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessageRequest?
   get() = if (hasTextMessageRequest()) getTextMessageRequest() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.textMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessageResponse?
-  get() = if (hasTextMessageResponse()) getTextMessageResponse() else null
-
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.voiceNoteMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VoiceNoteMessageRequest?
   get() = if (hasVoiceNoteMessageRequest()) getVoiceNoteMessageRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.voiceNoteMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VoiceNoteMessageResponse?
-  get() = if (hasVoiceNoteMessageResponse()) getVoiceNoteMessageResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.imageMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageRequest?
   get() = if (hasImageMessageRequest()) getImageMessageRequest() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.imageMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageResponse?
-  get() = if (hasImageMessageResponse()) getImageMessageResponse() else null
-
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.messageReceiptRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptRequest?
   get() = if (hasMessageReceiptRequest()) getMessageReceiptRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.messageReceiptResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptResponse?
-  get() = if (hasMessageReceiptResponse()) getMessageReceiptResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.attachmentMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageRequest?
   get() = if (hasAttachmentMessageRequest()) getAttachmentMessageRequest() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.attachmentMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageResponse?
-  get() = if (hasAttachmentMessageResponse()) getAttachmentMessageResponse() else null
-
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.videoMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VideoMessageRequest?
   get() = if (hasVideoMessageRequest()) getVideoMessageRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.videoMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VideoMessageResponse?
-  get() = if (hasVideoMessageResponse()) getVideoMessageResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.addToCartRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AddToCartRequest?
   get() = if (hasAddToCartRequest()) getAddToCartRequest() else null
@@ -1109,11 +947,11 @@ public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOr
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.chatStatusResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ChatStatusResponse?
   get() = if (hasChatStatusResponse()) getChatStatusResponse() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.customActionRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomActionRequest?
-  get() = if (hasCustomActionRequest()) getCustomActionRequest() else null
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.customCommandRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandRequest?
+  get() = if (hasCustomCommandRequest()) getCustomCommandRequest() else null
 
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.customActionResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomActionResponse?
-  get() = if (hasCustomActionResponse()) getCustomActionResponse() else null
+public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.customCommandResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandResponse?
+  get() = if (hasCustomCommandResponse()) getCustomCommandResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.buttonsMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest?
   get() = if (hasButtonsMessageRequest()) getButtonsMessageRequest() else null

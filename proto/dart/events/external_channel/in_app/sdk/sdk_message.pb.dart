@@ -25,15 +25,10 @@ export 'sdk_message.pbenum.dart';
 
 enum SdkMessage_Payload {
   textMessageRequest,
-  textMessageResponse,
   voiceNoteMessageRequest,
-  voiceNoteMessageResponse,
   imageMessageRequest,
-  imageMessageResponse,
   messageReceiptRequest,
-  messageReceiptResponse,
   attachmentMessageRequest,
-  attachmentMessageResponse,
   addToCartRequest,
   addToCartResponse,
   removeFromCartRequest,
@@ -50,10 +45,9 @@ enum SdkMessage_Payload {
   productMessageResponse,
   chatStatusRequest,
   chatStatusResponse,
-  customActionRequest,
-  customActionResponse,
+  customCommandRequest,
+  customCommandResponse,
   videoMessageRequest,
-  videoMessageResponse,
   buttonsMessageRequest,
   buttonsMessageResponse,
   ctaMessageRequest,
@@ -71,15 +65,10 @@ class SdkMessage extends $pb.GeneratedMessage {
     $core.String? correlationId,
     $0.Timestamp? timestamp,
     TextMessageRequest? textMessageRequest,
-    TextMessageResponse? textMessageResponse,
     VoiceNoteMessageRequest? voiceNoteMessageRequest,
-    VoiceNoteMessageResponse? voiceNoteMessageResponse,
     ImageMessageRequest? imageMessageRequest,
-    ImageMessageResponse? imageMessageResponse,
     MessageReceiptRequest? messageReceiptRequest,
-    MessageReceiptResponse? messageReceiptResponse,
     AttachmentMessageRequest? attachmentMessageRequest,
-    AttachmentMessageResponse? attachmentMessageResponse,
     AddToCartRequest? addToCartRequest,
     AddToCartResponse? addToCartResponse,
     RemoveFromCartRequest? removeFromCartRequest,
@@ -96,10 +85,9 @@ class SdkMessage extends $pb.GeneratedMessage {
     ProductMessageResponse? productMessageResponse,
     ChatStatusRequest? chatStatusRequest,
     ChatStatusResponse? chatStatusResponse,
-    CustomActionRequest? customActionRequest,
-    CustomActionResponse? customActionResponse,
+    CustomCommandRequest? customCommandRequest,
+    CustomCommandResponse? customCommandResponse,
     VideoMessageRequest? videoMessageRequest,
-    VideoMessageResponse? videoMessageResponse,
     ButtonsMessageRequest? buttonsMessageRequest,
     ButtonsMessageResponse? buttonsMessageResponse,
     CTAMessageRequest? ctaMessageRequest,
@@ -112,24 +100,14 @@ class SdkMessage extends $pb.GeneratedMessage {
     if (timestamp != null) result.timestamp = timestamp;
     if (textMessageRequest != null)
       result.textMessageRequest = textMessageRequest;
-    if (textMessageResponse != null)
-      result.textMessageResponse = textMessageResponse;
     if (voiceNoteMessageRequest != null)
       result.voiceNoteMessageRequest = voiceNoteMessageRequest;
-    if (voiceNoteMessageResponse != null)
-      result.voiceNoteMessageResponse = voiceNoteMessageResponse;
     if (imageMessageRequest != null)
       result.imageMessageRequest = imageMessageRequest;
-    if (imageMessageResponse != null)
-      result.imageMessageResponse = imageMessageResponse;
     if (messageReceiptRequest != null)
       result.messageReceiptRequest = messageReceiptRequest;
-    if (messageReceiptResponse != null)
-      result.messageReceiptResponse = messageReceiptResponse;
     if (attachmentMessageRequest != null)
       result.attachmentMessageRequest = attachmentMessageRequest;
-    if (attachmentMessageResponse != null)
-      result.attachmentMessageResponse = attachmentMessageResponse;
     if (addToCartRequest != null) result.addToCartRequest = addToCartRequest;
     if (addToCartResponse != null) result.addToCartResponse = addToCartResponse;
     if (removeFromCartRequest != null)
@@ -157,14 +135,12 @@ class SdkMessage extends $pb.GeneratedMessage {
     if (chatStatusRequest != null) result.chatStatusRequest = chatStatusRequest;
     if (chatStatusResponse != null)
       result.chatStatusResponse = chatStatusResponse;
-    if (customActionRequest != null)
-      result.customActionRequest = customActionRequest;
-    if (customActionResponse != null)
-      result.customActionResponse = customActionResponse;
+    if (customCommandRequest != null)
+      result.customCommandRequest = customCommandRequest;
+    if (customCommandResponse != null)
+      result.customCommandResponse = customCommandResponse;
     if (videoMessageRequest != null)
       result.videoMessageRequest = videoMessageRequest;
-    if (videoMessageResponse != null)
-      result.videoMessageResponse = videoMessageResponse;
     if (buttonsMessageRequest != null)
       result.buttonsMessageRequest = buttonsMessageRequest;
     if (buttonsMessageResponse != null)
@@ -191,15 +167,10 @@ class SdkMessage extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, SdkMessage_Payload>
       _SdkMessage_PayloadByTag = {
     10: SdkMessage_Payload.textMessageRequest,
-    11: SdkMessage_Payload.textMessageResponse,
     12: SdkMessage_Payload.voiceNoteMessageRequest,
-    13: SdkMessage_Payload.voiceNoteMessageResponse,
     14: SdkMessage_Payload.imageMessageRequest,
-    15: SdkMessage_Payload.imageMessageResponse,
     16: SdkMessage_Payload.messageReceiptRequest,
-    17: SdkMessage_Payload.messageReceiptResponse,
     18: SdkMessage_Payload.attachmentMessageRequest,
-    19: SdkMessage_Payload.attachmentMessageResponse,
     20: SdkMessage_Payload.addToCartRequest,
     21: SdkMessage_Payload.addToCartResponse,
     22: SdkMessage_Payload.removeFromCartRequest,
@@ -216,10 +187,9 @@ class SdkMessage extends $pb.GeneratedMessage {
     33: SdkMessage_Payload.productMessageResponse,
     34: SdkMessage_Payload.chatStatusRequest,
     35: SdkMessage_Payload.chatStatusResponse,
-    36: SdkMessage_Payload.customActionRequest,
-    37: SdkMessage_Payload.customActionResponse,
+    36: SdkMessage_Payload.customCommandRequest,
+    37: SdkMessage_Payload.customCommandResponse,
     38: SdkMessage_Payload.videoMessageRequest,
-    39: SdkMessage_Payload.videoMessageResponse,
     40: SdkMessage_Payload.buttonsMessageRequest,
     41: SdkMessage_Payload.buttonsMessageResponse,
     42: SdkMessage_Payload.ctaMessageRequest,
@@ -235,15 +205,10 @@ class SdkMessage extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..oo(0, [
       10,
-      11,
       12,
-      13,
       14,
-      15,
       16,
-      17,
       18,
-      19,
       20,
       21,
       22,
@@ -263,7 +228,6 @@ class SdkMessage extends $pb.GeneratedMessage {
       36,
       37,
       38,
-      39,
       40,
       41,
       42,
@@ -276,31 +240,17 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: $0.Timestamp.create)
     ..aOM<TextMessageRequest>(10, _omitFieldNames ? '' : 'textMessageRequest',
         subBuilder: TextMessageRequest.create)
-    ..aOM<TextMessageResponse>(11, _omitFieldNames ? '' : 'textMessageResponse',
-        subBuilder: TextMessageResponse.create)
     ..aOM<VoiceNoteMessageRequest>(
         12, _omitFieldNames ? '' : 'voiceNoteMessageRequest',
         subBuilder: VoiceNoteMessageRequest.create)
-    ..aOM<VoiceNoteMessageResponse>(
-        13, _omitFieldNames ? '' : 'voiceNoteMessageResponse',
-        subBuilder: VoiceNoteMessageResponse.create)
     ..aOM<ImageMessageRequest>(14, _omitFieldNames ? '' : 'imageMessageRequest',
         subBuilder: ImageMessageRequest.create)
-    ..aOM<ImageMessageResponse>(
-        15, _omitFieldNames ? '' : 'imageMessageResponse',
-        subBuilder: ImageMessageResponse.create)
     ..aOM<MessageReceiptRequest>(
         16, _omitFieldNames ? '' : 'messageReceiptRequest',
         subBuilder: MessageReceiptRequest.create)
-    ..aOM<MessageReceiptResponse>(
-        17, _omitFieldNames ? '' : 'messageReceiptResponse',
-        subBuilder: MessageReceiptResponse.create)
     ..aOM<AttachmentMessageRequest>(
         18, _omitFieldNames ? '' : 'attachmentMessageRequest',
         subBuilder: AttachmentMessageRequest.create)
-    ..aOM<AttachmentMessageResponse>(
-        19, _omitFieldNames ? '' : 'attachmentMessageResponse',
-        subBuilder: AttachmentMessageResponse.create)
     ..aOM<AddToCartRequest>(20, _omitFieldNames ? '' : 'addToCartRequest',
         subBuilder: AddToCartRequest.create)
     ..aOM<AddToCartResponse>(21, _omitFieldNames ? '' : 'addToCartResponse',
@@ -341,16 +291,14 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: ChatStatusRequest.create)
     ..aOM<ChatStatusResponse>(35, _omitFieldNames ? '' : 'chatStatusResponse',
         subBuilder: ChatStatusResponse.create)
-    ..aOM<CustomActionRequest>(36, _omitFieldNames ? '' : 'customActionRequest',
-        subBuilder: CustomActionRequest.create)
-    ..aOM<CustomActionResponse>(
-        37, _omitFieldNames ? '' : 'customActionResponse',
-        subBuilder: CustomActionResponse.create)
+    ..aOM<CustomCommandRequest>(
+        36, _omitFieldNames ? '' : 'customCommandRequest',
+        subBuilder: CustomCommandRequest.create)
+    ..aOM<CustomCommandResponse>(
+        37, _omitFieldNames ? '' : 'customCommandResponse',
+        subBuilder: CustomCommandResponse.create)
     ..aOM<VideoMessageRequest>(38, _omitFieldNames ? '' : 'videoMessageRequest',
         subBuilder: VideoMessageRequest.create)
-    ..aOM<VideoMessageResponse>(
-        39, _omitFieldNames ? '' : 'videoMessageResponse',
-        subBuilder: VideoMessageResponse.create)
     ..aOM<ButtonsMessageRequest>(
         40, _omitFieldNames ? '' : 'buttonsMessageRequest',
         subBuilder: ButtonsMessageRequest.create)
@@ -386,15 +334,10 @@ class SdkMessage extends $pb.GeneratedMessage {
   static SdkMessage? _defaultInstance;
 
   @$pb.TagNumber(10)
-  @$pb.TagNumber(11)
   @$pb.TagNumber(12)
-  @$pb.TagNumber(13)
   @$pb.TagNumber(14)
-  @$pb.TagNumber(15)
   @$pb.TagNumber(16)
-  @$pb.TagNumber(17)
   @$pb.TagNumber(18)
-  @$pb.TagNumber(19)
   @$pb.TagNumber(20)
   @$pb.TagNumber(21)
   @$pb.TagNumber(22)
@@ -414,7 +357,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
   @$pb.TagNumber(38)
-  @$pb.TagNumber(39)
   @$pb.TagNumber(40)
   @$pb.TagNumber(41)
   @$pb.TagNumber(42)
@@ -424,15 +366,10 @@ class SdkMessage extends $pb.GeneratedMessage {
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
-  @$pb.TagNumber(11)
   @$pb.TagNumber(12)
-  @$pb.TagNumber(13)
   @$pb.TagNumber(14)
-  @$pb.TagNumber(15)
   @$pb.TagNumber(16)
-  @$pb.TagNumber(17)
   @$pb.TagNumber(18)
-  @$pb.TagNumber(19)
   @$pb.TagNumber(20)
   @$pb.TagNumber(21)
   @$pb.TagNumber(22)
@@ -452,7 +389,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
   @$pb.TagNumber(38)
-  @$pb.TagNumber(39)
   @$pb.TagNumber(40)
   @$pb.TagNumber(41)
   @$pb.TagNumber(42)
@@ -494,408 +430,340 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(10)
   TextMessageRequest ensureTextMessageRequest() => $_ensure(2);
 
-  @$pb.TagNumber(11)
-  TextMessageResponse get textMessageResponse => $_getN(3);
-  @$pb.TagNumber(11)
-  set textMessageResponse(TextMessageResponse value) => $_setField(11, value);
-  @$pb.TagNumber(11)
-  $core.bool hasTextMessageResponse() => $_has(3);
-  @$pb.TagNumber(11)
-  void clearTextMessageResponse() => $_clearField(11);
-  @$pb.TagNumber(11)
-  TextMessageResponse ensureTextMessageResponse() => $_ensure(3);
-
   @$pb.TagNumber(12)
-  VoiceNoteMessageRequest get voiceNoteMessageRequest => $_getN(4);
+  VoiceNoteMessageRequest get voiceNoteMessageRequest => $_getN(3);
   @$pb.TagNumber(12)
   set voiceNoteMessageRequest(VoiceNoteMessageRequest value) =>
       $_setField(12, value);
   @$pb.TagNumber(12)
-  $core.bool hasVoiceNoteMessageRequest() => $_has(4);
+  $core.bool hasVoiceNoteMessageRequest() => $_has(3);
   @$pb.TagNumber(12)
   void clearVoiceNoteMessageRequest() => $_clearField(12);
   @$pb.TagNumber(12)
-  VoiceNoteMessageRequest ensureVoiceNoteMessageRequest() => $_ensure(4);
-
-  @$pb.TagNumber(13)
-  VoiceNoteMessageResponse get voiceNoteMessageResponse => $_getN(5);
-  @$pb.TagNumber(13)
-  set voiceNoteMessageResponse(VoiceNoteMessageResponse value) =>
-      $_setField(13, value);
-  @$pb.TagNumber(13)
-  $core.bool hasVoiceNoteMessageResponse() => $_has(5);
-  @$pb.TagNumber(13)
-  void clearVoiceNoteMessageResponse() => $_clearField(13);
-  @$pb.TagNumber(13)
-  VoiceNoteMessageResponse ensureVoiceNoteMessageResponse() => $_ensure(5);
+  VoiceNoteMessageRequest ensureVoiceNoteMessageRequest() => $_ensure(3);
 
   @$pb.TagNumber(14)
-  ImageMessageRequest get imageMessageRequest => $_getN(6);
+  ImageMessageRequest get imageMessageRequest => $_getN(4);
   @$pb.TagNumber(14)
   set imageMessageRequest(ImageMessageRequest value) => $_setField(14, value);
   @$pb.TagNumber(14)
-  $core.bool hasImageMessageRequest() => $_has(6);
+  $core.bool hasImageMessageRequest() => $_has(4);
   @$pb.TagNumber(14)
   void clearImageMessageRequest() => $_clearField(14);
   @$pb.TagNumber(14)
-  ImageMessageRequest ensureImageMessageRequest() => $_ensure(6);
-
-  @$pb.TagNumber(15)
-  ImageMessageResponse get imageMessageResponse => $_getN(7);
-  @$pb.TagNumber(15)
-  set imageMessageResponse(ImageMessageResponse value) => $_setField(15, value);
-  @$pb.TagNumber(15)
-  $core.bool hasImageMessageResponse() => $_has(7);
-  @$pb.TagNumber(15)
-  void clearImageMessageResponse() => $_clearField(15);
-  @$pb.TagNumber(15)
-  ImageMessageResponse ensureImageMessageResponse() => $_ensure(7);
+  ImageMessageRequest ensureImageMessageRequest() => $_ensure(4);
 
   @$pb.TagNumber(16)
-  MessageReceiptRequest get messageReceiptRequest => $_getN(8);
+  MessageReceiptRequest get messageReceiptRequest => $_getN(5);
   @$pb.TagNumber(16)
   set messageReceiptRequest(MessageReceiptRequest value) =>
       $_setField(16, value);
   @$pb.TagNumber(16)
-  $core.bool hasMessageReceiptRequest() => $_has(8);
+  $core.bool hasMessageReceiptRequest() => $_has(5);
   @$pb.TagNumber(16)
   void clearMessageReceiptRequest() => $_clearField(16);
   @$pb.TagNumber(16)
-  MessageReceiptRequest ensureMessageReceiptRequest() => $_ensure(8);
-
-  @$pb.TagNumber(17)
-  MessageReceiptResponse get messageReceiptResponse => $_getN(9);
-  @$pb.TagNumber(17)
-  set messageReceiptResponse(MessageReceiptResponse value) =>
-      $_setField(17, value);
-  @$pb.TagNumber(17)
-  $core.bool hasMessageReceiptResponse() => $_has(9);
-  @$pb.TagNumber(17)
-  void clearMessageReceiptResponse() => $_clearField(17);
-  @$pb.TagNumber(17)
-  MessageReceiptResponse ensureMessageReceiptResponse() => $_ensure(9);
+  MessageReceiptRequest ensureMessageReceiptRequest() => $_ensure(5);
 
   @$pb.TagNumber(18)
-  AttachmentMessageRequest get attachmentMessageRequest => $_getN(10);
+  AttachmentMessageRequest get attachmentMessageRequest => $_getN(6);
   @$pb.TagNumber(18)
   set attachmentMessageRequest(AttachmentMessageRequest value) =>
       $_setField(18, value);
   @$pb.TagNumber(18)
-  $core.bool hasAttachmentMessageRequest() => $_has(10);
+  $core.bool hasAttachmentMessageRequest() => $_has(6);
   @$pb.TagNumber(18)
   void clearAttachmentMessageRequest() => $_clearField(18);
   @$pb.TagNumber(18)
-  AttachmentMessageRequest ensureAttachmentMessageRequest() => $_ensure(10);
-
-  @$pb.TagNumber(19)
-  AttachmentMessageResponse get attachmentMessageResponse => $_getN(11);
-  @$pb.TagNumber(19)
-  set attachmentMessageResponse(AttachmentMessageResponse value) =>
-      $_setField(19, value);
-  @$pb.TagNumber(19)
-  $core.bool hasAttachmentMessageResponse() => $_has(11);
-  @$pb.TagNumber(19)
-  void clearAttachmentMessageResponse() => $_clearField(19);
-  @$pb.TagNumber(19)
-  AttachmentMessageResponse ensureAttachmentMessageResponse() => $_ensure(11);
+  AttachmentMessageRequest ensureAttachmentMessageRequest() => $_ensure(6);
 
   /// Client → channel
   @$pb.TagNumber(20)
-  AddToCartRequest get addToCartRequest => $_getN(12);
+  AddToCartRequest get addToCartRequest => $_getN(7);
   @$pb.TagNumber(20)
   set addToCartRequest(AddToCartRequest value) => $_setField(20, value);
   @$pb.TagNumber(20)
-  $core.bool hasAddToCartRequest() => $_has(12);
+  $core.bool hasAddToCartRequest() => $_has(7);
   @$pb.TagNumber(20)
   void clearAddToCartRequest() => $_clearField(20);
   @$pb.TagNumber(20)
-  AddToCartRequest ensureAddToCartRequest() => $_ensure(12);
+  AddToCartRequest ensureAddToCartRequest() => $_ensure(7);
 
   @$pb.TagNumber(21)
-  AddToCartResponse get addToCartResponse => $_getN(13);
+  AddToCartResponse get addToCartResponse => $_getN(8);
   @$pb.TagNumber(21)
   set addToCartResponse(AddToCartResponse value) => $_setField(21, value);
   @$pb.TagNumber(21)
-  $core.bool hasAddToCartResponse() => $_has(13);
+  $core.bool hasAddToCartResponse() => $_has(8);
   @$pb.TagNumber(21)
   void clearAddToCartResponse() => $_clearField(21);
   @$pb.TagNumber(21)
-  AddToCartResponse ensureAddToCartResponse() => $_ensure(13);
+  AddToCartResponse ensureAddToCartResponse() => $_ensure(8);
 
   @$pb.TagNumber(22)
-  RemoveFromCartRequest get removeFromCartRequest => $_getN(14);
+  RemoveFromCartRequest get removeFromCartRequest => $_getN(9);
   @$pb.TagNumber(22)
   set removeFromCartRequest(RemoveFromCartRequest value) =>
       $_setField(22, value);
   @$pb.TagNumber(22)
-  $core.bool hasRemoveFromCartRequest() => $_has(14);
+  $core.bool hasRemoveFromCartRequest() => $_has(9);
   @$pb.TagNumber(22)
   void clearRemoveFromCartRequest() => $_clearField(22);
   @$pb.TagNumber(22)
-  RemoveFromCartRequest ensureRemoveFromCartRequest() => $_ensure(14);
+  RemoveFromCartRequest ensureRemoveFromCartRequest() => $_ensure(9);
 
   @$pb.TagNumber(23)
-  RemoveFromCartResponse get removeFromCartResponse => $_getN(15);
+  RemoveFromCartResponse get removeFromCartResponse => $_getN(10);
   @$pb.TagNumber(23)
   set removeFromCartResponse(RemoveFromCartResponse value) =>
       $_setField(23, value);
   @$pb.TagNumber(23)
-  $core.bool hasRemoveFromCartResponse() => $_has(15);
+  $core.bool hasRemoveFromCartResponse() => $_has(10);
   @$pb.TagNumber(23)
   void clearRemoveFromCartResponse() => $_clearField(23);
   @$pb.TagNumber(23)
-  RemoveFromCartResponse ensureRemoveFromCartResponse() => $_ensure(15);
+  RemoveFromCartResponse ensureRemoveFromCartResponse() => $_ensure(10);
 
   @$pb.TagNumber(24)
-  ClearCartRequest get clearCartRequest => $_getN(16);
+  ClearCartRequest get clearCartRequest => $_getN(11);
   @$pb.TagNumber(24)
   set clearCartRequest(ClearCartRequest value) => $_setField(24, value);
   @$pb.TagNumber(24)
-  $core.bool hasClearCartRequest() => $_has(16);
+  $core.bool hasClearCartRequest() => $_has(11);
   @$pb.TagNumber(24)
   void clearClearCartRequest() => $_clearField(24);
   @$pb.TagNumber(24)
-  ClearCartRequest ensureClearCartRequest() => $_ensure(16);
+  ClearCartRequest ensureClearCartRequest() => $_ensure(11);
 
   @$pb.TagNumber(25)
-  ClearCartResponse get clearCartResponse => $_getN(17);
+  ClearCartResponse get clearCartResponse => $_getN(12);
   @$pb.TagNumber(25)
   set clearCartResponse(ClearCartResponse value) => $_setField(25, value);
   @$pb.TagNumber(25)
-  $core.bool hasClearCartResponse() => $_has(17);
+  $core.bool hasClearCartResponse() => $_has(12);
   @$pb.TagNumber(25)
   void clearClearCartResponse() => $_clearField(25);
   @$pb.TagNumber(25)
-  ClearCartResponse ensureClearCartResponse() => $_ensure(17);
+  ClearCartResponse ensureClearCartResponse() => $_ensure(12);
 
   @$pb.TagNumber(26)
-  GuidanceCardRequest get guidanceCardRequest => $_getN(18);
+  GuidanceCardRequest get guidanceCardRequest => $_getN(13);
   @$pb.TagNumber(26)
   set guidanceCardRequest(GuidanceCardRequest value) => $_setField(26, value);
   @$pb.TagNumber(26)
-  $core.bool hasGuidanceCardRequest() => $_has(18);
+  $core.bool hasGuidanceCardRequest() => $_has(13);
   @$pb.TagNumber(26)
   void clearGuidanceCardRequest() => $_clearField(26);
   @$pb.TagNumber(26)
-  GuidanceCardRequest ensureGuidanceCardRequest() => $_ensure(18);
+  GuidanceCardRequest ensureGuidanceCardRequest() => $_ensure(13);
 
   @$pb.TagNumber(27)
-  GuidanceCardResponse get guidanceCardResponse => $_getN(19);
+  GuidanceCardResponse get guidanceCardResponse => $_getN(14);
   @$pb.TagNumber(27)
   set guidanceCardResponse(GuidanceCardResponse value) => $_setField(27, value);
   @$pb.TagNumber(27)
-  $core.bool hasGuidanceCardResponse() => $_has(19);
+  $core.bool hasGuidanceCardResponse() => $_has(14);
   @$pb.TagNumber(27)
   void clearGuidanceCardResponse() => $_clearField(27);
   @$pb.TagNumber(27)
-  GuidanceCardResponse ensureGuidanceCardResponse() => $_ensure(19);
+  GuidanceCardResponse ensureGuidanceCardResponse() => $_ensure(14);
 
   @$pb.TagNumber(28)
-  AddPromotionRequest get addPromotionRequest => $_getN(20);
+  AddPromotionRequest get addPromotionRequest => $_getN(15);
   @$pb.TagNumber(28)
   set addPromotionRequest(AddPromotionRequest value) => $_setField(28, value);
   @$pb.TagNumber(28)
-  $core.bool hasAddPromotionRequest() => $_has(20);
+  $core.bool hasAddPromotionRequest() => $_has(15);
   @$pb.TagNumber(28)
   void clearAddPromotionRequest() => $_clearField(28);
   @$pb.TagNumber(28)
-  AddPromotionRequest ensureAddPromotionRequest() => $_ensure(20);
+  AddPromotionRequest ensureAddPromotionRequest() => $_ensure(15);
 
   @$pb.TagNumber(29)
-  AddPromotionResponse get addPromotionResponse => $_getN(21);
+  AddPromotionResponse get addPromotionResponse => $_getN(16);
   @$pb.TagNumber(29)
   set addPromotionResponse(AddPromotionResponse value) => $_setField(29, value);
   @$pb.TagNumber(29)
-  $core.bool hasAddPromotionResponse() => $_has(21);
+  $core.bool hasAddPromotionResponse() => $_has(16);
   @$pb.TagNumber(29)
   void clearAddPromotionResponse() => $_clearField(29);
   @$pb.TagNumber(29)
-  AddPromotionResponse ensureAddPromotionResponse() => $_ensure(21);
+  AddPromotionResponse ensureAddPromotionResponse() => $_ensure(16);
 
   /// Channel → client
   @$pb.TagNumber(30)
-  PromotionMessageRequest get promotionMessageRequest => $_getN(22);
+  PromotionMessageRequest get promotionMessageRequest => $_getN(17);
   @$pb.TagNumber(30)
   set promotionMessageRequest(PromotionMessageRequest value) =>
       $_setField(30, value);
   @$pb.TagNumber(30)
-  $core.bool hasPromotionMessageRequest() => $_has(22);
+  $core.bool hasPromotionMessageRequest() => $_has(17);
   @$pb.TagNumber(30)
   void clearPromotionMessageRequest() => $_clearField(30);
   @$pb.TagNumber(30)
-  PromotionMessageRequest ensurePromotionMessageRequest() => $_ensure(22);
+  PromotionMessageRequest ensurePromotionMessageRequest() => $_ensure(17);
 
   @$pb.TagNumber(31)
-  PromotionMessageResponse get promotionMessageResponse => $_getN(23);
+  PromotionMessageResponse get promotionMessageResponse => $_getN(18);
   @$pb.TagNumber(31)
   set promotionMessageResponse(PromotionMessageResponse value) =>
       $_setField(31, value);
   @$pb.TagNumber(31)
-  $core.bool hasPromotionMessageResponse() => $_has(23);
+  $core.bool hasPromotionMessageResponse() => $_has(18);
   @$pb.TagNumber(31)
   void clearPromotionMessageResponse() => $_clearField(31);
   @$pb.TagNumber(31)
-  PromotionMessageResponse ensurePromotionMessageResponse() => $_ensure(23);
+  PromotionMessageResponse ensurePromotionMessageResponse() => $_ensure(18);
 
   @$pb.TagNumber(32)
-  ProductMessageRequest get productMessageRequest => $_getN(24);
+  ProductMessageRequest get productMessageRequest => $_getN(19);
   @$pb.TagNumber(32)
   set productMessageRequest(ProductMessageRequest value) =>
       $_setField(32, value);
   @$pb.TagNumber(32)
-  $core.bool hasProductMessageRequest() => $_has(24);
+  $core.bool hasProductMessageRequest() => $_has(19);
   @$pb.TagNumber(32)
   void clearProductMessageRequest() => $_clearField(32);
   @$pb.TagNumber(32)
-  ProductMessageRequest ensureProductMessageRequest() => $_ensure(24);
+  ProductMessageRequest ensureProductMessageRequest() => $_ensure(19);
 
   @$pb.TagNumber(33)
-  ProductMessageResponse get productMessageResponse => $_getN(25);
+  ProductMessageResponse get productMessageResponse => $_getN(20);
   @$pb.TagNumber(33)
   set productMessageResponse(ProductMessageResponse value) =>
       $_setField(33, value);
   @$pb.TagNumber(33)
-  $core.bool hasProductMessageResponse() => $_has(25);
+  $core.bool hasProductMessageResponse() => $_has(20);
   @$pb.TagNumber(33)
   void clearProductMessageResponse() => $_clearField(33);
   @$pb.TagNumber(33)
-  ProductMessageResponse ensureProductMessageResponse() => $_ensure(25);
+  ProductMessageResponse ensureProductMessageResponse() => $_ensure(20);
 
   @$pb.TagNumber(34)
-  ChatStatusRequest get chatStatusRequest => $_getN(26);
+  ChatStatusRequest get chatStatusRequest => $_getN(21);
   @$pb.TagNumber(34)
   set chatStatusRequest(ChatStatusRequest value) => $_setField(34, value);
   @$pb.TagNumber(34)
-  $core.bool hasChatStatusRequest() => $_has(26);
+  $core.bool hasChatStatusRequest() => $_has(21);
   @$pb.TagNumber(34)
   void clearChatStatusRequest() => $_clearField(34);
   @$pb.TagNumber(34)
-  ChatStatusRequest ensureChatStatusRequest() => $_ensure(26);
+  ChatStatusRequest ensureChatStatusRequest() => $_ensure(21);
 
   @$pb.TagNumber(35)
-  ChatStatusResponse get chatStatusResponse => $_getN(27);
+  ChatStatusResponse get chatStatusResponse => $_getN(22);
   @$pb.TagNumber(35)
   set chatStatusResponse(ChatStatusResponse value) => $_setField(35, value);
   @$pb.TagNumber(35)
-  $core.bool hasChatStatusResponse() => $_has(27);
+  $core.bool hasChatStatusResponse() => $_has(22);
   @$pb.TagNumber(35)
   void clearChatStatusResponse() => $_clearField(35);
   @$pb.TagNumber(35)
-  ChatStatusResponse ensureChatStatusResponse() => $_ensure(27);
+  ChatStatusResponse ensureChatStatusResponse() => $_ensure(22);
 
   @$pb.TagNumber(36)
-  CustomActionRequest get customActionRequest => $_getN(28);
+  CustomCommandRequest get customCommandRequest => $_getN(23);
   @$pb.TagNumber(36)
-  set customActionRequest(CustomActionRequest value) => $_setField(36, value);
+  set customCommandRequest(CustomCommandRequest value) => $_setField(36, value);
   @$pb.TagNumber(36)
-  $core.bool hasCustomActionRequest() => $_has(28);
+  $core.bool hasCustomCommandRequest() => $_has(23);
   @$pb.TagNumber(36)
-  void clearCustomActionRequest() => $_clearField(36);
+  void clearCustomCommandRequest() => $_clearField(36);
   @$pb.TagNumber(36)
-  CustomActionRequest ensureCustomActionRequest() => $_ensure(28);
+  CustomCommandRequest ensureCustomCommandRequest() => $_ensure(23);
 
   @$pb.TagNumber(37)
-  CustomActionResponse get customActionResponse => $_getN(29);
+  CustomCommandResponse get customCommandResponse => $_getN(24);
   @$pb.TagNumber(37)
-  set customActionResponse(CustomActionResponse value) => $_setField(37, value);
+  set customCommandResponse(CustomCommandResponse value) =>
+      $_setField(37, value);
   @$pb.TagNumber(37)
-  $core.bool hasCustomActionResponse() => $_has(29);
+  $core.bool hasCustomCommandResponse() => $_has(24);
   @$pb.TagNumber(37)
-  void clearCustomActionResponse() => $_clearField(37);
+  void clearCustomCommandResponse() => $_clearField(37);
   @$pb.TagNumber(37)
-  CustomActionResponse ensureCustomActionResponse() => $_ensure(29);
+  CustomCommandResponse ensureCustomCommandResponse() => $_ensure(24);
 
   @$pb.TagNumber(38)
-  VideoMessageRequest get videoMessageRequest => $_getN(30);
+  VideoMessageRequest get videoMessageRequest => $_getN(25);
   @$pb.TagNumber(38)
   set videoMessageRequest(VideoMessageRequest value) => $_setField(38, value);
   @$pb.TagNumber(38)
-  $core.bool hasVideoMessageRequest() => $_has(30);
+  $core.bool hasVideoMessageRequest() => $_has(25);
   @$pb.TagNumber(38)
   void clearVideoMessageRequest() => $_clearField(38);
   @$pb.TagNumber(38)
-  VideoMessageRequest ensureVideoMessageRequest() => $_ensure(30);
-
-  @$pb.TagNumber(39)
-  VideoMessageResponse get videoMessageResponse => $_getN(31);
-  @$pb.TagNumber(39)
-  set videoMessageResponse(VideoMessageResponse value) => $_setField(39, value);
-  @$pb.TagNumber(39)
-  $core.bool hasVideoMessageResponse() => $_has(31);
-  @$pb.TagNumber(39)
-  void clearVideoMessageResponse() => $_clearField(39);
-  @$pb.TagNumber(39)
-  VideoMessageResponse ensureVideoMessageResponse() => $_ensure(31);
+  VideoMessageRequest ensureVideoMessageRequest() => $_ensure(25);
 
   /// Channel → client
   @$pb.TagNumber(40)
-  ButtonsMessageRequest get buttonsMessageRequest => $_getN(32);
+  ButtonsMessageRequest get buttonsMessageRequest => $_getN(26);
   @$pb.TagNumber(40)
   set buttonsMessageRequest(ButtonsMessageRequest value) =>
       $_setField(40, value);
   @$pb.TagNumber(40)
-  $core.bool hasButtonsMessageRequest() => $_has(32);
+  $core.bool hasButtonsMessageRequest() => $_has(26);
   @$pb.TagNumber(40)
   void clearButtonsMessageRequest() => $_clearField(40);
   @$pb.TagNumber(40)
-  ButtonsMessageRequest ensureButtonsMessageRequest() => $_ensure(32);
+  ButtonsMessageRequest ensureButtonsMessageRequest() => $_ensure(26);
 
   @$pb.TagNumber(41)
-  ButtonsMessageResponse get buttonsMessageResponse => $_getN(33);
+  ButtonsMessageResponse get buttonsMessageResponse => $_getN(27);
   @$pb.TagNumber(41)
   set buttonsMessageResponse(ButtonsMessageResponse value) =>
       $_setField(41, value);
   @$pb.TagNumber(41)
-  $core.bool hasButtonsMessageResponse() => $_has(33);
+  $core.bool hasButtonsMessageResponse() => $_has(27);
   @$pb.TagNumber(41)
   void clearButtonsMessageResponse() => $_clearField(41);
   @$pb.TagNumber(41)
-  ButtonsMessageResponse ensureButtonsMessageResponse() => $_ensure(33);
+  ButtonsMessageResponse ensureButtonsMessageResponse() => $_ensure(27);
 
   @$pb.TagNumber(42)
-  CTAMessageRequest get ctaMessageRequest => $_getN(34);
+  CTAMessageRequest get ctaMessageRequest => $_getN(28);
   @$pb.TagNumber(42)
   set ctaMessageRequest(CTAMessageRequest value) => $_setField(42, value);
   @$pb.TagNumber(42)
-  $core.bool hasCtaMessageRequest() => $_has(34);
+  $core.bool hasCtaMessageRequest() => $_has(28);
   @$pb.TagNumber(42)
   void clearCtaMessageRequest() => $_clearField(42);
   @$pb.TagNumber(42)
-  CTAMessageRequest ensureCtaMessageRequest() => $_ensure(34);
+  CTAMessageRequest ensureCtaMessageRequest() => $_ensure(28);
 
   @$pb.TagNumber(43)
-  CTAMessageResponse get ctaMessageResponse => $_getN(35);
+  CTAMessageResponse get ctaMessageResponse => $_getN(29);
   @$pb.TagNumber(43)
   set ctaMessageResponse(CTAMessageResponse value) => $_setField(43, value);
   @$pb.TagNumber(43)
-  $core.bool hasCtaMessageResponse() => $_has(35);
+  $core.bool hasCtaMessageResponse() => $_has(29);
   @$pb.TagNumber(43)
   void clearCtaMessageResponse() => $_clearField(43);
   @$pb.TagNumber(43)
-  CTAMessageResponse ensureCtaMessageResponse() => $_ensure(35);
+  CTAMessageResponse ensureCtaMessageResponse() => $_ensure(29);
 
   /// Client → channel
   @$pb.TagNumber(44)
-  GetCommandsRequest get getCommandsRequest => $_getN(36);
+  GetCommandsRequest get getCommandsRequest => $_getN(30);
   @$pb.TagNumber(44)
   set getCommandsRequest(GetCommandsRequest value) => $_setField(44, value);
   @$pb.TagNumber(44)
-  $core.bool hasGetCommandsRequest() => $_has(36);
+  $core.bool hasGetCommandsRequest() => $_has(30);
   @$pb.TagNumber(44)
   void clearGetCommandsRequest() => $_clearField(44);
   @$pb.TagNumber(44)
-  GetCommandsRequest ensureGetCommandsRequest() => $_ensure(36);
+  GetCommandsRequest ensureGetCommandsRequest() => $_ensure(30);
 
   @$pb.TagNumber(45)
-  GetCommandsResponse get getCommandsResponse => $_getN(37);
+  GetCommandsResponse get getCommandsResponse => $_getN(31);
   @$pb.TagNumber(45)
   set getCommandsResponse(GetCommandsResponse value) => $_setField(45, value);
   @$pb.TagNumber(45)
-  $core.bool hasGetCommandsResponse() => $_has(37);
+  $core.bool hasGetCommandsResponse() => $_has(31);
   @$pb.TagNumber(45)
   void clearGetCommandsResponse() => $_clearField(45);
   @$pb.TagNumber(45)
-  GetCommandsResponse ensureGetCommandsResponse() => $_ensure(37);
+  GetCommandsResponse ensureGetCommandsResponse() => $_ensure(31);
 }
 
 /// TextMessage holds the payload of a plain-text conversation turn.
@@ -1067,90 +935,6 @@ class TextMessageRequest extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(2);
   @$pb.TagNumber(2)
   $0.Timestamp ensureTimestamp() => $_ensure(1);
-}
-
-/// TextMessageResponse acknowledges a TextMessageRequest and returns the assigned message id.
-class TextMessageResponse extends $pb.GeneratedMessage {
-  factory TextMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  TextMessageResponse._();
-
-  factory TextMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory TextMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'TextMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  TextMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  TextMessageResponse copyWith(void Function(TextMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as TextMessageResponse))
-          as TextMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static TextMessageResponse create() => TextMessageResponse._();
-  @$core.override
-  TextMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static TextMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<TextMessageResponse>(create);
-  static TextMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
 }
 
 /// VoiceMessage holds the payload of a voice-note conversation turn.
@@ -1388,91 +1172,6 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
   $pb.PbList<$core.String> get quickReplies => $_getList(2);
 }
 
-/// VoiceNoteMessageResponse acknowledges a VoiceNoteMessageRequest and returns the assigned message id.
-class VoiceNoteMessageResponse extends $pb.GeneratedMessage {
-  factory VoiceNoteMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  VoiceNoteMessageResponse._();
-
-  factory VoiceNoteMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory VoiceNoteMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VoiceNoteMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VoiceNoteMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VoiceNoteMessageResponse copyWith(
-          void Function(VoiceNoteMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as VoiceNoteMessageResponse))
-          as VoiceNoteMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static VoiceNoteMessageResponse create() => VoiceNoteMessageResponse._();
-  @$core.override
-  VoiceNoteMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static VoiceNoteMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VoiceNoteMessageResponse>(create);
-  static VoiceNoteMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
-}
-
 /// ImageMessage holds the payload of an image conversation turn.
 class ImageMessage extends $pb.GeneratedMessage {
   factory ImageMessage({
@@ -1696,90 +1395,6 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $pb.PbList<$core.String> get quickReplies => $_getList(2);
-}
-
-/// ImageMessageResponse acknowledges an ImageMessageRequest and returns the assigned message id.
-class ImageMessageResponse extends $pb.GeneratedMessage {
-  factory ImageMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  ImageMessageResponse._();
-
-  factory ImageMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory ImageMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ImageMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ImageMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ImageMessageResponse copyWith(void Function(ImageMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as ImageMessageResponse))
-          as ImageMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static ImageMessageResponse create() => ImageMessageResponse._();
-  @$core.override
-  ImageMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static ImageMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ImageMessageResponse>(create);
-  static ImageMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
 }
 
 /// AttachmentMessage holds the payload of a file attachment conversation turn.
@@ -2006,91 +1621,6 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $pb.PbList<$core.String> get quickReplies => $_getList(2);
-}
-
-/// AttachmentMessageResponse acknowledges an AttachmentMessageRequest and returns the assigned message id.
-class AttachmentMessageResponse extends $pb.GeneratedMessage {
-  factory AttachmentMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  AttachmentMessageResponse._();
-
-  factory AttachmentMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory AttachmentMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'AttachmentMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  AttachmentMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  AttachmentMessageResponse copyWith(
-          void Function(AttachmentMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as AttachmentMessageResponse))
-          as AttachmentMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static AttachmentMessageResponse create() => AttachmentMessageResponse._();
-  @$core.override
-  AttachmentMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static AttachmentMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AttachmentMessageResponse>(create);
-  static AttachmentMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
 }
 
 /// VideoMessage holds the payload of a video conversation turn.
@@ -2330,90 +1860,6 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
   $pb.PbList<$core.String> get quickReplies => $_getList(2);
 }
 
-/// VideoMessageResponse acknowledges a VideoMessageRequest and returns the assigned message id.
-class VideoMessageResponse extends $pb.GeneratedMessage {
-  factory VideoMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  VideoMessageResponse._();
-
-  factory VideoMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory VideoMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'VideoMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VideoMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  VideoMessageResponse copyWith(void Function(VideoMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as VideoMessageResponse))
-          as VideoMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static VideoMessageResponse create() => VideoMessageResponse._();
-  @$core.override
-  VideoMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static VideoMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VideoMessageResponse>(create);
-  static VideoMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
-}
-
 /// MessageReceiptRequest notifies the other party of a message status change.
 class MessageReceiptRequest extends $pb.GeneratedMessage {
   factory MessageReceiptRequest({
@@ -2503,79 +1949,6 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(4)
   $pb.PbList<$core.String> get quickReplies => $_getList(3);
-}
-
-/// MessageReceiptResponse acknowledges a MessageReceiptRequest.
-class MessageReceiptResponse extends $pb.GeneratedMessage {
-  factory MessageReceiptResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
-
-  MessageReceiptResponse._();
-
-  factory MessageReceiptResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory MessageReceiptResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'MessageReceiptResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  MessageReceiptResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  MessageReceiptResponse copyWith(
-          void Function(MessageReceiptResponse) updates) =>
-      super.copyWith((message) => updates(message as MessageReceiptResponse))
-          as MessageReceiptResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static MessageReceiptResponse create() => MessageReceiptResponse._();
-  @$core.override
-  MessageReceiptResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static MessageReceiptResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<MessageReceiptResponse>(create);
-  static MessageReceiptResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
 }
 
 /// AddToCartRequest asks the channel to add a SKU to the active cart.
@@ -4019,67 +3392,67 @@ class ChatStatusResponse extends $pb.GeneratedMessage {
   $0.Timestamp ensureTimestamp() => $_ensure(1);
 }
 
-/// CustomActionRequest triggers a client-side action identified by action_id.
-class CustomActionRequest extends $pb.GeneratedMessage {
-  factory CustomActionRequest({
-    $core.String? actionId,
+/// CustomCommandRequest triggers a client-side command identified by command_id.
+class CustomCommandRequest extends $pb.GeneratedMessage {
+  factory CustomCommandRequest({
+    $core.String? commandId,
     $core.String? payload,
     $0.Timestamp? timestamp,
   }) {
     final result = create();
-    if (actionId != null) result.actionId = actionId;
+    if (commandId != null) result.commandId = commandId;
     if (payload != null) result.payload = payload;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
   }
 
-  CustomActionRequest._();
+  CustomCommandRequest._();
 
-  factory CustomActionRequest.fromBuffer($core.List<$core.int> data,
+  factory CustomCommandRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory CustomActionRequest.fromJson($core.String json,
+  factory CustomCommandRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'CustomActionRequest',
+      _omitMessageNames ? '' : 'CustomCommandRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'actionId')
+    ..aOS(1, _omitFieldNames ? '' : 'commandId')
     ..aOS(2, _omitFieldNames ? '' : 'payload')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CustomActionRequest clone() => deepCopy();
+  CustomCommandRequest clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CustomActionRequest copyWith(void Function(CustomActionRequest) updates) =>
-      super.copyWith((message) => updates(message as CustomActionRequest))
-          as CustomActionRequest;
+  CustomCommandRequest copyWith(void Function(CustomCommandRequest) updates) =>
+      super.copyWith((message) => updates(message as CustomCommandRequest))
+          as CustomCommandRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static CustomActionRequest create() => CustomActionRequest._();
+  static CustomCommandRequest create() => CustomCommandRequest._();
   @$core.override
-  CustomActionRequest createEmptyInstance() => create();
+  CustomCommandRequest createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static CustomActionRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CustomActionRequest>(create);
-  static CustomActionRequest? _defaultInstance;
+  static CustomCommandRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CustomCommandRequest>(create);
+  static CustomCommandRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get actionId => $_getSZ(0);
+  $core.String get commandId => $_getSZ(0);
   @$pb.TagNumber(1)
-  set actionId($core.String value) => $_setString(0, value);
+  set commandId($core.String value) => $_setString(0, value);
   @$pb.TagNumber(1)
-  $core.bool hasActionId() => $_has(0);
+  $core.bool hasCommandId() => $_has(0);
   @$pb.TagNumber(1)
-  void clearActionId() => $_clearField(1);
+  void clearCommandId() => $_clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get payload => $_getSZ(1);
@@ -4102,9 +3475,9 @@ class CustomActionRequest extends $pb.GeneratedMessage {
   $0.Timestamp ensureTimestamp() => $_ensure(2);
 }
 
-/// CustomActionResponse returns the result of a CustomActionRequest.
-class CustomActionResponse extends $pb.GeneratedMessage {
-  factory CustomActionResponse({
+/// CustomCommandResponse returns the result of a CustomCommandRequest.
+class CustomCommandResponse extends $pb.GeneratedMessage {
+  factory CustomCommandResponse({
     ResponseStatus? status,
     $core.String? payload,
     $0.Timestamp? timestamp,
@@ -4116,17 +3489,17 @@ class CustomActionResponse extends $pb.GeneratedMessage {
     return result;
   }
 
-  CustomActionResponse._();
+  CustomCommandResponse._();
 
-  factory CustomActionResponse.fromBuffer($core.List<$core.int> data,
+  factory CustomCommandResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory CustomActionResponse.fromJson($core.String json,
+  factory CustomCommandResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'CustomActionResponse',
+      _omitMessageNames ? '' : 'CustomCommandResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
       createEmptyInstance: create)
@@ -4138,23 +3511,24 @@ class CustomActionResponse extends $pb.GeneratedMessage {
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CustomActionResponse clone() => deepCopy();
+  CustomCommandResponse clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CustomActionResponse copyWith(void Function(CustomActionResponse) updates) =>
-      super.copyWith((message) => updates(message as CustomActionResponse))
-          as CustomActionResponse;
+  CustomCommandResponse copyWith(
+          void Function(CustomCommandResponse) updates) =>
+      super.copyWith((message) => updates(message as CustomCommandResponse))
+          as CustomCommandResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static CustomActionResponse create() => CustomActionResponse._();
+  static CustomCommandResponse create() => CustomCommandResponse._();
   @$core.override
-  CustomActionResponse createEmptyInstance() => create();
+  CustomCommandResponse createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static CustomActionResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CustomActionResponse>(create);
-  static CustomActionResponse? _defaultInstance;
+  static CustomCommandResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CustomCommandResponse>(create);
+  static CustomCommandResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ResponseStatus get status => $_getN(0);

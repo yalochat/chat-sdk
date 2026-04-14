@@ -21,17 +21,11 @@ message SdkMessage {
   oneof payload {
     // Bi-directional
     TextMessageRequest       text_message_request        = 10;
-    TextMessageResponse      text_message_response       = 11;
     VoiceNoteMessageRequest  voice_note_message_request  = 12;
-    VoiceNoteMessageResponse voice_note_message_response = 13;
     ImageMessageRequest       image_message_request        = 14;
-    ImageMessageResponse      image_message_response       = 15;
     MessageReceiptRequest     message_receipt_request      = 16;
-    MessageReceiptResponse    message_receipt_response     = 17;
     AttachmentMessageRequest  attachment_message_request   = 18;
-    AttachmentMessageResponse attachment_message_response  = 19;
     VideoMessageRequest       video_message_request        = 38;
-    VideoMessageResponse      video_message_response       = 39;
 
     // Client → channel
     AddToCartRequest         add_to_cart_request         = 20;
@@ -52,8 +46,8 @@ message SdkMessage {
     ProductMessageResponse   product_message_response    = 33;
     ChatStatusRequest        chat_status_request         = 34;
     ChatStatusResponse       chat_status_response        = 35;
-    CustomActionRequest      custom_action_request       = 36;
-    CustomActionResponse     custom_action_response      = 37;
+    CustomCommandRequest     custom_command_request      = 36;
+    CustomCommandResponse    custom_command_response     = 37;
 
     // Channel → client
     ButtonsMessageRequest    buttons_message_request     = 40;
@@ -114,13 +108,6 @@ message TextMessageRequest {
   google.protobuf.Timestamp timestamp = 2;
 }
 
-// TextMessageResponse acknowledges a TextMessageRequest and returns the assigned message id.
-message TextMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
-}
-
 // ---------------------------------------------------------------------------
 // Voice message  (bi-directional)
 // ---------------------------------------------------------------------------
@@ -146,12 +133,6 @@ message VoiceNoteMessageRequest {
   repeated string quick_replies = 3;
 }
 
-// VoiceNoteMessageResponse acknowledges a VoiceNoteMessageRequest and returns the assigned message id.
-message VoiceNoteMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
-}
 
 // ---------------------------------------------------------------------------
 // Image message  (bi-directional)
@@ -176,12 +157,6 @@ message ImageMessageRequest {
   repeated string quick_replies = 3;
 }
 
-// ImageMessageResponse acknowledges an ImageMessageRequest and returns the assigned message id.
-message ImageMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
-}
 
 // ---------------------------------------------------------------------------
 // Attachment message  (bi-directional)
@@ -206,12 +181,6 @@ message AttachmentMessageRequest {
   repeated string quick_replies = 3;
 }
 
-// AttachmentMessageResponse acknowledges an AttachmentMessageRequest and returns the assigned message id.
-message AttachmentMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
-}
 
 // ---------------------------------------------------------------------------
 // Video message  (bi-directional)
@@ -237,12 +206,6 @@ message VideoMessageRequest {
   repeated string quick_replies = 3;
 }
 
-// VideoMessageResponse acknowledges a VideoMessageRequest and returns the assigned message id.
-message VideoMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
-}
 
 // ---------------------------------------------------------------------------
 // Message receipt  (bi-directional)
@@ -254,12 +217,6 @@ message MessageReceiptRequest {
   string message_id = 2;
   google.protobuf.Timestamp timestamp = 3;
   repeated string quick_replies = 4;
-}
-
-// MessageReceiptResponse acknowledges a MessageReceiptRequest.
-message MessageReceiptResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
 }
 
 // ---------------------------------------------------------------------------
@@ -423,18 +380,18 @@ message ChatStatusResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Custom agent action  (channel → client)
+// Custom agent command  (channel → client)
 // ---------------------------------------------------------------------------
 
-// CustomActionRequest triggers a client-side action identified by action_id.
-message CustomActionRequest {
-  string action_id = 1;
+// CustomCommandRequest triggers a client-side command identified by command_id.
+message CustomCommandRequest {
+  string command_id = 1;
   string payload = 2;
   google.protobuf.Timestamp timestamp = 3;
 }
 
-// CustomActionResponse returns the result of a CustomActionRequest.
-message CustomActionResponse {
+// CustomCommandResponse returns the result of a CustomCommandRequest.
+message CustomCommandResponse {
   ResponseStatus status = 1;
   string payload = 2;
   google.protobuf.Timestamp timestamp = 3;
