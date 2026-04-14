@@ -1,0 +1,6 @@
+-- Migration 2: add columns for buttons and CTA message types
+-- Port of flutter-sdk chat_message.drift addition in PR #94 (cta-buttons-repo-flutter).
+ALTER TABLE chat_message ADD COLUMN header TEXT;
+ALTER TABLE chat_message ADD COLUMN footer TEXT;
+ALTER TABLE chat_message ADD COLUMN buttons TEXT;
+ALTER TABLE chat_message ADD COLUMN cta_buttons TEXT;

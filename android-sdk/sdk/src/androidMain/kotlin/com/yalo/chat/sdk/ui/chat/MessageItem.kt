@@ -2,6 +2,9 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,14 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.domain.model.ChatMessage
@@ -106,6 +114,12 @@ internal fun MessageItem(
                         onPlay = onPlayAudio,
                         onStop = onStopAudio,
                     )
+                    MessageType.Video -> VideoMessageItem(message = message)
+                    MessageType.Buttons -> ButtonsMessage(
+                        message = message,
+                        onEvent = onEvent,
+                    )
+                    MessageType.CTA -> CtaMessage(message = message)
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",
                         style = messageTextStyle,
@@ -117,5 +131,44 @@ internal fun MessageItem(
                 }
             }
         }
+    }
+}
+
+// Inline video preview — shows a play icon overlay on the first frame.
+// Tapping opens the video with the system media player via an Intent.
+// Full in-app playback (like Flutter's video_player) would require Media3/ExoPlayer —
+// that dependency is out of scope here; the system player is a faithful minimum.
+@Composable
+private fun VideoMessageItem(message: ChatMessage) {
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .size(200.dp)
+            .clickable {
+                message.fileName?.let { path ->
+                    val uri = Uri.parse(path)
+                    val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                        setDataAndType(uri, message.mediaType ?: "video/mp4")
+                    }
+                    context.startActivity(intent)
+                }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        // Use Coil to render the first frame as a thumbnail.
+        AsyncImage(
+            model = message.fileName,
+            contentDescription = "Video message",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+            placeholder = ColorPainter(androidx.compose.ui.graphics.Color.Black),
+            error = ColorPainter(androidx.compose.ui.graphics.Color.Black),
+        )
+        Icon(
+            imageVector = Icons.Filled.PlayCircle,
+            contentDescription = "Play video",
+            modifier = Modifier.size(48.dp),
+            tint = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.85f),
+        )
     }
 }

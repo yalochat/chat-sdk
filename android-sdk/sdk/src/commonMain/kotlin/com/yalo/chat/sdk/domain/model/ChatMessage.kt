@@ -26,5 +26,15 @@ data class ChatMessage(
     // Transient UI state — not stored in DB. Defaults to false on every load from storage.
     val expand: Boolean = false,
     val quickReplies: List<QuickReply> = emptyList(),
+    // Optional header/footer text for buttons and CTA messages.
+    // Port of flutter-sdk ChatMessage.header / ChatMessage.footer.
+    val header: String? = null,
+    val footer: String? = null,
+    // Reply button labels for ButtonsMessage — tapping sends the label as a text message.
+    // Port of flutter-sdk ChatMessage.buttons.
+    val buttons: List<String> = emptyList(),
+    // CTA buttons (text + URL) for CtaMessage — tapping opens the URL in the browser.
+    // Port of flutter-sdk ChatMessage.ctaButtons.
+    val ctaButtons: List<CtaButton> = emptyList(),
     val timestamp: Long = Clock.System.now().toEpochMilliseconds(),
 )

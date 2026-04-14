@@ -1,8 +1,8 @@
 -- Copyright (c) Yalochat, Inc. All rights reserved.
 -- Port of flutter-sdk/lib/src/data/services/database/chat_message.drift
 -- Schema matches the Flutter Drift schema exactly (same column names and types).
--- JSON columns (amplitudes, products, quick_replies) are stored as TEXT and are
--- encoded/decoded in the Kotlin repository layer (see LocalChatMessageRepository).
+-- JSON columns (amplitudes, products, quick_replies, buttons, cta_buttons) are stored
+-- as TEXT and are encoded/decoded in the Kotlin repository layer.
 
 CREATE TABLE chat_message (
     id              INTEGER NOT NULL PRIMARY KEY,
@@ -18,6 +18,10 @@ CREATE TABLE chat_message (
     media_type      TEXT,
     products        TEXT,
     quick_replies   TEXT,
+    header          TEXT,
+    footer          TEXT,
+    buttons         TEXT,
+    cta_buttons     TEXT,
     timestamp       INTEGER NOT NULL
 );
 
@@ -25,8 +29,9 @@ CREATE TABLE chat_message (
 insertOrReplace:
 INSERT OR REPLACE INTO chat_message (
     id, wi_id, role, content, type, status,
-    file_name, amplitudes, duration, byte_count, media_type, products, quick_replies, timestamp
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    file_name, amplitudes, duration, byte_count, media_type, products, quick_replies,
+    header, footer, buttons, cta_buttons, timestamp
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 -- First page: most recent messages, ordered newest-first.
 -- Port of Flutter getMessagesFirstPage(limit).

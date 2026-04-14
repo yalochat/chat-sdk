@@ -14,6 +14,7 @@ import com.yalo.chat.sdk.data.remote.model.SdkVoiceNoteMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
@@ -279,6 +280,79 @@ internal class YaloMessageRepositoryRemote(
                     )
                 }
             }
+        }
+
+        // Video message — download from CDN and save locally.
+        // Mirrors Flutter's videoMessageRequest case in _translateMessageResponse().
+        // Cache is set only after a successful download (same pattern as image).
+        message.videoMessageRequest?.content?.let { videoContent ->
+            return when (val downloadResult = apiService.downloadMedia(videoContent.mediaUrl)) {
+                is Result.Error -> null // skip silently — will retry on next poll cycle
+                is Result.Ok -> {
+                    val bytes = downloadResult.result
+                    val mimeType = videoContent.mediaType.takeIf { it.isNotEmpty() } ?: "video/mp4"
+                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
+                        if (it.contains("mp4") || it == "mp4") "mp4" else it
+                    }
+                    val localPath = PlatformFiles.writeToDir(
+                        dirPath = tempDir,
+                        filename = "${Uuid.random()}.$ext",
+                        bytes = bytes,
+                    ) ?: return null
+                    if (deduplicate) cache.set(id, true)
+                    ChatMessage(
+                        id = stableId,
+                        wiId = id,
+                        role = MessageRole.fromString(videoContent.role ?: "MESSAGE_ROLE_AGENT"),
+                        type = MessageType.Video,
+                        status = MessageStatus.DELIVERED,
+                        content = videoContent.text ?: "",
+                        fileName = localPath,
+                        mediaType = mimeType,
+                        byteCount = bytes.size.toLong(),
+                        // Flutter stores duration in seconds (Double) → convert to millis for ChatMessage.
+                        duration = (videoContent.duration * 1000).toLong(),
+                        timestamp = ts,
+                    )
+                }
+            }
+        }
+
+        // Buttons message — body text + a list of reply labels rendered as outlined buttons.
+        // Tapping a button sends the label as a text message (same as quick reply chips).
+        // Port of flutter-sdk buttonsMessageRequest case in _translateMessageResponse().
+        message.buttonsMessageRequest?.content?.let { buttonsContent ->
+            if (deduplicate) cache.set(id, true)
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.AGENT,
+                type = MessageType.Buttons,
+                status = MessageStatus.DELIVERED,
+                content = buttonsContent.body,
+                header = buttonsContent.header.takeIf { !it.isNullOrEmpty() },
+                footer = buttonsContent.footer.takeIf { !it.isNullOrEmpty() },
+                buttons = buttonsContent.buttons,
+                timestamp = ts,
+            )
+        }
+
+        // CTA message — body text + buttons that each open a URL in the browser.
+        // Port of flutter-sdk ctaMessageRequest case in _translateMessageResponse().
+        message.ctaMessageRequest?.content?.let { ctaContent ->
+            if (deduplicate) cache.set(id, true)
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.AGENT,
+                type = MessageType.CTA,
+                status = MessageStatus.DELIVERED,
+                content = ctaContent.body,
+                header = ctaContent.header.takeIf { !it.isNullOrEmpty() },
+                footer = ctaContent.footer.takeIf { !it.isNullOrEmpty() },
+                ctaButtons = ctaContent.buttons.map { CtaButton(text = it.text, url = it.url) },
+                timestamp = ts,
+            )
         }
 
         // Product message — vertical list or horizontal carousel, determined by orientation.
