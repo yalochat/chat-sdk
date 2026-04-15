@@ -69,6 +69,22 @@ const buildProduct = (
     ...overrides,
   });
 
+const getProductCard = async (list: ChatMessageList): Promise<LitElement> => {
+  const assistant = list.shadowRoot!.querySelector(
+    'assistant-message'
+  ) as LitElement;
+  await assistant.updateComplete;
+  const productMsg = assistant.shadowRoot!.querySelector(
+    'product-message'
+  ) as LitElement;
+  await productMsg.updateComplete;
+  const card = productMsg.shadowRoot!.querySelector(
+    'product-card'
+  ) as LitElement;
+  await card.updateComplete;
+  return card;
+};
+
 describe('ChatMessageList', () => {
   afterEach(() => {
     document.body.innerHTML = '';
@@ -232,6 +248,92 @@ describe('ChatMessageList', () => {
         expect(
           (card as unknown as { layout: string }).layout
         ).toBe('vertical');
+      });
+    });
+
+    it('renders one numeric-input per product when there are no subunits', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 50,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'a' })],
+        }),
+      ]);
+
+      const card = await getProductCard(list);
+      const inputs = card.shadowRoot!.querySelectorAll('numeric-input');
+      expect(inputs).toHaveLength(1);
+    });
+
+    it('renders two numeric-inputs when the product has subunits', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 51,
+          role: 'AGENT',
+          timestamp,
+          products: [
+            buildProduct({
+              sku: 'a',
+              subunits: 6,
+              subunitName: '{amount, plural, one {bag} other {bags}}',
+            }),
+          ],
+        }),
+      ]);
+
+      const card = await getProductCard(list);
+      const inputs = card.shadowRoot!.querySelectorAll('numeric-input');
+      expect(inputs).toHaveLength(2);
+    });
+
+    it('emits yalo-chat-product-quantity-change with sku and unitType when clicking +/-', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 52,
+          role: 'AGENT',
+          timestamp,
+          products: [
+            buildProduct({
+              sku: 'sku-xyz',
+              unitsAdded: 2,
+              subunits: 6,
+              subunitsAdded: 1,
+              subunitName: '{amount, plural, one {bag} other {bags}}',
+            }),
+          ],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-quantity-change', listener);
+
+      const card = await getProductCard(list);
+      const [unitInput, subunitInput] =
+        card.shadowRoot!.querySelectorAll<LitElement>('numeric-input');
+      await unitInput.updateComplete;
+      await subunitInput.updateComplete;
+
+      const unitButtons =
+        unitInput.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+      const subunitButtons =
+        subunitInput.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+
+      // Plus on units (value 2 + step 1 = 3)
+      unitButtons[1].click();
+      // Minus on subunits (value 1 - step 1 = 0)
+      subunitButtons[0].click();
+
+      expect(listener).toHaveBeenCalledTimes(2);
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
+        sku: 'sku-xyz',
+        unitType: 'unit',
+        value: 3,
+      });
+      expect((listener.mock.calls[1][0] as CustomEvent).detail).toMatchObject({
+        sku: 'sku-xyz',
+        unitType: 'subunit',
+        value: 0,
       });
     });
 
