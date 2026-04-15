@@ -59,7 +59,12 @@ internal fun CtaMessage(message: ChatMessage) {
                 onClick = {
                     val uri = Uri.parse(button.url)
                     if (uri.scheme == "https" || uri.scheme == "http") {
-                        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                        runCatching {
+                            context.startActivity(
+                                Intent(Intent.ACTION_VIEW, uri)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
                     }
                 },
                 modifier = Modifier

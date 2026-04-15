@@ -115,11 +115,12 @@ kotlin {
     // They are JVM/Android-only (protobuf-kotlin-lite has no Kotlin/Native support).
     sourceSets.getByName("androidMain") {
         kotlin.srcDir("../../proto/kotlin")
-        // Exclude Kotlin DSL wrappers that reference Java types not yet generated in
-        // SdkMessageOuterClass.java (added by proto beb3ca9 without regenerating the Java file).
-        // These types (MessageStatusRequest/Response, RegisterCommandsRequest) are not
-        // used by the Android SDK and their unresolved-type references cause
-        // "Overload resolution ambiguity" on timestampOrNull across all other proto files.
+        // Exclude all Kotlin DSL wrappers that reference Java types not present in the
+        // committed SdkMessageOuterClass.java. These wrappers were generated from the proto
+        // source but the corresponding Java outer class was not regenerated at the same time,
+        // leaving unresolved type references that produce "Overload resolution ambiguity"
+        // on timestampOrNull across all other proto files. The SDK does not use these
+        // wrappers directly; the raw Java accessors in SdkMessageOuterClass are sufficient.
         kotlin.filter.exclude(
             "**/AttachmentMessageResponseKt.kt",
             "**/CustomActionRequestKt.kt",

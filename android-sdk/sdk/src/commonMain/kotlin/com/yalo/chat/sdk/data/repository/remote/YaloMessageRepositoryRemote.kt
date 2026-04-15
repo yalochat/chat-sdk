@@ -53,7 +53,7 @@ internal class YaloMessageRepositoryRemote(
     // time of the next user send (which happens when the server takes a few
     // seconds to generate a response — its timestamp then exceeds the user's
     // subsequent message tempId, causing the wrong visual order).
-    // Reset to 0 on construction; seeded to Clock.System.now() on first poll.
+    // Reset to 0 on construction; advanced during polling from observed message ids.
     // No atomic needed: pollIncomingMessages() is a single sequential coroutine.
     private var pollHighWater: Long = 0L
 

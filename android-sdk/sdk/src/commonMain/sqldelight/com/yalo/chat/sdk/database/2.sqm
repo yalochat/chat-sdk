@@ -31,7 +31,8 @@ INSERT OR IGNORE INTO chat_message_v2
            products, quick_replies,
            NULL, NULL, NULL, NULL,
            timestamp
-    FROM chat_message;
+    FROM chat_message
+    ORDER BY id ASC;
 
 DROP TABLE chat_message;
 
