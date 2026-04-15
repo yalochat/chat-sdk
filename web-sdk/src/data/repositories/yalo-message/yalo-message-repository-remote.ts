@@ -13,7 +13,10 @@ import {
   MessageStatus,
   SdkMessage,
   PollMessageItem,
+  ProductMessageRequest_Orientation,
+  type Product as ProtoProduct,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import { Product } from '@domain/models/product/product';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
 
 interface JwtPayload {
@@ -284,6 +287,22 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       });
     }
 
+    if (msg.productMessageRequest) {
+      const products = msg.productMessageRequest.products.map((p) =>
+        this._toDomainProduct(p)
+      );
+      const isCarousel =
+        msg.productMessageRequest.orientation ===
+        ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL;
+      const factory = isCarousel ? ChatMessage.carousel : ChatMessage.product;
+      return factory({
+        role: 'AGENT',
+        timestamp,
+        products,
+        wiId: item.id,
+      });
+    }
+
     if (msg.ctaMessageRequest?.content) {
       const content = msg.ctaMessageRequest.content;
       return ChatMessage.cta({
@@ -353,6 +372,23 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     clearTimeout(this._pollTimeout);
     this._pollTimeout = undefined;
     this._seenIds.clear();
+  }
+
+  private _toDomainProduct(p: ProtoProduct): Product {
+    return new Product({
+      sku: p.sku,
+      name: p.name,
+      price: p.price,
+      imagesUrl: p.imagesUrl,
+      salePrice: p.salePrice,
+      subunits: p.subunits,
+      unitStep: p.unitStep,
+      unitName: p.unitName,
+      subunitName: p.subunitName,
+      subunitStep: p.subunitStep,
+      unitsAdded: p.unitsAdded,
+      subunitsAdded: p.subunitsAdded,
+    });
   }
 
   private _decodeUserId(token: string): string {

@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import type { Product } from '../product/product';
+
 export const MessageRoles = ['USER', 'AGENT'] as const;
 export type MessageRole = (typeof MessageRoles)[number];
 
@@ -52,6 +54,8 @@ export class ChatMessage {
   readonly footer?: string;
   readonly buttons: string[];
   readonly ctaButtons: CTAButton[];
+  readonly products: Product[];
+  readonly expand: boolean;
 
   constructor(params: {
     role: MessageRole;
@@ -72,6 +76,8 @@ export class ChatMessage {
     footer?: string;
     buttons?: string[];
     ctaButtons?: CTAButton[];
+    products?: Product[];
+    expand?: boolean;
   }) {
     this.id = params.id;
     this.wiId = params.wiId;
@@ -91,6 +97,8 @@ export class ChatMessage {
     this.footer = params.footer;
     this.buttons = params.buttons ?? [];
     this.ctaButtons = params.ctaButtons ?? [];
+    this.products = params.products ?? [];
+    this.expand = params.expand ?? false;
   }
 
   static text(params: {
@@ -183,6 +191,32 @@ export class ChatMessage {
     footer?: string;
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'buttons' });
+  }
+
+  static product(params: {
+    role: MessageRole;
+    timestamp: Date;
+    products: Product[];
+    id?: number;
+    wiId?: string;
+    status?: MessageStatus;
+    expand?: boolean;
+    quickReplies?: string[];
+  }): ChatMessage {
+    return new ChatMessage({ ...params, type: 'product' });
+  }
+
+  static carousel(params: {
+    role: MessageRole;
+    timestamp: Date;
+    products: Product[];
+    id?: number;
+    wiId?: string;
+    status?: MessageStatus;
+    expand?: boolean;
+    quickReplies?: string[];
+  }): ChatMessage {
+    return new ChatMessage({ ...params, type: 'productCarousel' });
   }
 
   static cta(params: {
