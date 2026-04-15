@@ -174,6 +174,59 @@ const makeCTAPollItem = (
   status: 0,
 });
 
+type ProductInput = {
+  sku?: string;
+  name?: string;
+  price?: number;
+  imagesUrl?: string[];
+  salePrice?: number;
+  subunits?: number;
+  unitStep?: number;
+  unitName?: string;
+  subunitName?: string;
+  subunitStep?: number;
+  unitsAdded?: number;
+  subunitsAdded?: number;
+};
+
+const makeProtoProduct = (overrides: ProductInput = {}) => ({
+  sku: overrides.sku ?? 'SKU-1',
+  name: overrides.name ?? 'Widget',
+  price: overrides.price ?? 9.99,
+  imagesUrl: overrides.imagesUrl ?? ['https://cdn.example.com/widget.png'],
+  salePrice: overrides.salePrice,
+  subunits: overrides.subunits ?? 1,
+  unitStep: overrides.unitStep ?? 1,
+  unitName: overrides.unitName ?? '{amount, plural, one {box} other {boxes}}',
+  subunitName: overrides.subunitName,
+  subunitStep: overrides.subunitStep ?? 1,
+  unitsAdded: overrides.unitsAdded ?? 0,
+  subunitsAdded: overrides.subunitsAdded ?? 0,
+});
+
+const makeProductPollItem = (
+  id: string,
+  opts: {
+    products?: ProductInput[];
+    orientation?: 'ORIENTATION_VERTICAL' | 'ORIENTATION_HORIZONTAL';
+    date?: Date;
+  } = {}
+) => ({
+  id,
+  message: {
+    correlationId: '',
+    timestamp: new Date(),
+    productMessageRequest: {
+      timestamp: new Date(),
+      products: (opts.products ?? [{}]).map(makeProtoProduct),
+      orientation: opts.orientation ?? 'ORIENTATION_VERTICAL',
+    },
+  },
+  date: opts.date,
+  userId: 'user-1',
+  status: 0,
+});
+
 const mockOkFetch = (body: unknown = {}, status = 200) =>
   vi.fn().mockResolvedValue({
     ok: true,
@@ -736,6 +789,95 @@ describe('YaloMessageRepositoryRemote', () => {
         ],
         wiId: 'cta-1',
         timestamp: date,
+      });
+    });
+
+    it('translates vertical product poll items into ChatMessage.product', async () => {
+      const date = new Date('2026-07-10T10:00:00Z');
+      const items = [
+        makeProductPollItem('prod-1', {
+          orientation: 'ORIENTATION_VERTICAL',
+          products: [
+            {
+              sku: 'A-1',
+              name: 'Apples',
+              price: 5,
+              imagesUrl: ['https://cdn.example.com/a.png'],
+              salePrice: 4,
+              unitName: '{amount, plural, one {bag} other {bags}}',
+            },
+            { sku: 'B-2', name: 'Bananas', price: 3 },
+          ],
+          date,
+        }),
+      ];
+      vi.stubGlobal('fetch', mockOkFetch(items));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      await flushPoll();
+
+      expect(callback).toHaveBeenCalledOnce();
+      const [messages] = callback.mock.calls[0];
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toBeInstanceOf(ChatMessage);
+      expect(messages[0]).toMatchObject({
+        type: 'product',
+        role: 'AGENT',
+        wiId: 'prod-1',
+        timestamp: date,
+        products: [
+          {
+            sku: 'A-1',
+            name: 'Apples',
+            price: 5,
+            salePrice: 4,
+            imagesUrl: ['https://cdn.example.com/a.png'],
+            unitName: '{amount, plural, one {bag} other {bags}}',
+          },
+          { sku: 'B-2', name: 'Bananas', price: 3 },
+        ],
+      });
+    });
+
+    it('translates horizontal product poll items into ChatMessage.carousel', async () => {
+      const date = new Date('2026-07-11T11:00:00Z');
+      const items = [
+        makeProductPollItem('car-1', {
+          orientation: 'ORIENTATION_HORIZONTAL',
+          products: [{ sku: 'C-3', name: 'Cherries', price: 7 }],
+          date,
+        }),
+      ];
+      vi.stubGlobal('fetch', mockOkFetch(items));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      await flushPoll();
+
+      expect(callback).toHaveBeenCalledOnce();
+      const [messages] = callback.mock.calls[0];
+      expect(messages).toHaveLength(1);
+      expect(messages[0]).toMatchObject({
+        type: 'productCarousel',
+        role: 'AGENT',
+        wiId: 'car-1',
+        timestamp: date,
+        products: [{ sku: 'C-3', name: 'Cherries', price: 7 }],
       });
     });
   });
