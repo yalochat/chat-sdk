@@ -6,6 +6,7 @@ build/
 .gradle/
 **/.gradle/
 **/build/
+.kotlin/
 
 # Android Studio
 .idea/

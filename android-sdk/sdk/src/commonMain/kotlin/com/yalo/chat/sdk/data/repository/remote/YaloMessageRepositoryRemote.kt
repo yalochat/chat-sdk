@@ -14,6 +14,7 @@ import com.yalo.chat.sdk.data.remote.model.SdkVoiceNoteMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
@@ -30,12 +31,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
-// Port of flutter-sdk YaloMessageRepositoryRemote.
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
-// The `since` query param is intentionally omitted — Flutter FIXME disables it too
-// ("wait for backend fix"). Client-side deduplication via SimpleCache handles repeats.
-// Network errors in the polling flow are swallowed and the loop continues — mirrors
-// flutter-sdk _startPolling() which logs the error and falls through to Future.delayed.
+// The `since` query param is intentionally omitted — backend fix pending.
+// Client-side deduplication via SimpleCache handles repeats.
+// Network errors in the polling flow are swallowed and the loop continues.
 @OptIn(ExperimentalUuidApi::class)
 internal class YaloMessageRepositoryRemote(
     private val apiService: YaloChatApiService,
@@ -47,6 +46,16 @@ internal class YaloMessageRepositoryRemote(
 ) : YaloMessageRepository {
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
+
+    // Highest message id assigned during the current polling session.
+    // Ensures new agent messages always sort AFTER previously-seen messages,
+    // even when the server's timestamp is later than the client's clock at the
+    // time of the next user send (which happens when the server takes a few
+    // seconds to generate a response — its timestamp then exceeds the user's
+    // subsequent message tempId, causing the wrong visual order).
+    // Reset to 0 on construction; advanced during polling from observed message ids.
+    // No atomic needed: pollIncomingMessages() is a single sequential coroutine.
+    private var pollHighWater: Long = 0L
 
     // Hot SharedFlow for typing events — mirrors Flutter's _typingEventsStreamController.
     // UNLIMITED buffer prevents event loss when TypingStart and TypingStop are emitted in
@@ -162,14 +171,16 @@ internal class YaloMessageRepositoryRemote(
                 is Result.Ok -> {
                     val raw = result.result
                     val batch = raw.mapNotNull { it.toChatMessage(deduplicate = true) }
-                    // Emit TypingStop whenever the server returned any messages, not just
-                    // when the filtered batch is non-empty. Without this, a poll that returns
-                    // only non-text or fully-deduplicated messages would leave the typing
-                    // indicator stuck indefinitely.
-                    if (raw.isNotEmpty()) {
+                        .let { ensureReceiptOrder(it) }
+                    // Mirror Flutter: TypingStop fires only when at least one NEW message
+                    // was successfully translated. toChatMessage(deduplicate=true) returns
+                    // null for already-cached items, so batch contains only new arrivals.
+                    // This prevents the indicator from dismissing on cached messages
+                    // (old raw.isNotEmpty() bug) AND on untranslatable unknown types.
+                    if (batch.isNotEmpty()) {
                         _events.tryEmit(ChatEvent.TypingStop)
+                        emit(batch)
                     }
-                    if (batch.isNotEmpty()) emit(batch)
                 }
                 is Result.Error -> {
                     // Fetch failed — clear typing indicator so it doesn't get stuck.
@@ -177,6 +188,45 @@ internal class YaloMessageRepositoryRemote(
                 }
             }
             delay(pollingIntervalMs)
+        }
+    }
+
+    // Assigns stable local ids to a polled batch so that messages are ordered
+    // consistently relative to user-sent messages and previous poll batches.
+    //
+    // Problem: stableId is derived from the SERVER timestamp, but user-message
+    // tempIds are derived from the CLIENT clock. When the server takes a few
+    // seconds to generate a response its timestamp can exceed the client's clock
+    // at the moment the user sends the next message. The agent response then gets
+    // a stableId > that user message's tempId and sorts AFTER it in ORDER BY id ASC,
+    // producing wrong visual order ("hey" appears before the reply to "hello").
+    //
+    // Fix: clamp each id to max(rawId, receiptFloor + batchIndex) where receiptFloor
+    // is the client clock at receipt time. This mirrors Flutter's prepend-to-front
+    // behaviour (newest message always at bottom) without changing the DB schema.
+    // fetchMessages() (startup cold load) is NOT affected — it bypasses this function.
+    //
+    // First-poll exception: when pollHighWater == 0 (no prior poll has completed)
+    // rawIds are used as-is. On the first poll there are no user-sent tempIds to
+    // collide with, so clamping is not necessary and preserving rawIds avoids
+    // artificially advancing pollHighWater before the second poll.
+    private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
+        if (messages.isEmpty()) return messages
+        val highWaterEstablished = pollHighWater > 0L
+        val receiptFloor = Clock.System.now().toEpochMilliseconds()
+        var cursor = maxOf(receiptFloor, pollHighWater + 1)
+        return messages.map { msg ->
+            val rawId = msg.id ?: return@map msg
+            val id = if (!highWaterEstablished || rawId >= cursor) {
+                cursor = maxOf(cursor, rawId + 1)
+                rawId
+            } else {
+                val assigned = cursor
+                cursor++
+                assigned
+            }
+            if (id > pollHighWater) pollHighWater = id
+            if (id == rawId) msg else msg.copy(id = id)
         }
     }
 
@@ -236,6 +286,77 @@ internal class YaloMessageRepositoryRemote(
                     )
                 }
             }
+        }
+
+        // Video message — download from CDN and save locally.
+        // Mirrors Flutter's videoMessageRequest case in _translateMessageResponse().
+        // Cache is set only after a successful download (same pattern as image).
+        message.videoMessageRequest?.content?.let { videoContent ->
+            return when (val downloadResult = apiService.downloadMedia(videoContent.mediaUrl)) {
+                is Result.Error -> null // skip silently — will retry on next poll cycle
+                is Result.Ok -> {
+                    val bytes = downloadResult.result
+                    val mimeType = videoContent.mediaType.takeIf { it.isNotEmpty() } ?: "video/mp4"
+                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
+                        if (it.contains("mp4") || it == "mp4") "mp4" else it
+                    }
+                    val localPath = PlatformFiles.writeToDir(
+                        dirPath = tempDir,
+                        filename = "${Uuid.random()}.$ext",
+                        bytes = bytes,
+                    ) ?: return null
+                    if (deduplicate) cache.set(id, true)
+                    ChatMessage(
+                        id = stableId,
+                        wiId = id,
+                        role = MessageRole.fromString(videoContent.role ?: "MESSAGE_ROLE_AGENT"),
+                        type = MessageType.Video,
+                        status = MessageStatus.DELIVERED,
+                        content = videoContent.text ?: "",
+                        fileName = localPath,
+                        mediaType = mimeType,
+                        byteCount = bytes.size.toLong(),
+                        // Flutter stores duration in seconds (Double) → convert to millis for ChatMessage.
+                        duration = (videoContent.duration * 1000).toLong(),
+                        timestamp = ts,
+                    )
+                }
+            }
+        }
+
+        // Buttons message — body text + a list of reply labels rendered as outlined buttons.
+        // Tapping a button sends the label as a text message (same as quick reply chips).
+        message.buttonsMessageRequest?.content?.let { buttonsContent ->
+            if (deduplicate) cache.set(id, true)
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.AGENT,
+                type = MessageType.Buttons,
+                status = MessageStatus.DELIVERED,
+                content = buttonsContent.body,
+                header = buttonsContent.header.takeIf { !it.isNullOrEmpty() },
+                footer = buttonsContent.footer.takeIf { !it.isNullOrEmpty() },
+                buttons = buttonsContent.buttons,
+                timestamp = ts,
+            )
+        }
+
+        // CTA message — body text + buttons that each open a URL in the browser.
+        message.ctaMessageRequest?.content?.let { ctaContent ->
+            if (deduplicate) cache.set(id, true)
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.AGENT,
+                type = MessageType.CTA,
+                status = MessageStatus.DELIVERED,
+                content = ctaContent.body,
+                header = ctaContent.header.takeIf { !it.isNullOrEmpty() },
+                footer = ctaContent.footer.takeIf { !it.isNullOrEmpty() },
+                ctaButtons = ctaContent.buttons.map { CtaButton(text = it.text, url = it.url) },
+                timestamp = ts,
+            )
         }
 
         // Product message — vertical list or horizontal carousel, determined by orientation.

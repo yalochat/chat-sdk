@@ -100,6 +100,25 @@ kotlin {
     // They are JVM/Android-only (protobuf-kotlin-lite has no Kotlin/Native support).
     sourceSets.getByName("androidMain") {
         kotlin.srcDir("../../proto/kotlin")
+        // Exclude all Kotlin DSL wrappers that reference Java types not present in the
+        // committed SdkMessageOuterClass.java. These wrappers were generated from the proto
+        // source but the corresponding Java outer class was not regenerated at the same time,
+        // leaving unresolved type references that produce "Overload resolution ambiguity"
+        // on timestampOrNull across all other proto files. The SDK does not use these
+        // wrappers directly; the raw Java accessors in SdkMessageOuterClass are sufficient.
+        kotlin.filter.exclude(
+            "**/AttachmentMessageResponseKt.kt",
+            "**/CustomActionRequestKt.kt",
+            "**/CustomActionResponseKt.kt",
+            "**/ImageMessageResponseKt.kt",
+            "**/MessageReceiptResponseKt.kt",
+            "**/MessageStatusRequestKt.kt",
+            "**/MessageStatusResponseKt.kt",
+            "**/RegisterCommandsRequestKt.kt",
+            "**/TextMessageResponseKt.kt",
+            "**/VideoMessageResponseKt.kt",
+            "**/VoiceNoteMessageResponseKt.kt",
+        )
     }
 }
 

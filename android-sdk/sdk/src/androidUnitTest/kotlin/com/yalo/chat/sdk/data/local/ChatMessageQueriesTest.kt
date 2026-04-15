@@ -51,6 +51,10 @@ class ChatMessageQueriesTest {
         media_type = null,
         products = null,
         quick_replies = null,
+        header_ = null,
+        footer = null,
+        buttons = null,
+        cta_buttons = null,
         timestamp = timestamp,
     )
 

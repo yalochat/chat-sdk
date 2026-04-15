@@ -5,6 +5,7 @@ package com.yalo.chat.sdk.ui.theme
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachMoney
@@ -85,6 +86,18 @@ data class ChatTheme(
     val quickReplyColor: Color = Color(0xFFF9FAFC),
     /** Border color of quick reply chip buttons. */
     val quickReplyBorderColor: Color = Color(0xFFE8E8E8),
+    /** Background of buttons in a ButtonsMessage bubble (transparent by default). */
+    val buttonsMessageButtonColor: Color = Color(0x00000000),
+    /** Border color of buttons in a ButtonsMessage bubble. */
+    val buttonsMessageButtonBorderColor: Color = Color(0xFFDDE4EC),
+    /** Foreground (text/icon) color of buttons in a ButtonsMessage bubble. */
+    val buttonsMessageButtonForegroundColor: Color = Color(0xFF111111),
+    /** Background of CTA buttons (transparent by default). */
+    val ctaButtonColor: Color = Color(0x00000000),
+    /** Border color of CTA buttons. */
+    val ctaButtonBorderColor: Color = Color(0xFFDDE4EC),
+    /** Foreground (text/icon) color of CTA buttons. */
+    val ctaButtonForegroundColor: Color = Color(0xFF111111),
     // ── Text styles ───────────────────────────────────────────────────────────
     val userMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
     val assistantMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
@@ -92,6 +105,14 @@ data class ChatTheme(
     val hintTextStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE)),
     val timerTextStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
     val quickReplyStyle: TextStyle = TextStyle(color = Color(0xFF000000)),
+    /** Bold header text shown above the body of a buttons or CTA message. */
+    val messageHeaderStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontWeight = FontWeight.Bold),
+    /** Subdued footer text shown below the body of a buttons or CTA message. */
+    val messageFooterStyle: TextStyle = TextStyle(color = Color(0xFF7C8086), fontSize = 12.sp),
+    /** Text style for labels inside CTA buttons. */
+    val ctaButtonTextStyle: TextStyle = TextStyle(color = Color(0xFF111111)),
+    /** Text style for labels inside ButtonsMessage buttons. */
+    val buttonsMessageButtonTextStyle: TextStyle = TextStyle(color = Color(0xFF111111)),
     val productTitleStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp, fontWeight = FontWeight.Bold),
     val productSubunitsStyle: TextStyle = TextStyle(color = Color(0xFF7C8086), fontSize = 12.sp),
     val productPriceStyle: TextStyle = TextStyle(color = Color(0xFF2207F1), fontWeight = FontWeight.Bold),
@@ -126,6 +147,8 @@ data class ChatTheme(
     val currencyIcon: ImageVector = Icons.Filled.AttachMoney,
     val addIcon: ImageVector = Icons.Filled.Add,
     val removeIcon: ImageVector = Icons.Filled.Remove,
+    /** Arrow icon rendered on CTA buttons — port of Flutter ChatTheme.ctaArrowForwardIcon. */
+    val ctaArrowForwardIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward,
 ) {
     companion object {
         /**

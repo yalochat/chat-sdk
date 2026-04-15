@@ -8,6 +8,7 @@ import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.database.ChatMessageQueries
 import com.yalo.chat.sdk.database.Chat_message
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
@@ -22,7 +23,6 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
-// Port of flutter-sdk ChatMessageRepositoryLocal (Drift) — same schema, same query semantics.
 // Free of Android-specific imports: ChatMessageQueries is injected, ioDispatcher is injectable.
 // KMP note: when splitting to KMP, pass the appropriate CoroutineDispatcher from the platform.
 internal class LocalChatMessageRepository(
@@ -31,7 +31,7 @@ internal class LocalChatMessageRepository(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ChatMessageRepository {
 
-    // GET first page (no cursor) or cursor page — mirrors Flutter getChatMessagePageDesc.
+    // GET first page (no cursor) or cursor page.
     override suspend fun getMessages(cursor: Long?, limit: Int): Result<List<ChatMessage>> =
         withContext(ioDispatcher) {
             try {
@@ -62,7 +62,6 @@ internal class LocalChatMessageRepository(
     }
 
     // Batch INSERT OR REPLACE in a single transaction — used by MessageSyncService.
-    // Port of Flutter insertChatMessage called in a loop inside a Drift transaction.
     override suspend fun insertMessages(messages: List<ChatMessage>): Result<Unit> {
         val nullIdMessage = messages.firstOrNull { it.id == null }
         if (nullIdMessage != null) return Result.Error(
@@ -95,7 +94,6 @@ internal class LocalChatMessageRepository(
         }
 
     // Live observation: emits updated list whenever chat_message table changes.
-    // Port of Flutter stream returned by Drift's watchX.
     // Uses SQLDelight coroutines-extensions asFlow + mapToList.
     override fun observeMessages(): Flow<List<ChatMessage>> =
         queries.observeConversation()
@@ -119,6 +117,10 @@ internal class LocalChatMessageRepository(
         mediaType = media_type,
         products = products?.let { decodeProductList(it) } ?: emptyList(),
         quickReplies = quick_replies?.let { decodeStringList(it) } ?: emptyList(),
+        header = header_, // SQLDelight escapes 'header' (SQL keyword) → header_
+        footer = footer,
+        buttons = buttons?.let { decodeStringList(it) } ?: emptyList(),
+        ctaButtons = cta_buttons?.let { decodeCtaButtonList(it) } ?: emptyList(),
         timestamp = timestamp,
     )
 
@@ -136,6 +138,10 @@ internal class LocalChatMessageRepository(
         media_type = mediaType,
         products = products.takeIf { it.isNotEmpty() }?.let { encodeProductList(it) },
         quick_replies = quickReplies.takeIf { it.isNotEmpty() }?.let { encodeStringList(it) },
+        header_ = header,
+        footer = footer,
+        buttons = buttons.takeIf { it.isNotEmpty() }?.let { encodeStringList(it) },
+        cta_buttons = ctaButtons.takeIf { it.isNotEmpty() }?.let { encodeCtaButtonList(it) },
         timestamp = timestamp,
     )
 
@@ -144,6 +150,7 @@ internal class LocalChatMessageRepository(
     private val doubleListSerializer = ListSerializer(Double.serializer())
     private val productListSerializer = ListSerializer(Product.serializer())
     private val stringListSerializer = ListSerializer(String.serializer())
+    private val ctaButtonListSerializer = ListSerializer(CtaButton.serializer())
 
     private fun decodeDoubleList(json: String): List<Double> =
         try { Json.decodeFromString(doubleListSerializer, json) } catch (_: Exception) { emptyList() }
@@ -154,6 +161,9 @@ internal class LocalChatMessageRepository(
     private fun decodeStringList(json: String): List<String> =
         try { Json.decodeFromString(stringListSerializer, json) } catch (_: Exception) { emptyList() }
 
+    private fun decodeCtaButtonList(json: String): List<CtaButton> =
+        try { Json.decodeFromString(ctaButtonListSerializer, json) } catch (_: Exception) { emptyList() }
+
     private fun encodeDoubleList(list: List<Double>): String =
         Json.encodeToString(doubleListSerializer, list)
 
@@ -162,6 +172,9 @@ internal class LocalChatMessageRepository(
 
     private fun encodeStringList(list: List<String>): String =
         Json.encodeToString(stringListSerializer, list)
+
+    private fun encodeCtaButtonList(list: List<CtaButton>): String =
+        Json.encodeToString(ctaButtonListSerializer, list)
 }
 
 // Struct to carry insertOrReplace parameters (avoids a long positional call site).
@@ -179,6 +192,10 @@ private data class InsertOrReplaceParams(
     val media_type: String?,
     val products: String?,
     val quick_replies: String?,
+    val header_: String?,
+    val footer: String?,
+    val buttons: String?,
+    val cta_buttons: String?,
     val timestamp: Long,
 )
 
@@ -197,5 +214,9 @@ private fun ChatMessageQueries.insertOrReplace(p: InsertOrReplaceParams) =
         media_type = p.media_type,
         products = p.products,
         quick_replies = p.quick_replies,
+        header_ = p.header_,
+        footer = p.footer,
+        buttons = p.buttons,
+        cta_buttons = p.cta_buttons,
         timestamp = p.timestamp,
     )

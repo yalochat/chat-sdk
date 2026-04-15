@@ -610,6 +610,193 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(MessageRole.AGENT, batch.first().role)
     }
 
+    // ── pollIncomingMessages — buttons messages ────────────────────────────────────
+
+    private fun buttonsMessageJson(
+        id: String,
+        body: String = "Pick one",
+        buttons: List<String> = listOf("Yes", "No"),
+        header: String? = null,
+        footer: String? = null,
+    ): String {
+        val headerField = if (header != null) """"header":"$header",""" else ""
+        val footerField = if (footer != null) ""","footer":"$footer"""" else ""
+        val buttonsJson = buttons.joinToString(",") { """"$it"""" }
+        return """[{"id":"$id","message":{"buttonsMessageRequest":{"content":{${headerField}"body":"$body","buttons":[$buttonsJson]$footerField}}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+    }
+
+    @Test
+    fun `pollIncomingMessages emits buttons message`() = runTest {
+        val json = buttonsMessageJson("btn-1", body = "Choose:", buttons = listOf("A", "B"))
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals(MessageType.Buttons, batch.first().type)
+        assertEquals(MessageRole.AGENT, batch.first().role)
+        assertEquals("Choose:", batch.first().content)
+        assertEquals(listOf("A", "B"), batch.first().buttons)
+    }
+
+    @Test
+    fun `pollIncomingMessages emits buttons message with header and footer`() = runTest {
+        val json = buttonsMessageJson("btn-2", body = "Help?", header = "Order", footer = "Tap one", buttons = listOf("Track", "Cancel"))
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals("Order", batch.first().header)
+        assertEquals("Tap one", batch.first().footer)
+        assertEquals(listOf("Track", "Cancel"), batch.first().buttons)
+    }
+
+    // ── pollIncomingMessages — CTA messages ────────────────────────────────────────
+
+    private fun ctaMessageJson(
+        id: String,
+        body: String = "Visit us",
+        buttons: List<Pair<String, String>> = listOf("Open" to "https://example.com"),
+        header: String? = null,
+        footer: String? = null,
+    ): String {
+        val headerField = if (header != null) """"header":"$header",""" else ""
+        val footerField = if (footer != null) ""","footer":"$footer"""" else ""
+        val buttonsJson = buttons.joinToString(",") { (text, url) -> """{"text":"$text","url":"$url"}""" }
+        return """[{"id":"$id","message":{"ctaMessageRequest":{"content":{${headerField}"body":"$body","buttons":[$buttonsJson]$footerField}}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+    }
+
+    @Test
+    fun `pollIncomingMessages emits CTA message`() = runTest {
+        val json = ctaMessageJson("cta-1", body = "Shop now", buttons = listOf("View" to "https://shop.example.com"))
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals(MessageType.CTA, batch.first().type)
+        assertEquals(MessageRole.AGENT, batch.first().role)
+        assertEquals("Shop now", batch.first().content)
+        assertEquals(1, batch.first().ctaButtons.size)
+        assertEquals("View", batch.first().ctaButtons.first().text)
+        assertEquals("https://shop.example.com", batch.first().ctaButtons.first().url)
+    }
+
+    @Test
+    fun `pollIncomingMessages emits CTA message with header and footer`() = runTest {
+        val json = ctaMessageJson("cta-2", header = "Promo", footer = "Limited", buttons = listOf("Buy" to "https://a.com", "Learn" to "https://b.com"))
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals("Promo", batch.first().header)
+        assertEquals("Limited", batch.first().footer)
+        assertEquals(2, batch.first().ctaButtons.size)
+    }
+
+    // ── pollIncomingMessages — video messages ──────────────────────────────────────
+
+    private fun videoMessageJson(id: String, mediaUrl: String, caption: String = "", mediaType: String = "video/mp4"): String =
+        """[{"id":"$id","message":{"videoMessageRequest":{"content":{"mediaUrl":"$mediaUrl","mediaType":"$mediaType","text":"$caption","role":"MESSAGE_ROLE_AGENT","duration":5.0}}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+
+    @Test
+    fun `pollIncomingMessages emits video message and saves file locally`() = runTest {
+        val videoBytes = ByteArray(16) { it.toByte() }
+        val engine = MockEngine { request ->
+            when {
+                request.url.encodedPath.endsWith("/auth") ->
+                    respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                request.url.encodedPath.endsWith("/inapp/messages") ->
+                    respond(
+                        videoMessageJson("vid-1", "https://cdn.example.com/video.mp4", caption = "Watch this"),
+                        HttpStatusCode.OK,
+                        headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+                else ->
+                    respond(videoBytes, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "video/mp4"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        val msg = batch.first()
+        assertEquals(MessageType.Video, msg.type)
+        assertEquals(MessageRole.AGENT, msg.role)
+        assertEquals("Watch this", msg.content)
+        assertEquals(5_000L, msg.duration)
+        assertNotNull(msg.fileName, "fileName should be set to the local file path")
+        assertTrue(File(msg.fileName!!).exists(), "downloaded video file should exist on disk")
+    }
+
+    @Test
+    fun `pollIncomingMessages skips video message when download fails`() = runTest {
+        var pollCount = 0
+        val engine = MockEngine { request ->
+            when {
+                request.url.encodedPath.endsWith("/auth") ->
+                    respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                request.url.encodedPath.endsWith("/inapp/messages") -> {
+                    pollCount++
+                    val body = if (pollCount == 1) videoMessageJson("vid-2", "https://cdn.example.com/video.mp4")
+                               else textMessageJson("txt-1", "fallback")
+                    respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                }
+                else -> respondError(HttpStatusCode.InternalServerError) // CDN download fails
+            }
+        }
+        // First poll: video skipped (download fails). Second poll: text arrives.
+        val repo = buildRepoWithEngine(engine)
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        assertEquals(MessageType.Text, batch.first().type)
+    }
+
+    // ── TypingStop behaviour ──────────────────────────────────────────────────────
+
+    @Test
+    fun `pollIncomingMessages does not emit TypingStop when all polled messages are already cached`() = runTest(UnconfinedTestDispatcher()) {
+        // Polls: (1) id-1 new → TypingStop + emit, (2) id-1 cached → no TypingStop no emit,
+        // (3) id-2 new → TypingStop + emit. take(2) waits for exactly the two emissions,
+        // spanning all three polls. If the bug returned (TypingStop on raw.isNotEmpty rather
+        // than batch.isNotEmpty) the count would be 3 instead of 2.
+        // UnconfinedTestDispatcher: eventJob starts eagerly and collects events in real-time
+        // alongside the polling loop, no manual scheduler advancement needed.
+        val repo = buildRepo(listOf(
+            textMessageJson("id-1", "First"),
+            textMessageJson("id-1", "First"),  // cached — no emit, no TypingStop
+            textMessageJson("id-2", "Second"),
+        ))
+        val events = mutableListOf<ChatEvent>()
+        val eventJob = launch { repo.events().collect { events.add(it) } }
+        repo.pollIncomingMessages().take(2).toList()
+        yield()
+        eventJob.cancel()
+        assertEquals(2, events.count { it is ChatEvent.TypingStop })
+    }
+
+    // ── ensureReceiptOrder ────────────────────────────────────────────────────────
+
+    @Test
+    fun `ensureReceiptOrder does not rewrite message IDs on first poll`() = runTest {
+        // On the very first poll pollHighWater is 0, so historical IDs must be preserved.
+        // The message date is 2024-01-01T12:00:00Z → stableId ~1_704_110_400_000.
+        // Without the fix the ID would be bumped to current time (~1_700_000_000_000+).
+        val repo = buildRepo(listOf(textMessageJson("id-first", "Hello")))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        val id = batch.first().id!!
+        // stableId for 2024-01-01 is ~1_704_110_400_000; current time is well above 1_750_000_000_000.
+        assertTrue(id < 1_750_000_000_000L,
+            "ID $id was bumped to current time on first poll — historical IDs should be preserved")
+    }
+
+    @Test
+    fun `ensureReceiptOrder rewrites out-of-order IDs on subsequent polls`() = runTest {
+        // Both messages have the same 2024 date, so their stableIds are close.
+        // After the first poll sets pollHighWater, the second message is bumped so
+        // its id is strictly greater — verified by take(2) which avoids an infinite loop.
+        val batches = buildRepo(listOf(
+            textMessageJson("id-a", "First"),
+            textMessageJson("id-b", "Second"),
+        )).pollIncomingMessages().take(2).toList()
+        assertEquals(2, batches.size)
+        val id1 = batches[0].first().id!!
+        val id2 = batches[1].first().id!!
+        assertTrue(id2 > id1, "Second poll ID $id2 must be > first poll ID $id1")
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `pollIncomingMessages emits TypingStop on network error`() = runTest(UnconfinedTestDispatcher()) {
