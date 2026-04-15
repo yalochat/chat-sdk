@@ -610,6 +610,62 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(MessageRole.AGENT, batch.first().role)
     }
 
+    // ── TypingStop behaviour ──────────────────────────────────────────────────────
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `pollIncomingMessages does not emit TypingStop when all polled messages are already cached`() = runTest(UnconfinedTestDispatcher()) {
+        // Serve the same message on two consecutive polls.
+        // First poll → new message → TypingStop fires.
+        // Second poll → already cached → batch is empty → TypingStop must NOT fire again.
+        val json = textMessageJson("id-cached", "Hello")
+        val repo = buildRepo(listOf(json, json))
+        val collectedEvents = mutableListOf<ChatEvent>()
+        val eventJob = launch { repo.events().collect { collectedEvents.add(it) } }
+        val pollJob = launch { repo.pollIncomingMessages().collect {} }
+        yield() // first poll: new message → emits + TypingStop
+        yield() // second poll: cached → empty batch → no TypingStop
+        pollJob.cancel()
+        eventJob.cancel()
+        assertEquals(1, collectedEvents.count { it is ChatEvent.TypingStop })
+    }
+
+    // ── ensureReceiptOrder ────────────────────────────────────────────────────────
+
+    @Test
+    fun `ensureReceiptOrder does not rewrite message IDs on first poll`() = runTest {
+        // On the very first poll pollHighWater is 0, so historical IDs must be preserved.
+        // The message date is 2024-01-01T12:00:00Z → stableId ~1_704_110_400_000.
+        // Without the fix the ID would be bumped to current time (~1_700_000_000_000+).
+        val repo = buildRepo(listOf(textMessageJson("id-first", "Hello")))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        val id = batch.first().id!!
+        // stableId for 2024-01-01 is ~1_704_110_400_000; current time is well above 1_750_000_000_000.
+        assertTrue(id < 1_750_000_000_000L,
+            "ID $id was bumped to current time on first poll — historical IDs should be preserved")
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `ensureReceiptOrder rewrites out-of-order IDs on subsequent polls`() = runTest(UnconfinedTestDispatcher()) {
+        // First poll: new message dated 2024 establishes pollHighWater.
+        // Second poll: different message with same 2024 date and an ID that falls
+        // below the current receiptFloor — must be rewritten to maintain monotonicity.
+        val repo = buildRepo(listOf(
+            textMessageJson("id-a", "First"),
+            textMessageJson("id-b", "Second"),
+        ))
+        val batches = mutableListOf<List<ChatMessage>>()
+        val pollJob = launch { repo.pollIncomingMessages().collect { batches.add(it) } }
+        yield(); yield(); yield()
+        pollJob.cancel()
+        assertEquals(2, batches.size)
+        val id1 = batches[0].first().id!!
+        val id2 = batches[1].first().id!!
+        assertTrue(id2 > id1, "Second poll ID $id2 must be > first poll ID $id1")
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `pollIncomingMessages emits TypingStop on network error`() = runTest(UnconfinedTestDispatcher()) {

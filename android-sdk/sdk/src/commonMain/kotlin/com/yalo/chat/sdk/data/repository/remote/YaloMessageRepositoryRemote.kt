@@ -207,17 +207,18 @@ internal class YaloMessageRepositoryRemote(
     // fetchMessages() (startup cold load) is NOT affected — it bypasses this function.
     private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
         if (messages.isEmpty()) return messages
+        val highWaterEstablished = pollHighWater > 0L
         val receiptFloor = Clock.System.now().toEpochMilliseconds()
         var cursor = maxOf(receiptFloor, pollHighWater + 1)
         return messages.map { msg ->
             val rawId = msg.id ?: return@map msg
-            val id = if (rawId < cursor) {
+            val id = if (!highWaterEstablished || rawId >= cursor) {
+                cursor = maxOf(cursor, rawId + 1)
+                rawId
+            } else {
                 val assigned = cursor
                 cursor++
                 assigned
-            } else {
-                cursor = rawId + 1
-                rawId
             }
             if (id > pollHighWater) pollHighWater = id
             if (id == rawId) msg else msg.copy(id = id)

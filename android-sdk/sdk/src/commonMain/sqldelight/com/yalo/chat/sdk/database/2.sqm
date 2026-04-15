@@ -25,7 +25,7 @@ CREATE TABLE chat_message_v2 (
     timestamp       INTEGER NOT NULL
 );
 
-INSERT INTO chat_message_v2
+INSERT OR IGNORE INTO chat_message_v2
     SELECT id, wi_id, role, content, type, status,
            file_name, amplitudes, duration, byte_count, media_type,
            products, quick_replies,

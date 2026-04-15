@@ -121,9 +121,17 @@ kotlin {
         // used by the Android SDK and their unresolved-type references cause
         // "Overload resolution ambiguity" on timestampOrNull across all other proto files.
         kotlin.filter.exclude(
+            "**/AttachmentMessageResponseKt.kt",
+            "**/CustomActionRequestKt.kt",
+            "**/CustomActionResponseKt.kt",
+            "**/ImageMessageResponseKt.kt",
+            "**/MessageReceiptResponseKt.kt",
             "**/MessageStatusRequestKt.kt",
             "**/MessageStatusResponseKt.kt",
             "**/RegisterCommandsRequestKt.kt",
+            "**/TextMessageResponseKt.kt",
+            "**/VideoMessageResponseKt.kt",
+            "**/VoiceNoteMessageResponseKt.kt",
         )
     }
 }

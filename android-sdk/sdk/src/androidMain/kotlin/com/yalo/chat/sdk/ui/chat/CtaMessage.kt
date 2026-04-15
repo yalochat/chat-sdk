@@ -57,8 +57,10 @@ internal fun CtaMessage(message: ChatMessage) {
         message.ctaButtons.forEach { button ->
             OutlinedButton(
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(button.url))
-                    context.startActivity(intent)
+                    val uri = Uri.parse(button.url)
+                    if (uri.scheme == "https" || uri.scheme == "http") {
+                        runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

@@ -2,9 +2,7 @@
 
 package com.yalo.chat.sdk.ui.chat
 
-import android.content.Intent
 import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.widget.VideoView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -163,17 +161,18 @@ private fun VideoMessageItem(
 
     LaunchedEffect(message.fileName) {
         val path = message.fileName ?: return@LaunchedEffect
-        withContext(Dispatchers.IO) {
+        val bitmap = withContext(Dispatchers.IO) {
             val retriever = MediaMetadataRetriever()
             try {
                 retriever.setDataSource(path)
-                retriever.getFrameAtTime(0)?.asImageBitmap()?.let { thumbnail = it }
+                retriever.getFrameAtTime(0)?.asImageBitmap()
             } catch (_: Exception) {
-                // Extraction failed — thumbnail stays null; dark placeholder shown instead.
+                null
             } finally {
                 retriever.release()
             }
         }
+        bitmap?.let { thumbnail = it }
     }
 
     Column {
