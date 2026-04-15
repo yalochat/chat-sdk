@@ -3,6 +3,7 @@
 import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { Product } from '@domain/models/product/product';
 import type { PageInfo } from '@domain/common/page';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
@@ -85,6 +86,58 @@ export default class YaloChatWindowController implements ReactiveController {
     } else {
       this.host.logger.error('Unable to fetch messages');
     }
+
+    const unitName = '{amount, plural, one {unit} other {units}}';
+    const sampleProducts = [
+      new Product({
+        sku: 'mock-1',
+        name: 'Yerba Mate Premium',
+        price: 12.5,
+        salePrice: 9.99,
+        imagesUrl: ['https://picsum.photos/seed/yalo-1/400/300'],
+        unitName,
+      }),
+      new Product({
+        sku: 'mock-2',
+        name: 'French Press 1L',
+        price: 34,
+        imagesUrl: ['https://picsum.photos/seed/yalo-2/400/300'],
+        unitName,
+      }),
+      new Product({
+        sku: 'mock-3',
+        name: 'Single Origin Beans',
+        price: 22,
+        subunits: 12,
+        subunitName: '{amount, plural, one {bag} other {bags}}',
+        imagesUrl: ['https://picsum.photos/seed/yalo-3/400/300'],
+        unitName,
+      }),
+      new Product({
+        sku: 'mock-4',
+        name: 'Ceramic Mug',
+        price: 14,
+        imagesUrl: ['https://picsum.photos/seed/yalo-4/400/300'],
+        unitName,
+      }),
+    ];
+    const now = new Date();
+    this.chatMessages = [
+      ChatMessage.carousel({
+        id: -1001,
+        role: 'AGENT',
+        timestamp: now,
+        products: sampleProducts,
+      }),
+      ChatMessage.product({
+        id: -1000,
+        role: 'AGENT',
+        timestamp: new Date(now.getTime() - 1000),
+        products: sampleProducts,
+      }),
+      ...this.chatMessages,
+    ];
+
     this.host.requestUpdate();
 
     // Subscribe to incoming message stream

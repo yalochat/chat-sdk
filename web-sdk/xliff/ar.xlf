@@ -10,6 +10,14 @@
   <source>Close Chat</source>
   <target>إغلاق المحادثة</target>
 </trans-unit>
+<trans-unit id="sa50a6326530d8a0d">
+  <source>Show less</source>
+  <target>عرض أقل</target>
+</trans-unit>
+<trans-unit id="sb2c57b2d347203dd">
+  <source>Show more</source>
+  <target>عرض المزيد</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

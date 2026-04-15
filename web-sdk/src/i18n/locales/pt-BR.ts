@@ -10,6 +10,8 @@
 
     export const templates = {
       's32bad8884f0b1be7': `Fechar chat`,
+'sa50a6326530d8a0d': `Mostrar menos`,
+'sb2c57b2d347203dd': `Mostrar mais`,
 'sf900fe612519e672': `Escreva uma mensagem...`,
     };
   

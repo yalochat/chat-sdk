@@ -8,6 +8,7 @@ import { yaloChatClientConfigContext } from '@domain/config/chat-config-context'
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { loggerContext, type Logger } from '@log/logger-context';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { Product } from '@domain/models/product/product';
 import './chat-message-list';
 import type ChatMessageList from './chat-message-list';
 
@@ -56,6 +57,17 @@ const renderList = async (messages: ChatMessage[]) => {
 };
 
 const timestamp = new Date('2026-01-01T00:00:00Z');
+
+const buildProduct = (
+  overrides: Partial<ConstructorParameters<typeof Product>[0]> = {}
+) =>
+  new Product({
+    sku: 'sku-1',
+    name: 'Sample',
+    price: 10,
+    unitName: '{amount, plural, one {unit} other {units}}',
+    ...overrides,
+  });
 
 describe('ChatMessageList', () => {
   afterEach(() => {
@@ -171,6 +183,92 @@ describe('ChatMessageList', () => {
       const assistant = list.shadowRoot!.querySelector('assistant-message');
       const bubble = assistant!.shadowRoot!.querySelector('.cta-bubble');
       expect(bubble!.querySelector('cta-message')).not.toBeNull();
+    });
+
+    it('renders product as a vertical product-message', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 40,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'a' }), buildProduct({ sku: 'b' })],
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const productMsg = assistant!.shadowRoot!.querySelector(
+        '.product-bubble product-message'
+      );
+      expect(productMsg).not.toBeNull();
+      expect(productMsg!.getAttribute('direction')).toBe('vertical');
+      const cards = productMsg!.shadowRoot!.querySelectorAll('product-card');
+      expect(cards).toHaveLength(2);
+      cards.forEach((card) => {
+        expect(
+          (card as unknown as { layout: string }).layout
+        ).toBe('horizontal');
+      });
+    });
+
+    it('renders productCarousel as a horizontal product-message', async () => {
+      const list = await renderList([
+        ChatMessage.carousel({
+          id: 41,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'a' }), buildProduct({ sku: 'b' })],
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message');
+      const productMsg = assistant!.shadowRoot!.querySelector(
+        '.product-bubble product-message'
+      );
+      expect(productMsg).not.toBeNull();
+      expect(productMsg!.getAttribute('direction')).toBe('horizontal');
+      const cards = productMsg!.shadowRoot!.querySelectorAll('product-card');
+      expect(cards).toHaveLength(2);
+      cards.forEach((card) => {
+        expect(
+          (card as unknown as { layout: string }).layout
+        ).toBe('vertical');
+      });
+    });
+
+    it('collapses product lists past 3 items and toggles via Show more/less', async () => {
+      const products = ['a', 'b', 'c', 'd'].map((sku) => buildProduct({ sku }));
+      const list = await renderList([
+        ChatMessage.product({
+          id: 42,
+          role: 'AGENT',
+          timestamp,
+          products,
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const productMsg = assistant.shadowRoot!.querySelector(
+        'product-message'
+      )!;
+      const initialCards =
+        productMsg.shadowRoot!.querySelectorAll('product-card');
+      const toggle = productMsg.shadowRoot!.querySelector(
+        'button.expand'
+      ) as HTMLButtonElement;
+
+      expect(initialCards).toHaveLength(3);
+      expect(toggle.textContent?.trim()).toBe('Show more');
+
+      toggle.click();
+      await (productMsg as LitElement).updateComplete;
+
+      const expandedCards =
+        productMsg.shadowRoot!.querySelectorAll('product-card');
+      const expandedToggle = productMsg.shadowRoot!.querySelector(
+        'button.expand'
+      ) as HTMLButtonElement;
+      expect(expandedCards).toHaveLength(4);
+      expect(expandedToggle.textContent?.trim()).toBe('Show less');
     });
 
     it('falls back to text rendering for unknown type', async () => {
