@@ -42,7 +42,7 @@ object YaloChatSdk {
 
         val httpClient = buildHttpClient(Darwin.create(), debug = false)
         val apiService = YaloChatApiService(
-            apiBaseUrl = config.apiBaseUrl,
+            apiBaseUrl = config.environment.apiBaseUrl,
             channelId = config.channelId,
             organizationId = config.organizationId,
             httpClient = httpClient,

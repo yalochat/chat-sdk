@@ -11,7 +11,7 @@ import ChatSdk
 //       channelName: "My Channel",
 //       channelId: "your-channel-id",
 //       organizationId: "your-org-id",
-//       apiBaseUrl: "https://api-staging2.yalochat.com/public-api-gateway/v1/channels"
+//       environment: .staging
 //   )
 public final class YaloChat {
 
@@ -21,13 +21,13 @@ public final class YaloChat {
         channelName: String,
         channelId: String,
         organizationId: String,
-        apiBaseUrl: String
+        environment: YaloChatEnvironment = .production
     ) {
         let config = YaloChatConfig(
             channelName: channelName,
             channelId: channelId,
             organizationId: organizationId,
-            apiBaseUrl: apiBaseUrl,
+            environment: environment,
             useFakeRepository: false
         )
         YaloChatSdk.shared.initialize(config: config)

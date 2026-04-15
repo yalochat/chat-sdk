@@ -12,21 +12,6 @@ plugins {
     alias(libs.plugins.sqldelight)
 }
 
-// Read the API base URL from local.properties (gitignored).
-// CI pipelines inject YALO_API_BASE_URL as an environment variable instead.
-val localProps = Properties().also { props ->
-    val file = rootProject.file("local.properties")
-    if (file.exists()) file.inputStream().use { props.load(it) }
-}
-val yaloApiBaseUrl: String = (System.getenv("YALO_API_BASE_URL")
-    ?: localProps.getProperty("yalo.apiBaseUrl", "")).also { url ->
-    if (url.isEmpty()) logger.warn(
-        "WARNING: YALO_API_BASE_URL is not set. " +
-        "Add yalo.apiBaseUrl to local.properties or set the YALO_API_BASE_URL env variable. " +
-        "The SDK will fail at runtime when connecting to the backend."
-    )
-}
-
 kotlin {
     compilerOptions {
         // expect/actual classes are stable enough for use — suppress the Beta warning.
@@ -125,8 +110,6 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
-        val escapedUrl = yaloApiBaseUrl.trim().replace("\\", "\\\\").replace("\"", "\\\"")
-        buildConfigField("String", "YALO_API_BASE_URL", "\"$escapedUrl\"")
     }
 
     compileOptions {

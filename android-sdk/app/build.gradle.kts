@@ -25,15 +25,6 @@ fun localProp(key: String): String {
     return value
 }
 
-val yaloApiBaseUrl: String = (System.getenv("YALO_API_BASE_URL")
-    ?: localProps.getProperty("yalo.apiBaseUrl", "")).also { url ->
-        if (url.isEmpty()) logger.warn(
-            "WARNING: YALO_API_BASE_URL is not set. " +
-            "Add yalo.apiBaseUrl to local.properties or set the YALO_API_BASE_URL env variable. " +
-            "The demo app will fail at runtime when connecting to the backend."
-        )
-    }
-
 android {
     namespace = "com.yalo.chat.demo"
     compileSdk = 35
@@ -48,7 +39,6 @@ android {
         buildConfigField("String",  "YALO_CHANNEL_NAME",      "\"${localProp("yalo.channelName")}\"")
         buildConfigField("String",  "YALO_CHANNEL_ID",        "\"${localProp("yalo.channelId")}\"")
         buildConfigField("String",  "YALO_ORGANIZATION_ID",   "\"${localProp("yalo.organizationId")}\"")
-        buildConfigField("String",  "YALO_API_BASE_URL",      "\"${yaloApiBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"")
         buildConfigField("Boolean", "USE_FAKE_REPOSITORY",    localProps.getProperty("yalo.useFakeRepository", "false"))
     }
 
