@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
@@ -745,22 +746,23 @@ class YaloMessageRepositoryRemoteTest {
 
     // ── TypingStop behaviour ──────────────────────────────────────────────────────
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `pollIncomingMessages does not emit TypingStop when all polled messages are already cached`() = runTest(UnconfinedTestDispatcher()) {
-        // Serve the same message on two consecutive polls.
-        // First poll → new message → TypingStop fires.
-        // Second poll → already cached → batch is empty → TypingStop must NOT fire again.
-        val json = textMessageJson("id-cached", "Hello")
-        val repo = buildRepo(listOf(json, json))
-        val collectedEvents = mutableListOf<ChatEvent>()
-        val eventJob = launch { repo.events().collect { collectedEvents.add(it) } }
-        val pollJob = launch { repo.pollIncomingMessages().collect {} }
-        yield() // first poll: new message → emits + TypingStop
-        yield() // second poll: cached → empty batch → no TypingStop
-        pollJob.cancel()
+    fun `pollIncomingMessages does not emit TypingStop when all polled messages are already cached`() = runTest {
+        // Polls: (1) id-1 new → TypingStop + emit, (2) id-1 cached → no TypingStop no emit,
+        // (3) id-2 new → TypingStop + emit. take(2) waits for exactly the two emissions,
+        // spanning all three polls. If the bug returned (TypingStop on raw.isNotEmpty rather
+        // than batch.isNotEmpty) the count would be 3 instead of 2.
+        val repo = buildRepo(listOf(
+            textMessageJson("id-1", "First"),
+            textMessageJson("id-1", "First"),  // cached — no emit, no TypingStop
+            textMessageJson("id-2", "Second"),
+        ))
+        val events = mutableListOf<ChatEvent>()
+        val eventJob = launch { repo.events().collect { events.add(it) } }
+        repo.pollIncomingMessages().take(2).toList()
+        runCurrent() // flush any buffered events into eventJob before cancelling
         eventJob.cancel()
-        assertEquals(1, collectedEvents.count { it is ChatEvent.TypingStop })
+        assertEquals(2, events.count { it is ChatEvent.TypingStop })
     }
 
     // ── ensureReceiptOrder ────────────────────────────────────────────────────────
@@ -779,20 +781,15 @@ class YaloMessageRepositoryRemoteTest {
             "ID $id was bumped to current time on first poll — historical IDs should be preserved")
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun `ensureReceiptOrder rewrites out-of-order IDs on subsequent polls`() = runTest(UnconfinedTestDispatcher()) {
-        // First poll: new message dated 2024 establishes pollHighWater.
-        // Second poll: different message with same 2024 date and an ID that falls
-        // below the current receiptFloor — must be rewritten to maintain monotonicity.
-        val repo = buildRepo(listOf(
+    fun `ensureReceiptOrder rewrites out-of-order IDs on subsequent polls`() = runTest {
+        // Both messages have the same 2024 date, so their stableIds are close.
+        // After the first poll sets pollHighWater, the second message is bumped so
+        // its id is strictly greater — verified by take(2) which avoids an infinite loop.
+        val batches = buildRepo(listOf(
             textMessageJson("id-a", "First"),
             textMessageJson("id-b", "Second"),
-        ))
-        val batches = mutableListOf<List<ChatMessage>>()
-        val pollJob = launch { repo.pollIncomingMessages().collect { batches.add(it) } }
-        yield(); yield(); yield()
-        pollJob.cancel()
+        )).pollIncomingMessages().take(2).toList()
         assertEquals(2, batches.size)
         val id1 = batches[0].first().id!!
         val id2 = batches[1].first().id!!
