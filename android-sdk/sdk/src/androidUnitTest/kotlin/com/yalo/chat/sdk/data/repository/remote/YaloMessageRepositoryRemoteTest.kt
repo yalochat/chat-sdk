@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
@@ -747,11 +746,13 @@ class YaloMessageRepositoryRemoteTest {
     // ── TypingStop behaviour ──────────────────────────────────────────────────────
 
     @Test
-    fun `pollIncomingMessages does not emit TypingStop when all polled messages are already cached`() = runTest {
+    fun `pollIncomingMessages does not emit TypingStop when all polled messages are already cached`() = runTest(UnconfinedTestDispatcher()) {
         // Polls: (1) id-1 new → TypingStop + emit, (2) id-1 cached → no TypingStop no emit,
         // (3) id-2 new → TypingStop + emit. take(2) waits for exactly the two emissions,
         // spanning all three polls. If the bug returned (TypingStop on raw.isNotEmpty rather
         // than batch.isNotEmpty) the count would be 3 instead of 2.
+        // UnconfinedTestDispatcher: eventJob starts eagerly and collects events in real-time
+        // alongside the polling loop, no manual scheduler advancement needed.
         val repo = buildRepo(listOf(
             textMessageJson("id-1", "First"),
             textMessageJson("id-1", "First"),  // cached — no emit, no TypingStop
@@ -760,7 +761,7 @@ class YaloMessageRepositoryRemoteTest {
         val events = mutableListOf<ChatEvent>()
         val eventJob = launch { repo.events().collect { events.add(it) } }
         repo.pollIncomingMessages().take(2).toList()
-        runCurrent() // flush any buffered events into eventJob before cancelling
+        yield()
         eventJob.cancel()
         assertEquals(2, events.count { it is ChatEvent.TypingStop })
     }
