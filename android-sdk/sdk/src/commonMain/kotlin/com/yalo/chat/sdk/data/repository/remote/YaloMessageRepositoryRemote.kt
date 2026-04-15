@@ -191,8 +191,8 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
-    // Guarantees that every message in a polled batch has an id strictly greater
-    // than all previously-polled messages and the current client clock.
+    // Assigns stable local ids to a polled batch so that messages are ordered
+    // consistently relative to user-sent messages and previous poll batches.
     //
     // Problem: stableId is derived from the SERVER timestamp, but user-message
     // tempIds are derived from the CLIENT clock. When the server takes a few
@@ -205,6 +205,11 @@ internal class YaloMessageRepositoryRemote(
     // is the client clock at receipt time. This mirrors Flutter's prepend-to-front
     // behaviour (newest message always at bottom) without changing the DB schema.
     // fetchMessages() (startup cold load) is NOT affected — it bypasses this function.
+    //
+    // First-poll exception: when pollHighWater == 0 (no prior poll has completed)
+    // rawIds are used as-is. On the first poll there are no user-sent tempIds to
+    // collide with, so clamping is not necessary and preserving rawIds avoids
+    // artificially advancing pollHighWater before the second poll.
     private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
         if (messages.isEmpty()) return messages
         val highWaterEstablished = pollHighWater > 0L

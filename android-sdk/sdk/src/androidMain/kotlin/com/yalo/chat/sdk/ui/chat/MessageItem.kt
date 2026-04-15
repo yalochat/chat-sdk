@@ -160,6 +160,8 @@ private fun VideoMessageItem(
     var showPlayer by remember { mutableStateOf(false) }
 
     LaunchedEffect(message.fileName) {
+        thumbnail = null
+        showPlayer = false
         val path = message.fileName ?: return@LaunchedEffect
         val bitmap = withContext(Dispatchers.IO) {
             val retriever = MediaMetadataRetriever()

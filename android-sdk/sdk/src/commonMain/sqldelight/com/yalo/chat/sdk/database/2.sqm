@@ -3,6 +3,9 @@
 -- SQLite does not support ALTER TABLE ADD COLUMN ... UNIQUE, so we recreate the table
 -- to add the UNIQUE constraint on wi_id while also adding the four new columns
 -- (header, footer, buttons, cta_buttons).
+--
+-- Deduplication: if any rows share the same wi_id, ORDER BY id DESC + INSERT OR IGNORE
+-- keeps the row with the highest id (newest), discarding older duplicates.
 
 CREATE TABLE chat_message_v2 (
     id              INTEGER NOT NULL PRIMARY KEY,
@@ -32,7 +35,7 @@ INSERT OR IGNORE INTO chat_message_v2
            NULL, NULL, NULL, NULL,
            timestamp
     FROM chat_message
-    ORDER BY id ASC;
+    ORDER BY id DESC;
 
 DROP TABLE chat_message;
 
