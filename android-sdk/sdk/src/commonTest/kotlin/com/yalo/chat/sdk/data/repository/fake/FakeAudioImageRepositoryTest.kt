@@ -3,6 +3,7 @@
 package com.yalo.chat.sdk.data.repository.fake
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ImageData
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -26,7 +27,8 @@ class FakeAudioImageRepositoryTest {
     @Test
     fun `FakeAudioRepository stopRecording returns Ok with AudioData`() = runTest {
         val result = FakeAudioRepository().stopRecording()
-        assertIs<Result.Ok<*>>(result)
+        assertIs<Result.Ok<AudioData>>(result)
+        assertNotNull(result.result.fileName)
     }
 
     @Test

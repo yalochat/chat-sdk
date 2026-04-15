@@ -169,7 +169,9 @@ class LocalChatMessageRepositoryTest {
         repo.insertMessage(message)
         val result = repo.getMessages(cursor = null, limit = 1)
         assertIs<Result.Ok<List<ChatMessage>>>(result)
-        assertEquals(listOf(0.1, 0.5, 0.9), result.result.first().amplitudes)
+        val stored = result.result.first()
+        assertEquals(listOf(0.1, 0.5, 0.9), stored.amplitudes)
+        assertEquals(3000L, stored.duration)
     }
 
     // ── updateMessage ─────────────────────────────────────────────────────────

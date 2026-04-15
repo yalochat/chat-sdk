@@ -12,8 +12,10 @@ import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -90,7 +92,9 @@ class MessageSyncServiceTest {
 
     @Test
     fun `stop cancels polling`() = runTest {
-        // Repo that tracks whether insertMessages was called after stop
+        // Flow emits one batch then suspends indefinitely — simulates a real long-running
+        // polling loop. awaitCancellation() only returns via CancellationException, so
+        // insertCallCount must stay at 1 after stop() is called.
         var insertCallCount = 0
         val trackingRepo = object : ChatMessageRepository {
             override suspend fun getMessages(cursor: Long?, limit: Int) = Result.Ok(emptyList<ChatMessage>())
@@ -102,14 +106,24 @@ class MessageSyncServiceTest {
             override suspend fun updateMessage(message: ChatMessage) = Result.Ok(Unit)
             override fun observeMessages() = kotlinx.coroutines.flow.MutableStateFlow(emptyList<ChatMessage>())
         }
-        val batch = listOf(msg(1L))
-        val service = MessageSyncService(yaloRepo(batch), trackingRepo)
+        val infiniteRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
+                emit(listOf(msg(1L))) // one real batch
+                awaitCancellation()   // then block until the job is cancelled
+            }
+            override fun events(): Flow<ChatEvent> = emptyFlow()
+        }
+        val service = MessageSyncService(infiniteRepo, trackingRepo)
 
         service.start(this)
-        service.stop()
-        testScheduler.advanceUntilIdle()
+        testScheduler.advanceUntilIdle() // let the first batch run
+        assertEquals(1, insertCallCount) // first batch was inserted
 
-        // After stop, no further inserts should happen from the cancelled flow
-        assertEquals(0, insertCallCount)
+        service.stop()
+        testScheduler.advanceUntilIdle() // cancellation propagates
+
+        assertEquals(1, insertCallCount) // no more inserts after stop
     }
 }
