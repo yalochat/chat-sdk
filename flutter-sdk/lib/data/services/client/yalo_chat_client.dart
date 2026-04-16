@@ -16,10 +16,13 @@ class YaloChatClient {
   final List<Action> actions;
   final Logger log = Logger('YaloChatClient');
 
+  final String? userId;
+
   YaloChatClient({
     required this.name,
     required this.channelId,
     required this.organizationId,
+    this.userId,
   }) : actions = [];
 
   void registerAction(String actionName, void Function() action) =>

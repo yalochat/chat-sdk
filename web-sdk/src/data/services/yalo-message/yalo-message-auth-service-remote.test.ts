@@ -96,6 +96,35 @@ describe('YaloMessageAuthServiceRemote', () => {
       if (!result.ok) expect(result.error.message).toBe('Network error');
     });
 
+    it('sends third_party_anonymous user type and user_id when userId is set', async () => {
+      const fetchSpy = mockFetch(makeAuthResponse());
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const config = { ...baseConfig, userId: 'custom-user-123' };
+      const service = new YaloMessageAuthServiceRemote('https://api.example.com', config);
+      await service.fetchToken();
+
+      const [, init] = fetchSpy.mock.calls[0];
+      const body = JSON.parse(init.body);
+      expect(body).toMatchObject({
+        user_type: 'third_party_anonymous',
+        user_id: 'custom-user-123',
+      });
+    });
+
+    it('does not include user_id when userId is not set', async () => {
+      const fetchSpy = mockFetch(makeAuthResponse());
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      await service.fetchToken();
+
+      const [, init] = fetchSpy.mock.calls[0];
+      const body = JSON.parse(init.body);
+      expect(body.user_type).toBe('anonymous');
+      expect(body).not.toHaveProperty('user_id');
+    });
+
     it('wraps non-Error thrown values in an Error', async () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue('string error'));
 
