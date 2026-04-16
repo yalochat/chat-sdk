@@ -49,8 +49,8 @@ export class YaloChatWindow extends LitElement {
     }
 
     .chat-window {
-      width: 360px;
-      height: 520px;
+      width: 500px;
+      height: 720px;
       background: var(--yalo-chat-background);
       border-radius: var(--yalo-chat-corner-radius);
       font-family: var(--yalo-chat-font);

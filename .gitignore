@@ -46,3 +46,4 @@ flutter-sdk/pubspec.lock
 .flutter-plugins-dependencies
 **/build/
 **/coverage/
+/.agent-shell/
