@@ -36,6 +36,13 @@ class ChatTheme {
   final Color pickerButtonBorderColor;
   final Color quickReplyColor;
   final Color quickReplyBorderColor;
+  final Color ctaButtonColor;
+  final Color ctaButtonBorderColor;
+  final Color ctaButtonForegroundColor;
+  final Color buttonsMessageButtonColor;
+  final Color buttonsMessageButtonBorderColor;
+  final Color buttonsMessageButtonForegroundColor;
+  final Color messageFooterColor;
 
   final TextStyle quickReplyStyle;
   final TextStyle modalHeaderStyle;
@@ -49,6 +56,10 @@ class ChatTheme {
   final TextStyle productSalePriceStrikeStyle;
   final TextStyle pricePerSubunitStyle;
   final TextStyle expandControlsStyle;
+  final TextStyle messageHeaderStyle;
+  final TextStyle messageFooterStyle;
+  final TextStyle ctaButtonTextStyle;
+  final TextStyle buttonsMessageButtonTextStyle;
 
   final ImageProvider? chatIconImage;
   final IconData sendButtonIcon;
@@ -67,6 +78,7 @@ class ChatTheme {
   final IconData currencyIcon;
   final IconData addIcon;
   final IconData removeIcon;
+  final IconData ctaArrowForwardIcon;
 
   const ChatTheme({
     // Colors
@@ -100,6 +112,16 @@ class ChatTheme {
     this.pickerButtonBorderColor = SdkColors.pickerButtonBorderColor,
     this.quickReplyColor = SdkColors.userMessageColorLight,
     this.quickReplyBorderColor = SdkColors.quickReplyBorderColor,
+    this.ctaButtonColor = SdkColors.ctaButtonBackgroundColorLight,
+    this.ctaButtonBorderColor = SdkColors.ctaButtonBorderColorLight,
+    this.ctaButtonForegroundColor = SdkColors.ctaButtonForegroundColorLight,
+    this.buttonsMessageButtonColor =
+        SdkColors.buttonsMessageButtonBackgroundColorLight,
+    this.buttonsMessageButtonBorderColor =
+        SdkColors.buttonsMessageButtonBorderColorLight,
+    this.buttonsMessageButtonForegroundColor =
+        SdkColors.buttonsMessageButtonForegroundColorLight,
+    this.messageFooterColor = SdkColors.messageFooterColorLight,
 
     // Text Styles
     this.quickReplyStyle = const TextStyle(
@@ -142,6 +164,20 @@ class ChatTheme {
     this.expandControlsStyle = const TextStyle(
       color: SdkColors.expandControlColorLight,
     ),
+    this.messageHeaderStyle = const TextStyle(
+      color: SdkColors.assistantMessageTextColorLight,
+      fontWeight: FontWeight.bold,
+    ),
+    this.messageFooterStyle = const TextStyle(
+      color: SdkColors.messageFooterColorLight,
+      fontSize: SdkConstants.statusFontSize,
+    ),
+    this.ctaButtonTextStyle = const TextStyle(
+      color: SdkColors.ctaButtonForegroundColorLight,
+    ),
+    this.buttonsMessageButtonTextStyle = const TextStyle(
+      color: SdkColors.buttonsMessageButtonForegroundColorLight,
+    ),
 
     // Icons
     this.chatIconImage,
@@ -161,6 +197,7 @@ class ChatTheme {
     this.currencyIcon = Icons.toll,
     this.addIcon = Icons.add,
     this.removeIcon = Icons.remove,
+    this.ctaArrowForwardIcon = Icons.arrow_forward,
   });
 
   ChatTheme copyWith({
@@ -193,6 +230,13 @@ class ChatTheme {
     Color? pickerButtonBorderColor,
     Color? quickReplyColor,
     Color? quickReplyBorderColor,
+    Color? ctaButtonColor,
+    Color? ctaButtonBorderColor,
+    Color? ctaButtonForegroundColor,
+    Color? buttonsMessageButtonColor,
+    Color? buttonsMessageButtonBorderColor,
+    Color? buttonsMessageButtonForegroundColor,
+    Color? messageFooterColor,
     TextStyle? quickReplyStyle,
     TextStyle? modalHeaderStyle,
     TextStyle? userMessageTextStyle,
@@ -205,6 +249,10 @@ class ChatTheme {
     TextStyle? productSalePriceStrikeStyle,
     TextStyle? pricePerSubunitStyle,
     TextStyle? expandControlsStyle,
+    TextStyle? messageHeaderStyle,
+    TextStyle? messageFooterStyle,
+    TextStyle? ctaButtonTextStyle,
+    TextStyle? buttonsMessageButtonTextStyle,
     ImageProvider? chatIconImage,
     IconData? sendButtonIcon,
     IconData? recordAudioIcon,
@@ -222,6 +270,7 @@ class ChatTheme {
     IconData? currencyIcon,
     IconData? addIcon,
     IconData? removeIcon,
+    IconData? ctaArrowForwardIcon,
   }) {
     return ChatTheme(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -265,6 +314,19 @@ class ChatTheme {
           pickerButtonBorderColor ?? this.pickerButtonBorderColor,
       quickReplyColor: quickReplyColor ?? this.quickReplyColor,
       quickReplyBorderColor: quickReplyBorderColor ?? this.quickReplyBorderColor,
+      ctaButtonColor: ctaButtonColor ?? this.ctaButtonColor,
+      ctaButtonBorderColor: ctaButtonBorderColor ?? this.ctaButtonBorderColor,
+      ctaButtonForegroundColor:
+          ctaButtonForegroundColor ?? this.ctaButtonForegroundColor,
+      buttonsMessageButtonColor:
+          buttonsMessageButtonColor ?? this.buttonsMessageButtonColor,
+      buttonsMessageButtonBorderColor:
+          buttonsMessageButtonBorderColor ??
+          this.buttonsMessageButtonBorderColor,
+      buttonsMessageButtonForegroundColor:
+          buttonsMessageButtonForegroundColor ??
+          this.buttonsMessageButtonForegroundColor,
+      messageFooterColor: messageFooterColor ?? this.messageFooterColor,
       quickReplyStyle: quickReplyStyle ?? this.quickReplyStyle,
       modalHeaderStyle: modalHeaderStyle ?? this.modalHeaderStyle,
       userMessageTextStyle: userMessageTextStyle ?? this.userMessageTextStyle,
@@ -279,6 +341,11 @@ class ChatTheme {
           productSalePriceStrikeStyle ?? this.productSalePriceStrikeStyle,
       pricePerSubunitStyle: pricePerSubunitStyle ?? this.pricePerSubunitStyle,
       expandControlsStyle: expandControlsStyle ?? this.expandControlsStyle,
+      messageHeaderStyle: messageHeaderStyle ?? this.messageHeaderStyle,
+      messageFooterStyle: messageFooterStyle ?? this.messageFooterStyle,
+      ctaButtonTextStyle: ctaButtonTextStyle ?? this.ctaButtonTextStyle,
+      buttonsMessageButtonTextStyle:
+          buttonsMessageButtonTextStyle ?? this.buttonsMessageButtonTextStyle,
       chatIconImage: chatIconImage ?? this.chatIconImage,
       sendButtonIcon: sendButtonIcon ?? this.sendButtonIcon,
       recordAudioIcon: recordAudioIcon ?? this.recordAudioIcon,
@@ -296,6 +363,7 @@ class ChatTheme {
       currencyIcon: currencyIcon ?? this.currencyIcon,
       addIcon: addIcon ?? this.addIcon,
       removeIcon: removeIcon ?? this.removeIcon,
+      ctaArrowForwardIcon: ctaArrowForwardIcon ?? this.ctaArrowForwardIcon,
     );
   }
 

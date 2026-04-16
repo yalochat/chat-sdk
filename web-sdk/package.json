@@ -20,6 +20,7 @@
     "@lit/context": "^1.1.6",
     "@lit/localize": "^0.12.2",
     "dompurify": "^3.3.3",
+    "intl-messageformat": "^11.2.1",
     "lit": "^3.3.1",
     "snarkdown": "^2.0.0"
   },

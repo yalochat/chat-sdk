@@ -12,6 +12,7 @@ export default defineConfig(({ command }) => {
     resolve: {
       preserveSymlinks: true,
       alias: {
+        '@common': resolve(__dirname, 'src/common'),
         '@data': resolve(__dirname, 'src/data'),
         '@domain': resolve(__dirname, 'src/domain'),
         '@i18n': resolve(__dirname, 'src/i18n'),

@@ -8,6 +8,7 @@ import './attachment-message';
 import './buttons-message';
 import './cta-message';
 import './image-message';
+import './product-message';
 import './video-message';
 import './voice-message';
 
@@ -52,6 +53,11 @@ export class AssistantMessage extends LitElement {
     .cta-bubble {
       max-width: 90%;
     }
+
+    .product-bubble {
+      width: 100%;
+      max-width: 100%;
+    }
   `;
 
   @property({ attribute: false })
@@ -82,6 +88,20 @@ export class AssistantMessage extends LitElement {
       case 'cta':
         return html`<div class="cta-bubble">
           <cta-message .message=${this.message}></cta-message>
+        </div>`;
+      case 'product':
+        return html`<div class="product-bubble">
+          <product-message
+            .message=${this.message}
+            direction="vertical"
+          ></product-message>
+        </div>`;
+      case 'productCarousel':
+        return html`<div class="product-bubble">
+          <product-message
+            .message=${this.message}
+            direction="horizontal"
+          ></product-message>
         </div>`;
       case 'text':
       default:

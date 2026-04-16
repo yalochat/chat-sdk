@@ -10,6 +10,7 @@ import 'package:chat_flutter_sdk/src/data/services/database/database_service.dar
     hide ChatMessage;
 
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
 import 'package:drift/drift.dart';
@@ -45,6 +46,12 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
       quickReplies: message.quickReplies.isEmpty
           ? null
           : jsonEncode(message.quickReplies),
+      header: message.header,
+      footer: message.footer,
+      buttons: message.buttons.isEmpty ? null : jsonEncode(message.buttons),
+      ctaButtons: message.ctaButtons.isEmpty
+          ? null
+          : jsonEncode(message.ctaButtons.map((b) => b.toJson()).toList()),
       timestamp: message.timestamp.millisecondsSinceEpoch,
     );
   }
@@ -74,6 +81,16 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
       quickReplies: data.quickReplies != null
           ? (jsonDecode(data.quickReplies!) as List)
                 .map((e) => e as String)
+                .toList()
+          : [],
+      header: data.header,
+      footer: data.footer,
+      buttons: data.buttons != null
+          ? (jsonDecode(data.buttons!) as List).map((e) => e as String).toList()
+          : [],
+      ctaButtons: data.ctaButtons != null
+          ? (jsonDecode(data.ctaButtons!) as List)
+                .map((e) => CTAButton.fromJson(e as Map<String, dynamic>))
                 .toList()
           : [],
       timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
@@ -166,6 +183,20 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
                 message.quickReplies.isEmpty
                     ? null
                     : jsonEncode(message.quickReplies),
+              ),
+              header: Value.absentIfNull(message.header),
+              footer: Value.absentIfNull(message.footer),
+              buttons: Value.absentIfNull(
+                message.buttons.isEmpty
+                    ? null
+                    : jsonEncode(message.buttons),
+              ),
+              ctaButtons: Value.absentIfNull(
+                message.ctaButtons.isEmpty
+                    ? null
+                    : jsonEncode(
+                        message.ctaButtons.map((b) => b.toJson()).toList(),
+                      ),
               ),
               timestamp: message.timestamp.millisecondsSinceEpoch,
             ),

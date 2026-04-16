@@ -23,6 +23,7 @@
 
     "baseUrl": ".",
     "paths": {
+      "@common/*": ["src/common/*"],
       "@data/*": ["src/data/*"],
       "@domain/*": ["src/domain/*"],
       "@i18n/*": ["src/i18n/*"],

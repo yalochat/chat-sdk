@@ -31,4 +31,15 @@ abstract final class SdkColors {
   static const Color imagePlaceHolderColorLight = Color(0xFFF9FAFC);
   static const Color expandControlColorLight = Color(0xFF2207F1);
   static const Color quickReplyBorderColor = Color(0xFFECEDEF);
+  static const Color ctaButtonBackgroundColorLight = Color(0x00000000);
+  static const Color ctaButtonBorderColorLight = Color(0xFFDDE4EC);
+  static const Color ctaButtonForegroundColorLight = Color(0xFF111111);
+  static const Color buttonsMessageButtonBackgroundColorLight = Color(
+    0x00000000,
+  );
+  static const Color buttonsMessageButtonBorderColorLight = Color(0xFFDDE4EC);
+  static const Color buttonsMessageButtonForegroundColorLight = Color(
+    0xFF111111,
+  );
+  static const Color messageFooterColorLight = Color(0xFF7C8086);
 }
