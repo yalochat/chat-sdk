@@ -35,6 +35,10 @@ object YaloChatSdk {
     private var _config: YaloChatConfig? = null
 
     fun initialize(config: YaloChatConfig) {
+        require(!config.useFakeRepository) {
+            "useFakeRepository is not supported on iOS yet — remove it from YaloChatConfig."
+        }
+
         // Tear down any previous instance before re-initialising (idempotent re-init).
         syncService?.stop()
 
