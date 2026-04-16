@@ -1,0 +1,42 @@
+-- Migration 2: add columns for buttons/CTA message types + add UNIQUE constraint on wi_id.
+--
+-- SQLite does not support ALTER TABLE ADD COLUMN ... UNIQUE, so we recreate the table
+-- to add the UNIQUE constraint on wi_id while also adding the four new columns
+-- (header, footer, buttons, cta_buttons).
+--
+-- Deduplication: if any rows share the same wi_id, ORDER BY id DESC + INSERT OR IGNORE
+-- keeps the row with the highest id (newest), discarding older duplicates.
+
+CREATE TABLE chat_message_v2 (
+    id              INTEGER NOT NULL PRIMARY KEY,
+    wi_id           TEXT UNIQUE,
+    role            TEXT NOT NULL,
+    content         TEXT NOT NULL,
+    type            TEXT NOT NULL,
+    status          TEXT NOT NULL,
+    file_name       TEXT,
+    amplitudes      TEXT,
+    duration        INTEGER,
+    byte_count      INTEGER,
+    media_type      TEXT,
+    products        TEXT,
+    quick_replies   TEXT,
+    header          TEXT,
+    footer          TEXT,
+    buttons         TEXT,
+    cta_buttons     TEXT,
+    timestamp       INTEGER NOT NULL
+);
+
+INSERT OR IGNORE INTO chat_message_v2
+    SELECT id, wi_id, role, content, type, status,
+           file_name, amplitudes, duration, byte_count, media_type,
+           products, quick_replies,
+           NULL, NULL, NULL, NULL,
+           timestamp
+    FROM chat_message
+    ORDER BY id DESC;
+
+DROP TABLE chat_message;
+
+ALTER TABLE chat_message_v2 RENAME TO chat_message;

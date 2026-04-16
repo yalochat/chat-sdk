@@ -2,27 +2,47 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import android.media.MediaMetadataRetriever
+import android.widget.VideoView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 internal fun MessageItem(
@@ -35,9 +55,7 @@ internal fun MessageItem(
     val theme = LocalChatTheme.current
     val isUser = message.role == MessageRole.USER
 
-    // Product messages render their own card borders/backgrounds, so they bypass the bubble
-    // Surface. This mirrors Flutter's AssistantMessage which uses a padding Container rather
-    // than a colored bubble for product types.
+    // Product messages render their own card borders/backgrounds, so they bypass the bubble Surface.
     if (message.type == MessageType.Product || message.type == MessageType.ProductCarousel) {
         Row(
             modifier = Modifier
@@ -106,6 +124,15 @@ internal fun MessageItem(
                         onPlay = onPlayAudio,
                         onStop = onStopAudio,
                     )
+                    MessageType.Video -> VideoMessageItem(
+                        message = message,
+                        messageTextStyle = messageTextStyle,
+                    )
+                    MessageType.Buttons -> ButtonsMessage(
+                        message = message,
+                        onEvent = onEvent,
+                    )
+                    MessageType.CTA -> CtaMessage(message = message)
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",
                         style = messageTextStyle,
@@ -116,6 +143,88 @@ internal fun MessageItem(
                     )
                 }
             }
+        }
+    }
+}
+
+// Thumbnail: extracted from the local file using MediaMetadataRetriever.
+// Falls back to a dark placeholder if extraction fails.
+// Playback: tapping the thumbnail shows an in-process VideoView via AndroidView.
+// Caption: shown below the video when message.content is non-empty.
+@Composable
+private fun VideoMessageItem(
+    message: ChatMessage,
+    messageTextStyle: androidx.compose.ui.text.TextStyle,
+) {
+    var thumbnail by remember { mutableStateOf<ImageBitmap?>(null) }
+    var showPlayer by remember { mutableStateOf(false) }
+
+    LaunchedEffect(message.fileName) {
+        thumbnail = null
+        showPlayer = false
+        val path = message.fileName ?: return@LaunchedEffect
+        val bitmap = withContext(Dispatchers.IO) {
+            val retriever = MediaMetadataRetriever()
+            try {
+                retriever.setDataSource(path)
+                retriever.getFrameAtTime(0)?.asImageBitmap()
+            } catch (_: Exception) {
+                null
+            } finally {
+                retriever.release()
+            }
+        }
+        bitmap?.let { thumbnail = it }
+    }
+
+    Column {
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .clickable { showPlayer = !showPlayer },
+            contentAlignment = Alignment.Center,
+        ) {
+            if (showPlayer && message.fileName != null) {
+                // In-process VideoView — no FileProvider needed (same-process file access).
+                AndroidView(
+                    factory = { ctx ->
+                        VideoView(ctx).apply {
+                            setVideoPath(message.fileName)
+                            setOnPreparedListener { it.start() }
+                        }
+                    },
+                    modifier = Modifier.matchParentSize(),
+                )
+            } else {
+                if (thumbnail != null) {
+                    Image(
+                        bitmap = thumbnail!!,
+                        contentDescription = "Video thumbnail",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .background(Color(0xFF1A1A1A)),
+                    )
+                }
+                androidx.compose.material3.Icon(
+                    imageVector = Icons.Filled.PlayCircle,
+                    contentDescription = "Play video",
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.White.copy(alpha = 0.85f),
+                )
+            }
+        }
+        // Caption — mirrors Flutter's SelectableText below the video when content is non-empty.
+        if (message.content.isNotEmpty()) {
+            Text(
+                text = message.content,
+                style = messageTextStyle,
+                modifier = Modifier.padding(top = 4.dp),
+            )
         }
     }
 }

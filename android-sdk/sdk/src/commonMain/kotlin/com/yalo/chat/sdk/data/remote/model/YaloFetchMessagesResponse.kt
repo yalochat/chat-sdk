@@ -24,39 +24,33 @@ internal data class YaloFetchMessagesResponse(
 internal data class SdkMessageResponseDto(
     val textMessageRequest: SdkTextMessageResponseDto? = null,
     val imageMessageRequest: SdkImageMessageResponseDto? = null,
+    val videoMessageRequest: SdkVideoMessageResponseDto? = null,
     val productMessageRequest: SdkProductMessageResponseDto? = null,
+    val buttonsMessageRequest: SdkButtonsMessageResponseDto? = null,
+    val ctaMessageRequest: SdkCtaMessageResponseDto? = null,
 )
 
 // ── Text ──────────────────────────────────────────────────────────────────────
 
 @Serializable
 internal data class SdkTextMessageResponseDto(
-    // Nullable so a malformed TextMessageRequest (missing content) skips silently
-    // rather than throwing SerializationException and failing the entire fetch batch.
     val content: SdkTextMessageContentDto? = null,
 )
 
 @Serializable
 internal data class SdkTextMessageContentDto(
     val text: String,
-    // Proto MessageRole JSON encoding: "MESSAGE_ROLE_USER" or "MESSAGE_ROLE_AGENT".
-    // Omitted when the value is the default (MESSAGE_ROLE_UNSPECIFIED = 0).
     val role: String? = null,
 )
 
 // ── Product ───────────────────────────────────────────────────────────────────
 
-// Proto3 JSON for ProductMessageRequest.
-// orientation: "ORIENTATION_VERTICAL" → Product list, "ORIENTATION_HORIZONTAL" → ProductCarousel.
 @Serializable
 internal data class SdkProductMessageResponseDto(
     val products: List<SdkProductDto> = emptyList(),
-    // Proto3 JSON enum value name, e.g. "ORIENTATION_VERTICAL" or "ORIENTATION_HORIZONTAL".
-    // Absent when unspecified — treated as vertical (list) in toChatMessage().
     val orientation: String? = null,
 )
 
-// Mirrors proto Product message fields (proto3 JSON camelCase encoding).
 @Serializable
 internal data class SdkProductDto(
     val sku: String,
@@ -82,11 +76,62 @@ internal data class SdkImageMessageResponseDto(
 
 @Serializable
 internal data class SdkImageMessageContentDto(
-    // URL of the media file on the CDN — used to download the image bytes.
     val mediaUrl: String,
-    // MIME type as declared by the sender; may be empty string if not set.
     val mediaType: String = "",
-    // Optional caption text accompanying the image.
     val text: String? = null,
     val role: String? = null,
+)
+
+// ── Video ─────────────────────────────────────────────────────────────────────
+
+@Serializable
+internal data class SdkVideoMessageResponseDto(
+    val content: SdkVideoMessageContentDto? = null,
+)
+
+@Serializable
+internal data class SdkVideoMessageContentDto(
+    val mediaUrl: String,
+    val mediaType: String = "",
+    val text: String? = null,
+    val role: String? = null,
+    val fileName: String = "",
+    // Duration in seconds (proto double); stored as Long millis in ChatMessage.
+    val duration: Double = 0.0,
+)
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+
+@Serializable
+internal data class SdkButtonsMessageResponseDto(
+    val content: SdkButtonsMessageContentDto? = null,
+)
+
+@Serializable
+internal data class SdkButtonsMessageContentDto(
+    val header: String? = null,
+    val body: String = "",
+    val footer: String? = null,
+    val buttons: List<String> = emptyList(),
+)
+
+// ── CTA ───────────────────────────────────────────────────────────────────────
+
+@Serializable
+internal data class SdkCtaMessageResponseDto(
+    val content: SdkCtaMessageContentDto? = null,
+)
+
+@Serializable
+internal data class SdkCtaMessageContentDto(
+    val header: String? = null,
+    val body: String = "",
+    val footer: String? = null,
+    val buttons: List<SdkCtaButtonDto> = emptyList(),
+)
+
+@Serializable
+internal data class SdkCtaButtonDto(
+    val text: String,
+    val url: String,
 )
