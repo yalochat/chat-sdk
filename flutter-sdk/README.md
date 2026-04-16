@@ -87,7 +87,7 @@ class ChatScreen extends StatelessWidget {
 | `name` | `String` | Yes | The chat name displayed in the header. |
 | `channelId` | `String` | Yes | Your Yalo channel ID. |
 | `organizationId` | `String` | Yes | Your Yalo organization ID. |
-| `userId` | `String?` | No | Your own user identifier. When provided, the SDK authenticates as `third_party_anonymous` instead of `anonymous`, linking the chat session to your user. |
+| `userId` | `String?` | No | Your own user identifier. When provided, the chat session is linked to your user. |
 
 ### App tool execution
 
