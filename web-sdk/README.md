@@ -64,6 +64,7 @@ Add the icon font, the SDK script, and initialize the client:
 | `locale`             | `string`   | No       | Locale for the chat UI (e.g. `"es"`, `"en"`)  |
 | `icons`              | `SdkIcons` | No       | Custom icon overrides (see below)             |
 | `audioWaveformColor` | `string`   | No       | Color for the audio waveform visualization    |
+| `userId`             | `string`   | No       | Your own user identifier. When provided, the chat session is linked to your user. |
 
 ### Custom icons
 

@@ -183,7 +183,75 @@ void main() {
       });
     });
 
-    group('auth — valid cache', () {
+    group('auth with userId', () {
+      late YaloMessageAuthServiceRemote serviceWithUserId;
+
+      setUp(() {
+        serviceWithUserId = YaloMessageAuthServiceRemote(
+          baseUrl: baseUrl,
+          channelId: channelId,
+          organizationId: organizationId,
+          storage: mockStorage,
+          httpClient: mockClient,
+          userId: 'custom-user-123',
+        );
+      });
+
+      test(
+        'sends third_party_anonymous user type and user_id when userId is set',
+        () async {
+          when(
+            () => mockClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: any(named: 'body'),
+            ),
+          ).thenAnswer((_) async => Response(authResponseBody(), 200));
+
+          await serviceWithUserId.auth();
+
+          final captured = verify(
+            () => mockClient.post(
+              any(),
+              headers: any(named: 'headers'),
+              body: captureAny(named: 'body'),
+            ),
+          ).captured;
+
+          final body =
+              jsonDecode(captured[0] as String) as Map<String, dynamic>;
+          expect(body['user_type'], equals('third_party_anonymous'));
+          expect(body['user_id'], equals('custom-user-123'));
+        },
+      );
+
+      test('does not include user_id when userId is not set', () async {
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response(authResponseBody(), 200));
+
+        await service.auth();
+
+        final captured = verify(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
+
+        final body =
+            jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        expect(body['user_type'], equals('anonymous'));
+        expect(body.containsKey('user_id'), isFalse);
+      });
+    });
+
+    group('auth valid cache', () {
       test('returns cached token without making HTTP call', () async {
         // Populate the cache with a non-expired token.
         when(
@@ -214,7 +282,7 @@ void main() {
       });
     });
 
-    group('auth — expired cache', () {
+    group('auth expired cache', () {
       test('uses refresh token when cached token has expired', () async {
         // First: populate cache with an immediately-expiring token.
         when(

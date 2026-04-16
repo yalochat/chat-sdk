@@ -57,7 +57,9 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final YaloChatClient client = YaloChatClient(
     name: 'Chat name',
-    flowKey: '1234567890',
+    channelId: 'your-channel-id',
+    organizationId: 'your-organization-id',
+    userId: 'optional-user-id', // Optional: identify the user with your own ID
   );
 }
 ```
@@ -77,6 +79,15 @@ class ChatScreen extends StatelessWidget {
 ```
 
 ## Configuration
+
+### YaloChatClient options
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `String` | Yes | The chat name displayed in the header. |
+| `channelId` | `String` | Yes | Your Yalo channel ID. |
+| `organizationId` | `String` | Yes | Your Yalo organization ID. |
+| `userId` | `String?` | No | Your own user identifier. When provided, the chat session is linked to your user. |
 
 ### App tool execution
 

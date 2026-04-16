@@ -20,10 +20,11 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_type: 'anonymous',
+          user_type: this._config.userId ? 'third_party_anonymous' : 'anonymous',
           channel_id: this._config.channelId,
           organization_id: this._config.organizationId,
           timestamp: Math.floor(Date.now() / 1000),
+          ...(this._config.userId && { user_id: this._config.userId }),
         }),
       });
 

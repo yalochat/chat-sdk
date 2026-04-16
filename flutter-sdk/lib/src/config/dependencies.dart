@@ -71,6 +71,7 @@ List<SingleChildWidget> repositoryProviders(
         channelId: yaloClient.channelId,
         organizationId: yaloClient.organizationId,
         storage: context.read<FlutterSecureStorage>(),
+        userId: yaloClient.userId,
       ),
     ),
     Provider<YaloMessageService>(

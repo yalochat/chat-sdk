@@ -17,6 +17,7 @@ class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
   final String _baseUrl;
   final String _channelId;
   final String _organizationId;
+  final String? _userId;
   final Client _httpClient;
   final FlutterSecureStorage _storage;
 
@@ -27,10 +28,12 @@ class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
     required String channelId,
     required String organizationId,
     required FlutterSecureStorage storage,
+    String? userId,
     Client? httpClient,
   }) : _baseUrl = baseUrl,
        _channelId = channelId,
        _organizationId = organizationId,
+       _userId = userId,
        _storage = storage,
        _httpClient = httpClient ?? Client();
 
@@ -99,10 +102,11 @@ class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
         Uri.parse('$_baseUrl/auth'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'user_type': 'anonymous',
+          'user_type': _userId != null ? 'third_party_anonymous' : 'anonymous',
           'channel_id': _channelId,
           'organization_id': _organizationId,
           'timestamp': Timestamp.fromDateTime(DateTime.now()).seconds.toInt(),
+          if (_userId != null) 'user_id': _userId,
         }),
       );
 
