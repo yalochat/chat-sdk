@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.yalo.chat.sdk.YaloChat
 import com.yalo.chat.sdk.YaloChatConfig
+import com.yalo.chat.sdk.YaloChatEnvironment
 import com.yalo.chat.sdk.ui.ChatScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
                 channelName = BuildConfig.YALO_CHANNEL_NAME,
                 channelId = BuildConfig.YALO_CHANNEL_ID,
                 organizationId = BuildConfig.YALO_ORGANIZATION_ID,
+                environment = YaloChatEnvironment.STAGING,
                 useFakeRepository = BuildConfig.USE_FAKE_REPOSITORY,
             ),
             context = this,

@@ -1,12 +1,6 @@
 # Android SDK location (set automatically by Android Studio)
 sdk.dir=/path/to/Android/sdk
 
-# ── SDK build config (consumed by sdk/build.gradle.kts) ───────────────────────
-# The API base URL is baked into the SDK at compile time — it is not part of the
-# public YaloChatConfig API. In CI it is injected via the YALO_API_BASE_URL env var.
-
-yalo.apiBaseUrl=https://your-yalo-api-base-url
-
 # ── Demo app credentials (consumed by app/build.gradle.kts) ───────────────────
 # Copy this file to local.properties and fill in the values.
 # local.properties is gitignored — credentials will never be committed.
