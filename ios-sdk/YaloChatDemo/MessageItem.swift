@@ -11,9 +11,11 @@ struct MessageItem: View {
 
     let message: ChatMessage
 
+    private var isUser: Bool { message.role === MessageRole.user }
+
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            if message.role == .user {
+            if isUser {
                 Spacer(minLength: 48)
                 bubble
             } else {
@@ -28,23 +30,23 @@ struct MessageItem: View {
             .padding(12)
             .background(bubbleColor)
             .cornerRadius(16)
-            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: message.role == .user ? .trailing : .leading)
+            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: isUser ? .trailing : .leading)
     }
 
     @ViewBuilder
     private var bubbleContent: some View {
-        if message.type is MessageTypeText {
+        if message.type is MessageType.Text {
             Text(message.content)
-                .foregroundColor(message.role == .user ? .white : .primary)
+                .foregroundColor(isUser ? .white : .primary)
         } else {
             Text("Unsupported message type")
                 .font(.caption)
                 .italic()
-                .foregroundColor(message.role == .user ? .white.opacity(0.8) : .secondary)
+                .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
         }
     }
 
     private var bubbleColor: Color {
-        message.role == .user ? .accentColor : Color(.systemGray5)
+        isUser ? .accentColor : Color(.systemGray5)
     }
 }

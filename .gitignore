@@ -47,3 +47,6 @@ flutter-sdk/pubspec.lock
 **/build/
 **/coverage/
 /.agent-shell/
+
+# iOS demo credentials — never commit
+ios-sdk/YaloChatDemo/Credentials.swift
