@@ -11,7 +11,7 @@ package com.yalo.chat.sdk
  * @param channelName      Display name shown in the chat app bar.
  * @param channelId        Yalo channel identifier (maps to `x-channel-id` request header).
  * @param organizationId   Yalo organization identifier (used during anonymous authentication).
- * @param environment      Target backend environment. Defaults to [YaloChatEnvironment.Production].
+ * @param environment      Target backend environment. Defaults to [YaloChatEnvironment.PRODUCTION].
  * @param useFakeRepository When `true`, uses in-memory fake repositories with pre-seeded messages.
  *                          Intended for local development and UI testing only — never set in production.
  */
@@ -19,6 +19,6 @@ data class YaloChatConfig(
     val channelName: String,
     val channelId: String,
     val organizationId: String,
-    val environment: YaloChatEnvironment = YaloChatEnvironment.Production,
+    val environment: YaloChatEnvironment = YaloChatEnvironment.PRODUCTION,
     val useFakeRepository: Boolean = false,
 )

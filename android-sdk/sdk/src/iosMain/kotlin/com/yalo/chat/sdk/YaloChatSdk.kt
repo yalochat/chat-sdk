@@ -37,9 +37,10 @@ object YaloChatSdk {
     var config: YaloChatConfig? = null
         private set
 
+    @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
     fun initialize(config: YaloChatConfig) {
         require(!config.useFakeRepository) {
-            "useFakeRepository is not supported on iOS yet — remove it from YaloChatConfig."
+            "useFakeRepository is not supported on iOS yet; pass useFakeRepository = false."
         }
 
         // Tear down any previous instance before re-initialising (idempotent re-init).
