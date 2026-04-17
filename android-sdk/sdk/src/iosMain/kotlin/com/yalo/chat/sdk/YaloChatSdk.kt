@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk
 
+import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
@@ -10,7 +11,9 @@ import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.database.ChatDatabase
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
+import kotlin.native.Platform
 import kotlinx.coroutines.Dispatchers
 import platform.Foundation.NSTemporaryDirectory
 
@@ -21,7 +24,9 @@ import platform.Foundation.NSTemporaryDirectory
 // Called from Swift by YaloChat.initialize() — see ios-sdk/YaloChatDemo/YaloChat.swift.
 object YaloChatSdk {
 
-    private var syncService: MessageSyncService? = null
+    private var _syncService: MessageSyncService? = null
+    private var _httpClient: HttpClient? = null
+    private var _driver: SqlDriver? = null
 
     internal var yaloRepo: YaloMessageRepositoryRemote? = null
         private set
@@ -29,10 +34,8 @@ object YaloChatSdk {
     internal var localRepo: LocalChatMessageRepository? = null
         private set
 
-    val config: YaloChatConfig?
-        get() = _config
-
-    private var _config: YaloChatConfig? = null
+    var config: YaloChatConfig? = null
+        private set
 
     fun initialize(config: YaloChatConfig) {
         require(!config.useFakeRepository) {
@@ -40,11 +43,15 @@ object YaloChatSdk {
         }
 
         // Tear down any previous instance before re-initialising (idempotent re-init).
-        syncService?.stop()
+        _syncService?.stop()
+        _httpClient?.close()
+        _driver?.close()
 
-        _config = config
+        this.config = config
 
-        val httpClient = buildHttpClient(Darwin.create(), debug = false)
+        val httpClient = buildHttpClient(Darwin.create(), debug = Platform.isDebugBinary)
+        _httpClient = httpClient
+
         val apiService = YaloChatApiService(
             apiBaseUrl = config.environment.apiBaseUrl,
             channelId = config.channelId,
@@ -59,13 +66,14 @@ object YaloChatSdk {
 
         // NativeSqliteDriver stores the database in the app's Documents/databases/ directory.
         val driver = NativeSqliteDriver(ChatDatabase.Schema, "chat.db")
+        _driver = driver
         val db = createDatabase(driver)
         val local = LocalChatMessageRepository(db.chatMessageQueries, Dispatchers.Default)
         localRepo = local
 
-        // Sync service is started lazily by the Swift presentation layer, mirroring how
-        // MessagesViewModel governs the polling lifecycle on Android.
-        syncService = MessageSyncService(
+        // Sync service is started lazily by the Swift presentation layer (M5 ViewModel),
+        // mirroring how MessagesViewModel governs the polling lifecycle on Android.
+        _syncService = MessageSyncService(
             yaloRepo = repo,
             localRepo = local,
             onSyncError = { e -> println("[YaloChatSdk] sync error: $e") },
@@ -73,10 +81,14 @@ object YaloChatSdk {
     }
 
     fun stop() {
-        syncService?.stop()
-        syncService = null
+        _syncService?.stop()
+        _syncService = null
+        _httpClient?.close()
+        _httpClient = null
+        _driver?.close()
+        _driver = null
         yaloRepo = null
         localRepo = null
-        _config = null
+        config = null
     }
 }

@@ -3,8 +3,9 @@
 import SwiftUI
 
 // Placeholder chat view — replaced in iOS M5 (Core SwiftUI UI Layer).
-// M1 goal: confirm the XCFramework imports, YaloChat.initialize() runs without
-// crashing, and the 1-second polling loop connects to the Yalo staging backend.
+// M1 goal: confirm the XCFramework imports and that YaloChat.initialize() wires
+// the Darwin HTTP engine + NativeSqliteDriver without crashing.
+// Polling starts in M5 when the ViewModel calls MessageSyncService.start(scope:).
 struct ContentView: View {
 
     var body: some View {
