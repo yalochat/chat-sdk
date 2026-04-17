@@ -207,6 +207,169 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
+  async addToCart(sku: string, quantity: number): Promise<Result<void>> {
+    const authResult = await this._tokenRepository.getToken();
+    if (!authResult.ok) return authResult;
+
+    const token = authResult.value;
+    const userId = this._decodeUserId(token);
+    const timestamp = new Date();
+
+    try {
+      const body: SdkMessage = {
+        correlationId: `add-to-cart-${sku}-${Date.now()}`,
+        addToCartRequest: { sku, quantity, timestamp },
+        timestamp,
+      };
+
+      const response = await fetch(
+        `${this._baseUrl}/webchat/inbound_messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-channel-id': this._config.channelId,
+            'x-user-id': userId,
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(SdkMessage.toJSON(body)),
+        }
+      );
+
+      if (!response.ok) {
+        return new Err(new Error(`addToCart failed: ${response.status}`));
+      }
+
+      return new Ok(undefined);
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
+  async removeFromCart(
+    sku: string,
+    quantity?: number
+  ): Promise<Result<void>> {
+    const authResult = await this._tokenRepository.getToken();
+    if (!authResult.ok) return authResult;
+
+    const token = authResult.value;
+    const userId = this._decodeUserId(token);
+    const timestamp = new Date();
+
+    try {
+      const body: SdkMessage = {
+        correlationId: `remove-from-cart-${sku}-${Date.now()}`,
+        removeFromCartRequest: { sku, quantity, timestamp },
+        timestamp,
+      };
+
+      const response = await fetch(
+        `${this._baseUrl}/webchat/inbound_messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-channel-id': this._config.channelId,
+            'x-user-id': userId,
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(SdkMessage.toJSON(body)),
+        }
+      );
+
+      if (!response.ok) {
+        return new Err(
+          new Error(`removeFromCart failed: ${response.status}`)
+        );
+      }
+
+      return new Ok(undefined);
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
+  async clearCart(): Promise<Result<void>> {
+    const authResult = await this._tokenRepository.getToken();
+    if (!authResult.ok) return authResult;
+
+    const token = authResult.value;
+    const userId = this._decodeUserId(token);
+    const timestamp = new Date();
+
+    try {
+      const body: SdkMessage = {
+        correlationId: `clear-cart-${Date.now()}`,
+        clearCartRequest: { timestamp },
+        timestamp,
+      };
+
+      const response = await fetch(
+        `${this._baseUrl}/webchat/inbound_messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-channel-id': this._config.channelId,
+            'x-user-id': userId,
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(SdkMessage.toJSON(body)),
+        }
+      );
+
+      if (!response.ok) {
+        return new Err(new Error(`clearCart failed: ${response.status}`));
+      }
+
+      return new Ok(undefined);
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
+  async addPromotion(promotionId: string): Promise<Result<void>> {
+    const authResult = await this._tokenRepository.getToken();
+    if (!authResult.ok) return authResult;
+
+    const token = authResult.value;
+    const userId = this._decodeUserId(token);
+    const timestamp = new Date();
+
+    try {
+      const body: SdkMessage = {
+        correlationId: `add-promotion-${promotionId}-${Date.now()}`,
+        addPromotionRequest: { promotionId, timestamp },
+        timestamp,
+      };
+
+      const response = await fetch(
+        `${this._baseUrl}/webchat/inbound_messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-channel-id': this._config.channelId,
+            'x-user-id': userId,
+            authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(SdkMessage.toJSON(body)),
+        }
+      );
+
+      if (!response.ok) {
+        return new Err(
+          new Error(`addPromotion failed: ${response.status}`)
+        );
+      }
+
+      return new Ok(undefined);
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
   private _translateMessageResponse(item: PollMessageItem): ChatMessage | null {
     const timestamp = item.date ?? new Date();
     const msg = item.message!;
