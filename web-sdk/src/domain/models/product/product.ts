@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+export type ProductUnitType = 'unit' | 'subunit';
+
 export class Product {
   // The SKU of the product
   readonly sku: string;

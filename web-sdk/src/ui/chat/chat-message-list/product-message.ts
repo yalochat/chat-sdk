@@ -50,7 +50,7 @@ export class ProductMessage extends LitElement {
 
     .list.horizontal .item {
       flex: 0 0 70%;
-      max-width: 18rem;
+      max-width: 14rem;
       scroll-snap-align: start;
     }
 
@@ -117,6 +117,7 @@ export class ProductMessage extends LitElement {
             <div class="item">
               <product-card
                 .product=${product}
+                .messageId=${this.message.id!}
                 .layout=${cardLayout}
                 .currency=${this.currency}
               ></product-card>
