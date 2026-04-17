@@ -326,11 +326,13 @@ describe('ChatMessageList', () => {
 
       expect(listener).toHaveBeenCalledTimes(2);
       expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
+        messageId: 52,
         sku: 'sku-xyz',
         unitType: 'unit',
         value: 3,
       });
       expect((listener.mock.calls[1][0] as CustomEvent).detail).toMatchObject({
+        messageId: 52,
         sku: 'sku-xyz',
         unitType: 'subunit',
         value: 0,
@@ -468,6 +470,144 @@ describe('ChatMessageList', () => {
       const user = list.shadowRoot!.querySelector('user-message');
       const bubble = user!.shadowRoot!.querySelector('.bubble');
       expect(bubble!.textContent).toContain('user fallback');
+    });
+  });
+
+  describe('product quantity updates', () => {
+    it('renders the correct unit and subunit values on the product card', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 55,
+          role: 'AGENT',
+          timestamp,
+          products: [
+            buildProduct({
+              sku: 'a',
+              unitsAdded: 3,
+              subunits: 6,
+              subunitsAdded: 2,
+              subunitName: '{amount, plural, one {bag} other {bags}}',
+            }),
+          ],
+        }),
+      ]);
+
+      const card = await getProductCard(list);
+      const inputs =
+        card.shadowRoot!.querySelectorAll<LitElement>('numeric-input');
+      expect(inputs).toHaveLength(2);
+
+      const unitInput = inputs[0].shadowRoot!.querySelector('input')!;
+      const subunitInput = inputs[1].shadowRoot!.querySelector('input')!;
+      expect(unitInput.value).toContain('3');
+      expect(subunitInput.value).toContain('2');
+    });
+
+    it('reflects updated quantities after re-rendering with new products', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 56,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'a', unitsAdded: 1 })],
+        }),
+      ]);
+
+      const cardBefore = await getProductCard(list);
+      const inputBefore =
+        cardBefore.shadowRoot!.querySelector('numeric-input') as LitElement;
+      const valueBefore =
+        inputBefore.shadowRoot!.querySelector('input')!.value;
+      expect(valueBefore).toContain('1');
+
+      // Simulate in-place update (same message id, different quantity)
+      list.chatMessages = [
+        ChatMessage.product({
+          id: 56,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'a', unitsAdded: 5 })],
+        }),
+      ];
+      await list.updateComplete;
+
+      const cardAfter = await getProductCard(list);
+      const inputAfter =
+        cardAfter.shadowRoot!.querySelector('numeric-input') as LitElement;
+      await inputAfter.updateComplete;
+      const valueAfter =
+        inputAfter.shadowRoot!.querySelector('input')!.value;
+      expect(valueAfter).toContain('5');
+    });
+
+    it('does not reset scroll when messages are updated in place', async () => {
+      const products = [buildProduct({ sku: 'a', unitsAdded: 1 })];
+      const list = await renderList([
+        ChatMessage.product({
+          id: 60,
+          role: 'AGENT',
+          timestamp,
+          products,
+        }),
+      ]);
+
+      const messageList = list.shadowRoot!.querySelector(
+        '.message-list'
+      ) as HTMLUListElement;
+
+      // Simulate the user having scrolled up
+      Object.defineProperty(messageList, 'scrollTop', {
+        value: -600,
+        writable: true,
+      });
+
+      // Update messages in place (same length array)
+      const updatedProducts = [buildProduct({ sku: 'a', unitsAdded: 2 })];
+      list.chatMessages = [
+        ChatMessage.product({
+          id: 60,
+          role: 'AGENT',
+          timestamp,
+          products: updatedProducts,
+        }),
+      ];
+      await list.updateComplete;
+
+      expect(messageList.scrollTop).toBe(-600);
+    });
+
+    it('resets scroll when a new message is added', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 70,
+          role: 'AGENT',
+          timestamp,
+          content: 'Hello',
+        }),
+      ]);
+
+      const messageList = list.shadowRoot!.querySelector(
+        '.message-list'
+      ) as HTMLUListElement;
+
+      // Simulate a small scroll offset (within threshold)
+      Object.defineProperty(messageList, 'scrollTop', {
+        value: -100,
+        writable: true,
+      });
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 71,
+          role: 'USER',
+          timestamp,
+          content: 'New message',
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+
+      expect(messageList.scrollTop).toBe(0);
     });
   });
 

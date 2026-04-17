@@ -109,6 +109,9 @@ export class ProductCard extends LitElement {
   @property({ attribute: false })
   product!: Product;
 
+  @property({ type: Number })
+  messageId!: number;
+
   @property({ type: String })
   layout: ProductCardLayout = 'horizontal';
 

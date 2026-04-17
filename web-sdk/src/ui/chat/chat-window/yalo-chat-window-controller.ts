@@ -3,6 +3,7 @@
 import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { PageInfo } from '@domain/common/page';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
@@ -228,6 +229,51 @@ export default class YaloChatWindowController implements ReactiveController {
       this.isWriting = false;
       this.host.requestUpdate();
     }, this._writingTimeoutMs);
+  }
+
+  async updateProductQuantity(e: CustomEvent) {
+    const { messageId, sku, unitType, value } = e.detail as ChangeQuantity;
+
+    const messageIndex = this.chatMessages.findIndex((m) => m.id === messageId);
+    if (messageIndex === -1) return;
+
+    const message = this.chatMessages[messageIndex];
+    const productIndex = message.products.findIndex((p) => p.sku === sku);
+    const product = message.products[productIndex];
+
+    const updatedProducts = [...message.products];
+    if (unitType === 'unit') {
+      updatedProducts[productIndex] = new Product({
+        ...product,
+        unitsAdded: Math.max(value, 0),
+      });
+    } else {
+      const subunitsAdded = Math.max(value, 0);
+      const extraUnits = Math.floor(subunitsAdded / product.subunits);
+      const subunitsMod = subunitsAdded % product.subunits;
+      updatedProducts[productIndex] = new Product({
+        ...product,
+        unitsAdded: product.unitsAdded + extraUnits,
+        subunitsAdded: subunitsMod,
+      });
+    }
+
+    const updatedMessage = new ChatMessage({
+      ...message,
+      products: updatedProducts,
+    });
+
+    const result =
+      await this.host.chatMessageRepository.replaceChatMessage(updatedMessage);
+    if (result.ok) {
+      this.chatMessages = [...this.chatMessages];
+      this.chatMessages[messageIndex] = updatedMessage;
+      this.host.requestUpdate();
+    } else {
+      this.host.logger.error('Unable to update product quantity', {
+        error: result.error,
+      });
+    }
   }
 
   async fetchNextPage() {

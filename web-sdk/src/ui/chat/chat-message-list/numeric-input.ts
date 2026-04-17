@@ -8,7 +8,7 @@ import NumericInputController from './numeric-input-controller';
 export class NumericInput extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-numeric-icon-color: #2207f1;
+      --yalo-chat-numeric-icon-color: #334155;
       --yalo-chat-numeric-text-color: #111111;
       --yalo-chat-numeric-border-color: #dde4ec;
       --yalo-chat-numeric-radius: 0.5rem;

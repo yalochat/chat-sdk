@@ -41,6 +41,9 @@ export default class ChatMessageListController implements ReactiveController {
   calculateScroll(changedProperties: PropertyValues<typeof this.host>) {
     if (!changedProperties.has('chatMessages')) return;
 
+    const previous = changedProperties.get('chatMessages');
+    if (previous && previous.length === this.host.chatMessages.length) return;
+
     const messageList = this.host.messageList;
 
     if (messageList.scrollTop > this._scrollThreshold) {

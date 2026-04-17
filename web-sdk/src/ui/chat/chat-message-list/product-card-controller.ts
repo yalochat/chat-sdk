@@ -2,9 +2,9 @@
 
 import IntlMessageFormat from 'intl-messageformat';
 import type { ReactiveController } from 'lit';
+import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { ProductCard } from './product-card';
-
-export type ProductUnitType = 'unit' | 'subunit';
+import type { ProductUnitType } from '@domain/models/product/product';
 
 export default class ProductCardController implements ReactiveController {
   host: ProductCard;
@@ -41,9 +41,15 @@ export default class ProductCardController implements ReactiveController {
   };
 
   private _emitQuantityChange(unitType: ProductUnitType, value: number) {
+    const detail: ChangeQuantity = {
+      messageId: this.host.messageId,
+      sku: this.host.product.sku,
+      unitType,
+      value,
+    };
     this.host.dispatchEvent(
       new CustomEvent('yalo-chat-product-quantity-change', {
-        detail: { sku: this.host.product.sku, unitType, value },
+        detail,
         bubbles: true,
         composed: true,
       })
