@@ -34,6 +34,9 @@ object YaloChatSdk {
     internal var localRepo: LocalChatMessageRepository? = null
         private set
 
+    var messagesController: MessagesController? = null
+        private set
+
     var config: YaloChatConfig? = null
         private set
 
@@ -72,16 +75,25 @@ object YaloChatSdk {
         val local = LocalChatMessageRepository(db.chatMessageQueries, Dispatchers.Default)
         localRepo = local
 
-        // Sync service is started lazily by the Swift presentation layer (M5 ViewModel),
+        // Sync service is started lazily by MessagesController (via MessagesObservable.onAppear),
         // mirroring how MessagesViewModel governs the polling lifecycle on Android.
-        _syncService = MessageSyncService(
+        val syncSvc = MessageSyncService(
             yaloRepo = repo,
             localRepo = local,
             onSyncError = { e -> println("[YaloChatSdk] sync error: $e") },
         )
+        _syncService = syncSvc
+
+        messagesController = MessagesController(
+            yaloRepo = repo,
+            localRepo = local,
+            syncService = syncSvc,
+        )
     }
 
     fun stop() {
+        messagesController?.stop()
+        messagesController = null
         _syncService?.stop()
         _syncService = null
         _httpClient?.close()
