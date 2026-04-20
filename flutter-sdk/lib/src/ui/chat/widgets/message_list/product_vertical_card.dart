@@ -76,10 +76,11 @@ class ProductVerticalCard extends StatelessWidget {
                 salePrice: product.salePrice,
                 pricePerSubunit: product.price / product.subunits,
               ),
-              Text(
-                '${context.formatNumber(product.subunits)} $subunitsText',
-                style: chatThemeCubit.state.productSubunitsStyle,
-              ),
+              if (subunitsText != null && subunitsText.isNotEmpty)
+                Text(
+                  '${context.formatNumber(product.subunits)} $subunitsText',
+                  style: chatThemeCubit.state.productSubunitsStyle,
+                ),
               Text(product.name, style: chatThemeCubit.state.productTitleStyle),
               NumericTextField(
                 value: product.unitsAdded,
