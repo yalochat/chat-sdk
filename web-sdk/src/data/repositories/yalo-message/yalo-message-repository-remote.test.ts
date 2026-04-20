@@ -449,6 +449,448 @@ describe('YaloMessageRepositoryRemote', () => {
     });
   });
 
+  describe('addToCart', () => {
+    it('returns auth Err when auth fails', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        failingTokenRepository(),
+        mockMediaService()
+      );
+      const result = await repo.addToCart('SKU-1', 3);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('auth failed');
+    });
+
+    it('posts to /webchat/inbound_messages with addToCartRequest', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.addToCart('SKU-1', 5);
+
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(fetchSpy.mock.calls[0][0]).toBe(
+        'https://api.example.com/webchat/inbound_messages'
+      );
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.addToCartRequest).toMatchObject({
+        sku: 'SKU-1',
+        quantity: 5,
+      });
+    });
+
+    it('sends correct auth and channel headers', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.addToCart('SKU-1', 1);
+
+      const { headers } = fetchSpy.mock.calls[0][1];
+      expect(headers).toMatchObject({
+        authorization: `Bearer ${token}`,
+        'x-channel-id': 'channel-1',
+        'x-user-id': 'user-42',
+      });
+    });
+
+    it('returns Ok on success', async () => {
+      vi.stubGlobal('fetch', mockOkFetch());
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.addToCart('SKU-1', 2);
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('returns Err on non-ok HTTP response', async () => {
+      vi.stubGlobal('fetch', mockErrFetch(422));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.addToCart('SKU-1', 1);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.error.message).toBe('addToCart failed: 422');
+    });
+
+    it('returns Err when fetch throws', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockRejectedValue(new Error('Network error'))
+      );
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.addToCart('SKU-1', 1);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('Network error');
+    });
+  });
+
+  describe('removeFromCart', () => {
+    it('returns auth Err when auth fails', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        failingTokenRepository(),
+        mockMediaService()
+      );
+      const result = await repo.removeFromCart('SKU-1');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('auth failed');
+    });
+
+    it('posts removeFromCartRequest with quantity', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.removeFromCart('SKU-1', 2);
+
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(fetchSpy.mock.calls[0][0]).toBe(
+        'https://api.example.com/webchat/inbound_messages'
+      );
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.removeFromCartRequest).toMatchObject({
+        sku: 'SKU-1',
+        quantity: 2,
+      });
+    });
+
+    it('posts removeFromCartRequest without quantity to remove entire SKU', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.removeFromCart('SKU-1');
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.removeFromCartRequest.sku).toBe('SKU-1');
+      expect(body.removeFromCartRequest.quantity).toBeUndefined();
+    });
+
+    it('sends correct auth and channel headers', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.removeFromCart('SKU-1');
+
+      const { headers } = fetchSpy.mock.calls[0][1];
+      expect(headers).toMatchObject({
+        authorization: `Bearer ${token}`,
+        'x-channel-id': 'channel-1',
+        'x-user-id': 'user-42',
+      });
+    });
+
+    it('returns Ok on success', async () => {
+      vi.stubGlobal('fetch', mockOkFetch());
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.removeFromCart('SKU-1');
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('returns Err on non-ok HTTP response', async () => {
+      vi.stubGlobal('fetch', mockErrFetch(422));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.removeFromCart('SKU-1');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.error.message).toBe('removeFromCart failed: 422');
+    });
+
+    it('returns Err when fetch throws', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockRejectedValue(new Error('Network error'))
+      );
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.removeFromCart('SKU-1');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('Network error');
+    });
+  });
+
+  describe('clearCart', () => {
+    it('returns auth Err when auth fails', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        failingTokenRepository(),
+        mockMediaService()
+      );
+      const result = await repo.clearCart();
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('auth failed');
+    });
+
+    it('posts clearCartRequest to /webchat/inbound_messages', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.clearCart();
+
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(fetchSpy.mock.calls[0][0]).toBe(
+        'https://api.example.com/webchat/inbound_messages'
+      );
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.clearCartRequest).toBeDefined();
+      expect(body.clearCartRequest.timestamp).toBeDefined();
+    });
+
+    it('sends correct auth and channel headers', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.clearCart();
+
+      const { headers } = fetchSpy.mock.calls[0][1];
+      expect(headers).toMatchObject({
+        authorization: `Bearer ${token}`,
+        'x-channel-id': 'channel-1',
+        'x-user-id': 'user-42',
+      });
+    });
+
+    it('returns Ok on success', async () => {
+      vi.stubGlobal('fetch', mockOkFetch());
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.clearCart();
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('returns Err on non-ok HTTP response', async () => {
+      vi.stubGlobal('fetch', mockErrFetch(500));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.clearCart();
+
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.error.message).toBe('clearCart failed: 500');
+    });
+
+    it('returns Err when fetch throws', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockRejectedValue(new Error('Network error'))
+      );
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.clearCart();
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('Network error');
+    });
+  });
+
+  describe('addPromotion', () => {
+    it('returns auth Err when auth fails', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        failingTokenRepository(),
+        mockMediaService()
+      );
+      const result = await repo.addPromotion('PROMO-1');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('auth failed');
+    });
+
+    it('posts addPromotionRequest with promotionId', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.addPromotion('PROMO-1');
+
+      expect(fetchSpy).toHaveBeenCalledOnce();
+      expect(fetchSpy.mock.calls[0][0]).toBe(
+        'https://api.example.com/webchat/inbound_messages'
+      );
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body.addPromotionRequest).toMatchObject({
+        promotionId: 'PROMO-1',
+      });
+    });
+
+    it('sends correct auth and channel headers', async () => {
+      const fetchSpy = mockOkFetch();
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      await repo.addPromotion('PROMO-1');
+
+      const { headers } = fetchSpy.mock.calls[0][1];
+      expect(headers).toMatchObject({
+        authorization: `Bearer ${token}`,
+        'x-channel-id': 'channel-1',
+        'x-user-id': 'user-42',
+      });
+    });
+
+    it('returns Ok on success', async () => {
+      vi.stubGlobal('fetch', mockOkFetch());
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.addPromotion('PROMO-1');
+
+      expect(result.ok).toBe(true);
+    });
+
+    it('returns Err on non-ok HTTP response', async () => {
+      vi.stubGlobal('fetch', mockErrFetch(400));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.addPromotion('PROMO-1');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok)
+        expect(result.error.message).toBe('addPromotion failed: 400');
+    });
+
+    it('returns Err when fetch throws', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockRejectedValue(new Error('Network error'))
+      );
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      const result = await repo.addPromotion('PROMO-1');
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('Network error');
+    });
+  });
+
   describe('subscribeToMessages', () => {
     it('does nothing when auth fails', async () => {
       const fetchSpy = vi.fn();
