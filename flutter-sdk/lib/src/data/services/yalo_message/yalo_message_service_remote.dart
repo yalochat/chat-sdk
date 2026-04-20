@@ -78,10 +78,8 @@ class YaloMessageServiceRemote implements YaloMessageService {
 
     try {
       final baseUrl = '$_baseUrl/inapp/messages';
-      //FIXME: wait for backend fix
-      //final queryParams = {'since': '$since'};
-      //final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
-      final uri = Uri.parse(baseUrl);
+      final queryParams = {'since': '$since'};
+      final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
       final response = await _httpClient.get(
         uri,
         headers: {

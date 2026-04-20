@@ -193,29 +193,25 @@ void main() {
         );
       });
 
-      test(
-        'GETs URL with correct since query param',
-        () async {
-          final token = _makeJwtToken(userId);
-          when(
-            () => mockAuthService.auth(),
-          ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
-          when(
-            () => mockClient.get(any(), headers: any(named: 'headers')),
-          ).thenAnswer((_) async => Response('[]', 200));
+      test('GETs URL with correct since query param', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.get(any(), headers: any(named: 'headers')),
+        ).thenAnswer((_) async => Response('[]', 200));
 
-          await service.fetchMessages(since);
+        await service.fetchMessages(since);
 
-          final captured = verify(
-            () => mockClient.get(captureAny(), headers: any(named: 'headers')),
-          ).captured;
+        final captured = verify(
+          () => mockClient.get(captureAny(), headers: any(named: 'headers')),
+        ).captured;
 
-          final capturedUri = captured[0] as Uri;
-          expect(capturedUri.queryParameters['since'], equals('$since'));
-          expect(capturedUri.path, endsWith('/inapp/messages'));
-        },
-        skip: 'FIXME: Turn on when the since parameter works',
-      );
+        final capturedUri = captured[0] as Uri;
+        expect(capturedUri.queryParameters['since'], equals('$since'));
+        expect(capturedUri.path, endsWith('/inapp/messages'));
+      });
 
       test('sends correct headers', () async {
         final token = _makeJwtToken(userId);
