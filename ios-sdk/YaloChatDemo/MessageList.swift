@@ -24,9 +24,9 @@ struct MessageList: View {
                         ForEach(Array(observable.messages.enumerated()), id: \.offset) { _, message in
                             MessageItem(message: message)
                         }
-                        // Invisible anchor used for scroll-to-bottom
-                        Color.clear.frame(height: 0).id("bottom")
                     }
+                    // Anchor always present so scrollTo("bottom") never targets a missing id.
+                    Color.clear.frame(height: 0).id("bottom")
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)

@@ -44,7 +44,7 @@ class MessagesControllerTest {
         localRepo: FakeChatMessageRepository = FakeChatMessageRepository(),
     ) = MessagesController(
         yaloRepo, localRepo,
-        MessageSyncService(FakeYaloMessageRepository(), localRepo),
+        MessageSyncService(yaloRepo, localRepo),
         dispatcher,
     ).also { tracked.add(it) }
 

@@ -25,10 +25,12 @@ class MessagesObservable: ObservableObject {
         controller?.start { [weak self] messages in
             DispatchQueue.main.async {
                 let sorted = messages.sorted { $0.timestamp < $1.timestamp }
+                #if DEBUG
                 Self.log.debug("messages update: \(sorted.count) total")
                 for msg in sorted {
-                    Self.log.debug("  [\(String(describing: msg.role))] [\(String(describing: msg.type))] id=\(msg.id?.int64Value ?? -1) ts=\(msg.timestamp) content=\(msg.content.prefix(60))")
+                    Self.log.debug("  [\(String(describing: msg.role))] [\(String(describing: msg.type))] id=\(msg.id?.int64Value ?? -1) ts=\(msg.timestamp)")
                 }
+                #endif
                 self?.messages = sorted
                 self?.isLoading = false
             }
