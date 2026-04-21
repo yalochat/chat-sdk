@@ -22,6 +22,7 @@ import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -170,8 +171,11 @@ internal class YaloMessageRepositoryRemote(
             when (val result = apiService.fetchMessages()) {
                 is Result.Ok -> {
                     val raw = result.result
-                    val batch = raw.mapNotNull { it.toChatMessage(deduplicate = true) }
-                        .let { ensureReceiptOrder(it) }
+                    val batch = raw.mapNotNull { item ->
+                        try { item.toChatMessage(deduplicate = true) }
+                        catch (e: CancellationException) { throw e }
+                        catch (e: Exception) { println("[YaloChatSdk] skip message ${item.id}: $e"); null }
+                    }.let { ensureReceiptOrder(it) }
                     // Mirror Flutter: TypingStop fires only when at least one NEW message
                     // was successfully translated. toChatMessage(deduplicate=true) returns
                     // null for already-cached items, so batch contains only new arrivals.

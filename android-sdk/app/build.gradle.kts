@@ -40,6 +40,7 @@ android {
         buildConfigField("String",  "YALO_CHANNEL_ID",        "\"${localProp("yalo.channelId")}\"")
         buildConfigField("String",  "YALO_ORGANIZATION_ID",   "\"${localProp("yalo.organizationId")}\"")
         buildConfigField("Boolean", "USE_FAKE_REPOSITORY",    localProps.getProperty("yalo.useFakeRepository", "false"))
+        buildConfigField("String",  "YALO_ENVIRONMENT",       "\"${localProps.getProperty("yalo.environment", "PRODUCTION")}\"")
     }
 
     compileOptions {

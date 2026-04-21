@@ -11,7 +11,7 @@ struct YaloChatDemoApp: App {
             channelName: Credentials.channelName,
             channelId: Credentials.channelId,
             organizationId: Credentials.organizationId,
-            environment: .staging
+            environment: Credentials.environment
         )
     }
 
