@@ -80,4 +80,56 @@ class MessagesController internal constructor(
             }
         }
     }
+
+    fun sendImageMessage(fileName: String, mimeType: String) {
+        if (fileName.isEmpty()) return
+        val s = scope ?: return
+        val tempId = tempIdSeq++
+        val message = ChatMessage(
+            id = tempId,
+            role = MessageRole.USER,
+            type = MessageType.Image,
+            status = MessageStatus.SENT,
+            fileName = fileName,
+            mediaType = mimeType,
+            timestamp = Clock.System.now().toEpochMilliseconds(),
+        )
+        s.launch {
+            when (localRepo.insertMessage(message)) {
+                is Result.Ok -> s.launch {
+                    if (yaloRepo.sendMessage(message) is Result.Error) {
+                        localRepo.updateMessage(message.copy(status = MessageStatus.ERROR))
+                    }
+                }
+                is Result.Error -> Unit
+            }
+        }
+    }
+
+    fun sendVoiceMessage(fileName: String, amplitudes: List<Double>, durationMs: Long) {
+        if (fileName.isEmpty()) return
+        val s = scope ?: return
+        val tempId = tempIdSeq++
+        val message = ChatMessage(
+            id = tempId,
+            role = MessageRole.USER,
+            type = MessageType.Voice,
+            status = MessageStatus.SENT,
+            fileName = fileName,
+            amplitudes = amplitudes,
+            duration = durationMs,
+            mediaType = "audio/mp4",
+            timestamp = Clock.System.now().toEpochMilliseconds(),
+        )
+        s.launch {
+            when (localRepo.insertMessage(message)) {
+                is Result.Ok -> s.launch {
+                    if (yaloRepo.sendMessage(message) is Result.Error) {
+                        localRepo.updateMessage(message.copy(status = MessageStatus.ERROR))
+                    }
+                }
+                is Result.Error -> Unit
+            }
+        }
+    }
 }

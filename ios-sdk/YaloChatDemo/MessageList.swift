@@ -6,6 +6,7 @@ import ChatSdk
 struct MessageList: View {
 
     @ObservedObject var observable: MessagesObservable
+    @ObservedObject var audioObservable: AudioObservable
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -22,7 +23,7 @@ struct MessageList: View {
                         }
                     } else {
                         ForEach(Array(observable.messages.enumerated()), id: \.offset) { _, message in
-                            MessageItem(message: message)
+                            MessageItem(message: message, audioObservable: audioObservable)
                         }
                     }
                     // Anchor always present so scrollTo("bottom") never targets a missing id.

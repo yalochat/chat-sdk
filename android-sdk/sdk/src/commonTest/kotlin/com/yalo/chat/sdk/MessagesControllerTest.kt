@@ -213,4 +213,127 @@ class MessagesControllerTest {
         val ids = result.result.mapNotNull { it.id }
         assertEquals(2, ids.distinct().size)
     }
+
+    // ── sendImageMessage ──────────────────────────────────────────────────────
+
+    @Test
+    fun `sendImageMessage with empty fileName does not insert a message`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.sendImageMessage("", "image/jpeg")
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertTrue(result.result.isEmpty())
+    }
+
+    @Test
+    fun `sendImageMessage before start is a no-op`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        controller(localRepo = localRepo).sendImageMessage("/tmp/photo.jpg", "image/jpeg")
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertTrue(result.result.isEmpty())
+    }
+
+    @Test
+    fun `sendImageMessage inserts optimistic message with USER role and SENT status`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.sendImageMessage("/tmp/photo.jpg", "image/jpeg")
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val message = result.result.single()
+        assertEquals(MessageRole.USER, message.role)
+        assertEquals(MessageStatus.SENT, message.status)
+        assertEquals(MessageType.Image, message.type)
+        assertEquals("/tmp/photo.jpg", message.fileName)
+        assertEquals("image/jpeg", message.mediaType)
+    }
+
+    @Test
+    fun `sendImageMessage updates status to ERROR when remote send fails`() = runTest {
+        val failingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(msg: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("network error"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = emptyFlow()
+        }
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = MessagesController(
+            failingYaloRepo, localRepo,
+            MessageSyncService(failingYaloRepo, localRepo),
+            dispatcher,
+        ).also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.sendImageMessage("/tmp/photo.jpg", "image/jpeg")
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.single().status)
+    }
+
+    // ── sendVoiceMessage ──────────────────────────────────────────────────────
+
+    @Test
+    fun `sendVoiceMessage with empty fileName does not insert a message`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.sendVoiceMessage("", emptyList(), 1000L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertTrue(result.result.isEmpty())
+    }
+
+    @Test
+    fun `sendVoiceMessage before start is a no-op`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        controller(localRepo = localRepo).sendVoiceMessage("/tmp/audio.m4a", emptyList(), 1000L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertTrue(result.result.isEmpty())
+    }
+
+    @Test
+    fun `sendVoiceMessage inserts optimistic message with USER role and SENT status`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        val amps = listOf(-20.0, -15.0, -10.0)
+        ctrl.sendVoiceMessage("/tmp/audio.m4a", amps, 2500L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val message = result.result.single()
+        assertEquals(MessageRole.USER, message.role)
+        assertEquals(MessageStatus.SENT, message.status)
+        assertEquals(MessageType.Voice, message.type)
+        assertEquals("/tmp/audio.m4a", message.fileName)
+        assertEquals("audio/mp4", message.mediaType)
+        assertEquals(amps, message.amplitudes)
+        assertEquals(2500L, message.duration)
+    }
+
+    @Test
+    fun `sendVoiceMessage updates status to ERROR when remote send fails`() = runTest {
+        val failingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(msg: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("network error"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = emptyFlow()
+        }
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = MessagesController(
+            failingYaloRepo, localRepo,
+            MessageSyncService(failingYaloRepo, localRepo),
+            dispatcher,
+        ).also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.sendVoiceMessage("/tmp/audio.m4a", emptyList(), 2000L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.single().status)
+    }
 }

@@ -31,5 +31,11 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Select a photo to send in the chat.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a photo to send in the chat.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Record a voice message to send in the chat.</string>
 </dict>
 </plist>

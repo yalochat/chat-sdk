@@ -174,7 +174,7 @@ internal class YaloMessageRepositoryRemote(
                     val batch = raw.mapNotNull { item ->
                         try { item.toChatMessage(deduplicate = true) }
                         catch (e: CancellationException) { throw e }
-                        catch (e: Exception) { println("[YaloChatSdk] skip message ${item.id}: $e"); null }
+                        catch (e: Exception) { null }
                     }.let { ensureReceiptOrder(it) }
                     // Mirror Flutter: TypingStop fires only when at least one NEW message
                     // was successfully translated. toChatMessage(deduplicate=true) returns

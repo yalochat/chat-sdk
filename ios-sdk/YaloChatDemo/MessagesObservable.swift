@@ -45,11 +45,19 @@ class MessagesObservable: ObservableObject {
     }
 
     func sendMessage() {
-        let text = userMessage.trimmingCharacters(in: .whitespaces)
+        let text = userMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         Self.log.debug("sendMessage: \(text.prefix(60))")
         userMessage = ""
         controller?.sendTextMessage(text: text)
+    }
+
+    func sendImageMessage(fileName: String, mimeType: String) {
+        controller?.sendImageMessage(fileName: fileName, mimeType: mimeType)
+    }
+
+    func sendVoiceMessage(fileName: String, amplitudes: [Double], durationMs: Int64) {
+        controller?.sendVoiceMessage(fileName: fileName, amplitudes: amplitudes, durationMs: durationMs)
     }
 }
 
