@@ -336,4 +336,30 @@ class MessagesControllerTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(MessageStatus.ERROR, result.result.single().status)
     }
+
+    @Test
+    fun `sendImageMessage consecutive sends produce unique message ids`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.sendImageMessage("/tmp/a.jpg", "image/jpeg")
+        ctrl.sendImageMessage("/tmp/b.jpg", "image/jpeg")
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val ids = result.result.mapNotNull { it.id }
+        assertEquals(2, ids.distinct().size)
+    }
+
+    @Test
+    fun `sendVoiceMessage consecutive sends produce unique message ids`() = runTest {
+        val localRepo = FakeChatMessageRepository()
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.sendVoiceMessage("/tmp/a.m4a", emptyList(), 1000L)
+        ctrl.sendVoiceMessage("/tmp/b.m4a", emptyList(), 2000L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val ids = result.result.mapNotNull { it.id }
+        assertEquals(2, ids.distinct().size)
+    }
 }

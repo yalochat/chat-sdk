@@ -60,4 +60,3 @@ class MessagesObservable: ObservableObject {
         controller?.sendVoiceMessage(fileName: fileName, amplitudes: amplitudes, durationMs: durationMs)
     }
 }
-

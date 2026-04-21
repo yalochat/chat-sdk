@@ -63,6 +63,7 @@ class AudioObservable: NSObject, ObservableObject {
         } catch {
             Self.log.error("AVAudioRecorder failed: \(error)")
             recordingFileURL = nil
+            try? session.setActive(false)
             return
         }
 
@@ -91,12 +92,9 @@ class AudioObservable: NSObject, ObservableObject {
     }
 
     func cancelRecording() {
-        if let url = recordingFileURL {
-            stopRecordingSession()
-            try? FileManager.default.removeItem(at: url)
-        } else {
-            stopRecordingSession()
-        }
+        let url = recordingFileURL
+        stopRecordingSession()
+        if let url { try? FileManager.default.removeItem(at: url) }
     }
 
     func stopRecording() -> RecordingData? {
@@ -133,6 +131,8 @@ class AudioObservable: NSObject, ObservableObject {
         isRecording = false
         durationText = "0:00"
         recordingAmplitudes = Array(repeating: -30.0, count: 48)
+        // Release the microphone so other apps (phone, Siri) can record.
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     func togglePlayback(messageId: Int64, fileName: String) {
