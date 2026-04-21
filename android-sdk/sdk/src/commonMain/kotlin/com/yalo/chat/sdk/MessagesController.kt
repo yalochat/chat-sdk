@@ -10,7 +10,7 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
-import kotlin.concurrent.AtomicLong
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -18,25 +18,22 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 
-// iOS counterpart to Android's MessagesViewModel.
-// Owns the coroutine scope, sync lifecycle, and optimistic send logic.
-// Uses a callback API so Swift never has to collect a KMP Flow directly.
+// Swift-facing counterpart to Android's MessagesViewModel.
+// Callback API avoids requiring Swift callers to collect a KMP Flow directly.
+// mainDispatcher defaults to Dispatchers.Main; inject a test dispatcher in unit tests.
 class MessagesController internal constructor(
     private val yaloRepo: YaloMessageRepository,
     private val localRepo: ChatMessageRepository,
     private val syncService: MessageSyncService,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) {
     private var scope: CoroutineScope? = null
+    // Counter is only ever read/written from the main thread (same dispatcher as the scope).
+    private var tempIdSeq: Long = Clock.System.now().toEpochMilliseconds()
 
-    // Seeded from current epoch-ms — mirrors Android MessagesViewModel.tempIdSeq.
-    private val tempIdSeq = AtomicLong(Clock.System.now().toEpochMilliseconds())
-
-    // Starts the coroutine scope, polling sync, and local DB observation.
-    // Idempotent — a second call while already active is a no-op.
-    // Mirrors Android's SubscribeToMessages handler.
     fun start(onMessagesUpdate: (List<ChatMessage>) -> Unit) {
         if (scope != null) return
-        val s = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        val s = CoroutineScope(SupervisorJob() + mainDispatcher)
         scope = s
         syncService.start(s)
         s.launch {
@@ -52,8 +49,6 @@ class MessagesController internal constructor(
         scope = null
     }
 
-    // One-shot read of current local DB state.
-    // Mirrors Android's LoadMessages handler (reads LOCAL DB, not remote).
     fun loadMessages(onComplete: ((Boolean) -> Unit)? = null) {
         val s = scope ?: return
         s.launch {
@@ -62,13 +57,10 @@ class MessagesController internal constructor(
         }
     }
 
-    // Optimistic text send — mirrors Android MessagesViewModel.sendTextMessage().
-    // Inserts a local optimistic bubble immediately, then sends to the remote asynchronously.
-    // On remote error, updates the message status to ERROR.
     fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         val s = scope ?: return
-        val tempId = tempIdSeq.getAndIncrement()
+        val tempId = tempIdSeq++
         val optimistic = ChatMessage(
             id = tempId,
             role = MessageRole.USER,

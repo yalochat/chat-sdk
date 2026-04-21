@@ -3,10 +3,6 @@
 import SwiftUI
 import ChatSdk
 
-// Mirrors Flutter Message → UserMessage / AssistantMessage routing.
-// Role dispatch: user = right-aligned bubble, agent = left-aligned bubble.
-// Type dispatch: text renders content; all other types show a graceful fallback
-// (improvement over Flutter's UnimplementedError — see M3 scope decision).
 struct MessageItem: View {
 
     let message: ChatMessage
@@ -30,7 +26,6 @@ struct MessageItem: View {
             .padding(12)
             .background(bubbleColor)
             .cornerRadius(16)
-            .frame(maxWidth: UIScreen.main.bounds.width * 0.75, alignment: isUser ? .trailing : .leading)
     }
 
     @ViewBuilder

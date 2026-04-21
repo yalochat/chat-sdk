@@ -34,8 +34,32 @@
 		};
 /* End PBXCopyFilesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		AA11BB22CC33DD44EE55FF66 /* Bootstrap Credentials */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/YaloChatDemo/Credentials.swift.example",
+			);
+			name = "Bootstrap Credentials";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/YaloChatDemo/Credentials.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "[ -f \"${SRCROOT}/YaloChatDemo/Credentials.swift\" ] || cp \"${SRCROOT}/YaloChatDemo/Credentials.swift.example\" \"${SRCROOT}/YaloChatDemo/Credentials.swift\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXFileReference section */
 		05D563B68F202040D37D6212 /* MessageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageItem.swift; sourceTree = "<group>"; };
+		BB22CC33DD44EE55FF66AA11 /* Credentials.swift.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Credentials.swift.example"; sourceTree = "<group>"; };
 		23407D6589CAA8A5F7913634 /* ChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInput.swift; sourceTree = "<group>"; };
 		34E80F747F4EC2822662317B /* YaloChatDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = YaloChatDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43FDB5E608E371946FE0DFC6 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -93,6 +117,7 @@
 				43FDB5E608E371946FE0DFC6 /* ChatView.swift */,
 				BA6524E179EB88397E204954 /* ContentView.swift */,
 				EAE541740117006132C1A380 /* Credentials.swift */,
+				BB22CC33DD44EE55FF66AA11 /* Credentials.swift.example */,
 				83913A0C24BC4B8FD220EB07 /* Info.plist */,
 				05D563B68F202040D37D6212 /* MessageItem.swift */,
 				CDF775B29AF50036FBF2DD96 /* MessageList.swift */,
@@ -110,6 +135,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F93A0F24576A972127FF74D9 /* Build configuration list for PBXNativeTarget "YaloChatDemo" */;
 			buildPhases = (
+				AA11BB22CC33DD44EE55FF66 /* Bootstrap Credentials */,
 				99083C9C646CE6D473F49E2E /* Sources */,
 				F01839D22CEC480BB22E7A08 /* Frameworks */,
 				065FDEBDB472A792738FDE77 /* Embed Frameworks */,

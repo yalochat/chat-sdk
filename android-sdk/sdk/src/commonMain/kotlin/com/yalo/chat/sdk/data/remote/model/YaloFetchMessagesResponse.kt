@@ -39,7 +39,7 @@ internal data class SdkTextMessageResponseDto(
 
 @Serializable
 internal data class SdkTextMessageContentDto(
-    val text: String,
+    val text: String = "",
     val role: String? = null,
 )
 
@@ -76,7 +76,7 @@ internal data class SdkImageMessageResponseDto(
 
 @Serializable
 internal data class SdkImageMessageContentDto(
-    val mediaUrl: String,
+    val mediaUrl: String = "",
     val mediaType: String = "",
     val text: String? = null,
     val role: String? = null,
@@ -91,7 +91,7 @@ internal data class SdkVideoMessageResponseDto(
 
 @Serializable
 internal data class SdkVideoMessageContentDto(
-    val mediaUrl: String,
+    val mediaUrl: String = "",
     val mediaType: String = "",
     val text: String? = null,
     val role: String? = null,

@@ -50,3 +50,8 @@ flutter-sdk/pubspec.lock
 
 # iOS demo credentials — never commit
 ios-sdk/YaloChatDemo/Credentials.swift
+
+# Xcode user-specific data (workspace state, breakpoints, derived data)
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/

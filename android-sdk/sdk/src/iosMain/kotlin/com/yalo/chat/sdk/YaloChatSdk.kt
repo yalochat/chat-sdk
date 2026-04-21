@@ -94,7 +94,6 @@ object YaloChatSdk {
     fun stop() {
         messagesController?.stop()
         messagesController = null
-        _syncService?.stop()
         _syncService = null
         _httpClient?.close()
         _httpClient = null
