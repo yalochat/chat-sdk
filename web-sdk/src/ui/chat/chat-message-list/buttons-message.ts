@@ -17,7 +17,7 @@ export class ButtonsMessage extends LitElement {
       --yalo-chat-buttons-padding: 0.5rem;
       --yalo-chat-buttons-border-radius: 0.5rem;
       --yalo-chat-buttons-background: transparent;
-      --yalo-chat-buttons-color: #1111111;
+      --yalo-chat-buttons-color: #111111;
       --yalo-chat-buttons-font-size: 0.875rem;
       display: block;
     }

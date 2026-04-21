@@ -471,6 +471,83 @@ describe('ChatMessageList', () => {
       const bubble = user!.shadowRoot!.querySelector('.bubble');
       expect(bubble!.textContent).toContain('user fallback');
     });
+
+    it('renders error icon and retry label when status is ERROR', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 15,
+          role: 'USER',
+          timestamp,
+          content: 'failed message',
+          status: 'ERROR',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message')!;
+      await (user as LitElement).updateComplete;
+      const wrapper = user.shadowRoot!.querySelector('.error-wrapper');
+      expect(wrapper).not.toBeNull();
+
+      const icon = user.shadowRoot!.querySelector('.error-icon');
+      expect(icon).not.toBeNull();
+
+      const label = user.shadowRoot!.querySelector('.error-label');
+      expect(label!.textContent).toContain('Not delivered.');
+
+      const retry = label!.querySelector('.retry');
+      expect(retry).not.toBeNull();
+      expect(retry!.textContent).toContain('Retry');
+    });
+
+    it('dispatches yalo-chat-retry-message when error message is clicked', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 16,
+          role: 'USER',
+          timestamp,
+          content: 'retry me',
+          status: 'ERROR',
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-retry-message', listener);
+
+      const user = list.shadowRoot!.querySelector('user-message')!;
+      await (user as LitElement).updateComplete;
+      const wrapper = user.shadowRoot!.querySelector(
+        '.error-wrapper'
+      ) as HTMLElement;
+      wrapper.click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'retry me',
+        status: 'ERROR',
+      });
+    });
+
+    it('does not render error state when status is not ERROR', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 17,
+          role: 'USER',
+          timestamp,
+          content: 'normal message',
+          status: 'SENT',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message')!;
+      await (user as LitElement).updateComplete;
+      const wrapper = user.shadowRoot!.querySelector('.error-wrapper');
+      expect(wrapper).toBeNull();
+
+      const bubble = user.shadowRoot!.querySelector('.bubble');
+      expect(bubble!.textContent).toContain('normal message');
+    });
   });
 
   describe('product quantity updates', () => {

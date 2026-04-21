@@ -87,6 +87,18 @@ export default class YaloChatWindowController implements ReactiveController {
     } else {
       this.host.logger.error('Unable to fetch messages');
     }
+
+    this.chatMessages = [
+      ChatMessage.text({
+        id: -999,
+        role: 'USER',
+        timestamp: new Date(),
+        content: 'This message failed to send',
+        status: 'ERROR',
+      }),
+      ...this.chatMessages,
+    ];
+
     this.host.requestUpdate();
 
     // Subscribe to incoming message stream
