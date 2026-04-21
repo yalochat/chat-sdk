@@ -7,7 +7,7 @@ on:
     branches:
       - 'main'
     tags:
-      - 'v*.*.*'
+      - 'flutter-sdk/v*.*.*'
     paths:
       - 'flutter-sdk/**'
       - '.github/workflows/flutter-ci-cd.yml'
