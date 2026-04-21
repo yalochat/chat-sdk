@@ -99,7 +99,7 @@ struct MessageItem: View {
     }
 
     private var resolvedAmplitudes: [Double] {
-        let raw = message.amplitudes.compactMap { ($0 as? NSNumber)?.doubleValue }
+        let raw = message.amplitudes.map { $0.doubleValue }
         return raw.isEmpty ? Array(repeating: -30.0, count: 48) : raw
     }
 

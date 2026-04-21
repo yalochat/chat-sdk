@@ -57,6 +57,10 @@ class MessagesObservable: ObservableObject {
     }
 
     func sendVoiceMessage(fileName: String, amplitudes: [Double], durationMs: Int64) {
-        controller?.sendVoiceMessage(fileName: fileName, amplitudes: amplitudes, durationMs: durationMs)
+        controller?.sendVoiceMessage(
+            fileName: fileName,
+            amplitudes: amplitudes.map { KotlinDouble(value: $0) },
+            durationMs: durationMs
+        )
     }
 }
