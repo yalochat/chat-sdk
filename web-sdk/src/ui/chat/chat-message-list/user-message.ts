@@ -54,6 +54,7 @@ export class UserMessage extends LitElement {
     .material-symbols-outlined {
       font-size: 1.25rem;
       font-family: 'Material Symbols Outlined';
+      font-variation-settings: 'FILL' 1;
     }
 
     .error-label {
@@ -135,8 +136,7 @@ export class UserMessage extends LitElement {
           role="button"
           tabindex="0"
           @click=${() => this._controller.retryMessage()}
-          @keydown=${(e: KeyboardEvent) =>
-            this._controller.handleKeydown(e)}
+          @keydown=${(e: KeyboardEvent) => this._controller.handleKeydown(e)}
         >
           <div class="error-row">
             <span class="error-icon" aria-hidden="true">
