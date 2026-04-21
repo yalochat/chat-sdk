@@ -10,6 +10,7 @@ import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yal
 import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
 import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
 import { YaloMediaServiceRemote } from '@data/services/yalo-media/yalo-media-service-remote';
+import { Product } from '@domain/models/product/product';
 
 export default class YaloChatWindowController implements ReactiveController {
   host: YaloChatWindow;
