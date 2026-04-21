@@ -7,7 +7,7 @@ on:
     branches:
       - 'main'
     tags:
-      - 'v*.*.*'
+      - 'web-sdk/v*.*.*'
     paths:
       - 'web-sdk/**'
       - '.github/workflows/webchat-ci-cd.yml'
