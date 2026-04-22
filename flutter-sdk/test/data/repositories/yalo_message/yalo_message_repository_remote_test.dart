@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
+import 'package:chat_flutter_sdk/domain/models/command/chat_command.dart';
 import 'package:chat_flutter_sdk/src/common/result.dart';
 import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
 import 'package:chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
@@ -664,26 +665,132 @@ void main() {
       });
     });
 
-    group('executeActions', () {
-      test('calls all registered actions', () async {
-        bool firstCalled = false;
-        bool secondCalled = false;
+    group('addToCart', () {
+      test('calls registered command callback instead of service', () async {
+        dynamic receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.addToCart: (payload) => receivedPayload = payload,
+        });
 
-        when(() => mockClient.actions).thenReturn([
-          Action(name: 'first', action: () => firstCalled = true),
-          Action(name: 'second', action: () => secondCalled = true),
-        ]);
+        final Result<Unit> result = await repo.addToCart('sku-1', 3);
 
-        await repo.executeActions();
-
-        expect(firstCalled, isTrue);
-        expect(secondCalled, isTrue);
+        expect(result, isA<Ok<Unit>>());
+        expect(receivedPayload, equals({'sku': 'sku-1', 'quantity': 3.0}));
+        verifyNever(() => mockMessageService.addToCart(any(), any()));
       });
 
-      test('does nothing when no actions are registered', () {
-        when(() => mockClient.actions).thenReturn([]);
+      test('falls back to service when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+        when(
+          () => mockMessageService.addToCart(any(), any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
-        expect(() async => repo.executeActions(), returnsNormally);
+        final Result<Unit> result = await repo.addToCart('sku-1', 3);
+
+        expect(result, isA<Ok<Unit>>());
+        verify(() => mockMessageService.addToCart('sku-1', 3)).called(1);
+      });
+    });
+
+    group('removeFromCart', () {
+      test('calls registered command callback with quantity', () async {
+        dynamic receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.removeFromCart: (payload) => receivedPayload = payload,
+        });
+
+        final Result<Unit> result =
+            await repo.removeFromCart('sku-2', quantity: 1);
+
+        expect(result, isA<Ok<Unit>>());
+        expect(receivedPayload, equals({'sku': 'sku-2', 'quantity': 1.0}));
+      });
+
+      test('calls registered command callback without quantity', () async {
+        dynamic receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.removeFromCart: (payload) => receivedPayload = payload,
+        });
+
+        final Result<Unit> result = await repo.removeFromCart('sku-2');
+
+        expect(result, isA<Ok<Unit>>());
+        expect(receivedPayload, equals({'sku': 'sku-2', 'quantity': null}));
+      });
+
+      test('falls back to service when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+        when(
+          () => mockMessageService.removeFromCart(
+            any(),
+            quantity: any(named: 'quantity'),
+          ),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        final Result<Unit> result =
+            await repo.removeFromCart('sku-2', quantity: 2);
+
+        expect(result, isA<Ok<Unit>>());
+        verify(
+          () => mockMessageService.removeFromCart('sku-2', quantity: 2),
+        ).called(1);
+      });
+    });
+
+    group('clearCart', () {
+      test('calls registered command callback', () async {
+        dynamic receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.clearCart: (payload) => receivedPayload = payload,
+        });
+
+        final Result<Unit> result = await repo.clearCart();
+
+        expect(result, isA<Ok<Unit>>());
+        expect(receivedPayload, isNull);
+      });
+
+      test('falls back to service when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+        when(
+          () => mockMessageService.clearCart(),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        final Result<Unit> result = await repo.clearCart();
+
+        expect(result, isA<Ok<Unit>>());
+        verify(() => mockMessageService.clearCart()).called(1);
+      });
+    });
+
+    group('addPromotion', () {
+      test('calls registered command callback', () async {
+        dynamic receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.addPromotion: (payload) => receivedPayload = payload,
+        });
+
+        final Result<Unit> result = await repo.addPromotion('promo-abc');
+
+        expect(result, isA<Ok<Unit>>());
+        expect(
+          receivedPayload,
+          equals({'promotionId': 'promo-abc'}),
+        );
+      });
+
+      test('falls back to service when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+        when(
+          () => mockMessageService.addPromotion(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        final Result<Unit> result = await repo.addPromotion('promo-abc');
+
+        expect(result, isA<Ok<Unit>>());
+        verify(
+          () => mockMessageService.addPromotion('promo-abc'),
+        ).called(1);
       });
     });
   });

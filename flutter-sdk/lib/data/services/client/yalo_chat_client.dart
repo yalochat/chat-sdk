@@ -1,19 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:chat_flutter_sdk/domain/models/command/chat_command.dart';
 import 'package:logging/logging.dart';
-
-class Action {
-  final String name;
-  final void Function() action;
-
-  Action({required this.name, required this.action});
-}
 
 class YaloChatClient {
   final String name;
   final String channelId;
   final String organizationId;
-  final List<Action> actions;
+  final Map<ChatCommand, ChatCommandCallback> _commands = {};
   final Logger log = Logger('YaloChatClient');
 
   final String? userId;
@@ -23,8 +17,14 @@ class YaloChatClient {
     required this.channelId,
     required this.organizationId,
     this.userId,
-  }) : actions = [];
+  });
 
-  void registerAction(String actionName, void Function() action) =>
-      actions.add(Action(name: actionName, action: action));
+  Map<ChatCommand, ChatCommandCallback> get commands =>
+      Map.unmodifiable(_commands);
+
+  void registerCommand(
+    ChatCommand command,
+    ChatCommandCallback callback,
+  ) =>
+      _commands[command] = callback;
 }

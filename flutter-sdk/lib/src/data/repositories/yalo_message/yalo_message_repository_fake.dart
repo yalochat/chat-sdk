@@ -128,7 +128,19 @@ final class YaloMessageRepositoryFake implements YaloMessageRepository {
       _typingEventsStreamController.stream.asBroadcastStream();
 
   @override
-  Future<void> executeActions() async {}
+  Future<Result<Unit>> addToCart(String sku, double quantity) async =>
+      Result.ok(Unit());
+
+  @override
+  Future<Result<Unit>> removeFromCart(String sku, {double? quantity}) async =>
+      Result.ok(Unit());
+
+  @override
+  Future<Result<Unit>> clearCart() async => Result.ok(Unit());
+
+  @override
+  Future<Result<Unit>> addPromotion(String promotionId) async =>
+      Result.ok(Unit());
 
   @override
   void dispose() {

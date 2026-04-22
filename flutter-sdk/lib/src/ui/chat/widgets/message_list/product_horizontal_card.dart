@@ -50,7 +50,6 @@ class ProductHorizontalCard extends StatelessWidget {
         product.subunits > 1 && product.subunitName != null
         ? context.formatUnit(product.subunits, product.subunitName!)
         : null;
-
     final orientation = MediaQuery.orientationOf(context);
     final imageAspectRatio = orientation == Orientation.portrait
         ? 3.0 / 4.0
