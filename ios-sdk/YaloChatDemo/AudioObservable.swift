@@ -193,6 +193,13 @@ class AudioObservable: NSObject, ObservableObject {
             return samples[start..<end].max() ?? -60.0
         }
     }
+
+    deinit {
+        recordingTimer?.invalidate()
+        audioRecorder?.stop()
+        audioPlayer?.stop()
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
 }
 
 extension AudioObservable: AVAudioPlayerDelegate {
@@ -205,11 +212,3 @@ extension AudioObservable: AVAudioPlayerDelegate {
     }
 }
 
-extension AudioObservable {
-    deinit {
-        recordingTimer?.invalidate()
-        audioRecorder?.stop()
-        audioPlayer?.stop()
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-    }
-}
