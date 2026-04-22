@@ -107,6 +107,13 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
   /* Background color of message bubbles sent by the user.
      Assistant message bubbles are transparent by default. */
   --yalo-chat-user-message-background: #f9fafc;
+
+  /* Color of the error icon shown on messages that failed to send. */
+  --yalo-chat-user-message-error-color: #a01600;
+
+  /* Text color of the "Not delivered" label
+     shown below messages that failed to send. */
+  --yalo-chat-user-message-error-text-color: #461a1a;
 }
 ```
 
@@ -151,6 +158,177 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 :root {
   /* Color of the file-type icon shown inside attachment message bubbles. */
   --yalo-chat-attachment-icon-color: #7c8086;
+}
+```
+
+### Assistant links
+
+```css
+:root {
+  /* Color of links and link buttons inside assistant messages. */
+  --yalo-chat-link-button-color: #2207f1;
+}
+```
+
+### Button messages
+
+```css
+:root {
+  /* Color of the footer text below button messages. */
+  --yalo-chat-buttons-footer-color: #7c8086;
+
+  /* Gap between buttons. */
+  --yalo-chat-buttons-gap: 0.5rem;
+
+  /* Padding for the button container and each button. */
+  --yalo-chat-buttons-padding: 0.5rem;
+
+  /* Border radius for each button. */
+  --yalo-chat-buttons-border-radius: 0.5rem;
+
+  /* Background color for each button. */
+  --yalo-chat-buttons-background: transparent;
+
+  /* Text color for each button. */
+  --yalo-chat-buttons-color: #111111;
+
+  /* Font size for button text. */
+  --yalo-chat-buttons-font-size: 0.875rem;
+}
+```
+
+### CTA messages
+
+```css
+:root {
+  /* Color of footer text below CTA messages. */
+  --yalo-chat-cta-footer-color: #7c8086;
+
+  /* Border radius for CTA buttons. */
+  --yalo-chat-cta-border-radius: 0.5rem;
+
+  /* Gap between CTA elements. */
+  --yalo-chat-cta-gap: 0.5rem;
+
+  /* Text color for CTA buttons. */
+  --yalo-chat-cta-color: #111111;
+
+  /* Font size for CTA button text. */
+  --yalo-chat-cta-font-size: 0.875rem;
+
+  /* Padding for the CTA message container. */
+  --yalo-chat-cta-padding: 0.5rem;
+
+  /* Padding inside each CTA button. */
+  --yalo-chat-cta-button-padding: 0.5rem;
+
+  /* Border color for CTA button dividers. */
+  --yalo-chat-cta-buttons-border-color: #9db1c8;
+}
+```
+
+### Product messages
+
+```css
+:root {
+  /* Background color for product cards. */
+  --yalo-chat-product-message-card-background: #ffffff;
+
+  /* Border color for product cards. */
+  --yalo-chat-product-message-card-border-color: #dde4ec;
+
+  /* Border radius for product cards. */
+  --yalo-chat-product-message-card-radius: 1rem;
+
+  /* Padding inside product cards. */
+  --yalo-chat-product-message-card-padding: 1rem;
+
+  /* Gap between product cards. */
+  --yalo-chat-product-message-gap: 1rem;
+
+  /* Color of the "Show more/less" toggle button. */
+  --yalo-chat-product-message-expand-color: #2207f1;
+}
+```
+
+### Product cards
+
+```css
+:root {
+  /* Color of the product title text. */
+  --yalo-chat-product-title-color: #111111;
+
+  /* Font size for the product title. */
+  --yalo-chat-product-title-size: 1rem;
+
+  /* Color of the subunits label text. */
+  --yalo-chat-product-subunits-color: #7c8086;
+
+  /* Font size for the subunits label. */
+  --yalo-chat-product-subunits-size: 0.875rem;
+
+  /* Border radius for the product image. */
+  --yalo-chat-product-image-radius: 0.125em;
+
+  /* Gap between the product image and product details. */
+  --yalo-chat-product-gap: 0.5rem;
+}
+```
+
+### Product pricing
+
+```css
+:root {
+  /* Background color of the price pill. */
+  --yalo-chat-product-price-background: #eef2f7;
+
+  /* Text color for the product price. */
+  --yalo-chat-product-price-color: #111111;
+
+  /* Color of the struck-through original price. */
+  --yalo-chat-product-price-strike-color: #7c8086;
+
+  /* Color of the per-subunit price text. */
+  --yalo-chat-product-price-per-subunit-color: #7c8086;
+
+  /* Padding inside the price pill. */
+  --yalo-chat-product-price-padding: 0.3125em;
+
+  /* Border radius of the price pill. */
+  --yalo-chat-product-price-radius: 2.0625em;
+
+  /* Gap between price elements. */
+  --yalo-chat-product-price-gap: 0.5em;
+
+  /* Font size for price text. */
+  --yalo-chat-product-price-font-size: 0.875rem;
+}
+```
+
+### Numeric input
+
+```css
+:root {
+  /* Color of the increment/decrement button icons. */
+  --yalo-chat-numeric-icon-color: #334155;
+
+  /* Text color for the numeric input value. */
+  --yalo-chat-numeric-text-color: #111111;
+
+  /* Border color for the numeric input field. */
+  --yalo-chat-numeric-border-color: #dde4ec;
+
+  /* Border radius for the numeric input field. */
+  --yalo-chat-numeric-radius: 0.5rem;
+
+  /* Padding inside the numeric input field. */
+  --yalo-chat-numeric-padding: 0.25rem;
+
+  /* Gap between the input and its buttons. */
+  --yalo-chat-numeric-gap: 0.5rem;
+
+  /* Font size for the numeric input text. */
+  --yalo-chat-numeric-font-size: 0.875rem;
 }
 ```
 
