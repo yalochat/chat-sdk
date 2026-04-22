@@ -20,7 +20,7 @@ struct ChatInput: View {
     var body: some View {
         VStack(spacing: 0) {
             if let image = imageObservable.pickedRawImage {
-                ImagePreview(image: image, onCancel: imageObservable.clearImage) {
+                ImagePreview(image: image, onCancel: imageObservable.discardImage) {
                     sendImage()
                 }
                 Divider()

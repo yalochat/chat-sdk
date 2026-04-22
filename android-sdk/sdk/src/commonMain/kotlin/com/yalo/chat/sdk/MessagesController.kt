@@ -91,7 +91,7 @@ class MessagesController internal constructor(
             type = MessageType.Image,
             status = MessageStatus.SENT,
             fileName = fileName,
-            mediaType = mimeType,
+            mediaType = mimeType.ifBlank { "image/jpeg" },
             timestamp = Clock.System.now().toEpochMilliseconds(),
         )
         s.launch {

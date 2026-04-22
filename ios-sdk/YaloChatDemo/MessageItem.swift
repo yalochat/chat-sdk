@@ -71,19 +71,19 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var voiceContent: some View {
-        let messageId = message.id?.int64Value ?? 0
-        let isPlaying = audioObservable.playingMessageId == messageId
+        let messageId = message.id?.int64Value
+        let isPlaying = messageId.map { audioObservable.playingMessageId == $0 } ?? false
 
         HStack(spacing: 8) {
             Button {
-                guard let path = message.fileName else { return }
-                audioObservable.togglePlayback(messageId: messageId, fileName: path)
+                guard let mid = messageId, let path = message.fileName else { return }
+                audioObservable.togglePlayback(messageId: mid, fileName: path)
             } label: {
                 Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                     .font(.title2)
                     .foregroundColor(isUser ? .white : .accentColor)
             }
-            .disabled(message.fileName == nil)
+            .disabled(message.fileName == nil || messageId == nil)
 
             WaveformView(
                 amplitudes: resolvedAmplitudes,

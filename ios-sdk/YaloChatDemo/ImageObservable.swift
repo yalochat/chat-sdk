@@ -15,6 +15,10 @@ class ImageObservable: ObservableObject {
     @Published var showCamera: Bool = false
 
     func setPickedImage(_ image: UIImage) {
+        // Delete any previously staged temp file before overwriting.
+        if let existing = pickedImagePath {
+            try? FileManager.default.removeItem(atPath: existing)
+        }
         guard let data = image.jpegData(compressionQuality: 0.85) else { return }
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString + ".jpg")
@@ -28,7 +32,17 @@ class ImageObservable: ObservableObject {
         }
     }
 
+    // Called after send — KMP already has the path, do NOT delete the file.
     func clearImage() {
+        pickedRawImage = nil
+        pickedImagePath = nil
+    }
+
+    // Called on cancel — deletes the staged temp file from disk.
+    func discardImage() {
+        if let path = pickedImagePath {
+            try? FileManager.default.removeItem(atPath: path)
+        }
         pickedRawImage = nil
         pickedImagePath = nil
     }

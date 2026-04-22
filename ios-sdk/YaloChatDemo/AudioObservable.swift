@@ -83,7 +83,12 @@ class AudioObservable: NSObject, ObservableObject {
         recorder.updateMeters()
         let dBFS = Double(recorder.averagePower(forChannel: 0))
         rawAmplitudes.append(dBFS)
-        recordingAmplitudes = compressWaveform(rawAmplitudes, to: 48)
+        // Mirrors Flutter AudioBloc sliding window: fixed 48-element display array,
+        // shift left by 1 and append the new sample on every tick.
+        var next = recordingAmplitudes
+        next.removeFirst()
+        next.append(dBFS)
+        recordingAmplitudes = next
 
         if let start = recordingStartTime {
             let elapsed = Int(Date().timeIntervalSince(start))
@@ -140,6 +145,7 @@ class AudioObservable: NSObject, ObservableObject {
             audioPlayer?.stop()
             audioPlayer = nil
             playingMessageId = nil
+            deactivatePlaybackSession()
             return
         }
         audioPlayer?.stop()
@@ -149,10 +155,24 @@ class AudioObservable: NSObject, ObservableObject {
               let player = try? AVAudioPlayer(contentsOf: URL(fileURLWithPath: fileName)) else {
             return
         }
+
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .default)
+            try session.setActive(true)
+        } catch {
+            Self.log.error("Playback session error: \(error)")
+            return
+        }
+
         player.delegate = self
         player.play()
         audioPlayer = player
         playingMessageId = messageId
+    }
+
+    private func deactivatePlaybackSession() {
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     // Mirrors Flutter AudioProcessingUseCase.compressWaveformForPreview:
@@ -180,6 +200,16 @@ extension AudioObservable: AVAudioPlayerDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.playingMessageId = nil
             self?.audioPlayer = nil
+            self?.deactivatePlaybackSession()
         }
+    }
+}
+
+extension AudioObservable {
+    deinit {
+        recordingTimer?.invalidate()
+        audioRecorder?.stop()
+        audioPlayer?.stop()
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 }
