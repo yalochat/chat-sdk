@@ -1,6 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import type {
+  ChatCommand,
+  ChatCommandCallback,
+} from '@domain/models/command/chat-command';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -85,6 +89,9 @@ export class YaloChatWindow extends LitElement {
 
   @provide({ context: yaloMediaServiceContext })
   yaloMediaService!: YaloMediaService;
+
+  @property({ attribute: false })
+  commands = new Map<ChatCommand, ChatCommandCallback>();
 
   private _chatWindowController = new YaloChatWindowController(this);
 

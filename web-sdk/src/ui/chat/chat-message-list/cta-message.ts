@@ -16,7 +16,7 @@ export class CTAMessage extends LitElement {
       --yalo-chat-cta-footer-color: #7c8086;
       --yalo-chat-cta-border-radius: 0.5rem;
       --yalo-chat-cta-gap: 0.5rem;
-      --yalo-chat-cta-color: #1111111;
+      --yalo-chat-cta-color: #111111;
       --yalo-chat-cta-font-size: 0.875rem;
       --yalo-chat-cta-padding: 0.5rem;
       --yalo-chat-cta-button-padding: 0.5rem;

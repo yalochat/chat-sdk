@@ -471,6 +471,83 @@ describe('ChatMessageList', () => {
       const bubble = user!.shadowRoot!.querySelector('.bubble');
       expect(bubble!.textContent).toContain('user fallback');
     });
+
+    it('renders error icon and retry label when status is ERROR', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 15,
+          role: 'USER',
+          timestamp,
+          content: 'failed message',
+          status: 'ERROR',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message')!;
+      await (user as LitElement).updateComplete;
+      const wrapper = user.shadowRoot!.querySelector('.error-wrapper');
+      expect(wrapper).not.toBeNull();
+
+      const icon = user.shadowRoot!.querySelector('.error-icon');
+      expect(icon).not.toBeNull();
+
+      const label = user.shadowRoot!.querySelector('.error-label');
+      expect(label!.textContent).toContain('Not delivered.');
+
+      const retry = label!.querySelector('.retry');
+      expect(retry).not.toBeNull();
+      expect(retry!.textContent).toContain('Retry');
+    });
+
+    it('dispatches yalo-chat-retry-message when error message is clicked', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 16,
+          role: 'USER',
+          timestamp,
+          content: 'retry me',
+          status: 'ERROR',
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-retry-message', listener);
+
+      const user = list.shadowRoot!.querySelector('user-message')!;
+      await (user as LitElement).updateComplete;
+      const wrapper = user.shadowRoot!.querySelector(
+        '.error-wrapper'
+      ) as HTMLElement;
+      wrapper.click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'retry me',
+        status: 'ERROR',
+      });
+    });
+
+    it('does not render error state when status is not ERROR', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 17,
+          role: 'USER',
+          timestamp,
+          content: 'normal message',
+          status: 'SENT',
+        }),
+      ]);
+
+      const user = list.shadowRoot!.querySelector('user-message')!;
+      await (user as LitElement).updateComplete;
+      const wrapper = user.shadowRoot!.querySelector('.error-wrapper');
+      expect(wrapper).toBeNull();
+
+      const bubble = user.shadowRoot!.querySelector('.bubble');
+      expect(bubble!.textContent).toContain('normal message');
+    });
   });
 
   describe('product quantity updates', () => {
@@ -608,6 +685,178 @@ describe('ChatMessageList', () => {
       await list.updateComplete;
 
       expect(messageList.scrollTop).toBe(0);
+    });
+  });
+
+  describe('product quantity commands', () => {
+    it('clicking + emits a positive delta mapped to addToCart', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 60,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'beer-sku', unitsAdded: 2 })],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-quantity-change', listener);
+
+      const card = await getProductCard(list);
+      const input =
+        card.shadowRoot!.querySelector<LitElement>('numeric-input')!;
+      await input.updateComplete;
+      const buttons =
+        input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+
+      buttons[1].click(); // +
+
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        sku: 'beer-sku',
+        unitType: 'unit',
+        value: 3,
+      });
+      // delta = 3 - 2 = 1 > 0 → addToCart
+      expect(detail.value).toBeGreaterThan(2);
+    });
+
+    it('clicking - emits a negative delta mapped to removeFromCart', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 61,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'beer-sku', unitsAdded: 3 })],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-quantity-change', listener);
+
+      const card = await getProductCard(list);
+      const input =
+        card.shadowRoot!.querySelector<LitElement>('numeric-input')!;
+      await input.updateComplete;
+      const buttons =
+        input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+
+      buttons[0].click(); // -
+
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        sku: 'beer-sku',
+        unitType: 'unit',
+        value: 2,
+      });
+      // delta = 2 - 3 = -1 < 0 → removeFromCart
+      expect(detail.value).toBeLessThan(3);
+    });
+
+    it('clicking - at zero does not emit, resulting in no command', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 62,
+          role: 'AGENT',
+          timestamp,
+          products: [buildProduct({ sku: 'beer-sku', unitsAdded: 0 })],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-quantity-change', listener);
+
+      const card = await getProductCard(list);
+      const input =
+        card.shadowRoot!.querySelector<LitElement>('numeric-input')!;
+      await input.updateComplete;
+      const buttons =
+        input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+
+      buttons[0].click(); // -
+
+      // No event emitted → delta = 0 → no command triggered
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('clicking + on subunits emits a positive delta mapped to addToCart', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 63,
+          role: 'AGENT',
+          timestamp,
+          products: [
+            buildProduct({
+              sku: 'beer-sku',
+              unitsAdded: 1,
+              subunits: 6,
+              subunitsAdded: 2,
+              subunitName: '{amount, plural, one {bottle} other {bottles}}',
+            }),
+          ],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-quantity-change', listener);
+
+      const card = await getProductCard(list);
+      const inputs =
+        card.shadowRoot!.querySelectorAll<LitElement>('numeric-input');
+      await inputs[1].updateComplete;
+      const subunitButtons =
+        inputs[1].shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+
+      subunitButtons[1].click(); // + on subunits
+
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        sku: 'beer-sku',
+        unitType: 'subunit',
+        value: 3,
+      });
+      // delta = 3 - 2 = 1 > 0 → addToCart
+      expect(detail.value).toBeGreaterThan(2);
+    });
+
+    it('clicking - on subunits emits a negative delta mapped to removeFromCart', async () => {
+      const list = await renderList([
+        ChatMessage.product({
+          id: 64,
+          role: 'AGENT',
+          timestamp,
+          products: [
+            buildProduct({
+              sku: 'beer-sku',
+              unitsAdded: 1,
+              subunits: 6,
+              subunitsAdded: 3,
+              subunitName: '{amount, plural, one {bottle} other {bottles}}',
+            }),
+          ],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-quantity-change', listener);
+
+      const card = await getProductCard(list);
+      const inputs =
+        card.shadowRoot!.querySelectorAll<LitElement>('numeric-input');
+      await inputs[1].updateComplete;
+      const subunitButtons =
+        inputs[1].shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
+
+      subunitButtons[0].click(); // - on subunits
+
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        sku: 'beer-sku',
+        unitType: 'subunit',
+        value: 2,
+      });
+      // delta = 2 - 3 = -1 < 0 → removeFromCart
+      expect(detail.value).toBeLessThan(3);
     });
   });
 
