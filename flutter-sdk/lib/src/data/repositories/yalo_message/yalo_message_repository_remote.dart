@@ -340,9 +340,46 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   @override
-  Future<void> executeActions() async {
-    for (final action in yaloChatClient.actions) {
-      action.action();
+  Future<Result<Unit>> addToCart(String sku, double quantity) async {
+    final ChatCommandCallback? callback =
+        yaloChatClient.commands[ChatCommand.addToCart];
+    if (callback != null) {
+      callback({'sku': sku, 'quantity': quantity});
+      return Result.ok(Unit());
     }
+    return messageService.addToCart(sku, quantity);
+  }
+
+  @override
+  Future<Result<Unit>> removeFromCart(String sku, {double? quantity}) async {
+    final ChatCommandCallback? callback =
+        yaloChatClient.commands[ChatCommand.removeFromCart];
+    if (callback != null) {
+      callback({'sku': sku, 'quantity': quantity});
+      return Result.ok(Unit());
+    }
+    return messageService.removeFromCart(sku, quantity: quantity);
+  }
+
+  @override
+  Future<Result<Unit>> clearCart() async {
+    final ChatCommandCallback? callback =
+        yaloChatClient.commands[ChatCommand.clearCart];
+    if (callback != null) {
+      callback(null);
+      return Result.ok(Unit());
+    }
+    return messageService.clearCart();
+  }
+
+  @override
+  Future<Result<Unit>> addPromotion(String promotionId) async {
+    final ChatCommandCallback? callback =
+        yaloChatClient.commands[ChatCommand.addPromotion];
+    if (callback != null) {
+      callback({'promotionId': promotionId});
+      return Result.ok(Unit());
+    }
+    return messageService.addPromotion(promotionId);
   }
 }

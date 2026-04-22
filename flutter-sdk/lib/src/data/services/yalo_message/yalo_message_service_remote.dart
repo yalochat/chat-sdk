@@ -9,6 +9,7 @@ import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_messag
 import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
 
 class YaloMessageServiceRemote implements YaloMessageService {
   final String _baseUrl;
@@ -105,5 +106,67 @@ class YaloMessageServiceRemote implements YaloMessageService {
     } on Exception catch (e) {
       return Result.error(e);
     }
+  }
+
+  @override
+  Future<Result<Unit>> addToCart(String sku, double quantity) async {
+    final DateTime timestamp = DateTime.now();
+    final SdkMessage request = SdkMessage(
+      correlationId: 'add-to-cart-$sku-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      addToCartRequest: AddToCartRequest(
+        sku: sku,
+        quantity: quantity,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return sendSdkMessage(request);
+  }
+
+  @override
+  Future<Result<Unit>> removeFromCart(String sku, {double? quantity}) async {
+    final DateTime timestamp = DateTime.now();
+    final RemoveFromCartRequest removeRequest = RemoveFromCartRequest(
+      sku: sku,
+      timestamp: Timestamp.fromDateTime(timestamp),
+    );
+    if (quantity != null) {
+      removeRequest.quantity = quantity;
+    }
+    final SdkMessage request = SdkMessage(
+      correlationId:
+          'remove-from-cart-$sku-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      removeFromCartRequest: removeRequest,
+    );
+    return sendSdkMessage(request);
+  }
+
+  @override
+  Future<Result<Unit>> clearCart() async {
+    final DateTime timestamp = DateTime.now();
+    final SdkMessage request = SdkMessage(
+      correlationId: 'clear-cart-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      clearCartRequest: ClearCartRequest(
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return sendSdkMessage(request);
+  }
+
+  @override
+  Future<Result<Unit>> addPromotion(String promotionId) async {
+    final DateTime timestamp = DateTime.now();
+    final SdkMessage request = SdkMessage(
+      correlationId:
+          'add-promotion-$promotionId-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      addPromotionRequest: AddPromotionRequest(
+        promotionId: promotionId,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return sendSdkMessage(request);
   }
 }

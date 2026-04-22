@@ -324,5 +324,294 @@ void main() {
         expect(result, isA<Error>());
       });
     });
+
+    group('addToCart', () {
+      test('propagates auth error', () async {
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.error(Exception('auth failed')));
+
+        final result = await service.addToCart('sku-1', 3);
+
+        expect(result, isA<Error<Unit>>());
+        verifyNever(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        );
+      });
+
+      test('sends SdkMessage with AddToCartRequest', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 200));
+
+        final result = await service.addToCart('sku-1', 3);
+
+        expect(result, isA<Ok<Unit>>());
+
+        final captured = verify(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
+
+        final body = jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        expect(body['correlationId'], startsWith('add-to-cart-sku-1-'));
+        expect(body['addToCartRequest']['sku'], equals('sku-1'));
+        expect(body['addToCartRequest']['quantity'], equals(3));
+      });
+
+      test('returns Error on non-200 response', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 500));
+
+        final result = await service.addToCart('sku-1', 3);
+
+        expect(result, isA<Error<Unit>>());
+      });
+    });
+
+    group('removeFromCart', () {
+      test('propagates auth error', () async {
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.error(Exception('auth failed')));
+
+        final result = await service.removeFromCart('sku-2');
+
+        expect(result, isA<Error<Unit>>());
+      });
+
+      test('sends SdkMessage with RemoveFromCartRequest including quantity',
+          () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 200));
+
+        final result = await service.removeFromCart('sku-2', quantity: 2);
+
+        expect(result, isA<Ok<Unit>>());
+
+        final captured = verify(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
+
+        final body = jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        expect(
+          body['correlationId'],
+          startsWith('remove-from-cart-sku-2-'),
+        );
+        expect(body['removeFromCartRequest']['sku'], equals('sku-2'));
+        expect(body['removeFromCartRequest']['quantity'], equals(2));
+      });
+
+      test('omits quantity when not provided', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 200));
+
+        await service.removeFromCart('sku-2');
+
+        final captured = verify(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
+
+        final body = jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        expect(
+          body['removeFromCartRequest'].containsKey('quantity'),
+          isFalse,
+        );
+      });
+
+      test('returns Error on non-200 response', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 500));
+
+        final result = await service.removeFromCart('sku-2', quantity: 1);
+
+        expect(result, isA<Error<Unit>>());
+      });
+    });
+
+    group('clearCart', () {
+      test('propagates auth error', () async {
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.error(Exception('auth failed')));
+
+        final result = await service.clearCart();
+
+        expect(result, isA<Error<Unit>>());
+      });
+
+      test('sends SdkMessage with ClearCartRequest', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 200));
+
+        final result = await service.clearCart();
+
+        expect(result, isA<Ok<Unit>>());
+
+        final captured = verify(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
+
+        final body = jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        expect(body['correlationId'], startsWith('clear-cart-'));
+        expect(body.containsKey('clearCartRequest'), isTrue);
+      });
+
+      test('returns Error on non-200 response', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 500));
+
+        final result = await service.clearCart();
+
+        expect(result, isA<Error<Unit>>());
+      });
+    });
+
+    group('addPromotion', () {
+      test('propagates auth error', () async {
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.error(Exception('auth failed')));
+
+        final result = await service.addPromotion('promo-abc');
+
+        expect(result, isA<Error<Unit>>());
+      });
+
+      test('sends SdkMessage with AddPromotionRequest', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 200));
+
+        final result = await service.addPromotion('promo-abc');
+
+        expect(result, isA<Ok<Unit>>());
+
+        final captured = verify(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
+
+        final body = jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        expect(
+          body['correlationId'],
+          startsWith('add-promotion-promo-abc-'),
+        );
+        expect(
+          body['addPromotionRequest']['promotionId'],
+          equals('promo-abc'),
+        );
+      });
+
+      test('returns Error on non-200 response', () async {
+        final token = _makeJwtToken(userId);
+        when(
+          () => mockAuthService.auth(),
+        ).thenAnswer((_) async => Result.ok(_makeTokenEntry(token, userId)));
+        when(
+          () => mockClient.post(
+            any(),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response('', 500));
+
+        final result = await service.addPromotion('promo-abc');
+
+        expect(result, isA<Error<Unit>>());
+      });
+    });
   });
 }

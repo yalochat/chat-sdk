@@ -8,11 +8,13 @@ A Flutter package providing a complete chat UI solution for integrating with Yal
 
 ## Features
 
-- 📱 Cross-platform (iOS, Android, Web)
-- 🎨 Customizable themes and styling
-- 💬 Real-time messaging
-- 📸 Photo attachments support
-- 🌐 i18n and l10n
+- Cross-platform (iOS, Android, Web)
+- Customizable themes and styling
+- Real-time messaging
+- Photo and video attachments
+- Voice messages
+- Product messages and carousels
+- Localization (English, Spanish)
 
 ## Installation
 
@@ -37,16 +39,19 @@ dart pub add yalo_chat_flutter_sdk --hosted https://artifacts.yalo.ai/artifactor
 
 ```
 
-### Message Types
+### Message types
 
 The SDK supports various message types:
 - Text messages
 - Image messages
-- Audio messages
-- Product messages
+- Video messages
+- Voice messages
+- Product messages and carousels
+- Button messages
+- CTA (call-to-action) messages
 
 
-## Quick Start
+## Quick start
 
 ### 1. Initialize the SDK
 
@@ -64,7 +69,7 @@ void main() {
 }
 ```
 
-### 2. Add Chat Widget
+### 2. Add the Chat widget
 
 ```dart
 class ChatScreen extends StatelessWidget {
@@ -89,18 +94,10 @@ class ChatScreen extends StatelessWidget {
 | `organizationId` | `String` | Yes | Your Yalo organization ID. |
 | `userId` | `String?` | No | Your own user identifier. When provided, the chat session is linked to your user. |
 
-### App tool execution
-
-If you want your agent to be able to execute tools inside your app,
-like retrieving information already calculated by your app, or execute
-custom code please refer to the [tool execution documentation](./docs/tool-execution.md)
-
 ### Logging
 
 Yalo Flutter SDK uses the [logging](https://pub.dev/packages/logging)
-package so you can enable logging by just defining a root logger like
-the following
-
+package. Enable logging by defining a root logger:
 
 ```dart
 void main() {
@@ -113,29 +110,13 @@ void main() {
 }
 ```
 
-### Theme Customization
+## Commands
 
-All customization of the SDK is made by modifying the [Yalo ChatTheme
-class](./lib/ui/theme).
+Commands let you handle client-to-channel actions locally instead of sending them through the default remote API. See the [Commands documentation](doc/commands.md) for the full list of available commands and usage examples.
 
-If you already have a ThemeData in your project you can create a
-ChatTheme from it using the constructor
+## Theming
 
-```dart
-ChatTheme.fromThemeData(themeData);
-```
-
-You can merge ThemeData with a custom ChatTheme, by passing a base ChatTheme as a second parameter like this:
-```dart
-ChatTheme.fromThemeData(
-  themeData,
-  ChatTheme(
-    chatIconImage: const AssetImage(
-      'assets/images/oris-icon.png',
-    ),
-  )
-);
-```
+The widget can be fully customized with the `ChatTheme` class. See the [Theming API](doc/theming.md) for the complete list of color, text style, and icon properties.
 
 ## Examples
 
@@ -155,5 +136,5 @@ flutter run
 
 ## Support
 
-- 📧 https://support.yalo.com/
+- https://support.yalo.com/
 

@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
+import 'package:chat_flutter_sdk/domain/models/command/chat_command.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -19,27 +20,50 @@ void main() {
       );
     });
 
-    group('registerAction', () {
-      test('adds an action with the correct name and callback', () {
-        bool wasCalled = false;
-        client.registerAction('myAction', () => wasCalled = true);
+    group('registerCommand', () {
+      test('registers a callback for a command', () {
+        dynamic receivedPayload;
+        client.registerCommand(
+          ChatCommand.addToCart,
+          (payload) => receivedPayload = payload,
+        );
 
-        expect(client.actions, hasLength(1));
-        expect(client.actions.first.name, equals('myAction'));
+        expect(client.commands, hasLength(1));
+        expect(client.commands.containsKey(ChatCommand.addToCart), isTrue);
 
-        client.actions.first.action();
-        expect(wasCalled, isTrue);
+        client.commands[ChatCommand.addToCart]!({'sku': '123', 'quantity': 2});
+        expect(receivedPayload, equals({'sku': '123', 'quantity': 2}));
       });
 
-      test('accumulates multiple actions in registration order', () {
-        client.registerAction('first', () {});
-        client.registerAction('second', () {});
-        client.registerAction('third', () {});
+      test('replaces callback when registering the same command', () {
+        client.registerCommand(ChatCommand.addToCart, (_) {});
+        client.registerCommand(ChatCommand.addToCart, (_) {});
 
-        expect(client.actions, hasLength(3));
+        expect(client.commands, hasLength(1));
+      });
+
+      test('registers multiple different commands', () {
+        client.registerCommand(ChatCommand.addToCart, (_) {});
+        client.registerCommand(ChatCommand.removeFromCart, (_) {});
+        client.registerCommand(ChatCommand.clearCart, (_) {});
+
+        expect(client.commands, hasLength(3));
         expect(
-          client.actions.map((a) => a.name),
-          equals(['first', 'second', 'third']),
+          client.commands.keys,
+          containsAll([
+            ChatCommand.addToCart,
+            ChatCommand.removeFromCart,
+            ChatCommand.clearCart,
+          ]),
+        );
+      });
+
+      test('commands getter returns an unmodifiable map', () {
+        client.registerCommand(ChatCommand.addToCart, (_) {});
+
+        expect(
+          () => client.commands[ChatCommand.clearCart] = (_) {},
+          throwsUnsupportedError,
         );
       });
     });
