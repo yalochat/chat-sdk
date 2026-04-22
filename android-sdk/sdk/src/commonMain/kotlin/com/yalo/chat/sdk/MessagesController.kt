@@ -29,7 +29,15 @@ class MessagesController internal constructor(
 ) {
     private var scope: CoroutineScope? = null
     // Counter is only ever read/written from the main thread (same dispatcher as the scope).
-    private var tempIdSeq: Long = Clock.System.now().toEpochMilliseconds()
+    // Refreshed against the wall clock on every send so user-message tempIds always sort
+    // AFTER agent messages whose ids were bumped to receiptFloor by ensureReceiptOrder.
+    private var tempIdSeq: Long = 0L
+
+    private fun nextTempId(): Long {
+        val now = Clock.System.now().toEpochMilliseconds()
+        if (now > tempIdSeq) tempIdSeq = now
+        return tempIdSeq++
+    }
 
     fun start(onMessagesUpdate: (List<ChatMessage>) -> Unit) {
         if (scope != null) return
@@ -60,7 +68,7 @@ class MessagesController internal constructor(
     fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         val s = scope ?: return
-        val tempId = tempIdSeq++
+        val tempId = nextTempId()
         val optimistic = ChatMessage(
             id = tempId,
             role = MessageRole.USER,
@@ -84,7 +92,7 @@ class MessagesController internal constructor(
     fun sendImageMessage(fileName: String, mimeType: String) {
         if (fileName.isEmpty()) return
         val s = scope ?: return
-        val tempId = tempIdSeq++
+        val tempId = nextTempId()
         val message = ChatMessage(
             id = tempId,
             role = MessageRole.USER,
@@ -109,7 +117,7 @@ class MessagesController internal constructor(
     fun sendVoiceMessage(fileName: String, amplitudes: List<Double>, durationMs: Long) {
         if (fileName.isEmpty()) return
         val s = scope ?: return
-        val tempId = tempIdSeq++
+        val tempId = nextTempId()
         val message = ChatMessage(
             id = tempId,
             role = MessageRole.USER,
