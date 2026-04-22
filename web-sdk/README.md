@@ -96,6 +96,7 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 | `client.init()` | Initializes the chat widget and attaches it to the target element |
 | `client.open()` | Opens the chat window |
 | `client.close()` | Closes the chat window |
+| `client.registerCommand(command, callback)` | Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)) |
 
 ## Full example
 
