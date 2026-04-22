@@ -4,6 +4,7 @@ import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
+import type { ChatCommand } from '@domain/models/command/chat-command';
 import type { PageInfo } from '@domain/common/page';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
@@ -266,14 +267,41 @@ export default class YaloChatWindowController implements ReactiveController {
 
     const result =
       await this.host.chatMessageRepository.replaceChatMessage(updatedMessage);
-    if (result.ok) {
-      this.chatMessages = [...this.chatMessages];
-      this.chatMessages[messageIndex] = updatedMessage;
-      this.host.requestUpdate();
-    } else {
+    if (!result.ok) {
       this.host.logger.error('Unable to update product quantity', {
         error: result.error,
       });
+      return;
+    }
+
+    this.chatMessages = [...this.chatMessages];
+    this.chatMessages[messageIndex] = updatedMessage;
+    this.host.requestUpdate();
+
+    const previousValue =
+      unitType === 'unit' ? product.unitsAdded : product.subunitsAdded;
+    const newValue = Math.max(value, 0);
+    const delta = newValue - previousValue;
+
+    if (delta > 0) {
+      const addToCart = this.host.commands.get('addToCart');
+      if (addToCart) {
+        this.host.logger.debug('Executing addToCart command', { sku, quantity: delta });
+        addToCart({ sku, quantity: delta });
+      } else {
+        this.host.logger.debug('Sending addToCart to repository', { sku, quantity: delta });
+        await this.host.yaloMessageRepository.addToCart(sku, delta);
+      }
+    } else if (delta < 0) {
+      const quantity = Math.abs(delta);
+      const removeFromCart = this.host.commands.get('removeFromCart');
+      if (removeFromCart) {
+        this.host.logger.debug('Executing removeFromCart command', { sku, quantity });
+        removeFromCart({ sku, quantity });
+      } else {
+        this.host.logger.debug('Sending removeFromCart to repository', { sku, quantity });
+        await this.host.yaloMessageRepository.removeFromCart(sku, quantity);
+      }
     }
   }
 
@@ -318,6 +346,15 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.requestUpdate();
     }
   };
+
+  executeCommand(command: ChatCommand, payload: unknown): void {
+    const callback = this.host.commands.get(command);
+    if (callback) {
+      callback(payload);
+    } else {
+      this.host.logger.warn(`No handler registered for command: ${command}`);
+    }
+  }
 
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
