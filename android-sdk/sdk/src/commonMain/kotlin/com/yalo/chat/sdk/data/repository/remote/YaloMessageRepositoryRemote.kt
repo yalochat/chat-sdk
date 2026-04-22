@@ -328,6 +328,46 @@ internal class YaloMessageRepositoryRemote(
             }
         }
 
+        // Voice message — download from CDN and save locally.
+        // Mirrors the image/video download pattern; cache is set only after a successful download.
+        // amplitudesPreview (List<Float> from proto) is mapped to List<Double> for ChatMessage.
+        // duration arrives in seconds (proto double) → stored as millis in ChatMessage.
+        message.voiceNoteMessageRequest?.content?.let { voiceContent ->
+            return when (val downloadResult = apiService.downloadMedia(voiceContent.mediaUrl)) {
+                is Result.Error -> null // skip silently — will retry on next poll cycle
+                is Result.Ok -> {
+                    val bytes = downloadResult.result
+                    val mimeType = voiceContent.mediaType.takeIf { it.isNotEmpty() } ?: "audio/mp4"
+                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
+                        when {
+                            it.contains("mp4") -> "m4a"
+                            it.contains("mpeg") || it.contains("mp3") -> "mp3"
+                            else -> it
+                        }
+                    }
+                    val localPath = PlatformFiles.writeToDir(
+                        dirPath = tempDir,
+                        filename = "${Uuid.random()}.$ext",
+                        bytes = bytes,
+                    ) ?: return null
+                    if (deduplicate) cache.set(id, true)
+                    ChatMessage(
+                        id = stableId,
+                        wiId = id,
+                        role = MessageRole.fromString(voiceContent.role ?: "MESSAGE_ROLE_AGENT"),
+                        type = MessageType.Voice,
+                        status = MessageStatus.DELIVERED,
+                        fileName = localPath,
+                        amplitudes = voiceContent.amplitudesPreview.map { it.toDouble() },
+                        duration = (voiceContent.duration * 1000).toLong(),
+                        mediaType = mimeType,
+                        byteCount = bytes.size.toLong(),
+                        timestamp = ts,
+                    )
+                }
+            }
+        }
+
         // Buttons message — body text + a list of reply labels rendered as outlined buttons.
         // Tapping a button sends the label as a text message (same as quick reply chips).
         message.buttonsMessageRequest?.content?.let { buttonsContent ->
