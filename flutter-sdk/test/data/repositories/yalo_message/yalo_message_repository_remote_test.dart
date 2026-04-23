@@ -15,6 +15,7 @@ import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_ser
 import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
 import 'package:flutter_test/flutter_test.dart';
@@ -115,6 +116,64 @@ void main() {
             mediaType: 'video/mp4',
             duration: 15.0,
           ),
+        ),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
+    final assistantProductResponseStub = proto.PollMessageItem(
+      id: 'prod-1',
+      message: proto.SdkMessage(
+        productMessageRequest: proto.ProductMessageRequest(
+          orientation:
+              proto.ProductMessageRequest_Orientation.ORIENTATION_VERTICAL,
+          products: [
+            proto.Product(
+              sku: 'sku-100',
+              name: 'Apples',
+              price: 2.5,
+              imagesUrl: ['https://example.com/apple.jpg'],
+              salePrice: 1.99,
+              subunits: 6,
+              unitStep: 1,
+              unitName: 'box',
+              subunitName: 'unit',
+              subunitStep: 1,
+              unitsAdded: 0,
+              subunitsAdded: 0,
+            ),
+            proto.Product(
+              sku: 'sku-200',
+              name: 'Bananas',
+              price: 1.0,
+              unitStep: 1,
+              unitName: 'bunch',
+            ),
+          ],
+        ),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
+    final assistantCarouselResponseStub = proto.PollMessageItem(
+      id: 'carousel-1',
+      message: proto.SdkMessage(
+        productMessageRequest: proto.ProductMessageRequest(
+          orientation:
+              proto.ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL,
+          products: [
+            proto.Product(
+              sku: 'sku-300',
+              name: 'Oranges',
+              price: 3.0,
+              unitStep: 1,
+              unitName: 'bag',
+            ),
+          ],
         ),
       ),
       date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
@@ -444,6 +503,127 @@ void main() {
         expect(message.ctaButtons, hasLength(1));
         expect(message.ctaButtons.first.text, equals('Go'));
         expect(message.ctaButtons.first.url, equals('https://e.com'));
+      });
+
+      test('emits a product message with vertical orientation', () async {
+        when(
+          () => mockMessageService.fetchMessages(any()),
+        ).thenAnswer((_) async => Result.ok([assistantProductResponseStub]));
+
+        final message = await repo.messages().first;
+        repo.dispose();
+
+        expect(message.wiId, equals('prod-1'));
+        expect(message.type, equals(MessageType.product));
+        expect(message.role, equals(MessageRole.assistant));
+        expect(message.products, hasLength(2));
+        expect(
+          message.products.first,
+          equals(const Product(
+            sku: 'sku-100',
+            name: 'Apples',
+            price: 2.5,
+            imagesUrl: ['https://example.com/apple.jpg'],
+            salePrice: 1.99,
+            subunits: 6,
+            unitStep: 1,
+            unitName: 'box',
+            subunitName: 'unit',
+            subunitStep: 1,
+            unitsAdded: 0,
+            subunitsAdded: 0,
+          )),
+        );
+        expect(message.products.last.sku, equals('sku-200'));
+        expect(message.products.last.name, equals('Bananas'));
+      });
+
+      test('emits a carousel message with horizontal orientation', () async {
+        when(
+          () => mockMessageService.fetchMessages(any()),
+        ).thenAnswer((_) async => Result.ok([assistantCarouselResponseStub]));
+
+        final message = await repo.messages().first;
+        repo.dispose();
+
+        expect(message.wiId, equals('carousel-1'));
+        expect(message.type, equals(MessageType.productCarousel));
+        expect(message.role, equals(MessageRole.assistant));
+        expect(message.products, hasLength(1));
+        expect(
+          message.products.first,
+          equals(const Product(
+            sku: 'sku-300',
+            name: 'Oranges',
+            price: 3.0,
+            subunits: 0,
+            unitStep: 1,
+            unitName: 'bag',
+            subunitStep: 0,
+          )),
+        );
+      });
+
+      test('maps optional product fields as null when not set in proto', () async {
+        final stub = proto.PollMessageItem(
+          id: 'prod-minimal',
+          message: proto.SdkMessage(
+            productMessageRequest: proto.ProductMessageRequest(
+              orientation:
+                  proto.ProductMessageRequest_Orientation.ORIENTATION_VERTICAL,
+              products: [
+                proto.Product(
+                  sku: 'sku-min',
+                  name: 'Minimal',
+                  price: 5.0,
+                  unitName: 'piece',
+                ),
+              ],
+            ),
+          ),
+          date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+          userId: 'user-123',
+          status: 'IN_DELIVERY',
+        );
+        when(
+          () => mockMessageService.fetchMessages(any()),
+        ).thenAnswer((_) async => Result.ok([stub]));
+
+        final message = await repo.messages().first;
+        repo.dispose();
+
+        expect(message.products.first.salePrice, isNull);
+        expect(message.products.first.subunitName, isNull);
+        expect(message.products.first.imagesUrl, isEmpty);
+      });
+
+      test('defaults to product type when orientation is unspecified', () async {
+        final stub = proto.PollMessageItem(
+          id: 'prod-unspecified',
+          message: proto.SdkMessage(
+            productMessageRequest: proto.ProductMessageRequest(
+              products: [
+                proto.Product(
+                  sku: 'sku-u',
+                  name: 'Unspecified',
+                  price: 1.0,
+                  unitName: 'unit',
+                ),
+              ],
+            ),
+          ),
+          date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+          userId: 'user-123',
+          status: 'IN_DELIVERY',
+        );
+        when(
+          () => mockMessageService.fetchMessages(any()),
+        ).thenAnswer((_) async => Result.ok([stub]));
+
+        final message = await repo.messages().first;
+        repo.dispose();
+
+        expect(message.type, equals(MessageType.product));
       });
 
       test(

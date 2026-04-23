@@ -408,6 +408,11 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     );
     final product = messageToUpdate.products[productIndex];
 
+    final double previousValue = switch (event.unitType) {
+      UnitType.unit => product.unitsAdded,
+      UnitType.subunit => product.subunitsAdded,
+    };
+
     List<Product> newProducts = [...messageToUpdate.products];
 
     switch (event.unitType) {
@@ -440,6 +445,22 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           'Message updated successfully, result: ${updateResult.result}',
         );
         emit(state.copyWith(messages: newMessages));
+
+        final double newValue = max(event.quantity, 0);
+        final double delta = newValue - previousValue;
+        if (delta > 0) {
+          log.fine('Adding to cart: sku=${event.productSku}, quantity=$delta');
+          _yaloMessageRepository.addToCart(event.productSku, delta);
+        } else if (delta < 0) {
+          final double quantity = delta.abs();
+          log.fine(
+            'Removing from cart: sku=${event.productSku}, quantity=$quantity',
+          );
+          _yaloMessageRepository.removeFromCart(
+            event.productSku,
+            quantity: quantity,
+          );
+        }
       case Error():
         log.info('Unable to update message', updateResult.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedToUpdateMessage));

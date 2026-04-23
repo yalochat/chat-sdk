@@ -12,6 +12,9 @@ import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dar
 import 'package:chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
+import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pbenum.dart'
+    as proto_enum;
+import 'package:chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
@@ -142,6 +145,29 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
           ctaButtons: content.buttons
               .map((b) => CTAButton(text: b.text, url: b.url))
               .toList(),
+          wiId: item.id,
+        );
+      case proto.SdkMessage_Payload.productMessageRequest:
+        final List<Product> products = item.message.productMessageRequest
+            .products
+            .map(_toDomainProduct)
+            .toList();
+        final bool isCarousel =
+            item.message.productMessageRequest.orientation ==
+                proto_enum.ProductMessageRequest_Orientation
+                    .ORIENTATION_HORIZONTAL;
+        if (isCarousel) {
+          return ChatMessage.carousel(
+            role: MessageRole.assistant,
+            timestamp: item.date.toDateTime(),
+            products: products,
+            wiId: item.id,
+          );
+        }
+        return ChatMessage.product(
+          role: MessageRole.assistant,
+          timestamp: item.date.toDateTime(),
+          products: products,
           wiId: item.id,
         );
       case _:
@@ -370,6 +396,23 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       return Result.ok(Unit());
     }
     return messageService.clearCart();
+  }
+
+  Product _toDomainProduct(proto.Product p) {
+    return Product(
+      sku: p.sku,
+      name: p.name,
+      price: p.price,
+      imagesUrl: p.imagesUrl.toList(),
+      salePrice: p.hasSalePrice() ? p.salePrice : null,
+      subunits: p.subunits,
+      unitStep: p.unitStep,
+      unitName: p.unitName,
+      subunitName: p.hasSubunitName() ? p.subunitName : null,
+      subunitStep: p.subunitStep,
+      unitsAdded: p.unitsAdded,
+      subunitsAdded: p.subunitsAdded,
+    );
   }
 
   @override
