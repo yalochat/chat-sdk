@@ -79,6 +79,14 @@ enum MessageRole {
   MESSAGE_ROLE_AGENT = 2;
 }
 
+// UnitType discriminates whether a cart quantity change refers to
+// primary units (e.g. boxes) or subunits (e.g. individual items).
+enum UnitType {
+  UNIT_TYPE_UNSPECIFIED = 0;
+  UNIT_TYPE_UNIT = 1;
+  UNIT_TYPE_SUBUNIT = 2;
+}
+
 // MessageStatus tracks the delivery lifecycle of a single message.
 enum MessageStatus {
   MESSAGE_STATUS_UNSPECIFIED = 0;
@@ -229,6 +237,8 @@ message AddToCartRequest {
   google.protobuf.Timestamp timestamp = 2;
   // Double because some clients need fractional quantities (e.g. FEMSA).
   double quantity = 3;
+  // Whether the quantity refers to primary units or subunits.
+  UnitType unit_type = 4;
 }
 
 // AddToCartResponse acknowledges an AddToCartRequest.
@@ -243,6 +253,8 @@ message RemoveFromCartRequest {
   google.protobuf.Timestamp timestamp = 2;
   // If omitted the entire SKU line is removed from the cart.
   optional double quantity = 3;
+  // Whether the quantity refers to primary units or subunits.
+  UnitType unit_type = 4;
 }
 
 // RemoveFromCartResponse acknowledges a RemoveFromCartRequest.
