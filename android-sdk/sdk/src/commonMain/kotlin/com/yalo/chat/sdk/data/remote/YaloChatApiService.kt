@@ -269,10 +269,10 @@ internal fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, deb
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
-        // Prevent media downloads from blocking the polling loop indefinitely.
-        // 30s covers slow CDN responses; API calls (auth, send, fetch) are much faster.
+        // Global timeouts: 60s request covers CDN downloads and large image uploads on slow
+        // networks; 10s connect and 30s socket provide safety nets for all request types.
         install(HttpTimeout) {
-            requestTimeoutMillis = 30_000
+            requestTimeoutMillis = 60_000
             connectTimeoutMillis = 10_000
             socketTimeoutMillis = 30_000
         }

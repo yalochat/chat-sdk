@@ -50,7 +50,9 @@ class MessagesObservable: ObservableObject {
     func sendMessage() {
         let text = userMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        #if DEBUG
         Self.log.debug("sendMessage: \(text.prefix(60))")
+        #endif
         userMessage = ""
         controller?.sendTextMessage(text: text)
     }
@@ -58,7 +60,9 @@ class MessagesObservable: ObservableObject {
     func sendTextMessage(text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        #if DEBUG
         Self.log.debug("sendTextMessage: \(trimmed.prefix(60))")
+        #endif
         controller?.sendTextMessage(text: trimmed)
     }
 

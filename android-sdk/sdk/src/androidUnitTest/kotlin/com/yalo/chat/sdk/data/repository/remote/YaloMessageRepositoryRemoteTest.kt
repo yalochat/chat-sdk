@@ -772,14 +772,14 @@ class YaloMessageRepositoryRemoteTest {
     fun `ensureReceiptOrder clamps message IDs to receipt time on first poll`() = runTest {
         // IDs are always clamped to receipt time so bot responses never sort before the
         // user's message (which uses a client-clock tempId at millisecond precision).
-        // The message date is 2024-01-01T12:00:00Z → raw stableId ~1_704_110_400_000,
-        // but receipt time in 2026 is ~1_745_000_000_000 → id must be clamped up.
+        // Capture wall-clock time before the poll; the assigned id must be >= that value.
+        val before = System.currentTimeMillis()
         val repo = buildRepo(listOf(textMessageJson("id-first", "Hello")))
         val batch = repo.pollIncomingMessages().first()
         assertEquals(1, batch.size)
         val id = batch.first().id!!
-        assertTrue(id >= 1_740_000_000_000L,
-            "ID $id was not clamped to receipt time — all polled IDs must be >= receipt timestamp")
+        assertTrue(id >= before,
+            "ID $id was not clamped to receipt time — must be >= wall-clock $before")
     }
 
     @Test
