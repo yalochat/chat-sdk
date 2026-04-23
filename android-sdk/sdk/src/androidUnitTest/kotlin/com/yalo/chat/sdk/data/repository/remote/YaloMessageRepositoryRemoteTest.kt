@@ -769,17 +769,17 @@ class YaloMessageRepositoryRemoteTest {
     // ── ensureReceiptOrder ────────────────────────────────────────────────────────
 
     @Test
-    fun `ensureReceiptOrder does not rewrite message IDs on first poll`() = runTest {
-        // On the very first poll pollHighWater is 0, so historical IDs must be preserved.
-        // The message date is 2024-01-01T12:00:00Z → stableId ~1_704_110_400_000.
-        // Without the fix the ID would be bumped to current time (~1_700_000_000_000+).
+    fun `ensureReceiptOrder clamps message IDs to receipt time on first poll`() = runTest {
+        // IDs are always clamped to receipt time so bot responses never sort before the
+        // user's message (which uses a client-clock tempId at millisecond precision).
+        // The message date is 2024-01-01T12:00:00Z → raw stableId ~1_704_110_400_000,
+        // but receipt time in 2026 is ~1_745_000_000_000 → id must be clamped up.
         val repo = buildRepo(listOf(textMessageJson("id-first", "Hello")))
         val batch = repo.pollIncomingMessages().first()
         assertEquals(1, batch.size)
         val id = batch.first().id!!
-        // stableId for 2024-01-01 is ~1_704_110_400_000; current time is well above 1_750_000_000_000.
-        assertTrue(id < 1_750_000_000_000L,
-            "ID $id was bumped to current time on first poll — historical IDs should be preserved")
+        assertTrue(id >= 1_740_000_000_000L,
+            "ID $id was not clamped to receipt time — all polled IDs must be >= receipt timestamp")
     }
 
     @Test

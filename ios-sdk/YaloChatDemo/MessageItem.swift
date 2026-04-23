@@ -2,12 +2,14 @@
 
 import SwiftUI
 import UIKit
+import AVKit
 import ChatSdk
 
 struct MessageItem: View {
 
     let message: ChatMessage
     @ObservedObject var audioObservable: AudioObservable
+    var onButtonTap: (String) -> Void = { _ in }
 
     private var isUser: Bool { message.role === MessageRole.user }
 
@@ -28,6 +30,9 @@ struct MessageItem: View {
             if message.type is MessageType.Image {
                 imageContent
                     .cornerRadius(16)
+            } else if message.type is MessageType.Video {
+                videoContent
+                    .cornerRadius(16)
             } else {
                 bubbleContent
                     .padding(12)
@@ -44,6 +49,10 @@ struct MessageItem: View {
                 .foregroundColor(isUser ? .white : .primary)
         } else if message.type is MessageType.Voice {
             voiceContent
+        } else if message.type is MessageType.Buttons {
+            buttonsContent
+        } else if message.type is MessageType.CTA {
+            ctaContent
         } else {
             Text("Unsupported message type")
                 .font(.caption)
@@ -62,6 +71,110 @@ struct MessageItem: View {
                 .clipped()
         } else {
             Label("Image unavailable", systemImage: "photo")
+                .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
+                .font(.caption)
+                .padding(12)
+                .background(bubbleColor)
+        }
+    }
+
+    @ViewBuilder
+    private var buttonsContent: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if let header = message.header, !header.isEmpty {
+                Text(header)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+            }
+            if !message.content.isEmpty {
+                Text(message.content)
+                    .foregroundColor(.primary)
+            }
+            if let footer = message.footer, !footer.isEmpty {
+                Text(footer)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            let labels = message.buttons.compactMap { $0 as? String }
+            if !labels.isEmpty {
+                VStack(spacing: 6) {
+                    ForEach(labels, id: \.self) { label in
+                        Button(action: { onButtonTap(label) }) {
+                            Text(label)
+                                .font(.subheadline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.accentColor, lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.accentColor)
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var ctaContent: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if let header = message.header, !header.isEmpty {
+                Text(header)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+            }
+            if !message.content.isEmpty {
+                Text(message.content)
+                    .foregroundColor(.primary)
+            }
+            if let footer = message.footer, !footer.isEmpty {
+                Text(footer)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            let buttons = message.ctaButtons.compactMap { $0 as? CtaButton }
+            if !buttons.isEmpty {
+                VStack(spacing: 6) {
+                    ForEach(buttons, id: \.url) { button in
+                        Button(action: {
+                            if let url = URL(string: button.url) {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            HStack {
+                                Text(button.text)
+                                    .font(.subheadline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                Image(systemName: "arrow.up.right")
+                                    .font(.caption)
+                            }
+                            .padding(.vertical, 8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.accentColor, lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.accentColor)
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var videoContent: some View {
+        if let path = message.fileName {
+            VideoPlayer(player: AVPlayer(url: URL(fileURLWithPath: path)))
+                .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+        } else {
+            Label("Video unavailable", systemImage: "video")
                 .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
                 .font(.caption)
                 .padding(12)

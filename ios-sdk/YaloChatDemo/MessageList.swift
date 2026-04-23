@@ -22,21 +22,31 @@ struct MessageList: View {
                                 .padding(.top, 32)
                         }
                     } else {
-                        ForEach(Array(observable.messages.enumerated()), id: \.offset) { _, message in
-                            MessageItem(message: message, audioObservable: audioObservable)
+                        ForEach(Array(observable.messages.enumerated()), id: \.offset) { index, message in
+                            MessageItem(
+                                message: message,
+                                audioObservable: audioObservable,
+                                onButtonTap: { label in observable.sendTextMessage(text: label) }
+                            )
+                            .id(index)
                         }
                     }
-                    // Anchor always present so scrollTo("bottom") never targets a missing id.
-                    Color.clear.frame(height: 0).id("bottom")
+                    Color.clear.frame(height: 1).id("bottom")
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            .onChange(of: observable.messages.count) { _ in
-                withAnimation { proxy.scrollTo("bottom", anchor: .bottom) }
+            .onChange(of: observable.messages.count) { count in
+                DispatchQueue.main.async {
+                    withAnimation(.linear(duration: 0.15)) {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                }
             }
             .onAppear {
-                proxy.scrollTo("bottom", anchor: .bottom)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    proxy.scrollTo("bottom", anchor: .bottom)
+                }
             }
         }
     }
