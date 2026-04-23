@@ -63,12 +63,8 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var imageContent: some View {
-        if let path = message.fileName, let uiImage = UIImage(contentsOfFile: path) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: 200, maxHeight: 200)
-                .clipped()
+        if let path = message.fileName {
+            LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
             Label("Image unavailable", systemImage: "photo")
                 .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
@@ -224,5 +220,36 @@ struct MessageItem: View {
 
     private var bubbleColor: Color {
         isUser ? .accentColor : Color(.systemGray5)
+    }
+}
+
+// Loads an image from a local file path exactly once, off the main thread.
+// Avoids calling UIImage(contentsOfFile:) in the SwiftUI body on every render.
+private struct LocalFileImage: View {
+    let path: String
+    let fallbackColor: Color
+
+    @State private var uiImage: UIImage? = nil
+
+    var body: some View {
+        Group {
+            if let img = uiImage {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: 200, maxHeight: 200)
+                    .clipped()
+            } else {
+                fallbackColor
+                    .frame(width: 200, height: 150)
+                    .overlay(ProgressView())
+            }
+        }
+        .task(id: path) {
+            guard uiImage == nil else { return }
+            uiImage = await Task.detached(priority: .userInitiated) {
+                UIImage(contentsOfFile: path)
+            }.value
+        }
     }
 }

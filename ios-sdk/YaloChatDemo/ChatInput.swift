@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import SwiftUI
+import UIKit
 
 // Mirrors Flutter ChatInput. Action-button logic follows Flutter's switch:
 //   recording → stop/send voice  |  has-image → send image
