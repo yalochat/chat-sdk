@@ -1227,6 +1227,9 @@ void main() {
           when(
             () => chatMessageRepository.replaceChatMessage(any()),
           ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.addToCart(any(), any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
           bloc.add(
             ChatUpdateProductQuantity(
               messageId: 3,
@@ -1291,6 +1294,9 @@ void main() {
           when(
             () => chatMessageRepository.replaceChatMessage(any()),
           ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.addToCart(any(), any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
           bloc.add(
             ChatUpdateProductQuantity(
               messageId: 3,
@@ -1386,6 +1392,9 @@ void main() {
           when(
             () => chatMessageRepository.replaceChatMessage(any()),
           ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.addToCart(any(), any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
 
           bloc.add(
             ChatUpdateProductQuantity(
@@ -1469,6 +1478,329 @@ void main() {
             ChatStatus.failedToUpdateMessage,
           ),
         ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should call addToCart when unit quantity increases',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                  unitsAdded: 1,
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.addToCart(any(), any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.unit,
+              quantity: 4,
+            ),
+          );
+        },
+        verify: (_) {
+          verify(() => yaloMessageRepository.addToCart('123', 3)).called(1);
+          verifyNever(
+            () => yaloMessageRepository.removeFromCart(
+              any(),
+              quantity: any(named: 'quantity'),
+            ),
+          );
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should call removeFromCart when unit quantity decreases',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                  unitsAdded: 5,
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.removeFromCart(
+              any(),
+              quantity: any(named: 'quantity'),
+            ),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.unit,
+              quantity: 2,
+            ),
+          );
+        },
+        verify: (_) {
+          verify(
+            () => yaloMessageRepository.removeFromCart('123', quantity: 3),
+          ).called(1);
+          verifyNever(() => yaloMessageRepository.addToCart(any(), any()));
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should call addToCart when subunit quantity increases',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                  subunitsAdded: 2,
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.addToCart(any(), any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.subunit,
+              quantity: 5,
+            ),
+          );
+        },
+        verify: (_) {
+          verify(() => yaloMessageRepository.addToCart('123', 3)).called(1);
+          verifyNever(
+            () => yaloMessageRepository.removeFromCart(
+              any(),
+              quantity: any(named: 'quantity'),
+            ),
+          );
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should call removeFromCart when subunit quantity decreases',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                  subunitsAdded: 10,
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.removeFromCart(
+              any(),
+              quantity: any(named: 'quantity'),
+            ),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.subunit,
+              quantity: 4,
+            ),
+          );
+        },
+        verify: (_) {
+          verify(
+            () => yaloMessageRepository.removeFromCart('123', quantity: 6),
+          ).called(1);
+          verifyNever(() => yaloMessageRepository.addToCart(any(), any()));
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should not call addToCart or removeFromCart when quantity does not change',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                  unitsAdded: 5,
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.unit,
+              quantity: 5,
+            ),
+          );
+        },
+        verify: (_) {
+          verifyNever(() => yaloMessageRepository.addToCart(any(), any()));
+          verifyNever(
+            () => yaloMessageRepository.removeFromCart(
+              any(),
+              quantity: any(named: 'quantity'),
+            ),
+          );
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should not call addToCart or removeFromCart when local update fails',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage.product(
+              id: 3,
+              role: MessageRole.assistant,
+              timestamp: fixedClock.now(),
+              products: [
+                Product(
+                  sku: '123',
+                  name: 'test',
+                  price: 30.0,
+                  subunits: 24,
+                  unitName: 'box',
+                ),
+              ],
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.error(Exception('db error')));
+
+          bloc.add(
+            ChatUpdateProductQuantity(
+              messageId: 3,
+              productSku: '123',
+              unitType: UnitType.unit,
+              quantity: 5,
+            ),
+          );
+        },
+        verify: (_) {
+          verifyNever(() => yaloMessageRepository.addToCart(any(), any()));
+          verifyNever(
+            () => yaloMessageRepository.removeFromCart(
+              any(),
+              quantity: any(named: 'quantity'),
+            ),
+          );
+        },
       );
     });
 

@@ -58,6 +58,7 @@ class YaloMessageServiceRemote implements YaloMessageService {
       log.fine(jsonEncode(request.toProto3Json()));
 
       if (response.statusCode == 200) {
+        log.fine(response.body);
         return Result.ok(Unit());
       } else {
         return Result.error(
