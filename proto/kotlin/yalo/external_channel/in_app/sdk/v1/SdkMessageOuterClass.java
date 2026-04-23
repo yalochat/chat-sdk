@@ -219,6 +219,110 @@ public final class SdkMessageOuterClass {
 
   /**
    * <pre>
+   * UnitType discriminates whether a cart quantity change refers to
+   * primary units (e.g. boxes) or subunits (e.g. individual items).
+   * </pre>
+   *
+   * Protobuf enum {@code yalo.external_channel.in_app.sdk.v1.UnitType}
+   */
+  public enum UnitType
+      implements com.google.protobuf.Internal.EnumLite {
+    /**
+     * <code>UNIT_TYPE_UNSPECIFIED = 0;</code>
+     */
+    UNIT_TYPE_UNSPECIFIED(0),
+    /**
+     * <code>UNIT_TYPE_UNIT = 1;</code>
+     */
+    UNIT_TYPE_UNIT(1),
+    /**
+     * <code>UNIT_TYPE_SUBUNIT = 2;</code>
+     */
+    UNIT_TYPE_SUBUNIT(2),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>UNIT_TYPE_UNSPECIFIED = 0;</code>
+     */
+    public static final int UNIT_TYPE_UNSPECIFIED_VALUE = 0;
+    /**
+     * <code>UNIT_TYPE_UNIT = 1;</code>
+     */
+    public static final int UNIT_TYPE_UNIT_VALUE = 1;
+    /**
+     * <code>UNIT_TYPE_SUBUNIT = 2;</code>
+     */
+    public static final int UNIT_TYPE_SUBUNIT_VALUE = 2;
+
+
+    @java.lang.Override
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The number of the enum to look for.
+     * @return The enum associated with the given number.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static UnitType valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static UnitType forNumber(int value) {
+      switch (value) {
+        case 0: return UNIT_TYPE_UNSPECIFIED;
+        case 1: return UNIT_TYPE_UNIT;
+        case 2: return UNIT_TYPE_SUBUNIT;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<UnitType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        UnitType> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<UnitType>() {
+            @java.lang.Override
+            public UnitType findValueByNumber(int number) {
+              return UnitType.forNumber(number);
+            }
+          };
+
+    public static com.google.protobuf.Internal.EnumVerifier 
+        internalGetVerifier() {
+      return UnitTypeVerifier.INSTANCE;
+    }
+
+    private static final class UnitTypeVerifier implements 
+         com.google.protobuf.Internal.EnumVerifier { 
+            static final com.google.protobuf.Internal.EnumVerifier
+                INSTANCE = new UnitTypeVerifier();
+            @java.lang.Override
+            public boolean isInRange(int number) {
+              return UnitType.forNumber(number) != null;
+            }
+          };
+
+    private final int value;
+
+    private UnitType(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v1.UnitType)
+  }
+
+  /**
+   * <pre>
    * MessageStatus tracks the delivery lifecycle of a single message.
    * </pre>
    *
@@ -13318,6 +13422,25 @@ public final class SdkMessageOuterClass {
      * @return The quantity.
      */
     double getQuantity();
+
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The enum numeric value on the wire for unitType.
+     */
+    int getUnitTypeValue();
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The unitType.
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType getUnitType();
   }
   /**
    * <pre>
@@ -13467,6 +13590,69 @@ public final class SdkMessageOuterClass {
     private void clearQuantity() {
 
       quantity_ = 0D;
+    }
+
+    public static final int UNIT_TYPE_FIELD_NUMBER = 4;
+    private int unitType_;
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The enum numeric value on the wire for unitType.
+     */
+    @java.lang.Override
+    public int getUnitTypeValue() {
+      return unitType_;
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The unitType.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType getUnitType() {
+      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType.forNumber(unitType_);
+      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType.UNRECOGNIZED : result;
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @param value The enum numeric value on the wire for unitType to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setUnitTypeValue(int value) {
+        unitType_ = value;
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @param value The unitType to set.
+     */
+    private void setUnitType(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType value) {
+      unitType_ = value.getNumber();
+
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     */
+    private void clearUnitType() {
+
+      unitType_ = 0;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AddToCartRequest parseFrom(
@@ -13706,6 +13892,73 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @return The enum numeric value on the wire for unitType.
+       */
+      @java.lang.Override
+      public int getUnitTypeValue() {
+        return instance.getUnitTypeValue();
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @param value The unitType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUnitTypeValue(int value) {
+        copyOnWrite();
+        instance.setUnitTypeValue(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @return The unitType.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType getUnitType() {
+        return instance.getUnitType();
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @param value The enum numeric value on the wire for unitType to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setUnitType(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType value) {
+        copyOnWrite();
+        instance.setUnitType(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUnitType() {
+        copyOnWrite();
+        instance.clearUnitType();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.AddToCartRequest)
     }
     @java.lang.Override
@@ -13726,10 +13979,11 @@ public final class SdkMessageOuterClass {
               "sku_",
               "timestamp_",
               "quantity_",
+              "unitType_",
             };
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u0208\u0002\u1009" +
-                "\u0000\u0003\u0000";
+                "\u0000\u0004\u0000\u0001\u0001\u0004\u0004\u0000\u0000\u0000\u0001\u0208\u0002\u1009" +
+                "\u0000\u0003\u0000\u0004\f";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -14233,6 +14487,25 @@ public final class SdkMessageOuterClass {
      * @return The quantity.
      */
     double getQuantity();
+
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The enum numeric value on the wire for unitType.
+     */
+    int getUnitTypeValue();
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The unitType.
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType getUnitType();
   }
   /**
    * <pre>
@@ -14394,6 +14667,69 @@ public final class SdkMessageOuterClass {
     private void clearQuantity() {
       bitField0_ = (bitField0_ & ~0x00000002);
       quantity_ = 0D;
+    }
+
+    public static final int UNIT_TYPE_FIELD_NUMBER = 4;
+    private int unitType_;
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The enum numeric value on the wire for unitType.
+     */
+    @java.lang.Override
+    public int getUnitTypeValue() {
+      return unitType_;
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @return The unitType.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType getUnitType() {
+      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType.forNumber(unitType_);
+      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType.UNRECOGNIZED : result;
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @param value The enum numeric value on the wire for unitType to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setUnitTypeValue(int value) {
+        unitType_ = value;
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     * @param value The unitType to set.
+     */
+    private void setUnitType(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType value) {
+      unitType_ = value.getNumber();
+
+    }
+    /**
+     * <pre>
+     * Whether the quantity refers to primary units or subunits.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+     */
+    private void clearUnitType() {
+
+      unitType_ = 0;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RemoveFromCartRequest parseFrom(
@@ -14645,6 +14981,73 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @return The enum numeric value on the wire for unitType.
+       */
+      @java.lang.Override
+      public int getUnitTypeValue() {
+        return instance.getUnitTypeValue();
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @param value The unitType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUnitTypeValue(int value) {
+        copyOnWrite();
+        instance.setUnitTypeValue(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @return The unitType.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType getUnitType() {
+        return instance.getUnitType();
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @param value The enum numeric value on the wire for unitType to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setUnitType(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType value) {
+        copyOnWrite();
+        instance.setUnitType(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Whether the quantity refers to primary units or subunits.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUnitType() {
+        copyOnWrite();
+        instance.clearUnitType();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.RemoveFromCartRequest)
     }
     @java.lang.Override
@@ -14665,10 +15068,11 @@ public final class SdkMessageOuterClass {
               "sku_",
               "timestamp_",
               "quantity_",
+              "unitType_",
             };
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u0208\u0002\u1009" +
-                "\u0000\u0003\u1000\u0001";
+                "\u0000\u0004\u0000\u0001\u0001\u0004\u0004\u0000\u0000\u0000\u0001\u0208\u0002\u1009" +
+                "\u0000\u0003\u1000\u0001\u0004\f";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {

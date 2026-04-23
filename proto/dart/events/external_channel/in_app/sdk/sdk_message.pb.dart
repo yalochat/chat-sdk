@@ -1957,11 +1957,13 @@ class AddToCartRequest extends $pb.GeneratedMessage {
     $core.String? sku,
     $0.Timestamp? timestamp,
     $core.double? quantity,
+    UnitType? unitType,
   }) {
     final result = create();
     if (sku != null) result.sku = sku;
     if (timestamp != null) result.timestamp = timestamp;
     if (quantity != null) result.quantity = quantity;
+    if (unitType != null) result.unitType = unitType;
     return result;
   }
 
@@ -1983,6 +1985,8 @@ class AddToCartRequest extends $pb.GeneratedMessage {
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
     ..aD(3, _omitFieldNames ? '' : 'quantity')
+    ..aE<UnitType>(4, _omitFieldNames ? '' : 'unitType',
+        enumValues: UnitType.values)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2033,6 +2037,16 @@ class AddToCartRequest extends $pb.GeneratedMessage {
   $core.bool hasQuantity() => $_has(2);
   @$pb.TagNumber(3)
   void clearQuantity() => $_clearField(3);
+
+  /// Whether the quantity refers to primary units or subunits.
+  @$pb.TagNumber(4)
+  UnitType get unitType => $_getN(3);
+  @$pb.TagNumber(4)
+  set unitType(UnitType value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasUnitType() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearUnitType() => $_clearField(4);
 }
 
 /// AddToCartResponse acknowledges an AddToCartRequest.
@@ -2113,11 +2127,13 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
     $core.String? sku,
     $0.Timestamp? timestamp,
     $core.double? quantity,
+    UnitType? unitType,
   }) {
     final result = create();
     if (sku != null) result.sku = sku;
     if (timestamp != null) result.timestamp = timestamp;
     if (quantity != null) result.quantity = quantity;
+    if (unitType != null) result.unitType = unitType;
     return result;
   }
 
@@ -2139,6 +2155,8 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
     ..aD(3, _omitFieldNames ? '' : 'quantity')
+    ..aE<UnitType>(4, _omitFieldNames ? '' : 'unitType',
+        enumValues: UnitType.values)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2190,6 +2208,16 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
   $core.bool hasQuantity() => $_has(2);
   @$pb.TagNumber(3)
   void clearQuantity() => $_clearField(3);
+
+  /// Whether the quantity refers to primary units or subunits.
+  @$pb.TagNumber(4)
+  UnitType get unitType => $_getN(3);
+  @$pb.TagNumber(4)
+  set unitType(UnitType value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasUnitType() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearUnitType() => $_clearField(4);
 }
 
 /// RemoveFromCartResponse acknowledges a RemoveFromCartRequest.

@@ -60,6 +60,30 @@ class MessageRole extends $pb.ProtobufEnum {
   const MessageRole._(super.value, super.name);
 }
 
+/// UnitType discriminates whether a cart quantity change refers to
+/// primary units (e.g. boxes) or subunits (e.g. individual items).
+class UnitType extends $pb.ProtobufEnum {
+  static const UnitType UNIT_TYPE_UNSPECIFIED =
+      UnitType._(0, _omitEnumNames ? '' : 'UNIT_TYPE_UNSPECIFIED');
+  static const UnitType UNIT_TYPE_UNIT =
+      UnitType._(1, _omitEnumNames ? '' : 'UNIT_TYPE_UNIT');
+  static const UnitType UNIT_TYPE_SUBUNIT =
+      UnitType._(2, _omitEnumNames ? '' : 'UNIT_TYPE_SUBUNIT');
+
+  static const $core.List<UnitType> values = <UnitType>[
+    UNIT_TYPE_UNSPECIFIED,
+    UNIT_TYPE_UNIT,
+    UNIT_TYPE_SUBUNIT,
+  ];
+
+  static final $core.List<UnitType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 2);
+  static UnitType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const UnitType._(super.value, super.name);
+}
+
 /// MessageStatus tracks the delivery lifecycle of a single message.
 class MessageStatus extends $pb.ProtobufEnum {
   static const MessageStatus MESSAGE_STATUS_UNSPECIFIED =

@@ -1663,6 +1663,11 @@ func (m *AddToCartRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.UnitType != 0 {
+		i = encodeVarint(dAtA, i, uint64(m.UnitType))
+		i--
+		dAtA[i] = 0x20
+	}
 	if m.Quantity != 0 {
 		i -= 8
 		binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Quantity))))
@@ -1790,6 +1795,11 @@ func (m *RemoveFromCartRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error)
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
+	}
+	if m.UnitType != 0 {
+		i = encodeVarint(dAtA, i, uint64(m.UnitType))
+		i--
+		dAtA[i] = 0x20
 	}
 	if m.Quantity != nil {
 		i -= 8
@@ -4565,6 +4575,9 @@ func (m *AddToCartRequest) SizeVT() (n int) {
 	if m.Quantity != 0 {
 		n += 9
 	}
+	if m.UnitType != 0 {
+		n += 1 + sov(uint64(m.UnitType))
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -4614,6 +4627,9 @@ func (m *RemoveFromCartRequest) SizeVT() (n int) {
 	}
 	if m.Quantity != nil {
 		n += 9
+	}
+	if m.UnitType != 0 {
+		n += 1 + sov(uint64(m.UnitType))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -9166,6 +9182,25 @@ func (m *AddToCartRequest) UnmarshalVT(dAtA []byte) error {
 			v = uint64(binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
 			m.Quantity = float64(math.Float64frombits(v))
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnitType", wireType)
+			}
+			m.UnitType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.UnitType |= UnitType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
@@ -9419,6 +9454,25 @@ func (m *RemoveFromCartRequest) UnmarshalVT(dAtA []byte) error {
 			iNdEx += 8
 			v2 := float64(math.Float64frombits(v))
 			m.Quantity = &v2
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnitType", wireType)
+			}
+			m.UnitType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.UnitType |= UnitType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skip(dAtA[iNdEx:])
