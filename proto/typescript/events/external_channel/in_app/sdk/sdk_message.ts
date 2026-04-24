@@ -515,7 +515,15 @@ export interface ClearCartResponse {
 
 /** GuidanceCardRequest asks the channel to return the current guidance cards. */
 export interface GuidanceCardRequest {
-  timestamp: Date | undefined;
+  timestamp:
+    | Date
+    | undefined;
+  /** Identifies the target entity for which guidance cards are requested. */
+  targetId?:
+    | string
+    | undefined;
+  /** Additional context for the guidance card lookup. */
+  context?: string | undefined;
 }
 
 /** GuidanceCardResponse returns the guidance cards to display to the user. */
@@ -3619,13 +3627,19 @@ export const ClearCartResponse: MessageFns<ClearCartResponse> = {
 };
 
 function createBaseGuidanceCardRequest(): GuidanceCardRequest {
-  return { timestamp: undefined };
+  return { timestamp: undefined, targetId: undefined, context: undefined };
 }
 
 export const GuidanceCardRequest: MessageFns<GuidanceCardRequest> = {
   encode(message: GuidanceCardRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
+    }
+    if (message.targetId !== undefined) {
+      writer.uint32(18).string(message.targetId);
+    }
+    if (message.context !== undefined) {
+      writer.uint32(26).string(message.context);
     }
     return writer;
   },
@@ -3645,6 +3659,22 @@ export const GuidanceCardRequest: MessageFns<GuidanceCardRequest> = {
           message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.targetId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.context = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3655,13 +3685,27 @@ export const GuidanceCardRequest: MessageFns<GuidanceCardRequest> = {
   },
 
   fromJSON(object: any): GuidanceCardRequest {
-    return { timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined };
+    return {
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      targetId: isSet(object.targetId)
+        ? globalThis.String(object.targetId)
+        : isSet(object.target_id)
+        ? globalThis.String(object.target_id)
+        : undefined,
+      context: isSet(object.context) ? globalThis.String(object.context) : undefined,
+    };
   },
 
   toJSON(message: GuidanceCardRequest): unknown {
     const obj: any = {};
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.targetId !== undefined) {
+      obj.targetId = message.targetId;
+    }
+    if (message.context !== undefined) {
+      obj.context = message.context;
     }
     return obj;
   },
@@ -3672,6 +3716,8 @@ export const GuidanceCardRequest: MessageFns<GuidanceCardRequest> = {
   fromPartial<I extends Exact<DeepPartial<GuidanceCardRequest>, I>>(object: I): GuidanceCardRequest {
     const message = createBaseGuidanceCardRequest();
     message.timestamp = object.timestamp ?? undefined;
+    message.targetId = object.targetId ?? undefined;
+    message.context = object.context ?? undefined;
     return message;
   },
 };
