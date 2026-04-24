@@ -45,6 +45,21 @@ final $typed_data.Uint8List messageRoleDescriptor = $convert.base64Decode(
     'CgtNZXNzYWdlUm9sZRIcChhNRVNTQUdFX1JPTEVfVU5TUEVDSUZJRUQQABIVChFNRVNTQUdFX1'
     'JPTEVfVVNFUhABEhYKEk1FU1NBR0VfUk9MRV9BR0VOVBAC');
 
+@$core.Deprecated('Use unitTypeDescriptor instead')
+const UnitType$json = {
+  '1': 'UnitType',
+  '2': [
+    {'1': 'UNIT_TYPE_UNSPECIFIED', '2': 0},
+    {'1': 'UNIT_TYPE_UNIT', '2': 1},
+    {'1': 'UNIT_TYPE_SUBUNIT', '2': 2},
+  ],
+};
+
+/// Descriptor for `UnitType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List unitTypeDescriptor = $convert.base64Decode(
+    'CghVbml0VHlwZRIZChVVTklUX1RZUEVfVU5TUEVDSUZJRUQQABISCg5VTklUX1RZUEVfVU5JVB'
+    'ABEhUKEVVOSVRfVFlQRV9TVUJVTklUEAI=');
+
 @$core.Deprecated('Use messageStatusDescriptor instead')
 const MessageStatus$json = {
   '1': 'MessageStatus',
@@ -885,6 +900,14 @@ const AddToCartRequest$json = {
       '10': 'timestamp'
     },
     {'1': 'quantity', '3': 3, '4': 1, '5': 1, '10': 'quantity'},
+    {
+      '1': 'unit_type',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.UnitType',
+      '10': 'unitType'
+    },
   ],
 };
 
@@ -892,7 +915,8 @@ const AddToCartRequest$json = {
 final $typed_data.Uint8List addToCartRequestDescriptor = $convert.base64Decode(
     'ChBBZGRUb0NhcnRSZXF1ZXN0EhAKA3NrdRgBIAEoCVIDc2t1EjgKCXRpbWVzdGFtcBgCIAEoCz'
     'IaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBIaCghxdWFudGl0eRgDIAEo'
-    'AVIIcXVhbnRpdHk=');
+    'AVIIcXVhbnRpdHkSSgoJdW5pdF90eXBlGAQgASgOMi0ueWFsby5leHRlcm5hbF9jaGFubmVsLm'
+    'luX2FwcC5zZGsudjEuVW5pdFR5cGVSCHVuaXRUeXBl');
 
 @$core.Deprecated('Use addToCartResponseDescriptor instead')
 const AddToCartResponse$json = {
@@ -945,6 +969,14 @@ const RemoveFromCartRequest$json = {
       '10': 'quantity',
       '17': true
     },
+    {
+      '1': 'unit_type',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.UnitType',
+      '10': 'unitType'
+    },
   ],
   '8': [
     {'1': '_quantity'},
@@ -955,7 +987,8 @@ const RemoveFromCartRequest$json = {
 final $typed_data.Uint8List removeFromCartRequestDescriptor = $convert.base64Decode(
     'ChVSZW1vdmVGcm9tQ2FydFJlcXVlc3QSEAoDc2t1GAEgASgJUgNza3USOAoJdGltZXN0YW1wGA'
     'IgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEh8KCHF1YW50aXR5'
-    'GAMgASgBSABSCHF1YW50aXR5iAEBQgsKCV9xdWFudGl0eQ==');
+    'GAMgASgBSABSCHF1YW50aXR5iAEBEkoKCXVuaXRfdHlwZRgEIAEoDjItLnlhbG8uZXh0ZXJuYW'
+    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlVuaXRUeXBlUgh1bml0VHlwZUILCglfcXVhbnRpdHk=');
 
 @$core.Deprecated('Use removeFromCartResponseDescriptor instead')
 const RemoveFromCartResponse$json = {

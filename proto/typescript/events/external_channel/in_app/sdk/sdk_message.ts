@@ -108,6 +108,58 @@ export function messageRoleToJSON(object: MessageRole): string {
   }
 }
 
+/**
+ * UnitType discriminates whether a cart quantity change refers to
+ * primary units (e.g. boxes) or subunits (e.g. individual items).
+ */
+export const UnitType = {
+  UNIT_TYPE_UNSPECIFIED: 0,
+  UNIT_TYPE_UNIT: 1,
+  UNIT_TYPE_SUBUNIT: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type UnitType = typeof UnitType[keyof typeof UnitType];
+
+export namespace UnitType {
+  export type UNIT_TYPE_UNSPECIFIED = typeof UnitType.UNIT_TYPE_UNSPECIFIED;
+  export type UNIT_TYPE_UNIT = typeof UnitType.UNIT_TYPE_UNIT;
+  export type UNIT_TYPE_SUBUNIT = typeof UnitType.UNIT_TYPE_SUBUNIT;
+  export type UNRECOGNIZED = typeof UnitType.UNRECOGNIZED;
+}
+
+export function unitTypeFromJSON(object: any): UnitType {
+  switch (object) {
+    case 0:
+    case "UNIT_TYPE_UNSPECIFIED":
+      return UnitType.UNIT_TYPE_UNSPECIFIED;
+    case 1:
+    case "UNIT_TYPE_UNIT":
+      return UnitType.UNIT_TYPE_UNIT;
+    case 2:
+    case "UNIT_TYPE_SUBUNIT":
+      return UnitType.UNIT_TYPE_SUBUNIT;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return UnitType.UNRECOGNIZED;
+  }
+}
+
+export function unitTypeToJSON(object: UnitType): string {
+  switch (object) {
+    case UnitType.UNIT_TYPE_UNSPECIFIED:
+      return "UNIT_TYPE_UNSPECIFIED";
+    case UnitType.UNIT_TYPE_UNIT:
+      return "UNIT_TYPE_UNIT";
+    case UnitType.UNIT_TYPE_SUBUNIT:
+      return "UNIT_TYPE_SUBUNIT";
+    case UnitType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** MessageStatus tracks the delivery lifecycle of a single message. */
 export const MessageStatus = {
   MESSAGE_STATUS_UNSPECIFIED: 0,
@@ -420,6 +472,8 @@ export interface AddToCartRequest {
     | undefined;
   /** Double because some clients need fractional quantities (e.g. FEMSA). */
   quantity: number;
+  /** Whether the quantity refers to primary units or subunits. */
+  unitType: UnitType;
 }
 
 /** AddToCartResponse acknowledges an AddToCartRequest. */
@@ -435,7 +489,11 @@ export interface RemoveFromCartRequest {
     | Date
     | undefined;
   /** If omitted the entire SKU line is removed from the cart. */
-  quantity?: number | undefined;
+  quantity?:
+    | number
+    | undefined;
+  /** Whether the quantity refers to primary units or subunits. */
+  unitType: UnitType;
 }
 
 /** RemoveFromCartResponse acknowledges a RemoveFromCartRequest. */
@@ -3051,7 +3109,7 @@ export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
 };
 
 function createBaseAddToCartRequest(): AddToCartRequest {
-  return { sku: "", timestamp: undefined, quantity: 0 };
+  return { sku: "", timestamp: undefined, quantity: 0, unitType: 0 };
 }
 
 export const AddToCartRequest: MessageFns<AddToCartRequest> = {
@@ -3064,6 +3122,9 @@ export const AddToCartRequest: MessageFns<AddToCartRequest> = {
     }
     if (message.quantity !== 0) {
       writer.uint32(25).double(message.quantity);
+    }
+    if (message.unitType !== 0) {
+      writer.uint32(32).int32(message.unitType);
     }
     return writer;
   },
@@ -3099,6 +3160,14 @@ export const AddToCartRequest: MessageFns<AddToCartRequest> = {
           message.quantity = reader.double();
           continue;
         }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.unitType = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3113,6 +3182,11 @@ export const AddToCartRequest: MessageFns<AddToCartRequest> = {
       sku: isSet(object.sku) ? globalThis.String(object.sku) : "",
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       quantity: isSet(object.quantity) ? globalThis.Number(object.quantity) : 0,
+      unitType: isSet(object.unitType)
+        ? unitTypeFromJSON(object.unitType)
+        : isSet(object.unit_type)
+        ? unitTypeFromJSON(object.unit_type)
+        : 0,
     };
   },
 
@@ -3127,6 +3201,9 @@ export const AddToCartRequest: MessageFns<AddToCartRequest> = {
     if (message.quantity !== 0) {
       obj.quantity = message.quantity;
     }
+    if (message.unitType !== 0) {
+      obj.unitType = unitTypeToJSON(message.unitType);
+    }
     return obj;
   },
 
@@ -3138,6 +3215,7 @@ export const AddToCartRequest: MessageFns<AddToCartRequest> = {
     message.sku = object.sku ?? "";
     message.timestamp = object.timestamp ?? undefined;
     message.quantity = object.quantity ?? 0;
+    message.unitType = object.unitType ?? 0;
     return message;
   },
 };
@@ -3219,7 +3297,7 @@ export const AddToCartResponse: MessageFns<AddToCartResponse> = {
 };
 
 function createBaseRemoveFromCartRequest(): RemoveFromCartRequest {
-  return { sku: "", timestamp: undefined, quantity: undefined };
+  return { sku: "", timestamp: undefined, quantity: undefined, unitType: 0 };
 }
 
 export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
@@ -3232,6 +3310,9 @@ export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
     }
     if (message.quantity !== undefined) {
       writer.uint32(25).double(message.quantity);
+    }
+    if (message.unitType !== 0) {
+      writer.uint32(32).int32(message.unitType);
     }
     return writer;
   },
@@ -3267,6 +3348,14 @@ export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
           message.quantity = reader.double();
           continue;
         }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.unitType = reader.int32() as any;
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3281,6 +3370,11 @@ export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
       sku: isSet(object.sku) ? globalThis.String(object.sku) : "",
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
       quantity: isSet(object.quantity) ? globalThis.Number(object.quantity) : undefined,
+      unitType: isSet(object.unitType)
+        ? unitTypeFromJSON(object.unitType)
+        : isSet(object.unit_type)
+        ? unitTypeFromJSON(object.unit_type)
+        : 0,
     };
   },
 
@@ -3295,6 +3389,9 @@ export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
     if (message.quantity !== undefined) {
       obj.quantity = message.quantity;
     }
+    if (message.unitType !== 0) {
+      obj.unitType = unitTypeToJSON(message.unitType);
+    }
     return obj;
   },
 
@@ -3306,6 +3403,7 @@ export const RemoveFromCartRequest: MessageFns<RemoveFromCartRequest> = {
     message.sku = object.sku ?? "";
     message.timestamp = object.timestamp ?? undefined;
     message.quantity = object.quantity ?? undefined;
+    message.unitType = object.unitType ?? 0;
     return message;
   },
 };

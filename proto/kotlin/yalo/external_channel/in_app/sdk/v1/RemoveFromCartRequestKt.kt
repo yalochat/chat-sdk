@@ -112,6 +112,38 @@ public object RemoveFromCartRequestKt {
     public fun hasQuantity(): kotlin.Boolean {
       return _builder.hasQuantity()
     }
+
+    /**
+     * ```
+     * Whether the quantity refers to primary units or subunits.
+     * ```
+     *
+     * `.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;`
+     */
+    public var unitType: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.UnitType
+      @kotlin.jvm.JvmName("getUnitType")
+        get() = _builder.unitType
+      @kotlin.jvm.JvmName("setUnitType")
+        set(value) {
+        _builder.unitType = value
+      }
+    public var unitTypeValue: kotlin.Int
+      @kotlin.jvm.JvmName("getUnitTypeValue")
+        get() = _builder.unitTypeValue
+      @kotlin.jvm.JvmName("setUnitTypeValue")
+        set(value) {
+        _builder.unitTypeValue = value
+      }
+    /**
+     * ```
+     * Whether the quantity refers to primary units or subunits.
+     * ```
+     *
+     * `.yalo.external_channel.in_app.sdk.v1.UnitType unit_type = 4;`
+     */
+    public fun clearUnitType() {
+      _builder.clearUnitType()
+    }
   }
 }
 public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RemoveFromCartRequest.copy(block: `yalo.external_channel.in_app.sdk.v1`.RemoveFromCartRequestKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.RemoveFromCartRequest =
