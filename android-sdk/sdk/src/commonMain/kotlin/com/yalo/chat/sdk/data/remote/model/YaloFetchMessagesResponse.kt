@@ -25,6 +25,7 @@ internal data class SdkMessageResponseDto(
     val textMessageRequest: SdkTextMessageResponseDto? = null,
     val imageMessageRequest: SdkImageMessageResponseDto? = null,
     val videoMessageRequest: SdkVideoMessageResponseDto? = null,
+    val voiceNoteMessageRequest: SdkVoiceNoteMessageResponseDto? = null,
     val productMessageRequest: SdkProductMessageResponseDto? = null,
     val buttonsMessageRequest: SdkButtonsMessageResponseDto? = null,
     val ctaMessageRequest: SdkCtaMessageResponseDto? = null,
@@ -98,6 +99,25 @@ internal data class SdkVideoMessageContentDto(
     val fileName: String = "",
     // Duration in seconds (proto double); stored as Long millis in ChatMessage.
     val duration: Double = 0.0,
+)
+
+// ── Voice ─────────────────────────────────────────────────────────────────────
+
+@Serializable
+internal data class SdkVoiceNoteMessageResponseDto(
+    val content: SdkVoiceMessageContentDto? = null,
+)
+
+@Serializable
+internal data class SdkVoiceMessageContentDto(
+    val mediaUrl: String = "",
+    val mediaType: String = "",
+    val role: String? = null,
+    val fileName: String = "",
+    // Duration in seconds (proto double); stored as Long millis in ChatMessage.
+    val duration: Double = 0.0,
+    val byteCount: Long = 0L,
+    val amplitudesPreview: List<Float> = emptyList(),
 )
 
 // ── Buttons ───────────────────────────────────────────────────────────────────

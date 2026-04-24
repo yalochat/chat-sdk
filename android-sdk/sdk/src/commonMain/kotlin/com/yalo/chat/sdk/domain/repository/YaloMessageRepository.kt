@@ -28,4 +28,10 @@ interface YaloMessageRepository {
     // TypingStart is emitted by sendMessage(); TypingStop is emitted when the poll receives
     // messages or encounters an error. FakeYaloMessageRepository returns emptyFlow().
     fun events(): Flow<ChatEvent> = emptyFlow()
+
+    // Pre-warm the in-memory dedup cache with message IDs already persisted in the local DB.
+    // Called by MessageSyncService on start() so the first poll after a cold restart does not
+    // re-download media for messages that were already processed in a previous session.
+    // Default is a no-op; overridden by YaloMessageRepositoryRemote.
+    fun warmDedupCache(wiIds: Collection<String>) {}
 }

@@ -1,0 +1,45 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+
+import SwiftUI
+
+// Active recording overlay shown in place of the normal ChatInput row.
+// Mirrors Flutter's AudioRecordingWidget: cancel button, duration, live waveform, send button.
+struct WaveformRecorder: View {
+
+    @ObservedObject var audioObservable: AudioObservable
+    // Called with (fileName, amplitudes, durationMs) when the user taps send.
+    let onSend: (String, [Double], Int64) -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: audioObservable.cancelRecording) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.secondary)
+                    .font(.title2)
+            }
+
+            Text(audioObservable.durationText)
+                .monospacedDigit()
+                .foregroundColor(.red)
+                .frame(width: 48, alignment: .leading)
+
+            WaveformView(amplitudes: audioObservable.recordingAmplitudes, color: .red)
+                .frame(height: 32)
+
+            Button {
+                if let data = audioObservable.stopRecording() {
+                    onSend(data.fileName, data.amplitudes, data.durationMs)
+                }
+            } label: {
+                Image(systemName: "stop.circle.fill")
+                    .foregroundColor(.white)
+                    .font(.title2)
+                    .padding(6)
+                    .background(Color.accentColor)
+                    .clipShape(Circle())
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+    }
+}

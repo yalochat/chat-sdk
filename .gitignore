@@ -52,6 +52,6 @@ flutter-sdk/pubspec.lock
 ios-sdk/YaloChatDemo/Credentials.swift
 
 # Xcode user-specific data (workspace state, breakpoints, derived data)
-*.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/xcuserdata/

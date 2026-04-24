@@ -10,6 +10,7 @@ import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
@@ -267,6 +268,13 @@ internal fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, deb
     HttpClient(engine) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
+        }
+        // Global timeouts: 60s request covers CDN downloads and large image uploads on slow
+        // networks; 10s connect and 30s socket provide safety nets for all request types.
+        install(HttpTimeout) {
+            requestTimeoutMillis = 60_000
+            connectTimeoutMillis = 10_000
+            socketTimeoutMillis = 30_000
         }
         if (debug) {
             install(io.ktor.client.plugins.logging.Logging) {

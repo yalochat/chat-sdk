@@ -64,6 +64,13 @@ internal class YaloMessageRepositoryRemote(
     private val _events = MutableSharedFlow<ChatEvent>(extraBufferCapacity = Channel.UNLIMITED)
     override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
 
+    // Pre-warms the in-memory dedup cache with message IDs that are already in the local DB,
+    // so the first poll after a cold restart does not re-download media for known messages.
+    // Called by MessageSyncService before starting the polling loop.
+    override fun warmDedupCache(wiIds: Collection<String>) {
+        wiIds.forEach { cache.set(it, true) }
+    }
+
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> {
         val nowIso = Clock.System.now().toString()
 
@@ -158,7 +165,7 @@ internal class YaloMessageRepositoryRemote(
     // NOTE: `since` param is intentionally ignored — Flutter FIXME disables it too ("wait for backend fix").
     override suspend fun fetchMessages(since: Long): Result<List<ChatMessage>> =
         when (val result = apiService.fetchMessages()) {
-            is Result.Ok -> Result.Ok(result.result.mapNotNull { it.toChatMessage(deduplicate = false) })
+            is Result.Ok -> Result.Ok(result.result.mapIndexedNotNull { index, it -> it.toChatMessage(deduplicate = false, index = index) })
             is Result.Error -> Result.Error(result.error)
         }
 
@@ -166,24 +173,43 @@ internal class YaloMessageRepositoryRemote(
     // from one poll cycle. Empty batches are suppressed so downstream only sees real data.
     // Network errors are swallowed and the loop continues on the next tick, mirroring
     // flutter-sdk YaloMessageRepositoryRemote._startPolling().
+    //
+    // Two-phase processing per cycle:
+    //   Phase 1 — non-media messages (text, buttons, CTA, etc.) are translated instantly
+    //             and emitted immediately so the UI updates without waiting for downloads.
+    //   Phase 2 — media messages (image, video, voice) are translated one by one; each is
+    //             emitted as its CDN download completes.
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         while (true) {
             when (val result = apiService.fetchMessages()) {
                 is Result.Ok -> {
                     val raw = result.result
-                    val batch = raw.mapNotNull { item ->
-                        try { item.toChatMessage(deduplicate = true) }
+
+                    // Phase 1: non-media messages — translate without IO and emit right away.
+                    val nonMediaBatch = raw.mapIndexedNotNull { index, item ->
+                        if (item.requiresMediaDownload()) return@mapIndexedNotNull null
+                        try { item.toChatMessage(deduplicate = true, index = index) }
                         catch (e: CancellationException) { throw e }
-                        catch (e: Exception) { println("[YaloChatSdk] skip message ${item.id}: $e"); null }
+                        catch (e: Exception) { null }
                     }.let { ensureReceiptOrder(it) }
-                    // Mirror Flutter: TypingStop fires only when at least one NEW message
-                    // was successfully translated. toChatMessage(deduplicate=true) returns
-                    // null for already-cached items, so batch contains only new arrivals.
-                    // This prevents the indicator from dismissing on cached messages
-                    // (old raw.isNotEmpty() bug) AND on untranslatable unknown types.
-                    if (batch.isNotEmpty()) {
+
+                    if (nonMediaBatch.isNotEmpty()) {
                         _events.tryEmit(ChatEvent.TypingStop)
-                        emit(batch)
+                        emit(nonMediaBatch)
+                    }
+
+                    // Phase 2: media messages — download one by one and emit each when ready.
+                    raw.forEachIndexed { index, item ->
+                        if (!item.requiresMediaDownload()) return@forEachIndexed
+                        val msg = try { item.toChatMessage(deduplicate = true, index = index) }
+                        catch (e: CancellationException) { throw e }
+                        catch (e: Exception) { null }
+                        ?: return@forEachIndexed
+                        val ordered = ensureReceiptOrder(listOf(msg))
+                        if (ordered.isNotEmpty()) {
+                            _events.tryEmit(ChatEvent.TypingStop)
+                            emit(ordered)
+                        }
                     }
                 }
                 is Result.Error -> {
@@ -198,30 +224,23 @@ internal class YaloMessageRepositoryRemote(
     // Assigns stable local ids to a polled batch so that messages are ordered
     // consistently relative to user-sent messages and previous poll batches.
     //
-    // Problem: stableId is derived from the SERVER timestamp, but user-message
-    // tempIds are derived from the CLIENT clock. When the server takes a few
-    // seconds to generate a response its timestamp can exceed the client's clock
-    // at the moment the user sends the next message. The agent response then gets
-    // a stableId > that user message's tempId and sorts AFTER it in ORDER BY id ASC,
-    // producing wrong visual order ("hey" appears before the reply to "hello").
+    // Problem: stableId is derived from the SERVER timestamp (second precision), but
+    // user-message tempIds use the CLIENT clock in milliseconds. When the bot responds
+    // in the same second the user sent a message, the bot's stableId (second*1000+index)
+    // is less than the user's tempId (millisecond), so the bot response sorts before the
+    // user message in ORDER BY id ASC — visually wrong.
     //
-    // Fix: clamp each id to max(rawId, receiptFloor + batchIndex) where receiptFloor
-    // is the client clock at receipt time. This mirrors Flutter's prepend-to-front
-    // behaviour (newest message always at bottom) without changing the DB schema.
-    // fetchMessages() (startup cold load) is NOT affected — it bypasses this function.
-    //
-    // First-poll exception: when pollHighWater == 0 (no prior poll has completed)
-    // rawIds are used as-is. On the first poll there are no user-sent tempIds to
-    // collide with, so clamping is not necessary and preserving rawIds avoids
-    // artificially advancing pollHighWater before the second poll.
+    // Fix: clamp every polled message id to max(rawId, receiptFloor) where receiptFloor
+    // is the client clock at receipt time. Receipt always happens after the user sent the
+    // message, so clamped ids are always > the user's tempId. fetchMessages() (startup cold
+    // load) is NOT affected — it bypasses this function.
     private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
         if (messages.isEmpty()) return messages
-        val highWaterEstablished = pollHighWater > 0L
         val receiptFloor = Clock.System.now().toEpochMilliseconds()
         var cursor = maxOf(receiptFloor, pollHighWater + 1)
         return messages.map { msg ->
             val rawId = msg.id ?: return@map msg
-            val id = if (!highWaterEstablished || rawId >= cursor) {
+            val id = if (rawId >= cursor) {
                 cursor = maxOf(cursor, rawId + 1)
                 rawId
             } else {
@@ -235,14 +254,14 @@ internal class YaloMessageRepositoryRemote(
     }
 
     // Translates a poll response item to a ChatMessage.
-    // Handles text and image payloads; skips unknown types silently.
-    // For image messages, downloads from CDN and saves to tempDir.
-    private suspend fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean): ChatMessage? {
+    // index is the position of this item in the server response array; used as the sub-second
+    // tiebreaker in stableId so messages with identical timestamps preserve server order.
+    private suspend fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean, index: Int = 0): ChatMessage? {
         if (deduplicate && cache.get(id) != null) return null
 
         val ts = parseIso8601(date)
-        val hashOffset = ((id.hashCode() % 1000) + 1000) % 1000
-        val stableId = if (ts != 0L) (ts / 1000L) * 1000L + hashOffset else hashOffset.toLong()
+        val indexOffset = index % 1000
+        val stableId = if (ts != 0L) (ts / 1000L) * 1000L + indexOffset else indexOffset.toLong()
 
         // Text message
         message.textMessageRequest?.content?.let { textContent ->
@@ -328,6 +347,46 @@ internal class YaloMessageRepositoryRemote(
             }
         }
 
+        // Voice message — download from CDN and save locally.
+        // Mirrors the image/video download pattern; cache is set only after a successful download.
+        // amplitudesPreview (List<Float> from proto) is mapped to List<Double> for ChatMessage.
+        // duration arrives in seconds (proto double) → stored as millis in ChatMessage.
+        message.voiceNoteMessageRequest?.content?.let { voiceContent ->
+            return when (val downloadResult = apiService.downloadMedia(voiceContent.mediaUrl)) {
+                is Result.Error -> null // skip silently — will retry on next poll cycle
+                is Result.Ok -> {
+                    val bytes = downloadResult.result
+                    val mimeType = voiceContent.mediaType.takeIf { it.isNotEmpty() } ?: "audio/mp4"
+                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
+                        when {
+                            it.contains("mp4") -> "m4a"
+                            it.contains("mpeg") || it.contains("mp3") -> "mp3"
+                            else -> it
+                        }
+                    }
+                    val localPath = PlatformFiles.writeToDir(
+                        dirPath = tempDir,
+                        filename = "${Uuid.random()}.$ext",
+                        bytes = bytes,
+                    ) ?: return null
+                    if (deduplicate) cache.set(id, true)
+                    ChatMessage(
+                        id = stableId,
+                        wiId = id,
+                        role = MessageRole.fromString(voiceContent.role ?: "MESSAGE_ROLE_AGENT"),
+                        type = MessageType.Voice,
+                        status = MessageStatus.DELIVERED,
+                        fileName = localPath,
+                        amplitudes = voiceContent.amplitudesPreview.map { it.toDouble() },
+                        duration = (voiceContent.duration * 1000).toLong(),
+                        mediaType = mimeType,
+                        byteCount = bytes.size.toLong(),
+                        timestamp = ts,
+                    )
+                }
+            }
+        }
+
         // Buttons message — body text + a list of reply labels rendered as outlined buttons.
         // Tapping a button sends the label as a text message (same as quick reply chips).
         message.buttonsMessageRequest?.content?.let { buttonsContent ->
@@ -406,6 +465,14 @@ private const val TYPING_STATUS_TEXT = "Writing message..."
 // Proto3 JSON enum value name for horizontal orientation (carousel layout).
 // Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
 private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"
+
+// True for message types that require a CDN download before they can be translated.
+// Used by pollIncomingMessages() to separate the fast (text/buttons) path from the
+// slow (media download) path so non-media messages are emitted without delay.
+private fun YaloFetchMessagesResponse.requiresMediaDownload(): Boolean =
+    message.imageMessageRequest != null ||
+    message.videoMessageRequest != null ||
+    message.voiceNoteMessageRequest != null
 
 // ── ISO 8601 date parsing ─────────────────────────────────────────────────────
 private fun parseIso8601(date: String): Long =

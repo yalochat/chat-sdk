@@ -24,14 +24,17 @@ class MessagesObservable: ObservableObject {
         Self.log.debug("onAppear — starting controller")
         controller?.start { [weak self] messages in
             DispatchQueue.main.async {
-                let sorted = messages.sorted { $0.timestamp < $1.timestamp }
+                // DB returns messages ORDER BY id ASC — correct receipt order.
+                // Do NOT re-sort by timestamp: server timestamps have only second
+                // precision, so bot messages sent in the same second as a user message
+                // would sort before it despite arriving later.
                 #if DEBUG
-                Self.log.debug("messages update: \(sorted.count) total")
-                for msg in sorted {
+                Self.log.debug("messages update: \(messages.count) total")
+                for msg in messages {
                     Self.log.debug("  [\(String(describing: msg.role))] [\(String(describing: msg.type))] id=\(msg.id?.int64Value ?? -1) ts=\(msg.timestamp)")
                 }
                 #endif
-                self?.messages = sorted
+                self?.messages = messages
                 self?.isLoading = false
             }
         }
@@ -45,11 +48,33 @@ class MessagesObservable: ObservableObject {
     }
 
     func sendMessage() {
-        let text = userMessage.trimmingCharacters(in: .whitespaces)
+        let text = userMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        #if DEBUG
         Self.log.debug("sendMessage: \(text.prefix(60))")
+        #endif
         userMessage = ""
         controller?.sendTextMessage(text: text)
     }
-}
 
+    func sendTextMessage(text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        #if DEBUG
+        Self.log.debug("sendTextMessage: \(trimmed.prefix(60))")
+        #endif
+        controller?.sendTextMessage(text: trimmed)
+    }
+
+    func sendImageMessage(fileName: String, mimeType: String) {
+        controller?.sendImageMessage(fileName: fileName, mimeType: mimeType)
+    }
+
+    func sendVoiceMessage(fileName: String, amplitudes: [Double], durationMs: Int64) {
+        controller?.sendVoiceMessage(
+            fileName: fileName,
+            amplitudes: amplitudes.map { KotlinDouble(value: $0) },
+            durationMs: durationMs
+        )
+    }
+}

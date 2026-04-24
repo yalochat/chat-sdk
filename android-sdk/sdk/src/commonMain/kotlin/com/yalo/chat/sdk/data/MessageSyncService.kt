@@ -31,9 +31,16 @@ internal class MessageSyncService(
     private var job: Job? = null
 
     // Start polling. Idempotent — calling while already active is a no-op.
+    // Before the first poll, pre-warms the remote repo's dedup cache with the wiIds of
+    // messages already in the local DB, so media files from previous sessions are never
+    // re-downloaded on cold restart (which would block text responses for minutes).
     fun start(scope: CoroutineScope) {
         if (job?.isActive == true) return
         job = scope.launch {
+            val existing = localRepo.getMessages(cursor = null, limit = 500)
+            if (existing is Result.Ok) {
+                yaloRepo.warmDedupCache(existing.result.mapNotNull { it.wiId })
+            }
             yaloRepo.pollIncomingMessages().collect { batch ->
                 // Insert the whole poll batch in one SQLDelight transaction.
                 // Polling continues on the next cycle regardless of insert outcome.

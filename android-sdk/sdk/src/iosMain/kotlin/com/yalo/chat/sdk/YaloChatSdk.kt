@@ -15,7 +15,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import kotlin.native.Platform
 import kotlinx.coroutines.Dispatchers
-import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.NSCachesDirectory
+import platform.Foundation.NSFileManager
+import platform.Foundation.NSURL
+import platform.Foundation.NSUserDomainMask
 
 // iOS entry point — mirrors YaloChat.kt in androidMain.
 // Wires the shared commonMain business logic with iOS platform drivers:
@@ -62,9 +65,18 @@ object YaloChatSdk {
             organizationId = config.organizationId,
             httpClient = httpClient,
         )
+        // Use app-specific caches directory — mirrors Android's context.cacheDir.
+        // NSTemporaryDirectory() is purged aggressively by the OS between app launches;
+        // NSCachesDirectory is only cleared under storage pressure, so downloaded media
+        // (images, audio, video) survives cold restarts.
+        val cacheDir = (NSFileManager.defaultManager
+            .URLsForDirectory(NSCachesDirectory, NSUserDomainMask)
+            .firstOrNull() as? NSURL)
+            ?.path
+            ?.let { "$it/ChatSdk" }
         val repo = YaloMessageRepositoryRemote(
             apiService = apiService,
-            tempDir = NSTemporaryDirectory(),
+            tempDir = cacheDir,
         )
         yaloRepo = repo
 

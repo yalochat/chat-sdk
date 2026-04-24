@@ -15,7 +15,6 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
-import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,12 +41,15 @@ internal class MessagesViewModel(
     // Keeps the active events job so SubscribeToEvents is idempotent.
     private var eventsJob: Job? = null
 
-    // Incrementing counter seeded from current epoch-ms so optimistic temp IDs:
-    //  1. Never collide across sessions (different session → different starting time)
-    //  2. Sort at the bottom in ORDER BY id ASC (most recent, correct chat position)
-    // Server message IDs are also epoch-ms based, so optimistic and server messages
-    // interleave correctly by send time.
-    private val tempIdSeq = AtomicLong(System.currentTimeMillis())
+    // Refreshed against the wall clock on every send so user-message tempIds always sort
+    // AFTER agent messages whose ids were bumped to receiptFloor by ensureReceiptOrder.
+    private var tempIdSeq: Long = 0L
+
+    private fun nextTempId(): Long {
+        val now = System.currentTimeMillis()
+        if (now > tempIdSeq) tempIdSeq = now
+        return tempIdSeq++
+    }
 
     fun handleEvent(event: MessagesEvent) {
         when (event) {
@@ -225,7 +227,7 @@ internal class MessagesViewModel(
     private fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         viewModelScope.launch {
-            val tempId = tempIdSeq.getAndIncrement()
+            val tempId = nextTempId()
             val optimistic = ChatMessage(
                 id = tempId,
                 role = MessageRole.USER,
@@ -253,7 +255,7 @@ internal class MessagesViewModel(
     private fun sendVoiceMessage(audioData: AudioData) {
         if (audioData.fileName.isEmpty()) return
         viewModelScope.launch {
-            val tempId = tempIdSeq.getAndIncrement()
+            val tempId = nextTempId()
             val message = ChatMessage(
                 id = tempId,
                 role = MessageRole.USER,
@@ -280,7 +282,7 @@ internal class MessagesViewModel(
     private fun sendImageMessage(imageData: ImageData) {
         if (imageData.path == null) return
         viewModelScope.launch {
-            val tempId = tempIdSeq.getAndIncrement()
+            val tempId = nextTempId()
             val message = ChatMessage(
                 id = tempId,
                 role = MessageRole.USER,
