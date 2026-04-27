@@ -30,6 +30,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _mediaService: YaloMediaService;
   private _pollTimeout?: ReturnType<typeof setTimeout>;
   private _seenIds = new Set<string>();
+  private _lastMessageTimestamp?: Date;
   private _pollInterval = 2000;
 
   constructor(
@@ -491,9 +492,10 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       const userId = this._decodeUserId(token);
 
       try {
-        const params = new URLSearchParams({
-          since: String(Math.floor(Date.now() - 5000)),
-        });
+        const since = Math.floor(
+          this._lastMessageTimestamp?.getTime() ?? Date.now() - 5000
+        );
+        const params = new URLSearchParams({ since: String(since) });
         const response = await fetch(
           `${this._baseUrl}/webchat/messages?${params}`,
           {
@@ -511,6 +513,16 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
         const json = (await response.json()) as Array<unknown>;
         const data = json.map((item) => PollMessageItem.fromJSON(item));
+
+        for (const item of data) {
+          if (
+            item.date &&
+            (!this._lastMessageTimestamp ||
+              item.date > this._lastMessageTimestamp)
+          ) {
+            this._lastMessageTimestamp = item.date;
+          }
+        }
 
         const newMessages = data
           .filter((item) => !this._seenIds.has(item.id) && item.message != null)
@@ -535,6 +547,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     clearTimeout(this._pollTimeout);
     this._pollTimeout = undefined;
     this._seenIds.clear();
+    this._lastMessageTimestamp = undefined;
   }
 
   private _toDomainProduct(p: ProtoProduct): Product {

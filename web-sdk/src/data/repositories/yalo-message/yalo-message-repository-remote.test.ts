@@ -1090,6 +1090,72 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(callback).not.toHaveBeenCalled();
     });
 
+    it('uses Date.now() - 5000 for since on the first poll', async () => {
+      const fetchSpy = mockOkFetch([]);
+      vi.stubGlobal('fetch', fetchSpy);
+      vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+
+      await flushPoll();
+
+      const url = new URL(fetchSpy.mock.calls[0][0] as string);
+      expect(url.searchParams.get('since')).toBe(String(Date.now() - 5000));
+    });
+
+    it('uses the last received message timestamp for since on subsequent polls', async () => {
+      const firstBatch = [
+        makePollItem('msg-1', 'older', new Date('2026-06-01T12:00:00Z')),
+        makePollItem('msg-2', 'newest', new Date('2026-06-01T12:00:05Z')),
+      ];
+      const fetchSpy = mockOkFetch(firstBatch);
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+
+      await flushPoll();
+      await vi.advanceTimersByTimeAsync(2000);
+
+      const secondUrl = new URL(fetchSpy.mock.calls[1][0] as string);
+      expect(secondUrl.searchParams.get('since')).toBe(
+        String(new Date('2026-06-01T12:00:05Z').getTime())
+      );
+    });
+
+    it('falls back to Date.now() - 5000 when polled items have no date', async () => {
+      const items = [makePollItem('msg-1', 'no date')];
+      const fetchSpy = mockOkFetch(items);
+      vi.stubGlobal('fetch', fetchSpy);
+      vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+
+      await flushPoll();
+      await vi.advanceTimersByTimeAsync(2000);
+
+      const secondSince = new URL(fetchSpy.mock.calls[1][0] as string)
+        .searchParams.get('since');
+      expect(secondSince).toBe(String(Date.now() - 5000));
+    });
+
     it('schedules the next poll after the interval', async () => {
       const fetchSpy = mockOkFetch([]);
       vi.stubGlobal('fetch', fetchSpy);
@@ -1345,6 +1411,33 @@ describe('YaloMessageRepositoryRemote', () => {
       // Advance well past the poll interval — no timer should fire
       await vi.advanceTimersByTimeAsync(10_000);
       expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('resets the since watermark after unsubscribe', async () => {
+      const items = [
+        makePollItem('msg-1', 'Hi', new Date('2026-06-01T12:00:00Z')),
+      ];
+      const fetchSpy = mockOkFetch(items);
+      vi.stubGlobal('fetch', fetchSpy);
+      vi.setSystemTime(new Date('2026-06-02T00:00:00Z'));
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+      await flushPoll();
+
+      repo.unsubscribeMessages();
+      repo.subscribeToMessages(vi.fn());
+      await flushPoll();
+
+      const lastUrl = new URL(
+        fetchSpy.mock.calls[fetchSpy.mock.calls.length - 1][0] as string
+      );
+      expect(lastUrl.searchParams.get('since')).toBe(String(Date.now() - 5000));
     });
 
     it('clears seen IDs so resubscribing picks up old messages', async () => {
