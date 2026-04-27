@@ -13,7 +13,22 @@ class MessagesObservable: ObservableObject {
     @Published var userMessage: String = ""
     @Published var isLoading: Bool = false
 
+    // Typing indicator — mirrors Android MessagesViewModel.isSystemTypingMessage / chatStatusText.
+    @Published var isTyping: Bool = false
+    @Published var typingStatusText: String = ""
+
+    // Quick reply chips derived from the last QuickReply-type agent message.
+    // Cleared when the user sends a message; restored when a new QuickReply message arrives.
+    @Published var quickReplies: [String] = []
+
+    // In-memory expand state for product list/carousel — never stored in DB.
+    @Published var expandedMessageIds: Set<Int64> = []
+
     private static let log = Logger(subsystem: "com.yalo.chat.demo", category: "MessagesObservable")
+
+    // Tracks the wiId of the QuickReply message that populated the current chip row.
+    // Mirrors Android MessagesViewModel.lastQuickReplyMessageWiId guard.
+    private var lastQuickReplyWiId: String? = nil
 
     private var controller: MessagesController? {
         YaloChatSdk.shared.messagesController
@@ -36,15 +51,31 @@ class MessagesObservable: ObservableObject {
                 #endif
                 self?.messages = messages
                 self?.isLoading = false
+                self?.updateQuickRepliesFromMessages(messages)
             }
         }
         controller?.loadMessages()
+        controller?.startEventsObservation(
+            onTypingStart: { [weak self] statusText in
+                DispatchQueue.main.async {
+                    self?.isTyping = true
+                    self?.typingStatusText = statusText
+                }
+            },
+            onTypingStop: { [weak self] in
+                DispatchQueue.main.async {
+                    self?.isTyping = false
+                    self?.typingStatusText = ""
+                }
+            }
+        )
     }
 
     func onDisappear() {
         Self.log.debug("onDisappear — stopping controller")
         controller?.stop()
         isLoading = false
+        isTyping = false
     }
 
     func sendMessage() {
@@ -54,6 +85,7 @@ class MessagesObservable: ObservableObject {
         Self.log.debug("sendMessage: \(text.prefix(60))")
         #endif
         userMessage = ""
+        clearQuickReplies()
         controller?.sendTextMessage(text: text)
     }
 
@@ -63,6 +95,7 @@ class MessagesObservable: ObservableObject {
         #if DEBUG
         Self.log.debug("sendTextMessage: \(trimmed.prefix(60))")
         #endif
+        clearQuickReplies()
         controller?.sendTextMessage(text: trimmed)
     }
 
@@ -75,6 +108,47 @@ class MessagesObservable: ObservableObject {
             fileName: fileName,
             amplitudes: amplitudes.map { KotlinDouble(value: $0) },
             durationMs: durationMs
+        )
+    }
+
+    // MARK: - Quick replies
+
+    func clearQuickReplies() {
+        quickReplies = []
+    }
+
+    // Derives the current chip row from messages, same logic as Android extractQuickReplies().
+    // Only updates when a new QuickReply message (different wiId) arrives so that a
+    // ClearQuickReplies triggered by user send isn't undone by the next observeMessages emission.
+    private func updateQuickRepliesFromMessages(_ messages: [ChatMessage]) {
+        let lastQr = messages.last { msg in
+            msg.type is MessageType.QuickReply && msg.role === MessageRole.agent
+        }
+        guard let qrMsg = lastQr else { return }
+        let wiId = qrMsg.wiId
+        guard wiId != lastQuickReplyWiId else { return }
+        lastQuickReplyWiId = wiId
+        quickReplies = qrMsg.quickReplies.compactMap { $0 as? String }
+    }
+
+    // MARK: - Product expand
+
+    func toggleMessageExpand(messageId: Int64) {
+        if expandedMessageIds.contains(messageId) {
+            expandedMessageIds.remove(messageId)
+        } else {
+            expandedMessageIds.insert(messageId)
+        }
+    }
+
+    // MARK: - Product quantity
+
+    func updateProductQuantity(messageId: Int64, productSku: String, isSubunit: Bool, quantity: Double) {
+        controller?.updateProductQuantity(
+            messageId: messageId,
+            productSku: productSku,
+            isSubunit: isSubunit,
+            quantity: quantity
         )
     }
 }

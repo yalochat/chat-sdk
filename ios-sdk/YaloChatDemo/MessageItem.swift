@@ -10,18 +10,68 @@ struct MessageItem: View {
     let message: ChatMessage
     @ObservedObject var audioObservable: AudioObservable
     var onButtonTap: (String) -> Void = { _ in }
+    var onToggleExpand: (Int64) -> Void = { _ in }
+    var onUpdateQuantity: (Int64, String, Bool, Double) -> Void = { _, _, _, _ in }
+    var isExpanded: Bool = false
 
     private var isUser: Bool { message.role === MessageRole.user }
 
+    // Product messages render their own card borders — bypass the bubble HStack layout.
+    private var isProductMessage: Bool {
+        message.type is MessageType.Product || message.type is MessageType.ProductCarousel
+    }
+
     var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            if isUser {
-                Spacer(minLength: 48)
-                bubble
-            } else {
-                bubble
-                Spacer(minLength: 48)
+        if isProductMessage {
+            productMessageRow
+        } else {
+            HStack(alignment: .bottom, spacing: 4) {
+                if isUser {
+                    Spacer(minLength: 48)
+                    errorIndicator
+                    bubble
+                } else {
+                    bubble
+                    Spacer(minLength: 48)
+                }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var errorIndicator: some View {
+        if isUser && message.status === MessageStatus.error {
+            Image(systemName: "exclamationmark.circle.fill")
+                .foregroundColor(.red)
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder
+    private var productMessageRow: some View {
+        HStack {
+            if let messageId = message.id?.int64Value {
+                if message.type is MessageType.Product {
+                    ProductListView(
+                        message: message,
+                        isExpanded: isExpanded,
+                        onToggleExpand: { onToggleExpand(messageId) },
+                        onUpdateQuantity: { sku, isSub, qty in
+                            onUpdateQuantity(messageId, sku, isSub, qty)
+                        }
+                    )
+                } else {
+                    ProductCarouselView(
+                        message: message,
+                        isExpanded: isExpanded,
+                        onToggleExpand: { onToggleExpand(messageId) },
+                        onUpdateQuantity: { sku, isSub, qty in
+                            onUpdateQuantity(messageId, sku, isSub, qty)
+                        }
+                    )
+                }
+            }
+            Spacer(minLength: 0)
         }
     }
 
@@ -44,7 +94,7 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var bubbleContent: some View {
-        if message.type is MessageType.Text {
+        if message.type is MessageType.Text || message.type is MessageType.QuickReply {
             Text(message.content)
                 .foregroundColor(isUser ? .white : .primary)
         } else if message.type is MessageType.Voice {
