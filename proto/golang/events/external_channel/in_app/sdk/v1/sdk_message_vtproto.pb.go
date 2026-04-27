@@ -2044,6 +2044,20 @@ func (m *GuidanceCardRequest) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.Context != nil {
+		i -= len(*m.Context)
+		copy(dAtA[i:], *m.Context)
+		i = encodeVarint(dAtA, i, uint64(len(*m.Context)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.TargetId != nil {
+		i -= len(*m.TargetId)
+		copy(dAtA[i:], *m.TargetId)
+		i = encodeVarint(dAtA, i, uint64(len(*m.TargetId)))
+		i--
+		dAtA[i] = 0x12
+	}
 	if m.Timestamp != nil {
 		if vtmsg, ok := interface{}(m.Timestamp).(interface {
 			MarshalToSizedBufferVT([]byte) (int, error)
@@ -4715,6 +4729,14 @@ func (m *GuidanceCardRequest) SizeVT() (n int) {
 		} else {
 			l = proto.Size(m.Timestamp)
 		}
+		n += 1 + l + sov(uint64(l))
+	}
+	if m.TargetId != nil {
+		l = len(*m.TargetId)
+		n += 1 + l + sov(uint64(l))
+	}
+	if m.Context != nil {
+		l = len(*m.Context)
 		n += 1 + l + sov(uint64(l))
 	}
 	n += len(m.unknownFields)
@@ -9890,6 +9912,72 @@ func (m *GuidanceCardRequest) UnmarshalVT(dAtA []byte) error {
 					return err
 				}
 			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			s := string(dAtA[iNdEx:postIndex])
+			m.TargetId = &s
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Context", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			s := string(dAtA[iNdEx:postIndex])
+			m.Context = &s
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

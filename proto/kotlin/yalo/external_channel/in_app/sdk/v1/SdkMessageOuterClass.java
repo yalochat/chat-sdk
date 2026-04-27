@@ -16250,6 +16250,64 @@ public final class SdkMessageOuterClass {
      * @return The timestamp.
      */
     com.google.protobuf.Timestamp getTimestamp();
+
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @return Whether the targetId field is set.
+     */
+    boolean hasTargetId();
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @return The targetId.
+     */
+    java.lang.String getTargetId();
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @return The bytes for targetId.
+     */
+    com.google.protobuf.ByteString
+        getTargetIdBytes();
+
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @return Whether the context field is set.
+     */
+    boolean hasContext();
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @return The context.
+     */
+    java.lang.String getContext();
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @return The bytes for context.
+     */
+    com.google.protobuf.ByteString
+        getContextBytes();
   }
   /**
    * <pre>
@@ -16264,6 +16322,8 @@ public final class SdkMessageOuterClass {
       // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.GuidanceCardRequest)
       GuidanceCardRequestOrBuilder {
     private GuidanceCardRequest() {
+      targetId_ = "";
+      context_ = "";
     }
     private int bitField0_;
     public static final int TIMESTAMP_FIELD_NUMBER = 1;
@@ -16312,6 +16372,166 @@ public final class SdkMessageOuterClass {
     private void clearTimestamp() {
       timestamp_ = null;
       bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static final int TARGET_ID_FIELD_NUMBER = 2;
+    private java.lang.String targetId_;
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @return Whether the targetId field is set.
+     */
+    @java.lang.Override
+    public boolean hasTargetId() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @return The targetId.
+     */
+    @java.lang.Override
+    public java.lang.String getTargetId() {
+      return targetId_;
+    }
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @return The bytes for targetId.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getTargetIdBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(targetId_);
+    }
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @param value The targetId to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTargetId(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000002;
+      targetId_ = value;
+    }
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     */
+    private void clearTargetId() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      targetId_ = getDefaultInstance().getTargetId();
+    }
+    /**
+     * <pre>
+     * Identifies the target entity for which guidance cards are requested.
+     * </pre>
+     *
+     * <code>optional string target_id = 2;</code>
+     * @param value The bytes for targetId to set.
+     */
+    private void setTargetIdBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      targetId_ = value.toStringUtf8();
+      bitField0_ |= 0x00000002;
+    }
+
+    public static final int CONTEXT_FIELD_NUMBER = 3;
+    private java.lang.String context_;
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @return Whether the context field is set.
+     */
+    @java.lang.Override
+    public boolean hasContext() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @return The context.
+     */
+    @java.lang.Override
+    public java.lang.String getContext() {
+      return context_;
+    }
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @return The bytes for context.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getContextBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(context_);
+    }
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @param value The context to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setContext(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000004;
+      context_ = value;
+    }
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     */
+    private void clearContext() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      context_ = getDefaultInstance().getContext();
+    }
+    /**
+     * <pre>
+     * Additional context for the guidance card lookup.
+     * </pre>
+     *
+     * <code>optional string context = 3;</code>
+     * @param value The bytes for context to set.
+     */
+    private void setContextBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      context_ = value.toStringUtf8();
+      bitField0_ |= 0x00000004;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GuidanceCardRequest parseFrom(
@@ -16462,6 +16682,168 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
+      /**
+       * <pre>
+       * Identifies the target entity for which guidance cards are requested.
+       * </pre>
+       *
+       * <code>optional string target_id = 2;</code>
+       * @return Whether the targetId field is set.
+       */
+      @java.lang.Override
+      public boolean hasTargetId() {
+        return instance.hasTargetId();
+      }
+      /**
+       * <pre>
+       * Identifies the target entity for which guidance cards are requested.
+       * </pre>
+       *
+       * <code>optional string target_id = 2;</code>
+       * @return The targetId.
+       */
+      @java.lang.Override
+      public java.lang.String getTargetId() {
+        return instance.getTargetId();
+      }
+      /**
+       * <pre>
+       * Identifies the target entity for which guidance cards are requested.
+       * </pre>
+       *
+       * <code>optional string target_id = 2;</code>
+       * @return The bytes for targetId.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getTargetIdBytes() {
+        return instance.getTargetIdBytes();
+      }
+      /**
+       * <pre>
+       * Identifies the target entity for which guidance cards are requested.
+       * </pre>
+       *
+       * <code>optional string target_id = 2;</code>
+       * @param value The targetId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTargetId(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setTargetId(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Identifies the target entity for which guidance cards are requested.
+       * </pre>
+       *
+       * <code>optional string target_id = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTargetId() {
+        copyOnWrite();
+        instance.clearTargetId();
+        return this;
+      }
+      /**
+       * <pre>
+       * Identifies the target entity for which guidance cards are requested.
+       * </pre>
+       *
+       * <code>optional string target_id = 2;</code>
+       * @param value The bytes for targetId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTargetIdBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setTargetIdBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Additional context for the guidance card lookup.
+       * </pre>
+       *
+       * <code>optional string context = 3;</code>
+       * @return Whether the context field is set.
+       */
+      @java.lang.Override
+      public boolean hasContext() {
+        return instance.hasContext();
+      }
+      /**
+       * <pre>
+       * Additional context for the guidance card lookup.
+       * </pre>
+       *
+       * <code>optional string context = 3;</code>
+       * @return The context.
+       */
+      @java.lang.Override
+      public java.lang.String getContext() {
+        return instance.getContext();
+      }
+      /**
+       * <pre>
+       * Additional context for the guidance card lookup.
+       * </pre>
+       *
+       * <code>optional string context = 3;</code>
+       * @return The bytes for context.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getContextBytes() {
+        return instance.getContextBytes();
+      }
+      /**
+       * <pre>
+       * Additional context for the guidance card lookup.
+       * </pre>
+       *
+       * <code>optional string context = 3;</code>
+       * @param value The context to set.
+       * @return This builder for chaining.
+       */
+      public Builder setContext(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setContext(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Additional context for the guidance card lookup.
+       * </pre>
+       *
+       * <code>optional string context = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearContext() {
+        copyOnWrite();
+        instance.clearContext();
+        return this;
+      }
+      /**
+       * <pre>
+       * Additional context for the guidance card lookup.
+       * </pre>
+       *
+       * <code>optional string context = 3;</code>
+       * @param value The bytes for context to set.
+       * @return This builder for chaining.
+       */
+      public Builder setContextBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setContextBytes(value);
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.GuidanceCardRequest)
     }
     @java.lang.Override
@@ -16480,9 +16862,12 @@ public final class SdkMessageOuterClass {
             java.lang.Object[] objects = new java.lang.Object[] {
               "bitField0_",
               "timestamp_",
+              "targetId_",
+              "context_",
             };
             java.lang.String info =
-                "\u0000\u0001\u0000\u0001\u0001\u0001\u0001\u0000\u0000\u0000\u0001\u1009\u0000";
+                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u1009\u0000\u0002" +
+                "\u1208\u0001\u0003\u1208\u0002";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {

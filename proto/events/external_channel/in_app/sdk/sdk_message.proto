@@ -281,6 +281,10 @@ message ClearCartResponse {
 // GuidanceCardRequest asks the channel to return the current guidance cards.
 message GuidanceCardRequest {
   google.protobuf.Timestamp timestamp = 1;
+  // Identifies the target entity for which guidance cards are requested.
+  optional string target_id = 2;
+  // Additional context for the guidance card lookup.
+  optional string context = 3;
 }
 
 // GuidanceCardResponse returns the guidance cards to display to the user.

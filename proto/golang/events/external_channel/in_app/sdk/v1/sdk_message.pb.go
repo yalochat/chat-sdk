@@ -2103,8 +2103,12 @@ func (x *ClearCartResponse) GetTimestamp() *timestamppb.Timestamp {
 
 // GuidanceCardRequest asks the channel to return the current guidance cards.
 type GuidanceCardRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Timestamp *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// Identifies the target entity for which guidance cards are requested.
+	TargetId *string `protobuf:"bytes,2,opt,name=target_id,json=targetId,proto3,oneof" json:"target_id,omitempty"`
+	// Additional context for the guidance card lookup.
+	Context       *string `protobuf:"bytes,3,opt,name=context,proto3,oneof" json:"context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2144,6 +2148,20 @@ func (x *GuidanceCardRequest) GetTimestamp() *timestamppb.Timestamp {
 		return x.Timestamp
 	}
 	return nil
+}
+
+func (x *GuidanceCardRequest) GetTargetId() string {
+	if x != nil && x.TargetId != nil {
+		return *x.TargetId
+	}
+	return ""
+}
+
+func (x *GuidanceCardRequest) GetContext() string {
+	if x != nil && x.Context != nil {
+		return *x.Context
+	}
+	return ""
 }
 
 // GuidanceCardResponse returns the guidance cards to display to the user.
@@ -3904,9 +3922,15 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x9a\x01\n" +
 	"\x11ClearCartResponse\x12K\n" +
 	"\x06status\x18\x01 \x01(\x0e23.yalo.external_channel.in_app.sdk.v1.ResponseStatusR\x06status\x128\n" +
-	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"O\n" +
+	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\xaa\x01\n" +
 	"\x13GuidanceCardRequest\x128\n" +
-	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x9e\x02\n" +
+	"\ttimestamp\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12 \n" +
+	"\ttarget_id\x18\x02 \x01(\tH\x00R\btargetId\x88\x01\x01\x12\x1d\n" +
+	"\acontext\x18\x03 \x01(\tH\x01R\acontext\x88\x01\x01B\f\n" +
+	"\n" +
+	"_target_idB\n" +
+	"\n" +
+	"\b_context\"\x9e\x02\n" +
 	"\x14GuidanceCardResponse\x12K\n" +
 	"\x06status\x18\x01 \x01(\x0e23.yalo.external_channel.in_app.sdk.v1.ResponseStatusR\x06status\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12%\n" +
@@ -4282,6 +4306,7 @@ func file_events_external_channel_in_app_sdk_sdk_message_proto_init() {
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[7].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[9].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[14].OneofWrappers = []any{}
+	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[18].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[24].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

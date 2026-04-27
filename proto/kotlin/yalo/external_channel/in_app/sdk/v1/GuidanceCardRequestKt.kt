@@ -59,6 +59,78 @@ public object GuidanceCardRequestKt {
 
     public val GuidanceCardRequestKt.Dsl.timestampOrNull: com.google.protobuf.Timestamp?
       get() = _builder.timestampOrNull
+
+    /**
+     * ```
+     * Identifies the target entity for which guidance cards are requested.
+     * ```
+     *
+     * `optional string target_id = 2;`
+     */
+    public var targetId: kotlin.String
+      @kotlin.jvm.JvmName("getTargetId")
+        get() = _builder.targetId
+      @kotlin.jvm.JvmName("setTargetId")
+        set(value) {
+        _builder.targetId = value
+      }
+    /**
+     * ```
+     * Identifies the target entity for which guidance cards are requested.
+     * ```
+     *
+     * `optional string target_id = 2;`
+     */
+    public fun clearTargetId() {
+      _builder.clearTargetId()
+    }
+    /**
+     * ```
+     * Identifies the target entity for which guidance cards are requested.
+     * ```
+     *
+     * `optional string target_id = 2;`
+     * @return Whether the targetId field is set.
+     */
+    public fun hasTargetId(): kotlin.Boolean {
+      return _builder.hasTargetId()
+    }
+
+    /**
+     * ```
+     * Additional context for the guidance card lookup.
+     * ```
+     *
+     * `optional string context = 3;`
+     */
+    public var context: kotlin.String
+      @kotlin.jvm.JvmName("getContext")
+        get() = _builder.context
+      @kotlin.jvm.JvmName("setContext")
+        set(value) {
+        _builder.context = value
+      }
+    /**
+     * ```
+     * Additional context for the guidance card lookup.
+     * ```
+     *
+     * `optional string context = 3;`
+     */
+    public fun clearContext() {
+      _builder.clearContext()
+    }
+    /**
+     * ```
+     * Additional context for the guidance card lookup.
+     * ```
+     *
+     * `optional string context = 3;`
+     * @return Whether the context field is set.
+     */
+    public fun hasContext(): kotlin.Boolean {
+      return _builder.hasContext()
+    }
   }
 }
 public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GuidanceCardRequest.copy(block: `yalo.external_channel.in_app.sdk.v1`.GuidanceCardRequestKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GuidanceCardRequest =
