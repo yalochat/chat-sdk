@@ -16,7 +16,7 @@ struct ProductListView: View {
     var onUpdateQuantity: (String, Bool, Double) -> Void = { _, _, _ in }
 
     private var products: [Product] {
-        message.products.compactMap { $0 as? Product }
+        message.products
     }
 
     var body: some View {

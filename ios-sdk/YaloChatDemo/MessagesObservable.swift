@@ -128,7 +128,7 @@ class MessagesObservable: ObservableObject {
         let wiId = qrMsg.wiId
         guard wiId != lastQuickReplyWiId else { return }
         lastQuickReplyWiId = wiId
-        quickReplies = qrMsg.quickReplies.compactMap { $0 as? String }
+        quickReplies = qrMsg.quickReplies
     }
 
     // MARK: - Product expand

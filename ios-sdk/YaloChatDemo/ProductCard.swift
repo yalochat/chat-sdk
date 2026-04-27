@@ -24,7 +24,7 @@ struct ProductHorizontalCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            ProductImage(urlString: product.imagesUrl.compactMap { $0 as? String }.first)
+            ProductImage(urlString: product.imagesUrl.first)
                 .frame(width: 80, height: 100)
                 .clipped()
                 .cornerRadius(8)
@@ -79,7 +79,7 @@ struct ProductVerticalCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            ProductImage(urlString: product.imagesUrl.compactMap { $0 as? String }.first)
+            ProductImage(urlString: product.imagesUrl.first)
                 .frame(maxWidth: .infinity)
                 .aspectRatio(4 / 3, contentMode: .fill)
                 .clipped()

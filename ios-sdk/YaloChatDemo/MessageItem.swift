@@ -142,7 +142,7 @@ struct MessageItem: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            let labels = message.buttons.compactMap { $0 as? String }
+            let labels = message.buttons
             if !labels.isEmpty {
                 VStack(spacing: 6) {
                     ForEach(labels, id: \.self) { label in
@@ -183,7 +183,7 @@ struct MessageItem: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            let buttons = message.ctaButtons.compactMap { $0 as? CtaButton }
+            let buttons = message.ctaButtons
             if !buttons.isEmpty {
                 VStack(spacing: 6) {
                     ForEach(buttons, id: \.url) { button in
