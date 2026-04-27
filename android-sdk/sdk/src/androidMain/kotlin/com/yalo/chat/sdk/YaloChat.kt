@@ -18,6 +18,8 @@ import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
+import com.yalo.chat.sdk.domain.model.ChatCommand
+import com.yalo.chat.sdk.domain.model.ChatCommandCallback
 import com.yalo.chat.sdk.database.ChatDatabase
 import com.yalo.chat.sdk.ui.chat.AudioViewModel
 import com.yalo.chat.sdk.ui.chat.ImageViewModel
@@ -34,6 +36,7 @@ object YaloChat {
     private var _httpClient: HttpClient? = null
     private var _driver: SqlDriver? = null
     private var _syncService: MessageSyncService? = null
+    private var _yaloRepo: YaloMessageRepositoryRemote? = null
 
     val config: YaloChatConfig
         get() = _config ?: error("YaloChat.init() must be called before accessing config")
@@ -49,6 +52,7 @@ object YaloChat {
         _syncService?.stop()
         _httpClient?.close()
         _driver?.close()
+        _yaloRepo = null
 
         _config = config
         _theme = theme
@@ -93,6 +97,7 @@ object YaloChat {
             apiService = apiService,
             tempDir = context.applicationContext.cacheDir.absolutePath,
         )
+        _yaloRepo = yaloRepo
 
         val driver = AndroidSqliteDriver(
             schema = ChatDatabase.Schema,
@@ -127,4 +132,20 @@ object YaloChat {
 
     fun getViewModelFactory(): ViewModelProvider.Factory =
         _viewModelFactory ?: error("YaloChat.init() must be called before rendering ChatScreen")
+
+    /**
+     * Registers a callback for a [ChatCommand]. When the command is triggered by the chat UI,
+     * the callback fires instead of the built-in API call. Mirrors Flutter's
+     * `YaloChatClient.registerCommand(command, callback)`.
+     *
+     * Can be called before or after [init]. If called before [init] the registration is
+     * silently ignored; call [registerCommand] after [init] to ensure it takes effect.
+     *
+     * @param command  The command to intercept (e.g. [ChatCommand.AddToCart]).
+     * @param callback Receives a payload map or null. See [ChatCommandCallback] for per-command
+     *                 payload shapes.
+     */
+    fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
+        _yaloRepo?.registerCommand(command, callback)
+    }
 }

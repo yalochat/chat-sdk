@@ -4,6 +4,7 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -34,8 +35,10 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class YaloMessageRepositoryRemoteTest {
@@ -795,6 +798,124 @@ class YaloMessageRepositoryRemoteTest {
         val id1 = batches[0].first().id!!
         val id2 = batches[1].first().id!!
         assertTrue(id2 > id1, "Second poll ID $id2 must be > first poll ID $id1")
+    }
+
+    // ── ChatCommand callbacks ──────────────────────────────────────────────────
+    // Mirrors flutter-sdk YaloMessageRepositoryRemote: if a command callback is registered it
+    // fires instead of the API call; without a callback the API is called normally.
+
+    @Test
+    fun `addToCart invokes registered callback and skips API`() = runTest {
+        val apiCallPaths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            apiCallPaths.add(request.url.encodedPath)
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+
+        var callbackPayload: Any? = "not-called"
+        repo.registerCommand(ChatCommand.AddToCart) { payload -> callbackPayload = payload }
+
+        val result = repo.addToCart("sku-1", 3.0)
+
+        assertIs<Result.Ok<Unit>>(result)
+        val payload = callbackPayload as? Map<*, *>
+        assertEquals("sku-1", payload?.get("sku"))
+        assertEquals(3.0, payload?.get("quantity"))
+        // /inapp/inbound_messages must NOT have been called
+        assertFalse(apiCallPaths.any { it.contains("inbound_messages") }, "API must not be called when callback is registered")
+    }
+
+    @Test
+    fun `addToCart calls API when no callback is registered`() = runTest {
+        val inboundPaths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                inboundPaths.add(request.url.encodedPath)
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+
+        val result = repo.addToCart("sku-2", 1.0)
+
+        assertIs<Result.Ok<Unit>>(result)
+        assertTrue(inboundPaths.any { it.contains("inbound_messages") }, "API must be called when no callback registered")
+    }
+
+    @Test
+    fun `removeFromCart invokes registered callback and skips API`() = runTest {
+        val apiCallPaths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            apiCallPaths.add(request.url.encodedPath)
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+
+        var callbackPayload: Any? = null
+        repo.registerCommand(ChatCommand.RemoveFromCart) { payload -> callbackPayload = payload }
+
+        val result = repo.removeFromCart("sku-3", 2.0)
+
+        assertIs<Result.Ok<Unit>>(result)
+        val payload = callbackPayload as? Map<*, *>
+        assertEquals("sku-3", payload?.get("sku"))
+        assertEquals(2.0, payload?.get("quantity"))
+        assertFalse(apiCallPaths.any { it.contains("inbound_messages") })
+    }
+
+    @Test
+    fun `clearCart invokes registered callback with null payload`() = runTest {
+        val repo = buildRepoWithEngine(MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        })
+
+        var callbackFired = false
+        var callbackPayload: Any? = "sentinel"
+        repo.registerCommand(ChatCommand.ClearCart) { payload ->
+            callbackFired = true
+            callbackPayload = payload
+        }
+
+        val result = repo.clearCart()
+
+        assertIs<Result.Ok<Unit>>(result)
+        assertTrue(callbackFired)
+        assertNull(callbackPayload, "clearCart callback payload must be null")
+    }
+
+    @Test
+    fun `addPromotion invokes registered callback with promotionId payload`() = runTest {
+        val repo = buildRepoWithEngine(MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        })
+
+        var callbackPayload: Any? = null
+        repo.registerCommand(ChatCommand.AddPromotion) { payload -> callbackPayload = payload }
+
+        val result = repo.addPromotion("promo-xyz")
+
+        assertIs<Result.Ok<Unit>>(result)
+        val payload = callbackPayload as? Map<*, *>
+        assertEquals("promo-xyz", payload?.get("promotionId"))
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

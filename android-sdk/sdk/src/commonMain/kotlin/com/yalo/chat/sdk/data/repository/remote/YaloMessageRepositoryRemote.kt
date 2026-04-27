@@ -4,6 +4,8 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.domain.model.ChatCommand
+import com.yalo.chat.sdk.domain.model.ChatCommandCallback
 import com.yalo.chat.sdk.data.remote.model.SdkImageMessageBody
 import com.yalo.chat.sdk.data.remote.model.SdkImageMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
@@ -45,6 +47,14 @@ internal class YaloMessageRepositoryRemote(
     // Mirrors Flutter's _directory. Platform-specific path provided by YaloChat.kt.
     private val tempDir: String? = null,
 ) : YaloMessageRepository {
+
+    // Registered command callbacks — mirrors flutter-sdk YaloChatClient.commands.
+    // If a callback is registered for a command, it fires instead of the API call.
+    private val commands: MutableMap<ChatCommand, ChatCommandCallback> = mutableMapOf()
+
+    fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
+        commands[command] = callback
+    }
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
@@ -457,6 +467,46 @@ internal class YaloMessageRepositoryRemote(
         // Unknown payload type — cache so it is not re-evaluated on every poll cycle.
         if (deduplicate) cache.set(id, true)
         return null
+    }
+
+    // ── Cart operations ────────────────────────────────────────────────────────
+    // Mirrors flutter-sdk YaloMessageRepositoryRemote.addToCart/removeFromCart/clearCart/addPromotion.
+    // If a ChatCommand callback is registered, it fires instead of the API call (same pattern as Flutter).
+
+    override suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
+        val callback = commands[ChatCommand.AddToCart]
+        if (callback != null) {
+            callback(mapOf("sku" to sku, "quantity" to quantity))
+            return Result.Ok(Unit)
+        }
+        return apiService.addToCart(sku, quantity)
+    }
+
+    override suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
+        val callback = commands[ChatCommand.RemoveFromCart]
+        if (callback != null) {
+            callback(mapOf("sku" to sku, "quantity" to quantity))
+            return Result.Ok(Unit)
+        }
+        return apiService.removeFromCart(sku, quantity)
+    }
+
+    override suspend fun clearCart(): Result<Unit> {
+        val callback = commands[ChatCommand.ClearCart]
+        if (callback != null) {
+            callback(null)
+            return Result.Ok(Unit)
+        }
+        return apiService.clearCart()
+    }
+
+    override suspend fun addPromotion(promotionId: String): Result<Unit> {
+        val callback = commands[ChatCommand.AddPromotion]
+        if (callback != null) {
+            callback(mapOf("promotionId" to promotionId))
+            return Result.Ok(Unit)
+        }
+        return apiService.addPromotion(promotionId)
     }
 }
 

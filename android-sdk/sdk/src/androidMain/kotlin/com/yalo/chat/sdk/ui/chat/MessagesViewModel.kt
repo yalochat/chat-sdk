@@ -142,12 +142,18 @@ internal class MessagesViewModel(
         quantity: Double,
     ) {
         var updatedMessage: ChatMessage? = null
+        var previousValue = 0.0
         _state.update { state ->
             val newMessages = state.messages.map { msg ->
                 if (msg.id != messageId) return@map msg
                 msg.copy(
                     products = msg.products.map { product ->
                         if (product.sku != productSku) return@map product
+                        // Capture previous value so we can compute the cart delta below.
+                        previousValue = when (unitType) {
+                            UnitType.UNIT -> product.unitsAdded
+                            UnitType.SUBUNIT -> product.subunitsAdded
+                        }
                         when (unitType) {
                             // Mirrors Flutter: max(event.quantity, 0)
                             UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
@@ -170,11 +176,18 @@ internal class MessagesViewModel(
             }
             state.copy(messages = newMessages)
         }
+        val newValue = maxOf(quantity, 0.0)
+        val delta = newValue - previousValue
         updatedMessage?.let { msg ->
             viewModelScope.launch {
                 chatMessageRepository.updateMessage(msg)
-                // observeMessages() will re-emit with the persisted quantities — no
-                // extra state update needed here.
+                // After persisting, dispatch the cart command — mirrors Flutter MessagesBloc.
+                // delta > 0 → addToCart; delta < 0 → removeFromCart with absolute quantity.
+                if (delta > 0) {
+                    yaloMessageRepository.addToCart(productSku, delta)
+                } else if (delta < 0) {
+                    yaloMessageRepository.removeFromCart(productSku, -delta)
+                }
             }
         }
     }

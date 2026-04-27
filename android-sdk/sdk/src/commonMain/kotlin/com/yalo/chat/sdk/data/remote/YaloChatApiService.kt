@@ -3,6 +3,10 @@
 package com.yalo.chat.sdk.data.remote
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.data.remote.model.SdkAddPromotionRequestBody
+import com.yalo.chat.sdk.data.remote.model.SdkAddToCartRequestBody
+import com.yalo.chat.sdk.data.remote.model.SdkClearCartRequestBody
+import com.yalo.chat.sdk.data.remote.model.SdkRemoveFromCartRequestBody
 import com.yalo.chat.sdk.data.remote.model.YaloAuthRequest
 import com.yalo.chat.sdk.data.remote.model.YaloAuthResponse
 import com.yalo.chat.sdk.data.remote.model.MediaUploadResponse
@@ -239,6 +243,45 @@ internal class YaloChatApiService(
         } catch (e: Exception) {
             Result.Error(e)
         }
+
+    // Cart operations — mirrors flutter-sdk YaloMessageServiceRemote.
+    // Each method builds the corresponding proto-JSON SdkMessageBody and POSTs to /inapp/inbound_messages.
+
+    suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
+        val now = Clock.System.now().toString()
+        return sendMessage(SdkMessageBody(
+            correlationId = "add-to-cart-$sku-${Clock.System.now().toEpochMilliseconds()}",
+            timestamp = now,
+            addToCartRequest = SdkAddToCartRequestBody(sku = sku, quantity = quantity, timestamp = now),
+        ))
+    }
+
+    suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
+        val now = Clock.System.now().toString()
+        return sendMessage(SdkMessageBody(
+            correlationId = "remove-from-cart-$sku-${Clock.System.now().toEpochMilliseconds()}",
+            timestamp = now,
+            removeFromCartRequest = SdkRemoveFromCartRequestBody(sku = sku, quantity = quantity, timestamp = now),
+        ))
+    }
+
+    suspend fun clearCart(): Result<Unit> {
+        val now = Clock.System.now().toString()
+        return sendMessage(SdkMessageBody(
+            correlationId = "clear-cart-${Clock.System.now().toEpochMilliseconds()}",
+            timestamp = now,
+            clearCartRequest = SdkClearCartRequestBody(timestamp = now),
+        ))
+    }
+
+    suspend fun addPromotion(promotionId: String): Result<Unit> {
+        val now = Clock.System.now().toString()
+        return sendMessage(SdkMessageBody(
+            correlationId = "add-promotion-$promotionId-${Clock.System.now().toEpochMilliseconds()}",
+            timestamp = now,
+            addPromotionRequest = SdkAddPromotionRequestBody(promotionId = promotionId, timestamp = now),
+        ))
+    }
 
     // GET /inapp/messages — fetch all messages; deduplication is handled client-side.
     // NOTE: Flutter SDK has a FIXME disabling the `since` query param ("wait for backend fix"),

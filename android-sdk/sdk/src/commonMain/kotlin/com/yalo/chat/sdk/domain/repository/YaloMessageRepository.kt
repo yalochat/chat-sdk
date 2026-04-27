@@ -34,4 +34,13 @@ interface YaloMessageRepository {
     // re-download media for messages that were already processed in a previous session.
     // Default is a no-op; overridden by YaloMessageRepositoryRemote.
     fun warmDedupCache(wiIds: Collection<String>) {}
+
+    // Cart operations — mirrors flutter-sdk YaloMessageRepository.
+    // Default no-op so FakeYaloMessageRepository and test stubs don't need to override them.
+    // YaloMessageRepositoryRemote overrides these: if a ChatCommand callback is registered the
+    // callback fires and the API call is skipped; otherwise the request is sent to the backend.
+    suspend fun addToCart(sku: String, quantity: Double): Result<Unit> = Result.Ok(Unit)
+    suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> = Result.Ok(Unit)
+    suspend fun clearCart(): Result<Unit> = Result.Ok(Unit)
+    suspend fun addPromotion(promotionId: String): Result<Unit> = Result.Ok(Unit)
 }
