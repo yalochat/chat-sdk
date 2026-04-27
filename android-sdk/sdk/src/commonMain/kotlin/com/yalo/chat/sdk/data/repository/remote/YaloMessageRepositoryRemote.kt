@@ -34,7 +34,7 @@ import kotlinx.datetime.Instant
 
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
 // The `since` query param tracks the last seen message timestamp so each poll only
-// fetches messages newer than the previous batch.  First poll omits `since` (full fetch).
+// fetches messages newer than the previous batch (fallback: now − 5 s on first poll).
 // If a batch contains only invalid/missing dates the watermark is set to `now` so
 // subsequent polls don't repeat the full-history fetch indefinitely.
 // Client-side deduplication via SimpleCache provides an additional safety net.
@@ -185,21 +185,20 @@ internal class YaloMessageRepositoryRemote(
     //
     // `lastMessageTimestamp` is a local watermark that resets on each flow collection
     // (i.e., every stop/start cycle), matching web-sdk's unsubscribeMessages() reset.
-    // First poll omits `since` (full fetch, same as cold-start fetchMessages()) so no
-    // messages are skipped if polling was stopped for longer than 5 s. Dedup cache handles
-    // re-filtering of already-seen messages.
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         var lastMessageTimestamp: Long? = null
         while (true) {
-            when (val result = apiService.fetchMessages(since = lastMessageTimestamp)) {
+            val since = lastMessageTimestamp ?: (Clock.System.now().toEpochMilliseconds() - 5_000L)
+            when (val result = apiService.fetchMessages(since = since)) {
                 is Result.Ok -> {
                     val raw = result.result
 
                     // Update the since watermark to the max date seen in this batch.
                     for (item in raw) {
                         val ts = parseIso8601(item.date)
-                        val current = lastMessageTimestamp
-                        if (ts > 0L && (current == null || ts > current)) lastMessageTimestamp = ts
+                        if (ts > 0L && (lastMessageTimestamp == null || ts > lastMessageTimestamp!!)) {
+                            lastMessageTimestamp = ts
+                        }
                     }
                     // Safety net: if every date in the batch was missing/invalid advance
                     // the watermark to now so subsequent polls don't re-fetch full history.
