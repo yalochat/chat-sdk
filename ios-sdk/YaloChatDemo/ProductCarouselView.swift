@@ -27,46 +27,39 @@ struct ProductCarouselView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .top, spacing: 8) {
                 ForEach(Array(visibleProducts.enumerated()), id: \.element.sku) { _, product in
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.secondarySystemBackground))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
-                        )
-                        .overlay(
-                            ProductVerticalCard(
-                                product: product,
-                                onAddUnit: {
-                                    onUpdateQuantity(product.sku, false, product.unitsAdded + product.unitStep)
-                                },
-                                onRemoveUnit: {
-                                    onUpdateQuantity(product.sku, false, max(product.unitsAdded - product.unitStep, 0))
-                                },
-                                onAddSubunit: {
-                                    onUpdateQuantity(product.sku, true, product.subunitsAdded + product.subunitStep)
-                                },
-                                onRemoveSubunit: {
-                                    onUpdateQuantity(product.sku, true, max(product.subunitsAdded - product.subunitStep, 0))
-                                }
-                            )
-                            .padding(12)
-                        )
-                        .frame(width: cardWidth)
-                        .fixedSize(horizontal: true, vertical: false)
+                    ProductVerticalCard(
+                        product: product,
+                        onAddUnit: {
+                            onUpdateQuantity(product.sku, false, product.unitsAdded + product.unitStep)
+                        },
+                        onRemoveUnit: {
+                            onUpdateQuantity(product.sku, false, max(product.unitsAdded - product.unitStep, 0))
+                        },
+                        onAddSubunit: {
+                            onUpdateQuantity(product.sku, true, product.subunitsAdded + product.subunitStep)
+                        },
+                        onRemoveSubunit: {
+                            onUpdateQuantity(product.sku, true, max(product.subunitsAdded - product.subunitStep, 0))
+                        }
+                    )
+                    .padding(12)
+                    .frame(width: cardWidth)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
                 }
 
                 if showToggle {
                     Button(action: onToggleExpand) {
-                        VStack {
-                            Spacer()
-                            Text(isExpanded ? "Show less" : "Show more")
-                                .font(.subheadline)
-                                .foregroundColor(.accentColor)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 8)
-                            Spacer()
-                        }
-                        .frame(width: 80)
+                        Text(isExpanded ? "Show less" : "Show more")
+                            .font(.subheadline)
+                            .foregroundColor(.accentColor)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 8)
+                            .frame(width: 80)
                     }
                     .buttonStyle(.plain)
                 }

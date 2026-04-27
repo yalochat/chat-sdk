@@ -35,7 +35,9 @@ class MessagesObservable: ObservableObject {
     }
 
     func onAppear() {
-        isLoading = true
+        // Only show loading spinner on the very first start (messages list is empty).
+        // On foreground-resume the controller restarts but messages are already displayed.
+        if messages.isEmpty { isLoading = true }
         Self.log.debug("onAppear — starting controller")
         controller?.start { [weak self] messages in
             DispatchQueue.main.async {

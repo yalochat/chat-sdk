@@ -22,7 +22,7 @@ struct MessageList: View {
                                 .padding(.top, 32)
                         }
                     } else {
-                        ForEach(Array(observable.messages.enumerated()), id: \.offset) { index, message in
+                        ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { index, message in
                             let messageId = message.id?.int64Value
                             MessageItem(
                                 message: message,
@@ -72,6 +72,15 @@ struct MessageList: View {
                 }
             }
         }
+    }
+}
+
+// Stable ID derived from wiId (server-assigned) or local id + timestamp fallback.
+// Used by ForEach so SwiftUI can reuse existing views instead of rebuilding on
+// every messages-array update (prevents VideoPlayer re-creation / flicker).
+extension ChatMessage {
+    var stableListId: String {
+        wiId ?? "\(id?.int64Value ?? timestamp)"
     }
 }
 

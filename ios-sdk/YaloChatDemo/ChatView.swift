@@ -10,6 +10,8 @@ struct ChatView: View {
     @StateObject private var audioObservable = AudioObservable()
 
     @Environment(\.scenePhase) private var scenePhase
+    // Guards against the double-fire of .onAppear + scenePhase(.active) on initial launch.
+    @State private var hasStarted = false
 
     var body: some View {
         NavigationView {
@@ -30,14 +32,25 @@ struct ChatView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .navigationViewStyle(.stack)
-        .onAppear { observable.onAppear() }
-        .onDisappear { observable.onDisappear() }
+        .onAppear {
+            guard !hasStarted else { return }
+            hasStarted = true
+            observable.onAppear()
+        }
+        .onDisappear {
+            hasStarted = false
+            observable.onDisappear()
+        }
         .onChange(of: scenePhase) { phase in
             switch phase {
             case .background:
                 observable.onDisappear()
+                hasStarted = false
             case .active:
-                observable.onAppear()
+                // .onAppear handles the very first start; this handles foreground resume.
+                if hasStarted {
+                    observable.onAppear()
+                }
             default:
                 break
             }

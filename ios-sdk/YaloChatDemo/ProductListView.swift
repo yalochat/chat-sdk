@@ -20,37 +20,33 @@ struct ProductListView: View {
     }
 
     var body: some View {
-        let messageId = message.id?.int64Value
         let visibleProducts = isExpanded ? products : Array(products.prefix(collapsedMaxItems))
 
         VStack(spacing: 8) {
             ForEach(Array(visibleProducts.enumerated()), id: \.element.sku) { _, product in
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color(.secondarySystemBackground))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(.systemGray4), lineWidth: 1)
-                    )
-                    .overlay(
-                        ProductHorizontalCard(
-                            product: product,
-                            onAddUnit: {
-                                onUpdateQuantity(product.sku, false, product.unitsAdded + product.unitStep)
-                            },
-                            onRemoveUnit: {
-                                onUpdateQuantity(product.sku, false, max(product.unitsAdded - product.unitStep, 0))
-                            },
-                            onAddSubunit: {
-                                onUpdateQuantity(product.sku, true, product.subunitsAdded + product.subunitStep)
-                            },
-                            onRemoveSubunit: {
-                                onUpdateQuantity(product.sku, true, max(product.subunitsAdded - product.subunitStep, 0))
-                            }
-                        )
-                        .padding(12)
-                    )
-                    .fixedSize(horizontal: false, vertical: true)
-                let _ = messageId // suppress unused warning
+                ProductHorizontalCard(
+                    product: product,
+                    onAddUnit: {
+                        onUpdateQuantity(product.sku, false, product.unitsAdded + product.unitStep)
+                    },
+                    onRemoveUnit: {
+                        onUpdateQuantity(product.sku, false, max(product.unitsAdded - product.unitStep, 0))
+                    },
+                    onAddSubunit: {
+                        onUpdateQuantity(product.sku, true, product.subunitsAdded + product.subunitStep)
+                    },
+                    onRemoveSubunit: {
+                        onUpdateQuantity(product.sku, true, max(product.subunitsAdded - product.subunitStep, 0))
+                    }
+                )
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(.systemGray4), lineWidth: 1)
+                )
             }
 
             if products.count > collapsedMaxItems {
@@ -64,5 +60,6 @@ struct ProductListView: View {
                 .buttonStyle(.plain)
             }
         }
+        .frame(maxWidth: .infinity)
     }
 }

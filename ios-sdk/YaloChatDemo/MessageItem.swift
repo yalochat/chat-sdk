@@ -196,7 +196,7 @@ struct MessageItem: View {
                                 Text(button.text)
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Image(systemName: "arrow.up.right")
+                                Image(systemName: "link")
                                     .font(.caption)
                             }
                             .padding(.vertical, 8)
@@ -217,8 +217,7 @@ struct MessageItem: View {
     @ViewBuilder
     private var videoContent: some View {
         if let path = message.fileName {
-            VideoPlayer(player: AVPlayer(url: URL(fileURLWithPath: path)))
-                .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+            StableVideoPlayer(path: path)
         } else {
             Label("Video unavailable", systemImage: "video")
                 .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
@@ -270,6 +269,35 @@ struct MessageItem: View {
 
     private var bubbleColor: Color {
         isUser ? .accentColor : Color(.systemGray5)
+    }
+}
+
+// Holds an AVPlayer in @State so it is created once and survives parent view re-renders.
+// Without this, AVPlayer(url:) in the body would recreate the player on every render
+// (e.g. when product quantity steppers update the messages array), causing video flicker.
+private struct StableVideoPlayer: View {
+    let path: String
+    @State private var player: AVPlayer?
+
+    var body: some View {
+        Group {
+            if let player {
+                VideoPlayer(player: player)
+                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+            } else {
+                Color.black
+                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+                    .overlay(
+                        Image(systemName: "play.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.white.opacity(0.7))
+                    )
+            }
+        }
+        .onAppear {
+            guard player == nil else { return }
+            player = AVPlayer(url: URL(fileURLWithPath: path))
+        }
     }
 }
 

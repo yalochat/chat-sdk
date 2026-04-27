@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -30,6 +31,7 @@ class MessagesController internal constructor(
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) {
     private var scope: CoroutineScope? = null
+    private var eventsJob: Job? = null
     // Counter is only ever read/written from the main thread (same dispatcher as the scope).
     // Refreshed against the wall clock on every send so user-message tempIds always sort
     // AFTER agent messages whose ids were bumped to receiptFloor by ensureReceiptOrder.
@@ -59,6 +61,8 @@ class MessagesController internal constructor(
 
     fun stop() {
         syncService.stop()
+        eventsJob?.cancel()
+        eventsJob = null
         scope?.cancel()
         scope = null
     }
@@ -149,9 +153,11 @@ class MessagesController internal constructor(
 
     // Mirrors Android MessagesViewModel.subscribeToEvents().
     // Must be called after start() — requires an active scope.
+    // Idempotent: re-entry after stop()/start() cycle restarts the job.
     fun startEventsObservation(onTypingStart: (String) -> Unit, onTypingStop: () -> Unit) {
         val s = scope ?: return
-        s.launch {
+        if (eventsJob?.isActive == true) return
+        eventsJob = s.launch {
             yaloRepo.events().collect { event ->
                 when (event) {
                     is ChatEvent.TypingStart -> onTypingStart(event.statusText)
