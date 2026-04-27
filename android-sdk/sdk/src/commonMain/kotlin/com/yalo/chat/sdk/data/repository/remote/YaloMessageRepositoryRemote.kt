@@ -474,7 +474,7 @@ internal class YaloMessageRepositoryRemote(
     // If a ChatCommand callback is registered, it fires instead of the API call (same pattern as Flutter).
 
     override suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
-        val callback = commands[ChatCommand.AddToCart]
+        val callback = commands[ChatCommand.ADD_TO_CART]
         if (callback != null) {
             callback(mapOf("sku" to sku, "quantity" to quantity))
             return Result.Ok(Unit)
@@ -483,7 +483,7 @@ internal class YaloMessageRepositoryRemote(
     }
 
     override suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
-        val callback = commands[ChatCommand.RemoveFromCart]
+        val callback = commands[ChatCommand.REMOVE_FROM_CART]
         if (callback != null) {
             callback(mapOf("sku" to sku, "quantity" to quantity))
             return Result.Ok(Unit)
@@ -492,7 +492,7 @@ internal class YaloMessageRepositoryRemote(
     }
 
     override suspend fun clearCart(): Result<Unit> {
-        val callback = commands[ChatCommand.ClearCart]
+        val callback = commands[ChatCommand.CLEAR_CART]
         if (callback != null) {
             callback(null)
             return Result.Ok(Unit)
@@ -501,7 +501,7 @@ internal class YaloMessageRepositoryRemote(
     }
 
     override suspend fun addPromotion(promotionId: String): Result<Unit> {
-        val callback = commands[ChatCommand.AddPromotion]
+        val callback = commands[ChatCommand.ADD_PROMOTION]
         if (callback != null) {
             callback(mapOf("promotionId" to promotionId))
             return Result.Ok(Unit)

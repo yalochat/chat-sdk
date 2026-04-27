@@ -818,7 +818,7 @@ class YaloMessageRepositoryRemoteTest {
         val repo = buildRepoWithEngine(engine)
 
         var callbackPayload: Any? = "not-called"
-        repo.registerCommand(ChatCommand.AddToCart) { payload -> callbackPayload = payload }
+        repo.registerCommand(ChatCommand.ADD_TO_CART) { payload -> callbackPayload = payload }
 
         val result = repo.addToCart("sku-1", 3.0)
 
@@ -863,7 +863,7 @@ class YaloMessageRepositoryRemoteTest {
         val repo = buildRepoWithEngine(engine)
 
         var callbackPayload: Any? = null
-        repo.registerCommand(ChatCommand.RemoveFromCart) { payload -> callbackPayload = payload }
+        repo.registerCommand(ChatCommand.REMOVE_FROM_CART) { payload -> callbackPayload = payload }
 
         val result = repo.removeFromCart("sku-3", 2.0)
 
@@ -886,7 +886,7 @@ class YaloMessageRepositoryRemoteTest {
 
         var callbackFired = false
         var callbackPayload: Any? = "sentinel"
-        repo.registerCommand(ChatCommand.ClearCart) { payload ->
+        repo.registerCommand(ChatCommand.CLEAR_CART) { payload ->
             callbackFired = true
             callbackPayload = payload
         }
@@ -909,7 +909,7 @@ class YaloMessageRepositoryRemoteTest {
         })
 
         var callbackPayload: Any? = null
-        repo.registerCommand(ChatCommand.AddPromotion) { payload -> callbackPayload = payload }
+        repo.registerCommand(ChatCommand.ADD_PROMOTION) { payload -> callbackPayload = payload }
 
         val result = repo.addPromotion("promo-xyz")
 

@@ -37,6 +37,7 @@ object YaloChat {
     private var _driver: SqlDriver? = null
     private var _syncService: MessageSyncService? = null
     private var _yaloRepo: YaloMessageRepositoryRemote? = null
+    private val pendingCommands: MutableMap<ChatCommand, ChatCommandCallback> = mutableMapOf()
 
     val config: YaloChatConfig
         get() = _config ?: error("YaloChat.init() must be called before accessing config")
@@ -53,6 +54,7 @@ object YaloChat {
         _httpClient?.close()
         _driver?.close()
         _yaloRepo = null
+        pendingCommands.clear()
 
         _config = config
         _theme = theme
@@ -98,6 +100,8 @@ object YaloChat {
             tempDir = context.applicationContext.cacheDir.absolutePath,
         )
         _yaloRepo = yaloRepo
+        pendingCommands.forEach { (cmd, cb) -> yaloRepo.registerCommand(cmd, cb) }
+        pendingCommands.clear()
 
         val driver = AndroidSqliteDriver(
             schema = ChatDatabase.Schema,
@@ -138,14 +142,20 @@ object YaloChat {
      * the callback fires instead of the built-in API call. Mirrors Flutter's
      * `YaloChatClient.registerCommand(command, callback)`.
      *
-     * Can be called before or after [init]. If called before [init] the registration is
-     * silently ignored; call [registerCommand] after [init] to ensure it takes effect.
+     * Can be called before or after [init]. Registrations made before [init] are buffered and
+     * applied automatically when [init] runs, matching Flutter/web SDK "before or after init"
+     * behaviour.
      *
-     * @param command  The command to intercept (e.g. [ChatCommand.AddToCart]).
+     * @param command  The command to intercept (e.g. [ChatCommand.ADD_TO_CART]).
      * @param callback Receives a payload map or null. See [ChatCommandCallback] for per-command
      *                 payload shapes.
      */
     fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
-        _yaloRepo?.registerCommand(command, callback)
+        val repo = _yaloRepo
+        if (repo != null) {
+            repo.registerCommand(command, callback)
+        } else {
+            pendingCommands[command] = callback
+        }
     }
 }

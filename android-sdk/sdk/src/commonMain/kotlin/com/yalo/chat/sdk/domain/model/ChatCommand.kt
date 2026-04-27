@@ -6,17 +6,17 @@ package com.yalo.chat.sdk.domain.model
 // Client → Channel commands: instead of sending these actions through the default API,
 // host apps can register a callback via YaloChat.registerCommand() to handle them locally.
 enum class ChatCommand {
-    AddToCart,
-    RemoveFromCart,
-    ClearCart,
-    GuidanceCard,
-    AddPromotion,
+    ADD_TO_CART,
+    REMOVE_FROM_CART,
+    CLEAR_CART,
+    GUIDANCE_CARD,
+    ADD_PROMOTION,
 }
 
 // Payload is a Map<String, Any?> for parameterised commands, or null for no-parameter ones:
-//   AddToCart      → mapOf("sku" to String, "quantity" to Double)
-//   RemoveFromCart → mapOf("sku" to String, "quantity" to Double?)
-//   AddPromotion   → mapOf("promotionId" to String)
-//   ClearCart      → null
-//   GuidanceCard   → null
+//   ADD_TO_CART      → mapOf("sku" to String, "quantity" to Double)
+//   REMOVE_FROM_CART → mapOf("sku" to String, "quantity" to Double?)
+//   ADD_PROMOTION    → mapOf("promotionId" to String)
+//   CLEAR_CART       → null
+//   GUIDANCE_CARD    → null
 typealias ChatCommandCallback = (payload: Any?) -> Unit

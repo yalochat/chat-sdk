@@ -248,36 +248,40 @@ internal class YaloChatApiService(
     // Each method builds the corresponding proto-JSON SdkMessageBody and POSTs to /inapp/inbound_messages.
 
     suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
-        val now = Clock.System.now().toString()
+        val instant = Clock.System.now()
+        val now = instant.toString()
         return sendMessage(SdkMessageBody(
-            correlationId = "add-to-cart-$sku-${Clock.System.now().toEpochMilliseconds()}",
+            correlationId = "add-to-cart-$sku-${instant.toEpochMilliseconds()}",
             timestamp = now,
             addToCartRequest = SdkAddToCartRequestBody(sku = sku, quantity = quantity, timestamp = now),
         ))
     }
 
     suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
-        val now = Clock.System.now().toString()
+        val instant = Clock.System.now()
+        val now = instant.toString()
         return sendMessage(SdkMessageBody(
-            correlationId = "remove-from-cart-$sku-${Clock.System.now().toEpochMilliseconds()}",
+            correlationId = "remove-from-cart-$sku-${instant.toEpochMilliseconds()}",
             timestamp = now,
             removeFromCartRequest = SdkRemoveFromCartRequestBody(sku = sku, quantity = quantity, timestamp = now),
         ))
     }
 
     suspend fun clearCart(): Result<Unit> {
-        val now = Clock.System.now().toString()
+        val instant = Clock.System.now()
+        val now = instant.toString()
         return sendMessage(SdkMessageBody(
-            correlationId = "clear-cart-${Clock.System.now().toEpochMilliseconds()}",
+            correlationId = "clear-cart-${instant.toEpochMilliseconds()}",
             timestamp = now,
             clearCartRequest = SdkClearCartRequestBody(timestamp = now),
         ))
     }
 
     suspend fun addPromotion(promotionId: String): Result<Unit> {
-        val now = Clock.System.now().toString()
+        val instant = Clock.System.now()
+        val now = instant.toString()
         return sendMessage(SdkMessageBody(
-            correlationId = "add-promotion-$promotionId-${Clock.System.now().toEpochMilliseconds()}",
+            correlationId = "add-promotion-$promotionId-${instant.toEpochMilliseconds()}",
             timestamp = now,
             addPromotionRequest = SdkAddPromotionRequestBody(promotionId = promotionId, timestamp = now),
         ))
