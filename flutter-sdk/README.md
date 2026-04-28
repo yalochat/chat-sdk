@@ -18,25 +18,10 @@ A Flutter package providing a complete chat UI solution for integrating with Yal
 
 ## Installation
 
-Add this to your package's `pubspec.yaml` file:
+The package is published on [pub.dev](https://pub.dev/packages/yalo_chat_flutter_sdk).
 
 ```bash
-flutter pub token add "https://artifacts.yalo.ai/artifactory/api/pub/<REPO_NAME>" --env-var MY_SECRET_TOKEN
-
-```
-
-```yaml
-dependencies:
-  yalo_chat_flutter_sdk:
-    hosted: https://artifacts.yalo.ai/artifactory/api/pub/<REPO_NAME>
-    version: ^1.0.0
-```
-
-Or run
-
-```bash
-dart pub add yalo_chat_flutter_sdk --hosted https://artifacts.yalo.ai/artifactory/api/pub/<REPO_NAME>
-
+flutter pub add yalo_chat_flutter_sdk
 ```
 
 ### Message types
