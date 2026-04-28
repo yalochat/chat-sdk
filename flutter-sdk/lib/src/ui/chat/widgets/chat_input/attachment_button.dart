@@ -1,12 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/common/translation.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/picker_button.dart';
-import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
-import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/translation.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/picker_button.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/chat_theme.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 
 // Yalo message repository load messages from yalo's workflow interpreter
 // adapter and translate it to ChatMessage domain model

@@ -1,5 +1,5 @@
-name: chat_flutter_sdk_example
-description: "Demonstrates how to use the chat_flutter_sdk plugin."
+name: yalo_chat_flutter_sdk_example
+description: "Demonstrates how to use the yalo_chat_flutter_sdk plugin."
 publish_to: 'none'
 environment:
   sdk: ^3.9.2
@@ -7,7 +7,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  chat_flutter_sdk:
+  yalo_chat_flutter_sdk:
     path: ../
   cupertino_icons: ^1.0.8
   go_router: ^16.3.0

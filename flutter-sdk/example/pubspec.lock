@@ -97,13 +97,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  chat_flutter_sdk:
-    dependency: "direct main"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "0.0.2"
   clock:
     dependency: transitive
     description:
@@ -1040,6 +1033,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  yalo_chat_flutter_sdk:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.2"
   yaml:
     dependency: transitive
     description:

@@ -2,8 +2,8 @@
 
 import 'dart:io';
 
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/services/audio/audio_service.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/audio/audio_service.dart';
 import 'package:uuid/uuid.dart';
 import 'audio_repository.dart';
 

@@ -2,9 +2,9 @@
 
 import 'dart:io';
 
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/services/camera/camera_service.dart';
-import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/camera/camera_service.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart';

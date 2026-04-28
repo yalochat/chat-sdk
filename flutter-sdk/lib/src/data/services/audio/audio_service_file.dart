@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:chat_flutter_sdk/src/common/exceptions/permission_exception.dart';
-import 'package:chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/exceptions/permission_exception.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:logging/logging.dart';
 import 'package:record/record.dart';
 

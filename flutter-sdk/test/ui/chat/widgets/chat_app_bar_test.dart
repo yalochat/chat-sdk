@@ -3,12 +3,12 @@
 import 'dart:io';
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_app_bar.dart';
-import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
-import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_app_bar/chat_app_bar.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';

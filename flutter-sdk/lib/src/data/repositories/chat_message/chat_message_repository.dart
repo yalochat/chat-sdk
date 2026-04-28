@@ -2,9 +2,9 @@
 
 // TODO move this repository to a public folder so it can be extended
 // and SDK user could implement their own storage solution
-import 'package:chat_flutter_sdk/src/common/page.dart';
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/page.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 
 // A repository that handles chat messages in a data source.
 abstract class ChatMessageRepository {

@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/l10n/yalo_sdk_localizations.dart';
-import 'package:chat_flutter_sdk/src/common/translation.dart';
+import 'package:yalo_chat_flutter_sdk/l10n/yalo_sdk_localizations.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/translation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';

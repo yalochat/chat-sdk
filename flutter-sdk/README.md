@@ -56,7 +56,7 @@ The SDK supports various message types:
 ### 1. Initialize the SDK
 
 ```dart
-import 'package:chat_flutter_sdk/yalo_sdk.dart';
+import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
