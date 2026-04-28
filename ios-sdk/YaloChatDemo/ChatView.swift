@@ -45,7 +45,8 @@ struct ChatView: View {
             switch phase {
             case .background:
                 observable.onDisappear()
-                hasStarted = false
+                // hasStarted intentionally stays true so .active can restart on foreground resume.
+                // (.onAppear does not re-fire for views already in the hierarchy.)
             case .active:
                 // .onAppear handles the very first start; this handles foreground resume.
                 if hasStarted {
