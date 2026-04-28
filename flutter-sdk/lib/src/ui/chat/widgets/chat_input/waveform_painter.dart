@@ -2,7 +2,7 @@
 
 import 'dart:math';
 
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 
 class WaveformPainter extends CustomPainter {

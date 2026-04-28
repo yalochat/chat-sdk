@@ -2,15 +2,15 @@
 
 import 'dart:math';
 
-import 'package:chat_flutter_sdk/src/common/translation.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/expand_button.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/product_horizontal_card.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/product_vertical_card.dart';
-import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/translation.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/expand_button.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/product_horizontal_card.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/product_vertical_card.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

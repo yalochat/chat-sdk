@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
-import 'package:chat_flutter_sdk/domain/models/command/chat_command.dart';
+import 'package:yalo_chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
+import 'package:yalo_chat_flutter_sdk/domain/models/command/chat_command.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

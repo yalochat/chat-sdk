@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/domain/models/command/chat_command.dart';
+import 'package:yalo_chat_flutter_sdk/domain/models/command/chat_command.dart';
 import 'package:logging/logging.dart';
 
 class YaloChatClient {

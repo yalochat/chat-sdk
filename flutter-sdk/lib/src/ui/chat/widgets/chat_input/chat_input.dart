@@ -1,19 +1,19 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/common/translation.dart';
-import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/image_preview.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/quick_reply.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_recorder.dart';
-import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
-import 'package:chat_flutter_sdk/ui/theme/chat_theme.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/translation.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/image_preview.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/quick_reply.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_recorder.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/chat_theme.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,6 +1,6 @@
-# chat_flutter_sdk_example
+# yalo_chat_flutter_sdk_example
 
-Demonstrates how to use the chat_flutter_sdk plugin.
+Demonstrates how to use the yalo_chat_flutter_sdk plugin.
 
 ## Getting Started
 

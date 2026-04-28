@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/common/page.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/page.dart';
 import 'package:test/test.dart';
 
 void main() {

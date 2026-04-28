@@ -3,11 +3,11 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
-import 'package:chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
-import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/token_entry.dart';
-import 'package:chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/token_entry.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';

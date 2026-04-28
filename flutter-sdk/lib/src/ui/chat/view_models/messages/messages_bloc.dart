@@ -4,16 +4,16 @@ import 'dart:math';
 
 import 'package:cross_file/cross_file.dart';
 
-import 'package:chat_flutter_sdk/domain/models/product/product.dart';
-import 'package:chat_flutter_sdk/src/common/page.dart';
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/page.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
 import 'package:flutter/widgets.dart' hide Page;
 import 'package:flutter_bloc/flutter_bloc.dart';

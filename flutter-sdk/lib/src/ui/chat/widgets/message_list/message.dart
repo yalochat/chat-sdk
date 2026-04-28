@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/message_list/assistant_message.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/assistant_message.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/widgets.dart';
 
 import 'user_message.dart';

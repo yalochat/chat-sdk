@@ -1,12 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_painter.dart';
-import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/waveform_painter.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

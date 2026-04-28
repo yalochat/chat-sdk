@@ -1,12 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/yalo_sdk.dart';
+import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 void main() {
-  Logger.root.level = Level.ALL;
+  Logger.root.level = Level.FINEST;
   Logger.root.onRecord.listen((record) {
     debugPrint(
       '${record.level.name}: ${record.time}: ${record.message} ${record.error ?? ''}',

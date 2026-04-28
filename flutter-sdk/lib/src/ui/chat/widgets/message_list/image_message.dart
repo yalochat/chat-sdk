@@ -2,10 +2,10 @@
 
 import 'dart:io';
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart'
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart'
     show ChatThemeCubit;
-import 'package:chat_flutter_sdk/ui/theme/constants.dart';
+import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

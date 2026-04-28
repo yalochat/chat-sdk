@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
