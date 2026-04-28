@@ -32,6 +32,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private _seenIds = new Set<string>();
   private _lastMessageTimestamp?: Date;
   private _pollInterval = 2000;
+  private _visibilityListener?: () => void;
 
   constructor(
     baseUrl: string,
@@ -537,8 +538,17 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         // swallow network errors — next poll will retry
       }
 
-      this._pollTimeout = setTimeout(poll, this._pollInterval);
+      if (!document.hidden) {
+        this._pollTimeout = setTimeout(poll, this._pollInterval);
+      }
     };
+
+    this._visibilityListener = () => {
+      clearTimeout(this._pollTimeout);
+      this._pollTimeout = undefined;
+      if (!document.hidden) poll();
+    };
+    document.addEventListener('visibilitychange', this._visibilityListener);
 
     poll();
   }
@@ -548,6 +558,13 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     this._pollTimeout = undefined;
     this._seenIds.clear();
     this._lastMessageTimestamp = undefined;
+    if (this._visibilityListener) {
+      document.removeEventListener(
+        'visibilitychange',
+        this._visibilityListener
+      );
+      this._visibilityListener = undefined;
+    }
   }
 
   private _toDomainProduct(p: ProtoProduct): Product {

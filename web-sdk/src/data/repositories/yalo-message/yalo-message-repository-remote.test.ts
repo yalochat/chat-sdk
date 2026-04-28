@@ -17,6 +17,18 @@ const flushPoll = async () => {
   }
 };
 
+const setTabHidden = (hidden: boolean) => {
+  Object.defineProperty(document, 'hidden', {
+    configurable: true,
+    value: hidden,
+  });
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    value: hidden ? 'hidden' : 'visible',
+  });
+  document.dispatchEvent(new Event('visibilitychange'));
+};
+
 const makeToken = (userId: string) => {
   const payload = btoa(JSON.stringify({ user_id: userId }))
     .replace(/\+/g, '-')
@@ -240,11 +252,20 @@ const mockErrFetch = (status = 500) =>
 describe('YaloMessageRepositoryRemote', () => {
   const token = makeToken('user-42');
 
+  let addEventListenerSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     vi.useFakeTimers();
+    addEventListenerSpy = vi.spyOn(document, 'addEventListener');
   });
 
   afterEach(() => {
+    for (const [type, listener] of addEventListenerSpy.mock.calls) {
+      if (type === 'visibilitychange') {
+        document.removeEventListener('visibilitychange', listener as EventListener);
+      }
+    }
+    setTabHidden(false);
     vi.restoreAllMocks();
     vi.useRealTimers();
   });
@@ -1387,6 +1408,96 @@ describe('YaloMessageRepositoryRemote', () => {
         timestamp: date,
         products: [{ sku: 'C-3', name: 'Cherries', price: 7 }],
       });
+    });
+  });
+
+  describe('visibility', () => {
+    it('stops scheduling polls while the tab is hidden', async () => {
+      const fetchSpy = mockOkFetch([]);
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+
+      await flushPoll();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+      setTabHidden(true);
+
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('fires an immediate catch-up poll when the tab becomes visible again', async () => {
+      const fetchSpy = mockOkFetch([]);
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+      await flushPoll();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+      setTabHidden(true);
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+      setTabHidden(false);
+      await flushPoll();
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('resumes regular polling cadence after becoming visible', async () => {
+      const fetchSpy = mockOkFetch([]);
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+      await flushPoll();
+
+      setTabHidden(true);
+      setTabHidden(false);
+      await flushPoll();
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(fetchSpy).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not poll on visibility change after unsubscribe', async () => {
+      const fetchSpy = mockOkFetch([]);
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const repo = new YaloMessageRepositoryRemote(
+        'https://api.example.com',
+        baseConfig,
+        mockTokenRepository(token),
+        mockMediaService()
+      );
+      repo.subscribeToMessages(vi.fn());
+      await flushPoll();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+      repo.unsubscribeMessages();
+
+      setTabHidden(true);
+      setTabHidden(false);
+      await flushPoll();
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
   });
 
