@@ -196,9 +196,8 @@ internal class YaloMessageRepositoryRemote(
                     // Update the since watermark to the max date seen in this batch.
                     for (item in raw) {
                         val ts = parseIso8601(item.date)
-                        if (ts > 0L && (lastMessageTimestamp == null || ts > lastMessageTimestamp!!)) {
-                            lastMessageTimestamp = ts
-                        }
+                        val current = lastMessageTimestamp
+                        if (ts > 0L && (current == null || ts > current)) lastMessageTimestamp = ts
                     }
                     // Safety net: if every date in the batch was missing/invalid advance
                     // the watermark to now so subsequent polls don't re-fetch full history.
