@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.domain.model.Product
+import com.yalo.chat.sdk.domain.util.formatIcuUnit
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // ── Shared price row ──────────────────────────────────────────────────────────
@@ -113,14 +114,14 @@ internal fun ProductHorizontalCard(
             Spacer(Modifier.height(4.dp))
             ProductQuantityStepper(
                 value = product.unitsAdded,
-                unitName = formatUnit(product.unitsAdded, product.unitName),
+                unitName = formatIcuUnit(product.unitsAdded, product.unitName),
                 onAdd = onAddUnit,
                 onRemove = onRemoveUnit,
             )
             if (subunitsText != null) {
                 ProductQuantityStepper(
                     value = product.subunitsAdded,
-                    unitName = formatUnit(product.subunitsAdded, product.subunitName ?: ""),
+                    unitName = formatIcuUnit(product.subunitsAdded, product.subunitName ?: ""),
                     onAdd = onAddSubunit,
                     onRemove = onRemoveSubunit,
                 )
@@ -158,14 +159,14 @@ internal fun ProductVerticalCard(
         Spacer(Modifier.height(4.dp))
         ProductQuantityStepper(
             value = product.unitsAdded,
-            unitName = formatUnit(product.unitsAdded, product.unitName),
+            unitName = formatIcuUnit(product.unitsAdded, product.unitName),
             onAdd = onAddUnit,
             onRemove = onRemoveUnit,
         )
         if (subunitsText != null) {
             ProductQuantityStepper(
                 value = product.subunitsAdded,
-                unitName = formatUnit(product.subunitsAdded, product.subunitName ?: ""),
+                unitName = formatIcuUnit(product.subunitsAdded, product.subunitName ?: ""),
                 onAdd = onAddSubunit,
                 onRemove = onRemoveSubunit,
             )
@@ -179,20 +180,8 @@ internal fun ProductVerticalCard(
 // Mirrors Flutter: `product.subunits > 1 && product.subunitName != null`.
 private fun subunitsLabel(product: Product): String? =
     if (product.subunits > 1.0 && product.subunitName != null) {
-        "${formatQuantity(product.subunits)} ${formatUnit(product.subunits, product.subunitName)}"
+        "${formatQuantity(product.subunits)} ${formatIcuUnit(product.subunits, product.subunitName)}"
     } else null
 
 private fun formatPrice(price: Double): String = "%.2f".format(price)
 
-// Mirrors Flutter's BuildContext.formatUnit() in format.dart.
-// Resolves ICU plural patterns like "{amount, plural, one {unit} other {units}}"
-// to the appropriate singular or plural form based on amount.
-// For non-ICU strings the input is returned unchanged.
-private fun formatUnit(amount: Double, pattern: String): String {
-    val singular = Regex("""one \{([^}]*)\}""").find(pattern)?.groupValues?.get(1)
-    val plural = Regex("""other \{([^}]*)\}""").find(pattern)?.groupValues?.get(1)
-    return when {
-        singular != null && plural != null -> if (amount == 1.0) singular else plural
-        else -> pattern
-    }
-}
