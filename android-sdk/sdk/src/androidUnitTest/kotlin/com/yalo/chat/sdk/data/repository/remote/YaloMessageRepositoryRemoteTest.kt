@@ -823,4 +823,67 @@ class YaloMessageRepositoryRemoteTest {
         assertTrue(collectedEvents.isNotEmpty())
         assertTrue(collectedEvents.all { it is ChatEvent.TypingStop })
     }
+
+    // ── since watermark ───────────────────────────────────────────────────────────
+
+    @Test
+    fun `first poll omits since parameter`() = runTest {
+        val sinceParams = mutableListOf<String?>()
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                sinceParams.add(request.url.parameters["since"])
+                respond(textMessageJson("id-1", "Hello"), HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+        repo.pollIncomingMessages().first()
+        assertEquals(null, sinceParams.first(), "First poll must omit the since parameter")
+    }
+
+    @Test
+    fun `second poll uses watermark from first batch`() = runTest {
+        val sinceParams = mutableListOf<String?>()
+        var pollCount = 0
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                sinceParams.add(request.url.parameters["since"])
+                val body = if (pollCount++ == 0) textMessageJson("id-1", "First") else textMessageJson("id-2", "Second")
+                respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+        repo.pollIncomingMessages().take(2).toList()
+        // textMessageJson uses "2024-01-01T12:00:00Z" = 1704110400000 ms
+        assertEquals("1704110400000", sinceParams[1], "Second poll must pass the max timestamp from the first batch as since")
+    }
+
+    @Test
+    fun `batch with all invalid dates advances watermark to now`() = runTest {
+        val sinceParams = mutableListOf<String?>()
+        var pollCount = 0
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                sinceParams.add(request.url.parameters["since"])
+                val body = if (pollCount++ == 0) {
+                    // Message with an unparseable date — watermark should fall back to now.
+                    """[{"id":"bad-date","message":{"timestamp":"INVALID","textMessageRequest":{"content":{"text":"hi"}}},"date":"INVALID","user_id":"u1","status":"IN_DELIVERY"}]"""
+                } else {
+                    textMessageJson("id-2", "Second")
+                }
+                respond(body, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val before = System.currentTimeMillis()
+        val repo = buildRepoWithEngine(engine)
+        repo.pollIncomingMessages().take(2).toList()
+        val secondSince = sinceParams[1]?.toLongOrNull()
+        assertNotNull(secondSince, "Second poll must include since even when all dates were invalid")
+        assertTrue(secondSince >= before, "since must be at or after the safety-net timestamp (before=$before, since=$secondSince)")
+    }
 }

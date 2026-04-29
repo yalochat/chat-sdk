@@ -34,7 +34,9 @@ import kotlinx.datetime.Instant
 
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
 // The `since` query param tracks the last seen message timestamp so each poll only
-// fetches messages newer than the previous batch (fallback: now - 5s on first poll).
+// fetches messages newer than the previous batch.  First poll omits `since` (full fetch).
+// If a batch contains only invalid/missing dates the watermark is set to `now` so
+// subsequent polls don't repeat the full-history fetch indefinitely.
 // Client-side deduplication via SimpleCache provides an additional safety net.
 // Network errors in the polling flow are swallowed and the loop continues.
 @OptIn(ExperimentalUuidApi::class)
@@ -198,6 +200,11 @@ internal class YaloMessageRepositoryRemote(
                         val ts = parseIso8601(item.date)
                         val current = lastMessageTimestamp
                         if (ts > 0L && (current == null || ts > current)) lastMessageTimestamp = ts
+                    }
+                    // Safety net: if every date in the batch was missing/invalid advance
+                    // the watermark to now so subsequent polls don't re-fetch full history.
+                    if (lastMessageTimestamp == null) {
+                        lastMessageTimestamp = Clock.System.now().toEpochMilliseconds()
                     }
 
                     // Phase 1: non-media messages — translate without IO and emit right away.
