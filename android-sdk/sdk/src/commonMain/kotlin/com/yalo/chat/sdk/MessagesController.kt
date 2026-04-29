@@ -177,6 +177,8 @@ class MessagesController internal constructor(
                 if (product.sku != productSku) return@map product
                 if (!isSubunit) {
                     product.copy(unitsAdded = maxOf(quantity, 0.0))
+                } else if (product.subunits <= 0.0) {
+                    product.copy(unitsAdded = maxOf(quantity, 0.0))
                 } else {
                     val clamped = maxOf(quantity, 0.0)
                     val extraUnits = floor(clamped / product.subunits)

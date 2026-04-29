@@ -37,7 +37,7 @@ struct ProductQuantityStepper: View {
     }
 }
 
-func formatQuantity(_ value: Double) -> String {
+private func formatQuantity(_ value: Double) -> String {
     value == value.rounded(.towardZero) && !value.isInfinite
         ? String(Int64(value))
         : String(value)

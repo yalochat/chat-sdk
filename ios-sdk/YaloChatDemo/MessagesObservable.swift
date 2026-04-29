@@ -78,6 +78,7 @@ class MessagesObservable: ObservableObject {
         controller?.stop()
         isLoading = false
         isTyping = false
+        typingStatusText = ""
     }
 
     func sendMessage() {

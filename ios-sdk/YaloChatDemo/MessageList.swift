@@ -22,7 +22,7 @@ struct MessageList: View {
                                 .padding(.top, 32)
                         }
                     } else {
-                        ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { index, message in
+                        ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in
                             let messageId = message.id?.int64Value
                             MessageItem(
                                 message: message,
@@ -39,7 +39,6 @@ struct MessageList: View {
                                 },
                                 isExpanded: messageId.map { observable.expandedMessageIds.contains($0) } ?? false
                             )
-                            .id(index)
                         }
 
                         if observable.isTyping {

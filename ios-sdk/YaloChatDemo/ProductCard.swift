@@ -164,3 +164,9 @@ private struct ProductImage: View {
 private func formatPrice(_ value: Double) -> String {
     String(format: "%.2f", value)
 }
+
+private func formatQuantity(_ value: Double) -> String {
+    value == value.rounded(.towardZero) && !value.isInfinite
+        ? String(Int64(value))
+        : String(value)
+}

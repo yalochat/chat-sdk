@@ -15,7 +15,7 @@ struct QuickRepliesView: View {
         if !quickReplies.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(quickReplies, id: \.self) { reply in
+                    ForEach(Array(quickReplies.enumerated()), id: \.offset) { _, reply in
                         QuickReplyChip(text: reply, onTap: { onChipTap(reply) })
                     }
                 }
