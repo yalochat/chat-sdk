@@ -36,7 +36,7 @@ struct ProductHorizontalCard: View {
                     .lineLimit(2)
 
                 if hasSubunits, let subunitName = product.subunitName {
-                    Text("\(formatQuantity(product.subunits)) \(subunitName)")
+                    Text("\(formatQuantity(product.subunits)) \(formatIcuUnit(product.subunits, subunitName))")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -45,7 +45,7 @@ struct ProductHorizontalCard: View {
 
                 ProductQuantityStepper(
                     value: product.unitsAdded,
-                    unitName: product.unitName,
+                    unitName: formatIcuUnit(product.unitsAdded, product.unitName),
                     onAdd: onAddUnit,
                     onRemove: onRemoveUnit
                 )
@@ -53,7 +53,7 @@ struct ProductHorizontalCard: View {
                 if hasSubunits, let subunitName = product.subunitName {
                     ProductQuantityStepper(
                         value: product.subunitsAdded,
-                        unitName: subunitName,
+                        unitName: formatIcuUnit(product.subunits, subunitName),
                         onAdd: onAddSubunit,
                         onRemove: onRemoveSubunit
                     )
@@ -88,7 +88,7 @@ struct ProductVerticalCard: View {
             ProductPriceRow(product: product)
 
             if hasSubunits, let subunitName = product.subunitName {
-                Text("\(formatQuantity(product.subunits)) \(subunitName)")
+                Text("\(formatQuantity(product.subunits)) \(formatIcuUnit(product.subunits, subunitName))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -100,7 +100,7 @@ struct ProductVerticalCard: View {
 
             ProductQuantityStepper(
                 value: product.unitsAdded,
-                unitName: product.unitName,
+                unitName: formatIcuUnit(product.unitsAdded, product.unitName),
                 onAdd: onAddUnit,
                 onRemove: onRemoveUnit
             )
@@ -108,7 +108,7 @@ struct ProductVerticalCard: View {
             if hasSubunits, let subunitName = product.subunitName {
                 ProductQuantityStepper(
                     value: product.subunitsAdded,
-                    unitName: subunitName,
+                    unitName: formatIcuUnit(product.subunits, subunitName),
                     onAdd: onAddSubunit,
                     onRemove: onRemoveSubunit
                 )
@@ -169,4 +169,32 @@ private func formatQuantity(_ value: Double) -> String {
     value == value.rounded(.towardZero) && !value.isInfinite
         ? String(Int64(value))
         : String(value)
+}
+
+// Mirrors Flutter format.dart formatUnit() — resolves ICU plural patterns.
+// Handles: {amount, plural, =1 {caja} other {cajas}} and plain strings.
+// Matching priority: exact (=N) → CLDR keyword (zero/one/other) → "other" → original.
+private func formatIcuUnit(_ amount: Double, _ pattern: String) -> String {
+    guard pattern.contains("{") else { return pattern }
+    let amountInt = Int(amount.rounded())
+    // Extract cases string from {varName, plural, <cases>}
+    let outerRe = try? NSRegularExpression(
+        pattern: #"\{[^,]+,\s*plural\s*,\s*(.*)\}$"#,
+        options: [.dotMatchesLineSeparators]
+    )
+    let ns = pattern as NSString
+    guard let match = outerRe?.firstMatch(in: pattern, range: NSRange(location: 0, length: ns.length)),
+          let casesNS = Range(match.range(at: 1), in: pattern) else { return pattern }
+    let casesStr = String(pattern[casesNS])
+    // Parse individual cases: "=1 {caja} other {cajas}"
+    let caseRe = try? NSRegularExpression(pattern: #"(\S+)\s*\{([^}]*)\}"#)
+    var cases: [String: String] = [:]
+    caseRe?.enumerateMatches(in: casesStr, range: NSRange(casesStr.startIndex..., in: casesStr)) { m, _, _ in
+        guard let m,
+              let k = Range(m.range(at: 1), in: casesStr),
+              let v = Range(m.range(at: 2), in: casesStr) else { return }
+        cases[String(casesStr[k])] = String(casesStr[v])
+    }
+    let cldr = amountInt == 0 ? "zero" : amountInt == 1 ? "one" : "other"
+    return cases["=\(amountInt)"] ?? cases[cldr] ?? cases["other"] ?? pattern
 }
