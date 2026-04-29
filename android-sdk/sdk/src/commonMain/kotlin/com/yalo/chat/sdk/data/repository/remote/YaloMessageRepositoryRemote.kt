@@ -185,11 +185,13 @@ internal class YaloMessageRepositoryRemote(
     //
     // `lastMessageTimestamp` is a local watermark that resets on each flow collection
     // (i.e., every stop/start cycle), matching web-sdk's unsubscribeMessages() reset.
+    // First poll omits `since` (full fetch, same as cold-start fetchMessages()) so no
+    // messages are skipped if polling was stopped for longer than 5 s. Dedup cache handles
+    // re-filtering of already-seen messages.
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         var lastMessageTimestamp: Long? = null
         while (true) {
-            val since = lastMessageTimestamp ?: (Clock.System.now().toEpochMilliseconds() - 5_000L)
-            when (val result = apiService.fetchMessages(since = since)) {
+            when (val result = apiService.fetchMessages(since = lastMessageTimestamp)) {
                 is Result.Ok -> {
                     val raw = result.result
 
