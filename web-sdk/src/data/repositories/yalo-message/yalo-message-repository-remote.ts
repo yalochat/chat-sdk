@@ -14,9 +14,10 @@ import {
   SdkMessage,
   PollMessageItem,
   ProductMessageRequest_Orientation,
+  UnitType,
   type Product as ProtoProduct,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
-import { Product } from '@domain/models/product/product';
+import { Product, type ProductUnitType } from '@domain/models/product/product';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
 
 interface JwtPayload {
@@ -209,7 +210,11 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
-  async addToCart(sku: string, quantity: number): Promise<Result<void>> {
+  async addToCart(
+    sku: string,
+    unitType: ProductUnitType,
+    quantity: number
+  ): Promise<Result<void>> {
     const authResult = await this._tokenRepository.getToken();
     if (!authResult.ok) return authResult;
 
@@ -220,7 +225,15 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     try {
       const body: SdkMessage = {
         correlationId: `add-to-cart-${sku}-${Date.now()}`,
-        addToCartRequest: { sku, quantity, timestamp },
+        addToCartRequest: {
+          sku,
+          quantity,
+          timestamp,
+          unitType:
+            unitType === 'unit'
+              ? UnitType.UNIT_TYPE_UNIT
+              : UnitType.UNIT_TYPE_SUBUNIT,
+        },
         timestamp,
       };
 
@@ -250,6 +263,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   async removeFromCart(
     sku: string,
+    unitType: ProductUnitType,
     quantity?: number
   ): Promise<Result<void>> {
     const authResult = await this._tokenRepository.getToken();
@@ -262,7 +276,15 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     try {
       const body: SdkMessage = {
         correlationId: `remove-from-cart-${sku}-${Date.now()}`,
-        removeFromCartRequest: { sku, quantity, timestamp },
+        removeFromCartRequest: {
+          sku,
+          quantity,
+          timestamp,
+          unitType:
+            unitType === 'unit'
+              ? UnitType.UNIT_TYPE_UNIT
+              : UnitType.UNIT_TYPE_SUBUNIT,
+        },
         timestamp,
       };
 
