@@ -2,6 +2,7 @@
 
 import type { Result } from '@domain/common/result';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { ProductUnitType } from '@domain/models/product/product';
 
 export type PollCallback = (messages: ChatMessage[]) => void;
 
@@ -10,10 +11,18 @@ export abstract class YaloMessageRepository {
   abstract insertMessage(message: ChatMessage): Promise<Result<ChatMessage>>;
 
   // Sends an add-to-cart command for the given SKU and quantity
-  abstract addToCart(sku: string, quantity: number): Promise<Result<void>>;
+  abstract addToCart(
+    sku: string,
+    unitType: ProductUnitType,
+    quantity: number
+  ): Promise<Result<void>>;
 
   // Sends a remove-from-cart command for the given SKU and optional quantity
-  abstract removeFromCart(sku: string, quantity?: number): Promise<Result<void>>;
+  abstract removeFromCart(
+    sku: string,
+    unitType: ProductUnitType,
+    quantity?: number
+  ): Promise<Result<void>>;
 
   // Sends a clear-cart command to remove all items from the cart
   abstract clearCart(): Promise<Result<void>>;

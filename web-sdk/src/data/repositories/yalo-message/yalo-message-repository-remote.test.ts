@@ -478,7 +478,7 @@ describe('YaloMessageRepositoryRemote', () => {
         failingTokenRepository(),
         mockMediaService()
       );
-      const result = await repo.addToCart('SKU-1', 3);
+      const result = await repo.addToCart('SKU-1', 'unit', 3);
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('auth failed');
@@ -494,7 +494,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      await repo.addToCart('SKU-1', 5);
+      await repo.addToCart('SKU-1', 'unit', 5);
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
@@ -518,7 +518,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      await repo.addToCart('SKU-1', 1);
+      await repo.addToCart('SKU-1', 'unit', 1);
 
       const { headers } = fetchSpy.mock.calls[0][1];
       expect(headers).toMatchObject({
@@ -537,7 +537,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      const result = await repo.addToCart('SKU-1', 2);
+      const result = await repo.addToCart('SKU-1', 'unit', 2);
 
       expect(result.ok).toBe(true);
     });
@@ -551,7 +551,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      const result = await repo.addToCart('SKU-1', 1);
+      const result = await repo.addToCart('SKU-1', 'unit', 1);
 
       expect(result.ok).toBe(false);
       if (!result.ok)
@@ -570,7 +570,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      const result = await repo.addToCart('SKU-1', 1);
+      const result = await repo.addToCart('SKU-1', 'unit', 1);
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('Network error');
@@ -585,7 +585,7 @@ describe('YaloMessageRepositoryRemote', () => {
         failingTokenRepository(),
         mockMediaService()
       );
-      const result = await repo.removeFromCart('SKU-1');
+      const result = await repo.removeFromCart('SKU-1', 'unit');
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('auth failed');
@@ -601,7 +601,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      await repo.removeFromCart('SKU-1', 2);
+      await repo.removeFromCart('SKU-1', 'unit', 2);
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
@@ -625,7 +625,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      await repo.removeFromCart('SKU-1');
+      await repo.removeFromCart('SKU-1', 'unit');
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
       expect(body.removeFromCartRequest.sku).toBe('SKU-1');
@@ -642,7 +642,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      await repo.removeFromCart('SKU-1');
+      await repo.removeFromCart('SKU-1', 'unit');
 
       const { headers } = fetchSpy.mock.calls[0][1];
       expect(headers).toMatchObject({
@@ -661,7 +661,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      const result = await repo.removeFromCart('SKU-1');
+      const result = await repo.removeFromCart('SKU-1', 'unit');
 
       expect(result.ok).toBe(true);
     });
@@ -675,7 +675,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      const result = await repo.removeFromCart('SKU-1');
+      const result = await repo.removeFromCart('SKU-1', 'unit');
 
       expect(result.ok).toBe(false);
       if (!result.ok)
@@ -694,7 +694,7 @@ describe('YaloMessageRepositoryRemote', () => {
         mockTokenRepository(token),
         mockMediaService()
       );
-      const result = await repo.removeFromCart('SKU-1');
+      const result = await repo.removeFromCart('SKU-1', 'unit');
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('Network error');
