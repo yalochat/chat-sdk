@@ -1,22 +1,57 @@
 # Changelog
 
-## [1.6.0](https://github.com/yalochat/chat-sdk/tree/1.6.0) (2026-04-14)
+## [1.7.0](https://github.com/yalochat/chat-sdk/tree/1.7.0) (2026-04-29)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.5.0...1.6.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.6.0...1.7.0)
 
 **Merged pull requests:**
 
+- feat: Adds web socket integration [\#123](https://github.com/yalochat/chat-sdk/pull/123) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Change yalo api base URL format for easier setup [\#122](https://github.com/yalochat/chat-sdk/pull/122) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix: web-sdk compile error [\#121](https://github.com/yalochat/chat-sdk/pull/121) ([rodrigocusto](https://github.com/rodrigocusto))
+- Flutter doc update [\#120](https://github.com/yalochat/chat-sdk/pull/120) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Rename flutter sdk [\#119](https://github.com/yalochat/chat-sdk/pull/119) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added yalo message websocket service [\#117](https://github.com/yalochat/chat-sdk/pull/117) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Handle visibilitychange for short polling in webchat. [\#116](https://github.com/yalochat/chat-sdk/pull/116) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix: Use last message timestamp for since parameter [\#115](https://github.com/yalochat/chat-sdk/pull/115) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added target id and context to guidance card request. [\#114](https://github.com/yalochat/chat-sdk/pull/114) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Add unit type to cart requsets in the proto [\#113](https://github.com/yalochat/chat-sdk/pull/113) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Render product messages \(flutter\) [\#112](https://github.com/yalochat/chat-sdk/pull/112) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Commands data layer \(flutter\) [\#111](https://github.com/yalochat/chat-sdk/pull/111) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Commands doc update [\#110](https://github.com/yalochat/chat-sdk/pull/110) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Product messages command implementation [\#109](https://github.com/yalochat/chat-sdk/pull/109) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Add styles for error messages [\#108](https://github.com/yalochat/chat-sdk/pull/108) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(ios-sdk\): Image picker + Audio recording/playback — M4 & M5 [\#107](https://github.com/yalochat/chat-sdk/pull/107) ([pato-viccini](https://github.com/pato-viccini))
+- fix: Fixed yalo chat window controller [\#106](https://github.com/yalochat/chat-sdk/pull/106) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix: Change tag format to be compatible with YRK web-sdk and flutter [\#105](https://github.com/yalochat/chat-sdk/pull/105) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(ios-sdk\): Core SwiftUI UI Layer — M3 text-only chat \(FDE-129\) [\#104](https://github.com/yalochat/chat-sdk/pull/104) ([pato-viccini](https://github.com/pato-viccini))
+- fix: Fixes visual bugs on currency for flutter sdk. [\#103](https://github.com/yalochat/chat-sdk/pull/103) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added commands to yalo message remote repository. [\#102](https://github.com/yalochat/chat-sdk/pull/102) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added behavior to product messages [\#101](https://github.com/yalochat/chat-sdk/pull/101) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Adds optional user id and anonymous user id auth [\#100](https://github.com/yalochat/chat-sdk/pull/100) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added product messages [\#99](https://github.com/yalochat/chat-sdk/pull/99) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added data layer for product/carousel messages [\#98](https://github.com/yalochat/chat-sdk/pull/98) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(android-sdk\): Video, Buttons, and CTA message types \(M10\) [\#97](https://github.com/yalochat/chat-sdk/pull/97) ([pato-viccini](https://github.com/pato-viccini))
+- feat\(ios-sdk\): iOS SDK M1 — Networking + Platform Entry Point \(FDE-108\) [\#91](https://github.com/yalochat/chat-sdk/pull/91) ([pato-viccini](https://github.com/pato-viccini))
+
+## [proto/v1.6.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.6.0) (2026-04-14)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.5.0...proto/v1.6.0)
+
+**Merged pull requests:**
+
+- Release proto 1.6.0 [\#96](https://github.com/yalochat/chat-sdk/pull/96) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Update proto to match commands name [\#95](https://github.com/yalochat/chat-sdk/pull/95) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Add flutter support for cta and buttons. [\#94](https://github.com/yalochat/chat-sdk/pull/94) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(android-sdk\): Product Message UI — M9 \(FDE-109\) [\#90](https://github.com/yalochat/chat-sdk/pull/90) ([pato-viccini](https://github.com/pato-viccini))
 
-## [proto/v1.5.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.5.0) (2026-04-13)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.5.0...proto/v1.5.0)
-
 ## [proto/bindings/go/v1.5.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.5.0) (2026-04-13)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.4.0...proto/bindings/go/v1.5.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.5.0...proto/bindings/go/v1.5.0)
+
+## [proto/v1.5.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.5.0) (2026-04-13)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.4.0...proto/v1.5.0)
 
 **Merged pull requests:**
 
