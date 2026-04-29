@@ -69,7 +69,8 @@ const makeTextMessage = (text: string): SdkMessage => ({
 const flush = () => vi.advanceTimersByTimeAsync(0);
 
 describe('YaloMessageServiceWebSocket', () => {
-  const wsUrl = 'wss://api.example.com/ws/connect';
+  const baseUrl = 'api.example.com';
+  const wsUrl = `wss://${baseUrl}/websocket/v1/connect/webchat`;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -84,7 +85,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
   describe('subscribe', () => {
     it('opens a WebSocket with the token as a query param', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
 
       service.subscribe(() => {});
       await flush();
@@ -95,7 +96,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
     it('URL-encodes the token', async () => {
       const service = new YaloMessageServiceWebSocket(
-        wsUrl,
+        baseUrl,
         makeTokenRepository(new Ok('a/b+c=d'))
       );
 
@@ -107,7 +108,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
     it('invokes the callback with parsed PollMessageItem on incoming frames', async () => {
       const callback = vi.fn();
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
 
       service.subscribe(callback);
       await flush();
@@ -134,7 +135,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
     it('ignores malformed frames without throwing', async () => {
       const callback = vi.fn();
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
 
       service.subscribe(callback);
       await flush();
@@ -146,7 +147,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
     it('schedules a reconnect when the token fetch fails', async () => {
       const tokenRepository = makeTokenRepository(new Err(new Error('auth failed')));
-      const service = new YaloMessageServiceWebSocket(wsUrl, tokenRepository);
+      const service = new YaloMessageServiceWebSocket(baseUrl, tokenRepository);
 
       service.subscribe(() => {});
       await flush();
@@ -159,7 +160,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
   describe('sendMessage', () => {
     it('sends the frame as SdkMessage JSON when the socket is open', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
       open(sockets[0]);
@@ -175,7 +176,7 @@ describe('YaloMessageServiceWebSocket', () => {
     });
 
     it('queues frames sent before the socket opens, then flushes on open', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
 
@@ -192,7 +193,7 @@ describe('YaloMessageServiceWebSocket', () => {
     });
 
     it('connects on first send when not yet subscribed', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
 
       const result = await service.sendMessage(makeTextMessage('hi'));
       await flush();
@@ -207,7 +208,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
   describe('reconnect', () => {
     it('reconnects after the socket closes, with exponential backoff', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
       open(sockets[0]);
@@ -227,7 +228,7 @@ describe('YaloMessageServiceWebSocket', () => {
     });
 
     it('caps the backoff delay at 30 seconds', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
 
@@ -243,7 +244,7 @@ describe('YaloMessageServiceWebSocket', () => {
     });
 
     it('resets the backoff after a successful open', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
 
@@ -261,7 +262,7 @@ describe('YaloMessageServiceWebSocket', () => {
 
   describe('unsubscribe', () => {
     it('closes the socket and stops reconnect attempts', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
       open(sockets[0]);
@@ -274,7 +275,7 @@ describe('YaloMessageServiceWebSocket', () => {
     });
 
     it('clears queued frames so they are not sent on a later subscribe', async () => {
-      const service = new YaloMessageServiceWebSocket(wsUrl, makeTokenRepository());
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
 

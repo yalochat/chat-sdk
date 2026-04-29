@@ -41,7 +41,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     tokenRepository: TokenRepository,
     mediaService: YaloMediaService
   ) {
-    this._baseUrl = baseUrl;
+    this._baseUrl = `https://${baseUrl}/v1/channels`;
     this._config = config;
     this._tokenRepository = tokenRepository;
     this._mediaService = mediaService;

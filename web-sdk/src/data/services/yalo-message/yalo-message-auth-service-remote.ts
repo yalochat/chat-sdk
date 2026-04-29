@@ -10,7 +10,7 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
   private readonly _config: YaloChatClientConfig;
 
   constructor(baseUrl: string, config: YaloChatClientConfig) {
-    this._baseUrl = baseUrl;
+    this._baseUrl = `https://${baseUrl}/v1/channels`;
     this._config = config;
   }
 

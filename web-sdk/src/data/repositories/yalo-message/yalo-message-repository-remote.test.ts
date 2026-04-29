@@ -273,7 +273,7 @@ describe('YaloMessageRepositoryRemote', () => {
   describe('insertMessage', () => {
     it('returns auth Err when auth fails', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         failingTokenRepository(),
         mockMediaService()
@@ -289,7 +289,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -298,7 +298,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/webchat/inbound_messages'
+        'https://api.example.com/v1/channels/webchat/inbound_messages'
       );
       expect(fetchSpy.mock.calls[0][1].method).toBe('POST');
     });
@@ -308,7 +308,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -327,7 +327,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       const msg = makeMessage({ id: 7, content: 'test content' });
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -344,7 +344,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       const msg = makeMessage();
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -359,7 +359,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockErrFetch(422));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -378,7 +378,7 @@ describe('YaloMessageRepositoryRemote', () => {
       );
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -393,7 +393,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue('oops'));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -417,7 +417,7 @@ describe('YaloMessageRepositoryRemote', () => {
         content: 'my caption',
       });
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -452,7 +452,7 @@ describe('YaloMessageRepositoryRemote', () => {
         blob: new Blob(['fake-video-data'], { type: 'video/mp4' }),
       });
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mediaService
@@ -473,7 +473,7 @@ describe('YaloMessageRepositoryRemote', () => {
   describe('addToCart', () => {
     it('returns auth Err when auth fails', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         failingTokenRepository(),
         mockMediaService()
@@ -489,7 +489,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -498,7 +498,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/webchat/inbound_messages'
+        'https://api.example.com/v1/channels/webchat/inbound_messages'
       );
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
@@ -513,7 +513,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -532,7 +532,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch());
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -546,7 +546,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockErrFetch(422));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -565,7 +565,7 @@ describe('YaloMessageRepositoryRemote', () => {
       );
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -580,7 +580,7 @@ describe('YaloMessageRepositoryRemote', () => {
   describe('removeFromCart', () => {
     it('returns auth Err when auth fails', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         failingTokenRepository(),
         mockMediaService()
@@ -596,7 +596,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -605,7 +605,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/webchat/inbound_messages'
+        'https://api.example.com/v1/channels/webchat/inbound_messages'
       );
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
@@ -620,7 +620,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -637,7 +637,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -656,7 +656,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch());
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -670,7 +670,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockErrFetch(422));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -689,7 +689,7 @@ describe('YaloMessageRepositoryRemote', () => {
       );
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -704,7 +704,7 @@ describe('YaloMessageRepositoryRemote', () => {
   describe('clearCart', () => {
     it('returns auth Err when auth fails', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         failingTokenRepository(),
         mockMediaService()
@@ -720,7 +720,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -729,7 +729,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/webchat/inbound_messages'
+        'https://api.example.com/v1/channels/webchat/inbound_messages'
       );
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
@@ -742,7 +742,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -761,7 +761,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch());
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -775,7 +775,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockErrFetch(500));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -794,7 +794,7 @@ describe('YaloMessageRepositoryRemote', () => {
       );
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -809,7 +809,7 @@ describe('YaloMessageRepositoryRemote', () => {
   describe('addPromotion', () => {
     it('returns auth Err when auth fails', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         failingTokenRepository(),
         mockMediaService()
@@ -825,7 +825,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -834,7 +834,7 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(fetchSpy).toHaveBeenCalledOnce();
       expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/webchat/inbound_messages'
+        'https://api.example.com/v1/channels/webchat/inbound_messages'
       );
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
@@ -848,7 +848,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -867,7 +867,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch());
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -881,7 +881,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockErrFetch(400));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -900,7 +900,7 @@ describe('YaloMessageRepositoryRemote', () => {
       );
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -918,7 +918,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         failingTokenRepository(),
         mockMediaService()
@@ -937,7 +937,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -947,7 +947,9 @@ describe('YaloMessageRepositoryRemote', () => {
       await flushPoll();
 
       const [url, init] = fetchSpy.mock.calls[0];
-      expect(url).toMatch(/^https:\/\/api\.example\.com\/webchat\/messages\?/);
+      expect(url).toMatch(
+        /^https:\/\/api\.example\.com\/v1\/channels\/webchat\/messages\?/
+      );
       expect(init.headers.authorization).toBe(`Bearer ${token}`);
       expect(init.headers['x-channel-id']).toBe('channel-1');
       expect(init.headers['x-user-id']).toBe('user-42');
@@ -958,7 +960,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -981,7 +983,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch([]));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1000,7 +1002,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1031,7 +1033,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1052,7 +1054,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1070,7 +1072,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1098,7 +1100,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockErrFetch(503));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1117,7 +1119,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1139,7 +1141,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1162,7 +1164,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1182,7 +1184,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1212,7 +1214,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1251,7 +1253,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1293,7 +1295,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1343,7 +1345,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1388,7 +1390,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', mockOkFetch(items));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1417,7 +1419,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1438,7 +1440,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1461,7 +1463,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1483,7 +1485,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1507,7 +1509,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1533,7 +1535,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.setSystemTime(new Date('2026-06-02T00:00:00Z'));
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()
@@ -1557,7 +1559,7 @@ describe('YaloMessageRepositoryRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const repo = new YaloMessageRepositoryRemote(
-        'https://api.example.com',
+        'api.example.com',
         baseConfig,
         mockTokenRepository(token),
         mockMediaService()

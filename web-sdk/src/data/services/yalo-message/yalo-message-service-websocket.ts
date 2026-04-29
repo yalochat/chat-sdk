@@ -24,8 +24,8 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   private _reconnectTimeout?: ReturnType<typeof setTimeout>;
   private _running = false;
 
-  constructor(wsUrl: string, tokenRepository: TokenRepository) {
-    this._wsUrl = wsUrl;
+  constructor(baseUrl: string, tokenRepository: TokenRepository) {
+    this._wsUrl = `wss://${baseUrl}/websocket/v1/connect/webchat`;
     this._tokenRepository = tokenRepository;
   }
 
