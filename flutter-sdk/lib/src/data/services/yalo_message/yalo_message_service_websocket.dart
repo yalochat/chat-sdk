@@ -14,9 +14,6 @@ import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/
 typedef WebSocketChannelFactory =
     WebSocketChannel Function(Uri uri, {Duration? pingInterval});
 
-WebSocketChannel _defaultFactory(Uri uri, {Duration? pingInterval}) =>
-    IOWebSocketChannel.connect(uri, pingInterval: pingInterval);
-
 class YaloMessageServiceWebSocket {
   static const Duration _initialBackoff = Duration(seconds: 1);
   static const Duration _maxBackoff = Duration(seconds: 30);
@@ -43,7 +40,10 @@ class YaloMessageServiceWebSocket {
     Duration pingInterval = _defaultPingInterval,
   }) : _wsUrl = 'wss://$baseUrl/websocket/v1/connect/inapp',
        _authService = authService,
-       _channelFactory = channelFactory ?? _defaultFactory,
+       _channelFactory =
+           channelFactory ??
+           ((uri, {pingInterval}) =>
+               IOWebSocketChannel.connect(uri, pingInterval: pingInterval)),
        _pingInterval = pingInterval;
 
   Stream<PollMessageItem> messages() {
