@@ -99,7 +99,7 @@ class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
   Future<Result<TokenEntry>> _fetchToken() async {
     try {
       final response = await _httpClient.post(
-        Uri.parse('$_baseUrl/auth'),
+        Uri.parse('https://$_baseUrl/v1/channels/auth'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user_type': _userId != null ? 'third_party_anonymous' : 'anonymous',
@@ -125,7 +125,7 @@ class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
   Future<Result<TokenEntry>> _refresh(String refreshToken) async {
     try {
       final response = await _httpClient.post(
-        Uri.parse('$_baseUrl/oauth/token'),
+        Uri.parse('https://$_baseUrl/v1/channels/oauth/token'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'grant_type': 'refresh_token',
