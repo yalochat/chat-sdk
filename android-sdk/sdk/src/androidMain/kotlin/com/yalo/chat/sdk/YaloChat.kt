@@ -49,6 +49,10 @@ object YaloChat {
         get() = _theme
 
     fun init(config: YaloChatConfig, context: Context, theme: ChatTheme = ChatTheme.Default) {
+        // Snapshot pre-init commands before teardown so they survive the first init().
+        // On re-init the snapshot is empty (cleared at end of previous init), giving a clean slate.
+        val savedCommands = pendingCommands.toMap()
+
         // Tear down any previous instance before re-initialising (idempotent re-init).
         _syncService?.stop()
         _httpClient?.close()
@@ -100,8 +104,7 @@ object YaloChat {
             tempDir = context.applicationContext.cacheDir.absolutePath,
         )
         _yaloRepo = yaloRepo
-        pendingCommands.forEach { (cmd, cb) -> yaloRepo.registerCommand(cmd, cb) }
-        pendingCommands.clear()
+        savedCommands.forEach { (cmd, cb) -> yaloRepo.registerCommand(cmd, cb) }
 
         val driver = AndroidSqliteDriver(
             schema = ChatDatabase.Schema,
@@ -157,5 +160,21 @@ object YaloChat {
         } else {
             pendingCommands[command] = callback
         }
+    }
+
+    /** Visible for testing only — exposes the pending command buffer. */
+    internal val pendingCommandsForTest: Map<ChatCommand, ChatCommandCallback>
+        get() = pendingCommands.toMap()
+
+    /** Visible for testing only — resets singleton state to pristine. */
+    internal fun resetForTest() {
+        _syncService?.stop()
+        _httpClient?.close()
+        _driver?.close()
+        _yaloRepo = null
+        _config = null
+        _theme = ChatTheme.Default
+        _viewModelFactory = null
+        pendingCommands.clear()
     }
 }

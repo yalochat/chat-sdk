@@ -918,6 +918,44 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals("promo-xyz", payload?.get("promotionId"))
     }
 
+    @Test
+    fun `removeFromCart calls API when no callback is registered`() = runTest {
+        val inboundPaths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                inboundPaths.add(request.url.encodedPath)
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+
+        val result = repo.removeFromCart("sku-5", 2.0)
+
+        assertIs<Result.Ok<Unit>>(result)
+        assertTrue(inboundPaths.any { it.contains("inbound_messages") }, "API must be called when no callback registered")
+    }
+
+    @Test
+    fun `clearCart calls API when no callback is registered`() = runTest {
+        val inboundPaths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                inboundPaths.add(request.url.encodedPath)
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+
+        val result = repo.clearCart()
+
+        assertIs<Result.Ok<Unit>>(result)
+        assertTrue(inboundPaths.any { it.contains("inbound_messages") }, "API must be called when no callback registered")
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `pollIncomingMessages emits TypingStop on network error`() = runTest(UnconfinedTestDispatcher()) {
