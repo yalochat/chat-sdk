@@ -10,18 +10,68 @@ struct MessageItem: View {
     let message: ChatMessage
     @ObservedObject var audioObservable: AudioObservable
     var onButtonTap: (String) -> Void = { _ in }
+    var onToggleExpand: (Int64) -> Void = { _ in }
+    var onUpdateQuantity: (Int64, String, Bool, Double) -> Void = { _, _, _, _ in }
+    var isExpanded: Bool = false
 
     private var isUser: Bool { message.role === MessageRole.user }
 
+    // Product messages render their own card borders — bypass the bubble HStack layout.
+    private var isProductMessage: Bool {
+        message.type is MessageType.Product || message.type is MessageType.ProductCarousel
+    }
+
     var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            if isUser {
-                Spacer(minLength: 48)
-                bubble
-            } else {
-                bubble
-                Spacer(minLength: 48)
+        if isProductMessage {
+            productMessageRow
+        } else {
+            HStack(alignment: .bottom, spacing: 4) {
+                if isUser {
+                    Spacer(minLength: 48)
+                    errorIndicator
+                    bubble
+                } else {
+                    bubble
+                    Spacer(minLength: 48)
+                }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var errorIndicator: some View {
+        if isUser && message.status === MessageStatus.error {
+            Image(systemName: "exclamationmark.circle.fill")
+                .foregroundColor(.red)
+                .font(.caption)
+        }
+    }
+
+    @ViewBuilder
+    private var productMessageRow: some View {
+        HStack {
+            if let messageId = message.id?.int64Value {
+                if message.type is MessageType.Product {
+                    ProductListView(
+                        message: message,
+                        isExpanded: isExpanded,
+                        onToggleExpand: { onToggleExpand(messageId) },
+                        onUpdateQuantity: { sku, isSub, qty in
+                            onUpdateQuantity(messageId, sku, isSub, qty)
+                        }
+                    )
+                } else {
+                    ProductCarouselView(
+                        message: message,
+                        isExpanded: isExpanded,
+                        onToggleExpand: { onToggleExpand(messageId) },
+                        onUpdateQuantity: { sku, isSub, qty in
+                            onUpdateQuantity(messageId, sku, isSub, qty)
+                        }
+                    )
+                }
+            }
+            Spacer(minLength: 0)
         }
     }
 
@@ -44,7 +94,7 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var bubbleContent: some View {
-        if message.type is MessageType.Text {
+        if message.type is MessageType.Text || message.type is MessageType.QuickReply {
             Text(message.content)
                 .foregroundColor(isUser ? .white : .primary)
         } else if message.type is MessageType.Voice {
@@ -92,7 +142,7 @@ struct MessageItem: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            let labels = message.buttons.compactMap { $0 as? String }
+            let labels = message.buttons
             if !labels.isEmpty {
                 VStack(spacing: 6) {
                     ForEach(labels, id: \.self) { label in
@@ -133,7 +183,7 @@ struct MessageItem: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            let buttons = message.ctaButtons.compactMap { $0 as? CtaButton }
+            let buttons = message.ctaButtons
             if !buttons.isEmpty {
                 VStack(spacing: 6) {
                     ForEach(buttons, id: \.url) { button in
@@ -146,7 +196,7 @@ struct MessageItem: View {
                                 Text(button.text)
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Image(systemName: "arrow.up.right")
+                                Image(systemName: "link")
                                     .font(.caption)
                             }
                             .padding(.vertical, 8)
@@ -167,8 +217,7 @@ struct MessageItem: View {
     @ViewBuilder
     private var videoContent: some View {
         if let path = message.fileName {
-            VideoPlayer(player: AVPlayer(url: URL(fileURLWithPath: path)))
-                .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+            StableVideoPlayer(path: path)
         } else {
             Label("Video unavailable", systemImage: "video")
                 .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
@@ -220,6 +269,35 @@ struct MessageItem: View {
 
     private var bubbleColor: Color {
         isUser ? .accentColor : Color(.systemGray5)
+    }
+}
+
+// Holds an AVPlayer in @State so it is created once and survives parent view re-renders.
+// Without this, AVPlayer(url:) in the body would recreate the player on every render
+// (e.g. when product quantity steppers update the messages array), causing video flicker.
+private struct StableVideoPlayer: View {
+    let path: String
+    @State private var player: AVPlayer?
+
+    var body: some View {
+        Group {
+            if let player {
+                VideoPlayer(player: player)
+                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+            } else {
+                Color.black
+                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+                    .overlay(
+                        Image(systemName: "play.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(.white.opacity(0.7))
+                    )
+            }
+        }
+        .onAppear {
+            guard player == nil else { return }
+            player = AVPlayer(url: URL(fileURLWithPath: path))
+        }
     }
 }
 
