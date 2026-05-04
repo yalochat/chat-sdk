@@ -40,7 +40,7 @@ void main() {
     late MockClient mockClient;
     late YaloMessageServiceRemote service;
 
-    const baseUrl = 'https://api.example.com';
+    const baseUrl = 'api.example.com';
     const channelId = 'ch-1';
     const userId = 'user-123';
 
@@ -113,7 +113,7 @@ void main() {
 
         expect(
           capturedUri.toString(),
-          equals('$baseUrl/inapp/inbound_messages'),
+          equals('https://$baseUrl/v1/channels/inapp/inbound_messages'),
         );
         expect(capturedHeaders['x-user-id'], equals(userId));
         expect(capturedHeaders['x-channel-id'], equals(channelId));
@@ -210,7 +210,9 @@ void main() {
 
         final capturedUri = captured[0] as Uri;
         expect(capturedUri.queryParameters['since'], equals('$since'));
-        expect(capturedUri.path, endsWith('/inapp/messages'));
+        expect(capturedUri.path, endsWith('/v1/channels/inapp/messages'));
+        expect(capturedUri.scheme, equals('https'));
+        expect(capturedUri.host, equals('api.example.com'));
       });
 
       test('sends correct headers', () async {

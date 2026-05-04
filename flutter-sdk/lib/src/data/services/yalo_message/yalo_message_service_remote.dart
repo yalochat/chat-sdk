@@ -37,8 +37,9 @@ class YaloMessageServiceRemote implements YaloMessageService {
     final entry = (authResult as Ok<TokenEntry>).result;
 
     try {
+      final url = 'https://$_baseUrl/v1/channels/inapp/inbound_messages';
       final response = await _httpClient.post(
-        Uri.parse('$_baseUrl/inapp/inbound_messages'),
+        Uri.parse(url),
         headers: {
           'content-type': 'application/json',
           'x-user-id': entry.userId,
@@ -48,7 +49,7 @@ class YaloMessageServiceRemote implements YaloMessageService {
         body: jsonEncode(request.toProto3Json()),
       );
 
-      log.finest('$_baseUrl/inapp/inbound_messages');
+      log.finest(url);
       log.finest({
         'content-type': 'application/json',
         'x-user-id': entry.userId,
@@ -79,9 +80,9 @@ class YaloMessageServiceRemote implements YaloMessageService {
     final entry = (authResult as Ok<TokenEntry>).result;
 
     try {
-      final baseUrl = '$_baseUrl/inapp/messages';
+      final url = 'https://$_baseUrl/v1/channels/inapp/messages';
       final queryParams = {'since': '$since'};
-      final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
+      final uri = Uri.parse(url).replace(queryParameters: queryParams);
       final response = await _httpClient.get(
         uri,
         headers: {

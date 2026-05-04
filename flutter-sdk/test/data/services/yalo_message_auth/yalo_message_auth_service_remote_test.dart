@@ -31,7 +31,9 @@ void main() {
     late MockFlutterSecureStorage mockStorage;
     late YaloMessageAuthServiceRemote service;
 
-    const baseUrl = 'https://api.example.com';
+    const baseUrl = 'api.example.com';
+    const authUrl = 'https://api.example.com/v1/channels/auth';
+    const refreshUrl = 'https://api.example.com/v1/channels/oauth/token';
     const channelId = 'ch-1';
     const organizationId = 'org-1';
 
@@ -79,7 +81,7 @@ void main() {
     });
 
     group('auth no cache', () {
-      test('POSTs to $baseUrl/auth with correct headers', () async {
+      test('POSTs to $authUrl with correct headers', () async {
         when(
           () => mockClient.post(
             any(),
@@ -101,7 +103,7 @@ void main() {
         final uri = captured[0] as Uri;
         final headers = captured[1] as Map<String, String>;
 
-        expect(uri.toString(), equals('$baseUrl/auth'));
+        expect(uri.toString(), equals(authUrl));
         expect(headers['Content-Type'], equals('application/json'));
       });
 
@@ -287,7 +289,7 @@ void main() {
         // First: populate cache with an immediately-expiring token.
         when(
           () => mockClient.post(
-            Uri.parse('$baseUrl/auth'),
+            Uri.parse(authUrl),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           ),
@@ -298,7 +300,7 @@ void main() {
         final newAccessToken = _makeJwtToken('new-user');
         when(
           () => mockClient.post(
-            Uri.parse('$baseUrl/oauth/token'),
+            Uri.parse(refreshUrl),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           ),
@@ -316,12 +318,12 @@ void main() {
       });
 
       test(
-        'POSTs to $baseUrl/oauth/token with form-encoded body on refresh',
+        'POSTs to $refreshUrl with form-encoded body on refresh',
         () async {
           // Seed an expired cache.
           when(
             () => mockClient.post(
-              Uri.parse('$baseUrl/auth'),
+              Uri.parse(authUrl),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             ),
@@ -331,7 +333,7 @@ void main() {
           // Intercept the refresh call.
           when(
             () => mockClient.post(
-              Uri.parse('$baseUrl/oauth/token'),
+              Uri.parse(refreshUrl),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             ),
@@ -341,7 +343,7 @@ void main() {
 
           final captured = verify(
             () => mockClient.post(
-              Uri.parse('$baseUrl/oauth/token'),
+              Uri.parse(refreshUrl),
               headers: captureAny(named: 'headers'),
               body: captureAny(named: 'body'),
             ),
@@ -365,7 +367,7 @@ void main() {
           // Seed an expired cache.
           when(
             () => mockClient.post(
-              Uri.parse('$baseUrl/auth'),
+              Uri.parse(authUrl),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             ),
@@ -375,7 +377,7 @@ void main() {
           // Refresh fails.
           when(
             () => mockClient.post(
-              Uri.parse('$baseUrl/oauth/token'),
+              Uri.parse(refreshUrl),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             ),
@@ -388,7 +390,7 @@ void main() {
           // After cache is cleared a third auth() call goes back to /auth.
           when(
             () => mockClient.post(
-              Uri.parse('$baseUrl/auth'),
+              Uri.parse(authUrl),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             ),
@@ -398,7 +400,7 @@ void main() {
 
           verify(
             () => mockClient.post(
-              Uri.parse('$baseUrl/auth'),
+              Uri.parse(authUrl),
               headers: any(named: 'headers'),
               body: any(named: 'body'),
             ),
@@ -410,7 +412,7 @@ void main() {
         // Seed an expired cache.
         when(
           () => mockClient.post(
-            Uri.parse('$baseUrl/auth'),
+            Uri.parse(authUrl),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           ),
@@ -419,7 +421,7 @@ void main() {
 
         when(
           () => mockClient.post(
-            Uri.parse('$baseUrl/oauth/token'),
+            Uri.parse(refreshUrl),
             headers: any(named: 'headers'),
             body: any(named: 'body'),
           ),

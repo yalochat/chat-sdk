@@ -47,7 +47,7 @@ void main() {
     late MockClient mockClient;
     late YaloMediaServiceRemote service;
 
-    const baseUrl = 'https://api.example.com';
+    const baseUrl = 'api.example.com';
     const token = 'test-token';
 
     setUp(() {
@@ -94,7 +94,10 @@ void main() {
         final captured = verify(() => mockClient.send(captureAny())).captured;
         final request = captured.first as MultipartRequest;
 
-        expect(request.url.toString(), equals('$baseUrl/all/media'));
+        expect(
+          request.url.toString(),
+          equals('https://$baseUrl/v1/channels/all/media'),
+        );
         expect(request.headers['Authorization'], equals('Bearer $token'));
         expect(request.files, hasLength(1));
         expect(request.files.first.field, equals('file'));
