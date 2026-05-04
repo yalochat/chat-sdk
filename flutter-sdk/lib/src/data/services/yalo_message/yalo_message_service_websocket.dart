@@ -11,18 +11,15 @@ import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/token_
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
 
-typedef WebSocketChannelFactory =
-    WebSocketChannel Function(Uri uri, {Duration? pingInterval});
+typedef WebSocketChannelFactory = WebSocketChannel Function(Uri uri);
 
 class YaloMessageServiceWebSocket {
   static const Duration _initialBackoff = Duration(seconds: 1);
   static const Duration _maxBackoff = Duration(seconds: 30);
-  static const Duration _defaultPingInterval = Duration(seconds: 20);
 
   final String _wsUrl;
   final YaloMessageAuthService _authService;
   final WebSocketChannelFactory _channelFactory;
-  final Duration _pingInterval;
   final Logger log = Logger('YaloMessageServiceWebSocket');
 
   WebSocketChannel? _channel;
@@ -37,14 +34,10 @@ class YaloMessageServiceWebSocket {
     required String baseUrl,
     required YaloMessageAuthService authService,
     WebSocketChannelFactory? channelFactory,
-    Duration pingInterval = _defaultPingInterval,
   }) : _wsUrl = 'wss://$baseUrl/websocket/v1/connect/inapp',
        _authService = authService,
        _channelFactory =
-           channelFactory ??
-           ((uri, {pingInterval}) =>
-               IOWebSocketChannel.connect(uri, pingInterval: pingInterval)),
-       _pingInterval = pingInterval;
+           channelFactory ?? ((uri) => IOWebSocketChannel.connect(uri));
 
   Stream<PollMessageItem> messages() {
     final controller =
@@ -106,7 +99,7 @@ class YaloMessageServiceWebSocket {
       final uri = Uri.parse(
         '$_wsUrl?token=${Uri.encodeComponent(entry.accessToken)}',
       );
-      channel = _channelFactory(uri, pingInterval: _pingInterval);
+      channel = _channelFactory(uri);
     } on Exception catch (e) {
       log.warning('Failed to open websocket', e);
       _scheduleReconnect();
