@@ -7,7 +7,7 @@ You can register commands before or after adding the `Chat` widget.
 ## Usage
 
 ```dart
-import 'package:chat_flutter_sdk/yalo_sdk.dart';
+import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
 
 final client = YaloChatClient(
   name: 'My Chat',

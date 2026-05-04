@@ -1,12 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
-import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/image/image_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 

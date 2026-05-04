@@ -2428,9 +2428,13 @@ class ClearCartResponse extends $pb.GeneratedMessage {
 class GuidanceCardRequest extends $pb.GeneratedMessage {
   factory GuidanceCardRequest({
     $0.Timestamp? timestamp,
+    $core.String? targetId,
+    $core.String? context,
   }) {
     final result = create();
     if (timestamp != null) result.timestamp = timestamp;
+    if (targetId != null) result.targetId = targetId;
+    if (context != null) result.context = context;
     return result;
   }
 
@@ -2450,6 +2454,8 @@ class GuidanceCardRequest extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
+    ..aOS(2, _omitFieldNames ? '' : 'targetId')
+    ..aOS(3, _omitFieldNames ? '' : 'context')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2481,6 +2487,26 @@ class GuidanceCardRequest extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(1);
   @$pb.TagNumber(1)
   $0.Timestamp ensureTimestamp() => $_ensure(0);
+
+  /// Identifies the target entity for which guidance cards are requested.
+  @$pb.TagNumber(2)
+  $core.String get targetId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set targetId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTargetId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTargetId() => $_clearField(2);
+
+  /// Additional context for the guidance card lookup.
+  @$pb.TagNumber(3)
+  $core.String get context => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set context($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasContext() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearContext() => $_clearField(3);
 }
 
 /// GuidanceCardResponse returns the guidance cards to display to the user.

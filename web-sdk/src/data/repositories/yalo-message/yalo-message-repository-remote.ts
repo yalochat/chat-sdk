@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import { Err, Ok, type Result } from '@domain/common/result';
-import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { TokenRepository } from '@data/repositories/token/token-repository';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type {
@@ -9,15 +9,16 @@ import type {
   YaloMessageRepository,
 } from './yalo-message-repository';
 import {
-  MessageRole,
-  MessageStatus,
-  SdkMessage,
   PollMessageItem,
-  ProductMessageRequest_Orientation,
-  type Product as ProtoProduct,
+  SdkMessage,
+  UnitType,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
-import { Product } from '@domain/models/product/product';
+import type { ProductUnitType } from '@domain/models/product/product';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
+import {
+  chatMessageToSdkMessage,
+  pollMessageItemToChatMessage,
+} from './sdk-message-mapper';
 
 interface JwtPayload {
   user_id: string;
@@ -30,7 +31,9 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _mediaService: YaloMediaService;
   private _pollTimeout?: ReturnType<typeof setTimeout>;
   private _seenIds = new Set<string>();
+  private _lastMessageTimestamp?: Date;
   private _pollInterval = 2000;
+  private _visibilityListener?: () => void;
 
   constructor(
     baseUrl: string,
@@ -38,122 +41,10 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     tokenRepository: TokenRepository,
     mediaService: YaloMediaService
   ) {
-    this._baseUrl = baseUrl;
+    this._baseUrl = `https://${baseUrl}/v1/channels`;
     this._config = config;
     this._tokenRepository = tokenRepository;
     this._mediaService = mediaService;
-  }
-
-  private _createSdkMessage(
-    message: ChatMessage,
-    mediaId?: string
-  ): SdkMessage {
-    const timestamp = new Date();
-
-    let body: SdkMessage | undefined;
-    switch (message.type) {
-      case 'text':
-        body = {
-          correlationId: message.id?.toString() || '',
-          textMessageRequest: {
-            content: {
-              timestamp: message.timestamp,
-              text: message.content,
-              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
-              role: MessageRole.MESSAGE_ROLE_USER,
-            },
-            timestamp: timestamp,
-          },
-          timestamp: timestamp,
-        };
-        break;
-      case 'image':
-        body = {
-          correlationId: message.id?.toString() || '',
-          imageMessageRequest: {
-            content: {
-              timestamp: message.timestamp,
-              text: message.content,
-              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
-              role: MessageRole.MESSAGE_ROLE_USER,
-              mediaUrl: mediaId ?? message.fileName!,
-              mediaType: message.mediaType!,
-              byteCount: message.byteCount!,
-              fileName: message.fileName!,
-            },
-            timestamp: timestamp,
-            quickReplies: [],
-          },
-          timestamp: timestamp,
-        };
-        break;
-      case 'voice':
-        body = {
-          correlationId: message.id?.toString() || '',
-          voiceNoteMessageRequest: {
-            content: {
-              timestamp: message.timestamp,
-              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
-              role: MessageRole.MESSAGE_ROLE_USER,
-              mediaUrl: mediaId ?? message.fileName!,
-              mediaType: message.mediaType!,
-              byteCount: message.byteCount!,
-              fileName: message.fileName!,
-              amplitudesPreview: message.amplitudes!,
-              duration: message.duration!,
-            },
-            timestamp: timestamp,
-            quickReplies: [],
-          },
-          timestamp: timestamp,
-        };
-        break;
-      case 'video':
-        body = {
-          correlationId: message.id?.toString() || '',
-          videoMessageRequest: {
-            content: {
-              timestamp: message.timestamp,
-              text: message.content,
-              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
-              role: MessageRole.MESSAGE_ROLE_USER,
-              mediaUrl: mediaId ?? message.fileName!,
-              mediaType: message.mediaType!,
-              byteCount: message.byteCount!,
-              fileName: message.fileName!,
-              duration: message.duration!,
-            },
-            timestamp: timestamp,
-            quickReplies: [],
-          },
-          timestamp: timestamp,
-        };
-        break;
-      case 'attachment':
-        body = {
-          correlationId: message.id?.toString() || '',
-          attachmentMessageRequest: {
-            content: {
-              timestamp: message.timestamp,
-              text: message.content,
-              status: MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
-              role: MessageRole.MESSAGE_ROLE_USER,
-              mediaUrl: mediaId ?? message.fileName!,
-              mediaType: message.mediaType!,
-              byteCount: message.byteCount!,
-              fileName: message.fileName!,
-            },
-            timestamp: timestamp,
-            quickReplies: [],
-          },
-          timestamp: timestamp,
-        };
-        break;
-      default:
-        throw Error('UnimplementedError');
-    }
-
-    return body;
   }
 
   async insertMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
@@ -182,7 +73,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         mediaId = uploadResult.value.id;
       }
 
-      const body = this._createSdkMessage(message, mediaId);
+      const body = chatMessageToSdkMessage(message, mediaId);
       const response = await fetch(
         `${this._baseUrl}/webchat/inbound_messages`,
         {
@@ -207,7 +98,11 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
-  async addToCart(sku: string, quantity: number): Promise<Result<void>> {
+  async addToCart(
+    sku: string,
+    unitType: ProductUnitType,
+    quantity: number
+  ): Promise<Result<void>> {
     const authResult = await this._tokenRepository.getToken();
     if (!authResult.ok) return authResult;
 
@@ -218,7 +113,15 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     try {
       const body: SdkMessage = {
         correlationId: `add-to-cart-${sku}-${Date.now()}`,
-        addToCartRequest: { sku, quantity, timestamp },
+        addToCartRequest: {
+          sku,
+          quantity,
+          timestamp,
+          unitType:
+            unitType === 'unit'
+              ? UnitType.UNIT_TYPE_UNIT
+              : UnitType.UNIT_TYPE_SUBUNIT,
+        },
         timestamp,
       };
 
@@ -248,6 +151,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   async removeFromCart(
     sku: string,
+    unitType: ProductUnitType,
     quantity?: number
   ): Promise<Result<void>> {
     const authResult = await this._tokenRepository.getToken();
@@ -260,7 +164,15 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     try {
       const body: SdkMessage = {
         correlationId: `remove-from-cart-${sku}-${Date.now()}`,
-        removeFromCartRequest: { sku, quantity, timestamp },
+        removeFromCartRequest: {
+          sku,
+          quantity,
+          timestamp,
+          unitType:
+            unitType === 'unit'
+              ? UnitType.UNIT_TYPE_UNIT
+              : UnitType.UNIT_TYPE_SUBUNIT,
+        },
         timestamp,
       };
 
@@ -370,118 +282,6 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
-  private _translateMessageResponse(item: PollMessageItem): ChatMessage | null {
-    const timestamp = item.date ?? new Date();
-    const msg = item.message!;
-
-    if (msg.textMessageRequest?.content) {
-      return ChatMessage.text({
-        role: 'AGENT',
-        timestamp,
-        content: msg.textMessageRequest.content.text,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.imageMessageRequest?.content) {
-      const content = msg.imageMessageRequest.content;
-      return ChatMessage.image({
-        role: 'AGENT',
-        timestamp,
-        fileName: content.mediaUrl || content.fileName,
-        content: content.text ?? '',
-        mediaType: content.mediaType,
-        byteCount: content.byteCount,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.voiceNoteMessageRequest?.content) {
-      const content = msg.voiceNoteMessageRequest.content;
-      return ChatMessage.voice({
-        role: 'AGENT',
-        timestamp,
-        fileName: content.fileName,
-        amplitudes: content.amplitudesPreview,
-        duration: content.duration,
-        mediaType: content.mediaType,
-        byteCount: content.byteCount,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.videoMessageRequest?.content) {
-      const content = msg.videoMessageRequest.content;
-      return ChatMessage.video({
-        role: 'AGENT',
-        timestamp,
-        fileName: content.mediaUrl || content.fileName,
-        content: content.text ?? '',
-        duration: content.duration,
-        mediaType: content.mediaType,
-        byteCount: content.byteCount,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.attachmentMessageRequest?.content) {
-      const content = msg.attachmentMessageRequest.content;
-      return ChatMessage.attachment({
-        role: 'AGENT',
-        timestamp,
-        fileName: content.mediaUrl || content.fileName,
-        content: content.text ?? '',
-        mediaType: content.mediaType,
-        byteCount: content.byteCount,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.buttonsMessageRequest?.content) {
-      const content = msg.buttonsMessageRequest.content;
-      return ChatMessage.buttons({
-        role: 'AGENT',
-        timestamp,
-        buttons: content.buttons,
-        content: content.body,
-        header: content.header,
-        footer: content.footer,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.productMessageRequest) {
-      const products = msg.productMessageRequest.products.map((p) =>
-        this._toDomainProduct(p)
-      );
-      const isCarousel =
-        msg.productMessageRequest.orientation ===
-        ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL;
-      const factory = isCarousel ? ChatMessage.carousel : ChatMessage.product;
-      return factory({
-        role: 'AGENT',
-        timestamp,
-        products,
-        wiId: item.id,
-      });
-    }
-
-    if (msg.ctaMessageRequest?.content) {
-      const content = msg.ctaMessageRequest.content;
-      return ChatMessage.cta({
-        role: 'AGENT',
-        timestamp,
-        ctaButtons: content.buttons.map((b) => ({ text: b.text, url: b.url })),
-        content: content.body,
-        header: content.header,
-        footer: content.footer,
-        wiId: item.id,
-      });
-    }
-
-    return null;
-  }
-
   subscribeToMessages(callback: PollCallback): void {
     const poll = async () => {
       const authResult = await this._tokenRepository.getToken();
@@ -491,9 +291,10 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       const userId = this._decodeUserId(token);
 
       try {
-        const params = new URLSearchParams({
-          since: String(Math.floor(Date.now() - 5000)),
-        });
+        const since = Math.floor(
+          this._lastMessageTimestamp?.getTime() ?? Date.now() - 5000
+        );
+        const params = new URLSearchParams({ since: String(since) });
         const response = await fetch(
           `${this._baseUrl}/webchat/messages?${params}`,
           {
@@ -512,11 +313,21 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         const json = (await response.json()) as Array<unknown>;
         const data = json.map((item) => PollMessageItem.fromJSON(item));
 
+        for (const item of data) {
+          if (
+            item.date &&
+            (!this._lastMessageTimestamp ||
+              item.date > this._lastMessageTimestamp)
+          ) {
+            this._lastMessageTimestamp = item.date;
+          }
+        }
+
         const newMessages = data
           .filter((item) => !this._seenIds.has(item.id) && item.message != null)
           .map((item) => {
             this._seenIds.add(item.id);
-            return this._translateMessageResponse(item);
+            return pollMessageItemToChatMessage(item);
           })
           .filter((msg): msg is ChatMessage => msg !== null);
 
@@ -525,8 +336,17 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         // swallow network errors — next poll will retry
       }
 
-      this._pollTimeout = setTimeout(poll, this._pollInterval);
+      if (!document.hidden) {
+        this._pollTimeout = setTimeout(poll, this._pollInterval);
+      }
     };
+
+    this._visibilityListener = () => {
+      clearTimeout(this._pollTimeout);
+      this._pollTimeout = undefined;
+      if (!document.hidden) poll();
+    };
+    document.addEventListener('visibilitychange', this._visibilityListener);
 
     poll();
   }
@@ -535,23 +355,14 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     clearTimeout(this._pollTimeout);
     this._pollTimeout = undefined;
     this._seenIds.clear();
-  }
-
-  private _toDomainProduct(p: ProtoProduct): Product {
-    return new Product({
-      sku: p.sku,
-      name: p.name,
-      price: p.price,
-      imagesUrl: p.imagesUrl,
-      salePrice: p.salePrice,
-      subunits: p.subunits,
-      unitStep: p.unitStep,
-      unitName: p.unitName,
-      subunitName: p.subunitName,
-      subunitStep: p.subunitStep,
-      unitsAdded: p.unitsAdded,
-      subunitsAdded: p.subunitsAdded,
-    });
+    this._lastMessageTimestamp = undefined;
+    if (this._visibilityListener) {
+      document.removeEventListener(
+        'visibilitychange',
+        this._visibilityListener
+      );
+      this._visibilityListener = undefined;
+    }
   }
 
   private _decodeUserId(token: string): string {

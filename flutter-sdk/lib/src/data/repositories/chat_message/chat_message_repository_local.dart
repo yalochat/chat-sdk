@@ -2,16 +2,16 @@
 
 import 'dart:convert';
 
-import 'package:chat_flutter_sdk/domain/models/product/product.dart';
-import 'package:chat_flutter_sdk/src/common/page.dart';
-import 'package:chat_flutter_sdk/src/common/exceptions/range_exception.dart';
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
+import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/page.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/exceptions/range_exception.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/database/database_service.dart'
     hide ChatMessage;
 
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
-import 'package:chat_flutter_sdk/src/data/services/database/database_service.dart'
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
 import 'package:drift/drift.dart';
 import 'package:logging/logging.dart';

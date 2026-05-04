@@ -2,11 +2,11 @@
 
 import 'dart:io';
 
-import 'package:chat_flutter_sdk/domain/models/product/product.dart';
-import 'package:chat_flutter_sdk/src/common/format.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
+import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/format.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -2,8 +2,8 @@
 
 // Service class that will be in charge of fetching yalo messages
 // from yalo's workflow interpreter adapter
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
 
 abstract class YaloMessageService {
   /// Sends a text message using the provided YaloTextMessageRequest.

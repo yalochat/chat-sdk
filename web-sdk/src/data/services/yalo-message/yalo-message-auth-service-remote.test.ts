@@ -40,7 +40,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('returns Ok with the auth response', async () => {
       vi.stubGlobal('fetch', mockFetch(makeAuthResponse()));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.fetchToken();
 
       expect(result.ok).toBe(true);
@@ -51,11 +51,11 @@ describe('YaloMessageAuthServiceRemote', () => {
       const fetchSpy = mockFetch(makeAuthResponse());
       vi.stubGlobal('fetch', fetchSpy);
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       await service.fetchToken();
 
       expect(fetchSpy).toHaveBeenCalledWith(
-        'https://api.example.com/auth',
+        'https://api.example.com/v1/channels/auth',
         expect.objectContaining({ method: 'POST' })
       );
     });
@@ -65,7 +65,7 @@ describe('YaloMessageAuthServiceRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
       vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       await service.fetchToken();
 
       const [, init] = fetchSpy.mock.calls[0];
@@ -79,7 +79,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('returns Err when request fails', async () => {
       vi.stubGlobal('fetch', mockFetch({}, false, 401));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.fetchToken();
 
       expect(result.ok).toBe(false);
@@ -89,7 +89,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('returns Err when fetch throws', async () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.fetchToken();
 
       expect(result.ok).toBe(false);
@@ -101,7 +101,7 @@ describe('YaloMessageAuthServiceRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const config = { ...baseConfig, userId: 'custom-user-123' };
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', config);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', config);
       await service.fetchToken();
 
       const [, init] = fetchSpy.mock.calls[0];
@@ -116,7 +116,7 @@ describe('YaloMessageAuthServiceRemote', () => {
       const fetchSpy = mockFetch(makeAuthResponse());
       vi.stubGlobal('fetch', fetchSpy);
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       await service.fetchToken();
 
       const [, init] = fetchSpy.mock.calls[0];
@@ -128,7 +128,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('wraps non-Error thrown values in an Error', async () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue('string error'));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.fetchToken();
 
       expect(result.ok).toBe(false);
@@ -140,7 +140,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('returns Ok with the auth response', async () => {
       vi.stubGlobal('fetch', mockFetch(makeAuthResponse({ accessToken: 'new-token' })));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.refreshToken('my-refresh-token');
 
       expect(result.ok).toBe(true);
@@ -151,11 +151,11 @@ describe('YaloMessageAuthServiceRemote', () => {
       const fetchSpy = mockFetch(makeAuthResponse());
       vi.stubGlobal('fetch', fetchSpy);
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       await service.refreshToken('my-refresh-token');
 
       const [url, init] = fetchSpy.mock.calls[0];
-      expect(url).toBe('https://api.example.com/oauth/token');
+      expect(url).toBe('https://api.example.com/v1/channels/oauth/token');
       const body = new URLSearchParams(init.body);
       expect(body.get('grant_type')).toBe('refresh_token');
       expect(body.get('refresh_token')).toBe('my-refresh-token');
@@ -165,7 +165,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('returns Err when request fails', async () => {
       vi.stubGlobal('fetch', mockFetch({}, false, 403));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.refreshToken('my-refresh-token');
 
       expect(result.ok).toBe(false);
@@ -175,7 +175,7 @@ describe('YaloMessageAuthServiceRemote', () => {
     it('returns Err when fetch throws', async () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
 
-      const service = new YaloMessageAuthServiceRemote('https://api.example.com', baseConfig);
+      const service = new YaloMessageAuthServiceRemote('api.example.com', baseConfig);
       const result = await service.refreshToken('my-refresh-token');
 
       expect(result.ok).toBe(false);

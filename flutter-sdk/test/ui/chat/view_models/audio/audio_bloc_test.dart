@@ -1,14 +1,14 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'package:bloc_test/bloc_test.dart';
-import 'package:chat_flutter_sdk/src/common/result.dart';
-import 'package:chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
-import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
-import 'package:chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
-import 'package:chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
 import 'package:clock/clock.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';

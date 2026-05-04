@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import 'package:chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
-import 'package:chat_flutter_sdk/src/domain/models/image/image_data.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:equatable/equatable.dart';
 
 sealed class MessagesEvent {

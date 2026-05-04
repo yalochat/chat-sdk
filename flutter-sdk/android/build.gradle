@@ -1,4 +1,4 @@
-group = "ai.yalo.chat_flutter_sdk"
+group = "ai.yalo.yalo_chat_flutter_sdk"
 version = "1.0-SNAPSHOT"
 
 buildscript {
@@ -25,7 +25,7 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
 android {
-    namespace = "ai.yalo.chat_flutter_sdk"
+    namespace = "ai.yalo.yalo_chat_flutter_sdk"
 
     compileSdk = 36
 

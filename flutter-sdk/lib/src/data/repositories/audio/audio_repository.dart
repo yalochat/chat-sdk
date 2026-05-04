@@ -2,7 +2,7 @@
 
 // Repository that it is in charge of recording audio
 
-import 'package:chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 
 abstract class AudioRepository {
   Future<Result<String>> recordAudio();

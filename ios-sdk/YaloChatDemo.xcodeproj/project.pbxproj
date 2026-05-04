@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		1F144E784B4B0E906FE68740 /* ChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23407D6589CAA8A5F7913634 /* ChatInput.swift */; };
+		A1B2C3D4E5F601020304A5B6 /* QuickRepliesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F601020304A5B6A1 /* QuickRepliesView.swift */; };
+		C3D4E5F601020304A5B6A1B2 /* ProductQuantityStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F601020304A5B6A1B2C3 /* ProductQuantityStepper.swift */; };
+		E5F601020304A5B6A1B2C3D4 /* ProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F601020304A5B6A1B2C3D4E5 /* ProductCard.swift */; };
+		A7B8C9D001020304A5B6C3D4 /* ProductListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C9D001020304A5B6C3D4A7 /* ProductListView.swift */; };
+		C9D001020304A5B6C3D4A7B8 /* ProductCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D001020304A5B6C3D4A7B8C9 /* ProductCarouselView.swift */; };
 		293282042EBD6BFA90E3A048 /* ChatSdk.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */; };
 		322A00049C2FC71AD22F25E1 /* MessagesObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F820AEACBF2AB583B73D583F /* MessagesObservable.swift */; };
 		3B6D0B8DF56C3C234BB333F7 /* ChatSdk.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -59,6 +64,11 @@
 		D3435CA5533A84581B92E052 /* ImagePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreview.swift; sourceTree = "<group>"; };
 		EAE541740117006132C1A380 /* Credentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		F820AEACBF2AB583B73D583F /* MessagesObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesObservable.swift; sourceTree = "<group>"; };
+		B2C3D4E5F601020304A5B6A1 /* QuickRepliesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRepliesView.swift; sourceTree = "<group>"; };
+		D4E5F601020304A5B6A1B2C3 /* ProductQuantityStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductQuantityStepper.swift; sourceTree = "<group>"; };
+		F601020304A5B6A1B2C3D4E5 /* ProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCard.swift; sourceTree = "<group>"; };
+		B8C9D001020304A5B6C3D4A7 /* ProductListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListView.swift; sourceTree = "<group>"; };
+		D001020304A5B6C3D4A7B8C9 /* ProductCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCarouselView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +123,11 @@
 				05D563B68F202040D37D6212 /* MessageItem.swift */,
 				CDF775B29AF50036FBF2DD96 /* MessageList.swift */,
 				F820AEACBF2AB583B73D583F /* MessagesObservable.swift */,
+				B2C3D4E5F601020304A5B6A1 /* QuickRepliesView.swift */,
+				D4E5F601020304A5B6A1B2C3 /* ProductQuantityStepper.swift */,
+				F601020304A5B6A1B2C3D4E5 /* ProductCard.swift */,
+				B8C9D001020304A5B6C3D4A7 /* ProductListView.swift */,
+				D001020304A5B6C3D4A7B8C9 /* ProductCarouselView.swift */,
 				6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */,
 				B4AE3EAFF0C8C544F642946C /* WaveformView.swift */,
 				6C966BE803A724D942922CAA /* YaloChat.swift */,
@@ -204,6 +219,11 @@
 				839B1BF06817BB1B18B8356C /* MessageItem.swift in Sources */,
 				68B260F91753D81C4891F80D /* MessageList.swift in Sources */,
 				322A00049C2FC71AD22F25E1 /* MessagesObservable.swift in Sources */,
+				A1B2C3D4E5F601020304A5B6 /* QuickRepliesView.swift in Sources */,
+				C3D4E5F601020304A5B6A1B2 /* ProductQuantityStepper.swift in Sources */,
+				E5F601020304A5B6A1B2C3D4 /* ProductCard.swift in Sources */,
+				A7B8C9D001020304A5B6C3D4 /* ProductListView.swift in Sources */,
+				C9D001020304A5B6C3D4A7B8 /* ProductCarouselView.swift in Sources */,
 				E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */,
 				F0D47773279173F7C3093CA2 /* WaveformView.swift in Sources */,
 				6F5A5B00189F413AC54EB39E /* YaloChat.swift in Sources */,

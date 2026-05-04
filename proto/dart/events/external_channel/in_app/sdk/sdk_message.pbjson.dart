@@ -1080,13 +1080,37 @@ const GuidanceCardRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
+    {
+      '1': 'target_id',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '9': 0,
+      '10': 'targetId',
+      '17': true
+    },
+    {
+      '1': 'context',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '9': 1,
+      '10': 'context',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_target_id'},
+    {'1': '_context'},
   ],
 };
 
 /// Descriptor for `GuidanceCardRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List guidanceCardRequestDescriptor = $convert.base64Decode(
     'ChNHdWlkYW5jZUNhcmRSZXF1ZXN0EjgKCXRpbWVzdGFtcBgBIAEoCzIaLmdvb2dsZS5wcm90b2'
-    'J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
+    'J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBIgCgl0YXJnZXRfaWQYAiABKAlIAFIIdGFyZ2V0SWSI'
+    'AQESHQoHY29udGV4dBgDIAEoCUgBUgdjb250ZXh0iAEBQgwKCl90YXJnZXRfaWRCCgoIX2Nvbn'
+    'RleHQ=');
 
 @$core.Deprecated('Use guidanceCardResponseDescriptor instead')
 const GuidanceCardResponse$json = {

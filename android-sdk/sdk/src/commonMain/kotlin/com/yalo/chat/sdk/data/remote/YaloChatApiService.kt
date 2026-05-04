@@ -287,10 +287,11 @@ internal class YaloChatApiService(
         ))
     }
 
-    // GET /inapp/messages — fetch all messages; deduplication is handled client-side.
-    // NOTE: Flutter SDK has a FIXME disabling the `since` query param ("wait for backend fix"),
-    // so we match Flutter and omit it. Client-side deduplication via SimpleCache handles repeats.
-    suspend fun fetchMessages(): Result<List<YaloFetchMessagesResponse>> {
+    // GET /inapp/messages — fetch messages.
+    // `since` is an optional epoch-milliseconds cursor; when provided, the server returns
+    // only messages with a timestamp >= that value, reducing response payload on poll cycles.
+    // Omit `since` for the cold-start full load; supply it for continuous polling.
+    suspend fun fetchMessages(since: Long? = null): Result<List<YaloFetchMessagesResponse>> {
         val tokenResult = ensureValidToken()
         if (tokenResult is Result.Error) return Result.Error(tokenResult.error)
         val (token, uid) = (tokenResult as Result.Ok).result
@@ -299,6 +300,7 @@ internal class YaloChatApiService(
                 header(HEADER_USER_ID, uid)
                 header(HEADER_CHANNEL_ID, channelId)
                 header(HEADER_AUTHORIZATION, "Bearer $token")
+                since?.let { parameter("since", it.toString()) }
             }
             if (response.status.isSuccess()) Result.Ok(response.body())
             else Result.Error(RuntimeException("HTTP ${response.status.value}: fetch failed"))

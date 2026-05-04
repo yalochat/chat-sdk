@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.emptyFlow
 // Phase 2: implemented by YaloMessageRepositoryRemote (Ktor HTTP + polling).
 interface YaloMessageRepository {
     suspend fun sendMessage(message: ChatMessage): Result<Unit>
-    // NOTE: `since` is currently ignored by all implementations — the Flutter SDK has a FIXME
-    // disabling the backend `since` filter ("wait for backend fix"), so Android matches that
-    // behaviour. The parameter is kept to avoid a breaking interface change.
+    // `since` is unused in the single-shot startup load (full history fetch).
+    // Continuous polling uses its own internal watermark via pollIncomingMessages().
     suspend fun fetchMessages(since: Long): Result<List<ChatMessage>>
 
     // Phase 2: continuous polling flow — each emission is the batch of new messages

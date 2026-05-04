@@ -1,11 +1,11 @@
 {
-    "name": "chat_flutter_sdk_example",
-    "short_name": "chat_flutter_sdk_example",
+    "name": "yalo_chat_flutter_sdk_example",
+    "short_name": "yalo_chat_flutter_sdk_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Demonstrates how to use the chat_flutter_sdk plugin.",
+    "description": "Demonstrates how to use the yalo_chat_flutter_sdk plugin.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

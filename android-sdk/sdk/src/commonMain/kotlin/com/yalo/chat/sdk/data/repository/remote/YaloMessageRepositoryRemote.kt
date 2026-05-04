@@ -35,8 +35,11 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
-// The `since` query param is intentionally omitted — backend fix pending.
-// Client-side deduplication via SimpleCache handles repeats.
+// The `since` query param tracks the last seen message timestamp so each poll only
+// fetches messages newer than the previous batch.  First poll omits `since` (full fetch).
+// If a batch contains only invalid/missing dates the watermark is set to `now` so
+// subsequent polls don't repeat the full-history fetch indefinitely.
+// Client-side deduplication via SimpleCache provides an additional safety net.
 // Network errors in the polling flow are swallowed and the loop continues.
 @OptIn(ExperimentalUuidApi::class)
 internal class YaloMessageRepositoryRemote(
@@ -171,8 +174,8 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
-    // Single-shot fetch — returns all messages; deduplication disabled so callers get the full list.
-    // NOTE: `since` param is intentionally ignored — Flutter FIXME disables it too ("wait for backend fix").
+    // Single-shot fetch — returns all messages for cold-start; deduplication disabled so callers
+    // get the full list. `since` is intentionally omitted here so startup always loads the full history.
     override suspend fun fetchMessages(since: Long): Result<List<ChatMessage>> =
         when (val result = apiService.fetchMessages()) {
             is Result.Ok -> Result.Ok(result.result.mapIndexedNotNull { index, it -> it.toChatMessage(deduplicate = false, index = index) })
@@ -189,11 +192,30 @@ internal class YaloMessageRepositoryRemote(
     //             and emitted immediately so the UI updates without waiting for downloads.
     //   Phase 2 — media messages (image, video, voice) are translated one by one; each is
     //             emitted as its CDN download completes.
+    //
+    // `lastMessageTimestamp` is a local watermark that resets on each flow collection
+    // (i.e., every stop/start cycle), matching web-sdk's unsubscribeMessages() reset.
+    // First poll omits `since` (full fetch, same as cold-start fetchMessages()) so no
+    // messages are skipped if polling was stopped for longer than 5 s. Dedup cache handles
+    // re-filtering of already-seen messages.
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
+        var lastMessageTimestamp: Long? = null
         while (true) {
-            when (val result = apiService.fetchMessages()) {
+            when (val result = apiService.fetchMessages(since = lastMessageTimestamp)) {
                 is Result.Ok -> {
                     val raw = result.result
+
+                    // Update the since watermark to the max date seen in this batch.
+                    for (item in raw) {
+                        val ts = parseIso8601(item.date)
+                        val current = lastMessageTimestamp
+                        if (ts > 0L && (current == null || ts > current)) lastMessageTimestamp = ts
+                    }
+                    // Safety net: if every date in the batch was missing/invalid advance
+                    // the watermark to now so subsequent polls don't re-fetch full history.
+                    if (lastMessageTimestamp == null) {
+                        lastMessageTimestamp = Clock.System.now().toEpochMilliseconds()
+                    }
 
                     // Phase 1: non-media messages — translate without IO and emit right away.
                     val nonMediaBatch = raw.mapIndexedNotNull { index, item ->
