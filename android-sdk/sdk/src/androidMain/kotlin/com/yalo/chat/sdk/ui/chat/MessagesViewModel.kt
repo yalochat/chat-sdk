@@ -16,6 +16,7 @@ import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +41,9 @@ internal class MessagesViewModel(
 
     // Keeps the active events job so SubscribeToEvents is idempotent.
     private var eventsJob: Job? = null
+
+    // Auto-cancels the typing indicator if no TypingStop arrives within 60 seconds.
+    private var typingTimeoutJob: Job? = null
 
     // Refreshed against the wall clock on every send so user-message tempIds always sort
     // AFTER agent messages whose ids were bumped to receiptFloor by ensureReceiptOrder.
@@ -72,6 +76,8 @@ internal class MessagesViewModel(
                 subscriptionJob = null
                 eventsJob?.cancel()
                 eventsJob = null
+                typingTimeoutJob?.cancel()
+                typingTimeoutJob = null
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
@@ -107,11 +113,19 @@ internal class MessagesViewModel(
         eventsJob = viewModelScope.launch {
             yaloMessageRepository.events().collect { event ->
                 when (event) {
-                    is ChatEvent.TypingStart -> _state.update {
-                        it.copy(isSystemTypingMessage = true, chatStatusText = event.statusText)
+                    is ChatEvent.TypingStart -> {
+                        _state.update { it.copy(isSystemTypingMessage = true, chatStatusText = event.statusText) }
+                        typingTimeoutJob?.cancel()
+                        typingTimeoutJob = viewModelScope.launch {
+                            delay(60_000L)
+                            _state.update { it.copy(isSystemTypingMessage = false, chatStatusText = "") }
+                            typingTimeoutJob = null
+                        }
                     }
-                    is ChatEvent.TypingStop -> _state.update {
-                        it.copy(isSystemTypingMessage = false, chatStatusText = "")
+                    is ChatEvent.TypingStop -> {
+                        typingTimeoutJob?.cancel()
+                        typingTimeoutJob = null
+                        _state.update { it.copy(isSystemTypingMessage = false, chatStatusText = "") }
                     }
                 }
             }
