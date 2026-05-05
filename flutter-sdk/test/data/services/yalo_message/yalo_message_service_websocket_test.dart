@@ -39,10 +39,9 @@ class _FakeSink implements WebSocketSink {
 }
 
 class _FakeChannel implements WebSocketChannel {
-  _FakeChannel(this.uri, {this.pingInterval});
+  _FakeChannel(this.uri);
 
   final Uri uri;
-  final Duration? pingInterval;
   final StreamController<dynamic> _incoming = StreamController<dynamic>();
   final _FakeSink _sink = _FakeSink();
 
@@ -102,8 +101,8 @@ void main() {
     late List<_FakeChannel> channels;
     late YaloMessageServiceWebSocket service;
 
-    WebSocketChannel factory(Uri uri, {Duration? pingInterval}) {
-      final ch = _FakeChannel(uri, pingInterval: pingInterval);
+    WebSocketChannel factory(Uri uri) {
+      final ch = _FakeChannel(uri);
       channels.add(ch);
       return ch;
     }
@@ -115,13 +114,12 @@ void main() {
         baseUrl: 'api.example.com',
         authService: auth,
         channelFactory: factory,
-        pingInterval: const Duration(milliseconds: 50),
       );
     });
 
     tearDown(() => service.dispose());
 
-    test('opens websocket with token and configured ping interval', () async {
+    test('opens websocket with token query parameter', () async {
       when(
         () => auth.auth(),
       ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
@@ -135,10 +133,6 @@ void main() {
         equals(
           'wss://api.example.com/websocket/v1/connect/inapp?token=abc',
         ),
-      );
-      expect(
-        channels.single.pingInterval,
-        equals(const Duration(milliseconds: 50)),
       );
     });
 
