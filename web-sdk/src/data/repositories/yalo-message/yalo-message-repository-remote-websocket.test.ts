@@ -373,7 +373,7 @@ describe('YaloMessageRepositoryRemoteWebSocket', () => {
             footer: 'Powered by Yalo',
             buttons: [
               { text: 'Yes', buttonType: 0 },
-              { text: 'No', buttonType: 0 },
+              { text: 'Open', buttonType: 2, url: 'https://example.com' },
             ],
             content: {
               text: 'Pick one',
@@ -391,7 +391,10 @@ describe('YaloMessageRepositoryRemoteWebSocket', () => {
         content: 'Pick one',
         header: 'Choose',
         footer: 'Powered by Yalo',
-        buttons: ['Yes', 'No'],
+        buttons: [
+          { text: 'Yes', type: 'reply' },
+          { text: 'Open', type: 'link', url: 'https://example.com' },
+        ],
       });
     });
 

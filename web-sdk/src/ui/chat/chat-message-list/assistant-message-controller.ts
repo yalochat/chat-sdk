@@ -14,7 +14,7 @@ export default class AssistantMessageController implements ReactiveController {
 
   hostConnected() {}
 
-  onButtonClick(text: string) {
+  onReplyClick(text: string) {
     this.host.dispatchEvent(
       new CustomEvent('yalo-chat-send-text-message', {
         detail: ChatMessage.text({

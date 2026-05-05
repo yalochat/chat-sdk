@@ -5,6 +5,15 @@ import type { Product } from '../product/product';
 export const MessageRoles = ['USER', 'AGENT'] as const;
 export type MessageRole = (typeof MessageRoles)[number];
 
+export const MessageButtonTypes = ['reply', 'postback', 'link'] as const;
+export type MessageButtonType = (typeof MessageButtonTypes)[number];
+
+export type MessageButton = {
+  readonly text: string;
+  readonly type: MessageButtonType;
+  readonly url?: string;
+};
+
 export const MessageTypes = [
   'text',
   'image',
@@ -43,7 +52,7 @@ export class ChatMessage {
   readonly blob?: Blob;
   readonly header?: string;
   readonly footer?: string;
-  readonly buttons: string[];
+  readonly buttons: MessageButton[];
   readonly products: Product[];
   readonly expand: boolean;
 
@@ -63,7 +72,7 @@ export class ChatMessage {
     blob?: Blob;
     header?: string;
     footer?: string;
-    buttons?: string[];
+    buttons?: MessageButton[];
     products?: Product[];
     expand?: boolean;
   }) {
@@ -96,7 +105,7 @@ export class ChatMessage {
     status?: MessageStatus;
     header?: string;
     footer?: string;
-    buttons?: string[];
+    buttons?: MessageButton[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'text' });
   }
@@ -115,7 +124,7 @@ export class ChatMessage {
     blob?: Blob;
     header?: string;
     footer?: string;
-    buttons?: string[];
+    buttons?: MessageButton[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'voice' });
   }
@@ -133,7 +142,7 @@ export class ChatMessage {
     blob?: Blob;
     header?: string;
     footer?: string;
-    buttons?: string[];
+    buttons?: MessageButton[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'image' });
   }
@@ -152,7 +161,7 @@ export class ChatMessage {
     blob?: Blob;
     header?: string;
     footer?: string;
-    buttons?: string[];
+    buttons?: MessageButton[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'video' });
   }
@@ -170,7 +179,7 @@ export class ChatMessage {
     blob?: Blob;
     header?: string;
     footer?: string;
-    buttons?: string[];
+    buttons?: MessageButton[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'attachment' });
   }

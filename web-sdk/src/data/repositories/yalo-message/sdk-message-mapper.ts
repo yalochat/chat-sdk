@@ -1,7 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import {
+  ChatMessage,
+  type MessageButton,
+  type MessageButtonType,
+} from '@domain/models/chat-message/chat-message';
+import {
+  ButtonType,
   MessageRole,
   MessageStatus,
   ProductMessageRequest_Orientation,
@@ -133,7 +138,7 @@ export function pollMessageItemToChatMessage(
       wiId: item.id,
       header: msg.textMessageRequest.header,
       footer: msg.textMessageRequest.footer,
-      buttons: toButtonTexts(msg.textMessageRequest.buttons),
+      buttons: toMessageButtons(msg.textMessageRequest.buttons),
     });
   }
 
@@ -149,7 +154,7 @@ export function pollMessageItemToChatMessage(
       wiId: item.id,
       header: msg.imageMessageRequest.header,
       footer: msg.imageMessageRequest.footer,
-      buttons: toButtonTexts(msg.imageMessageRequest.buttons),
+      buttons: toMessageButtons(msg.imageMessageRequest.buttons),
     });
   }
 
@@ -166,7 +171,7 @@ export function pollMessageItemToChatMessage(
       wiId: item.id,
       header: msg.voiceNoteMessageRequest.header,
       footer: msg.voiceNoteMessageRequest.footer,
-      buttons: toButtonTexts(msg.voiceNoteMessageRequest.buttons),
+      buttons: toMessageButtons(msg.voiceNoteMessageRequest.buttons),
     });
   }
 
@@ -183,7 +188,7 @@ export function pollMessageItemToChatMessage(
       wiId: item.id,
       header: msg.videoMessageRequest.header,
       footer: msg.videoMessageRequest.footer,
-      buttons: toButtonTexts(msg.videoMessageRequest.buttons),
+      buttons: toMessageButtons(msg.videoMessageRequest.buttons),
     });
   }
 
@@ -199,7 +204,7 @@ export function pollMessageItemToChatMessage(
       wiId: item.id,
       header: msg.attachmentMessageRequest.header,
       footer: msg.attachmentMessageRequest.footer,
-      buttons: toButtonTexts(msg.attachmentMessageRequest.buttons),
+      buttons: toMessageButtons(msg.attachmentMessageRequest.buttons),
     });
   }
 
@@ -220,8 +225,26 @@ export function pollMessageItemToChatMessage(
   return null;
 }
 
-function toButtonTexts(buttons: ProtoButton[] | undefined): string[] {
-  return buttons?.map((b) => b.text) ?? [];
+function toMessageButtons(
+  buttons: ProtoButton[] | undefined
+): MessageButton[] {
+  return buttons?.map(toMessageButton) ?? [];
+}
+
+function toMessageButton(b: ProtoButton): MessageButton {
+  return { text: b.text, type: toMessageButtonType(b.buttonType), url: b.url };
+}
+
+function toMessageButtonType(t: ButtonType): MessageButtonType {
+  switch (t) {
+    case ButtonType.BUTTON_TYPE_LINK:
+      return 'link';
+    case ButtonType.BUTTON_TYPE_POSTBACK:
+      return 'postback';
+    case ButtonType.BUTTON_TYPE_REPLY:
+    default:
+      return 'reply';
+  }
 }
 
 function toDomainProduct(p: ProtoProduct): Product {

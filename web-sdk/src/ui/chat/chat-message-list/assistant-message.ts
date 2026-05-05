@@ -1,8 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import AssistantMessageController from './assistant-message-controller';
 import { renderMarkdown } from './render-markdown';
 import './attachment-message';
@@ -82,7 +86,8 @@ export class AssistantMessage extends LitElement {
       margin-top: 0.5rem;
     }
 
-    .buttons button {
+    .buttons button,
+    .buttons a {
       padding: var(--yalo-chat-buttons-padding);
       border: 1px solid var(--yalo-chat-buttons-border-color);
       border-radius: var(--yalo-chat-buttons-border-radius);
@@ -93,12 +98,37 @@ export class AssistantMessage extends LitElement {
       word-break: break-word;
     }
 
-    .buttons button:hover {
+    .buttons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .buttons .arrow {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .material-symbols-outlined {
+      font-size: 1rem;
+      font-family: 'Material Symbols Outlined';
+    }
+
+    .buttons button:hover,
+    .buttons a:hover {
       background-color: #dde4ec;
     }
   `;
 
   private _controller = new AssistantMessageController(this);
+
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -157,14 +187,24 @@ export class AssistantMessage extends LitElement {
         : null}
       ${this.message.buttons.length > 0
         ? html`<div class="buttons">
-            ${this.message.buttons.map(
-              (text) =>
-                html`<button
-                  type="button"
-                  @click=${() => this._controller.onButtonClick(text)}
-                >
-                  ${text}
-                </button>`
+            ${this.message.buttons.map((button) =>
+              button.type === 'link' && button.url
+                ? html`<a
+                    href=${button.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ${button.text}
+                    <span class="arrow">
+                      ${unsafeHTML(this.config.icons?.arrowForward)}
+                    </span>
+                  </a>`
+                : html`<button
+                    type="button"
+                    @click=${() => this._controller.onReplyClick(button.text)}
+                  >
+                    ${button.text}
+                  </button>`
             )}
           </div>`
         : null}

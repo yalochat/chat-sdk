@@ -409,7 +409,7 @@ describe('ChatMessageList', () => {
       expect(assistant.shadowRoot!.querySelector('.footer')).toBeNull();
     });
 
-    it('renders one button per entry in message.buttons', async () => {
+    it('renders one button per reply or postback entry in message.buttons', async () => {
       const list = await renderList([
         new ChatMessage({
           id: 73,
@@ -417,7 +417,11 @@ describe('ChatMessageList', () => {
           type: 'text',
           timestamp,
           content: 'Pick one',
-          buttons: ['Yes', 'No', 'Maybe'],
+          buttons: [
+            { text: 'Yes', type: 'reply' },
+            { text: 'No', type: 'postback' },
+            { text: 'Maybe', type: 'reply' },
+          ],
         }),
       ]);
 
@@ -430,6 +434,51 @@ describe('ChatMessageList', () => {
         'No',
         'Maybe',
       ]);
+    });
+
+    it('renders link buttons as anchor tags pointing to the url', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 76,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Visit our site',
+          buttons: [
+            { text: 'Open', type: 'link', url: 'https://example.com' },
+          ],
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const anchors =
+        assistant.shadowRoot!.querySelectorAll<HTMLAnchorElement>('.buttons a');
+      expect(anchors).toHaveLength(1);
+      expect(anchors[0]).toMatchObject({
+        href: 'https://example.com/',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      });
+      expect(anchors[0].textContent).toContain('Open');
+    });
+
+    it('renders link buttons as a regular button when the url is missing', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 77,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Broken link',
+          buttons: [{ text: 'No url', type: 'link' }],
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      expect(assistant.shadowRoot!.querySelector('.buttons a')).toBeNull();
+      expect(
+        assistant.shadowRoot!.querySelector('.buttons button')!.textContent
+      ).toContain('No url');
     });
 
     it('omits the buttons container when there are no buttons', async () => {
@@ -446,7 +495,7 @@ describe('ChatMessageList', () => {
       expect(assistant.shadowRoot!.querySelector('.buttons')).toBeNull();
     });
 
-    it('dispatches yalo-chat-send-text-message with the clicked button text', async () => {
+    it('dispatches yalo-chat-send-text-message with the clicked reply button text', async () => {
       const list = await renderList([
         new ChatMessage({
           id: 75,
@@ -454,7 +503,10 @@ describe('ChatMessageList', () => {
           type: 'text',
           timestamp,
           content: 'Pick one',
-          buttons: ['Yes', 'No'],
+          buttons: [
+            { text: 'Yes', type: 'reply' },
+            { text: 'No', type: 'reply' },
+          ],
         }),
       ]);
 

@@ -1192,7 +1192,8 @@ describe('YaloMessageRepositoryRemote', () => {
               footer: 'Powered by Yalo',
               buttons: [
                 { text: 'Yes', buttonType: 0 },
-                { text: 'No', buttonType: 0 },
+                { text: 'Push me', buttonType: 1 },
+                { text: 'Open', buttonType: 2, url: 'https://example.com' },
               ],
               content: {
                 text: 'Pick one',
@@ -1226,7 +1227,11 @@ describe('YaloMessageRepositoryRemote', () => {
         content: 'Pick one',
         header: 'Greetings',
         footer: 'Powered by Yalo',
-        buttons: ['Yes', 'No'],
+        buttons: [
+          { text: 'Yes', type: 'reply' },
+          { text: 'Push me', type: 'postback' },
+          { text: 'Open', type: 'link', url: 'https://example.com' },
+        ],
       });
     });
 
@@ -1276,7 +1281,7 @@ describe('YaloMessageRepositoryRemote', () => {
         type: 'image',
         header: 'Photo of the day',
         footer: 'Tap a button to react',
-        buttons: ['Like'],
+        buttons: [{ text: 'Like', type: 'reply' }],
       });
     });
 
