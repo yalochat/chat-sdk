@@ -120,10 +120,14 @@ message TextMessage {
 }
 
 // TextMessageRequest is sent by either party to deliver a text message.
+// content.text serves as the body. header and footer are optional structural
+// fields rendered above and below the body, typically alongside buttons.
 message TextMessageRequest {
   TextMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
   repeated Button buttons = 3;
+  optional string header = 4;
+  optional string footer = 5;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,6 +153,8 @@ message VoiceNoteMessageRequest {
   VoiceMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
   repeated Button buttons = 3;
+  optional string header = 4;
+  optional string footer = 5;
 }
 
 
@@ -173,6 +179,8 @@ message ImageMessageRequest {
   ImageMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
   repeated Button buttons = 3;
+  optional string header = 4;
+  optional string footer = 5;
 }
 
 
@@ -197,6 +205,8 @@ message AttachmentMessageRequest {
   AttachmentMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
   repeated Button buttons = 3;
+  optional string header = 4;
+  optional string footer = 5;
 }
 
 
@@ -222,6 +232,8 @@ message VideoMessageRequest {
   VideoMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
   repeated Button buttons = 3;
+  optional string header = 4;
+  optional string footer = 5;
 }
 
 
