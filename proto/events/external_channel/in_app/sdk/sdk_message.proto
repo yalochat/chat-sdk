@@ -49,12 +49,6 @@ message SdkMessage {
     CustomCommandRequest     custom_command_request      = 36;
     CustomCommandResponse    custom_command_response     = 37;
 
-    // Channel → client
-    ButtonsMessageRequest    buttons_message_request     = 40;
-    ButtonsMessageResponse   buttons_message_response    = 41;
-    CTAMessageRequest        cta_message_request         = 42;
-    CTAMessageResponse       cta_message_response        = 43;
-
     // Client → channel
     GetCommandsRequest       get_commands_request        = 44;
     GetCommandsResponse      get_commands_response       = 45;
@@ -98,6 +92,21 @@ enum MessageStatus {
   MESSAGE_STATUS_IN_DELIVERY = 6;
 }
 
+// ButtonType discriminates how a button should behave when tapped.
+enum ButtonType {
+  BUTTON_TYPE_REPLY = 0;
+  BUTTON_TYPE_POSTBACK = 1;
+  BUTTON_TYPE_LINK = 2;
+}
+
+// Button represents a single tappable option attached to a message.
+// url is required when button_type is BUTTON_TYPE_LINK and ignored otherwise.
+message Button {
+  string text = 1;
+  ButtonType button_type = 2;
+  optional string url = 3;
+}
+
 // ---------------------------------------------------------------------------
 // Text message  (bi-directional)
 // ---------------------------------------------------------------------------
@@ -114,6 +123,7 @@ message TextMessage {
 message TextMessageRequest {
   TextMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
+  repeated Button buttons = 3;
 }
 
 // ---------------------------------------------------------------------------
@@ -138,7 +148,7 @@ message VoiceMessage {
 message VoiceNoteMessageRequest {
   VoiceMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
-  repeated string quick_replies = 3;
+  repeated Button buttons = 3;
 }
 
 
@@ -162,7 +172,7 @@ message ImageMessage {
 message ImageMessageRequest {
   ImageMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
-  repeated string quick_replies = 3;
+  repeated Button buttons = 3;
 }
 
 
@@ -186,7 +196,7 @@ message AttachmentMessage {
 message AttachmentMessageRequest {
   AttachmentMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
-  repeated string quick_replies = 3;
+  repeated Button buttons = 3;
 }
 
 
@@ -211,7 +221,7 @@ message VideoMessage {
 message VideoMessageRequest {
   VideoMessage content = 1;
   google.protobuf.Timestamp timestamp = 2;
-  repeated string quick_replies = 3;
+  repeated Button buttons = 3;
 }
 
 
@@ -224,7 +234,6 @@ message MessageReceiptRequest {
   MessageStatus status = 1;
   string message_id = 2;
   google.protobuf.Timestamp timestamp = 3;
-  repeated string quick_replies = 4;
 }
 
 // ---------------------------------------------------------------------------
@@ -411,66 +420,6 @@ message CustomCommandResponse {
   ResponseStatus status = 1;
   string payload = 2;
   google.protobuf.Timestamp timestamp = 3;
-}
-
-// ---------------------------------------------------------------------------
-// Buttons message  (channel → client)
-// Used to render text option buttons the user can tap to reply.
-// ---------------------------------------------------------------------------
-
-// ButtonsMessage holds the content of a buttons message.
-message ButtonsMessage {
-  string header = 1;
-  string body = 2;
-  string footer = 3;
-  // At least one button text must be provided.
-  repeated string buttons = 4;
-}
-
-// ButtonsMessageRequest delivers a set of text option buttons to the client UI.
-message ButtonsMessageRequest {
-  ButtonsMessage content = 1;
-  google.protobuf.Timestamp timestamp = 2;
-}
-
-// ButtonsMessageResponse acknowledges a ButtonsMessageRequest.
-message ButtonsMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
-}
-
-// ---------------------------------------------------------------------------
-// CTA message  (channel → client)
-// Used to render link buttons the user can tap to open a URL.
-// ---------------------------------------------------------------------------
-
-// CTAButton represents a single call-to-action link button.
-message CTAButton {
-  string text = 1;
-  string url = 2;
-}
-
-// CTAMessage holds the content of a CTA message.
-message CTAMessage {
-  string header = 1;
-  string body = 2;
-  string footer = 3;
-  // At least one CTA button must be provided.
-  repeated CTAButton buttons = 4;
-}
-
-// CTAMessageRequest delivers a set of link buttons to the client UI.
-message CTAMessageRequest {
-  CTAMessage content = 1;
-  google.protobuf.Timestamp timestamp = 2;
-}
-
-// CTAMessageResponse acknowledges a CTAMessageRequest.
-message CTAMessageResponse {
-  ResponseStatus status = 1;
-  google.protobuf.Timestamp timestamp = 2;
-  string message_id = 3;
 }
 
 // ---------------------------------------------------------------------------
