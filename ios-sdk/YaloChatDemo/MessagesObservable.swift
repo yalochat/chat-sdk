@@ -30,6 +30,8 @@ class MessagesObservable: ObservableObject {
     // Mirrors Android MessagesViewModel.lastQuickReplyMessageWiId guard.
     private var lastQuickReplyWiId: String? = nil
 
+    private var typingTimeoutTask: Task<Void, Never>?
+
     private var controller: MessagesController? {
         YaloChatSdk.shared.messagesController
     }
@@ -62,10 +64,21 @@ class MessagesObservable: ObservableObject {
                 DispatchQueue.main.async {
                     self?.isTyping = true
                     self?.typingStatusText = statusText
+                    self?.typingTimeoutTask?.cancel()
+                    self?.typingTimeoutTask = Task { [weak self] in
+                        try? await Task.sleep(nanoseconds: 60_000_000_000)
+                        guard !Task.isCancelled else { return }
+                        await MainActor.run {
+                            self?.isTyping = false
+                            self?.typingStatusText = ""
+                        }
+                    }
                 }
             },
             onTypingStop: { [weak self] in
                 DispatchQueue.main.async {
+                    self?.typingTimeoutTask?.cancel()
+                    self?.typingTimeoutTask = nil
                     self?.isTyping = false
                     self?.typingStatusText = ""
                 }
@@ -79,6 +92,8 @@ class MessagesObservable: ObservableObject {
         isLoading = false
         isTyping = false
         typingStatusText = ""
+        typingTimeoutTask?.cancel()
+        typingTimeoutTask = nil
     }
 
     func sendMessage() {

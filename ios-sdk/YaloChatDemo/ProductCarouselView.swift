@@ -7,7 +7,6 @@ import SwiftUI
 import ChatSdk
 
 private let collapsedMaxItems = 3
-private let cardWidth: CGFloat = 180
 
 struct ProductCarouselView: View {
 
@@ -19,6 +18,8 @@ struct ProductCarouselView: View {
     private var products: [Product] {
         message.products
     }
+
+    private var cardWidth: CGFloat { UIScreen.main.bounds.width * 0.6 }
 
     var body: some View {
         let visibleProducts = isExpanded ? products : Array(products.prefix(collapsedMaxItems))

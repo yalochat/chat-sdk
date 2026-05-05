@@ -22,6 +22,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
@@ -33,7 +34,6 @@ import com.yalo.chat.sdk.ui.theme.ChatTheme
 import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-private const val CAROUSEL_CARD_WIDTH_DP = 180
 private const val COLLAPSED_MAX_ITEMS = 3
 
 @Composable
@@ -45,6 +45,7 @@ internal fun ProductCarouselMessage(
     val products = message.products
     val expand = message.expand
     val messageId = message.id ?: return
+    val cardWidthDp = (LocalConfiguration.current.screenWidthDp * 0.6f).toInt()
 
     val visibleProducts = if (expand) products else products.take(COLLAPSED_MAX_ITEMS)
     val showToggle = products.size > COLLAPSED_MAX_ITEMS
@@ -56,7 +57,7 @@ internal fun ProductCarouselMessage(
                 color = theme.cardBackgroundColor,
                 border = BorderStroke(1.dp, theme.cardBorderColor),
                 modifier = Modifier
-                    .width(CAROUSEL_CARD_WIDTH_DP.dp)
+                    .width(cardWidthDp.dp)
                     .padding(end = 8.dp),
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {

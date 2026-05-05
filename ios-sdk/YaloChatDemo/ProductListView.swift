@@ -15,6 +15,8 @@ struct ProductListView: View {
     var onToggleExpand: () -> Void = {}
     var onUpdateQuantity: (String, Bool, Double) -> Void = { _, _, _ in }
 
+    @State private var cardContentWidth: CGFloat = 0
+
     private var products: [Product] {
         message.products
     }
@@ -24,8 +26,10 @@ struct ProductListView: View {
 
         VStack(spacing: 8) {
             ForEach(Array(visibleProducts.enumerated()), id: \.element.sku) { _, product in
+                let imageWidth = max(0, (cardContentWidth - 8) / 3)
                 ProductHorizontalCard(
                     product: product,
+                    imageWidth: imageWidth > 0 ? imageWidth : 80,
                     onAddUnit: {
                         onUpdateQuantity(product.sku, false, product.unitsAdded + product.unitStep)
                     },
@@ -61,5 +65,10 @@ struct ProductListView: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .background(
+            GeometryReader { geo in
+                Color.clear.onAppear { cardContentWidth = geo.size.width - 24 }
+            }
+        )
     }
 }

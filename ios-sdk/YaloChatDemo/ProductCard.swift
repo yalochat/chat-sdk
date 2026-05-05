@@ -13,6 +13,7 @@ import ChatSdk
 struct ProductHorizontalCard: View {
 
     let product: Product
+    var imageWidth: CGFloat = 80
     var onAddUnit: () -> Void = {}
     var onRemoveUnit: () -> Void = {}
     var onAddSubunit: () -> Void = {}
@@ -25,7 +26,7 @@ struct ProductHorizontalCard: View {
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
             ProductImage(urlString: product.imagesUrl.first)
-                .frame(width: 80, height: 100)
+                .frame(width: imageWidth, height: imageWidth * 4 / 3)
                 .clipped()
                 .cornerRadius(8)
 
