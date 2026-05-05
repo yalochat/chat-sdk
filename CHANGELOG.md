@@ -1,11 +1,29 @@
 # Changelog
 
-## [1.7.0](https://github.com/yalochat/chat-sdk/tree/1.7.0) (2026-04-29)
+## [2.0.0](https://github.com/yalochat/chat-sdk/tree/2.0.0) (2026-05-05)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.6.0...1.7.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.7.0...2.0.0)
 
 **Merged pull requests:**
 
+- Fix re add quick reply proto [\#130](https://github.com/yalochat/chat-sdk/pull/130) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix\(android/ios\): watermark, ICU plurals, foreground resume, typing timeout, responsive card widths [\#129](https://github.com/yalochat/chat-sdk/pull/129) ([pato-viccini](https://github.com/pato-viccini))
+- feat: Removed ping interval from flutter sdk [\#128](https://github.com/yalochat/chat-sdk/pull/128) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: websockets for flutter sdk. [\#127](https://github.com/yalochat/chat-sdk/pull/127) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Added web socket service \(flutter\) [\#126](https://github.com/yalochat/chat-sdk/pull/126) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat\(ios\): M6 — Quick Replies, Products, Typing Indicator, App Lifecycle, Error UI \(FDE-139\) [\#118](https://github.com/yalochat/chat-sdk/pull/118) ([pato-viccini](https://github.com/pato-viccini))
+
+## [proto/v1.7.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.7.0) (2026-04-29)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.7.0...proto/v1.7.0)
+
+## [proto/bindings/go/v1.7.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.7.0) (2026-04-29)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.6.0...proto/bindings/go/v1.7.0)
+
+**Merged pull requests:**
+
+- Release proto 1.7.0 [\#124](https://github.com/yalochat/chat-sdk/pull/124) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Adds web socket integration [\#123](https://github.com/yalochat/chat-sdk/pull/123) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Change yalo api base URL format for easier setup [\#122](https://github.com/yalochat/chat-sdk/pull/122) ([rodrigocusto](https://github.com/rodrigocusto))
 - fix: web-sdk compile error [\#121](https://github.com/yalochat/chat-sdk/pull/121) ([rodrigocusto](https://github.com/rodrigocusto))
