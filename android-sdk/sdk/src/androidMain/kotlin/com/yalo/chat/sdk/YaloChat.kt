@@ -67,6 +67,9 @@ object YaloChat {
         val audioRepo = AudioRepositoryLocal(context.applicationContext)
 
         if (config.useFakeRepository) {
+            // Fake mode: savedCommands are intentionally not flushed — the fake repo is a
+            // dev/test stub and does not execute real cart operations. Any commands registered
+            // before a fake init() will re-buffer and flush on the next real init() call.
             val fakeYaloRepo = FakeYaloMessageRepository()
             val fakeLocalRepo = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
             val fakeSyncService = MessageSyncService(

@@ -824,8 +824,8 @@ class YaloMessageRepositoryRemoteTest {
 
         assertIs<Result.Ok<Unit>>(result)
         val payload = callbackPayload as? Map<*, *>
-        assertEquals("sku-1", payload?.get("sku"))
-        assertEquals(3.0, payload?.get("quantity"))
+        assertEquals("sku-1", payload?.get(KEY_SKU))
+        assertEquals(3.0, payload?.get(KEY_QUANTITY))
         // /inapp/inbound_messages must NOT have been called
         assertFalse(apiCallPaths.any { it.contains("inbound_messages") }, "API must not be called when callback is registered")
     }
@@ -869,8 +869,8 @@ class YaloMessageRepositoryRemoteTest {
 
         assertIs<Result.Ok<Unit>>(result)
         val payload = callbackPayload as? Map<*, *>
-        assertEquals("sku-3", payload?.get("sku"))
-        assertEquals(2.0, payload?.get("quantity"))
+        assertEquals("sku-3", payload?.get(KEY_SKU))
+        assertEquals(2.0, payload?.get(KEY_QUANTITY))
         assertFalse(apiCallPaths.any { it.contains("inbound_messages") })
     }
 
@@ -915,7 +915,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertIs<Result.Ok<Unit>>(result)
         val payload = callbackPayload as? Map<*, *>
-        assertEquals("promo-xyz", payload?.get("promotionId"))
+        assertEquals("promo-xyz", payload?.get(KEY_PROMOTION_ID))
     }
 
     @Test

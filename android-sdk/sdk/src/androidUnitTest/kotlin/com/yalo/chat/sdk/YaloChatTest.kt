@@ -29,7 +29,7 @@ class YaloChatTest {
 
     @Test
     fun `registerCommand before init stores callback in pending buffer`() {
-        val callback: (Any?) -> Unit = {}
+        val callback: (Map<String, Any?>?) -> Unit = {}
         YaloChat.registerCommand(ChatCommand.ADD_TO_CART, callback)
         assertNotNull(
             "ADD_TO_CART callback should be in pending buffer",
@@ -39,11 +39,11 @@ class YaloChatTest {
 
     @Test
     fun `registerCommand before init stores all five commands independently`() {
-        val cb1: (Any?) -> Unit = {}
-        val cb2: (Any?) -> Unit = {}
-        val cb3: (Any?) -> Unit = {}
-        val cb4: (Any?) -> Unit = {}
-        val cb5: (Any?) -> Unit = {}
+        val cb1: (Map<String, Any?>?) -> Unit = {}
+        val cb2: (Map<String, Any?>?) -> Unit = {}
+        val cb3: (Map<String, Any?>?) -> Unit = {}
+        val cb4: (Map<String, Any?>?) -> Unit = {}
+        val cb5: (Map<String, Any?>?) -> Unit = {}
 
         YaloChat.registerCommand(ChatCommand.ADD_TO_CART, cb1)
         YaloChat.registerCommand(ChatCommand.REMOVE_FROM_CART, cb2)
@@ -62,8 +62,8 @@ class YaloChatTest {
 
     @Test
     fun `registerCommand before init overwrites previous registration for same command`() {
-        val firstCallback: (Any?) -> Unit = {}
-        val secondCallback: (Any?) -> Unit = {}
+        val firstCallback: (Map<String, Any?>?) -> Unit = {}
+        val secondCallback: (Map<String, Any?>?) -> Unit = {}
 
         YaloChat.registerCommand(ChatCommand.ADD_TO_CART, firstCallback)
         YaloChat.registerCommand(ChatCommand.ADD_TO_CART, secondCallback)

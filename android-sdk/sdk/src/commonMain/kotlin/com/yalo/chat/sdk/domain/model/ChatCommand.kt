@@ -13,10 +13,10 @@ enum class ChatCommand {
     ADD_PROMOTION,
 }
 
-// Payload is a Map<String, Any?> for parameterised commands, or null for no-parameter ones:
+// Typed alias for the payload map. Parameterised commands receive a map with these shapes:
 //   ADD_TO_CART      → mapOf("sku" to String, "quantity" to Double)
 //   REMOVE_FROM_CART → mapOf("sku" to String, "quantity" to Double?)
 //   ADD_PROMOTION    → mapOf("promotionId" to String)
 //   CLEAR_CART       → null
 //   GUIDANCE_CARD    → null
-typealias ChatCommandCallback = (payload: Any?) -> Unit
+typealias ChatCommandCallback = (payload: Map<String, Any?>?) -> Unit

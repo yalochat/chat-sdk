@@ -53,10 +53,13 @@ internal class YaloMessageRepositoryRemote(
 
     // Registered command callbacks — mirrors flutter-sdk YaloChatClient.commands.
     // If a callback is registered for a command, it fires instead of the API call.
-    private val commands: MutableMap<ChatCommand, ChatCommandCallback> = mutableMapOf()
+    // @Volatile + immutable-map replacement: readers always see a consistent snapshot
+    // and ConcurrentModificationException is impossible (no shared mutable collection).
+    @Volatile
+    private var commands: Map<ChatCommand, ChatCommandCallback> = emptyMap()
 
     fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
-        commands[command] = callback
+        commands = commands + (command to callback)
     }
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
@@ -498,7 +501,7 @@ internal class YaloMessageRepositoryRemote(
     override suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
         val callback = commands[ChatCommand.ADD_TO_CART]
         if (callback != null) {
-            callback(mapOf("sku" to sku, "quantity" to quantity))
+            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity))
             return Result.Ok(Unit)
         }
         return apiService.addToCart(sku, quantity)
@@ -507,7 +510,7 @@ internal class YaloMessageRepositoryRemote(
     override suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
         val callback = commands[ChatCommand.REMOVE_FROM_CART]
         if (callback != null) {
-            callback(mapOf("sku" to sku, "quantity" to quantity))
+            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity))
             return Result.Ok(Unit)
         }
         return apiService.removeFromCart(sku, quantity)
@@ -525,7 +528,7 @@ internal class YaloMessageRepositoryRemote(
     override suspend fun addPromotion(promotionId: String): Result<Unit> {
         val callback = commands[ChatCommand.ADD_PROMOTION]
         if (callback != null) {
-            callback(mapOf("promotionId" to promotionId))
+            callback(mapOf(KEY_PROMOTION_ID to promotionId))
             return Result.Ok(Unit)
         }
         return apiService.addPromotion(promotionId)
@@ -534,6 +537,10 @@ internal class YaloMessageRepositoryRemote(
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 private const val TYPING_STATUS_TEXT = "Writing message..."
+// Cart command payload keys — centralised so refactors cannot silently diverge.
+internal const val KEY_SKU = "sku"
+internal const val KEY_QUANTITY = "quantity"
+internal const val KEY_PROMOTION_ID = "promotionId"
 // Proto3 JSON enum value name for horizontal orientation (carousel layout).
 // Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
 private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"

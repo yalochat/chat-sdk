@@ -146,33 +146,36 @@ internal class MessagesViewModel(
         _state.update { state ->
             val newMessages = state.messages.map { msg ->
                 if (msg.id != messageId) return@map msg
-                msg.copy(
-                    products = msg.products.map { product ->
-                        if (product.sku != productSku) return@map product
-                        // Capture previous value so we can compute the cart delta below.
-                        previousValue = when (unitType) {
-                            UnitType.UNIT -> product.unitsAdded
-                            UnitType.SUBUNIT -> product.subunitsAdded
-                        }
-                        when (unitType) {
-                            // Mirrors Flutter: max(event.quantity, 0)
-                            UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
-                            // Mirrors Flutter: subunit overflow promotes to whole units.
-                            // Adding more subunits than a pack contains auto-increments
-                            // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
-                            // +2 units, 1 subunit remaining).
-                            UnitType.SUBUNIT -> {
-                                val clamped = maxOf(quantity, 0.0)
-                                val extraUnits = kotlin.math.floor(clamped / product.subunits)
-                                val remainingSubunits = clamped % product.subunits
-                                product.copy(
-                                    unitsAdded = product.unitsAdded + extraUnits,
-                                    subunitsAdded = remainingSubunits,
-                                )
-                            }
+                var productFound = false
+                val updatedProducts = msg.products.map { product ->
+                    if (product.sku != productSku) return@map product
+                    productFound = true
+                    // Capture previous value so we can compute the cart delta below.
+                    previousValue = when (unitType) {
+                        UnitType.UNIT -> product.unitsAdded
+                        UnitType.SUBUNIT -> product.subunitsAdded
+                    }
+                    when (unitType) {
+                        // Mirrors Flutter: max(event.quantity, 0)
+                        UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
+                        // Mirrors Flutter: subunit overflow promotes to whole units.
+                        // Adding more subunits than a pack contains auto-increments
+                        // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
+                        // +2 units, 1 subunit remaining).
+                        UnitType.SUBUNIT -> {
+                            val clamped = maxOf(quantity, 0.0)
+                            val extraUnits = kotlin.math.floor(clamped / product.subunits)
+                            val remainingSubunits = clamped % product.subunits
+                            product.copy(
+                                unitsAdded = product.unitsAdded + extraUnits,
+                                subunitsAdded = remainingSubunits,
+                            )
                         }
                     }
-                ).also { updatedMessage = it }
+                }
+                // Only update the message and dispatch cart ops if the product was found.
+                if (!productFound) return@map msg
+                msg.copy(products = updatedProducts).also { updatedMessage = it }
             }
             state.copy(messages = newMessages)
         }
