@@ -65,6 +65,8 @@ internal class YaloMessageRepositoryRemote(
         commands = commands + (command to callback)
     }
 
+    internal val commandsSnapshot: Map<ChatCommand, ChatCommandCallback> get() = commands
+
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
     // Highest message id assigned during the current polling session.

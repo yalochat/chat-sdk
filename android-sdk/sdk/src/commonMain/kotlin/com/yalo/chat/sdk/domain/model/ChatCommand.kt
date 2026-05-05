@@ -9,7 +9,7 @@ enum class ChatCommand {
     ADD_TO_CART,
     REMOVE_FROM_CART,
     CLEAR_CART,
-    GUIDANCE_CARD,
+    GUIDANCE_CARD,    // reserved — not yet dispatched by the SDK; callbacks will never fire
     ADD_PROMOTION,
 }
 

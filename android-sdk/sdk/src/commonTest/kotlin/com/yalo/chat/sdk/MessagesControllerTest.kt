@@ -11,6 +11,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -348,6 +349,89 @@ class MessagesControllerTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         val ids = result.result.mapNotNull { it.id }
         assertEquals(2, ids.distinct().size)
+    }
+
+    // ── updateProductQuantity ─────────────────────────────────────────────────
+
+    private fun productMsg(
+        id: Long,
+        sku: String,
+        unitsAdded: Double = 0.0,
+        subunits: Double = 0.0,
+        subunitsAdded: Double = 0.0,
+    ) = ChatMessage(
+        id = id,
+        role = MessageRole.AGENT,
+        type = MessageType.Product,
+        status = MessageStatus.DELIVERED,
+        products = listOf(Product(sku = sku, name = "Test", price = 1.0, subunits = subunits, unitsAdded = unitsAdded, subunitsAdded = subunitsAdded)),
+    )
+
+    private fun trackingYaloRepo(
+        addToCartCalls: MutableList<Pair<String, Double>> = mutableListOf(),
+        removeFromCartCalls: MutableList<Pair<String, Double>> = mutableListOf(),
+    ): YaloMessageRepository = object : YaloMessageRepository {
+        override suspend fun sendMessage(msg: ChatMessage) = Result.Ok(Unit)
+        override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+        override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+        override suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
+            addToCartCalls.add(sku to quantity); return Result.Ok(Unit)
+        }
+        override suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
+            removeFromCartCalls.add(sku to (quantity ?: 0.0)); return Result.Ok(Unit)
+        }
+    }
+
+    @Test
+    fun `updateProductQuantity dispatches addToCart when quantity increases`() = runTest {
+        val addCalls = mutableListOf<Pair<String, Double>>()
+        val yaloRepo = trackingYaloRepo(addToCartCalls = addCalls)
+        val localRepo = FakeChatMessageRepository(listOf(productMsg(10L, "sku-A", unitsAdded = 1.0)))
+        val ctrl = MessagesController(yaloRepo, localRepo, MessageSyncService(yaloRepo, localRepo), dispatcher)
+            .also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.updateProductQuantity(10L, "sku-A", isSubunit = false, quantity = 3.0)
+        assertEquals(1, addCalls.size, "addToCart should be called once")
+        assertEquals("sku-A" to 2.0, addCalls.first(), "delta = 3 - 1 = 2")
+    }
+
+    @Test
+    fun `updateProductQuantity dispatches removeFromCart when quantity decreases`() = runTest {
+        val removeCalls = mutableListOf<Pair<String, Double>>()
+        val yaloRepo = trackingYaloRepo(removeFromCartCalls = removeCalls)
+        val localRepo = FakeChatMessageRepository(listOf(productMsg(11L, "sku-B", unitsAdded = 4.0)))
+        val ctrl = MessagesController(yaloRepo, localRepo, MessageSyncService(yaloRepo, localRepo), dispatcher)
+            .also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.updateProductQuantity(11L, "sku-B", isSubunit = false, quantity = 2.0)
+        assertEquals(1, removeCalls.size, "removeFromCart should be called once")
+        assertEquals("sku-B" to 2.0, removeCalls.first(), "delta = 2 - 4 = -2, abs = 2")
+    }
+
+    @Test
+    fun `updateProductQuantity does not dispatch when sku is not found in message`() = runTest {
+        val addCalls = mutableListOf<Pair<String, Double>>()
+        val removeCalls = mutableListOf<Pair<String, Double>>()
+        val yaloRepo = trackingYaloRepo(addCalls, removeCalls)
+        val localRepo = FakeChatMessageRepository(listOf(productMsg(12L, "sku-C")))
+        val ctrl = MessagesController(yaloRepo, localRepo, MessageSyncService(yaloRepo, localRepo), dispatcher)
+            .also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.updateProductQuantity(12L, "sku-UNKNOWN", isSubunit = false, quantity = 5.0)
+        assertTrue(addCalls.isEmpty(), "No addToCart call for unknown SKU")
+        assertTrue(removeCalls.isEmpty(), "No removeFromCart call for unknown SKU")
+    }
+
+    @Test
+    fun `updateProductQuantity does not dispatch when message id is not found`() = runTest {
+        val addCalls = mutableListOf<Pair<String, Double>>()
+        val yaloRepo = trackingYaloRepo(addToCartCalls = addCalls)
+        val localRepo = FakeChatMessageRepository(listOf(productMsg(13L, "sku-D")))
+        val ctrl = MessagesController(yaloRepo, localRepo, MessageSyncService(yaloRepo, localRepo), dispatcher)
+            .also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.updateProductQuantity(999L, "sku-D", isSubunit = false, quantity = 2.0)
+        assertTrue(addCalls.isEmpty(), "No cart call for unknown message id")
     }
 
     @Test

@@ -164,12 +164,16 @@ internal class MessagesViewModel(
                         // +2 units, 1 subunit remaining).
                         UnitType.SUBUNIT -> {
                             val clamped = maxOf(quantity, 0.0)
-                            val extraUnits = kotlin.math.floor(clamped / product.subunits)
-                            val remainingSubunits = clamped % product.subunits
-                            product.copy(
-                                unitsAdded = product.unitsAdded + extraUnits,
-                                subunitsAdded = remainingSubunits,
-                            )
+                            if (product.subunits <= 0.0) {
+                                product.copy(unitsAdded = clamped)
+                            } else {
+                                val extraUnits = kotlin.math.floor(clamped / product.subunits)
+                                val remainingSubunits = clamped % product.subunits
+                                product.copy(
+                                    unitsAdded = product.unitsAdded + extraUnits,
+                                    subunitsAdded = remainingSubunits,
+                                )
+                            }
                         }
                     }
                 }

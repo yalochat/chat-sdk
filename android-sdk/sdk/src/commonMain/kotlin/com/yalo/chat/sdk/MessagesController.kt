@@ -173,9 +173,11 @@ class MessagesController internal constructor(
         val s = scope ?: return
         val msg = cachedMessages.find { it.id == messageId } ?: return
         var previousValue = 0.0
+        var productFound = false
         val updatedMsg = msg.copy(
             products = msg.products.map { product ->
                 if (product.sku != productSku) return@map product
+                productFound = true
                 previousValue = if (!isSubunit) product.unitsAdded else product.subunitsAdded
                 if (!isSubunit) {
                     product.copy(unitsAdded = maxOf(quantity, 0.0))
@@ -192,6 +194,7 @@ class MessagesController internal constructor(
                 }
             }
         )
+        if (!productFound) return
         cachedMessages = cachedMessages.map { if (it.id == messageId) updatedMsg else it }
         val delta = maxOf(quantity, 0.0) - previousValue
         s.launch {

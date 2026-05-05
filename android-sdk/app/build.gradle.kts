@@ -58,6 +58,7 @@ android {
         disable += "NullSafeMutableLiveData"
         disable += "RememberInComposition"
         disable += "FrequentlyChangingValue"
+        disable += "AutoboxingStateCreation"
     }
 }
 

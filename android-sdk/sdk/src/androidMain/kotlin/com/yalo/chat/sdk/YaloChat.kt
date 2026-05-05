@@ -49,9 +49,13 @@ object YaloChat {
         get() = _theme
 
     fun init(config: YaloChatConfig, context: Context, theme: ChatTheme = ChatTheme.Default) {
-        // Snapshot pre-init commands before teardown so they survive the first init().
-        // On re-init the snapshot is empty (cleared at end of previous init), giving a clean slate.
-        val savedCommands = pendingCommands.toMap()
+        // Snapshot all known commands before teardown so they survive re-init.
+        // pendingCommands holds pre-init registrations; _yaloRepo holds post-init registrations.
+        // On the very first init() pendingCommands has pre-init commands and _yaloRepo is null.
+        // On re-init pendingCommands is empty (cleared at end of previous init) and _yaloRepo
+        // holds any callbacks registered during the previous session — we must capture those too
+        // or they would be silently lost every time the host re-configures the SDK.
+        val savedCommands = pendingCommands + (_yaloRepo?.commandsSnapshot ?: emptyMap())
 
         // Tear down any previous instance before re-initialising (idempotent re-init).
         _syncService?.stop()

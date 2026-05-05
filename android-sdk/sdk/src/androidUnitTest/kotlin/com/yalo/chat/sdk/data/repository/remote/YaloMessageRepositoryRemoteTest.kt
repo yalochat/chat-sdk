@@ -956,6 +956,25 @@ class YaloMessageRepositoryRemoteTest {
         assertTrue(inboundPaths.any { it.contains("inbound_messages") }, "API must be called when no callback registered")
     }
 
+    @Test
+    fun `addPromotion calls API when no callback is registered`() = runTest {
+        val inboundPaths = mutableListOf<String>()
+        val engine = MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                inboundPaths.add(request.url.encodedPath)
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        }
+        val repo = buildRepoWithEngine(engine)
+
+        val result = repo.addPromotion("promo-abc")
+
+        assertIs<Result.Ok<Unit>>(result)
+        assertTrue(inboundPaths.any { it.contains("inbound_messages") }, "API must be called when no callback registered")
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `pollIncomingMessages emits TypingStop on network error`() = runTest(UnconfinedTestDispatcher()) {
