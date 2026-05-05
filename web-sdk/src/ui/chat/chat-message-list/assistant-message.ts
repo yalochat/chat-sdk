@@ -104,11 +104,54 @@ export class AssistantMessage extends LitElement {
   message!: ChatMessage;
 
   render() {
+    let body;
+    switch (this.message.type) {
+      case 'voice':
+        body = html`<div class="voice-bubble">
+          <voice-message .message=${this.message}></voice-message>
+        </div>`;
+        break;
+      case 'image':
+        body = html`<div class="image-bubble">
+          <image-message .message=${this.message}></image-message>
+        </div>`;
+        break;
+      case 'video':
+        body = html`<div class="video-bubble">
+          <video-message .message=${this.message}></video-message>
+        </div>`;
+        break;
+      case 'attachment':
+        body = html`<div class="attachment-bubble">
+          <attachment-message .message=${this.message}></attachment-message>
+        </div>`;
+        break;
+      case 'product':
+        body = html`<div class="product-bubble">
+          <product-message
+            .message=${this.message}
+            direction="vertical"
+          ></product-message>
+        </div>`;
+        break;
+      case 'productCarousel':
+        body = html`<div class="product-bubble">
+          <product-message
+            .message=${this.message}
+            direction="horizontal"
+          ></product-message>
+        </div>`;
+        break;
+      case 'text':
+      default:
+        body = html`<p>${renderMarkdown(this.message.content)}</p>`;
+    }
+
     return html`
       ${this.message.header
         ? html`<div class="header">${this.message.header}</div>`
         : null}
-      ${this.renderBody()}
+      ${body}
       ${this.message.footer
         ? html`<div class="footer">${this.message.footer}</div>`
         : null}
@@ -126,43 +169,5 @@ export class AssistantMessage extends LitElement {
           </div>`
         : null}
     `;
-  }
-
-  private renderBody() {
-    switch (this.message.type) {
-      case 'voice':
-        return html`<div class="voice-bubble">
-          <voice-message .message=${this.message}></voice-message>
-        </div>`;
-      case 'image':
-        return html`<div class="image-bubble">
-          <image-message .message=${this.message}></image-message>
-        </div>`;
-      case 'video':
-        return html`<div class="video-bubble">
-          <video-message .message=${this.message}></video-message>
-        </div>`;
-      case 'attachment':
-        return html`<div class="attachment-bubble">
-          <attachment-message .message=${this.message}></attachment-message>
-        </div>`;
-      case 'product':
-        return html`<div class="product-bubble">
-          <product-message
-            .message=${this.message}
-            direction="vertical"
-          ></product-message>
-        </div>`;
-      case 'productCarousel':
-        return html`<div class="product-bubble">
-          <product-message
-            .message=${this.message}
-            direction="horizontal"
-          ></product-message>
-        </div>`;
-      case 'text':
-      default:
-        return html`<p>${renderMarkdown(this.message.content)}</p>`;
-    }
   }
 }
