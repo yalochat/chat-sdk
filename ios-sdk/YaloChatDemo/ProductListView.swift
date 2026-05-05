@@ -67,7 +67,9 @@ struct ProductListView: View {
         .frame(maxWidth: .infinity)
         .background(
             GeometryReader { geo in
-                Color.clear.onAppear { cardContentWidth = geo.size.width - 24 }
+                Color.clear
+                    .onAppear { cardContentWidth = geo.size.width - 24 }
+                    .onChange(of: geo.size.width) { cardContentWidth = $0 - 24 }
             }
         )
     }

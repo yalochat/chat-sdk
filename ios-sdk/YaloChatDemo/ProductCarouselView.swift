@@ -19,7 +19,8 @@ struct ProductCarouselView: View {
         message.products
     }
 
-    private var cardWidth: CGFloat { UIScreen.main.bounds.width * 0.6 }
+    @State private var containerWidth: CGFloat = 0
+    private var cardWidth: CGFloat { containerWidth > 0 ? containerWidth * 0.6 : 180 }
 
     var body: some View {
         let visibleProducts = isExpanded ? products : Array(products.prefix(collapsedMaxItems))
@@ -67,5 +68,12 @@ struct ProductCarouselView: View {
             }
             .padding(.vertical, 4)
         }
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { containerWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { containerWidth = $0 }
+            }
+        )
     }
 }

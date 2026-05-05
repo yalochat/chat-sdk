@@ -71,6 +71,7 @@ class MessagesObservable: ObservableObject {
                         await MainActor.run {
                             self?.isTyping = false
                             self?.typingStatusText = ""
+                            self?.typingTimeoutTask = nil
                         }
                     }
                 }

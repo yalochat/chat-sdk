@@ -34,9 +34,10 @@ import kotlinx.datetime.Instant
 
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
 // The `since` query param tracks the last seen message timestamp so each poll only
-// fetches messages newer than the previous batch (fallback: now − 5 s on first poll).
-// If a batch contains only invalid/missing dates the watermark is set to `now` so
-// subsequent polls don't repeat the full-history fetch indefinitely.
+// fetches messages newer than the previous batch. On the first poll `since = null`
+// and the server returns full history. If a batch contains only invalid/missing
+// dates the watermark is set to `now` so subsequent polls don't repeat the
+// full-history fetch indefinitely.
 // Client-side deduplication via SimpleCache provides an additional safety net.
 // Network errors in the polling flow are swallowed and the loop continues.
 @OptIn(ExperimentalUuidApi::class)

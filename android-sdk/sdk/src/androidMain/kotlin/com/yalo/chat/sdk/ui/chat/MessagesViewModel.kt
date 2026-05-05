@@ -119,6 +119,7 @@ internal class MessagesViewModel(
                         typingTimeoutJob = viewModelScope.launch {
                             delay(60_000L)
                             _state.update { it.copy(isSystemTypingMessage = false, chatStatusText = "") }
+                            typingTimeoutJob = null
                         }
                     }
                     is ChatEvent.TypingStop -> {
