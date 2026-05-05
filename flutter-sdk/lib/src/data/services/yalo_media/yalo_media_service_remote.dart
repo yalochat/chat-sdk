@@ -41,7 +41,7 @@ class YaloMediaServiceRemote implements YaloMediaService {
 
       final request = MultipartRequest(
         'POST',
-        Uri.parse('$_baseUrl/all/media'),
+        Uri.parse('https://$_baseUrl/v1/channels/all/media'),
       );
 
       log.fine(

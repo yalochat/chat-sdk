@@ -7,7 +7,6 @@ import SwiftUI
 import ChatSdk
 
 private let collapsedMaxItems = 3
-private let cardWidth: CGFloat = 180
 
 struct ProductCarouselView: View {
 
@@ -19,6 +18,9 @@ struct ProductCarouselView: View {
     private var products: [Product] {
         message.products
     }
+
+    @State private var containerWidth: CGFloat = 0
+    private var cardWidth: CGFloat { containerWidth > 0 ? containerWidth * 0.6 : 180 }
 
     var body: some View {
         let visibleProducts = isExpanded ? products : Array(products.prefix(collapsedMaxItems))
@@ -66,5 +68,12 @@ struct ProductCarouselView: View {
             }
             .padding(.vertical, 4)
         }
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { containerWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { containerWidth = $0 }
+            }
+        )
     }
 }

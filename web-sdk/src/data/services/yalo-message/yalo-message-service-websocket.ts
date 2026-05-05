@@ -78,8 +78,6 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
       return;
     }
 
-    if (!this._running) return;
-
     const url = `${this._wsUrl}?token=${encodeURIComponent(tokenResult.value)}`;
     const socket = new WebSocket(url);
     this._socket = socket;
