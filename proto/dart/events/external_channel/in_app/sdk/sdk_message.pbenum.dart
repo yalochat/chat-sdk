@@ -119,6 +119,29 @@ class MessageStatus extends $pb.ProtobufEnum {
   const MessageStatus._(super.value, super.name);
 }
 
+/// ButtonType discriminates how a button should behave when tapped.
+class ButtonType extends $pb.ProtobufEnum {
+  static const ButtonType BUTTON_TYPE_REPLY =
+      ButtonType._(0, _omitEnumNames ? '' : 'BUTTON_TYPE_REPLY');
+  static const ButtonType BUTTON_TYPE_POSTBACK =
+      ButtonType._(1, _omitEnumNames ? '' : 'BUTTON_TYPE_POSTBACK');
+  static const ButtonType BUTTON_TYPE_LINK =
+      ButtonType._(2, _omitEnumNames ? '' : 'BUTTON_TYPE_LINK');
+
+  static const $core.List<ButtonType> values = <ButtonType>[
+    BUTTON_TYPE_REPLY,
+    BUTTON_TYPE_POSTBACK,
+    BUTTON_TYPE_LINK,
+  ];
+
+  static final $core.List<ButtonType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 2);
+  static ButtonType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const ButtonType._(super.value, super.name);
+}
+
 /// SdkCommand enumerates the commands the SDK is able to execute on the client.
 class SdkCommand extends $pb.ProtobufEnum {
   static const SdkCommand SDK_COMMAND_UNSPECIFIED =

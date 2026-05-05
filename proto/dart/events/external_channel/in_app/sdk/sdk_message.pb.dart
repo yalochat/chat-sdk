@@ -48,10 +48,6 @@ enum SdkMessage_Payload {
   customCommandRequest,
   customCommandResponse,
   videoMessageRequest,
-  buttonsMessageRequest,
-  buttonsMessageResponse,
-  ctaMessageRequest,
-  ctaMessageResponse,
   getCommandsRequest,
   getCommandsResponse,
   notSet
@@ -88,10 +84,6 @@ class SdkMessage extends $pb.GeneratedMessage {
     CustomCommandRequest? customCommandRequest,
     CustomCommandResponse? customCommandResponse,
     VideoMessageRequest? videoMessageRequest,
-    ButtonsMessageRequest? buttonsMessageRequest,
-    ButtonsMessageResponse? buttonsMessageResponse,
-    CTAMessageRequest? ctaMessageRequest,
-    CTAMessageResponse? ctaMessageResponse,
     GetCommandsRequest? getCommandsRequest,
     GetCommandsResponse? getCommandsResponse,
   }) {
@@ -141,13 +133,6 @@ class SdkMessage extends $pb.GeneratedMessage {
       result.customCommandResponse = customCommandResponse;
     if (videoMessageRequest != null)
       result.videoMessageRequest = videoMessageRequest;
-    if (buttonsMessageRequest != null)
-      result.buttonsMessageRequest = buttonsMessageRequest;
-    if (buttonsMessageResponse != null)
-      result.buttonsMessageResponse = buttonsMessageResponse;
-    if (ctaMessageRequest != null) result.ctaMessageRequest = ctaMessageRequest;
-    if (ctaMessageResponse != null)
-      result.ctaMessageResponse = ctaMessageResponse;
     if (getCommandsRequest != null)
       result.getCommandsRequest = getCommandsRequest;
     if (getCommandsResponse != null)
@@ -190,10 +175,6 @@ class SdkMessage extends $pb.GeneratedMessage {
     36: SdkMessage_Payload.customCommandRequest,
     37: SdkMessage_Payload.customCommandResponse,
     38: SdkMessage_Payload.videoMessageRequest,
-    40: SdkMessage_Payload.buttonsMessageRequest,
-    41: SdkMessage_Payload.buttonsMessageResponse,
-    42: SdkMessage_Payload.ctaMessageRequest,
-    43: SdkMessage_Payload.ctaMessageResponse,
     44: SdkMessage_Payload.getCommandsRequest,
     45: SdkMessage_Payload.getCommandsResponse,
     0: SdkMessage_Payload.notSet
@@ -228,10 +209,6 @@ class SdkMessage extends $pb.GeneratedMessage {
       36,
       37,
       38,
-      40,
-      41,
-      42,
-      43,
       44,
       45
     ])
@@ -299,16 +276,6 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: CustomCommandResponse.create)
     ..aOM<VideoMessageRequest>(38, _omitFieldNames ? '' : 'videoMessageRequest',
         subBuilder: VideoMessageRequest.create)
-    ..aOM<ButtonsMessageRequest>(
-        40, _omitFieldNames ? '' : 'buttonsMessageRequest',
-        subBuilder: ButtonsMessageRequest.create)
-    ..aOM<ButtonsMessageResponse>(
-        41, _omitFieldNames ? '' : 'buttonsMessageResponse',
-        subBuilder: ButtonsMessageResponse.create)
-    ..aOM<CTAMessageRequest>(42, _omitFieldNames ? '' : 'ctaMessageRequest',
-        subBuilder: CTAMessageRequest.create)
-    ..aOM<CTAMessageResponse>(43, _omitFieldNames ? '' : 'ctaMessageResponse',
-        subBuilder: CTAMessageResponse.create)
     ..aOM<GetCommandsRequest>(44, _omitFieldNames ? '' : 'getCommandsRequest',
         subBuilder: GetCommandsRequest.create)
     ..aOM<GetCommandsResponse>(45, _omitFieldNames ? '' : 'getCommandsResponse',
@@ -357,10 +324,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
   @$pb.TagNumber(38)
-  @$pb.TagNumber(40)
-  @$pb.TagNumber(41)
-  @$pb.TagNumber(42)
-  @$pb.TagNumber(43)
   @$pb.TagNumber(44)
   @$pb.TagNumber(45)
   SdkMessage_Payload whichPayload() =>
@@ -389,10 +352,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
   @$pb.TagNumber(38)
-  @$pb.TagNumber(40)
-  @$pb.TagNumber(41)
-  @$pb.TagNumber(42)
-  @$pb.TagNumber(43)
   @$pb.TagNumber(44)
   @$pb.TagNumber(45)
   void clearPayload() => $_clearField($_whichOneof(0));
@@ -695,75 +654,109 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(38)
   VideoMessageRequest ensureVideoMessageRequest() => $_ensure(25);
 
-  /// Channel → client
-  @$pb.TagNumber(40)
-  ButtonsMessageRequest get buttonsMessageRequest => $_getN(26);
-  @$pb.TagNumber(40)
-  set buttonsMessageRequest(ButtonsMessageRequest value) =>
-      $_setField(40, value);
-  @$pb.TagNumber(40)
-  $core.bool hasButtonsMessageRequest() => $_has(26);
-  @$pb.TagNumber(40)
-  void clearButtonsMessageRequest() => $_clearField(40);
-  @$pb.TagNumber(40)
-  ButtonsMessageRequest ensureButtonsMessageRequest() => $_ensure(26);
-
-  @$pb.TagNumber(41)
-  ButtonsMessageResponse get buttonsMessageResponse => $_getN(27);
-  @$pb.TagNumber(41)
-  set buttonsMessageResponse(ButtonsMessageResponse value) =>
-      $_setField(41, value);
-  @$pb.TagNumber(41)
-  $core.bool hasButtonsMessageResponse() => $_has(27);
-  @$pb.TagNumber(41)
-  void clearButtonsMessageResponse() => $_clearField(41);
-  @$pb.TagNumber(41)
-  ButtonsMessageResponse ensureButtonsMessageResponse() => $_ensure(27);
-
-  @$pb.TagNumber(42)
-  CTAMessageRequest get ctaMessageRequest => $_getN(28);
-  @$pb.TagNumber(42)
-  set ctaMessageRequest(CTAMessageRequest value) => $_setField(42, value);
-  @$pb.TagNumber(42)
-  $core.bool hasCtaMessageRequest() => $_has(28);
-  @$pb.TagNumber(42)
-  void clearCtaMessageRequest() => $_clearField(42);
-  @$pb.TagNumber(42)
-  CTAMessageRequest ensureCtaMessageRequest() => $_ensure(28);
-
-  @$pb.TagNumber(43)
-  CTAMessageResponse get ctaMessageResponse => $_getN(29);
-  @$pb.TagNumber(43)
-  set ctaMessageResponse(CTAMessageResponse value) => $_setField(43, value);
-  @$pb.TagNumber(43)
-  $core.bool hasCtaMessageResponse() => $_has(29);
-  @$pb.TagNumber(43)
-  void clearCtaMessageResponse() => $_clearField(43);
-  @$pb.TagNumber(43)
-  CTAMessageResponse ensureCtaMessageResponse() => $_ensure(29);
-
   /// Client → channel
   @$pb.TagNumber(44)
-  GetCommandsRequest get getCommandsRequest => $_getN(30);
+  GetCommandsRequest get getCommandsRequest => $_getN(26);
   @$pb.TagNumber(44)
   set getCommandsRequest(GetCommandsRequest value) => $_setField(44, value);
   @$pb.TagNumber(44)
-  $core.bool hasGetCommandsRequest() => $_has(30);
+  $core.bool hasGetCommandsRequest() => $_has(26);
   @$pb.TagNumber(44)
   void clearGetCommandsRequest() => $_clearField(44);
   @$pb.TagNumber(44)
-  GetCommandsRequest ensureGetCommandsRequest() => $_ensure(30);
+  GetCommandsRequest ensureGetCommandsRequest() => $_ensure(26);
 
   @$pb.TagNumber(45)
-  GetCommandsResponse get getCommandsResponse => $_getN(31);
+  GetCommandsResponse get getCommandsResponse => $_getN(27);
   @$pb.TagNumber(45)
   set getCommandsResponse(GetCommandsResponse value) => $_setField(45, value);
   @$pb.TagNumber(45)
-  $core.bool hasGetCommandsResponse() => $_has(31);
+  $core.bool hasGetCommandsResponse() => $_has(27);
   @$pb.TagNumber(45)
   void clearGetCommandsResponse() => $_clearField(45);
   @$pb.TagNumber(45)
-  GetCommandsResponse ensureGetCommandsResponse() => $_ensure(31);
+  GetCommandsResponse ensureGetCommandsResponse() => $_ensure(27);
+}
+
+/// Button represents a single tappable option attached to a message.
+/// url is required when button_type is BUTTON_TYPE_LINK and ignored otherwise.
+class Button extends $pb.GeneratedMessage {
+  factory Button({
+    $core.String? text,
+    ButtonType? buttonType,
+    $core.String? url,
+  }) {
+    final result = create();
+    if (text != null) result.text = text;
+    if (buttonType != null) result.buttonType = buttonType;
+    if (url != null) result.url = url;
+    return result;
+  }
+
+  Button._();
+
+  factory Button.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Button.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Button',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'text')
+    ..aE<ButtonType>(2, _omitFieldNames ? '' : 'buttonType',
+        enumValues: ButtonType.values)
+    ..aOS(3, _omitFieldNames ? '' : 'url')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Button clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Button copyWith(void Function(Button) updates) =>
+      super.copyWith((message) => updates(message as Button)) as Button;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Button create() => Button._();
+  @$core.override
+  Button createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Button getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Button>(create);
+  static Button? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get text => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set text($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasText() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearText() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  ButtonType get buttonType => $_getN(1);
+  @$pb.TagNumber(2)
+  set buttonType(ButtonType value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasButtonType() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearButtonType() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get url => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set url($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasUrl() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUrl() => $_clearField(3);
 }
 
 /// TextMessage holds the payload of a plain-text conversation turn.
@@ -864,14 +857,22 @@ class TextMessage extends $pb.GeneratedMessage {
 }
 
 /// TextMessageRequest is sent by either party to deliver a text message.
+/// content.text serves as the body. header and footer are optional structural
+/// fields rendered above and below the body, typically alongside buttons.
 class TextMessageRequest extends $pb.GeneratedMessage {
   factory TextMessageRequest({
     TextMessage? content,
     $0.Timestamp? timestamp,
+    $core.Iterable<Button>? buttons,
+    $core.String? header,
+    $core.String? footer,
   }) {
     final result = create();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
+    if (buttons != null) result.buttons.addAll(buttons);
+    if (header != null) result.header = header;
+    if (footer != null) result.footer = footer;
     return result;
   }
 
@@ -893,6 +894,10 @@ class TextMessageRequest extends $pb.GeneratedMessage {
         subBuilder: TextMessage.create)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
+    ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
+        subBuilder: Button.create)
+    ..aOS(4, _omitFieldNames ? '' : 'header')
+    ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -935,6 +940,27 @@ class TextMessageRequest extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(2);
   @$pb.TagNumber(2)
   $0.Timestamp ensureTimestamp() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $pb.PbList<Button> get buttons => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get header => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set header($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasHeader() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeader() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get footer => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set footer($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasFooter() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFooter() => $_clearField(5);
 }
 
 /// VoiceMessage holds the payload of a voice-note conversation turn.
@@ -1096,12 +1122,16 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
   factory VoiceNoteMessageRequest({
     VoiceMessage? content,
     $0.Timestamp? timestamp,
-    $core.Iterable<$core.String>? quickReplies,
+    $core.Iterable<Button>? buttons,
+    $core.String? header,
+    $core.String? footer,
   }) {
     final result = create();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
-    if (quickReplies != null) result.quickReplies.addAll(quickReplies);
+    if (buttons != null) result.buttons.addAll(buttons);
+    if (header != null) result.header = header;
+    if (footer != null) result.footer = footer;
     return result;
   }
 
@@ -1123,7 +1153,10 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
         subBuilder: VoiceMessage.create)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..pPS(3, _omitFieldNames ? '' : 'quickReplies')
+    ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
+        subBuilder: Button.create)
+    ..aOS(4, _omitFieldNames ? '' : 'header')
+    ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1169,7 +1202,25 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
   $0.Timestamp ensureTimestamp() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $pb.PbList<$core.String> get quickReplies => $_getList(2);
+  $pb.PbList<Button> get buttons => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get header => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set header($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasHeader() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeader() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get footer => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set footer($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasFooter() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFooter() => $_clearField(5);
 }
 
 /// ImageMessage holds the payload of an image conversation turn.
@@ -1322,12 +1373,16 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
   factory ImageMessageRequest({
     ImageMessage? content,
     $0.Timestamp? timestamp,
-    $core.Iterable<$core.String>? quickReplies,
+    $core.Iterable<Button>? buttons,
+    $core.String? header,
+    $core.String? footer,
   }) {
     final result = create();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
-    if (quickReplies != null) result.quickReplies.addAll(quickReplies);
+    if (buttons != null) result.buttons.addAll(buttons);
+    if (header != null) result.header = header;
+    if (footer != null) result.footer = footer;
     return result;
   }
 
@@ -1349,7 +1404,10 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
         subBuilder: ImageMessage.create)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..pPS(3, _omitFieldNames ? '' : 'quickReplies')
+    ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
+        subBuilder: Button.create)
+    ..aOS(4, _omitFieldNames ? '' : 'header')
+    ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1394,7 +1452,25 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
   $0.Timestamp ensureTimestamp() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $pb.PbList<$core.String> get quickReplies => $_getList(2);
+  $pb.PbList<Button> get buttons => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get header => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set header($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasHeader() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeader() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get footer => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set footer($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasFooter() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFooter() => $_clearField(5);
 }
 
 /// AttachmentMessage holds the payload of a file attachment conversation turn.
@@ -1547,12 +1623,16 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
   factory AttachmentMessageRequest({
     AttachmentMessage? content,
     $0.Timestamp? timestamp,
-    $core.Iterable<$core.String>? quickReplies,
+    $core.Iterable<Button>? buttons,
+    $core.String? header,
+    $core.String? footer,
   }) {
     final result = create();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
-    if (quickReplies != null) result.quickReplies.addAll(quickReplies);
+    if (buttons != null) result.buttons.addAll(buttons);
+    if (header != null) result.header = header;
+    if (footer != null) result.footer = footer;
     return result;
   }
 
@@ -1574,7 +1654,10 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
         subBuilder: AttachmentMessage.create)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..pPS(3, _omitFieldNames ? '' : 'quickReplies')
+    ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
+        subBuilder: Button.create)
+    ..aOS(4, _omitFieldNames ? '' : 'header')
+    ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1620,7 +1703,25 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
   $0.Timestamp ensureTimestamp() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $pb.PbList<$core.String> get quickReplies => $_getList(2);
+  $pb.PbList<Button> get buttons => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get header => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set header($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasHeader() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeader() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get footer => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set footer($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasFooter() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFooter() => $_clearField(5);
 }
 
 /// VideoMessage holds the payload of a video conversation turn.
@@ -1785,12 +1886,16 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
   factory VideoMessageRequest({
     VideoMessage? content,
     $0.Timestamp? timestamp,
-    $core.Iterable<$core.String>? quickReplies,
+    $core.Iterable<Button>? buttons,
+    $core.String? header,
+    $core.String? footer,
   }) {
     final result = create();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
-    if (quickReplies != null) result.quickReplies.addAll(quickReplies);
+    if (buttons != null) result.buttons.addAll(buttons);
+    if (header != null) result.header = header;
+    if (footer != null) result.footer = footer;
     return result;
   }
 
@@ -1812,7 +1917,10 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
         subBuilder: VideoMessage.create)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..pPS(3, _omitFieldNames ? '' : 'quickReplies')
+    ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
+        subBuilder: Button.create)
+    ..aOS(4, _omitFieldNames ? '' : 'header')
+    ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1857,7 +1965,25 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
   $0.Timestamp ensureTimestamp() => $_ensure(1);
 
   @$pb.TagNumber(3)
-  $pb.PbList<$core.String> get quickReplies => $_getList(2);
+  $pb.PbList<Button> get buttons => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.String get header => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set header($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasHeader() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeader() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get footer => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set footer($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasFooter() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearFooter() => $_clearField(5);
 }
 
 /// MessageReceiptRequest notifies the other party of a message status change.
@@ -1866,13 +1992,11 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
     MessageStatus? status,
     $core.String? messageId,
     $0.Timestamp? timestamp,
-    $core.Iterable<$core.String>? quickReplies,
   }) {
     final result = create();
     if (status != null) result.status = status;
     if (messageId != null) result.messageId = messageId;
     if (timestamp != null) result.timestamp = timestamp;
-    if (quickReplies != null) result.quickReplies.addAll(quickReplies);
     return result;
   }
 
@@ -1895,7 +2019,6 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
     ..aOS(2, _omitFieldNames ? '' : 'messageId')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
-    ..pPS(4, _omitFieldNames ? '' : 'quickReplies')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1946,9 +2069,6 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(3);
   @$pb.TagNumber(3)
   $0.Timestamp ensureTimestamp() => $_ensure(2);
-
-  @$pb.TagNumber(4)
-  $pb.PbList<$core.String> get quickReplies => $_getList(3);
 }
 
 /// AddToCartRequest asks the channel to add a SKU to the active cart.
@@ -3612,565 +3732,6 @@ class CustomCommandResponse extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(3);
   @$pb.TagNumber(3)
   $0.Timestamp ensureTimestamp() => $_ensure(2);
-}
-
-/// ButtonsMessage holds the content of a buttons message.
-class ButtonsMessage extends $pb.GeneratedMessage {
-  factory ButtonsMessage({
-    $core.String? header,
-    $core.String? body,
-    $core.String? footer,
-    $core.Iterable<$core.String>? buttons,
-  }) {
-    final result = create();
-    if (header != null) result.header = header;
-    if (body != null) result.body = body;
-    if (footer != null) result.footer = footer;
-    if (buttons != null) result.buttons.addAll(buttons);
-    return result;
-  }
-
-  ButtonsMessage._();
-
-  factory ButtonsMessage.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory ButtonsMessage.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ButtonsMessage',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'header')
-    ..aOS(2, _omitFieldNames ? '' : 'body')
-    ..aOS(3, _omitFieldNames ? '' : 'footer')
-    ..pPS(4, _omitFieldNames ? '' : 'buttons')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ButtonsMessage clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ButtonsMessage copyWith(void Function(ButtonsMessage) updates) =>
-      super.copyWith((message) => updates(message as ButtonsMessage))
-          as ButtonsMessage;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static ButtonsMessage create() => ButtonsMessage._();
-  @$core.override
-  ButtonsMessage createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static ButtonsMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ButtonsMessage>(create);
-  static ButtonsMessage? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get header => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set header($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasHeader() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearHeader() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get body => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set body($core.String value) => $_setString(1, value);
-  @$pb.TagNumber(2)
-  $core.bool hasBody() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearBody() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get footer => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set footer($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasFooter() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearFooter() => $_clearField(3);
-
-  /// At least one button text must be provided.
-  @$pb.TagNumber(4)
-  $pb.PbList<$core.String> get buttons => $_getList(3);
-}
-
-/// ButtonsMessageRequest delivers a set of text option buttons to the client UI.
-class ButtonsMessageRequest extends $pb.GeneratedMessage {
-  factory ButtonsMessageRequest({
-    ButtonsMessage? content,
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (content != null) result.content = content;
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
-
-  ButtonsMessageRequest._();
-
-  factory ButtonsMessageRequest.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory ButtonsMessageRequest.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ButtonsMessageRequest',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aOM<ButtonsMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: ButtonsMessage.create)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ButtonsMessageRequest clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ButtonsMessageRequest copyWith(
-          void Function(ButtonsMessageRequest) updates) =>
-      super.copyWith((message) => updates(message as ButtonsMessageRequest))
-          as ButtonsMessageRequest;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static ButtonsMessageRequest create() => ButtonsMessageRequest._();
-  @$core.override
-  ButtonsMessageRequest createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static ButtonsMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ButtonsMessageRequest>(create);
-  static ButtonsMessageRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ButtonsMessage get content => $_getN(0);
-  @$pb.TagNumber(1)
-  set content(ButtonsMessage value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasContent() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearContent() => $_clearField(1);
-  @$pb.TagNumber(1)
-  ButtonsMessage ensureContent() => $_ensure(0);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-}
-
-/// ButtonsMessageResponse acknowledges a ButtonsMessageRequest.
-class ButtonsMessageResponse extends $pb.GeneratedMessage {
-  factory ButtonsMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  ButtonsMessageResponse._();
-
-  factory ButtonsMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory ButtonsMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ButtonsMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ButtonsMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ButtonsMessageResponse copyWith(
-          void Function(ButtonsMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as ButtonsMessageResponse))
-          as ButtonsMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static ButtonsMessageResponse create() => ButtonsMessageResponse._();
-  @$core.override
-  ButtonsMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static ButtonsMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ButtonsMessageResponse>(create);
-  static ButtonsMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
-}
-
-/// CTAButton represents a single call-to-action link button.
-class CTAButton extends $pb.GeneratedMessage {
-  factory CTAButton({
-    $core.String? text,
-    $core.String? url,
-  }) {
-    final result = create();
-    if (text != null) result.text = text;
-    if (url != null) result.url = url;
-    return result;
-  }
-
-  CTAButton._();
-
-  factory CTAButton.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory CTAButton.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'CTAButton',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'text')
-    ..aOS(2, _omitFieldNames ? '' : 'url')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAButton clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAButton copyWith(void Function(CTAButton) updates) =>
-      super.copyWith((message) => updates(message as CTAButton)) as CTAButton;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static CTAButton create() => CTAButton._();
-  @$core.override
-  CTAButton createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static CTAButton getDefault() =>
-      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CTAButton>(create);
-  static CTAButton? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get text => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set text($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasText() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearText() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get url => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set url($core.String value) => $_setString(1, value);
-  @$pb.TagNumber(2)
-  $core.bool hasUrl() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearUrl() => $_clearField(2);
-}
-
-/// CTAMessage holds the content of a CTA message.
-class CTAMessage extends $pb.GeneratedMessage {
-  factory CTAMessage({
-    $core.String? header,
-    $core.String? body,
-    $core.String? footer,
-    $core.Iterable<CTAButton>? buttons,
-  }) {
-    final result = create();
-    if (header != null) result.header = header;
-    if (body != null) result.body = body;
-    if (footer != null) result.footer = footer;
-    if (buttons != null) result.buttons.addAll(buttons);
-    return result;
-  }
-
-  CTAMessage._();
-
-  factory CTAMessage.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory CTAMessage.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'CTAMessage',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'header')
-    ..aOS(2, _omitFieldNames ? '' : 'body')
-    ..aOS(3, _omitFieldNames ? '' : 'footer')
-    ..pPM<CTAButton>(4, _omitFieldNames ? '' : 'buttons',
-        subBuilder: CTAButton.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAMessage clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAMessage copyWith(void Function(CTAMessage) updates) =>
-      super.copyWith((message) => updates(message as CTAMessage)) as CTAMessage;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static CTAMessage create() => CTAMessage._();
-  @$core.override
-  CTAMessage createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static CTAMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CTAMessage>(create);
-  static CTAMessage? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get header => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set header($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasHeader() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearHeader() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get body => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set body($core.String value) => $_setString(1, value);
-  @$pb.TagNumber(2)
-  $core.bool hasBody() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearBody() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.String get footer => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set footer($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasFooter() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearFooter() => $_clearField(3);
-
-  /// At least one CTA button must be provided.
-  @$pb.TagNumber(4)
-  $pb.PbList<CTAButton> get buttons => $_getList(3);
-}
-
-/// CTAMessageRequest delivers a set of link buttons to the client UI.
-class CTAMessageRequest extends $pb.GeneratedMessage {
-  factory CTAMessageRequest({
-    CTAMessage? content,
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (content != null) result.content = content;
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
-
-  CTAMessageRequest._();
-
-  factory CTAMessageRequest.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory CTAMessageRequest.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'CTAMessageRequest',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aOM<CTAMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: CTAMessage.create)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAMessageRequest clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAMessageRequest copyWith(void Function(CTAMessageRequest) updates) =>
-      super.copyWith((message) => updates(message as CTAMessageRequest))
-          as CTAMessageRequest;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static CTAMessageRequest create() => CTAMessageRequest._();
-  @$core.override
-  CTAMessageRequest createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static CTAMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CTAMessageRequest>(create);
-  static CTAMessageRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  CTAMessage get content => $_getN(0);
-  @$pb.TagNumber(1)
-  set content(CTAMessage value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasContent() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearContent() => $_clearField(1);
-  @$pb.TagNumber(1)
-  CTAMessage ensureContent() => $_ensure(0);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-}
-
-/// CTAMessageResponse acknowledges a CTAMessageRequest.
-class CTAMessageResponse extends $pb.GeneratedMessage {
-  factory CTAMessageResponse({
-    ResponseStatus? status,
-    $0.Timestamp? timestamp,
-    $core.String? messageId,
-  }) {
-    final result = create();
-    if (status != null) result.status = status;
-    if (timestamp != null) result.timestamp = timestamp;
-    if (messageId != null) result.messageId = messageId;
-    return result;
-  }
-
-  CTAMessageResponse._();
-
-  factory CTAMessageResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory CTAMessageResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'CTAMessageResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
-      createEmptyInstance: create)
-    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
-        enumValues: ResponseStatus.values)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..aOS(3, _omitFieldNames ? '' : 'messageId')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAMessageResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  CTAMessageResponse copyWith(void Function(CTAMessageResponse) updates) =>
-      super.copyWith((message) => updates(message as CTAMessageResponse))
-          as CTAMessageResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static CTAMessageResponse create() => CTAMessageResponse._();
-  @$core.override
-  CTAMessageResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static CTAMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CTAMessageResponse>(create);
-  static CTAMessageResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  ResponseStatus get status => $_getN(0);
-  @$pb.TagNumber(1)
-  set status(ResponseStatus value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasStatus() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearStatus() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
-
-  @$pb.TagNumber(3)
-  $core.String get messageId => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set messageId($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasMessageId() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearMessageId() => $_clearField(3);
 }
 
 /// GetCommandsRequest is sent by the client to declare that it is ready to

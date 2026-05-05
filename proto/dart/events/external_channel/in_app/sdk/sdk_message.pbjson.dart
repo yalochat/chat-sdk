@@ -81,6 +81,21 @@ final $typed_data.Uint8List messageStatusDescriptor = $convert.base64Decode(
     'ChNNRVNTQUdFX1NUQVRVU19SRUFEEAMSGAoUTUVTU0FHRV9TVEFUVVNfRVJST1IQBBIXChNNRV'
     'NTQUdFX1NUQVRVU19TRU5UEAUSHgoaTUVTU0FHRV9TVEFUVVNfSU5fREVMSVZFUlkQBg==');
 
+@$core.Deprecated('Use buttonTypeDescriptor instead')
+const ButtonType$json = {
+  '1': 'ButtonType',
+  '2': [
+    {'1': 'BUTTON_TYPE_REPLY', '2': 0},
+    {'1': 'BUTTON_TYPE_POSTBACK', '2': 1},
+    {'1': 'BUTTON_TYPE_LINK', '2': 2},
+  ],
+};
+
+/// Descriptor for `ButtonType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List buttonTypeDescriptor = $convert.base64Decode(
+    'CgpCdXR0b25UeXBlEhUKEUJVVFRPTl9UWVBFX1JFUExZEAASGAoUQlVUVE9OX1RZUEVfUE9TVE'
+    'JBQ0sQARIUChBCVVRUT05fVFlQRV9MSU5LEAI=');
+
 @$core.Deprecated('Use sdkCommandDescriptor instead')
 const SdkCommand$json = {
   '1': 'SdkCommand',
@@ -331,42 +346,6 @@ const SdkMessage$json = {
       '10': 'customCommandResponse'
     },
     {
-      '1': 'buttons_message_request',
-      '3': 40,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest',
-      '9': 0,
-      '10': 'buttonsMessageRequest'
-    },
-    {
-      '1': 'buttons_message_response',
-      '3': 41,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse',
-      '9': 0,
-      '10': 'buttonsMessageResponse'
-    },
-    {
-      '1': 'cta_message_request',
-      '3': 42,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest',
-      '9': 0,
-      '10': 'ctaMessageRequest'
-    },
-    {
-      '1': 'cta_message_response',
-      '3': 43,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse',
-      '9': 0,
-      '10': 'ctaMessageResponse'
-    },
-    {
       '1': 'get_commands_request',
       '3': 44,
       '4': 1,
@@ -443,19 +422,37 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'MjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQ3VzdG9tQ29tbWFuZFJlcX'
     'Vlc3RIAFIUY3VzdG9tQ29tbWFuZFJlcXVlc3QSdAoXY3VzdG9tX2NvbW1hbmRfcmVzcG9uc2UY'
     'JSABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5DdXN0b21Db21tYW'
-    '5kUmVzcG9uc2VIAFIVY3VzdG9tQ29tbWFuZFJlc3BvbnNlEnQKF2J1dHRvbnNfbWVzc2FnZV9y'
-    'ZXF1ZXN0GCggASgLMjoueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQnV0dG'
-    '9uc01lc3NhZ2VSZXF1ZXN0SABSFWJ1dHRvbnNNZXNzYWdlUmVxdWVzdBJ3ChhidXR0b25zX21l'
-    'c3NhZ2VfcmVzcG9uc2UYKSABKAsyOy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay'
-    '52MS5CdXR0b25zTWVzc2FnZVJlc3BvbnNlSABSFmJ1dHRvbnNNZXNzYWdlUmVzcG9uc2USaAoT'
-    'Y3RhX21lc3NhZ2VfcmVxdWVzdBgqIAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcH'
-    'Auc2RrLnYxLkNUQU1lc3NhZ2VSZXF1ZXN0SABSEWN0YU1lc3NhZ2VSZXF1ZXN0EmsKFGN0YV9t'
-    'ZXNzYWdlX3Jlc3BvbnNlGCsgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZG'
-    'sudjEuQ1RBTWVzc2FnZVJlc3BvbnNlSABSEmN0YU1lc3NhZ2VSZXNwb25zZRJrChRnZXRfY29t'
-    'bWFuZHNfcmVxdWVzdBgsIAEoCzI3LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLn'
-    'YxLkdldENvbW1hbmRzUmVxdWVzdEgAUhJnZXRDb21tYW5kc1JlcXVlc3QSbgoVZ2V0X2NvbW1h'
-    'bmRzX3Jlc3BvbnNlGC0gASgLMjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudj'
-    'EuR2V0Q29tbWFuZHNSZXNwb25zZUgAUhNnZXRDb21tYW5kc1Jlc3BvbnNlQgkKB3BheWxvYWQ=');
+    '5kUmVzcG9uc2VIAFIVY3VzdG9tQ29tbWFuZFJlc3BvbnNlEmsKFGdldF9jb21tYW5kc19yZXF1'
+    'ZXN0GCwgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuR2V0Q29tbW'
+    'FuZHNSZXF1ZXN0SABSEmdldENvbW1hbmRzUmVxdWVzdBJuChVnZXRfY29tbWFuZHNfcmVzcG9u'
+    'c2UYLSABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5HZXRDb21tYW'
+    '5kc1Jlc3BvbnNlSABSE2dldENvbW1hbmRzUmVzcG9uc2VCCQoHcGF5bG9hZA==');
+
+@$core.Deprecated('Use buttonDescriptor instead')
+const Button$json = {
+  '1': 'Button',
+  '2': [
+    {'1': 'text', '3': 1, '4': 1, '5': 9, '10': 'text'},
+    {
+      '1': 'button_type',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v1.ButtonType',
+      '10': 'buttonType'
+    },
+    {'1': 'url', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'url', '17': true},
+  ],
+  '8': [
+    {'1': '_url'},
+  ],
+};
+
+/// Descriptor for `Button`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List buttonDescriptor = $convert.base64Decode(
+    'CgZCdXR0b24SEgoEdGV4dBgBIAEoCVIEdGV4dBJQCgtidXR0b25fdHlwZRgCIAEoDjIvLnlhbG'
+    '8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkJ1dHRvblR5cGVSCmJ1dHRvblR5cGUS'
+    'FQoDdXJsGAMgASgJSABSA3VybIgBAUIGCgRfdXJs');
 
 @$core.Deprecated('Use textMessageDescriptor instead')
 const TextMessage$json = {
@@ -517,6 +514,20 @@ const TextMessageRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
+    {
+      '1': 'buttons',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '10': 'buttons'
+    },
+    {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
+    {'1': 'footer', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'footer', '17': true},
+  ],
+  '8': [
+    {'1': '_header'},
+    {'1': '_footer'},
   ],
 };
 
@@ -524,7 +535,10 @@ const TextMessageRequest$json = {
 final $typed_data.Uint8List textMessageRequestDescriptor = $convert.base64Decode(
     'ChJUZXh0TWVzc2FnZVJlcXVlc3QSSgoHY29udGVudBgBIAEoCzIwLnlhbG8uZXh0ZXJuYWxfY2'
     'hhbm5lbC5pbl9hcHAuc2RrLnYxLlRleHRNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVzdGFtcBgC'
-    'IAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
+    'IAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBJFCgdidXR0b25zGA'
+    'MgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQnV0dG9uUgdidXR0'
+    'b25zEhsKBmhlYWRlchgEIAEoCUgAUgZoZWFkZXKIAQESGwoGZm9vdGVyGAUgASgJSAFSBmZvb3'
+    'RlcogBAUIJCgdfaGVhZGVyQgkKB19mb290ZXI=');
 
 @$core.Deprecated('Use voiceMessageDescriptor instead')
 const VoiceMessage$json = {
@@ -600,7 +614,20 @@ const VoiceNoteMessageRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'quick_replies', '3': 3, '4': 3, '5': 9, '10': 'quickReplies'},
+    {
+      '1': 'buttons',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '10': 'buttons'
+    },
+    {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
+    {'1': 'footer', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'footer', '17': true},
+  ],
+  '8': [
+    {'1': '_header'},
+    {'1': '_footer'},
   ],
 };
 
@@ -608,8 +635,10 @@ const VoiceNoteMessageRequest$json = {
 final $typed_data.Uint8List voiceNoteMessageRequestDescriptor = $convert.base64Decode(
     'ChdWb2ljZU5vdGVNZXNzYWdlUmVxdWVzdBJLCgdjb250ZW50GAEgASgLMjEueWFsby5leHRlcm'
     '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuVm9pY2VNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVz'
-    'dGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBIjCg1xdW'
-    'lja19yZXBsaWVzGAMgAygJUgxxdWlja1JlcGxpZXM=');
+    'dGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBJFCgdidX'
+    'R0b25zGAMgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQnV0dG9u'
+    'UgdidXR0b25zEhsKBmhlYWRlchgEIAEoCUgAUgZoZWFkZXKIAQESGwoGZm9vdGVyGAUgASgJSA'
+    'FSBmZvb3RlcogBAUIJCgdfaGVhZGVyQgkKB19mb290ZXI=');
 
 @$core.Deprecated('Use imageMessageDescriptor instead')
 const ImageMessage$json = {
@@ -680,7 +709,20 @@ const ImageMessageRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'quick_replies', '3': 3, '4': 3, '5': 9, '10': 'quickReplies'},
+    {
+      '1': 'buttons',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '10': 'buttons'
+    },
+    {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
+    {'1': 'footer', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'footer', '17': true},
+  ],
+  '8': [
+    {'1': '_header'},
+    {'1': '_footer'},
   ],
 };
 
@@ -688,8 +730,10 @@ const ImageMessageRequest$json = {
 final $typed_data.Uint8List imageMessageRequestDescriptor = $convert.base64Decode(
     'ChNJbWFnZU1lc3NhZ2VSZXF1ZXN0EksKB2NvbnRlbnQYASABKAsyMS55YWxvLmV4dGVybmFsX2'
     'NoYW5uZWwuaW5fYXBwLnNkay52MS5JbWFnZU1lc3NhZ2VSB2NvbnRlbnQSOAoJdGltZXN0YW1w'
-    'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEiMKDXF1aWNrX3'
-    'JlcGxpZXMYAyADKAlSDHF1aWNrUmVwbGllcw==');
+    'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEkUKB2J1dHRvbn'
+    'MYAyADKAsyKy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5CdXR0b25SB2J1'
+    'dHRvbnMSGwoGaGVhZGVyGAQgASgJSABSBmhlYWRlcogBARIbCgZmb290ZXIYBSABKAlIAVIGZm'
+    '9vdGVyiAEBQgkKB19oZWFkZXJCCQoHX2Zvb3Rlcg==');
 
 @$core.Deprecated('Use attachmentMessageDescriptor instead')
 const AttachmentMessage$json = {
@@ -760,7 +804,20 @@ const AttachmentMessageRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'quick_replies', '3': 3, '4': 3, '5': 9, '10': 'quickReplies'},
+    {
+      '1': 'buttons',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '10': 'buttons'
+    },
+    {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
+    {'1': 'footer', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'footer', '17': true},
+  ],
+  '8': [
+    {'1': '_header'},
+    {'1': '_footer'},
   ],
 };
 
@@ -769,7 +826,9 @@ final $typed_data.Uint8List attachmentMessageRequestDescriptor = $convert.base64
     'ChhBdHRhY2htZW50TWVzc2FnZVJlcXVlc3QSUAoHY29udGVudBgBIAEoCzI2LnlhbG8uZXh0ZX'
     'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkF0dGFjaG1lbnRNZXNzYWdlUgdjb250ZW50EjgK'
     'CXRpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcB'
-    'IjCg1xdWlja19yZXBsaWVzGAMgAygJUgxxdWlja1JlcGxpZXM=');
+    'JFCgdidXR0b25zGAMgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEu'
+    'QnV0dG9uUgdidXR0b25zEhsKBmhlYWRlchgEIAEoCUgAUgZoZWFkZXKIAQESGwoGZm9vdGVyGA'
+    'UgASgJSAFSBmZvb3RlcogBAUIJCgdfaGVhZGVyQgkKB19mb290ZXI=');
 
 @$core.Deprecated('Use videoMessageDescriptor instead')
 const VideoMessage$json = {
@@ -842,7 +901,20 @@ const VideoMessageRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'quick_replies', '3': 3, '4': 3, '5': 9, '10': 'quickReplies'},
+    {
+      '1': 'buttons',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '10': 'buttons'
+    },
+    {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
+    {'1': 'footer', '3': 5, '4': 1, '5': 9, '9': 1, '10': 'footer', '17': true},
+  ],
+  '8': [
+    {'1': '_header'},
+    {'1': '_footer'},
   ],
 };
 
@@ -850,8 +922,10 @@ const VideoMessageRequest$json = {
 final $typed_data.Uint8List videoMessageRequestDescriptor = $convert.base64Decode(
     'ChNWaWRlb01lc3NhZ2VSZXF1ZXN0EksKB2NvbnRlbnQYASABKAsyMS55YWxvLmV4dGVybmFsX2'
     'NoYW5uZWwuaW5fYXBwLnNkay52MS5WaWRlb01lc3NhZ2VSB2NvbnRlbnQSOAoJdGltZXN0YW1w'
-    'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEiMKDXF1aWNrX3'
-    'JlcGxpZXMYAyADKAlSDHF1aWNrUmVwbGllcw==');
+    'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEkUKB2J1dHRvbn'
+    'MYAyADKAsyKy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5CdXR0b25SB2J1'
+    'dHRvbnMSGwoGaGVhZGVyGAQgASgJSABSBmhlYWRlcogBARIbCgZmb290ZXIYBSABKAlIAVIGZm'
+    '9vdGVyiAEBQgkKB19oZWFkZXJCCQoHX2Zvb3Rlcg==');
 
 @$core.Deprecated('Use messageReceiptRequestDescriptor instead')
 const MessageReceiptRequest$json = {
@@ -874,7 +948,6 @@ const MessageReceiptRequest$json = {
       '6': '.google.protobuf.Timestamp',
       '10': 'timestamp'
     },
-    {'1': 'quick_replies', '3': 4, '4': 3, '5': 9, '10': 'quickReplies'},
   ],
 };
 
@@ -883,8 +956,7 @@ final $typed_data.Uint8List messageReceiptRequestDescriptor = $convert.base64Dec
     'ChVNZXNzYWdlUmVjZWlwdFJlcXVlc3QSSgoGc3RhdHVzGAEgASgOMjIueWFsby5leHRlcm5hbF'
     '9jaGFubmVsLmluX2FwcC5zZGsudjEuTWVzc2FnZVN0YXR1c1IGc3RhdHVzEh0KCm1lc3NhZ2Vf'
     'aWQYAiABKAlSCW1lc3NhZ2VJZBI4Cgl0aW1lc3RhbXAYAyABKAsyGi5nb29nbGUucHJvdG9idW'
-    'YuVGltZXN0YW1wUgl0aW1lc3RhbXASIwoNcXVpY2tfcmVwbGllcxgEIAMoCVIMcXVpY2tSZXBs'
-    'aWVz');
+    'YuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
 
 @$core.Deprecated('Use addToCartRequestDescriptor instead')
 const AddToCartRequest$json = {
@@ -1497,179 +1569,6 @@ final $typed_data.Uint8List customCommandResponseDescriptor = $convert.base64Dec
     '9jaGFubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxIYCgdwYXlsb2Fk'
     'GAIgASgJUgdwYXlsb2FkEjgKCXRpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW'
     '1lc3RhbXBSCXRpbWVzdGFtcA==');
-
-@$core.Deprecated('Use buttonsMessageDescriptor instead')
-const ButtonsMessage$json = {
-  '1': 'ButtonsMessage',
-  '2': [
-    {'1': 'header', '3': 1, '4': 1, '5': 9, '10': 'header'},
-    {'1': 'body', '3': 2, '4': 1, '5': 9, '10': 'body'},
-    {'1': 'footer', '3': 3, '4': 1, '5': 9, '10': 'footer'},
-    {'1': 'buttons', '3': 4, '4': 3, '5': 9, '10': 'buttons'},
-  ],
-};
-
-/// Descriptor for `ButtonsMessage`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List buttonsMessageDescriptor = $convert.base64Decode(
-    'Cg5CdXR0b25zTWVzc2FnZRIWCgZoZWFkZXIYASABKAlSBmhlYWRlchISCgRib2R5GAIgASgJUg'
-    'Rib2R5EhYKBmZvb3RlchgDIAEoCVIGZm9vdGVyEhgKB2J1dHRvbnMYBCADKAlSB2J1dHRvbnM=');
-
-@$core.Deprecated('Use buttonsMessageRequestDescriptor instead')
-const ButtonsMessageRequest$json = {
-  '1': 'ButtonsMessageRequest',
-  '2': [
-    {
-      '1': 'content',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ButtonsMessage',
-      '10': 'content'
-    },
-    {
-      '1': 'timestamp',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Timestamp',
-      '10': 'timestamp'
-    },
-  ],
-};
-
-/// Descriptor for `ButtonsMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List buttonsMessageRequestDescriptor = $convert.base64Decode(
-    'ChVCdXR0b25zTWVzc2FnZVJlcXVlc3QSTQoHY29udGVudBgBIAEoCzIzLnlhbG8uZXh0ZXJuYW'
-    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkJ1dHRvbnNNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVz'
-    'dGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
-
-@$core.Deprecated('Use buttonsMessageResponseDescriptor instead')
-const ButtonsMessageResponse$json = {
-  '1': 'ButtonsMessageResponse',
-  '2': [
-    {
-      '1': 'status',
-      '3': 1,
-      '4': 1,
-      '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'timestamp',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Timestamp',
-      '10': 'timestamp'
-    },
-    {'1': 'message_id', '3': 3, '4': 1, '5': 9, '10': 'messageId'},
-  ],
-};
-
-/// Descriptor for `ButtonsMessageResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List buttonsMessageResponseDescriptor = $convert.base64Decode(
-    'ChZCdXR0b25zTWVzc2FnZVJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZXJuYW'
-    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGltZXN0'
-    'YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEh0KCm1lc3'
-    'NhZ2VfaWQYAyABKAlSCW1lc3NhZ2VJZA==');
-
-@$core.Deprecated('Use cTAButtonDescriptor instead')
-const CTAButton$json = {
-  '1': 'CTAButton',
-  '2': [
-    {'1': 'text', '3': 1, '4': 1, '5': 9, '10': 'text'},
-    {'1': 'url', '3': 2, '4': 1, '5': 9, '10': 'url'},
-  ],
-};
-
-/// Descriptor for `CTAButton`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cTAButtonDescriptor = $convert.base64Decode(
-    'CglDVEFCdXR0b24SEgoEdGV4dBgBIAEoCVIEdGV4dBIQCgN1cmwYAiABKAlSA3VybA==');
-
-@$core.Deprecated('Use cTAMessageDescriptor instead')
-const CTAMessage$json = {
-  '1': 'CTAMessage',
-  '2': [
-    {'1': 'header', '3': 1, '4': 1, '5': 9, '10': 'header'},
-    {'1': 'body', '3': 2, '4': 1, '5': 9, '10': 'body'},
-    {'1': 'footer', '3': 3, '4': 1, '5': 9, '10': 'footer'},
-    {
-      '1': 'buttons',
-      '3': 4,
-      '4': 3,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.CTAButton',
-      '10': 'buttons'
-    },
-  ],
-};
-
-/// Descriptor for `CTAMessage`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cTAMessageDescriptor = $convert.base64Decode(
-    'CgpDVEFNZXNzYWdlEhYKBmhlYWRlchgBIAEoCVIGaGVhZGVyEhIKBGJvZHkYAiABKAlSBGJvZH'
-    'kSFgoGZm9vdGVyGAMgASgJUgZmb290ZXISSAoHYnV0dG9ucxgEIAMoCzIuLnlhbG8uZXh0ZXJu'
-    'YWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkNUQUJ1dHRvblIHYnV0dG9ucw==');
-
-@$core.Deprecated('Use cTAMessageRequestDescriptor instead')
-const CTAMessageRequest$json = {
-  '1': 'CTAMessageRequest',
-  '2': [
-    {
-      '1': 'content',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.CTAMessage',
-      '10': 'content'
-    },
-    {
-      '1': 'timestamp',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Timestamp',
-      '10': 'timestamp'
-    },
-  ],
-};
-
-/// Descriptor for `CTAMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cTAMessageRequestDescriptor = $convert.base64Decode(
-    'ChFDVEFNZXNzYWdlUmVxdWVzdBJJCgdjb250ZW50GAEgASgLMi8ueWFsby5leHRlcm5hbF9jaG'
-    'FubmVsLmluX2FwcC5zZGsudjEuQ1RBTWVzc2FnZVIHY29udGVudBI4Cgl0aW1lc3RhbXAYAiAB'
-    'KAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
-
-@$core.Deprecated('Use cTAMessageResponseDescriptor instead')
-const CTAMessageResponse$json = {
-  '1': 'CTAMessageResponse',
-  '2': [
-    {
-      '1': 'status',
-      '3': 1,
-      '4': 1,
-      '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
-      '10': 'status'
-    },
-    {
-      '1': 'timestamp',
-      '3': 2,
-      '4': 1,
-      '5': 11,
-      '6': '.google.protobuf.Timestamp',
-      '10': 'timestamp'
-    },
-    {'1': 'message_id', '3': 3, '4': 1, '5': 9, '10': 'messageId'},
-  ],
-};
-
-/// Descriptor for `CTAMessageResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List cTAMessageResponseDescriptor = $convert.base64Decode(
-    'ChJDVEFNZXNzYWdlUmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm5hbF9jaG'
-    'FubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3RhbXAY'
-    'AiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXASHQoKbWVzc2FnZV'
-    '9pZBgDIAEoCVIJbWVzc2FnZUlk');
 
 @$core.Deprecated('Use getCommandsRequestDescriptor instead')
 const GetCommandsRequest$json = {

@@ -100,77 +100,7 @@ public object MessageReceiptRequestKt {
 
     public val MessageReceiptRequestKt.Dsl.timestampOrNull: com.google.protobuf.Timestamp?
       get() = _builder.timestampOrNull
-
-    /**
-     * An uninstantiable, behaviorless type to represent the field in
-     * generics.
-     */
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    public class QuickRepliesProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
-    /**
-     * `repeated string quick_replies = 4;`
-     * @return A list containing the quickReplies.
-     */
-    public val quickReplies: com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.quickRepliesList
-      )
-    /**
-     * `repeated string quick_replies = 4;`
-     * @param value The quickReplies to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("addQuickReplies")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.add(value: kotlin.String) {
-      _builder.addQuickReplies(value)
-    }
-    /**
-     * `repeated string quick_replies = 4;`
-     * @param value The quickReplies to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("plusAssignQuickReplies")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.plusAssign(value: kotlin.String) {
-      add(value)
-    }
-    /**
-     * `repeated string quick_replies = 4;`
-     * @param values The quickReplies to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("addAllQuickReplies")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
-      _builder.addAllQuickReplies(values)
-    }
-    /**
-     * `repeated string quick_replies = 4;`
-     * @param values The quickReplies to add.
-     */
-    @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("plusAssignAllQuickReplies")
-    @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
-      addAll(values)
-    }
-    /**
-     * `repeated string quick_replies = 4;`
-     * @param index The index to set the value at.
-     * @param value The quickReplies to set.
-     */
-    @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("setQuickReplies")
-    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.set(index: kotlin.Int, value: kotlin.String) {
-      _builder.setQuickReplies(index, value)
-    }/**
-     * `repeated string quick_replies = 4;`
-     */
-    @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("setQuickReplies")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.clear() {
-      _builder.clearQuickReplies()
-    }}
+  }
 }
 public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptRequest.copy(block: `yalo.external_channel.in_app.sdk.v1`.MessageReceiptRequestKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptRequest =
   `yalo.external_channel.in_app.sdk.v1`.MessageReceiptRequestKt.Dsl._create(this.toBuilder()).apply { block() }._build()

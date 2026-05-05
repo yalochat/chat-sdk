@@ -462,6 +462,109 @@ public final class SdkMessageOuterClass {
 
   /**
    * <pre>
+   * ButtonType discriminates how a button should behave when tapped.
+   * </pre>
+   *
+   * Protobuf enum {@code yalo.external_channel.in_app.sdk.v1.ButtonType}
+   */
+  public enum ButtonType
+      implements com.google.protobuf.Internal.EnumLite {
+    /**
+     * <code>BUTTON_TYPE_REPLY = 0;</code>
+     */
+    BUTTON_TYPE_REPLY(0),
+    /**
+     * <code>BUTTON_TYPE_POSTBACK = 1;</code>
+     */
+    BUTTON_TYPE_POSTBACK(1),
+    /**
+     * <code>BUTTON_TYPE_LINK = 2;</code>
+     */
+    BUTTON_TYPE_LINK(2),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>BUTTON_TYPE_REPLY = 0;</code>
+     */
+    public static final int BUTTON_TYPE_REPLY_VALUE = 0;
+    /**
+     * <code>BUTTON_TYPE_POSTBACK = 1;</code>
+     */
+    public static final int BUTTON_TYPE_POSTBACK_VALUE = 1;
+    /**
+     * <code>BUTTON_TYPE_LINK = 2;</code>
+     */
+    public static final int BUTTON_TYPE_LINK_VALUE = 2;
+
+
+    @java.lang.Override
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The number of the enum to look for.
+     * @return The enum associated with the given number.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static ButtonType valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static ButtonType forNumber(int value) {
+      switch (value) {
+        case 0: return BUTTON_TYPE_REPLY;
+        case 1: return BUTTON_TYPE_POSTBACK;
+        case 2: return BUTTON_TYPE_LINK;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<ButtonType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        ButtonType> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<ButtonType>() {
+            @java.lang.Override
+            public ButtonType findValueByNumber(int number) {
+              return ButtonType.forNumber(number);
+            }
+          };
+
+    public static com.google.protobuf.Internal.EnumVerifier 
+        internalGetVerifier() {
+      return ButtonTypeVerifier.INSTANCE;
+    }
+
+    private static final class ButtonTypeVerifier implements 
+         com.google.protobuf.Internal.EnumVerifier { 
+            static final com.google.protobuf.Internal.EnumVerifier
+                INSTANCE = new ButtonTypeVerifier();
+            @java.lang.Override
+            public boolean isInRange(int number) {
+              return ButtonType.forNumber(number) != null;
+            }
+          };
+
+    private final int value;
+
+    private ButtonType(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v1.ButtonType)
+  }
+
+  /**
+   * <pre>
    * SdkCommand enumerates the commands the SDK is able to execute on the client.
    * </pre>
    *
@@ -915,58 +1018,6 @@ public final class SdkMessageOuterClass {
 
     /**
      * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     * @return Whether the buttonsMessageRequest field is set.
-     */
-    boolean hasButtonsMessageRequest();
-    /**
-     * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     * @return The buttonsMessageRequest.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest getButtonsMessageRequest();
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     * @return Whether the buttonsMessageResponse field is set.
-     */
-    boolean hasButtonsMessageResponse();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     * @return The buttonsMessageResponse.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse getButtonsMessageResponse();
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     * @return Whether the ctaMessageRequest field is set.
-     */
-    boolean hasCtaMessageRequest();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     * @return The ctaMessageRequest.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest getCtaMessageRequest();
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     * @return Whether the ctaMessageResponse field is set.
-     */
-    boolean hasCtaMessageResponse();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     * @return The ctaMessageResponse.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse getCtaMessageResponse();
-
-    /**
-     * <pre>
      * Client → channel
      * </pre>
      *
@@ -1043,10 +1094,6 @@ public final class SdkMessageOuterClass {
       CHAT_STATUS_RESPONSE(35),
       CUSTOM_COMMAND_REQUEST(36),
       CUSTOM_COMMAND_RESPONSE(37),
-      BUTTONS_MESSAGE_REQUEST(40),
-      BUTTONS_MESSAGE_RESPONSE(41),
-      CTA_MESSAGE_REQUEST(42),
-      CTA_MESSAGE_RESPONSE(43),
       GET_COMMANDS_REQUEST(44),
       GET_COMMANDS_RESPONSE(45),
       PAYLOAD_NOT_SET(0);
@@ -1088,10 +1135,6 @@ public final class SdkMessageOuterClass {
           case 35: return CHAT_STATUS_RESPONSE;
           case 36: return CUSTOM_COMMAND_REQUEST;
           case 37: return CUSTOM_COMMAND_RESPONSE;
-          case 40: return BUTTONS_MESSAGE_REQUEST;
-          case 41: return BUTTONS_MESSAGE_RESPONSE;
-          case 42: return CTA_MESSAGE_REQUEST;
-          case 43: return CTA_MESSAGE_RESPONSE;
           case 44: return GET_COMMANDS_REQUEST;
           case 45: return GET_COMMANDS_RESPONSE;
           case 0: return PAYLOAD_NOT_SET;
@@ -2534,234 +2577,6 @@ public final class SdkMessageOuterClass {
      */
     private void clearCustomCommandResponse() {
       if (payloadCase_ == 37) {
-        payloadCase_ = 0;
-        payload_ = null;
-      }
-    }
-
-    public static final int BUTTONS_MESSAGE_REQUEST_FIELD_NUMBER = 40;
-    /**
-     * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     */
-    @java.lang.Override
-    public boolean hasButtonsMessageRequest() {
-      return payloadCase_ == 40;
-    }
-    /**
-     * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest getButtonsMessageRequest() {
-      if (payloadCase_ == 40) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest) payload_;
-      }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.getDefaultInstance();
-    }
-    /**
-     * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setButtonsMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest value) {
-      value.getClass();  // minimal bytecode null check
-      payload_ = value;
-      payloadCase_ = 40;
-    }
-    /**
-     * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeButtonsMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest value) {
-      value.getClass();  // minimal bytecode null check
-      if (payloadCase_ == 40 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest) payload_)
-            .mergeFrom(value).buildPartial();
-      } else {
-        payload_ = value;
-      }
-      payloadCase_ = 40;
-    }
-    /**
-     * <pre>
-     * Channel → client
-     * </pre>
-     *
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-     */
-    private void clearButtonsMessageRequest() {
-      if (payloadCase_ == 40) {
-        payloadCase_ = 0;
-        payload_ = null;
-      }
-    }
-
-    public static final int BUTTONS_MESSAGE_RESPONSE_FIELD_NUMBER = 41;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     */
-    @java.lang.Override
-    public boolean hasButtonsMessageResponse() {
-      return payloadCase_ == 41;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse getButtonsMessageResponse() {
-      if (payloadCase_ == 41) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse) payload_;
-      }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.getDefaultInstance();
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setButtonsMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse value) {
-      value.getClass();  // minimal bytecode null check
-      payload_ = value;
-      payloadCase_ = 41;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeButtonsMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse value) {
-      value.getClass();  // minimal bytecode null check
-      if (payloadCase_ == 41 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse) payload_)
-            .mergeFrom(value).buildPartial();
-      } else {
-        payload_ = value;
-      }
-      payloadCase_ = 41;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-     */
-    private void clearButtonsMessageResponse() {
-      if (payloadCase_ == 41) {
-        payloadCase_ = 0;
-        payload_ = null;
-      }
-    }
-
-    public static final int CTA_MESSAGE_REQUEST_FIELD_NUMBER = 42;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     */
-    @java.lang.Override
-    public boolean hasCtaMessageRequest() {
-      return payloadCase_ == 42;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest getCtaMessageRequest() {
-      if (payloadCase_ == 42) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest) payload_;
-      }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.getDefaultInstance();
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setCtaMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest value) {
-      value.getClass();  // minimal bytecode null check
-      payload_ = value;
-      payloadCase_ = 42;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeCtaMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest value) {
-      value.getClass();  // minimal bytecode null check
-      if (payloadCase_ == 42 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest) payload_)
-            .mergeFrom(value).buildPartial();
-      } else {
-        payload_ = value;
-      }
-      payloadCase_ = 42;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-     */
-    private void clearCtaMessageRequest() {
-      if (payloadCase_ == 42) {
-        payloadCase_ = 0;
-        payload_ = null;
-      }
-    }
-
-    public static final int CTA_MESSAGE_RESPONSE_FIELD_NUMBER = 43;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     */
-    @java.lang.Override
-    public boolean hasCtaMessageResponse() {
-      return payloadCase_ == 43;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse getCtaMessageResponse() {
-      if (payloadCase_ == 43) {
-         return (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse) payload_;
-      }
-      return yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.getDefaultInstance();
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setCtaMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse value) {
-      value.getClass();  // minimal bytecode null check
-      payload_ = value;
-      payloadCase_ = 43;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void mergeCtaMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse value) {
-      value.getClass();  // minimal bytecode null check
-      if (payloadCase_ == 43 &&
-          payload_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.getDefaultInstance()) {
-        payload_ = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.newBuilder((yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse) payload_)
-            .mergeFrom(value).buildPartial();
-      } else {
-        payload_ = value;
-      }
-      payloadCase_ = 43;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-     */
-    private void clearCtaMessageResponse() {
-      if (payloadCase_ == 43) {
         payloadCase_ = 0;
         payload_ = null;
       }
@@ -4348,222 +4163,6 @@ public final class SdkMessageOuterClass {
 
       /**
        * <pre>
-       * Channel → client
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-       */
-      @java.lang.Override
-      public boolean hasButtonsMessageRequest() {
-        return instance.hasButtonsMessageRequest();
-      }
-      /**
-       * <pre>
-       * Channel → client
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest getButtonsMessageRequest() {
-        return instance.getButtonsMessageRequest();
-      }
-      /**
-       * <pre>
-       * Channel → client
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-       */
-      public Builder setButtonsMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest value) {
-        copyOnWrite();
-        instance.setButtonsMessageRequest(value);
-        return this;
-      }
-      /**
-       * <pre>
-       * Channel → client
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-       */
-      public Builder setButtonsMessageRequest(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.Builder builderForValue) {
-        copyOnWrite();
-        instance.setButtonsMessageRequest(builderForValue.build());
-        return this;
-      }
-      /**
-       * <pre>
-       * Channel → client
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-       */
-      public Builder mergeButtonsMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest value) {
-        copyOnWrite();
-        instance.mergeButtonsMessageRequest(value);
-        return this;
-      }
-      /**
-       * <pre>
-       * Channel → client
-       * </pre>
-       *
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;</code>
-       */
-      public Builder clearButtonsMessageRequest() {
-        copyOnWrite();
-        instance.clearButtonsMessageRequest();
-        return this;
-      }
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-       */
-      @java.lang.Override
-      public boolean hasButtonsMessageResponse() {
-        return instance.hasButtonsMessageResponse();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse getButtonsMessageResponse() {
-        return instance.getButtonsMessageResponse();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-       */
-      public Builder setButtonsMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse value) {
-        copyOnWrite();
-        instance.setButtonsMessageResponse(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-       */
-      public Builder setButtonsMessageResponse(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.Builder builderForValue) {
-        copyOnWrite();
-        instance.setButtonsMessageResponse(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-       */
-      public Builder mergeButtonsMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse value) {
-        copyOnWrite();
-        instance.mergeButtonsMessageResponse(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;</code>
-       */
-      public Builder clearButtonsMessageResponse() {
-        copyOnWrite();
-        instance.clearButtonsMessageResponse();
-        return this;
-      }
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-       */
-      @java.lang.Override
-      public boolean hasCtaMessageRequest() {
-        return instance.hasCtaMessageRequest();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest getCtaMessageRequest() {
-        return instance.getCtaMessageRequest();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-       */
-      public Builder setCtaMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest value) {
-        copyOnWrite();
-        instance.setCtaMessageRequest(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-       */
-      public Builder setCtaMessageRequest(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.Builder builderForValue) {
-        copyOnWrite();
-        instance.setCtaMessageRequest(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-       */
-      public Builder mergeCtaMessageRequest(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest value) {
-        copyOnWrite();
-        instance.mergeCtaMessageRequest(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;</code>
-       */
-      public Builder clearCtaMessageRequest() {
-        copyOnWrite();
-        instance.clearCtaMessageRequest();
-        return this;
-      }
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-       */
-      @java.lang.Override
-      public boolean hasCtaMessageResponse() {
-        return instance.hasCtaMessageResponse();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse getCtaMessageResponse() {
-        return instance.getCtaMessageResponse();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-       */
-      public Builder setCtaMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse value) {
-        copyOnWrite();
-        instance.setCtaMessageResponse(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-       */
-      public Builder setCtaMessageResponse(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.Builder builderForValue) {
-        copyOnWrite();
-        instance.setCtaMessageResponse(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-       */
-      public Builder mergeCtaMessageResponse(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse value) {
-        copyOnWrite();
-        instance.mergeCtaMessageResponse(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;</code>
-       */
-      public Builder clearCtaMessageResponse() {
-        copyOnWrite();
-        instance.clearCtaMessageResponse();
-        return this;
-      }
-
-      /**
-       * <pre>
        * Client → channel
        * </pre>
        *
@@ -4727,19 +4326,15 @@ public final class SdkMessageOuterClass {
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandRequest.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandResponse.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VideoMessageRequest.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.class,
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest.class,
               yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsResponse.class,
             };
             java.lang.String info =
-                "\u0000 \u0001\u0001\u0001- \u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<\u0000" +
-                "\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000\u0016" +
-                "<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c<\u0000" +
-                "\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$<\u0000" +
-                "%<\u0000&<\u0000(<\u0000)<\u0000*<\u0000+<\u0000,<\u0000-<\u0000";
+                "\u0000\u001c\u0001\u0001\u0001-\u001c\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000" +
+                "\n<\u0000\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000" +
+                "\u0016<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c" +
+                "<\u0000\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$" +
+                "<\u0000%<\u0000&<\u0000,<\u0000-<\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -4790,6 +4385,548 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<SdkMessage> PARSER;
 
     public static com.google.protobuf.Parser<SdkMessage> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface ButtonOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.Button)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>string text = 1;</code>
+     * @return The text.
+     */
+    java.lang.String getText();
+    /**
+     * <code>string text = 1;</code>
+     * @return The bytes for text.
+     */
+    com.google.protobuf.ByteString
+        getTextBytes();
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     * @return The enum numeric value on the wire for buttonType.
+     */
+    int getButtonTypeValue();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     * @return The buttonType.
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType getButtonType();
+
+    /**
+     * <code>optional string url = 3;</code>
+     * @return Whether the url field is set.
+     */
+    boolean hasUrl();
+    /**
+     * <code>optional string url = 3;</code>
+     * @return The url.
+     */
+    java.lang.String getUrl();
+    /**
+     * <code>optional string url = 3;</code>
+     * @return The bytes for url.
+     */
+    com.google.protobuf.ByteString
+        getUrlBytes();
+  }
+  /**
+   * <pre>
+   * Button represents a single tappable option attached to a message.
+   * url is required when button_type is BUTTON_TYPE_LINK and ignored otherwise.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.Button}
+   */
+  public  static final class Button extends
+      com.google.protobuf.GeneratedMessageLite<
+          Button, Button.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.Button)
+      ButtonOrBuilder {
+    private Button() {
+      text_ = "";
+      url_ = "";
+    }
+    private int bitField0_;
+    public static final int TEXT_FIELD_NUMBER = 1;
+    private java.lang.String text_;
+    /**
+     * <code>string text = 1;</code>
+     * @return The text.
+     */
+    @java.lang.Override
+    public java.lang.String getText() {
+      return text_;
+    }
+    /**
+     * <code>string text = 1;</code>
+     * @return The bytes for text.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getTextBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(text_);
+    }
+    /**
+     * <code>string text = 1;</code>
+     * @param value The text to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setText(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      text_ = value;
+    }
+    /**
+     * <code>string text = 1;</code>
+     */
+    private void clearText() {
+
+      text_ = getDefaultInstance().getText();
+    }
+    /**
+     * <code>string text = 1;</code>
+     * @param value The bytes for text to set.
+     */
+    private void setTextBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      text_ = value.toStringUtf8();
+
+    }
+
+    public static final int BUTTON_TYPE_FIELD_NUMBER = 2;
+    private int buttonType_;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     * @return The enum numeric value on the wire for buttonType.
+     */
+    @java.lang.Override
+    public int getButtonTypeValue() {
+      return buttonType_;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     * @return The buttonType.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType getButtonType() {
+      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType.forNumber(buttonType_);
+      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     * @param value The enum numeric value on the wire for buttonType to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setButtonTypeValue(int value) {
+        buttonType_ = value;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     * @param value The buttonType to set.
+     */
+    private void setButtonType(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType value) {
+      buttonType_ = value.getNumber();
+
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+     */
+    private void clearButtonType() {
+
+      buttonType_ = 0;
+    }
+
+    public static final int URL_FIELD_NUMBER = 3;
+    private java.lang.String url_;
+    /**
+     * <code>optional string url = 3;</code>
+     * @return Whether the url field is set.
+     */
+    @java.lang.Override
+    public boolean hasUrl() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>optional string url = 3;</code>
+     * @return The url.
+     */
+    @java.lang.Override
+    public java.lang.String getUrl() {
+      return url_;
+    }
+    /**
+     * <code>optional string url = 3;</code>
+     * @return The bytes for url.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getUrlBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(url_);
+    }
+    /**
+     * <code>optional string url = 3;</code>
+     * @param value The url to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setUrl(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000001;
+      url_ = value;
+    }
+    /**
+     * <code>optional string url = 3;</code>
+     */
+    private void clearUrl() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      url_ = getDefaultInstance().getUrl();
+    }
+    /**
+     * <code>optional string url = 3;</code>
+     * @param value The bytes for url to set.
+     */
+    private void setUrlBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      url_ = value.toStringUtf8();
+      bitField0_ |= 0x00000001;
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * Button represents a single tappable option attached to a message.
+     * url is required when button_type is BUTTON_TYPE_LINK and ignored otherwise.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.Button}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.Button)
+        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>string text = 1;</code>
+       * @return The text.
+       */
+      @java.lang.Override
+      public java.lang.String getText() {
+        return instance.getText();
+      }
+      /**
+       * <code>string text = 1;</code>
+       * @return The bytes for text.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getTextBytes() {
+        return instance.getTextBytes();
+      }
+      /**
+       * <code>string text = 1;</code>
+       * @param value The text to set.
+       * @return This builder for chaining.
+       */
+      public Builder setText(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setText(value);
+        return this;
+      }
+      /**
+       * <code>string text = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearText() {
+        copyOnWrite();
+        instance.clearText();
+        return this;
+      }
+      /**
+       * <code>string text = 1;</code>
+       * @param value The bytes for text to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTextBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setTextBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+       * @return The enum numeric value on the wire for buttonType.
+       */
+      @java.lang.Override
+      public int getButtonTypeValue() {
+        return instance.getButtonTypeValue();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+       * @param value The buttonType to set.
+       * @return This builder for chaining.
+       */
+      public Builder setButtonTypeValue(int value) {
+        copyOnWrite();
+        instance.setButtonTypeValue(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+       * @return The buttonType.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType getButtonType() {
+        return instance.getButtonType();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+       * @param value The enum numeric value on the wire for buttonType to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setButtonType(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonType value) {
+        copyOnWrite();
+        instance.setButtonType(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonType button_type = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearButtonType() {
+        copyOnWrite();
+        instance.clearButtonType();
+        return this;
+      }
+
+      /**
+       * <code>optional string url = 3;</code>
+       * @return Whether the url field is set.
+       */
+      @java.lang.Override
+      public boolean hasUrl() {
+        return instance.hasUrl();
+      }
+      /**
+       * <code>optional string url = 3;</code>
+       * @return The url.
+       */
+      @java.lang.Override
+      public java.lang.String getUrl() {
+        return instance.getUrl();
+      }
+      /**
+       * <code>optional string url = 3;</code>
+       * @return The bytes for url.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getUrlBytes() {
+        return instance.getUrlBytes();
+      }
+      /**
+       * <code>optional string url = 3;</code>
+       * @param value The url to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUrl(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setUrl(value);
+        return this;
+      }
+      /**
+       * <code>optional string url = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUrl() {
+        copyOnWrite();
+        instance.clearUrl();
+        return this;
+      }
+      /**
+       * <code>optional string url = 3;</code>
+       * @param value The bytes for url to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUrlBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setUrlBytes(value);
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.Button)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "text_",
+              "buttonType_",
+              "url_",
+            };
+            java.lang.String info =
+                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u0208\u0002\f" +
+                "\u0003\u1208\u0000";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.Button)
+    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button DEFAULT_INSTANCE;
+    static {
+      Button defaultInstance = new Button();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        Button.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<Button> PARSER;
+
+    public static com.google.protobuf.Parser<Button> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
@@ -5436,10 +5573,60 @@ public final class SdkMessageOuterClass {
      * @return The timestamp.
      */
     com.google.protobuf.Timestamp getTimestamp();
+
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> 
+        getButtonsList();
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index);
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    int getButtonsCount();
+
+    /**
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    boolean hasHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    java.lang.String getHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
+     */
+    com.google.protobuf.ByteString
+        getHeaderBytes();
+
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    boolean hasFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    java.lang.String getFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    com.google.protobuf.ByteString
+        getFooterBytes();
   }
   /**
    * <pre>
    * TextMessageRequest is sent by either party to deliver a text message.
+   * content.text serves as the body. header and footer are optional structural
+   * fields rendered above and below the body, typically alongside buttons.
    * </pre>
    *
    * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.TextMessageRequest}
@@ -5450,6 +5637,9 @@ public final class SdkMessageOuterClass {
       // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.TextMessageRequest)
       TextMessageRequestOrBuilder {
     private TextMessageRequest() {
+      buttons_ = emptyProtobufList();
+      header_ = "";
+      footer_ = "";
     }
     private int bitField0_;
     public static final int CONTENT_FIELD_NUMBER = 1;
@@ -5548,6 +5738,215 @@ public final class SdkMessageOuterClass {
       bitField0_ = (bitField0_ & ~0x00000002);
     }
 
+    public static final int BUTTONS_FIELD_NUMBER = 3;
+    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> buttons_;
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.Override
+    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
+      return buttons_;
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    public java.util.List<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder> 
+        getButtonsOrBuilderList() {
+      return buttons_;
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.Override
+    public int getButtonsCount() {
+      return buttons_.size();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+      return buttons_.get(index);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder getButtonsOrBuilder(
+        int index) {
+      return buttons_.get(index);
+    }
+    private void ensureButtonsIsMutable() {
+      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> tmp = buttons_;
+      if (!tmp.isModifiable()) {
+        buttons_ =
+            com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
+       }
+    }
+
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.set(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void addAllButtons(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+      ensureButtonsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, buttons_);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void clearButtons() {
+      buttons_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void removeButtons(int index) {
+      ensureButtonsIsMutable();
+      buttons_.remove(index);
+    }
+
+    public static final int HEADER_FIELD_NUMBER = 4;
+    private java.lang.String header_;
+    /**
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    @java.lang.Override
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    @java.lang.Override
+    public java.lang.String getHeader() {
+      return header_;
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getHeaderBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(header_);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @param value The header to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setHeader(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000004;
+      header_ = value;
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     */
+    private void clearHeader() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      header_ = getDefaultInstance().getHeader();
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @param value The bytes for header to set.
+     */
+    private void setHeaderBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      header_ = value.toStringUtf8();
+      bitField0_ |= 0x00000004;
+    }
+
+    public static final int FOOTER_FIELD_NUMBER = 5;
+    private java.lang.String footer_;
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    @java.lang.Override
+    public boolean hasFooter() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    @java.lang.Override
+    public java.lang.String getFooter() {
+      return footer_;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getFooterBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The footer to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setFooter(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000008;
+      footer_ = value;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     */
+    private void clearFooter() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      footer_ = getDefaultInstance().getFooter();
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The bytes for footer to set.
+     */
+    private void setFooterBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      footer_ = value.toStringUtf8();
+      bitField0_ |= 0x00000008;
+    }
+
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessageRequest parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -5634,6 +6033,8 @@ public final class SdkMessageOuterClass {
     /**
      * <pre>
      * TextMessageRequest is sent by either party to deliver a text message.
+     * content.text serves as the body. header and footer are optional structural
+     * fields rendered above and below the body, typically alongside buttons.
      * </pre>
      *
      * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.TextMessageRequest}
@@ -5743,6 +6144,222 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      @java.lang.Override
+      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getButtonsList());
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      @java.lang.Override
+      public int getButtonsCount() {
+        return instance.getButtonsCount();
+      }/**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+        return instance.getButtons(index);
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.setButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.setButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addAllButtons(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+        copyOnWrite();
+        instance.addAllButtons(values);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder clearButtons() {
+        copyOnWrite();
+        instance.clearButtons();
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder removeButtons(int index) {
+        copyOnWrite();
+        instance.removeButtons(index);
+        return this;
+      }
+
+      /**
+       * <code>optional string header = 4;</code>
+       * @return Whether the header field is set.
+       */
+      @java.lang.Override
+      public boolean hasHeader() {
+        return instance.hasHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The header.
+       */
+      @java.lang.Override
+      public java.lang.String getHeader() {
+        return instance.getHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The bytes for header.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getHeaderBytes() {
+        return instance.getHeaderBytes();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @param value The header to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHeader(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setHeader(value);
+        return this;
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearHeader() {
+        copyOnWrite();
+        instance.clearHeader();
+        return this;
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @param value The bytes for header to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHeaderBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setHeaderBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return Whether the footer field is set.
+       */
+      @java.lang.Override
+      public boolean hasFooter() {
+        return instance.hasFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The footer.
+       */
+      @java.lang.Override
+      public java.lang.String getFooter() {
+        return instance.getFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The bytes for footer.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getFooterBytes() {
+        return instance.getFooterBytes();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooter(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setFooter(value);
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFooter() {
+        copyOnWrite();
+        instance.clearFooter();
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The bytes for footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooterBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setFooterBytes(value);
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.TextMessageRequest)
     }
     @java.lang.Override
@@ -5762,10 +6379,14 @@ public final class SdkMessageOuterClass {
               "bitField0_",
               "content_",
               "timestamp_",
+              "buttons_",
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.class,
+              "header_",
+              "footer_",
             };
             java.lang.String info =
-                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0000\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001";
+                "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
+                "\u1009\u0001\u0003\u001b\u0004\u1208\u0002\u0005\u1208\u0003";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -7035,29 +7656,52 @@ public final class SdkMessageOuterClass {
     com.google.protobuf.Timestamp getTimestamp();
 
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.util.List<java.lang.String>
-        getQuickRepliesList();
+    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> 
+        getButtonsList();
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    int getQuickRepliesCount();
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index);
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.lang.String getQuickReplies(int index);
+    int getButtonsCount();
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    boolean hasHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    java.lang.String getHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
      */
     com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index);
+        getHeaderBytes();
+
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    boolean hasFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    java.lang.String getFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    com.google.protobuf.ByteString
+        getFooterBytes();
   }
   /**
    * <pre>
@@ -7072,7 +7716,9 @@ public final class SdkMessageOuterClass {
       // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.VoiceNoteMessageRequest)
       VoiceNoteMessageRequestOrBuilder {
     private VoiceNoteMessageRequest() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
+      buttons_ = emptyProtobufList();
+      header_ = "";
+      footer_ = "";
     }
     private int bitField0_;
     public static final int CONTENT_FIELD_NUMBER = 1;
@@ -7171,99 +7817,213 @@ public final class SdkMessageOuterClass {
       bitField0_ = (bitField0_ & ~0x00000002);
     }
 
-    public static final int QUICK_REPLIES_FIELD_NUMBER = 3;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> quickReplies_;
+    public static final int BUTTONS_FIELD_NUMBER = 3;
+    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> buttons_;
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.util.List<java.lang.String> getQuickRepliesList() {
-      return quickReplies_;
+    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    @java.lang.Override
-    public int getQuickRepliesCount() {
-      return quickReplies_.size();
+    public java.util.List<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder> 
+        getButtonsOrBuilderList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.lang.String getQuickReplies(int index) {
-      return quickReplies_.get(index);
+    public int getButtonsCount() {
+      return buttons_.size();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the value to return.
-     * @return The bytes of the quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index) {
-      return com.google.protobuf.ByteString.copyFromUtf8(
-          quickReplies_.get(index));
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+      return buttons_.get(index);
     }
-    private void ensureQuickRepliesIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<java.lang.String> tmp =
-          quickReplies_;  if (!tmp.isModifiable()) {
-        quickReplies_ =
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder getButtonsOrBuilder(
+        int index) {
+      return buttons_.get(index);
+    }
+    private void ensureButtonsIsMutable() {
+      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> tmp = buttons_;
+      if (!tmp.isModifiable()) {
+        buttons_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
        }
     }
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index to set the value at.
-     * @param value The quickReplies to set.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setQuickReplies(
-        int index, java.lang.String value) {
+    private void setButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.set(index, value);
+      ensureButtonsIsMutable();
+      buttons_.set(index, value);
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The quickReplies to add.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addQuickReplies(
+    private void addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void addAllButtons(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+      ensureButtonsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, buttons_);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void clearButtons() {
+      buttons_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void removeButtons(int index) {
+      ensureButtonsIsMutable();
+      buttons_.remove(index);
+    }
+
+    public static final int HEADER_FIELD_NUMBER = 4;
+    private java.lang.String header_;
+    /**
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    @java.lang.Override
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    @java.lang.Override
+    public java.lang.String getHeader() {
+      return header_;
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getHeaderBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(header_);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @param value The header to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setHeader(
         java.lang.String value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value);
+      bitField0_ |= 0x00000004;
+      header_ = value;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param values The quickReplies to add.
+     * <code>optional string header = 4;</code>
      */
-    private void addAllQuickReplies(
-        java.lang.Iterable<java.lang.String> values) {
-      ensureQuickRepliesIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, quickReplies_);
+    private void clearHeader() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      header_ = getDefaultInstance().getHeader();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
+     * <code>optional string header = 4;</code>
+     * @param value The bytes for header to set.
      */
-    private void clearQuickReplies() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The bytes of the quickReplies to add.
-     */
-    private void addQuickRepliesBytes(
+    private void setHeaderBytes(
         com.google.protobuf.ByteString value) {
       checkByteStringIsUtf8(value);
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value.toStringUtf8());
+      header_ = value.toStringUtf8();
+      bitField0_ |= 0x00000004;
+    }
+
+    public static final int FOOTER_FIELD_NUMBER = 5;
+    private java.lang.String footer_;
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    @java.lang.Override
+    public boolean hasFooter() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    @java.lang.Override
+    public java.lang.String getFooter() {
+      return footer_;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getFooterBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The footer to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setFooter(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000008;
+      footer_ = value;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     */
+    private void clearFooter() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      footer_ = getDefaultInstance().getFooter();
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The bytes for footer to set.
+     */
+    private void setFooterBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      footer_ = value.toStringUtf8();
+      bitField0_ |= 0x00000008;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VoiceNoteMessageRequest parseFrom(
@@ -7462,94 +8222,218 @@ public final class SdkMessageOuterClass {
       }
 
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return A list containing the quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.util.List<java.lang.String>
-          getQuickRepliesList() {
+      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
         return java.util.Collections.unmodifiableList(
-            instance.getQuickRepliesList());
+            instance.getButtonsList());
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return The count of quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public int getQuickRepliesCount() {
-        return instance.getQuickRepliesCount();
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the element to return.
-       * @return The quickReplies at the given index.
+      public int getButtonsCount() {
+        return instance.getButtonsCount();
+      }/**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.lang.String getQuickReplies(int index) {
-        return instance.getQuickReplies(index);
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+        return instance.getButtons(index);
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the value to return.
-       * @return The bytes of the quickReplies at the given index.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.setButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.setButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addAllButtons(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+        copyOnWrite();
+        instance.addAllButtons(values);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder clearButtons() {
+        copyOnWrite();
+        instance.clearButtons();
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder removeButtons(int index) {
+        copyOnWrite();
+        instance.removeButtons(index);
+        return this;
+      }
+
+      /**
+       * <code>optional string header = 4;</code>
+       * @return Whether the header field is set.
+       */
+      @java.lang.Override
+      public boolean hasHeader() {
+        return instance.hasHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The header.
+       */
+      @java.lang.Override
+      public java.lang.String getHeader() {
+        return instance.getHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The bytes for header.
        */
       @java.lang.Override
       public com.google.protobuf.ByteString
-          getQuickRepliesBytes(int index) {
-        return instance.getQuickRepliesBytes(index);
+          getHeaderBytes() {
+        return instance.getHeaderBytes();
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index to set the value at.
-       * @param value The quickReplies to set.
+       * <code>optional string header = 4;</code>
+       * @param value The header to set.
        * @return This builder for chaining.
        */
-      public Builder setQuickReplies(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setQuickReplies(index, value);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickReplies(
+      public Builder setHeader(
           java.lang.String value) {
         copyOnWrite();
-        instance.addQuickReplies(value);
+        instance.setHeader(value);
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param values The quickReplies to add.
+       * <code>optional string header = 4;</code>
        * @return This builder for chaining.
        */
-      public Builder addAllQuickReplies(
-          java.lang.Iterable<java.lang.String> values) {
+      public Builder clearHeader() {
         copyOnWrite();
-        instance.addAllQuickReplies(values);
+        instance.clearHeader();
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
+       * <code>optional string header = 4;</code>
+       * @param value The bytes for header to set.
        * @return This builder for chaining.
        */
-      public Builder clearQuickReplies() {
-        copyOnWrite();
-        instance.clearQuickReplies();
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The bytes of the quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickRepliesBytes(
+      public Builder setHeaderBytes(
           com.google.protobuf.ByteString value) {
         copyOnWrite();
-        instance.addQuickRepliesBytes(value);
+        instance.setHeaderBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return Whether the footer field is set.
+       */
+      @java.lang.Override
+      public boolean hasFooter() {
+        return instance.hasFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The footer.
+       */
+      @java.lang.Override
+      public java.lang.String getFooter() {
+        return instance.getFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The bytes for footer.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getFooterBytes() {
+        return instance.getFooterBytes();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooter(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setFooter(value);
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFooter() {
+        copyOnWrite();
+        instance.clearFooter();
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The bytes for footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooterBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setFooterBytes(value);
         return this;
       }
 
@@ -7572,11 +8456,14 @@ public final class SdkMessageOuterClass {
               "bitField0_",
               "content_",
               "timestamp_",
-              "quickReplies_",
+              "buttons_",
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.class,
+              "header_",
+              "footer_",
             };
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001\u0003\u021a";
+                "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
+                "\u1009\u0001\u0003\u001b\u0004\u1208\u0002\u0005\u1208\u0003";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -8690,29 +9577,52 @@ public final class SdkMessageOuterClass {
     com.google.protobuf.Timestamp getTimestamp();
 
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.util.List<java.lang.String>
-        getQuickRepliesList();
+    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> 
+        getButtonsList();
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    int getQuickRepliesCount();
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index);
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.lang.String getQuickReplies(int index);
+    int getButtonsCount();
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    boolean hasHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    java.lang.String getHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
      */
     com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index);
+        getHeaderBytes();
+
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    boolean hasFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    java.lang.String getFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    com.google.protobuf.ByteString
+        getFooterBytes();
   }
   /**
    * <pre>
@@ -8727,7 +9637,9 @@ public final class SdkMessageOuterClass {
       // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.ImageMessageRequest)
       ImageMessageRequestOrBuilder {
     private ImageMessageRequest() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
+      buttons_ = emptyProtobufList();
+      header_ = "";
+      footer_ = "";
     }
     private int bitField0_;
     public static final int CONTENT_FIELD_NUMBER = 1;
@@ -8826,99 +9738,213 @@ public final class SdkMessageOuterClass {
       bitField0_ = (bitField0_ & ~0x00000002);
     }
 
-    public static final int QUICK_REPLIES_FIELD_NUMBER = 3;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> quickReplies_;
+    public static final int BUTTONS_FIELD_NUMBER = 3;
+    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> buttons_;
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.util.List<java.lang.String> getQuickRepliesList() {
-      return quickReplies_;
+    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    @java.lang.Override
-    public int getQuickRepliesCount() {
-      return quickReplies_.size();
+    public java.util.List<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder> 
+        getButtonsOrBuilderList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.lang.String getQuickReplies(int index) {
-      return quickReplies_.get(index);
+    public int getButtonsCount() {
+      return buttons_.size();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the value to return.
-     * @return The bytes of the quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index) {
-      return com.google.protobuf.ByteString.copyFromUtf8(
-          quickReplies_.get(index));
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+      return buttons_.get(index);
     }
-    private void ensureQuickRepliesIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<java.lang.String> tmp =
-          quickReplies_;  if (!tmp.isModifiable()) {
-        quickReplies_ =
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder getButtonsOrBuilder(
+        int index) {
+      return buttons_.get(index);
+    }
+    private void ensureButtonsIsMutable() {
+      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> tmp = buttons_;
+      if (!tmp.isModifiable()) {
+        buttons_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
        }
     }
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index to set the value at.
-     * @param value The quickReplies to set.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setQuickReplies(
-        int index, java.lang.String value) {
+    private void setButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.set(index, value);
+      ensureButtonsIsMutable();
+      buttons_.set(index, value);
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The quickReplies to add.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addQuickReplies(
+    private void addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void addAllButtons(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+      ensureButtonsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, buttons_);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void clearButtons() {
+      buttons_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void removeButtons(int index) {
+      ensureButtonsIsMutable();
+      buttons_.remove(index);
+    }
+
+    public static final int HEADER_FIELD_NUMBER = 4;
+    private java.lang.String header_;
+    /**
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    @java.lang.Override
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    @java.lang.Override
+    public java.lang.String getHeader() {
+      return header_;
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getHeaderBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(header_);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @param value The header to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setHeader(
         java.lang.String value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value);
+      bitField0_ |= 0x00000004;
+      header_ = value;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param values The quickReplies to add.
+     * <code>optional string header = 4;</code>
      */
-    private void addAllQuickReplies(
-        java.lang.Iterable<java.lang.String> values) {
-      ensureQuickRepliesIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, quickReplies_);
+    private void clearHeader() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      header_ = getDefaultInstance().getHeader();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
+     * <code>optional string header = 4;</code>
+     * @param value The bytes for header to set.
      */
-    private void clearQuickReplies() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The bytes of the quickReplies to add.
-     */
-    private void addQuickRepliesBytes(
+    private void setHeaderBytes(
         com.google.protobuf.ByteString value) {
       checkByteStringIsUtf8(value);
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value.toStringUtf8());
+      header_ = value.toStringUtf8();
+      bitField0_ |= 0x00000004;
+    }
+
+    public static final int FOOTER_FIELD_NUMBER = 5;
+    private java.lang.String footer_;
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    @java.lang.Override
+    public boolean hasFooter() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    @java.lang.Override
+    public java.lang.String getFooter() {
+      return footer_;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getFooterBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The footer to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setFooter(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000008;
+      footer_ = value;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     */
+    private void clearFooter() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      footer_ = getDefaultInstance().getFooter();
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The bytes for footer to set.
+     */
+    private void setFooterBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      footer_ = value.toStringUtf8();
+      bitField0_ |= 0x00000008;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageRequest parseFrom(
@@ -9117,94 +10143,218 @@ public final class SdkMessageOuterClass {
       }
 
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return A list containing the quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.util.List<java.lang.String>
-          getQuickRepliesList() {
+      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
         return java.util.Collections.unmodifiableList(
-            instance.getQuickRepliesList());
+            instance.getButtonsList());
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return The count of quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public int getQuickRepliesCount() {
-        return instance.getQuickRepliesCount();
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the element to return.
-       * @return The quickReplies at the given index.
+      public int getButtonsCount() {
+        return instance.getButtonsCount();
+      }/**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.lang.String getQuickReplies(int index) {
-        return instance.getQuickReplies(index);
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+        return instance.getButtons(index);
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the value to return.
-       * @return The bytes of the quickReplies at the given index.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.setButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.setButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addAllButtons(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+        copyOnWrite();
+        instance.addAllButtons(values);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder clearButtons() {
+        copyOnWrite();
+        instance.clearButtons();
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder removeButtons(int index) {
+        copyOnWrite();
+        instance.removeButtons(index);
+        return this;
+      }
+
+      /**
+       * <code>optional string header = 4;</code>
+       * @return Whether the header field is set.
+       */
+      @java.lang.Override
+      public boolean hasHeader() {
+        return instance.hasHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The header.
+       */
+      @java.lang.Override
+      public java.lang.String getHeader() {
+        return instance.getHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The bytes for header.
        */
       @java.lang.Override
       public com.google.protobuf.ByteString
-          getQuickRepliesBytes(int index) {
-        return instance.getQuickRepliesBytes(index);
+          getHeaderBytes() {
+        return instance.getHeaderBytes();
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index to set the value at.
-       * @param value The quickReplies to set.
+       * <code>optional string header = 4;</code>
+       * @param value The header to set.
        * @return This builder for chaining.
        */
-      public Builder setQuickReplies(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setQuickReplies(index, value);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickReplies(
+      public Builder setHeader(
           java.lang.String value) {
         copyOnWrite();
-        instance.addQuickReplies(value);
+        instance.setHeader(value);
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param values The quickReplies to add.
+       * <code>optional string header = 4;</code>
        * @return This builder for chaining.
        */
-      public Builder addAllQuickReplies(
-          java.lang.Iterable<java.lang.String> values) {
+      public Builder clearHeader() {
         copyOnWrite();
-        instance.addAllQuickReplies(values);
+        instance.clearHeader();
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
+       * <code>optional string header = 4;</code>
+       * @param value The bytes for header to set.
        * @return This builder for chaining.
        */
-      public Builder clearQuickReplies() {
-        copyOnWrite();
-        instance.clearQuickReplies();
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The bytes of the quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickRepliesBytes(
+      public Builder setHeaderBytes(
           com.google.protobuf.ByteString value) {
         copyOnWrite();
-        instance.addQuickRepliesBytes(value);
+        instance.setHeaderBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return Whether the footer field is set.
+       */
+      @java.lang.Override
+      public boolean hasFooter() {
+        return instance.hasFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The footer.
+       */
+      @java.lang.Override
+      public java.lang.String getFooter() {
+        return instance.getFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The bytes for footer.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getFooterBytes() {
+        return instance.getFooterBytes();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooter(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setFooter(value);
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFooter() {
+        copyOnWrite();
+        instance.clearFooter();
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The bytes for footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooterBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setFooterBytes(value);
         return this;
       }
 
@@ -9227,11 +10377,14 @@ public final class SdkMessageOuterClass {
               "bitField0_",
               "content_",
               "timestamp_",
-              "quickReplies_",
+              "buttons_",
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.class,
+              "header_",
+              "footer_",
             };
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001\u0003\u021a";
+                "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
+                "\u1009\u0001\u0003\u001b\u0004\u1208\u0002\u0005\u1208\u0003";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -10345,29 +11498,52 @@ public final class SdkMessageOuterClass {
     com.google.protobuf.Timestamp getTimestamp();
 
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.util.List<java.lang.String>
-        getQuickRepliesList();
+    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> 
+        getButtonsList();
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    int getQuickRepliesCount();
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index);
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.lang.String getQuickReplies(int index);
+    int getButtonsCount();
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    boolean hasHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    java.lang.String getHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
      */
     com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index);
+        getHeaderBytes();
+
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    boolean hasFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    java.lang.String getFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    com.google.protobuf.ByteString
+        getFooterBytes();
   }
   /**
    * <pre>
@@ -10382,7 +11558,9 @@ public final class SdkMessageOuterClass {
       // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.AttachmentMessageRequest)
       AttachmentMessageRequestOrBuilder {
     private AttachmentMessageRequest() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
+      buttons_ = emptyProtobufList();
+      header_ = "";
+      footer_ = "";
     }
     private int bitField0_;
     public static final int CONTENT_FIELD_NUMBER = 1;
@@ -10481,99 +11659,213 @@ public final class SdkMessageOuterClass {
       bitField0_ = (bitField0_ & ~0x00000002);
     }
 
-    public static final int QUICK_REPLIES_FIELD_NUMBER = 3;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> quickReplies_;
+    public static final int BUTTONS_FIELD_NUMBER = 3;
+    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> buttons_;
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.util.List<java.lang.String> getQuickRepliesList() {
-      return quickReplies_;
+    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    @java.lang.Override
-    public int getQuickRepliesCount() {
-      return quickReplies_.size();
+    public java.util.List<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder> 
+        getButtonsOrBuilderList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.lang.String getQuickReplies(int index) {
-      return quickReplies_.get(index);
+    public int getButtonsCount() {
+      return buttons_.size();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the value to return.
-     * @return The bytes of the quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index) {
-      return com.google.protobuf.ByteString.copyFromUtf8(
-          quickReplies_.get(index));
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+      return buttons_.get(index);
     }
-    private void ensureQuickRepliesIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<java.lang.String> tmp =
-          quickReplies_;  if (!tmp.isModifiable()) {
-        quickReplies_ =
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder getButtonsOrBuilder(
+        int index) {
+      return buttons_.get(index);
+    }
+    private void ensureButtonsIsMutable() {
+      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> tmp = buttons_;
+      if (!tmp.isModifiable()) {
+        buttons_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
        }
     }
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index to set the value at.
-     * @param value The quickReplies to set.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setQuickReplies(
-        int index, java.lang.String value) {
+    private void setButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.set(index, value);
+      ensureButtonsIsMutable();
+      buttons_.set(index, value);
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The quickReplies to add.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addQuickReplies(
+    private void addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void addAllButtons(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+      ensureButtonsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, buttons_);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void clearButtons() {
+      buttons_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void removeButtons(int index) {
+      ensureButtonsIsMutable();
+      buttons_.remove(index);
+    }
+
+    public static final int HEADER_FIELD_NUMBER = 4;
+    private java.lang.String header_;
+    /**
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    @java.lang.Override
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    @java.lang.Override
+    public java.lang.String getHeader() {
+      return header_;
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getHeaderBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(header_);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @param value The header to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setHeader(
         java.lang.String value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value);
+      bitField0_ |= 0x00000004;
+      header_ = value;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param values The quickReplies to add.
+     * <code>optional string header = 4;</code>
      */
-    private void addAllQuickReplies(
-        java.lang.Iterable<java.lang.String> values) {
-      ensureQuickRepliesIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, quickReplies_);
+    private void clearHeader() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      header_ = getDefaultInstance().getHeader();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
+     * <code>optional string header = 4;</code>
+     * @param value The bytes for header to set.
      */
-    private void clearQuickReplies() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The bytes of the quickReplies to add.
-     */
-    private void addQuickRepliesBytes(
+    private void setHeaderBytes(
         com.google.protobuf.ByteString value) {
       checkByteStringIsUtf8(value);
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value.toStringUtf8());
+      header_ = value.toStringUtf8();
+      bitField0_ |= 0x00000004;
+    }
+
+    public static final int FOOTER_FIELD_NUMBER = 5;
+    private java.lang.String footer_;
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    @java.lang.Override
+    public boolean hasFooter() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    @java.lang.Override
+    public java.lang.String getFooter() {
+      return footer_;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getFooterBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The footer to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setFooter(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000008;
+      footer_ = value;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     */
+    private void clearFooter() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      footer_ = getDefaultInstance().getFooter();
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The bytes for footer to set.
+     */
+    private void setFooterBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      footer_ = value.toStringUtf8();
+      bitField0_ |= 0x00000008;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.AttachmentMessageRequest parseFrom(
@@ -10772,94 +12064,218 @@ public final class SdkMessageOuterClass {
       }
 
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return A list containing the quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.util.List<java.lang.String>
-          getQuickRepliesList() {
+      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
         return java.util.Collections.unmodifiableList(
-            instance.getQuickRepliesList());
+            instance.getButtonsList());
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return The count of quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public int getQuickRepliesCount() {
-        return instance.getQuickRepliesCount();
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the element to return.
-       * @return The quickReplies at the given index.
+      public int getButtonsCount() {
+        return instance.getButtonsCount();
+      }/**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.lang.String getQuickReplies(int index) {
-        return instance.getQuickReplies(index);
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+        return instance.getButtons(index);
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the value to return.
-       * @return The bytes of the quickReplies at the given index.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.setButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.setButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addAllButtons(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+        copyOnWrite();
+        instance.addAllButtons(values);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder clearButtons() {
+        copyOnWrite();
+        instance.clearButtons();
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder removeButtons(int index) {
+        copyOnWrite();
+        instance.removeButtons(index);
+        return this;
+      }
+
+      /**
+       * <code>optional string header = 4;</code>
+       * @return Whether the header field is set.
+       */
+      @java.lang.Override
+      public boolean hasHeader() {
+        return instance.hasHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The header.
+       */
+      @java.lang.Override
+      public java.lang.String getHeader() {
+        return instance.getHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The bytes for header.
        */
       @java.lang.Override
       public com.google.protobuf.ByteString
-          getQuickRepliesBytes(int index) {
-        return instance.getQuickRepliesBytes(index);
+          getHeaderBytes() {
+        return instance.getHeaderBytes();
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index to set the value at.
-       * @param value The quickReplies to set.
+       * <code>optional string header = 4;</code>
+       * @param value The header to set.
        * @return This builder for chaining.
        */
-      public Builder setQuickReplies(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setQuickReplies(index, value);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickReplies(
+      public Builder setHeader(
           java.lang.String value) {
         copyOnWrite();
-        instance.addQuickReplies(value);
+        instance.setHeader(value);
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param values The quickReplies to add.
+       * <code>optional string header = 4;</code>
        * @return This builder for chaining.
        */
-      public Builder addAllQuickReplies(
-          java.lang.Iterable<java.lang.String> values) {
+      public Builder clearHeader() {
         copyOnWrite();
-        instance.addAllQuickReplies(values);
+        instance.clearHeader();
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
+       * <code>optional string header = 4;</code>
+       * @param value The bytes for header to set.
        * @return This builder for chaining.
        */
-      public Builder clearQuickReplies() {
-        copyOnWrite();
-        instance.clearQuickReplies();
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The bytes of the quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickRepliesBytes(
+      public Builder setHeaderBytes(
           com.google.protobuf.ByteString value) {
         copyOnWrite();
-        instance.addQuickRepliesBytes(value);
+        instance.setHeaderBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return Whether the footer field is set.
+       */
+      @java.lang.Override
+      public boolean hasFooter() {
+        return instance.hasFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The footer.
+       */
+      @java.lang.Override
+      public java.lang.String getFooter() {
+        return instance.getFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The bytes for footer.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getFooterBytes() {
+        return instance.getFooterBytes();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooter(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setFooter(value);
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFooter() {
+        copyOnWrite();
+        instance.clearFooter();
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The bytes for footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooterBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setFooterBytes(value);
         return this;
       }
 
@@ -10882,11 +12298,14 @@ public final class SdkMessageOuterClass {
               "bitField0_",
               "content_",
               "timestamp_",
-              "quickReplies_",
+              "buttons_",
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.class,
+              "header_",
+              "footer_",
             };
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001\u0003\u021a";
+                "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
+                "\u1009\u0001\u0003\u001b\u0004\u1208\u0002\u0005\u1208\u0003";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -12061,29 +13480,52 @@ public final class SdkMessageOuterClass {
     com.google.protobuf.Timestamp getTimestamp();
 
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.util.List<java.lang.String>
-        getQuickRepliesList();
+    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> 
+        getButtonsList();
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    int getQuickRepliesCount();
+    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index);
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    java.lang.String getQuickReplies(int index);
+    int getButtonsCount();
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    boolean hasHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    java.lang.String getHeader();
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
      */
     com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index);
+        getHeaderBytes();
+
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    boolean hasFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    java.lang.String getFooter();
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    com.google.protobuf.ByteString
+        getFooterBytes();
   }
   /**
    * <pre>
@@ -12098,7 +13540,9 @@ public final class SdkMessageOuterClass {
       // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.VideoMessageRequest)
       VideoMessageRequestOrBuilder {
     private VideoMessageRequest() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
+      buttons_ = emptyProtobufList();
+      header_ = "";
+      footer_ = "";
     }
     private int bitField0_;
     public static final int CONTENT_FIELD_NUMBER = 1;
@@ -12197,99 +13641,213 @@ public final class SdkMessageOuterClass {
       bitField0_ = (bitField0_ & ~0x00000002);
     }
 
-    public static final int QUICK_REPLIES_FIELD_NUMBER = 3;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> quickReplies_;
+    public static final int BUTTONS_FIELD_NUMBER = 3;
+    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> buttons_;
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return A list containing the quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.util.List<java.lang.String> getQuickRepliesList() {
-      return quickReplies_;
+    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @return The count of quickReplies.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
-    @java.lang.Override
-    public int getQuickRepliesCount() {
-      return quickReplies_.size();
+    public java.util.List<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder> 
+        getButtonsOrBuilderList() {
+      return buttons_;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public java.lang.String getQuickReplies(int index) {
-      return quickReplies_.get(index);
+    public int getButtonsCount() {
+      return buttons_.size();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index of the value to return.
-     * @return The bytes of the quickReplies at the given index.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index) {
-      return com.google.protobuf.ByteString.copyFromUtf8(
-          quickReplies_.get(index));
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+      return buttons_.get(index);
     }
-    private void ensureQuickRepliesIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<java.lang.String> tmp =
-          quickReplies_;  if (!tmp.isModifiable()) {
-        quickReplies_ =
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonOrBuilder getButtonsOrBuilder(
+        int index) {
+      return buttons_.get(index);
+    }
+    private void ensureButtonsIsMutable() {
+      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> tmp = buttons_;
+      if (!tmp.isModifiable()) {
+        buttons_ =
             com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
        }
     }
+
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param index The index to set the value at.
-     * @param value The quickReplies to set.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setQuickReplies(
-        int index, java.lang.String value) {
+    private void setButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.set(index, value);
+      ensureButtonsIsMutable();
+      buttons_.set(index, value);
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The quickReplies to add.
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
      */
     @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addQuickReplies(
+    private void addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addButtons(
+        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      ensureButtonsIsMutable();
+      buttons_.add(index, value);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void addAllButtons(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+      ensureButtonsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, buttons_);
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void clearButtons() {
+      buttons_ = emptyProtobufList();
+    }
+    /**
+     * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+     */
+    private void removeButtons(int index) {
+      ensureButtonsIsMutable();
+      buttons_.remove(index);
+    }
+
+    public static final int HEADER_FIELD_NUMBER = 4;
+    private java.lang.String header_;
+    /**
+     * <code>optional string header = 4;</code>
+     * @return Whether the header field is set.
+     */
+    @java.lang.Override
+    public boolean hasHeader() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The header.
+     */
+    @java.lang.Override
+    public java.lang.String getHeader() {
+      return header_;
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @return The bytes for header.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getHeaderBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(header_);
+    }
+    /**
+     * <code>optional string header = 4;</code>
+     * @param value The header to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setHeader(
         java.lang.String value) {
       value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value);
+      bitField0_ |= 0x00000004;
+      header_ = value;
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param values The quickReplies to add.
+     * <code>optional string header = 4;</code>
      */
-    private void addAllQuickReplies(
-        java.lang.Iterable<java.lang.String> values) {
-      ensureQuickRepliesIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, quickReplies_);
+    private void clearHeader() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      header_ = getDefaultInstance().getHeader();
     }
     /**
-     * <code>repeated string quick_replies = 3;</code>
+     * <code>optional string header = 4;</code>
+     * @param value The bytes for header to set.
      */
-    private void clearQuickReplies() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    /**
-     * <code>repeated string quick_replies = 3;</code>
-     * @param value The bytes of the quickReplies to add.
-     */
-    private void addQuickRepliesBytes(
+    private void setHeaderBytes(
         com.google.protobuf.ByteString value) {
       checkByteStringIsUtf8(value);
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value.toStringUtf8());
+      header_ = value.toStringUtf8();
+      bitField0_ |= 0x00000004;
+    }
+
+    public static final int FOOTER_FIELD_NUMBER = 5;
+    private java.lang.String footer_;
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return Whether the footer field is set.
+     */
+    @java.lang.Override
+    public boolean hasFooter() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The footer.
+     */
+    @java.lang.Override
+    public java.lang.String getFooter() {
+      return footer_;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @return The bytes for footer.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getFooterBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The footer to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setFooter(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000008;
+      footer_ = value;
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     */
+    private void clearFooter() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      footer_ = getDefaultInstance().getFooter();
+    }
+    /**
+     * <code>optional string footer = 5;</code>
+     * @param value The bytes for footer to set.
+     */
+    private void setFooterBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      footer_ = value.toStringUtf8();
+      bitField0_ |= 0x00000008;
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.VideoMessageRequest parseFrom(
@@ -12488,94 +14046,218 @@ public final class SdkMessageOuterClass {
       }
 
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return A list containing the quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.util.List<java.lang.String>
-          getQuickRepliesList() {
+      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> getButtonsList() {
         return java.util.Collections.unmodifiableList(
-            instance.getQuickRepliesList());
+            instance.getButtonsList());
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @return The count of quickReplies.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public int getQuickRepliesCount() {
-        return instance.getQuickRepliesCount();
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the element to return.
-       * @return The quickReplies at the given index.
+      public int getButtonsCount() {
+        return instance.getButtonsCount();
+      }/**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
        */
       @java.lang.Override
-      public java.lang.String getQuickReplies(int index) {
-        return instance.getQuickReplies(index);
+      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button getButtons(int index) {
+        return instance.getButtons(index);
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index of the value to return.
-       * @return The bytes of the quickReplies at the given index.
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.setButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder setButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.setButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.addButtons(index, value);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addButtons(
+          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.addButtons(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder addAllButtons(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button> values) {
+        copyOnWrite();
+        instance.addAllButtons(values);
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder clearButtons() {
+        copyOnWrite();
+        instance.clearButtons();
+        return this;
+      }
+      /**
+       * <code>repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;</code>
+       */
+      public Builder removeButtons(int index) {
+        copyOnWrite();
+        instance.removeButtons(index);
+        return this;
+      }
+
+      /**
+       * <code>optional string header = 4;</code>
+       * @return Whether the header field is set.
+       */
+      @java.lang.Override
+      public boolean hasHeader() {
+        return instance.hasHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The header.
+       */
+      @java.lang.Override
+      public java.lang.String getHeader() {
+        return instance.getHeader();
+      }
+      /**
+       * <code>optional string header = 4;</code>
+       * @return The bytes for header.
        */
       @java.lang.Override
       public com.google.protobuf.ByteString
-          getQuickRepliesBytes(int index) {
-        return instance.getQuickRepliesBytes(index);
+          getHeaderBytes() {
+        return instance.getHeaderBytes();
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param index The index to set the value at.
-       * @param value The quickReplies to set.
+       * <code>optional string header = 4;</code>
+       * @param value The header to set.
        * @return This builder for chaining.
        */
-      public Builder setQuickReplies(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setQuickReplies(index, value);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickReplies(
+      public Builder setHeader(
           java.lang.String value) {
         copyOnWrite();
-        instance.addQuickReplies(value);
+        instance.setHeader(value);
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param values The quickReplies to add.
+       * <code>optional string header = 4;</code>
        * @return This builder for chaining.
        */
-      public Builder addAllQuickReplies(
-          java.lang.Iterable<java.lang.String> values) {
+      public Builder clearHeader() {
         copyOnWrite();
-        instance.addAllQuickReplies(values);
+        instance.clearHeader();
         return this;
       }
       /**
-       * <code>repeated string quick_replies = 3;</code>
+       * <code>optional string header = 4;</code>
+       * @param value The bytes for header to set.
        * @return This builder for chaining.
        */
-      public Builder clearQuickReplies() {
-        copyOnWrite();
-        instance.clearQuickReplies();
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 3;</code>
-       * @param value The bytes of the quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickRepliesBytes(
+      public Builder setHeaderBytes(
           com.google.protobuf.ByteString value) {
         copyOnWrite();
-        instance.addQuickRepliesBytes(value);
+        instance.setHeaderBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return Whether the footer field is set.
+       */
+      @java.lang.Override
+      public boolean hasFooter() {
+        return instance.hasFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The footer.
+       */
+      @java.lang.Override
+      public java.lang.String getFooter() {
+        return instance.getFooter();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return The bytes for footer.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getFooterBytes() {
+        return instance.getFooterBytes();
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooter(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setFooter(value);
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFooter() {
+        copyOnWrite();
+        instance.clearFooter();
+        return this;
+      }
+      /**
+       * <code>optional string footer = 5;</code>
+       * @param value The bytes for footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooterBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setFooterBytes(value);
         return this;
       }
 
@@ -12598,11 +14280,14 @@ public final class SdkMessageOuterClass {
               "bitField0_",
               "content_",
               "timestamp_",
-              "quickReplies_",
+              "buttons_",
+              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button.class,
+              "header_",
+              "footer_",
             };
             java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001\u0003\u021a";
+                "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0001\u0000\u0001\u1009\u0000\u0002" +
+                "\u1009\u0001\u0003\u001b\u0004\u1208\u0002\u0005\u1208\u0003";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -12694,31 +14379,6 @@ public final class SdkMessageOuterClass {
      * @return The timestamp.
      */
     com.google.protobuf.Timestamp getTimestamp();
-
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @return A list containing the quickReplies.
-     */
-    java.util.List<java.lang.String>
-        getQuickRepliesList();
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @return The count of quickReplies.
-     */
-    int getQuickRepliesCount();
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
-     */
-    java.lang.String getQuickReplies(int index);
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
-     */
-    com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index);
   }
   /**
    * <pre>
@@ -12734,7 +14394,6 @@ public final class SdkMessageOuterClass {
       MessageReceiptRequestOrBuilder {
     private MessageReceiptRequest() {
       messageId_ = "";
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
     }
     private int bitField0_;
     public static final int STATUS_FIELD_NUMBER = 1;
@@ -12874,101 +14533,6 @@ public final class SdkMessageOuterClass {
     private void clearTimestamp() {
       timestamp_ = null;
       bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static final int QUICK_REPLIES_FIELD_NUMBER = 4;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> quickReplies_;
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @return A list containing the quickReplies.
-     */
-    @java.lang.Override
-    public java.util.List<java.lang.String> getQuickRepliesList() {
-      return quickReplies_;
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @return The count of quickReplies.
-     */
-    @java.lang.Override
-    public int getQuickRepliesCount() {
-      return quickReplies_.size();
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param index The index of the element to return.
-     * @return The quickReplies at the given index.
-     */
-    @java.lang.Override
-    public java.lang.String getQuickReplies(int index) {
-      return quickReplies_.get(index);
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param index The index of the value to return.
-     * @return The bytes of the quickReplies at the given index.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getQuickRepliesBytes(int index) {
-      return com.google.protobuf.ByteString.copyFromUtf8(
-          quickReplies_.get(index));
-    }
-    private void ensureQuickRepliesIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<java.lang.String> tmp =
-          quickReplies_;  if (!tmp.isModifiable()) {
-        quickReplies_ =
-            com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
-       }
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param index The index to set the value at.
-     * @param value The quickReplies to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setQuickReplies(
-        int index, java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.set(index, value);
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param value The quickReplies to add.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addQuickReplies(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value);
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param values The quickReplies to add.
-     */
-    private void addAllQuickReplies(
-        java.lang.Iterable<java.lang.String> values) {
-      ensureQuickRepliesIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, quickReplies_);
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     */
-    private void clearQuickReplies() {
-      quickReplies_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    /**
-     * <code>repeated string quick_replies = 4;</code>
-     * @param value The bytes of the quickReplies to add.
-     */
-    private void addQuickRepliesBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      ensureQuickRepliesIsMutable();
-      quickReplies_.add(value.toStringUtf8());
     }
 
     public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.MessageReceiptRequest parseFrom(
@@ -13215,98 +14779,6 @@ public final class SdkMessageOuterClass {
         return this;
       }
 
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @return A list containing the quickReplies.
-       */
-      @java.lang.Override
-      public java.util.List<java.lang.String>
-          getQuickRepliesList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getQuickRepliesList());
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @return The count of quickReplies.
-       */
-      @java.lang.Override
-      public int getQuickRepliesCount() {
-        return instance.getQuickRepliesCount();
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @param index The index of the element to return.
-       * @return The quickReplies at the given index.
-       */
-      @java.lang.Override
-      public java.lang.String getQuickReplies(int index) {
-        return instance.getQuickReplies(index);
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @param index The index of the value to return.
-       * @return The bytes of the quickReplies at the given index.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getQuickRepliesBytes(int index) {
-        return instance.getQuickRepliesBytes(index);
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @param index The index to set the value at.
-       * @param value The quickReplies to set.
-       * @return This builder for chaining.
-       */
-      public Builder setQuickReplies(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setQuickReplies(index, value);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @param value The quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickReplies(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.addQuickReplies(value);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @param values The quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addAllQuickReplies(
-          java.lang.Iterable<java.lang.String> values) {
-        copyOnWrite();
-        instance.addAllQuickReplies(values);
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearQuickReplies() {
-        copyOnWrite();
-        instance.clearQuickReplies();
-        return this;
-      }
-      /**
-       * <code>repeated string quick_replies = 4;</code>
-       * @param value The bytes of the quickReplies to add.
-       * @return This builder for chaining.
-       */
-      public Builder addQuickRepliesBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.addQuickRepliesBytes(value);
-        return this;
-      }
-
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.MessageReceiptRequest)
     }
     @java.lang.Override
@@ -13327,11 +14799,10 @@ public final class SdkMessageOuterClass {
               "status_",
               "messageId_",
               "timestamp_",
-              "quickReplies_",
             };
             java.lang.String info =
-                "\u0000\u0004\u0000\u0001\u0001\u0004\u0004\u0000\u0001\u0000\u0001\f\u0002\u0208" +
-                "\u0003\u1009\u0000\u0004\u021a";
+                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\f\u0002\u0208" +
+                "\u0003\u1009\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -24505,3943 +25976,6 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<CustomCommandResponse> PARSER;
 
     public static com.google.protobuf.Parser<CustomCommandResponse> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface ButtonsMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.ButtonsMessage)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>string header = 1;</code>
-     * @return The header.
-     */
-    java.lang.String getHeader();
-    /**
-     * <code>string header = 1;</code>
-     * @return The bytes for header.
-     */
-    com.google.protobuf.ByteString
-        getHeaderBytes();
-
-    /**
-     * <code>string body = 2;</code>
-     * @return The body.
-     */
-    java.lang.String getBody();
-    /**
-     * <code>string body = 2;</code>
-     * @return The bytes for body.
-     */
-    com.google.protobuf.ByteString
-        getBodyBytes();
-
-    /**
-     * <code>string footer = 3;</code>
-     * @return The footer.
-     */
-    java.lang.String getFooter();
-    /**
-     * <code>string footer = 3;</code>
-     * @return The bytes for footer.
-     */
-    com.google.protobuf.ByteString
-        getFooterBytes();
-
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @return A list containing the buttons.
-     */
-    java.util.List<java.lang.String>
-        getButtonsList();
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @return The count of buttons.
-     */
-    int getButtonsCount();
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param index The index of the element to return.
-     * @return The buttons at the given index.
-     */
-    java.lang.String getButtons(int index);
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param index The index of the element to return.
-     * @return The buttons at the given index.
-     */
-    com.google.protobuf.ByteString
-        getButtonsBytes(int index);
-  }
-  /**
-   * <pre>
-   * ButtonsMessage holds the content of a buttons message.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.ButtonsMessage}
-   */
-  public  static final class ButtonsMessage extends
-      com.google.protobuf.GeneratedMessageLite<
-          ButtonsMessage, ButtonsMessage.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.ButtonsMessage)
-      ButtonsMessageOrBuilder {
-    private ButtonsMessage() {
-      header_ = "";
-      body_ = "";
-      footer_ = "";
-      buttons_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    public static final int HEADER_FIELD_NUMBER = 1;
-    private java.lang.String header_;
-    /**
-     * <code>string header = 1;</code>
-     * @return The header.
-     */
-    @java.lang.Override
-    public java.lang.String getHeader() {
-      return header_;
-    }
-    /**
-     * <code>string header = 1;</code>
-     * @return The bytes for header.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getHeaderBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(header_);
-    }
-    /**
-     * <code>string header = 1;</code>
-     * @param value The header to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setHeader(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      header_ = value;
-    }
-    /**
-     * <code>string header = 1;</code>
-     */
-    private void clearHeader() {
-
-      header_ = getDefaultInstance().getHeader();
-    }
-    /**
-     * <code>string header = 1;</code>
-     * @param value The bytes for header to set.
-     */
-    private void setHeaderBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      header_ = value.toStringUtf8();
-
-    }
-
-    public static final int BODY_FIELD_NUMBER = 2;
-    private java.lang.String body_;
-    /**
-     * <code>string body = 2;</code>
-     * @return The body.
-     */
-    @java.lang.Override
-    public java.lang.String getBody() {
-      return body_;
-    }
-    /**
-     * <code>string body = 2;</code>
-     * @return The bytes for body.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getBodyBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(body_);
-    }
-    /**
-     * <code>string body = 2;</code>
-     * @param value The body to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setBody(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      body_ = value;
-    }
-    /**
-     * <code>string body = 2;</code>
-     */
-    private void clearBody() {
-
-      body_ = getDefaultInstance().getBody();
-    }
-    /**
-     * <code>string body = 2;</code>
-     * @param value The bytes for body to set.
-     */
-    private void setBodyBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      body_ = value.toStringUtf8();
-
-    }
-
-    public static final int FOOTER_FIELD_NUMBER = 3;
-    private java.lang.String footer_;
-    /**
-     * <code>string footer = 3;</code>
-     * @return The footer.
-     */
-    @java.lang.Override
-    public java.lang.String getFooter() {
-      return footer_;
-    }
-    /**
-     * <code>string footer = 3;</code>
-     * @return The bytes for footer.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getFooterBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
-    }
-    /**
-     * <code>string footer = 3;</code>
-     * @param value The footer to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setFooter(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      footer_ = value;
-    }
-    /**
-     * <code>string footer = 3;</code>
-     */
-    private void clearFooter() {
-
-      footer_ = getDefaultInstance().getFooter();
-    }
-    /**
-     * <code>string footer = 3;</code>
-     * @param value The bytes for footer to set.
-     */
-    private void setFooterBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      footer_ = value.toStringUtf8();
-
-    }
-
-    public static final int BUTTONS_FIELD_NUMBER = 4;
-    private com.google.protobuf.Internal.ProtobufList<java.lang.String> buttons_;
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @return A list containing the buttons.
-     */
-    @java.lang.Override
-    public java.util.List<java.lang.String> getButtonsList() {
-      return buttons_;
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @return The count of buttons.
-     */
-    @java.lang.Override
-    public int getButtonsCount() {
-      return buttons_.size();
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param index The index of the element to return.
-     * @return The buttons at the given index.
-     */
-    @java.lang.Override
-    public java.lang.String getButtons(int index) {
-      return buttons_.get(index);
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param index The index of the value to return.
-     * @return The bytes of the buttons at the given index.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getButtonsBytes(int index) {
-      return com.google.protobuf.ByteString.copyFromUtf8(
-          buttons_.get(index));
-    }
-    private void ensureButtonsIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<java.lang.String> tmp =
-          buttons_;  if (!tmp.isModifiable()) {
-        buttons_ =
-            com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
-       }
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param index The index to set the value at.
-     * @param value The buttons to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setButtons(
-        int index, java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-      ensureButtonsIsMutable();
-      buttons_.set(index, value);
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param value The buttons to add.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addButtons(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-      ensureButtonsIsMutable();
-      buttons_.add(value);
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param values The buttons to add.
-     */
-    private void addAllButtons(
-        java.lang.Iterable<java.lang.String> values) {
-      ensureButtonsIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, buttons_);
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     */
-    private void clearButtons() {
-      buttons_ = com.google.protobuf.GeneratedMessageLite.emptyProtobufList();
-    }
-    /**
-     * <pre>
-     * At least one button text must be provided.
-     * </pre>
-     *
-     * <code>repeated string buttons = 4;</code>
-     * @param value The bytes of the buttons to add.
-     */
-    private void addButtonsBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      ensureButtonsIsMutable();
-      buttons_.add(value.toStringUtf8());
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * ButtonsMessage holds the content of a buttons message.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.ButtonsMessage}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.ButtonsMessage)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>string header = 1;</code>
-       * @return The header.
-       */
-      @java.lang.Override
-      public java.lang.String getHeader() {
-        return instance.getHeader();
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @return The bytes for header.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getHeaderBytes() {
-        return instance.getHeaderBytes();
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @param value The header to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHeader(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setHeader(value);
-        return this;
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearHeader() {
-        copyOnWrite();
-        instance.clearHeader();
-        return this;
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @param value The bytes for header to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHeaderBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setHeaderBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string body = 2;</code>
-       * @return The body.
-       */
-      @java.lang.Override
-      public java.lang.String getBody() {
-        return instance.getBody();
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @return The bytes for body.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getBodyBytes() {
-        return instance.getBodyBytes();
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @param value The body to set.
-       * @return This builder for chaining.
-       */
-      public Builder setBody(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setBody(value);
-        return this;
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearBody() {
-        copyOnWrite();
-        instance.clearBody();
-        return this;
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @param value The bytes for body to set.
-       * @return This builder for chaining.
-       */
-      public Builder setBodyBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setBodyBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string footer = 3;</code>
-       * @return The footer.
-       */
-      @java.lang.Override
-      public java.lang.String getFooter() {
-        return instance.getFooter();
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @return The bytes for footer.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getFooterBytes() {
-        return instance.getFooterBytes();
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @param value The footer to set.
-       * @return This builder for chaining.
-       */
-      public Builder setFooter(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setFooter(value);
-        return this;
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearFooter() {
-        copyOnWrite();
-        instance.clearFooter();
-        return this;
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @param value The bytes for footer to set.
-       * @return This builder for chaining.
-       */
-      public Builder setFooterBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setFooterBytes(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @return A list containing the buttons.
-       */
-      @java.lang.Override
-      public java.util.List<java.lang.String>
-          getButtonsList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getButtonsList());
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @return The count of buttons.
-       */
-      @java.lang.Override
-      public int getButtonsCount() {
-        return instance.getButtonsCount();
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @param index The index of the element to return.
-       * @return The buttons at the given index.
-       */
-      @java.lang.Override
-      public java.lang.String getButtons(int index) {
-        return instance.getButtons(index);
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @param index The index of the value to return.
-       * @return The bytes of the buttons at the given index.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getButtonsBytes(int index) {
-        return instance.getButtonsBytes(index);
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @param index The index to set the value at.
-       * @param value The buttons to set.
-       * @return This builder for chaining.
-       */
-      public Builder setButtons(
-          int index, java.lang.String value) {
-        copyOnWrite();
-        instance.setButtons(index, value);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @param value The buttons to add.
-       * @return This builder for chaining.
-       */
-      public Builder addButtons(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.addButtons(value);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @param values The buttons to add.
-       * @return This builder for chaining.
-       */
-      public Builder addAllButtons(
-          java.lang.Iterable<java.lang.String> values) {
-        copyOnWrite();
-        instance.addAllButtons(values);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearButtons() {
-        copyOnWrite();
-        instance.clearButtons();
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one button text must be provided.
-       * </pre>
-       *
-       * <code>repeated string buttons = 4;</code>
-       * @param value The bytes of the buttons to add.
-       * @return This builder for chaining.
-       */
-      public Builder addButtonsBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.addButtonsBytes(value);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.ButtonsMessage)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "header_",
-              "body_",
-              "footer_",
-              "buttons_",
-            };
-            java.lang.String info =
-                "\u0000\u0004\u0000\u0000\u0001\u0004\u0004\u0000\u0001\u0000\u0001\u0208\u0002\u0208" +
-                "\u0003\u0208\u0004\u021a";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.ButtonsMessage)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage DEFAULT_INSTANCE;
-    static {
-      ButtonsMessage defaultInstance = new ButtonsMessage();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        ButtonsMessage.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<ButtonsMessage> PARSER;
-
-    public static com.google.protobuf.Parser<ButtonsMessage> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface ButtonsMessageRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     * @return Whether the content field is set.
-     */
-    boolean hasContent();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     * @return The content.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage getContent();
-
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return Whether the timestamp field is set.
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return The timestamp.
-     */
-    com.google.protobuf.Timestamp getTimestamp();
-  }
-  /**
-   * <pre>
-   * ButtonsMessageRequest delivers a set of text option buttons to the client UI.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest}
-   */
-  public  static final class ButtonsMessageRequest extends
-      com.google.protobuf.GeneratedMessageLite<
-          ButtonsMessageRequest, ButtonsMessageRequest.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest)
-      ButtonsMessageRequestOrBuilder {
-    private ButtonsMessageRequest() {
-    }
-    private int bitField0_;
-    public static final int CONTENT_FIELD_NUMBER = 1;
-    private yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage content_;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     */
-    @java.lang.Override
-    public boolean hasContent() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage getContent() {
-      return content_ == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage.getDefaultInstance() : content_;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage value) {
-      value.getClass();  // minimal bytecode null check
-      content_ = value;
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage value) {
-      value.getClass();  // minimal bytecode null check
-      if (content_ != null &&
-          content_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage.getDefaultInstance()) {
-        content_ =
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage.newBuilder(content_).mergeFrom(value).buildPartial();
-      } else {
-        content_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-     */
-    private void clearContent() {
-      content_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static final int TIMESTAMP_FIELD_NUMBER = 2;
-    private com.google.protobuf.Timestamp timestamp_;
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000002) != 0);
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public com.google.protobuf.Timestamp getTimestamp() {
-      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      timestamp_ = value;
-      bitField0_ |= 0x00000002;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      if (timestamp_ != null &&
-          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
-        timestamp_ =
-          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
-      } else {
-        timestamp_ = value;
-      }
-      bitField0_ |= 0x00000002;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    private void clearTimestamp() {
-      timestamp_ = null;
-      bitField0_ = (bitField0_ & ~0x00000002);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * ButtonsMessageRequest delivers a set of text option buttons to the client UI.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequestOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-       */
-      @java.lang.Override
-      public boolean hasContent() {
-        return instance.hasContent();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage getContent() {
-        return instance.getContent();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-       */
-      public Builder setContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage value) {
-        copyOnWrite();
-        instance.setContent(value);
-        return this;
-        }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-       */
-      public Builder setContent(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage.Builder builderForValue) {
-        copyOnWrite();
-        instance.setContent(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-       */
-      public Builder mergeContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessage value) {
-        copyOnWrite();
-        instance.mergeContent(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ButtonsMessage content = 1;</code>
-       */
-      public Builder clearContent() {  copyOnWrite();
-        instance.clearContent();
-        return this;
-      }
-
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public boolean hasTimestamp() {
-        return instance.hasTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public com.google.protobuf.Timestamp getTimestamp() {
-        return instance.getTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.setTimestamp(value);
-        return this;
-        }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(
-          com.google.protobuf.Timestamp.Builder builderForValue) {
-        copyOnWrite();
-        instance.setTimestamp(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.mergeTimestamp(value);
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder clearTimestamp() {  copyOnWrite();
-        instance.clearTimestamp();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
-              "content_",
-              "timestamp_",
-            };
-            java.lang.String info =
-                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0000\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest DEFAULT_INSTANCE;
-    static {
-      ButtonsMessageRequest defaultInstance = new ButtonsMessageRequest();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        ButtonsMessageRequest.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<ButtonsMessageRequest> PARSER;
-
-    public static com.google.protobuf.Parser<ButtonsMessageRequest> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface ButtonsMessageResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    int getStatusValue();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The status.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus();
-
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return Whether the timestamp field is set.
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return The timestamp.
-     */
-    com.google.protobuf.Timestamp getTimestamp();
-
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The messageId.
-     */
-    java.lang.String getMessageId();
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The bytes for messageId.
-     */
-    com.google.protobuf.ByteString
-        getMessageIdBytes();
-  }
-  /**
-   * <pre>
-   * ButtonsMessageResponse acknowledges a ButtonsMessageRequest.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse}
-   */
-  public  static final class ButtonsMessageResponse extends
-      com.google.protobuf.GeneratedMessageLite<
-          ButtonsMessageResponse, ButtonsMessageResponse.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse)
-      ButtonsMessageResponseOrBuilder {
-    private ButtonsMessageResponse() {
-      messageId_ = "";
-    }
-    private int bitField0_;
-    public static final int STATUS_FIELD_NUMBER = 1;
-    private int status_;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    @java.lang.Override
-    public int getStatusValue() {
-      return status_;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The status.
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus() {
-      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus.forNumber(status_);
-      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @param value The enum numeric value on the wire for status to set.
-     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-     */
-    private void setStatusValue(int value) {
-        status_ = value;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @param value The status to set.
-     */
-    private void setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus value) {
-      status_ = value.getNumber();
-
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     */
-    private void clearStatus() {
-
-      status_ = 0;
-    }
-
-    public static final int TIMESTAMP_FIELD_NUMBER = 2;
-    private com.google.protobuf.Timestamp timestamp_;
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public com.google.protobuf.Timestamp getTimestamp() {
-      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      timestamp_ = value;
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      if (timestamp_ != null &&
-          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
-        timestamp_ =
-          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
-      } else {
-        timestamp_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    private void clearTimestamp() {
-      timestamp_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static final int MESSAGE_ID_FIELD_NUMBER = 3;
-    private java.lang.String messageId_;
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The messageId.
-     */
-    @java.lang.Override
-    public java.lang.String getMessageId() {
-      return messageId_;
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The bytes for messageId.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getMessageIdBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(messageId_);
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     * @param value The messageId to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setMessageId(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      messageId_ = value;
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     */
-    private void clearMessageId() {
-
-      messageId_ = getDefaultInstance().getMessageId();
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     * @param value The bytes for messageId to set.
-     */
-    private void setMessageIdBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      messageId_ = value.toStringUtf8();
-
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * ButtonsMessageResponse acknowledges a ButtonsMessageRequest.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponseOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return The enum numeric value on the wire for status.
-       */
-      @java.lang.Override
-      public int getStatusValue() {
-        return instance.getStatusValue();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @param value The status to set.
-       * @return This builder for chaining.
-       */
-      public Builder setStatusValue(int value) {
-        copyOnWrite();
-        instance.setStatusValue(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return The status.
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus() {
-        return instance.getStatus();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @param value The enum numeric value on the wire for status to set.
-       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-       * @return This builder for chaining.
-       */
-      public Builder setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus value) {
-        copyOnWrite();
-        instance.setStatus(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearStatus() {
-        copyOnWrite();
-        instance.clearStatus();
-        return this;
-      }
-
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public boolean hasTimestamp() {
-        return instance.hasTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public com.google.protobuf.Timestamp getTimestamp() {
-        return instance.getTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.setTimestamp(value);
-        return this;
-        }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(
-          com.google.protobuf.Timestamp.Builder builderForValue) {
-        copyOnWrite();
-        instance.setTimestamp(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.mergeTimestamp(value);
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder clearTimestamp() {  copyOnWrite();
-        instance.clearTimestamp();
-        return this;
-      }
-
-      /**
-       * <code>string message_id = 3;</code>
-       * @return The messageId.
-       */
-      @java.lang.Override
-      public java.lang.String getMessageId() {
-        return instance.getMessageId();
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @return The bytes for messageId.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getMessageIdBytes() {
-        return instance.getMessageIdBytes();
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @param value The messageId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setMessageId(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setMessageId(value);
-        return this;
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearMessageId() {
-        copyOnWrite();
-        instance.clearMessageId();
-        return this;
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @param value The bytes for messageId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setMessageIdBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setMessageIdBytes(value);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
-              "status_",
-              "timestamp_",
-              "messageId_",
-            };
-            java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\f\u0002\u1009" +
-                "\u0000\u0003\u0208";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse DEFAULT_INSTANCE;
-    static {
-      ButtonsMessageResponse defaultInstance = new ButtonsMessageResponse();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        ButtonsMessageResponse.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<ButtonsMessageResponse> PARSER;
-
-    public static com.google.protobuf.Parser<ButtonsMessageResponse> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface CTAButtonOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.CTAButton)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>string text = 1;</code>
-     * @return The text.
-     */
-    java.lang.String getText();
-    /**
-     * <code>string text = 1;</code>
-     * @return The bytes for text.
-     */
-    com.google.protobuf.ByteString
-        getTextBytes();
-
-    /**
-     * <code>string url = 2;</code>
-     * @return The url.
-     */
-    java.lang.String getUrl();
-    /**
-     * <code>string url = 2;</code>
-     * @return The bytes for url.
-     */
-    com.google.protobuf.ByteString
-        getUrlBytes();
-  }
-  /**
-   * <pre>
-   * CTAButton represents a single call-to-action link button.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAButton}
-   */
-  public  static final class CTAButton extends
-      com.google.protobuf.GeneratedMessageLite<
-          CTAButton, CTAButton.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.CTAButton)
-      CTAButtonOrBuilder {
-    private CTAButton() {
-      text_ = "";
-      url_ = "";
-    }
-    public static final int TEXT_FIELD_NUMBER = 1;
-    private java.lang.String text_;
-    /**
-     * <code>string text = 1;</code>
-     * @return The text.
-     */
-    @java.lang.Override
-    public java.lang.String getText() {
-      return text_;
-    }
-    /**
-     * <code>string text = 1;</code>
-     * @return The bytes for text.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getTextBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(text_);
-    }
-    /**
-     * <code>string text = 1;</code>
-     * @param value The text to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setText(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      text_ = value;
-    }
-    /**
-     * <code>string text = 1;</code>
-     */
-    private void clearText() {
-
-      text_ = getDefaultInstance().getText();
-    }
-    /**
-     * <code>string text = 1;</code>
-     * @param value The bytes for text to set.
-     */
-    private void setTextBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      text_ = value.toStringUtf8();
-
-    }
-
-    public static final int URL_FIELD_NUMBER = 2;
-    private java.lang.String url_;
-    /**
-     * <code>string url = 2;</code>
-     * @return The url.
-     */
-    @java.lang.Override
-    public java.lang.String getUrl() {
-      return url_;
-    }
-    /**
-     * <code>string url = 2;</code>
-     * @return The bytes for url.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getUrlBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(url_);
-    }
-    /**
-     * <code>string url = 2;</code>
-     * @param value The url to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setUrl(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      url_ = value;
-    }
-    /**
-     * <code>string url = 2;</code>
-     */
-    private void clearUrl() {
-
-      url_ = getDefaultInstance().getUrl();
-    }
-    /**
-     * <code>string url = 2;</code>
-     * @param value The bytes for url to set.
-     */
-    private void setUrlBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      url_ = value.toStringUtf8();
-
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * CTAButton represents a single call-to-action link button.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAButton}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.CTAButton)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButtonOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>string text = 1;</code>
-       * @return The text.
-       */
-      @java.lang.Override
-      public java.lang.String getText() {
-        return instance.getText();
-      }
-      /**
-       * <code>string text = 1;</code>
-       * @return The bytes for text.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getTextBytes() {
-        return instance.getTextBytes();
-      }
-      /**
-       * <code>string text = 1;</code>
-       * @param value The text to set.
-       * @return This builder for chaining.
-       */
-      public Builder setText(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setText(value);
-        return this;
-      }
-      /**
-       * <code>string text = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearText() {
-        copyOnWrite();
-        instance.clearText();
-        return this;
-      }
-      /**
-       * <code>string text = 1;</code>
-       * @param value The bytes for text to set.
-       * @return This builder for chaining.
-       */
-      public Builder setTextBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setTextBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string url = 2;</code>
-       * @return The url.
-       */
-      @java.lang.Override
-      public java.lang.String getUrl() {
-        return instance.getUrl();
-      }
-      /**
-       * <code>string url = 2;</code>
-       * @return The bytes for url.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getUrlBytes() {
-        return instance.getUrlBytes();
-      }
-      /**
-       * <code>string url = 2;</code>
-       * @param value The url to set.
-       * @return This builder for chaining.
-       */
-      public Builder setUrl(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setUrl(value);
-        return this;
-      }
-      /**
-       * <code>string url = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearUrl() {
-        copyOnWrite();
-        instance.clearUrl();
-        return this;
-      }
-      /**
-       * <code>string url = 2;</code>
-       * @param value The bytes for url to set.
-       * @return This builder for chaining.
-       */
-      public Builder setUrlBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setUrlBytes(value);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.CTAButton)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "text_",
-              "url_",
-            };
-            java.lang.String info =
-                "\u0000\u0002\u0000\u0000\u0001\u0002\u0002\u0000\u0000\u0000\u0001\u0208\u0002\u0208" +
-                "";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.CTAButton)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton DEFAULT_INSTANCE;
-    static {
-      CTAButton defaultInstance = new CTAButton();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        CTAButton.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<CTAButton> PARSER;
-
-    public static com.google.protobuf.Parser<CTAButton> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface CTAMessageOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.CTAMessage)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>string header = 1;</code>
-     * @return The header.
-     */
-    java.lang.String getHeader();
-    /**
-     * <code>string header = 1;</code>
-     * @return The bytes for header.
-     */
-    com.google.protobuf.ByteString
-        getHeaderBytes();
-
-    /**
-     * <code>string body = 2;</code>
-     * @return The body.
-     */
-    java.lang.String getBody();
-    /**
-     * <code>string body = 2;</code>
-     * @return The bytes for body.
-     */
-    com.google.protobuf.ByteString
-        getBodyBytes();
-
-    /**
-     * <code>string footer = 3;</code>
-     * @return The footer.
-     */
-    java.lang.String getFooter();
-    /**
-     * <code>string footer = 3;</code>
-     * @return The bytes for footer.
-     */
-    com.google.protobuf.ByteString
-        getFooterBytes();
-
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> 
-        getButtonsList();
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton getButtons(int index);
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    int getButtonsCount();
-  }
-  /**
-   * <pre>
-   * CTAMessage holds the content of a CTA message.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAMessage}
-   */
-  public  static final class CTAMessage extends
-      com.google.protobuf.GeneratedMessageLite<
-          CTAMessage, CTAMessage.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.CTAMessage)
-      CTAMessageOrBuilder {
-    private CTAMessage() {
-      header_ = "";
-      body_ = "";
-      footer_ = "";
-      buttons_ = emptyProtobufList();
-    }
-    public static final int HEADER_FIELD_NUMBER = 1;
-    private java.lang.String header_;
-    /**
-     * <code>string header = 1;</code>
-     * @return The header.
-     */
-    @java.lang.Override
-    public java.lang.String getHeader() {
-      return header_;
-    }
-    /**
-     * <code>string header = 1;</code>
-     * @return The bytes for header.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getHeaderBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(header_);
-    }
-    /**
-     * <code>string header = 1;</code>
-     * @param value The header to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setHeader(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      header_ = value;
-    }
-    /**
-     * <code>string header = 1;</code>
-     */
-    private void clearHeader() {
-
-      header_ = getDefaultInstance().getHeader();
-    }
-    /**
-     * <code>string header = 1;</code>
-     * @param value The bytes for header to set.
-     */
-    private void setHeaderBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      header_ = value.toStringUtf8();
-
-    }
-
-    public static final int BODY_FIELD_NUMBER = 2;
-    private java.lang.String body_;
-    /**
-     * <code>string body = 2;</code>
-     * @return The body.
-     */
-    @java.lang.Override
-    public java.lang.String getBody() {
-      return body_;
-    }
-    /**
-     * <code>string body = 2;</code>
-     * @return The bytes for body.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getBodyBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(body_);
-    }
-    /**
-     * <code>string body = 2;</code>
-     * @param value The body to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setBody(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      body_ = value;
-    }
-    /**
-     * <code>string body = 2;</code>
-     */
-    private void clearBody() {
-
-      body_ = getDefaultInstance().getBody();
-    }
-    /**
-     * <code>string body = 2;</code>
-     * @param value The bytes for body to set.
-     */
-    private void setBodyBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      body_ = value.toStringUtf8();
-
-    }
-
-    public static final int FOOTER_FIELD_NUMBER = 3;
-    private java.lang.String footer_;
-    /**
-     * <code>string footer = 3;</code>
-     * @return The footer.
-     */
-    @java.lang.Override
-    public java.lang.String getFooter() {
-      return footer_;
-    }
-    /**
-     * <code>string footer = 3;</code>
-     * @return The bytes for footer.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getFooterBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
-    }
-    /**
-     * <code>string footer = 3;</code>
-     * @param value The footer to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setFooter(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      footer_ = value;
-    }
-    /**
-     * <code>string footer = 3;</code>
-     */
-    private void clearFooter() {
-
-      footer_ = getDefaultInstance().getFooter();
-    }
-    /**
-     * <code>string footer = 3;</code>
-     * @param value The bytes for footer to set.
-     */
-    private void setFooterBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      footer_ = value.toStringUtf8();
-
-    }
-
-    public static final int BUTTONS_FIELD_NUMBER = 4;
-    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> buttons_;
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    @java.lang.Override
-    public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> getButtonsList() {
-      return buttons_;
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    public java.util.List<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButtonOrBuilder> 
-        getButtonsOrBuilderList() {
-      return buttons_;
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    @java.lang.Override
-    public int getButtonsCount() {
-      return buttons_.size();
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton getButtons(int index) {
-      return buttons_.get(index);
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButtonOrBuilder getButtonsOrBuilder(
-        int index) {
-      return buttons_.get(index);
-    }
-    private void ensureButtonsIsMutable() {
-      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> tmp = buttons_;
-      if (!tmp.isModifiable()) {
-        buttons_ =
-            com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
-       }
-    }
-
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setButtons(
-        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton value) {
-      value.getClass();  // minimal bytecode null check
-      ensureButtonsIsMutable();
-      buttons_.set(index, value);
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton value) {
-      value.getClass();  // minimal bytecode null check
-      ensureButtonsIsMutable();
-      buttons_.add(value);
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void addButtons(
-        int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton value) {
-      value.getClass();  // minimal bytecode null check
-      ensureButtonsIsMutable();
-      buttons_.add(index, value);
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    private void addAllButtons(
-        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> values) {
-      ensureButtonsIsMutable();
-      com.google.protobuf.AbstractMessageLite.addAll(
-          values, buttons_);
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    private void clearButtons() {
-      buttons_ = emptyProtobufList();
-    }
-    /**
-     * <pre>
-     * At least one CTA button must be provided.
-     * </pre>
-     *
-     * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-     */
-    private void removeButtons(int index) {
-      ensureButtonsIsMutable();
-      buttons_.remove(index);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * CTAMessage holds the content of a CTA message.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAMessage}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.CTAMessage)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>string header = 1;</code>
-       * @return The header.
-       */
-      @java.lang.Override
-      public java.lang.String getHeader() {
-        return instance.getHeader();
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @return The bytes for header.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getHeaderBytes() {
-        return instance.getHeaderBytes();
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @param value The header to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHeader(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setHeader(value);
-        return this;
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearHeader() {
-        copyOnWrite();
-        instance.clearHeader();
-        return this;
-      }
-      /**
-       * <code>string header = 1;</code>
-       * @param value The bytes for header to set.
-       * @return This builder for chaining.
-       */
-      public Builder setHeaderBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setHeaderBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string body = 2;</code>
-       * @return The body.
-       */
-      @java.lang.Override
-      public java.lang.String getBody() {
-        return instance.getBody();
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @return The bytes for body.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getBodyBytes() {
-        return instance.getBodyBytes();
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @param value The body to set.
-       * @return This builder for chaining.
-       */
-      public Builder setBody(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setBody(value);
-        return this;
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearBody() {
-        copyOnWrite();
-        instance.clearBody();
-        return this;
-      }
-      /**
-       * <code>string body = 2;</code>
-       * @param value The bytes for body to set.
-       * @return This builder for chaining.
-       */
-      public Builder setBodyBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setBodyBytes(value);
-        return this;
-      }
-
-      /**
-       * <code>string footer = 3;</code>
-       * @return The footer.
-       */
-      @java.lang.Override
-      public java.lang.String getFooter() {
-        return instance.getFooter();
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @return The bytes for footer.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getFooterBytes() {
-        return instance.getFooterBytes();
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @param value The footer to set.
-       * @return This builder for chaining.
-       */
-      public Builder setFooter(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setFooter(value);
-        return this;
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearFooter() {
-        copyOnWrite();
-        instance.clearFooter();
-        return this;
-      }
-      /**
-       * <code>string footer = 3;</code>
-       * @param value The bytes for footer to set.
-       * @return This builder for chaining.
-       */
-      public Builder setFooterBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setFooterBytes(value);
-        return this;
-      }
-
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      @java.lang.Override
-      public java.util.List<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> getButtonsList() {
-        return java.util.Collections.unmodifiableList(
-            instance.getButtonsList());
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      @java.lang.Override
-      public int getButtonsCount() {
-        return instance.getButtonsCount();
-      }/**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton getButtons(int index) {
-        return instance.getButtons(index);
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder setButtons(
-          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton value) {
-        copyOnWrite();
-        instance.setButtons(index, value);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder setButtons(
-          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton.Builder builderForValue) {
-        copyOnWrite();
-        instance.setButtons(index,
-            builderForValue.build());
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder addButtons(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton value) {
-        copyOnWrite();
-        instance.addButtons(value);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder addButtons(
-          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton value) {
-        copyOnWrite();
-        instance.addButtons(index, value);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder addButtons(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton.Builder builderForValue) {
-        copyOnWrite();
-        instance.addButtons(builderForValue.build());
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder addButtons(
-          int index, yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton.Builder builderForValue) {
-        copyOnWrite();
-        instance.addButtons(index,
-            builderForValue.build());
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder addAllButtons(
-          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton> values) {
-        copyOnWrite();
-        instance.addAllButtons(values);
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder clearButtons() {
-        copyOnWrite();
-        instance.clearButtons();
-        return this;
-      }
-      /**
-       * <pre>
-       * At least one CTA button must be provided.
-       * </pre>
-       *
-       * <code>repeated .yalo.external_channel.in_app.sdk.v1.CTAButton buttons = 4;</code>
-       */
-      public Builder removeButtons(int index) {
-        copyOnWrite();
-        instance.removeButtons(index);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.CTAMessage)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "header_",
-              "body_",
-              "footer_",
-              "buttons_",
-              yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAButton.class,
-            };
-            java.lang.String info =
-                "\u0000\u0004\u0000\u0000\u0001\u0004\u0004\u0000\u0001\u0000\u0001\u0208\u0002\u0208" +
-                "\u0003\u0208\u0004\u001b";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.CTAMessage)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage DEFAULT_INSTANCE;
-    static {
-      CTAMessage defaultInstance = new CTAMessage();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        CTAMessage.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<CTAMessage> PARSER;
-
-    public static com.google.protobuf.Parser<CTAMessage> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface CTAMessageRequestOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.CTAMessageRequest)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     * @return Whether the content field is set.
-     */
-    boolean hasContent();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     * @return The content.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage getContent();
-
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return Whether the timestamp field is set.
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return The timestamp.
-     */
-    com.google.protobuf.Timestamp getTimestamp();
-  }
-  /**
-   * <pre>
-   * CTAMessageRequest delivers a set of link buttons to the client UI.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAMessageRequest}
-   */
-  public  static final class CTAMessageRequest extends
-      com.google.protobuf.GeneratedMessageLite<
-          CTAMessageRequest, CTAMessageRequest.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.CTAMessageRequest)
-      CTAMessageRequestOrBuilder {
-    private CTAMessageRequest() {
-    }
-    private int bitField0_;
-    public static final int CONTENT_FIELD_NUMBER = 1;
-    private yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage content_;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     */
-    @java.lang.Override
-    public boolean hasContent() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage getContent() {
-      return content_ == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage.getDefaultInstance() : content_;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage value) {
-      value.getClass();  // minimal bytecode null check
-      content_ = value;
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage value) {
-      value.getClass();  // minimal bytecode null check
-      if (content_ != null &&
-          content_ != yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage.getDefaultInstance()) {
-        content_ =
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage.newBuilder(content_).mergeFrom(value).buildPartial();
-      } else {
-        content_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-     */
-    private void clearContent() {
-      content_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static final int TIMESTAMP_FIELD_NUMBER = 2;
-    private com.google.protobuf.Timestamp timestamp_;
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000002) != 0);
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public com.google.protobuf.Timestamp getTimestamp() {
-      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      timestamp_ = value;
-      bitField0_ |= 0x00000002;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      if (timestamp_ != null &&
-          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
-        timestamp_ =
-          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
-      } else {
-        timestamp_ = value;
-      }
-      bitField0_ |= 0x00000002;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    private void clearTimestamp() {
-      timestamp_ = null;
-      bitField0_ = (bitField0_ & ~0x00000002);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * CTAMessageRequest delivers a set of link buttons to the client UI.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAMessageRequest}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.CTAMessageRequest)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequestOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-       */
-      @java.lang.Override
-      public boolean hasContent() {
-        return instance.hasContent();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage getContent() {
-        return instance.getContent();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-       */
-      public Builder setContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage value) {
-        copyOnWrite();
-        instance.setContent(value);
-        return this;
-        }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-       */
-      public Builder setContent(
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage.Builder builderForValue) {
-        copyOnWrite();
-        instance.setContent(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-       */
-      public Builder mergeContent(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessage value) {
-        copyOnWrite();
-        instance.mergeContent(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.CTAMessage content = 1;</code>
-       */
-      public Builder clearContent() {  copyOnWrite();
-        instance.clearContent();
-        return this;
-      }
-
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public boolean hasTimestamp() {
-        return instance.hasTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public com.google.protobuf.Timestamp getTimestamp() {
-        return instance.getTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.setTimestamp(value);
-        return this;
-        }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(
-          com.google.protobuf.Timestamp.Builder builderForValue) {
-        copyOnWrite();
-        instance.setTimestamp(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.mergeTimestamp(value);
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder clearTimestamp() {  copyOnWrite();
-        instance.clearTimestamp();
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.CTAMessageRequest)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
-              "content_",
-              "timestamp_",
-            };
-            java.lang.String info =
-                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0000\u0000\u0001\u1009\u0000\u0002" +
-                "\u1009\u0001";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.CTAMessageRequest)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest DEFAULT_INSTANCE;
-    static {
-      CTAMessageRequest defaultInstance = new CTAMessageRequest();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        CTAMessageRequest.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<CTAMessageRequest> PARSER;
-
-    public static com.google.protobuf.Parser<CTAMessageRequest> parser() {
-      return DEFAULT_INSTANCE.getParserForType();
-    }
-  }
-
-  public interface CTAMessageResponseOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v1.CTAMessageResponse)
-      com.google.protobuf.MessageLiteOrBuilder {
-
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    int getStatusValue();
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The status.
-     */
-    yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus();
-
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return Whether the timestamp field is set.
-     */
-    boolean hasTimestamp();
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     * @return The timestamp.
-     */
-    com.google.protobuf.Timestamp getTimestamp();
-
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The messageId.
-     */
-    java.lang.String getMessageId();
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The bytes for messageId.
-     */
-    com.google.protobuf.ByteString
-        getMessageIdBytes();
-  }
-  /**
-   * <pre>
-   * CTAMessageResponse acknowledges a CTAMessageRequest.
-   * </pre>
-   *
-   * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAMessageResponse}
-   */
-  public  static final class CTAMessageResponse extends
-      com.google.protobuf.GeneratedMessageLite<
-          CTAMessageResponse, CTAMessageResponse.Builder> implements
-      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v1.CTAMessageResponse)
-      CTAMessageResponseOrBuilder {
-    private CTAMessageResponse() {
-      messageId_ = "";
-    }
-    private int bitField0_;
-    public static final int STATUS_FIELD_NUMBER = 1;
-    private int status_;
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The enum numeric value on the wire for status.
-     */
-    @java.lang.Override
-    public int getStatusValue() {
-      return status_;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @return The status.
-     */
-    @java.lang.Override
-    public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus() {
-      yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus result = yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus.forNumber(status_);
-      return result == null ? yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus.UNRECOGNIZED : result;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @param value The enum numeric value on the wire for status to set.
-     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-     */
-    private void setStatusValue(int value) {
-        status_ = value;
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     * @param value The status to set.
-     */
-    private void setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus value) {
-      status_ = value.getNumber();
-
-    }
-    /**
-     * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-     */
-    private void clearStatus() {
-
-      status_ = 0;
-    }
-
-    public static final int TIMESTAMP_FIELD_NUMBER = 2;
-    private com.google.protobuf.Timestamp timestamp_;
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public boolean hasTimestamp() {
-      return ((bitField0_ & 0x00000001) != 0);
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.Override
-    public com.google.protobuf.Timestamp getTimestamp() {
-      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      timestamp_ = value;
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
-    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
-      value.getClass();  // minimal bytecode null check
-      if (timestamp_ != null &&
-          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
-        timestamp_ =
-          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
-      } else {
-        timestamp_ = value;
-      }
-      bitField0_ |= 0x00000001;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-     */
-    private void clearTimestamp() {
-      timestamp_ = null;
-      bitField0_ = (bitField0_ & ~0x00000001);
-    }
-
-    public static final int MESSAGE_ID_FIELD_NUMBER = 3;
-    private java.lang.String messageId_;
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The messageId.
-     */
-    @java.lang.Override
-    public java.lang.String getMessageId() {
-      return messageId_;
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     * @return The bytes for messageId.
-     */
-    @java.lang.Override
-    public com.google.protobuf.ByteString
-        getMessageIdBytes() {
-      return com.google.protobuf.ByteString.copyFromUtf8(messageId_);
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     * @param value The messageId to set.
-     */
-    @java.lang.SuppressWarnings("ReturnValueIgnored")
-    private void setMessageId(
-        java.lang.String value) {
-      value.getClass();  // minimal bytecode null check
-
-      messageId_ = value;
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     */
-    private void clearMessageId() {
-
-      messageId_ = getDefaultInstance().getMessageId();
-    }
-    /**
-     * <code>string message_id = 3;</code>
-     * @param value The bytes for messageId to set.
-     */
-    private void setMessageIdBytes(
-        com.google.protobuf.ByteString value) {
-      checkByteStringIsUtf8(value);
-      messageId_ = value.toStringUtf8();
-
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, data, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseDelimitedFrom(
-        java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input);
-    }
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageLite.parseFrom(
-          DEFAULT_INSTANCE, input, extensionRegistry);
-    }
-
-    public static Builder newBuilder() {
-      return (Builder) DEFAULT_INSTANCE.createBuilder();
-    }
-    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse prototype) {
-      return DEFAULT_INSTANCE.createBuilder(prototype);
-    }
-
-    /**
-     * <pre>
-     * CTAMessageResponse acknowledges a CTAMessageRequest.
-     * </pre>
-     *
-     * Protobuf type {@code yalo.external_channel.in_app.sdk.v1.CTAMessageResponse}
-     */
-    public static final class Builder extends
-        com.google.protobuf.GeneratedMessageLite.Builder<
-          yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse, Builder> implements
-        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v1.CTAMessageResponse)
-        yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponseOrBuilder {
-      // Construct using yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.newBuilder()
-      private Builder() {
-        super(DEFAULT_INSTANCE);
-      }
-
-
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return The enum numeric value on the wire for status.
-       */
-      @java.lang.Override
-      public int getStatusValue() {
-        return instance.getStatusValue();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @param value The status to set.
-       * @return This builder for chaining.
-       */
-      public Builder setStatusValue(int value) {
-        copyOnWrite();
-        instance.setStatusValue(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return The status.
-       */
-      @java.lang.Override
-      public yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus getStatus() {
-        return instance.getStatus();
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @param value The enum numeric value on the wire for status to set.
-       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
-       * @return This builder for chaining.
-       */
-      public Builder setStatus(yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ResponseStatus value) {
-        copyOnWrite();
-        instance.setStatus(value);
-        return this;
-      }
-      /**
-       * <code>.yalo.external_channel.in_app.sdk.v1.ResponseStatus status = 1;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearStatus() {
-        copyOnWrite();
-        instance.clearStatus();
-        return this;
-      }
-
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public boolean hasTimestamp() {
-        return instance.hasTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      @java.lang.Override
-      public com.google.protobuf.Timestamp getTimestamp() {
-        return instance.getTimestamp();
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.setTimestamp(value);
-        return this;
-        }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder setTimestamp(
-          com.google.protobuf.Timestamp.Builder builderForValue) {
-        copyOnWrite();
-        instance.setTimestamp(builderForValue.build());
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
-        copyOnWrite();
-        instance.mergeTimestamp(value);
-        return this;
-      }
-      /**
-       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
-       */
-      public Builder clearTimestamp() {  copyOnWrite();
-        instance.clearTimestamp();
-        return this;
-      }
-
-      /**
-       * <code>string message_id = 3;</code>
-       * @return The messageId.
-       */
-      @java.lang.Override
-      public java.lang.String getMessageId() {
-        return instance.getMessageId();
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @return The bytes for messageId.
-       */
-      @java.lang.Override
-      public com.google.protobuf.ByteString
-          getMessageIdBytes() {
-        return instance.getMessageIdBytes();
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @param value The messageId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setMessageId(
-          java.lang.String value) {
-        copyOnWrite();
-        instance.setMessageId(value);
-        return this;
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @return This builder for chaining.
-       */
-      public Builder clearMessageId() {
-        copyOnWrite();
-        instance.clearMessageId();
-        return this;
-      }
-      /**
-       * <code>string message_id = 3;</code>
-       * @param value The bytes for messageId to set.
-       * @return This builder for chaining.
-       */
-      public Builder setMessageIdBytes(
-          com.google.protobuf.ByteString value) {
-        copyOnWrite();
-        instance.setMessageIdBytes(value);
-        return this;
-      }
-
-      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v1.CTAMessageResponse)
-    }
-    @java.lang.Override
-    @java.lang.SuppressWarnings({"ThrowNull"})
-    protected final java.lang.Object dynamicMethod(
-        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
-        java.lang.Object arg0, java.lang.Object arg1) {
-      switch (method) {
-        case NEW_MUTABLE_INSTANCE: {
-          return new yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse();
-        }
-        case NEW_BUILDER: {
-          return new Builder();
-        }
-        case BUILD_MESSAGE_INFO: {
-            java.lang.Object[] objects = new java.lang.Object[] {
-              "bitField0_",
-              "status_",
-              "timestamp_",
-              "messageId_",
-            };
-            java.lang.String info =
-                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\f\u0002\u1009" +
-                "\u0000\u0003\u0208";
-            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
-        }
-        case GET_DEFAULT_INSTANCE: {
-          return DEFAULT_INSTANCE;
-        }
-        case GET_PARSER: {
-          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse> parser = PARSER;
-          if (parser == null) {
-            synchronized (yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse.class) {
-              parser = PARSER;
-              if (parser == null) {
-                parser =
-                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse>(
-                        DEFAULT_INSTANCE);
-                PARSER = parser;
-              }
-            }
-          }
-          return parser;
-        }
-        case GET_MEMOIZED_IS_INITIALIZED: {
-          return (byte) 1;
-        }
-        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
-        // So it can do anything. Combine with default case for smaller codegen.
-        case SET_MEMOIZED_IS_INITIALIZED:
-      }
-      // Should never happen. Generates tight code to throw an exception.
-      throw null;
-    }
-
-
-    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v1.CTAMessageResponse)
-    private static final yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse DEFAULT_INSTANCE;
-    static {
-      CTAMessageResponse defaultInstance = new CTAMessageResponse();
-      // New instances are implicitly immutable so no need to make
-      // immutable.
-      DEFAULT_INSTANCE = defaultInstance;
-      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
-        CTAMessageResponse.class, defaultInstance);
-    }
-
-    public static yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static volatile com.google.protobuf.Parser<CTAMessageResponse> PARSER;
-
-    public static com.google.protobuf.Parser<CTAMessageResponse> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }

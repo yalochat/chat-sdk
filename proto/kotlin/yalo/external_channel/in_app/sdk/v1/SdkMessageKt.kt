@@ -701,114 +701,6 @@ public object SdkMessageKt {
 
     /**
      * ```
-     * Channel → client
-     * ```
-     *
-     * `.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;`
-     */
-    public var buttonsMessageRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest
-      @kotlin.jvm.JvmName("getButtonsMessageRequest")
-        get() = _builder.buttonsMessageRequest
-      @kotlin.jvm.JvmName("setButtonsMessageRequest")
-        set(value) {
-        _builder.buttonsMessageRequest = value
-      }
-    /**
-     * ```
-     * Channel → client
-     * ```
-     *
-     * `.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;`
-     */
-    public fun clearButtonsMessageRequest() {
-      _builder.clearButtonsMessageRequest()
-    }
-    /**
-     * ```
-     * Channel → client
-     * ```
-     *
-     * `.yalo.external_channel.in_app.sdk.v1.ButtonsMessageRequest buttons_message_request = 40;`
-     * @return Whether the buttonsMessageRequest field is set.
-     */
-    public fun hasButtonsMessageRequest(): kotlin.Boolean {
-      return _builder.hasButtonsMessageRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;`
-     */
-    public var buttonsMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse
-      @kotlin.jvm.JvmName("getButtonsMessageResponse")
-        get() = _builder.buttonsMessageResponse
-      @kotlin.jvm.JvmName("setButtonsMessageResponse")
-        set(value) {
-        _builder.buttonsMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;`
-     */
-    public fun clearButtonsMessageResponse() {
-      _builder.clearButtonsMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.ButtonsMessageResponse buttons_message_response = 41;`
-     * @return Whether the buttonsMessageResponse field is set.
-     */
-    public fun hasButtonsMessageResponse(): kotlin.Boolean {
-      return _builder.hasButtonsMessageResponse()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;`
-     */
-    public var ctaMessageRequest: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest
-      @kotlin.jvm.JvmName("getCtaMessageRequest")
-        get() = _builder.ctaMessageRequest
-      @kotlin.jvm.JvmName("setCtaMessageRequest")
-        set(value) {
-        _builder.ctaMessageRequest = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;`
-     */
-    public fun clearCtaMessageRequest() {
-      _builder.clearCtaMessageRequest()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.CTAMessageRequest cta_message_request = 42;`
-     * @return Whether the ctaMessageRequest field is set.
-     */
-    public fun hasCtaMessageRequest(): kotlin.Boolean {
-      return _builder.hasCtaMessageRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;`
-     */
-    public var ctaMessageResponse: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse
-      @kotlin.jvm.JvmName("getCtaMessageResponse")
-        get() = _builder.ctaMessageResponse
-      @kotlin.jvm.JvmName("setCtaMessageResponse")
-        set(value) {
-        _builder.ctaMessageResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;`
-     */
-    public fun clearCtaMessageResponse() {
-      _builder.clearCtaMessageResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v1.CTAMessageResponse cta_message_response = 43;`
-     * @return Whether the ctaMessageResponse field is set.
-     */
-    public fun hasCtaMessageResponse(): kotlin.Boolean {
-      return _builder.hasCtaMessageResponse()
-    }
-
-    /**
-     * ```
      * Client → channel
      * ```
      *
@@ -952,18 +844,6 @@ public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOr
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.customCommandResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CustomCommandResponse?
   get() = if (hasCustomCommandResponse()) getCustomCommandResponse() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.buttonsMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageRequest?
-  get() = if (hasButtonsMessageRequest()) getButtonsMessageRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.buttonsMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ButtonsMessageResponse?
-  get() = if (hasButtonsMessageResponse()) getButtonsMessageResponse() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.ctaMessageRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageRequest?
-  get() = if (hasCtaMessageRequest()) getCtaMessageRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.ctaMessageResponseOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.CTAMessageResponse?
-  get() = if (hasCtaMessageResponse()) getCtaMessageResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsRequestOrNull: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.GetCommandsRequest?
   get() = if (hasGetCommandsRequest()) getGetCommandsRequest() else null
