@@ -13,6 +13,8 @@ public inline fun textMessageRequest(block: yalo.external_channel.in_app.sdk.v1.
 /**
  * ```
  * TextMessageRequest is sent by either party to deliver a text message.
+ * content.text serves as the body. header and footer are optional structural
+ * fields rendered above and below the body, typically alongside buttons.
  * ```
  *
  * Protobuf type `yalo.external_channel.in_app.sdk.v1.TextMessageRequest`
@@ -86,6 +88,125 @@ public object TextMessageRequestKt {
 
     public val TextMessageRequestKt.Dsl.timestampOrNull: com.google.protobuf.Timestamp?
       get() = _builder.timestampOrNull
+
+    /**
+     * An uninstantiable, behaviorless type to represent the field in
+     * generics.
+     */
+    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
+    public class ButtonsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     */
+     public val buttons: com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>
+      @kotlin.jvm.JvmSynthetic
+  get() = com.google.protobuf.kotlin.DslList(
+        _builder.buttonsList
+      )
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param value The buttons to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+@kotlin.jvm.JvmName("addButtons")
+    public fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.add(value: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button) {
+      _builder.addButtons(value)
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param value The buttons to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+@kotlin.jvm.JvmName("plusAssignButtons")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.plusAssign(value: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button) {
+      add(value)
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param values The buttons to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+@kotlin.jvm.JvmName("addAllButtons")
+    public fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.addAll(values: kotlin.collections.Iterable<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button>) {
+      _builder.addAllButtons(values)
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param values The buttons to add.
+     */
+    @kotlin.jvm.JvmSynthetic
+@kotlin.jvm.JvmName("plusAssignAllButtons")
+    @Suppress("NOTHING_TO_INLINE")
+    public inline operator fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.plusAssign(values: kotlin.collections.Iterable<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button>) {
+      addAll(values)
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param index The index to set the value at.
+     * @param value The buttons to set.
+     */
+    @kotlin.jvm.JvmSynthetic
+@kotlin.jvm.JvmName("setButtons")
+    public operator fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.set(index: kotlin.Int, value: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button) {
+      _builder.setButtons(index, value)
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     */
+    @kotlin.jvm.JvmSynthetic
+@kotlin.jvm.JvmName("clearButtons")
+    public fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.clear() {
+      _builder.clearButtons()
+    }
+
+    /**
+     * `optional string header = 4;`
+     */
+    public var header: kotlin.String
+      @kotlin.jvm.JvmName("getHeader")
+        get() = _builder.header
+      @kotlin.jvm.JvmName("setHeader")
+        set(value) {
+        _builder.header = value
+      }
+    /**
+     * `optional string header = 4;`
+     */
+    public fun clearHeader() {
+      _builder.clearHeader()
+    }
+    /**
+     * `optional string header = 4;`
+     * @return Whether the header field is set.
+     */
+    public fun hasHeader(): kotlin.Boolean {
+      return _builder.hasHeader()
+    }
+
+    /**
+     * `optional string footer = 5;`
+     */
+    public var footer: kotlin.String
+      @kotlin.jvm.JvmName("getFooter")
+        get() = _builder.footer
+      @kotlin.jvm.JvmName("setFooter")
+        set(value) {
+        _builder.footer = value
+      }
+    /**
+     * `optional string footer = 5;`
+     */
+    public fun clearFooter() {
+      _builder.clearFooter()
+    }
+    /**
+     * `optional string footer = 5;`
+     * @return Whether the footer field is set.
+     */
+    public fun hasFooter(): kotlin.Boolean {
+      return _builder.hasFooter()
+    }
   }
 }
 public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessageRequest.copy(block: `yalo.external_channel.in_app.sdk.v1`.TextMessageRequestKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.TextMessageRequest =

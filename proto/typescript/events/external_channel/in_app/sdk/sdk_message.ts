@@ -237,6 +237,55 @@ export function messageStatusToJSON(object: MessageStatus): string {
   }
 }
 
+/** ButtonType discriminates how a button should behave when tapped. */
+export const ButtonType = {
+  BUTTON_TYPE_REPLY: 0,
+  BUTTON_TYPE_POSTBACK: 1,
+  BUTTON_TYPE_LINK: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type ButtonType = typeof ButtonType[keyof typeof ButtonType];
+
+export namespace ButtonType {
+  export type BUTTON_TYPE_REPLY = typeof ButtonType.BUTTON_TYPE_REPLY;
+  export type BUTTON_TYPE_POSTBACK = typeof ButtonType.BUTTON_TYPE_POSTBACK;
+  export type BUTTON_TYPE_LINK = typeof ButtonType.BUTTON_TYPE_LINK;
+  export type UNRECOGNIZED = typeof ButtonType.UNRECOGNIZED;
+}
+
+export function buttonTypeFromJSON(object: any): ButtonType {
+  switch (object) {
+    case 0:
+    case "BUTTON_TYPE_REPLY":
+      return ButtonType.BUTTON_TYPE_REPLY;
+    case 1:
+    case "BUTTON_TYPE_POSTBACK":
+      return ButtonType.BUTTON_TYPE_POSTBACK;
+    case 2:
+    case "BUTTON_TYPE_LINK":
+      return ButtonType.BUTTON_TYPE_LINK;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ButtonType.UNRECOGNIZED;
+  }
+}
+
+export function buttonTypeToJSON(object: ButtonType): string {
+  switch (object) {
+    case ButtonType.BUTTON_TYPE_REPLY:
+      return "BUTTON_TYPE_REPLY";
+    case ButtonType.BUTTON_TYPE_POSTBACK:
+      return "BUTTON_TYPE_POSTBACK";
+    case ButtonType.BUTTON_TYPE_LINK:
+      return "BUTTON_TYPE_LINK";
+    case ButtonType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** SdkCommand enumerates the commands the SDK is able to execute on the client. */
 export const SdkCommand = {
   SDK_COMMAND_UNSPECIFIED: 0,
@@ -351,16 +400,19 @@ export interface SdkMessage {
   customCommandResponse?:
     | CustomCommandResponse
     | undefined;
-  /** Channel → client */
-  buttonsMessageRequest?: ButtonsMessageRequest | undefined;
-  buttonsMessageResponse?: ButtonsMessageResponse | undefined;
-  ctaMessageRequest?: CTAMessageRequest | undefined;
-  ctaMessageResponse?:
-    | CTAMessageResponse
-    | undefined;
   /** Client → channel */
   getCommandsRequest?: GetCommandsRequest | undefined;
   getCommandsResponse?: GetCommandsResponse | undefined;
+}
+
+/**
+ * Button represents a single tappable option attached to a message.
+ * url is required when button_type is BUTTON_TYPE_LINK and ignored otherwise.
+ */
+export interface Button {
+  text: string;
+  buttonType: ButtonType;
+  url?: string | undefined;
 }
 
 /** TextMessage holds the payload of a plain-text conversation turn. */
@@ -371,10 +423,17 @@ export interface TextMessage {
   role: MessageRole;
 }
 
-/** TextMessageRequest is sent by either party to deliver a text message. */
+/**
+ * TextMessageRequest is sent by either party to deliver a text message.
+ * content.text serves as the body. header and footer are optional structural
+ * fields rendered above and below the body, typically alongside buttons.
+ */
 export interface TextMessageRequest {
   content: TextMessage | undefined;
   timestamp: Date | undefined;
+  buttons: Button[];
+  header?: string | undefined;
+  footer?: string | undefined;
 }
 
 /** VoiceMessage holds the payload of a voice-note conversation turn. */
@@ -395,7 +454,9 @@ export interface VoiceMessage {
 export interface VoiceNoteMessageRequest {
   content: VoiceMessage | undefined;
   timestamp: Date | undefined;
-  quickReplies: string[];
+  buttons: Button[];
+  header?: string | undefined;
+  footer?: string | undefined;
 }
 
 /** ImageMessage holds the payload of an image conversation turn. */
@@ -414,7 +475,9 @@ export interface ImageMessage {
 export interface ImageMessageRequest {
   content: ImageMessage | undefined;
   timestamp: Date | undefined;
-  quickReplies: string[];
+  buttons: Button[];
+  header?: string | undefined;
+  footer?: string | undefined;
 }
 
 /** AttachmentMessage holds the payload of a file attachment conversation turn. */
@@ -433,7 +496,9 @@ export interface AttachmentMessage {
 export interface AttachmentMessageRequest {
   content: AttachmentMessage | undefined;
   timestamp: Date | undefined;
-  quickReplies: string[];
+  buttons: Button[];
+  header?: string | undefined;
+  footer?: string | undefined;
 }
 
 /** VideoMessage holds the payload of a video conversation turn. */
@@ -453,7 +518,9 @@ export interface VideoMessage {
 export interface VideoMessageRequest {
   content: VideoMessage | undefined;
   timestamp: Date | undefined;
-  quickReplies: string[];
+  buttons: Button[];
+  header?: string | undefined;
+  footer?: string | undefined;
 }
 
 /** MessageReceiptRequest notifies the other party of a message status change. */
@@ -461,7 +528,6 @@ export interface MessageReceiptRequest {
   status: MessageStatus;
   messageId: string;
   timestamp: Date | undefined;
-  quickReplies: string[];
 }
 
 /** AddToCartRequest asks the channel to add a SKU to the active cart. */
@@ -683,56 +749,6 @@ export interface CustomCommandResponse {
   timestamp: Date | undefined;
 }
 
-/** ButtonsMessage holds the content of a buttons message. */
-export interface ButtonsMessage {
-  header: string;
-  body: string;
-  footer: string;
-  /** At least one button text must be provided. */
-  buttons: string[];
-}
-
-/** ButtonsMessageRequest delivers a set of text option buttons to the client UI. */
-export interface ButtonsMessageRequest {
-  content: ButtonsMessage | undefined;
-  timestamp: Date | undefined;
-}
-
-/** ButtonsMessageResponse acknowledges a ButtonsMessageRequest. */
-export interface ButtonsMessageResponse {
-  status: ResponseStatus;
-  timestamp: Date | undefined;
-  messageId: string;
-}
-
-/** CTAButton represents a single call-to-action link button. */
-export interface CTAButton {
-  text: string;
-  url: string;
-}
-
-/** CTAMessage holds the content of a CTA message. */
-export interface CTAMessage {
-  header: string;
-  body: string;
-  footer: string;
-  /** At least one CTA button must be provided. */
-  buttons: CTAButton[];
-}
-
-/** CTAMessageRequest delivers a set of link buttons to the client UI. */
-export interface CTAMessageRequest {
-  content: CTAMessage | undefined;
-  timestamp: Date | undefined;
-}
-
-/** CTAMessageResponse acknowledges a CTAMessageRequest. */
-export interface CTAMessageResponse {
-  status: ResponseStatus;
-  timestamp: Date | undefined;
-  messageId: string;
-}
-
 /**
  * GetCommandsRequest is sent by the client to declare that it is ready to
  * receive the list of commands it is able to execute.
@@ -827,10 +843,6 @@ function createBaseSdkMessage(): SdkMessage {
     chatStatusResponse: undefined,
     customCommandRequest: undefined,
     customCommandResponse: undefined,
-    buttonsMessageRequest: undefined,
-    buttonsMessageResponse: undefined,
-    ctaMessageRequest: undefined,
-    ctaMessageResponse: undefined,
     getCommandsRequest: undefined,
     getCommandsResponse: undefined,
   };
@@ -915,18 +927,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.customCommandResponse !== undefined) {
       CustomCommandResponse.encode(message.customCommandResponse, writer.uint32(298).fork()).join();
-    }
-    if (message.buttonsMessageRequest !== undefined) {
-      ButtonsMessageRequest.encode(message.buttonsMessageRequest, writer.uint32(322).fork()).join();
-    }
-    if (message.buttonsMessageResponse !== undefined) {
-      ButtonsMessageResponse.encode(message.buttonsMessageResponse, writer.uint32(330).fork()).join();
-    }
-    if (message.ctaMessageRequest !== undefined) {
-      CTAMessageRequest.encode(message.ctaMessageRequest, writer.uint32(338).fork()).join();
-    }
-    if (message.ctaMessageResponse !== undefined) {
-      CTAMessageResponse.encode(message.ctaMessageResponse, writer.uint32(346).fork()).join();
     }
     if (message.getCommandsRequest !== undefined) {
       GetCommandsRequest.encode(message.getCommandsRequest, writer.uint32(354).fork()).join();
@@ -1152,38 +1152,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.customCommandResponse = CustomCommandResponse.decode(reader, reader.uint32());
           continue;
         }
-        case 40: {
-          if (tag !== 322) {
-            break;
-          }
-
-          message.buttonsMessageRequest = ButtonsMessageRequest.decode(reader, reader.uint32());
-          continue;
-        }
-        case 41: {
-          if (tag !== 330) {
-            break;
-          }
-
-          message.buttonsMessageResponse = ButtonsMessageResponse.decode(reader, reader.uint32());
-          continue;
-        }
-        case 42: {
-          if (tag !== 338) {
-            break;
-          }
-
-          message.ctaMessageRequest = CTAMessageRequest.decode(reader, reader.uint32());
-          continue;
-        }
-        case 43: {
-          if (tag !== 346) {
-            break;
-          }
-
-          message.ctaMessageResponse = CTAMessageResponse.decode(reader, reader.uint32());
-          continue;
-        }
         case 44: {
           if (tag !== 354) {
             break;
@@ -1337,26 +1305,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.custom_command_response)
         ? CustomCommandResponse.fromJSON(object.custom_command_response)
         : undefined,
-      buttonsMessageRequest: isSet(object.buttonsMessageRequest)
-        ? ButtonsMessageRequest.fromJSON(object.buttonsMessageRequest)
-        : isSet(object.buttons_message_request)
-        ? ButtonsMessageRequest.fromJSON(object.buttons_message_request)
-        : undefined,
-      buttonsMessageResponse: isSet(object.buttonsMessageResponse)
-        ? ButtonsMessageResponse.fromJSON(object.buttonsMessageResponse)
-        : isSet(object.buttons_message_response)
-        ? ButtonsMessageResponse.fromJSON(object.buttons_message_response)
-        : undefined,
-      ctaMessageRequest: isSet(object.ctaMessageRequest)
-        ? CTAMessageRequest.fromJSON(object.ctaMessageRequest)
-        : isSet(object.cta_message_request)
-        ? CTAMessageRequest.fromJSON(object.cta_message_request)
-        : undefined,
-      ctaMessageResponse: isSet(object.ctaMessageResponse)
-        ? CTAMessageResponse.fromJSON(object.ctaMessageResponse)
-        : isSet(object.cta_message_response)
-        ? CTAMessageResponse.fromJSON(object.cta_message_response)
-        : undefined,
       getCommandsRequest: isSet(object.getCommandsRequest)
         ? GetCommandsRequest.fromJSON(object.getCommandsRequest)
         : isSet(object.get_commands_request)
@@ -1449,18 +1397,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.customCommandResponse !== undefined) {
       obj.customCommandResponse = CustomCommandResponse.toJSON(message.customCommandResponse);
-    }
-    if (message.buttonsMessageRequest !== undefined) {
-      obj.buttonsMessageRequest = ButtonsMessageRequest.toJSON(message.buttonsMessageRequest);
-    }
-    if (message.buttonsMessageResponse !== undefined) {
-      obj.buttonsMessageResponse = ButtonsMessageResponse.toJSON(message.buttonsMessageResponse);
-    }
-    if (message.ctaMessageRequest !== undefined) {
-      obj.ctaMessageRequest = CTAMessageRequest.toJSON(message.ctaMessageRequest);
-    }
-    if (message.ctaMessageResponse !== undefined) {
-      obj.ctaMessageResponse = CTAMessageResponse.toJSON(message.ctaMessageResponse);
     }
     if (message.getCommandsRequest !== undefined) {
       obj.getCommandsRequest = GetCommandsRequest.toJSON(message.getCommandsRequest);
@@ -1560,26 +1496,108 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       (object.customCommandResponse !== undefined && object.customCommandResponse !== null)
         ? CustomCommandResponse.fromPartial(object.customCommandResponse)
         : undefined;
-    message.buttonsMessageRequest =
-      (object.buttonsMessageRequest !== undefined && object.buttonsMessageRequest !== null)
-        ? ButtonsMessageRequest.fromPartial(object.buttonsMessageRequest)
-        : undefined;
-    message.buttonsMessageResponse =
-      (object.buttonsMessageResponse !== undefined && object.buttonsMessageResponse !== null)
-        ? ButtonsMessageResponse.fromPartial(object.buttonsMessageResponse)
-        : undefined;
-    message.ctaMessageRequest = (object.ctaMessageRequest !== undefined && object.ctaMessageRequest !== null)
-      ? CTAMessageRequest.fromPartial(object.ctaMessageRequest)
-      : undefined;
-    message.ctaMessageResponse = (object.ctaMessageResponse !== undefined && object.ctaMessageResponse !== null)
-      ? CTAMessageResponse.fromPartial(object.ctaMessageResponse)
-      : undefined;
     message.getCommandsRequest = (object.getCommandsRequest !== undefined && object.getCommandsRequest !== null)
       ? GetCommandsRequest.fromPartial(object.getCommandsRequest)
       : undefined;
     message.getCommandsResponse = (object.getCommandsResponse !== undefined && object.getCommandsResponse !== null)
       ? GetCommandsResponse.fromPartial(object.getCommandsResponse)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseButton(): Button {
+  return { text: "", buttonType: 0, url: undefined };
+}
+
+export const Button: MessageFns<Button> = {
+  encode(message: Button, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.text !== "") {
+      writer.uint32(10).string(message.text);
+    }
+    if (message.buttonType !== 0) {
+      writer.uint32(16).int32(message.buttonType);
+    }
+    if (message.url !== undefined) {
+      writer.uint32(26).string(message.url);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Button {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseButton();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.text = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.buttonType = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.url = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): Button {
+    return {
+      text: isSet(object.text) ? globalThis.String(object.text) : "",
+      buttonType: isSet(object.buttonType)
+        ? buttonTypeFromJSON(object.buttonType)
+        : isSet(object.button_type)
+        ? buttonTypeFromJSON(object.button_type)
+        : 0,
+      url: isSet(object.url) ? globalThis.String(object.url) : undefined,
+    };
+  },
+
+  toJSON(message: Button): unknown {
+    const obj: any = {};
+    if (message.text !== "") {
+      obj.text = message.text;
+    }
+    if (message.buttonType !== 0) {
+      obj.buttonType = buttonTypeToJSON(message.buttonType);
+    }
+    if (message.url !== undefined) {
+      obj.url = message.url;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Button>, I>>(base?: I): Button {
+    return Button.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Button>, I>>(object: I): Button {
+    const message = createBaseButton();
+    message.text = object.text ?? "";
+    message.buttonType = object.buttonType ?? 0;
+    message.url = object.url ?? undefined;
     return message;
   },
 };
@@ -1693,7 +1711,7 @@ export const TextMessage: MessageFns<TextMessage> = {
 };
 
 function createBaseTextMessageRequest(): TextMessageRequest {
-  return { content: undefined, timestamp: undefined };
+  return { content: undefined, timestamp: undefined, buttons: [], header: undefined, footer: undefined };
 }
 
 export const TextMessageRequest: MessageFns<TextMessageRequest> = {
@@ -1703,6 +1721,15 @@ export const TextMessageRequest: MessageFns<TextMessageRequest> = {
     }
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    for (const v of message.buttons) {
+      Button.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.header !== undefined) {
+      writer.uint32(34).string(message.header);
+    }
+    if (message.footer !== undefined) {
+      writer.uint32(42).string(message.footer);
     }
     return writer;
   },
@@ -1730,6 +1757,30 @@ export const TextMessageRequest: MessageFns<TextMessageRequest> = {
           message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.buttons.push(Button.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.header = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.footer = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1743,6 +1794,9 @@ export const TextMessageRequest: MessageFns<TextMessageRequest> = {
     return {
       content: isSet(object.content) ? TextMessage.fromJSON(object.content) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => Button.fromJSON(e)) : [],
+      header: isSet(object.header) ? globalThis.String(object.header) : undefined,
+      footer: isSet(object.footer) ? globalThis.String(object.footer) : undefined,
     };
   },
 
@@ -1753,6 +1807,15 @@ export const TextMessageRequest: MessageFns<TextMessageRequest> = {
     }
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.buttons?.length) {
+      obj.buttons = message.buttons.map((e) => Button.toJSON(e));
+    }
+    if (message.header !== undefined) {
+      obj.header = message.header;
+    }
+    if (message.footer !== undefined) {
+      obj.footer = message.footer;
     }
     return obj;
   },
@@ -1766,6 +1829,9 @@ export const TextMessageRequest: MessageFns<TextMessageRequest> = {
       ? TextMessage.fromPartial(object.content)
       : undefined;
     message.timestamp = object.timestamp ?? undefined;
+    message.buttons = object.buttons?.map((e) => Button.fromPartial(e)) || [];
+    message.header = object.header ?? undefined;
+    message.footer = object.footer ?? undefined;
     return message;
   },
 };
@@ -2001,7 +2067,7 @@ export const VoiceMessage: MessageFns<VoiceMessage> = {
 };
 
 function createBaseVoiceNoteMessageRequest(): VoiceNoteMessageRequest {
-  return { content: undefined, timestamp: undefined, quickReplies: [] };
+  return { content: undefined, timestamp: undefined, buttons: [], header: undefined, footer: undefined };
 }
 
 export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
@@ -2012,8 +2078,14 @@ export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
     }
-    for (const v of message.quickReplies) {
-      writer.uint32(26).string(v!);
+    for (const v of message.buttons) {
+      Button.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.header !== undefined) {
+      writer.uint32(34).string(message.header);
+    }
+    if (message.footer !== undefined) {
+      writer.uint32(42).string(message.footer);
     }
     return writer;
   },
@@ -2046,7 +2118,23 @@ export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
             break;
           }
 
-          message.quickReplies.push(reader.string());
+          message.buttons.push(Button.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.header = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.footer = reader.string();
           continue;
         }
       }
@@ -2062,11 +2150,9 @@ export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
     return {
       content: isSet(object.content) ? VoiceMessage.fromJSON(object.content) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      quickReplies: globalThis.Array.isArray(object?.quickReplies)
-        ? object.quickReplies.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.quick_replies)
-        ? object.quick_replies.map((e: any) => globalThis.String(e))
-        : [],
+      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => Button.fromJSON(e)) : [],
+      header: isSet(object.header) ? globalThis.String(object.header) : undefined,
+      footer: isSet(object.footer) ? globalThis.String(object.footer) : undefined,
     };
   },
 
@@ -2078,8 +2164,14 @@ export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
-    if (message.quickReplies?.length) {
-      obj.quickReplies = message.quickReplies;
+    if (message.buttons?.length) {
+      obj.buttons = message.buttons.map((e) => Button.toJSON(e));
+    }
+    if (message.header !== undefined) {
+      obj.header = message.header;
+    }
+    if (message.footer !== undefined) {
+      obj.footer = message.footer;
     }
     return obj;
   },
@@ -2093,7 +2185,9 @@ export const VoiceNoteMessageRequest: MessageFns<VoiceNoteMessageRequest> = {
       ? VoiceMessage.fromPartial(object.content)
       : undefined;
     message.timestamp = object.timestamp ?? undefined;
-    message.quickReplies = object.quickReplies?.map((e) => e) || [];
+    message.buttons = object.buttons?.map((e) => Button.fromPartial(e)) || [];
+    message.header = object.header ?? undefined;
+    message.footer = object.footer ?? undefined;
     return message;
   },
 };
@@ -2296,7 +2390,7 @@ export const ImageMessage: MessageFns<ImageMessage> = {
 };
 
 function createBaseImageMessageRequest(): ImageMessageRequest {
-  return { content: undefined, timestamp: undefined, quickReplies: [] };
+  return { content: undefined, timestamp: undefined, buttons: [], header: undefined, footer: undefined };
 }
 
 export const ImageMessageRequest: MessageFns<ImageMessageRequest> = {
@@ -2307,8 +2401,14 @@ export const ImageMessageRequest: MessageFns<ImageMessageRequest> = {
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
     }
-    for (const v of message.quickReplies) {
-      writer.uint32(26).string(v!);
+    for (const v of message.buttons) {
+      Button.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.header !== undefined) {
+      writer.uint32(34).string(message.header);
+    }
+    if (message.footer !== undefined) {
+      writer.uint32(42).string(message.footer);
     }
     return writer;
   },
@@ -2341,7 +2441,23 @@ export const ImageMessageRequest: MessageFns<ImageMessageRequest> = {
             break;
           }
 
-          message.quickReplies.push(reader.string());
+          message.buttons.push(Button.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.header = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.footer = reader.string();
           continue;
         }
       }
@@ -2357,11 +2473,9 @@ export const ImageMessageRequest: MessageFns<ImageMessageRequest> = {
     return {
       content: isSet(object.content) ? ImageMessage.fromJSON(object.content) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      quickReplies: globalThis.Array.isArray(object?.quickReplies)
-        ? object.quickReplies.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.quick_replies)
-        ? object.quick_replies.map((e: any) => globalThis.String(e))
-        : [],
+      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => Button.fromJSON(e)) : [],
+      header: isSet(object.header) ? globalThis.String(object.header) : undefined,
+      footer: isSet(object.footer) ? globalThis.String(object.footer) : undefined,
     };
   },
 
@@ -2373,8 +2487,14 @@ export const ImageMessageRequest: MessageFns<ImageMessageRequest> = {
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
-    if (message.quickReplies?.length) {
-      obj.quickReplies = message.quickReplies;
+    if (message.buttons?.length) {
+      obj.buttons = message.buttons.map((e) => Button.toJSON(e));
+    }
+    if (message.header !== undefined) {
+      obj.header = message.header;
+    }
+    if (message.footer !== undefined) {
+      obj.footer = message.footer;
     }
     return obj;
   },
@@ -2388,7 +2508,9 @@ export const ImageMessageRequest: MessageFns<ImageMessageRequest> = {
       ? ImageMessage.fromPartial(object.content)
       : undefined;
     message.timestamp = object.timestamp ?? undefined;
-    message.quickReplies = object.quickReplies?.map((e) => e) || [];
+    message.buttons = object.buttons?.map((e) => Button.fromPartial(e)) || [];
+    message.header = object.header ?? undefined;
+    message.footer = object.footer ?? undefined;
     return message;
   },
 };
@@ -2591,7 +2713,7 @@ export const AttachmentMessage: MessageFns<AttachmentMessage> = {
 };
 
 function createBaseAttachmentMessageRequest(): AttachmentMessageRequest {
-  return { content: undefined, timestamp: undefined, quickReplies: [] };
+  return { content: undefined, timestamp: undefined, buttons: [], header: undefined, footer: undefined };
 }
 
 export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
@@ -2602,8 +2724,14 @@ export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
     }
-    for (const v of message.quickReplies) {
-      writer.uint32(26).string(v!);
+    for (const v of message.buttons) {
+      Button.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.header !== undefined) {
+      writer.uint32(34).string(message.header);
+    }
+    if (message.footer !== undefined) {
+      writer.uint32(42).string(message.footer);
     }
     return writer;
   },
@@ -2636,7 +2764,23 @@ export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
             break;
           }
 
-          message.quickReplies.push(reader.string());
+          message.buttons.push(Button.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.header = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.footer = reader.string();
           continue;
         }
       }
@@ -2652,11 +2796,9 @@ export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
     return {
       content: isSet(object.content) ? AttachmentMessage.fromJSON(object.content) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      quickReplies: globalThis.Array.isArray(object?.quickReplies)
-        ? object.quickReplies.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.quick_replies)
-        ? object.quick_replies.map((e: any) => globalThis.String(e))
-        : [],
+      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => Button.fromJSON(e)) : [],
+      header: isSet(object.header) ? globalThis.String(object.header) : undefined,
+      footer: isSet(object.footer) ? globalThis.String(object.footer) : undefined,
     };
   },
 
@@ -2668,8 +2810,14 @@ export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
-    if (message.quickReplies?.length) {
-      obj.quickReplies = message.quickReplies;
+    if (message.buttons?.length) {
+      obj.buttons = message.buttons.map((e) => Button.toJSON(e));
+    }
+    if (message.header !== undefined) {
+      obj.header = message.header;
+    }
+    if (message.footer !== undefined) {
+      obj.footer = message.footer;
     }
     return obj;
   },
@@ -2683,7 +2831,9 @@ export const AttachmentMessageRequest: MessageFns<AttachmentMessageRequest> = {
       ? AttachmentMessage.fromPartial(object.content)
       : undefined;
     message.timestamp = object.timestamp ?? undefined;
-    message.quickReplies = object.quickReplies?.map((e) => e) || [];
+    message.buttons = object.buttons?.map((e) => Button.fromPartial(e)) || [];
+    message.header = object.header ?? undefined;
+    message.footer = object.footer ?? undefined;
     return message;
   },
 };
@@ -2903,7 +3053,7 @@ export const VideoMessage: MessageFns<VideoMessage> = {
 };
 
 function createBaseVideoMessageRequest(): VideoMessageRequest {
-  return { content: undefined, timestamp: undefined, quickReplies: [] };
+  return { content: undefined, timestamp: undefined, buttons: [], header: undefined, footer: undefined };
 }
 
 export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
@@ -2914,8 +3064,14 @@ export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
     }
-    for (const v of message.quickReplies) {
-      writer.uint32(26).string(v!);
+    for (const v of message.buttons) {
+      Button.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.header !== undefined) {
+      writer.uint32(34).string(message.header);
+    }
+    if (message.footer !== undefined) {
+      writer.uint32(42).string(message.footer);
     }
     return writer;
   },
@@ -2948,7 +3104,23 @@ export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
             break;
           }
 
-          message.quickReplies.push(reader.string());
+          message.buttons.push(Button.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.header = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.footer = reader.string();
           continue;
         }
       }
@@ -2964,11 +3136,9 @@ export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
     return {
       content: isSet(object.content) ? VideoMessage.fromJSON(object.content) : undefined,
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      quickReplies: globalThis.Array.isArray(object?.quickReplies)
-        ? object.quickReplies.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.quick_replies)
-        ? object.quick_replies.map((e: any) => globalThis.String(e))
-        : [],
+      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => Button.fromJSON(e)) : [],
+      header: isSet(object.header) ? globalThis.String(object.header) : undefined,
+      footer: isSet(object.footer) ? globalThis.String(object.footer) : undefined,
     };
   },
 
@@ -2980,8 +3150,14 @@ export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
-    if (message.quickReplies?.length) {
-      obj.quickReplies = message.quickReplies;
+    if (message.buttons?.length) {
+      obj.buttons = message.buttons.map((e) => Button.toJSON(e));
+    }
+    if (message.header !== undefined) {
+      obj.header = message.header;
+    }
+    if (message.footer !== undefined) {
+      obj.footer = message.footer;
     }
     return obj;
   },
@@ -2995,13 +3171,15 @@ export const VideoMessageRequest: MessageFns<VideoMessageRequest> = {
       ? VideoMessage.fromPartial(object.content)
       : undefined;
     message.timestamp = object.timestamp ?? undefined;
-    message.quickReplies = object.quickReplies?.map((e) => e) || [];
+    message.buttons = object.buttons?.map((e) => Button.fromPartial(e)) || [];
+    message.header = object.header ?? undefined;
+    message.footer = object.footer ?? undefined;
     return message;
   },
 };
 
 function createBaseMessageReceiptRequest(): MessageReceiptRequest {
-  return { status: 0, messageId: "", timestamp: undefined, quickReplies: [] };
+  return { status: 0, messageId: "", timestamp: undefined };
 }
 
 export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
@@ -3014,9 +3192,6 @@ export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
     }
     if (message.timestamp !== undefined) {
       Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
-    }
-    for (const v of message.quickReplies) {
-      writer.uint32(34).string(v!);
     }
     return writer;
   },
@@ -3052,14 +3227,6 @@ export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
           message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
           continue;
         }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.quickReplies.push(reader.string());
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -3078,11 +3245,6 @@ export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
         ? globalThis.String(object.message_id)
         : "",
       timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      quickReplies: globalThis.Array.isArray(object?.quickReplies)
-        ? object.quickReplies.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.quick_replies)
-        ? object.quick_replies.map((e: any) => globalThis.String(e))
-        : [],
     };
   },
 
@@ -3097,9 +3259,6 @@ export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
     if (message.timestamp !== undefined) {
       obj.timestamp = message.timestamp.toISOString();
     }
-    if (message.quickReplies?.length) {
-      obj.quickReplies = message.quickReplies;
-    }
     return obj;
   },
 
@@ -3111,7 +3270,6 @@ export const MessageReceiptRequest: MessageFns<MessageReceiptRequest> = {
     message.status = object.status ?? 0;
     message.messageId = object.messageId ?? "";
     message.timestamp = object.timestamp ?? undefined;
-    message.quickReplies = object.quickReplies?.map((e) => e) || [];
     return message;
   },
 };
@@ -5039,646 +5197,6 @@ export const CustomCommandResponse: MessageFns<CustomCommandResponse> = {
     message.status = object.status ?? 0;
     message.payload = object.payload ?? "";
     message.timestamp = object.timestamp ?? undefined;
-    return message;
-  },
-};
-
-function createBaseButtonsMessage(): ButtonsMessage {
-  return { header: "", body: "", footer: "", buttons: [] };
-}
-
-export const ButtonsMessage: MessageFns<ButtonsMessage> = {
-  encode(message: ButtonsMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.header !== "") {
-      writer.uint32(10).string(message.header);
-    }
-    if (message.body !== "") {
-      writer.uint32(18).string(message.body);
-    }
-    if (message.footer !== "") {
-      writer.uint32(26).string(message.footer);
-    }
-    for (const v of message.buttons) {
-      writer.uint32(34).string(v!);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ButtonsMessage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseButtonsMessage();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.header = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.body = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.footer = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.buttons.push(reader.string());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ButtonsMessage {
-    return {
-      header: isSet(object.header) ? globalThis.String(object.header) : "",
-      body: isSet(object.body) ? globalThis.String(object.body) : "",
-      footer: isSet(object.footer) ? globalThis.String(object.footer) : "",
-      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => globalThis.String(e)) : [],
-    };
-  },
-
-  toJSON(message: ButtonsMessage): unknown {
-    const obj: any = {};
-    if (message.header !== "") {
-      obj.header = message.header;
-    }
-    if (message.body !== "") {
-      obj.body = message.body;
-    }
-    if (message.footer !== "") {
-      obj.footer = message.footer;
-    }
-    if (message.buttons?.length) {
-      obj.buttons = message.buttons;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ButtonsMessage>, I>>(base?: I): ButtonsMessage {
-    return ButtonsMessage.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ButtonsMessage>, I>>(object: I): ButtonsMessage {
-    const message = createBaseButtonsMessage();
-    message.header = object.header ?? "";
-    message.body = object.body ?? "";
-    message.footer = object.footer ?? "";
-    message.buttons = object.buttons?.map((e) => e) || [];
-    return message;
-  },
-};
-
-function createBaseButtonsMessageRequest(): ButtonsMessageRequest {
-  return { content: undefined, timestamp: undefined };
-}
-
-export const ButtonsMessageRequest: MessageFns<ButtonsMessageRequest> = {
-  encode(message: ButtonsMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.content !== undefined) {
-      ButtonsMessage.encode(message.content, writer.uint32(10).fork()).join();
-    }
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ButtonsMessageRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseButtonsMessageRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.content = ButtonsMessage.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ButtonsMessageRequest {
-    return {
-      content: isSet(object.content) ? ButtonsMessage.fromJSON(object.content) : undefined,
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-    };
-  },
-
-  toJSON(message: ButtonsMessageRequest): unknown {
-    const obj: any = {};
-    if (message.content !== undefined) {
-      obj.content = ButtonsMessage.toJSON(message.content);
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ButtonsMessageRequest>, I>>(base?: I): ButtonsMessageRequest {
-    return ButtonsMessageRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ButtonsMessageRequest>, I>>(object: I): ButtonsMessageRequest {
-    const message = createBaseButtonsMessageRequest();
-    message.content = (object.content !== undefined && object.content !== null)
-      ? ButtonsMessage.fromPartial(object.content)
-      : undefined;
-    message.timestamp = object.timestamp ?? undefined;
-    return message;
-  },
-};
-
-function createBaseButtonsMessageResponse(): ButtonsMessageResponse {
-  return { status: 0, timestamp: undefined, messageId: "" };
-}
-
-export const ButtonsMessageResponse: MessageFns<ButtonsMessageResponse> = {
-  encode(message: ButtonsMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
-    }
-    if (message.messageId !== "") {
-      writer.uint32(26).string(message.messageId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ButtonsMessageResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseButtonsMessageResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.messageId = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): ButtonsMessageResponse {
-    return {
-      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      messageId: isSet(object.messageId)
-        ? globalThis.String(object.messageId)
-        : isSet(object.message_id)
-        ? globalThis.String(object.message_id)
-        : "",
-    };
-  },
-
-  toJSON(message: ButtonsMessageResponse): unknown {
-    const obj: any = {};
-    if (message.status !== 0) {
-      obj.status = responseStatusToJSON(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    if (message.messageId !== "") {
-      obj.messageId = message.messageId;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ButtonsMessageResponse>, I>>(base?: I): ButtonsMessageResponse {
-    return ButtonsMessageResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ButtonsMessageResponse>, I>>(object: I): ButtonsMessageResponse {
-    const message = createBaseButtonsMessageResponse();
-    message.status = object.status ?? 0;
-    message.timestamp = object.timestamp ?? undefined;
-    message.messageId = object.messageId ?? "";
-    return message;
-  },
-};
-
-function createBaseCTAButton(): CTAButton {
-  return { text: "", url: "" };
-}
-
-export const CTAButton: MessageFns<CTAButton> = {
-  encode(message: CTAButton, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.text !== "") {
-      writer.uint32(10).string(message.text);
-    }
-    if (message.url !== "") {
-      writer.uint32(18).string(message.url);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): CTAButton {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCTAButton();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.text = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.url = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): CTAButton {
-    return {
-      text: isSet(object.text) ? globalThis.String(object.text) : "",
-      url: isSet(object.url) ? globalThis.String(object.url) : "",
-    };
-  },
-
-  toJSON(message: CTAButton): unknown {
-    const obj: any = {};
-    if (message.text !== "") {
-      obj.text = message.text;
-    }
-    if (message.url !== "") {
-      obj.url = message.url;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<CTAButton>, I>>(base?: I): CTAButton {
-    return CTAButton.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<CTAButton>, I>>(object: I): CTAButton {
-    const message = createBaseCTAButton();
-    message.text = object.text ?? "";
-    message.url = object.url ?? "";
-    return message;
-  },
-};
-
-function createBaseCTAMessage(): CTAMessage {
-  return { header: "", body: "", footer: "", buttons: [] };
-}
-
-export const CTAMessage: MessageFns<CTAMessage> = {
-  encode(message: CTAMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.header !== "") {
-      writer.uint32(10).string(message.header);
-    }
-    if (message.body !== "") {
-      writer.uint32(18).string(message.body);
-    }
-    if (message.footer !== "") {
-      writer.uint32(26).string(message.footer);
-    }
-    for (const v of message.buttons) {
-      CTAButton.encode(v!, writer.uint32(34).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): CTAMessage {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCTAMessage();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.header = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.body = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.footer = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.buttons.push(CTAButton.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): CTAMessage {
-    return {
-      header: isSet(object.header) ? globalThis.String(object.header) : "",
-      body: isSet(object.body) ? globalThis.String(object.body) : "",
-      footer: isSet(object.footer) ? globalThis.String(object.footer) : "",
-      buttons: globalThis.Array.isArray(object?.buttons) ? object.buttons.map((e: any) => CTAButton.fromJSON(e)) : [],
-    };
-  },
-
-  toJSON(message: CTAMessage): unknown {
-    const obj: any = {};
-    if (message.header !== "") {
-      obj.header = message.header;
-    }
-    if (message.body !== "") {
-      obj.body = message.body;
-    }
-    if (message.footer !== "") {
-      obj.footer = message.footer;
-    }
-    if (message.buttons?.length) {
-      obj.buttons = message.buttons.map((e) => CTAButton.toJSON(e));
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<CTAMessage>, I>>(base?: I): CTAMessage {
-    return CTAMessage.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<CTAMessage>, I>>(object: I): CTAMessage {
-    const message = createBaseCTAMessage();
-    message.header = object.header ?? "";
-    message.body = object.body ?? "";
-    message.footer = object.footer ?? "";
-    message.buttons = object.buttons?.map((e) => CTAButton.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseCTAMessageRequest(): CTAMessageRequest {
-  return { content: undefined, timestamp: undefined };
-}
-
-export const CTAMessageRequest: MessageFns<CTAMessageRequest> = {
-  encode(message: CTAMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.content !== undefined) {
-      CTAMessage.encode(message.content, writer.uint32(10).fork()).join();
-    }
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): CTAMessageRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCTAMessageRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.content = CTAMessage.decode(reader, reader.uint32());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): CTAMessageRequest {
-    return {
-      content: isSet(object.content) ? CTAMessage.fromJSON(object.content) : undefined,
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-    };
-  },
-
-  toJSON(message: CTAMessageRequest): unknown {
-    const obj: any = {};
-    if (message.content !== undefined) {
-      obj.content = CTAMessage.toJSON(message.content);
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<CTAMessageRequest>, I>>(base?: I): CTAMessageRequest {
-    return CTAMessageRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<CTAMessageRequest>, I>>(object: I): CTAMessageRequest {
-    const message = createBaseCTAMessageRequest();
-    message.content = (object.content !== undefined && object.content !== null)
-      ? CTAMessage.fromPartial(object.content)
-      : undefined;
-    message.timestamp = object.timestamp ?? undefined;
-    return message;
-  },
-};
-
-function createBaseCTAMessageResponse(): CTAMessageResponse {
-  return { status: 0, timestamp: undefined, messageId: "" };
-}
-
-export const CTAMessageResponse: MessageFns<CTAMessageResponse> = {
-  encode(message: CTAMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
-    }
-    if (message.messageId !== "") {
-      writer.uint32(26).string(message.messageId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): CTAMessageResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseCTAMessageResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.status = reader.int32() as any;
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.messageId = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): CTAMessageResponse {
-    return {
-      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-      messageId: isSet(object.messageId)
-        ? globalThis.String(object.messageId)
-        : isSet(object.message_id)
-        ? globalThis.String(object.message_id)
-        : "",
-    };
-  },
-
-  toJSON(message: CTAMessageResponse): unknown {
-    const obj: any = {};
-    if (message.status !== 0) {
-      obj.status = responseStatusToJSON(message.status);
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    if (message.messageId !== "") {
-      obj.messageId = message.messageId;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<CTAMessageResponse>, I>>(base?: I): CTAMessageResponse {
-    return CTAMessageResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<CTAMessageResponse>, I>>(object: I): CTAMessageResponse {
-    const message = createBaseCTAMessageResponse();
-    message.status = object.status ?? 0;
-    message.timestamp = object.timestamp ?? undefined;
-    message.messageId = object.messageId ?? "";
     return message;
   },
 };

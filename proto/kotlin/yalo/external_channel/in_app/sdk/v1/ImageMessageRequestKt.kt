@@ -92,71 +92,120 @@ public object ImageMessageRequestKt {
      * generics.
      */
     @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-    public class QuickRepliesProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
+    public class ButtonsProxy private constructor() : com.google.protobuf.kotlin.DslProxy()
     /**
-     * `repeated string quick_replies = 3;`
-     * @return A list containing the quickReplies.
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
      */
-    public val quickReplies: com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>
-    @kotlin.OptIn(com.google.protobuf.kotlin.OnlyForUseByGeneratedProtoCode::class)
-      get() = com.google.protobuf.kotlin.DslList(
-        _builder.quickRepliesList
+     public val buttons: com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>
+      @kotlin.jvm.JvmSynthetic
+  get() = com.google.protobuf.kotlin.DslList(
+        _builder.buttonsList
       )
     /**
-     * `repeated string quick_replies = 3;`
-     * @param value The quickReplies to add.
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param value The buttons to add.
      */
     @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("addQuickReplies")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.add(value: kotlin.String) {
-      _builder.addQuickReplies(value)
+@kotlin.jvm.JvmName("addButtons")
+    public fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.add(value: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button) {
+      _builder.addButtons(value)
     }
     /**
-     * `repeated string quick_replies = 3;`
-     * @param value The quickReplies to add.
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param value The buttons to add.
      */
     @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("plusAssignQuickReplies")
+@kotlin.jvm.JvmName("plusAssignButtons")
     @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.plusAssign(value: kotlin.String) {
+    public inline operator fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.plusAssign(value: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button) {
       add(value)
     }
     /**
-     * `repeated string quick_replies = 3;`
-     * @param values The quickReplies to add.
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param values The buttons to add.
      */
     @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("addAllQuickReplies")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.addAll(values: kotlin.collections.Iterable<kotlin.String>) {
-      _builder.addAllQuickReplies(values)
+@kotlin.jvm.JvmName("addAllButtons")
+    public fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.addAll(values: kotlin.collections.Iterable<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button>) {
+      _builder.addAllButtons(values)
     }
     /**
-     * `repeated string quick_replies = 3;`
-     * @param values The quickReplies to add.
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
+     * @param values The buttons to add.
      */
     @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("plusAssignAllQuickReplies")
+@kotlin.jvm.JvmName("plusAssignAllButtons")
     @Suppress("NOTHING_TO_INLINE")
-    public inline operator fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.plusAssign(values: kotlin.collections.Iterable<kotlin.String>) {
+    public inline operator fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.plusAssign(values: kotlin.collections.Iterable<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button>) {
       addAll(values)
     }
     /**
-     * `repeated string quick_replies = 3;`
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
      * @param index The index to set the value at.
-     * @param value The quickReplies to set.
+     * @param value The buttons to set.
      */
     @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("setQuickReplies")
-    public operator fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.set(index: kotlin.Int, value: kotlin.String) {
-      _builder.setQuickReplies(index, value)
-    }/**
-     * `repeated string quick_replies = 3;`
+@kotlin.jvm.JvmName("setButtons")
+    public operator fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.set(index: kotlin.Int, value: yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button) {
+      _builder.setButtons(index, value)
+    }
+    /**
+     * `repeated .yalo.external_channel.in_app.sdk.v1.Button buttons = 3;`
      */
     @kotlin.jvm.JvmSynthetic
-@kotlin.jvm.JvmName("setQuickReplies")
-    public fun com.google.protobuf.kotlin.DslList<kotlin.String, QuickRepliesProxy>.clear() {
-      _builder.clearQuickReplies()
-    }}
+@kotlin.jvm.JvmName("clearButtons")
+    public fun com.google.protobuf.kotlin.DslList<yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.Button, ButtonsProxy>.clear() {
+      _builder.clearButtons()
+    }
+
+    /**
+     * `optional string header = 4;`
+     */
+    public var header: kotlin.String
+      @kotlin.jvm.JvmName("getHeader")
+        get() = _builder.header
+      @kotlin.jvm.JvmName("setHeader")
+        set(value) {
+        _builder.header = value
+      }
+    /**
+     * `optional string header = 4;`
+     */
+    public fun clearHeader() {
+      _builder.clearHeader()
+    }
+    /**
+     * `optional string header = 4;`
+     * @return Whether the header field is set.
+     */
+    public fun hasHeader(): kotlin.Boolean {
+      return _builder.hasHeader()
+    }
+
+    /**
+     * `optional string footer = 5;`
+     */
+    public var footer: kotlin.String
+      @kotlin.jvm.JvmName("getFooter")
+        get() = _builder.footer
+      @kotlin.jvm.JvmName("setFooter")
+        set(value) {
+        _builder.footer = value
+      }
+    /**
+     * `optional string footer = 5;`
+     */
+    public fun clearFooter() {
+      _builder.clearFooter()
+    }
+    /**
+     * `optional string footer = 5;`
+     * @return Whether the footer field is set.
+     */
+    public fun hasFooter(): kotlin.Boolean {
+      return _builder.hasFooter()
+    }
+  }
 }
 public inline fun yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageRequest.copy(block: `yalo.external_channel.in_app.sdk.v1`.ImageMessageRequestKt.Dsl.() -> kotlin.Unit): yalo.external_channel.in_app.sdk.v1.SdkMessageOuterClass.ImageMessageRequest =
   `yalo.external_channel.in_app.sdk.v1`.ImageMessageRequestKt.Dsl._create(this.toBuilder()).apply { block() }._build()
