@@ -14,8 +14,8 @@ enum class ChatCommand {
 }
 
 // Typed alias for the payload map. Parameterised commands receive a map with these shapes:
-//   ADD_TO_CART      → mapOf("sku" to String, "quantity" to Double)
-//   REMOVE_FROM_CART → mapOf("sku" to String, "quantity" to Double?)
+//   ADD_TO_CART      → mapOf("sku" to String, "quantity" to Double, "unitType" to UnitType?)
+//   REMOVE_FROM_CART → mapOf("sku" to String, "quantity" to Double?, "unitType" to UnitType?)
 //   ADD_PROMOTION    → mapOf("promotionId" to String)
 //   CLEAR_CART       → null
 //   GUIDANCE_CARD    → null

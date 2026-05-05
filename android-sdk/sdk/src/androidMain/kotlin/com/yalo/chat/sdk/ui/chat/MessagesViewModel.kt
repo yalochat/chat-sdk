@@ -208,9 +208,9 @@ internal class MessagesViewModel(
                     // Per-SKU serialization deferred to a future milestone.
                     // delta > 0 → addToCart; delta < 0 → removeFromCart with absolute quantity.
                     if (delta > 0) {
-                        yaloMessageRepository.addToCart(productSku, delta)
+                        yaloMessageRepository.addToCart(productSku, delta, unitType)
                     } else if (delta < 0) {
-                        yaloMessageRepository.removeFromCart(productSku, -delta)
+                        yaloMessageRepository.removeFromCart(productSku, -delta, unitType)
                     }
                 }
             }

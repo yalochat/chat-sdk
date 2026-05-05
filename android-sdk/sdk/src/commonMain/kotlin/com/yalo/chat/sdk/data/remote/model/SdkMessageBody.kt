@@ -82,6 +82,7 @@ internal data class SdkAddToCartRequestBody(
     val sku: String,
     val quantity: Double,
     val timestamp: String,
+    @kotlinx.serialization.SerialName("unit_type") val unitType: String? = null,
 )
 
 @Serializable
@@ -89,6 +90,7 @@ internal data class SdkRemoveFromCartRequestBody(
     val sku: String,
     val quantity: Double? = null,
     val timestamp: String,
+    @kotlinx.serialization.SerialName("unit_type") val unitType: String? = null,
 )
 
 @Serializable

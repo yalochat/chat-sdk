@@ -247,23 +247,23 @@ internal class YaloChatApiService(
     // Cart operations — mirrors flutter-sdk YaloMessageServiceRemote.
     // Each method builds the corresponding proto-JSON SdkMessageBody and POSTs to /inapp/inbound_messages.
 
-    suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
+    suspend fun addToCart(sku: String, quantity: Double, unitType: String? = null): Result<Unit> {
         val instant = Clock.System.now()
         val now = instant.toString()
         return sendMessage(SdkMessageBody(
             correlationId = "add-to-cart-$sku-${instant.toEpochMilliseconds()}",
             timestamp = now,
-            addToCartRequest = SdkAddToCartRequestBody(sku = sku, quantity = quantity, timestamp = now),
+            addToCartRequest = SdkAddToCartRequestBody(sku = sku, quantity = quantity, timestamp = now, unitType = unitType),
         ))
     }
 
-    suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
+    suspend fun removeFromCart(sku: String, quantity: Double?, unitType: String? = null): Result<Unit> {
         val instant = Clock.System.now()
         val now = instant.toString()
         return sendMessage(SdkMessageBody(
             correlationId = "remove-from-cart-$sku-${instant.toEpochMilliseconds()}",
             timestamp = now,
-            removeFromCartRequest = SdkRemoveFromCartRequestBody(sku = sku, quantity = quantity, timestamp = now),
+            removeFromCartRequest = SdkRemoveFromCartRequestBody(sku = sku, quantity = quantity, timestamp = now, unitType = unitType),
         ))
     }
 

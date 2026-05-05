@@ -6,6 +6,7 @@ import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatEvent
+import com.yalo.chat.sdk.ui.chat.UnitType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -973,6 +974,36 @@ class YaloMessageRepositoryRemoteTest {
 
         assertIs<Result.Ok<Unit>>(result)
         assertTrue(inboundPaths.any { it.contains("inbound_messages") }, "API must be called when no callback registered")
+    }
+
+    @Test
+    fun `addToCart callback payload includes unitType`() = runTest {
+        val repo = buildRepoWithEngine(MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        })
+        var callbackPayload: Any? = null
+        repo.registerCommand(ChatCommand.ADD_TO_CART) { payload -> callbackPayload = payload }
+        repo.addToCart("sku-1", 2.0, UnitType.UNIT)
+        assertEquals(UnitType.UNIT, (callbackPayload as Map<*, *>)[KEY_UNIT_TYPE])
+    }
+
+    @Test
+    fun `removeFromCart callback payload includes unitType`() = runTest {
+        val repo = buildRepoWithEngine(MockEngine { request ->
+            if (request.url.encodedPath.endsWith("/auth")) {
+                respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("{}", HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+            }
+        })
+        var callbackPayload: Any? = null
+        repo.registerCommand(ChatCommand.REMOVE_FROM_CART) { payload -> callbackPayload = payload }
+        repo.removeFromCart("sku-1", 1.0, UnitType.SUBUNIT)
+        assertEquals(UnitType.SUBUNIT, (callbackPayload as Map<*, *>)[KEY_UNIT_TYPE])
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

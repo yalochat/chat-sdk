@@ -22,6 +22,7 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import com.yalo.chat.sdk.ui.chat.UnitType
 import kotlin.concurrent.Volatile
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -504,22 +505,22 @@ internal class YaloMessageRepositoryRemote(
     // Mirrors flutter-sdk YaloMessageRepositoryRemote.addToCart/removeFromCart/clearCart/addPromotion.
     // If a ChatCommand callback is registered, it fires instead of the API call (same pattern as Flutter).
 
-    override suspend fun addToCart(sku: String, quantity: Double): Result<Unit> {
+    override suspend fun addToCart(sku: String, quantity: Double, unitType: UnitType?): Result<Unit> {
         val callback = commands[ChatCommand.ADD_TO_CART]
         if (callback != null) {
-            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity))
+            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity, KEY_UNIT_TYPE to unitType))
             return Result.Ok(Unit)
         }
-        return apiService.addToCart(sku, quantity)
+        return apiService.addToCart(sku, quantity, unitType.toApiString())
     }
 
-    override suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> {
+    override suspend fun removeFromCart(sku: String, quantity: Double?, unitType: UnitType?): Result<Unit> {
         val callback = commands[ChatCommand.REMOVE_FROM_CART]
         if (callback != null) {
-            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity))
+            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity, KEY_UNIT_TYPE to unitType))
             return Result.Ok(Unit)
         }
-        return apiService.removeFromCart(sku, quantity)
+        return apiService.removeFromCart(sku, quantity, unitType.toApiString())
     }
 
     override suspend fun clearCart(): Result<Unit> {
@@ -546,7 +547,15 @@ private const val TYPING_STATUS_TEXT = "Writing message..."
 // Cart command payload keys — centralised so refactors cannot silently diverge.
 internal const val KEY_SKU = "sku"
 internal const val KEY_QUANTITY = "quantity"
+internal const val KEY_UNIT_TYPE = "unitType"
 internal const val KEY_PROMOTION_ID = "promotionId"
+
+// Proto3 JSON enum names for unit_type (mirrors AddToCartRequest / RemoveFromCartRequest in sdk_message.proto).
+private fun UnitType?.toApiString(): String? = when (this) {
+    UnitType.UNIT -> "UNIT_TYPE_UNIT"
+    UnitType.SUBUNIT -> "UNIT_TYPE_SUBUNIT"
+    null -> null
+}
 // Proto3 JSON enum value name for horizontal orientation (carousel layout).
 // Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
 private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"

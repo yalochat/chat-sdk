@@ -5,6 +5,7 @@ package com.yalo.chat.sdk.domain.repository
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.ui.chat.UnitType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -38,8 +39,8 @@ interface YaloMessageRepository {
     // Default no-op so FakeYaloMessageRepository and test stubs don't need to override them.
     // YaloMessageRepositoryRemote overrides these: if a ChatCommand callback is registered the
     // callback fires and the API call is skipped; otherwise the request is sent to the backend.
-    suspend fun addToCart(sku: String, quantity: Double): Result<Unit> = Result.Ok(Unit)
-    suspend fun removeFromCart(sku: String, quantity: Double?): Result<Unit> = Result.Ok(Unit)
+    suspend fun addToCart(sku: String, quantity: Double, unitType: UnitType? = null): Result<Unit> = Result.Ok(Unit)
+    suspend fun removeFromCart(sku: String, quantity: Double?, unitType: UnitType? = null): Result<Unit> = Result.Ok(Unit)
     suspend fun clearCart(): Result<Unit> = Result.Ok(Unit)
     suspend fun addPromotion(promotionId: String): Result<Unit> = Result.Ok(Unit)
 }

@@ -756,11 +756,11 @@ class MessagesViewModelTest {
         override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
         override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
         override fun events(): Flow<ChatEvent> = emptyFlow()
-        override suspend fun addToCart(sku: String, quantity: Double): com.yalo.chat.sdk.common.Result<Unit> {
+        override suspend fun addToCart(sku: String, quantity: Double, unitType: com.yalo.chat.sdk.ui.chat.UnitType?): com.yalo.chat.sdk.common.Result<Unit> {
             addToCartCalls.add(sku to quantity)
             return Result.Ok(Unit)
         }
-        override suspend fun removeFromCart(sku: String, quantity: Double?): com.yalo.chat.sdk.common.Result<Unit> {
+        override suspend fun removeFromCart(sku: String, quantity: Double?, unitType: com.yalo.chat.sdk.ui.chat.UnitType?): com.yalo.chat.sdk.common.Result<Unit> {
             removeFromCartCalls.add(sku to quantity)
             return Result.Ok(Unit)
         }
