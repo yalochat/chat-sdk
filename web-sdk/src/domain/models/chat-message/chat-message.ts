@@ -5,11 +5,6 @@ import type { Product } from '../product/product';
 export const MessageRoles = ['USER', 'AGENT'] as const;
 export type MessageRole = (typeof MessageRoles)[number];
 
-export type CTAButton = {
-  readonly text: string;
-  readonly url: string;
-};
-
 export const MessageTypes = [
   'text',
   'image',
@@ -17,11 +12,8 @@ export const MessageTypes = [
   'product',
   'productCarousel',
   'promotion',
-  'quickReply',
   'video',
   'attachment',
-  'buttons',
-  'cta',
   'unknown',
 ] as const;
 export type MessageType = (typeof MessageTypes)[number];
@@ -49,11 +41,9 @@ export class ChatMessage {
   readonly byteCount?: number;
   readonly mediaType?: string;
   readonly blob?: Blob;
-  readonly quickReplies: string[];
   readonly header?: string;
   readonly footer?: string;
   readonly buttons: string[];
-  readonly ctaButtons: CTAButton[];
   readonly products: Product[];
   readonly expand: boolean;
 
@@ -71,11 +61,9 @@ export class ChatMessage {
     byteCount?: number;
     mediaType?: string;
     blob?: Blob;
-    quickReplies?: string[];
     header?: string;
     footer?: string;
     buttons?: string[];
-    ctaButtons?: CTAButton[];
     products?: Product[];
     expand?: boolean;
   }) {
@@ -92,11 +80,9 @@ export class ChatMessage {
     this.byteCount = params.byteCount;
     this.mediaType = params.mediaType;
     this.blob = params.blob;
-    this.quickReplies = params.quickReplies ?? [];
     this.header = params.header;
     this.footer = params.footer;
     this.buttons = params.buttons ?? [];
-    this.ctaButtons = params.ctaButtons ?? [];
     this.products = params.products ?? [];
     this.expand = params.expand ?? false;
   }
@@ -108,7 +94,9 @@ export class ChatMessage {
     id?: number;
     wiId?: string;
     status?: MessageStatus;
-    quickReplies?: string[];
+    header?: string;
+    footer?: string;
+    buttons?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'text' });
   }
@@ -125,7 +113,9 @@ export class ChatMessage {
     byteCount?: number;
     mediaType?: string;
     blob?: Blob;
-    quickReplies?: string[];
+    header?: string;
+    footer?: string;
+    buttons?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'voice' });
   }
@@ -141,7 +131,9 @@ export class ChatMessage {
     byteCount?: number;
     mediaType?: string;
     blob?: Blob;
-    quickReplies?: string[];
+    header?: string;
+    footer?: string;
+    buttons?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'image' });
   }
@@ -158,7 +150,9 @@ export class ChatMessage {
     byteCount?: number;
     mediaType?: string;
     blob?: Blob;
-    quickReplies?: string[];
+    header?: string;
+    footer?: string;
+    buttons?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'video' });
   }
@@ -174,23 +168,11 @@ export class ChatMessage {
     byteCount?: number;
     mediaType?: string;
     blob?: Blob;
-    quickReplies?: string[];
-  }): ChatMessage {
-    return new ChatMessage({ ...params, type: 'attachment' });
-  }
-
-  static buttons(params: {
-    role: MessageRole;
-    timestamp: Date;
-    buttons: string[];
-    id?: number;
-    wiId?: string;
-    status?: MessageStatus;
-    content?: string;
     header?: string;
     footer?: string;
+    buttons?: string[];
   }): ChatMessage {
-    return new ChatMessage({ ...params, type: 'buttons' });
+    return new ChatMessage({ ...params, type: 'attachment' });
   }
 
   static product(params: {
@@ -201,7 +183,6 @@ export class ChatMessage {
     wiId?: string;
     status?: MessageStatus;
     expand?: boolean;
-    quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'product' });
   }
@@ -214,22 +195,7 @@ export class ChatMessage {
     wiId?: string;
     status?: MessageStatus;
     expand?: boolean;
-    quickReplies?: string[];
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'productCarousel' });
-  }
-
-  static cta(params: {
-    role: MessageRole;
-    timestamp: Date;
-    ctaButtons: CTAButton[];
-    id?: number;
-    wiId?: string;
-    status?: MessageStatus;
-    content?: string;
-    header?: string;
-    footer?: string;
-  }): ChatMessage {
-    return new ChatMessage({ ...params, type: 'cta' });
   }
 }

@@ -62,6 +62,7 @@ const makeTextMessage = (text: string): SdkMessage => ({
       role: MessageRole.MESSAGE_ROLE_USER,
     },
     timestamp: new Date('2026-01-01T00:00:00Z'),
+    buttons: [],
   },
   timestamp: new Date('2026-01-01T00:00:00Z'),
 });

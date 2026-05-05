@@ -2,12 +2,12 @@
 
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ReactiveController } from 'lit';
-import type { ButtonsMessage } from './buttons-message';
+import type { AssistantMessage } from './assistant-message';
 
-export default class ButtonsMessageController implements ReactiveController {
-  host: ButtonsMessage;
+export default class AssistantMessageController implements ReactiveController {
+  host: AssistantMessage;
 
-  constructor(host: ButtonsMessage) {
+  constructor(host: AssistantMessage) {
     this.host = host;
     this.host.addController(this);
   }
@@ -15,15 +15,13 @@ export default class ButtonsMessageController implements ReactiveController {
   hostConnected() {}
 
   onButtonClick(text: string) {
-    const chatMessage = ChatMessage.text({
-      role: 'USER',
-      timestamp: new Date(),
-      content: text,
-    });
-
     this.host.dispatchEvent(
       new CustomEvent('yalo-chat-send-text-message', {
-        detail: chatMessage,
+        detail: ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: text,
+        }),
         bubbles: true,
         composed: true,
       })

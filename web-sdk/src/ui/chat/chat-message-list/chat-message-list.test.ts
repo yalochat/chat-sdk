@@ -170,37 +170,6 @@ describe('ChatMessageList', () => {
       expect(bubble!.querySelector('attachment-message')).not.toBeNull();
     });
 
-    it('renders buttons as assistant-message with buttons-message', async () => {
-      const list = await renderList([
-        ChatMessage.buttons({
-          id: 6,
-          role: 'AGENT',
-          timestamp,
-          buttons: ['Yes', 'No'],
-          content: 'Pick one',
-        }),
-      ]);
-
-      const assistant = list.shadowRoot!.querySelector('assistant-message');
-      const bubble = assistant!.shadowRoot!.querySelector('.buttons-bubble');
-      expect(bubble!.querySelector('buttons-message')).not.toBeNull();
-    });
-
-    it('renders cta as assistant-message with cta-message', async () => {
-      const list = await renderList([
-        ChatMessage.cta({
-          id: 7,
-          role: 'AGENT',
-          timestamp,
-          ctaButtons: [{ text: 'Visit', url: 'https://example.com' }],
-        }),
-      ]);
-
-      const assistant = list.shadowRoot!.querySelector('assistant-message');
-      const bubble = assistant!.shadowRoot!.querySelector('.cta-bubble');
-      expect(bubble!.querySelector('cta-message')).not.toBeNull();
-    });
-
     it('renders product as a vertical product-message', async () => {
       const list = await renderList([
         ChatMessage.product({
@@ -389,6 +358,122 @@ describe('ChatMessageList', () => {
       const assistant = list.shadowRoot!.querySelector('assistant-message');
       const p = assistant!.shadowRoot!.querySelector('p');
       expect(p!.textContent).toContain('fallback');
+    });
+
+    it('renders header when present', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 70,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Body',
+          header: 'Greetings',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const header = assistant.shadowRoot!.querySelector('.header');
+      expect(header!.textContent).toContain('Greetings');
+    });
+
+    it('renders footer when present', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 71,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Body',
+          footer: 'Powered by Yalo',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const footer = assistant.shadowRoot!.querySelector('.footer');
+      expect(footer!.textContent).toContain('Powered by Yalo');
+    });
+
+    it('omits header and footer when absent', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 72,
+          role: 'AGENT',
+          timestamp,
+          content: 'Just body',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      expect(assistant.shadowRoot!.querySelector('.header')).toBeNull();
+      expect(assistant.shadowRoot!.querySelector('.footer')).toBeNull();
+    });
+
+    it('renders one button per entry in message.buttons', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 73,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Pick one',
+          buttons: ['Yes', 'No', 'Maybe'],
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const buttons =
+        assistant.shadowRoot!.querySelectorAll('.buttons button');
+      expect(buttons).toHaveLength(3);
+      expect([...buttons].map((b) => b.textContent?.trim())).toEqual([
+        'Yes',
+        'No',
+        'Maybe',
+      ]);
+    });
+
+    it('omits the buttons container when there are no buttons', async () => {
+      const list = await renderList([
+        ChatMessage.text({
+          id: 74,
+          role: 'AGENT',
+          timestamp,
+          content: 'No buttons',
+        }),
+      ]);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      expect(assistant.shadowRoot!.querySelector('.buttons')).toBeNull();
+    });
+
+    it('dispatches yalo-chat-send-text-message with the clicked button text', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 75,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Pick one',
+          buttons: ['Yes', 'No'],
+        }),
+      ]);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-send-text-message', listener);
+
+      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
+      const buttons = assistant.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+        '.buttons button'
+      );
+      buttons[0].click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'Yes',
+      });
     });
   });
 
@@ -857,38 +942,6 @@ describe('ChatMessageList', () => {
       });
       // delta = 2 - 3 = -1 < 0 → removeFromCart
       expect(detail.value).toBeLessThan(3);
-    });
-  });
-
-  describe('buttons interaction', () => {
-    it('dispatches yalo-chat-send-text-message with button text when clicked', async () => {
-      const list = await renderList([
-        ChatMessage.buttons({
-          id: 30,
-          role: 'AGENT',
-          timestamp,
-          buttons: ['Yes', 'No'],
-          content: 'Pick one',
-        }),
-      ]);
-
-      const listener = vi.fn();
-      list.addEventListener('yalo-chat-send-text-message', listener);
-
-      const assistant = list.shadowRoot!.querySelector('assistant-message')!;
-      const buttonsMsg = assistant.shadowRoot!.querySelector('buttons-message')!;
-      const buttons = buttonsMsg.shadowRoot!.querySelectorAll('button');
-      expect(buttons).toHaveLength(2);
-
-      buttons[0].click();
-
-      expect(listener).toHaveBeenCalledOnce();
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
-        role: 'USER',
-        type: 'text',
-        content: 'Yes',
-      });
     });
   });
 

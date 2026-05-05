@@ -83,44 +83,6 @@ const textPollItem = (id: string, text: string, date?: Date) => ({
   },
 });
 
-const buttonsPollItem = (id: string, buttons: string[]) => ({
-  id,
-  userId: 'user-1',
-  status: 0,
-  message: {
-    correlationId: '',
-    timestamp: new Date(),
-    buttonsMessageRequest: {
-      timestamp: new Date(),
-      content: {
-        header: 'Choose',
-        body: 'Pick one',
-        footer: '',
-        buttons,
-      },
-    },
-  },
-});
-
-const ctaPollItem = (id: string) => ({
-  id,
-  userId: 'user-1',
-  status: 0,
-  message: {
-    correlationId: '',
-    timestamp: new Date(),
-    ctaMessageRequest: {
-      timestamp: new Date(),
-      content: {
-        header: '',
-        body: 'Body',
-        footer: '',
-        buttons: [{ text: 'Visit', url: 'https://example.com' }],
-      },
-    },
-  },
-});
-
 const productPollItem = (
   id: string,
   orientation: ProductMessageRequest_Orientation
@@ -392,38 +354,44 @@ describe('YaloMessageRepositoryRemoteWebSocket', () => {
       expect(callback).not.toHaveBeenCalled();
     });
 
-    it('translates buttons frames', () => {
+    it('parses header, footer, and buttons from text frames', () => {
       const { service, emit } = okService();
       const repo = new YaloMessageRepositoryRemoteWebSocket(service, okMedia());
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
 
-      emit(buttonsPollItem('btn-1', ['Yes', 'No']));
+      emit({
+        id: 'txt-hfb',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          textMessageRequest: {
+            timestamp: new Date(),
+            header: 'Choose',
+            footer: 'Powered by Yalo',
+            buttons: [
+              { text: 'Yes', buttonType: 0 },
+              { text: 'No', buttonType: 0 },
+            ],
+            content: {
+              text: 'Pick one',
+              timestamp: undefined,
+              status: 1,
+              role: 2,
+            },
+          },
+        },
+      });
 
       expect(callback.mock.calls[0][0][0]).toMatchObject({
-        type: 'buttons',
+        type: 'text',
         role: 'AGENT',
-        buttons: ['Yes', 'No'],
         content: 'Pick one',
         header: 'Choose',
-        wiId: 'btn-1',
-      });
-    });
-
-    it('translates CTA frames', () => {
-      const { service, emit } = okService();
-      const repo = new YaloMessageRepositoryRemoteWebSocket(service, okMedia());
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      emit(ctaPollItem('cta-1'));
-
-      expect(callback.mock.calls[0][0][0]).toMatchObject({
-        type: 'cta',
-        role: 'AGENT',
-        ctaButtons: [{ text: 'Visit', url: 'https://example.com' }],
-        content: 'Body',
-        wiId: 'cta-1',
+        footer: 'Powered by Yalo',
+        buttons: ['Yes', 'No'],
       });
     });
 

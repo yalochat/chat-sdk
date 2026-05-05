@@ -5,6 +5,7 @@ import {
   MessageRole,
   MessageStatus,
   ProductMessageRequest_Orientation,
+  type Button as ProtoButton,
   type PollMessageItem,
   type Product as ProtoProduct,
   type SdkMessage,
@@ -30,6 +31,7 @@ export function chatMessageToSdkMessage(
             role: MessageRole.MESSAGE_ROLE_USER,
           },
           timestamp,
+          buttons: [],
         },
         timestamp,
       };
@@ -48,7 +50,7 @@ export function chatMessageToSdkMessage(
             fileName: message.fileName!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -68,7 +70,7 @@ export function chatMessageToSdkMessage(
             duration: message.duration!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -88,7 +90,7 @@ export function chatMessageToSdkMessage(
             duration: message.duration!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -107,7 +109,7 @@ export function chatMessageToSdkMessage(
             fileName: message.fileName!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -129,6 +131,9 @@ export function pollMessageItemToChatMessage(
       timestamp,
       content: msg.textMessageRequest.content.text,
       wiId: item.id,
+      header: msg.textMessageRequest.header,
+      footer: msg.textMessageRequest.footer,
+      buttons: toButtonTexts(msg.textMessageRequest.buttons),
     });
   }
 
@@ -142,6 +147,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
+      header: msg.imageMessageRequest.header,
+      footer: msg.imageMessageRequest.footer,
+      buttons: toButtonTexts(msg.imageMessageRequest.buttons),
     });
   }
 
@@ -156,6 +164,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
+      header: msg.voiceNoteMessageRequest.header,
+      footer: msg.voiceNoteMessageRequest.footer,
+      buttons: toButtonTexts(msg.voiceNoteMessageRequest.buttons),
     });
   }
 
@@ -170,6 +181,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
+      header: msg.videoMessageRequest.header,
+      footer: msg.videoMessageRequest.footer,
+      buttons: toButtonTexts(msg.videoMessageRequest.buttons),
     });
   }
 
@@ -183,19 +197,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
-    });
-  }
-
-  if (msg.buttonsMessageRequest?.content) {
-    const content = msg.buttonsMessageRequest.content;
-    return ChatMessage.buttons({
-      role: 'AGENT',
-      timestamp,
-      buttons: content.buttons,
-      content: content.body,
-      header: content.header,
-      footer: content.footer,
-      wiId: item.id,
+      header: msg.attachmentMessageRequest.header,
+      footer: msg.attachmentMessageRequest.footer,
+      buttons: toButtonTexts(msg.attachmentMessageRequest.buttons),
     });
   }
 
@@ -213,20 +217,11 @@ export function pollMessageItemToChatMessage(
     });
   }
 
-  if (msg.ctaMessageRequest?.content) {
-    const content = msg.ctaMessageRequest.content;
-    return ChatMessage.cta({
-      role: 'AGENT',
-      timestamp,
-      ctaButtons: content.buttons.map((b) => ({ text: b.text, url: b.url })),
-      content: content.body,
-      header: content.header,
-      footer: content.footer,
-      wiId: item.id,
-    });
-  }
-
   return null;
+}
+
+function toButtonTexts(buttons: ProtoButton[] | undefined): string[] {
+  return buttons?.map((b) => b.text) ?? [];
 }
 
 function toDomainProduct(p: ProtoProduct): Product {
