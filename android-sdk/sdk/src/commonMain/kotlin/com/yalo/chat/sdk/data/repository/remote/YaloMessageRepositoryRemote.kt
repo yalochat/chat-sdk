@@ -59,6 +59,8 @@ internal class YaloMessageRepositoryRemote(
     @Volatile
     private var commands: Map<ChatCommand, ChatCommandCallback> = emptyMap()
 
+    // Non-atomic RMW: concurrent registrations on different threads could theoretically lose one
+    // update, but registerCommand is always called from single-threaded app startup, so this is safe.
     fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
         commands = commands + (command to callback)
     }

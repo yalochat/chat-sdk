@@ -113,6 +113,10 @@ jobs:
           path: android-sdk/sdk/build/XCFrameworks/release/ChatSdk.xcframework
           retention-days: 7
 
+      - name: Create Credentials stub for CI
+        working-directory: ./ios-sdk/YaloChatDemo
+        run: cp Credentials.swift.example Credentials.swift
+
       - name: Build iOS demo app
         # Validates that the Swift layer consuming the XCFramework compiles cleanly.
         # Builds for the simulator (no code signing required).

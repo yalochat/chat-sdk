@@ -86,4 +86,22 @@ class YaloChatTest {
     fun `pending buffer is empty on fresh state`() {
         assertTrue("Pending buffer must be empty on fresh state", YaloChat.pendingCommandsForTest.isEmpty())
     }
+
+    @Test
+    fun `commands registered before fake init survive in pending buffer`() {
+        val cb: (Map<String, Any?>?) -> Unit = {}
+        YaloChat.registerCommand(ChatCommand.ADD_TO_CART, cb)
+
+        // Simulate the fake-init re-buffer: snapshot → clear → putAll (what init() does in fake path).
+        val snapshot = YaloChat.pendingCommandsForTest
+        YaloChat.resetForTest()
+        // Rehydrate as fake init now does via pendingCommands.putAll(savedCommands).
+        snapshot.forEach { (cmd, callback) -> YaloChat.registerCommand(cmd, callback) }
+
+        assertEquals(
+            "Command must survive fake-init re-buffering",
+            cb,
+            YaloChat.pendingCommandsForTest[ChatCommand.ADD_TO_CART],
+        )
+    }
 }

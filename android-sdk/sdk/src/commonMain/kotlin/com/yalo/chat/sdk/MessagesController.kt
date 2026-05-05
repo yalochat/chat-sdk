@@ -172,9 +172,11 @@ class MessagesController internal constructor(
     fun updateProductQuantity(messageId: Long, productSku: String, isSubunit: Boolean, quantity: Double) {
         val s = scope ?: return
         val msg = cachedMessages.find { it.id == messageId } ?: return
+        var previousValue = 0.0
         val updatedMsg = msg.copy(
             products = msg.products.map { product ->
                 if (product.sku != productSku) return@map product
+                previousValue = if (!isSubunit) product.unitsAdded else product.subunitsAdded
                 if (!isSubunit) {
                     product.copy(unitsAdded = maxOf(quantity, 0.0))
                 } else if (product.subunits <= 0.0) {
@@ -191,6 +193,12 @@ class MessagesController internal constructor(
             }
         )
         cachedMessages = cachedMessages.map { if (it.id == messageId) updatedMsg else it }
-        s.launch { localRepo.updateMessage(updatedMsg) }
+        val delta = maxOf(quantity, 0.0) - previousValue
+        s.launch {
+            if (localRepo.updateMessage(updatedMsg) is Result.Ok) {
+                if (delta > 0) yaloRepo.addToCart(productSku, delta)
+                else if (delta < 0) yaloRepo.removeFromCart(productSku, -delta)
+            }
+        }
     }
 }

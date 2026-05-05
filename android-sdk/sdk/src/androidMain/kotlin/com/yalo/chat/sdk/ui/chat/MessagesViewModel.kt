@@ -183,13 +183,17 @@ internal class MessagesViewModel(
         val delta = newValue - previousValue
         updatedMessage?.let { msg ->
             viewModelScope.launch {
-                chatMessageRepository.updateMessage(msg)
-                // After persisting, dispatch the cart command — mirrors Flutter MessagesBloc.
-                // delta > 0 → addToCart; delta < 0 → removeFromCart with absolute quantity.
-                if (delta > 0) {
-                    yaloMessageRepository.addToCart(productSku, delta)
-                } else if (delta < 0) {
-                    yaloMessageRepository.removeFromCart(productSku, -delta)
+                // Only dispatch cart command if DB update succeeded — avoids a cart API call
+                // for a quantity change that failed to persist locally.
+                if (chatMessageRepository.updateMessage(msg) is Result.Ok) {
+                    // Known limitation: rapid opposite taps may produce out-of-order API calls.
+                    // Per-SKU serialization deferred to a future milestone.
+                    // delta > 0 → addToCart; delta < 0 → removeFromCart with absolute quantity.
+                    if (delta > 0) {
+                        yaloMessageRepository.addToCart(productSku, delta)
+                    } else if (delta < 0) {
+                        yaloMessageRepository.removeFromCart(productSku, -delta)
+                    }
                 }
             }
         }
