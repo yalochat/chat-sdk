@@ -161,26 +161,37 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 }
 ```
 
-### Assistant links
+### Assistant messages
 
 ```css
 :root {
   /* Color of links and link buttons inside assistant messages. */
   --yalo-chat-link-button-color: #2207f1;
+
+  /* Font weight of the optional header rendered above an assistant message body. */
+  --yalo-chat-message-header-font-weight: bold;
+
+  /* Text color of the optional footer rendered below an assistant message body. */
+  --yalo-chat-message-footer-color: #7c8086;
+
+  /* Font size of the optional footer rendered below an assistant message body. */
+  --yalo-chat-message-footer-font-size: 0.75em;
 }
 ```
 
-### Button messages
+### Message buttons
+
+Buttons attached to assistant messages, rendered below the body.
 
 ```css
 :root {
-  /* Color of the footer text below button messages. */
-  --yalo-chat-buttons-footer-color: #7c8086;
+  /* Border color around each button. */
+  --yalo-chat-buttons-border-color: #9db1c8;
 
   /* Gap between buttons. */
   --yalo-chat-buttons-gap: 0.5rem;
 
-  /* Padding for the button container and each button. */
+  /* Padding inside each button. */
   --yalo-chat-buttons-padding: 0.5rem;
 
   /* Border radius for each button. */
@@ -194,36 +205,6 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 
   /* Font size for button text. */
   --yalo-chat-buttons-font-size: 0.875rem;
-}
-```
-
-### CTA messages
-
-```css
-:root {
-  /* Color of footer text below CTA messages. */
-  --yalo-chat-cta-footer-color: #7c8086;
-
-  /* Border radius for CTA buttons. */
-  --yalo-chat-cta-border-radius: 0.5rem;
-
-  /* Gap between CTA elements. */
-  --yalo-chat-cta-gap: 0.5rem;
-
-  /* Text color for CTA buttons. */
-  --yalo-chat-cta-color: #111111;
-
-  /* Font size for CTA button text. */
-  --yalo-chat-cta-font-size: 0.875rem;
-
-  /* Padding for the CTA message container. */
-  --yalo-chat-cta-padding: 0.5rem;
-
-  /* Padding inside each CTA button. */
-  --yalo-chat-cta-button-padding: 0.5rem;
-
-  /* Border color for CTA button dividers. */
-  --yalo-chat-cta-buttons-border-color: #9db1c8;
 }
 ```
 

@@ -126,66 +126,6 @@ const makeVideoPollItem = (
   status: 0,
 });
 
-const makeButtonsPollItem = (
-  id: string,
-  opts: {
-    header?: string;
-    body?: string;
-    footer?: string;
-    buttons?: string[];
-    date?: Date;
-  } = {}
-) => ({
-  id,
-  message: {
-    correlationId: '',
-    timestamp: new Date(),
-    buttonsMessageRequest: {
-      timestamp: new Date(),
-      content: {
-        header: opts.header ?? '',
-        body: opts.body ?? 'Pick one',
-        footer: opts.footer ?? '',
-        buttons: opts.buttons ?? ['Option A', 'Option B'],
-      },
-    },
-  },
-  date: opts.date,
-  userId: 'user-1',
-  status: 0,
-});
-
-const makeCTAPollItem = (
-  id: string,
-  opts: {
-    header?: string;
-    body?: string;
-    footer?: string;
-    buttons?: { text: string; url: string }[];
-    date?: Date;
-  } = {}
-) => ({
-  id,
-  message: {
-    correlationId: '',
-    timestamp: new Date(),
-    ctaMessageRequest: {
-      timestamp: new Date(),
-      content: {
-        header: opts.header ?? '',
-        body: opts.body ?? 'Check these links',
-        footer: opts.footer ?? '',
-        buttons: opts.buttons ?? [
-          { text: 'Visit', url: 'https://example.com' },
-        ],
-      },
-    },
-  },
-  date: opts.date,
-  userId: 'user-1',
-  status: 0,
-});
-
 type ProductInput = {
   sku?: string;
   name?: string;
@@ -1239,16 +1179,33 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(messages[0].timestamp).toEqual(date);
     });
 
-    it('translates buttons poll items into ChatMessage.buttons', async () => {
-      const date = new Date('2026-05-01T08:00:00Z');
+    it('parses header, footer, and buttons from text poll items', async () => {
       const items = [
-        makeButtonsPollItem('btn-1', {
-          header: 'Choose',
-          body: 'Pick one option',
-          footer: 'Tap a button',
-          buttons: ['Yes', 'No', 'Maybe'],
-          date,
-        }),
+        {
+          id: 'msg-hfb',
+          message: {
+            correlationId: '',
+            timestamp: new Date(),
+            textMessageRequest: {
+              timestamp: new Date(),
+              header: 'Greetings',
+              footer: 'Powered by Yalo',
+              buttons: [
+                { text: 'Yes', buttonType: 0 },
+                { text: 'Push me', buttonType: 1 },
+                { text: 'Open', buttonType: 2, url: 'https://example.com' },
+              ],
+              content: {
+                text: 'Pick one',
+                timestamp: undefined,
+                status: 1,
+                role: 2,
+              },
+            },
+          },
+          userId: 'user-1',
+          status: 0,
+        },
       ];
       vi.stubGlobal('fetch', mockOkFetch(items));
 
@@ -1263,34 +1220,48 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await flushPoll();
 
-      expect(callback).toHaveBeenCalledOnce();
       const [messages] = callback.mock.calls[0];
-      expect(messages).toHaveLength(1);
       expect(messages[0]).toMatchObject({
-        type: 'buttons',
+        type: 'text',
         role: 'AGENT',
-        header: 'Choose',
-        content: 'Pick one option',
-        footer: 'Tap a button',
-        buttons: ['Yes', 'No', 'Maybe'],
-        wiId: 'btn-1',
-        timestamp: date,
+        content: 'Pick one',
+        header: 'Greetings',
+        footer: 'Powered by Yalo',
+        buttons: [
+          { text: 'Yes', type: 'reply' },
+          { text: 'Push me', type: 'postback' },
+          { text: 'Open', type: 'link', url: 'https://example.com' },
+        ],
       });
     });
 
-    it('translates CTA poll items into ChatMessage.cta', async () => {
-      const date = new Date('2026-05-02T09:00:00Z');
+    it('parses header, footer, and buttons from media poll items', async () => {
       const items = [
-        makeCTAPollItem('cta-1', {
-          header: 'Links',
-          body: 'Check these out',
-          footer: 'Powered by Yalo',
-          buttons: [
-            { text: 'Google', url: 'https://google.com' },
-            { text: 'GitHub', url: 'https://github.com' },
-          ],
-          date,
-        }),
+        {
+          id: 'media-hfb',
+          message: {
+            correlationId: '',
+            timestamp: new Date(),
+            imageMessageRequest: {
+              timestamp: new Date(),
+              header: 'Photo of the day',
+              footer: 'Tap a button to react',
+              buttons: [{ text: 'Like', buttonType: 0 }],
+              content: {
+                mediaUrl: 'https://cdn.example.com/p.png',
+                mediaType: 'image/png',
+                byteCount: 100,
+                fileName: 'p.png',
+                text: '',
+                timestamp: undefined,
+                status: 1,
+                role: 2,
+              },
+            },
+          },
+          userId: 'user-1',
+          status: 0,
+        },
       ];
       vi.stubGlobal('fetch', mockOkFetch(items));
 
@@ -1305,21 +1276,12 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await flushPoll();
 
-      expect(callback).toHaveBeenCalledOnce();
       const [messages] = callback.mock.calls[0];
-      expect(messages).toHaveLength(1);
       expect(messages[0]).toMatchObject({
-        type: 'cta',
-        role: 'AGENT',
-        header: 'Links',
-        content: 'Check these out',
-        footer: 'Powered by Yalo',
-        ctaButtons: [
-          { text: 'Google', url: 'https://google.com' },
-          { text: 'GitHub', url: 'https://github.com' },
-        ],
-        wiId: 'cta-1',
-        timestamp: date,
+        type: 'image',
+        header: 'Photo of the day',
+        footer: 'Tap a button to react',
+        buttons: [{ text: 'Like', type: 'reply' }],
       });
     });
 

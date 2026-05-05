@@ -1,10 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import {
+  ChatMessage,
+  type MessageButton,
+  type MessageButtonType,
+} from '@domain/models/chat-message/chat-message';
+import {
+  ButtonType,
   MessageRole,
   MessageStatus,
   ProductMessageRequest_Orientation,
+  type Button as ProtoButton,
   type PollMessageItem,
   type Product as ProtoProduct,
   type SdkMessage,
@@ -30,6 +36,7 @@ export function chatMessageToSdkMessage(
             role: MessageRole.MESSAGE_ROLE_USER,
           },
           timestamp,
+          buttons: [],
         },
         timestamp,
       };
@@ -48,7 +55,7 @@ export function chatMessageToSdkMessage(
             fileName: message.fileName!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -68,7 +75,7 @@ export function chatMessageToSdkMessage(
             duration: message.duration!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -88,7 +95,7 @@ export function chatMessageToSdkMessage(
             duration: message.duration!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -107,7 +114,7 @@ export function chatMessageToSdkMessage(
             fileName: message.fileName!,
           },
           timestamp,
-          quickReplies: [],
+          buttons: [],
         },
         timestamp,
       };
@@ -129,6 +136,9 @@ export function pollMessageItemToChatMessage(
       timestamp,
       content: msg.textMessageRequest.content.text,
       wiId: item.id,
+      header: msg.textMessageRequest.header,
+      footer: msg.textMessageRequest.footer,
+      buttons: toMessageButtons(msg.textMessageRequest.buttons),
     });
   }
 
@@ -142,6 +152,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
+      header: msg.imageMessageRequest.header,
+      footer: msg.imageMessageRequest.footer,
+      buttons: toMessageButtons(msg.imageMessageRequest.buttons),
     });
   }
 
@@ -156,6 +169,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
+      header: msg.voiceNoteMessageRequest.header,
+      footer: msg.voiceNoteMessageRequest.footer,
+      buttons: toMessageButtons(msg.voiceNoteMessageRequest.buttons),
     });
   }
 
@@ -170,6 +186,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
+      header: msg.videoMessageRequest.header,
+      footer: msg.videoMessageRequest.footer,
+      buttons: toMessageButtons(msg.videoMessageRequest.buttons),
     });
   }
 
@@ -183,19 +202,9 @@ export function pollMessageItemToChatMessage(
       mediaType: content.mediaType,
       byteCount: content.byteCount,
       wiId: item.id,
-    });
-  }
-
-  if (msg.buttonsMessageRequest?.content) {
-    const content = msg.buttonsMessageRequest.content;
-    return ChatMessage.buttons({
-      role: 'AGENT',
-      timestamp,
-      buttons: content.buttons,
-      content: content.body,
-      header: content.header,
-      footer: content.footer,
-      wiId: item.id,
+      header: msg.attachmentMessageRequest.header,
+      footer: msg.attachmentMessageRequest.footer,
+      buttons: toMessageButtons(msg.attachmentMessageRequest.buttons),
     });
   }
 
@@ -213,20 +222,29 @@ export function pollMessageItemToChatMessage(
     });
   }
 
-  if (msg.ctaMessageRequest?.content) {
-    const content = msg.ctaMessageRequest.content;
-    return ChatMessage.cta({
-      role: 'AGENT',
-      timestamp,
-      ctaButtons: content.buttons.map((b) => ({ text: b.text, url: b.url })),
-      content: content.body,
-      header: content.header,
-      footer: content.footer,
-      wiId: item.id,
-    });
-  }
-
   return null;
+}
+
+function toMessageButtons(
+  buttons: ProtoButton[] | undefined
+): MessageButton[] {
+  return buttons?.map(toMessageButton) ?? [];
+}
+
+function toMessageButton(b: ProtoButton): MessageButton {
+  return { text: b.text, type: toMessageButtonType(b.buttonType), url: b.url };
+}
+
+function toMessageButtonType(t: ButtonType): MessageButtonType {
+  switch (t) {
+    case ButtonType.BUTTON_TYPE_LINK:
+      return 'link';
+    case ButtonType.BUTTON_TYPE_POSTBACK:
+      return 'postback';
+    case ButtonType.BUTTON_TYPE_REPLY:
+    default:
+      return 'reply';
+  }
 }
 
 function toDomainProduct(p: ProtoProduct): Product {
