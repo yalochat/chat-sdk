@@ -1,11 +1,25 @@
 # Changelog
 
-## [2.0.0](https://github.com/yalochat/chat-sdk/tree/2.0.0) (2026-05-05)
+## [2.0.1](https://github.com/yalochat/chat-sdk/tree/2.0.1) (2026-05-06)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.7.0...2.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.0.0...2.0.1)
 
 **Merged pull requests:**
 
+- chore\(proto\): fix go issue [\#133](https://github.com/yalochat/chat-sdk/pull/133) ([catYalere](https://github.com/catYalere))
+- feat: Web sdk new message schema [\#132](https://github.com/yalochat/chat-sdk/pull/132) ([rodrigocusto](https://github.com/rodrigocusto))
+
+## [proto/v2.0.0](https://github.com/yalochat/chat-sdk/tree/proto/v2.0.0) (2026-05-05)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v2.0.0...proto/v2.0.0)
+
+## [proto/bindings/go/v2.0.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v2.0.0) (2026-05-05)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.7.0...proto/bindings/go/v2.0.0)
+
+**Merged pull requests:**
+
+- Release proto 2.0.0 [\#131](https://github.com/yalochat/chat-sdk/pull/131) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - Fix re add quick reply proto [\#130](https://github.com/yalochat/chat-sdk/pull/130) ([rodrigocusto](https://github.com/rodrigocusto))
 - fix\(android/ios\): watermark, ICU plurals, foreground resume, typing timeout, responsive card widths [\#129](https://github.com/yalochat/chat-sdk/pull/129) ([pato-viccini](https://github.com/pato-viccini))
 - feat: Removed ping interval from flutter sdk [\#128](https://github.com/yalochat/chat-sdk/pull/128) ([rodrigocusto](https://github.com/rodrigocusto))
