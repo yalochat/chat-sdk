@@ -8,7 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp";
 
-export const protobufPackage = "yalo.external_channel.in_app.sdk.v1";
+export const protobufPackage = "yalo.external_channel.in_app.sdk.v2";
 
 /** ResponseStatus indicates whether a channel operation succeeded or failed. */
 export const ResponseStatus = {

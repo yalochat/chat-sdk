@@ -16,10 +16,10 @@ symlinks:
 
 proto_go:
 	mkdir -p golang
-	protoc --go_out=. --go_opt=paths=import,module=github.com/yalochat/chat-sdk/proto \
+	protoc --go_out=. --go_opt=paths=import,module=github.com/yalochat/chat-sdk/proto/v2 \
 		   --plugin protoc-gen-go-vtproto=`which protoc-gen-go-vtproto` \
 		   --go-vtproto_out=. \
-		   --go-vtproto_opt=features=marshal+unmarshal+size,paths=import,module=github.com/yalochat/chat-sdk/proto \
+		   --go-vtproto_opt=features=marshal+unmarshal+size,paths=import,module=github.com/yalochat/chat-sdk/proto/v2 \
 		   `find events -name '*.proto' -print | sort`
 .PHONY: proto_go
 
