@@ -14,6 +14,8 @@ struct MessageItem: View {
     var onUpdateQuantity: (Int64, String, Bool, Double) -> Void = { _, _, _, _ in }
     var isExpanded: Bool = false
 
+    @Environment(\.chatTheme) private var theme
+
     private var isUser: Bool { message.role === MessageRole.user }
 
     // Product messages render their own card borders — bypass the bubble HStack layout.
@@ -42,7 +44,7 @@ struct MessageItem: View {
     private var errorIndicator: some View {
         if isUser && message.status === MessageStatus.error {
             Image(systemName: "exclamationmark.circle.fill")
-                .foregroundColor(.red)
+                .foregroundColor(theme.errorColor)
                 .font(.caption)
         }
     }
@@ -96,7 +98,8 @@ struct MessageItem: View {
     private var bubbleContent: some View {
         if message.type is MessageType.Text || message.type is MessageType.QuickReply {
             Text(message.content)
-                .foregroundColor(isUser ? .white : .primary)
+                .font(isUser ? theme.userMessageFont : theme.agentMessageFont)
+                .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
         } else if message.type is MessageType.Voice {
             voiceContent
         } else if message.type is MessageType.Buttons {
@@ -107,7 +110,7 @@ struct MessageItem: View {
             Text("Unsupported message type")
                 .font(.caption)
                 .italic()
-                .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
+                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
         }
     }
 
@@ -117,7 +120,7 @@ struct MessageItem: View {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
             Label("Image unavailable", systemImage: "photo")
-                .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
+                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
                 .background(bubbleColor)
@@ -129,18 +132,19 @@ struct MessageItem: View {
         VStack(alignment: .leading, spacing: 4) {
             if let header = message.header, !header.isEmpty {
                 Text(header)
-                    .font(.caption)
+                    .font(theme.messageHeaderFont)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.agentBubbleTextColor)
             }
             if !message.content.isEmpty {
                 Text(message.content)
-                    .foregroundColor(.primary)
+                    .font(theme.agentMessageFont)
+                    .foregroundColor(theme.agentBubbleTextColor)
             }
             if let footer = message.footer, !footer.isEmpty {
                 Text(footer)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(theme.messageFooterFont)
+                    .foregroundColor(theme.messageFooterColor)
             }
             let labels = message.buttons
             if !labels.isEmpty {
@@ -151,13 +155,14 @@ struct MessageItem: View {
                                 .font(.subheadline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
+                                .background(theme.buttonsButtonColor)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.accentColor, lineWidth: 1)
+                                        .stroke(theme.buttonsButtonBorderColor, lineWidth: 1)
                                 )
                         }
                         .buttonStyle(.plain)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(theme.buttonsButtonTextColor)
                     }
                 }
                 .padding(.top, 4)
@@ -170,18 +175,19 @@ struct MessageItem: View {
         VStack(alignment: .leading, spacing: 4) {
             if let header = message.header, !header.isEmpty {
                 Text(header)
-                    .font(.caption)
+                    .font(theme.messageHeaderFont)
                     .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(theme.agentBubbleTextColor)
             }
             if !message.content.isEmpty {
                 Text(message.content)
-                    .foregroundColor(.primary)
+                    .font(theme.agentMessageFont)
+                    .foregroundColor(theme.agentBubbleTextColor)
             }
             if let footer = message.footer, !footer.isEmpty {
                 Text(footer)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(theme.messageFooterFont)
+                    .foregroundColor(theme.messageFooterColor)
             }
             let buttons = message.ctaButtons
             if !buttons.isEmpty {
@@ -196,17 +202,18 @@ struct MessageItem: View {
                                 Text(button.text)
                                     .font(.subheadline)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                Image(systemName: "link")
+                                Image(systemName: theme.ctaArrowIconName)
                                     .font(.caption)
                             }
                             .padding(.vertical, 8)
+                            .background(theme.ctaButtonColor)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.accentColor, lineWidth: 1)
+                                    .stroke(theme.ctaButtonBorderColor, lineWidth: 1)
                             )
                         }
                         .buttonStyle(.plain)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(theme.ctaButtonTextColor)
                     }
                 }
                 .padding(.top, 4)
@@ -220,7 +227,7 @@ struct MessageItem: View {
             StableVideoPlayer(path: path)
         } else {
             Label("Video unavailable", systemImage: "video")
-                .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
+                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
                 .background(bubbleColor)
@@ -239,20 +246,20 @@ struct MessageItem: View {
             } label: {
                 Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                     .font(.title2)
-                    .foregroundColor(isUser ? .white : .accentColor)
+                    .foregroundColor(isUser ? theme.userBubbleTextColor : theme.waveformColor)
             }
             .disabled(message.fileName == nil || messageId == nil)
 
             WaveformView(
                 amplitudes: resolvedAmplitudes,
-                color: isUser ? .white.opacity(0.7) : .accentColor
+                color: isUser ? theme.userBubbleTextColor.opacity(0.7) : theme.waveformColor
             )
             .frame(width: 100, height: 28)
 
             Text(voiceDuration)
                 .monospacedDigit()
                 .font(.caption)
-                .foregroundColor(isUser ? .white.opacity(0.8) : .secondary)
+                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
         }
     }
 
@@ -268,7 +275,7 @@ struct MessageItem: View {
     }
 
     private var bubbleColor: Color {
-        isUser ? .accentColor : Color(.systemGray5)
+        isUser ? theme.userBubbleColor : theme.agentBubbleColor
     }
 }
 

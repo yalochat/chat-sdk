@@ -16,6 +16,7 @@ struct ProductListView: View {
     var onUpdateQuantity: (String, Bool, Double) -> Void = { _, _, _ in }
 
     @State private var cardContentWidth: CGFloat = 0
+    @Environment(\.chatTheme) private var theme
 
     private var products: [Product] {
         message.products
@@ -45,11 +46,11 @@ struct ProductListView: View {
                 )
                 .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.secondarySystemBackground))
+                .background(theme.cardBackgroundColor)
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(.systemGray4), lineWidth: 1)
+                        .stroke(theme.cardBorderColor, lineWidth: 1)
                 )
             }
 
@@ -57,7 +58,7 @@ struct ProductListView: View {
                 Button(action: onToggleExpand) {
                     Text(isExpanded ? "Show less" : "Show more")
                         .font(.subheadline)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(theme.expandControlColor)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 4)
                 }

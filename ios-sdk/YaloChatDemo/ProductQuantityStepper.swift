@@ -11,15 +11,17 @@ struct ProductQuantityStepper: View {
     var onAdd: () -> Void = {}
     var onRemove: () -> Void = {}
 
+    @Environment(\.chatTheme) private var theme
+
     var body: some View {
         HStack(spacing: 0) {
             Button(action: onRemove) {
-                Image(systemName: "minus")
+                Image(systemName: theme.removeIconName)
                     .font(.caption)
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
-            .foregroundColor(value > 0 ? .accentColor : Color(.systemGray4))
+            .foregroundColor(value > 0 ? theme.expandControlColor : theme.messageFooterColor)
             .disabled(value <= 0)
 
             Text("\(formatQuantity(value)) \(unitName)")
@@ -27,12 +29,12 @@ struct ProductQuantityStepper: View {
                 .padding(.horizontal, 4)
 
             Button(action: onAdd) {
-                Image(systemName: "plus")
+                Image(systemName: theme.addIconName)
                     .font(.caption)
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
-            .foregroundColor(.accentColor)
+            .foregroundColor(theme.expandControlColor)
         }
     }
 }

@@ -8,6 +8,8 @@ struct MessageList: View {
     @ObservedObject var observable: MessagesObservable
     @ObservedObject var audioObservable: AudioObservable
 
+    @Environment(\.chatTheme) private var theme
+
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -18,7 +20,7 @@ struct MessageList: View {
                                 .padding(.top, 32)
                         } else {
                             Text("No messages yet")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }
                     } else {
@@ -87,13 +89,14 @@ extension ChatMessage {
 private struct TypingIndicatorBubble: View {
 
     @State private var animating = false
+    @Environment(\.chatTheme) private var theme
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
             HStack(spacing: 4) {
                 ForEach(0..<3) { index in
                     Circle()
-                        .fill(Color(.systemGray3))
+                        .fill(theme.messageFooterColor)
                         .frame(width: 8, height: 8)
                         .scaleEffect(animating ? 1.0 : 0.5)
                         .animation(
@@ -106,7 +109,7 @@ private struct TypingIndicatorBubble: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(.systemGray5))
+            .background(theme.agentBubbleColor)
             .cornerRadius(16)
 
             Spacer(minLength: 48)

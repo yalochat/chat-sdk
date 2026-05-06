@@ -11,6 +11,8 @@ struct ImagePreview: View {
     let onCancel: () -> Void
     let onSend: () -> Void
 
+    @Environment(\.chatTheme) private var theme
+
     var body: some View {
         HStack(spacing: 12) {
             Image(uiImage: image)
@@ -23,21 +25,21 @@ struct ImagePreview: View {
             Spacer()
 
             Button(action: onCancel) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.secondary)
+                Image(systemName: theme.cancelRecordingIconName)
+                    .foregroundColor(theme.messageFooterColor)
                     .font(.title2)
             }
 
             Button(action: onSend) {
-                Image(systemName: "paperplane.fill")
-                    .foregroundColor(.white)
+                Image(systemName: theme.sendIconName)
+                    .foregroundColor(theme.sendButtonIconColor)
                     .padding(8)
-                    .background(Color.accentColor)
+                    .background(theme.sendButtonColor)
                     .clipShape(Circle())
             }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color(.systemBackground))
+        .background(theme.inputBackgroundColor)
     }
 }

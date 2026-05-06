@@ -14,24 +14,31 @@ struct ChatView: View {
     @State private var hasStarted = false
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                MessageList(observable: observable, audioObservable: audioObservable)
-                Divider()
-                QuickRepliesView(
-                    quickReplies: observable.quickReplies,
-                    onChipTap: { label in observable.sendTextMessage(text: label) }
-                )
-                ChatInput(
-                    messagesObservable: observable,
-                    imageObservable: imageObservable,
-                    audioObservable: audioObservable
-                )
-            }
-            .navigationTitle(YaloChatSdk.shared.config?.channelName ?? "Chat")
-            .navigationBarTitleDisplayMode(.inline)
+        VStack(spacing: 0) {
+            ChatAppBar(
+                channelName: YaloChatSdk.shared.config?.channelName ?? "Chat",
+                typingStatusText: observable.typingStatusText,
+                isTyping: observable.isTyping,
+                onShopPressed: YaloChat.onShopPressed,
+                onCartPressed: YaloChat.onCartPressed
+            )
+
+            MessageList(observable: observable, audioObservable: audioObservable)
+
+            Divider()
+
+            QuickRepliesView(
+                quickReplies: observable.quickReplies,
+                onChipTap: { label in observable.sendTextMessage(text: label) }
+            )
+
+            ChatInput(
+                messagesObservable: observable,
+                imageObservable: imageObservable,
+                audioObservable: audioObservable
+            )
         }
-        .navigationViewStyle(.stack)
+        .environment(\.chatTheme, YaloChat.theme)
         .onAppear {
             guard !hasStarted else { return }
             hasStarted = true
@@ -46,7 +53,6 @@ struct ChatView: View {
             case .background:
                 observable.onDisappear()
                 // hasStarted intentionally stays true so .active can restart on foreground resume.
-                // (.onAppear does not re-fire for views already in the hierarchy.)
             case .active:
                 // .onAppear handles the very first start; this handles foreground resume.
                 if hasStarted {

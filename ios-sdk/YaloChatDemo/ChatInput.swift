@@ -12,6 +12,8 @@ struct ChatInput: View {
     @ObservedObject var imageObservable: ImageObservable
     @ObservedObject var audioObservable: AudioObservable
 
+    @Environment(\.chatTheme) private var theme
+
     private var isBlank: Bool {
         messagesObservable.userMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -40,16 +42,20 @@ struct ChatInput: View {
                     Button {
                         imageObservable.showSourceSheet = true
                     } label: {
-                        Image(systemName: "paperclip")
-                            .foregroundColor(.secondary)
+                        Image(systemName: theme.attachIconName)
+                            .foregroundColor(theme.messageFooterColor)
                             .padding(.leading, 4)
                     }
 
                     TextField("Type a message…", text: $messagesObservable.userMessage)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(Color(.systemGray6))
+                        .background(theme.inputBackgroundColor)
                         .cornerRadius(25)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 25)
+                                .stroke(theme.inputBorderColor, lineWidth: 1)
+                        )
                         .onSubmit { messagesObservable.sendMessage() }
 
                     actionButton
@@ -78,18 +84,18 @@ struct ChatInput: View {
     private var actionButton: some View {
         if hasImage || !isBlank {
             Button(action: sendAction) {
-                Image(systemName: "paperplane.fill")
-                    .foregroundColor(.white)
+                Image(systemName: theme.sendIconName)
+                    .foregroundColor(theme.sendButtonIconColor)
                     .padding(10)
-                    .background(Color.accentColor)
+                    .background(theme.sendButtonColor)
                     .clipShape(Circle())
             }
         } else {
             Button(action: audioObservable.startRecording) {
-                Image(systemName: "mic.fill")
-                    .foregroundColor(.white)
+                Image(systemName: theme.micIconName)
+                    .foregroundColor(theme.sendButtonIconColor)
                     .padding(10)
-                    .background(Color.accentColor)
+                    .background(theme.sendButtonColor)
                     .clipShape(Circle())
             }
         }

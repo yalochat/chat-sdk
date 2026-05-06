@@ -10,20 +10,22 @@ struct WaveformRecorder: View {
     // Called with (fileName, amplitudes, durationMs) when the user taps send.
     let onSend: (String, [Double], Int64) -> Void
 
+    @Environment(\.chatTheme) private var theme
+
     var body: some View {
         HStack(spacing: 12) {
             Button(action: audioObservable.cancelRecording) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.secondary)
+                Image(systemName: theme.cancelRecordingIconName)
+                    .foregroundColor(theme.messageFooterColor)
                     .font(.title2)
             }
 
             Text(audioObservable.durationText)
                 .monospacedDigit()
-                .foregroundColor(.red)
+                .foregroundColor(theme.errorColor)
                 .frame(width: 48, alignment: .leading)
 
-            WaveformView(amplitudes: audioObservable.recordingAmplitudes, color: .red)
+            WaveformView(amplitudes: audioObservable.recordingAmplitudes, color: theme.errorColor)
                 .frame(height: 32)
 
             Button {
@@ -32,10 +34,10 @@ struct WaveformRecorder: View {
                 }
             } label: {
                 Image(systemName: "stop.circle.fill")
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.sendButtonIconColor)
                     .font(.title2)
                     .padding(6)
-                    .background(Color.accentColor)
+                    .background(theme.sendButtonColor)
                     .clipShape(Circle())
             }
         }
