@@ -212,7 +212,7 @@ extension EnvironmentValues {
 extension Color {
     // Converts a 24-bit RGB hex value (e.g. 0x2207F1) to a SwiftUI Color.
     // Named sdkHex to avoid colliding with other hex extensions in consumer apps.
-    init(sdkHex hex: UInt32) {
+    public init(sdkHex hex: UInt32) {
         self.init(
             red:   Double((hex >> 16) & 0xFF) / 255,
             green: Double((hex >> 8)  & 0xFF) / 255,
