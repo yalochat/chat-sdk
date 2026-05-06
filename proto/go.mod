@@ -1,4 +1,4 @@
-module github.com/yalochat/chat-sdk/proto
+module github.com/yalochat/chat-sdk/proto/v2
 
 go 1.26.1
 

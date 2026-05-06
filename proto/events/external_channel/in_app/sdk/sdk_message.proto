@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package yalo.external_channel.in_app.sdk.v1;
+package yalo.external_channel.in_app.sdk.v2;
 
-option go_package = "github.com/yalochat/chat-sdk/proto/golang/events/external_channel/in_app/sdk/v1";
+option go_package = "github.com/yalochat/chat-sdk/proto/v2/golang/events/external_channel/in_app/sdk/v2";
 
 import "google/protobuf/timestamp.proto";
 
