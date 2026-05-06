@@ -15,6 +15,10 @@ internal data class SdkMessageBody(
     val textMessageRequest: SdkTextMessageRequestBody? = null,
     val imageMessageRequest: SdkImageMessageRequestBody? = null,
     val voiceNoteMessageRequest: SdkVoiceNoteMessageRequestBody? = null,
+    val addToCartRequest: SdkAddToCartRequestBody? = null,
+    val removeFromCartRequest: SdkRemoveFromCartRequestBody? = null,
+    val clearCartRequest: SdkClearCartRequestBody? = null,
+    val addPromotionRequest: SdkAddPromotionRequestBody? = null,
 )
 
 // ── Text ──────────────────────────────────────────────────────────────────────
@@ -68,5 +72,35 @@ internal data class SdkVoiceMessageBody(
     val fileName: String,
     val amplitudesPreview: List<Float> = emptyList(),
     val duration: Double? = null,
+)
+
+// ── Cart operations ───────────────────────────────────────────────────────────
+// Mirror proto AddToCartRequest / RemoveFromCartRequest / ClearCartRequest / AddPromotionRequest.
+
+@Serializable
+internal data class SdkAddToCartRequestBody(
+    val sku: String,
+    val quantity: Double,
+    val timestamp: String,
+    @kotlinx.serialization.SerialName("unit_type") val unitType: String? = null,
+)
+
+@Serializable
+internal data class SdkRemoveFromCartRequestBody(
+    val sku: String,
+    val quantity: Double? = null,
+    val timestamp: String,
+    @kotlinx.serialization.SerialName("unit_type") val unitType: String? = null,
+)
+
+@Serializable
+internal data class SdkClearCartRequestBody(
+    val timestamp: String,
+)
+
+@Serializable
+internal data class SdkAddPromotionRequestBody(
+    val promotionId: String,
+    val timestamp: String,
 )
 

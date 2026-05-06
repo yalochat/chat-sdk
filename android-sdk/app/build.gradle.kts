@@ -52,6 +52,14 @@ android {
         compose = true
         buildConfig = true
     }
+
+    lint {
+        // IncompatibleClassChangeError crashes from buggy lint detectors on Kotlin 2.x / AGP 8.x.
+        disable += "NullSafeMutableLiveData"
+        disable += "RememberInComposition"
+        disable += "FrequentlyChangingValue"
+        disable += "AutoboxingStateCreation"
+    }
 }
 
 kotlin {

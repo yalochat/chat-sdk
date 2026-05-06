@@ -156,21 +156,31 @@ internal class MessagesViewModel(
         quantity: Double,
     ) {
         var updatedMessage: ChatMessage? = null
+        var previousValue = 0.0
         _state.update { state ->
             val newMessages = state.messages.map { msg ->
                 if (msg.id != messageId) return@map msg
-                msg.copy(
-                    products = msg.products.map { product ->
-                        if (product.sku != productSku) return@map product
-                        when (unitType) {
-                            // Mirrors Flutter: max(event.quantity, 0)
-                            UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
-                            // Mirrors Flutter: subunit overflow promotes to whole units.
-                            // Adding more subunits than a pack contains auto-increments
-                            // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
-                            // +2 units, 1 subunit remaining).
-                            UnitType.SUBUNIT -> {
-                                val clamped = maxOf(quantity, 0.0)
+                var productFound = false
+                val updatedProducts = msg.products.map { product ->
+                    if (product.sku != productSku) return@map product
+                    productFound = true
+                    // Capture previous value so we can compute the cart delta below.
+                    previousValue = when (unitType) {
+                        UnitType.UNIT -> product.unitsAdded
+                        UnitType.SUBUNIT -> product.subunitsAdded
+                    }
+                    when (unitType) {
+                        // Mirrors Flutter: max(event.quantity, 0)
+                        UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
+                        // Mirrors Flutter: subunit overflow promotes to whole units.
+                        // Adding more subunits than a pack contains auto-increments
+                        // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
+                        // +2 units, 1 subunit remaining).
+                        UnitType.SUBUNIT -> {
+                            val clamped = maxOf(quantity, 0.0)
+                            if (product.subunits <= 0.0) {
+                                product.copy(unitsAdded = clamped)
+                            } else {
                                 val extraUnits = kotlin.math.floor(clamped / product.subunits)
                                 val remainingSubunits = clamped % product.subunits
                                 product.copy(
@@ -180,15 +190,29 @@ internal class MessagesViewModel(
                             }
                         }
                     }
-                ).also { updatedMessage = it }
+                }
+                // Only update the message and dispatch cart ops if the product was found.
+                if (!productFound) return@map msg
+                msg.copy(products = updatedProducts).also { updatedMessage = it }
             }
             state.copy(messages = newMessages)
         }
+        val newValue = maxOf(quantity, 0.0)
+        val delta = newValue - previousValue
         updatedMessage?.let { msg ->
             viewModelScope.launch {
-                chatMessageRepository.updateMessage(msg)
-                // observeMessages() will re-emit with the persisted quantities — no
-                // extra state update needed here.
+                // Only dispatch cart command if DB update succeeded — avoids a cart API call
+                // for a quantity change that failed to persist locally.
+                if (chatMessageRepository.updateMessage(msg) is Result.Ok) {
+                    // Known limitation: rapid opposite taps may produce out-of-order API calls.
+                    // Per-SKU serialization deferred to a future milestone.
+                    // delta > 0 → addToCart; delta < 0 → removeFromCart with absolute quantity.
+                    if (delta > 0) {
+                        yaloMessageRepository.addToCart(productSku, delta, unitType)
+                    } else if (delta < 0) {
+                        yaloMessageRepository.removeFromCart(productSku, -delta, unitType)
+                    }
+                }
             }
         }
     }

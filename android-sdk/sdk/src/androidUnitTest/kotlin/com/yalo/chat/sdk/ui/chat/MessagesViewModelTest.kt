@@ -744,4 +744,102 @@ class MessagesViewModelTest {
         assertEquals(10.0, messages.first { it.id == 8L }.products.first().unitsAdded)
         assertEquals(0.0, messages.first { it.id == 9L }.products.first().unitsAdded)
     }
+
+    // ── Cart command dispatch ─────────────────────────────────────────────────
+    // Mirrors Flutter MessagesBloc._handleUpdateProductQuantity: after persisting, computes
+    // delta and calls yaloRepo.addToCart/removeFromCart.
+
+    private class CartSpyYaloRepo : YaloMessageRepository {
+        val addToCartCalls = mutableListOf<Pair<String, Double>>()
+        val removeFromCartCalls = mutableListOf<Pair<String, Double?>>()
+        override suspend fun sendMessage(message: ChatMessage) = Result.Ok(Unit)
+        override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+        override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+        override fun events(): Flow<ChatEvent> = emptyFlow()
+        override suspend fun addToCart(sku: String, quantity: Double, unitType: com.yalo.chat.sdk.ui.chat.UnitType?): com.yalo.chat.sdk.common.Result<Unit> {
+            addToCartCalls.add(sku to quantity)
+            return Result.Ok(Unit)
+        }
+        override suspend fun removeFromCart(sku: String, quantity: Double?, unitType: com.yalo.chat.sdk.ui.chat.UnitType?): com.yalo.chat.sdk.common.Result<Unit> {
+            removeFromCartCalls.add(sku to quantity)
+            return Result.Ok(Unit)
+        }
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity dispatches addToCart when quantity increases`() = runTest {
+        val product = Product(sku = "sku-add", name = "Milk", price = 2.0, unitsAdded = 1.0, unitStep = 1.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 20L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val spyRepo = CartSpyYaloRepo()
+        val vm = viewModel(yaloRepo = spyRepo, chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 20L,
+                productSku = "sku-add",
+                unitType = UnitType.UNIT,
+                quantity = 3.0,
+            )
+        )
+
+        assertEquals(1, spyRepo.addToCartCalls.size, "addToCart should be called once")
+        assertEquals("sku-add" to 2.0, spyRepo.addToCartCalls.first(), "delta = 3 - 1 = 2")
+        assertTrue(spyRepo.removeFromCartCalls.isEmpty(), "removeFromCart must not be called")
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity dispatches removeFromCart when quantity decreases`() = runTest {
+        val product = Product(sku = "sku-remove", name = "Eggs", price = 3.0, unitsAdded = 5.0, unitStep = 1.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 21L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val spyRepo = CartSpyYaloRepo()
+        val vm = viewModel(yaloRepo = spyRepo, chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 21L,
+                productSku = "sku-remove",
+                unitType = UnitType.UNIT,
+                quantity = 2.0,
+            )
+        )
+
+        assertEquals(1, spyRepo.removeFromCartCalls.size, "removeFromCart should be called once")
+        assertEquals("sku-remove" to 3.0, spyRepo.removeFromCartCalls.first(), "delta = -(2 - 5) = 3")
+        assertTrue(spyRepo.addToCartCalls.isEmpty(), "addToCart must not be called")
+    }
+
+    @Test
+    fun `ChatUpdateProductQuantity does not dispatch cart call when quantity is unchanged`() = runTest {
+        val product = Product(sku = "sku-noop", name = "Apple", price = 1.0, unitsAdded = 2.0, unitStep = 1.0)
+        val chatRepo = FakeChatMessageRepository()
+        chatRepo.insertMessage(
+            ChatMessage(id = 22L, role = MessageRole.AGENT, type = MessageType.Product,
+                status = MessageStatus.DELIVERED, products = listOf(product))
+        )
+        val spyRepo = CartSpyYaloRepo()
+        val vm = viewModel(yaloRepo = spyRepo, chatRepo = chatRepo)
+        vm.handleEvent(MessagesEvent.LoadMessages)
+
+        vm.handleEvent(
+            MessagesEvent.ChatUpdateProductQuantity(
+                messageId = 22L,
+                productSku = "sku-noop",
+                unitType = UnitType.UNIT,
+                quantity = 2.0, // same as current
+            )
+        )
+
+        assertTrue(spyRepo.addToCartCalls.isEmpty(), "no cart call when delta == 0")
+        assertTrue(spyRepo.removeFromCartCalls.isEmpty(), "no cart call when delta == 0")
+    }
 }

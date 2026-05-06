@@ -4,6 +4,8 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.domain.model.ChatCommand
+import com.yalo.chat.sdk.domain.model.ChatCommandCallback
 import com.yalo.chat.sdk.data.remote.model.SdkImageMessageBody
 import com.yalo.chat.sdk.data.remote.model.SdkImageMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
@@ -20,6 +22,8 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import com.yalo.chat.sdk.ui.chat.UnitType
+import kotlin.concurrent.Volatile
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CancellationException
@@ -49,6 +53,21 @@ internal class YaloMessageRepositoryRemote(
     // Mirrors Flutter's _directory. Platform-specific path provided by YaloChat.kt.
     private val tempDir: String? = null,
 ) : YaloMessageRepository {
+
+    // Registered command callbacks — mirrors flutter-sdk YaloChatClient.commands.
+    // If a callback is registered for a command, it fires instead of the API call.
+    // @Volatile + immutable-map replacement: readers always see a consistent snapshot
+    // and ConcurrentModificationException is impossible (no shared mutable collection).
+    @Volatile
+    private var commands: Map<ChatCommand, ChatCommandCallback> = emptyMap()
+
+    // Non-atomic RMW: concurrent registrations on different threads could theoretically lose one
+    // update, but registerCommand is always called from single-threaded app startup, so this is safe.
+    fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
+        commands = commands + (command to callback)
+    }
+
+    internal val commandsSnapshot: Map<ChatCommand, ChatCommandCallback> get() = commands
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
@@ -481,10 +500,62 @@ internal class YaloMessageRepositoryRemote(
         if (deduplicate) cache.set(id, true)
         return null
     }
+
+    // ── Cart operations ────────────────────────────────────────────────────────
+    // Mirrors flutter-sdk YaloMessageRepositoryRemote.addToCart/removeFromCart/clearCart/addPromotion.
+    // If a ChatCommand callback is registered, it fires instead of the API call (same pattern as Flutter).
+
+    override suspend fun addToCart(sku: String, quantity: Double, unitType: UnitType?): Result<Unit> {
+        val callback = commands[ChatCommand.ADD_TO_CART]
+        if (callback != null) {
+            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity, KEY_UNIT_TYPE to unitType))
+            return Result.Ok(Unit)
+        }
+        return apiService.addToCart(sku, quantity, unitType.toApiString())
+    }
+
+    override suspend fun removeFromCart(sku: String, quantity: Double?, unitType: UnitType?): Result<Unit> {
+        val callback = commands[ChatCommand.REMOVE_FROM_CART]
+        if (callback != null) {
+            callback(mapOf(KEY_SKU to sku, KEY_QUANTITY to quantity, KEY_UNIT_TYPE to unitType))
+            return Result.Ok(Unit)
+        }
+        return apiService.removeFromCart(sku, quantity, unitType.toApiString())
+    }
+
+    override suspend fun clearCart(): Result<Unit> {
+        val callback = commands[ChatCommand.CLEAR_CART]
+        if (callback != null) {
+            callback(null)
+            return Result.Ok(Unit)
+        }
+        return apiService.clearCart()
+    }
+
+    override suspend fun addPromotion(promotionId: String): Result<Unit> {
+        val callback = commands[ChatCommand.ADD_PROMOTION]
+        if (callback != null) {
+            callback(mapOf(KEY_PROMOTION_ID to promotionId))
+            return Result.Ok(Unit)
+        }
+        return apiService.addPromotion(promotionId)
+    }
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 private const val TYPING_STATUS_TEXT = "Writing message..."
+// Cart command payload keys — centralised so refactors cannot silently diverge.
+internal const val KEY_SKU = "sku"
+internal const val KEY_QUANTITY = "quantity"
+internal const val KEY_UNIT_TYPE = "unitType"
+internal const val KEY_PROMOTION_ID = "promotionId"
+
+// Proto3 JSON enum names for unit_type (mirrors AddToCartRequest / RemoveFromCartRequest in sdk_message.proto).
+private fun UnitType?.toApiString(): String? = when (this) {
+    UnitType.UNIT -> "UNIT_TYPE_UNIT"
+    UnitType.SUBUNIT -> "UNIT_TYPE_SUBUNIT"
+    null -> null
+}
 // Proto3 JSON enum value name for horizontal orientation (carousel layout).
 // Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
 private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"

@@ -8,11 +8,13 @@ on:
       - 'main'
     paths:
       - 'android-sdk/**'
+      - 'ios-sdk/**'
       - '.github/workflows/android-sdk-ci.yml'
 
   pull_request:
     paths:
       - 'android-sdk/**'
+      - 'ios-sdk/**'
       - '.github/workflows/android-sdk-ci.yml'
 
 jobs:
@@ -54,11 +56,21 @@ jobs:
       - name: Unit tests
         run: ./gradlew :sdk:testDebugUnitTest
 
-      - name: Build demo app
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: android-sdk/sdk/build/reports/tests/testDebugUnitTest/
+          retention-days: 7
+
+      - name: Build demo app (debug)
         run: ./gradlew :app:assembleDebug
 
-      - name: Build release AAR
-        run: ./gradlew :sdk:assembleRelease
+      - name: Build release AAR + R8 gate
+        # Builds both the SDK AAR and the demo app release APK so R8 shrinking runs
+        # against the SDK's consumer-proguard-rules.pro. Any shrinking error surfaces here.
+        run: ./gradlew :sdk:assembleRelease :app:assembleRelease
 
   xcframework:
     runs-on: macos-latest
@@ -100,3 +112,21 @@ jobs:
           name: ChatSdk-XCFramework
           path: android-sdk/sdk/build/XCFrameworks/release/ChatSdk.xcframework
           retention-days: 7
+
+      - name: Create Credentials stub for CI
+        working-directory: ./ios-sdk/YaloChatDemo
+        run: cp Credentials.swift.example Credentials.swift
+
+      - name: Build iOS demo app
+        # Validates that the Swift layer consuming the XCFramework compiles cleanly.
+        # Builds for the simulator (no code signing required).
+        working-directory: ./ios-sdk
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project YaloChatDemo.xcodeproj \
+            -scheme YaloChatDemo \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            | xcpretty

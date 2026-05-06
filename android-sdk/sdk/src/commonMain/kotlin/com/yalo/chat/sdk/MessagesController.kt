@@ -11,6 +11,7 @@ import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
+import com.yalo.chat.sdk.ui.chat.UnitType
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -172,9 +173,13 @@ class MessagesController internal constructor(
     fun updateProductQuantity(messageId: Long, productSku: String, isSubunit: Boolean, quantity: Double) {
         val s = scope ?: return
         val msg = cachedMessages.find { it.id == messageId } ?: return
+        var previousValue = 0.0
+        var productFound = false
         val updatedMsg = msg.copy(
             products = msg.products.map { product ->
                 if (product.sku != productSku) return@map product
+                productFound = true
+                previousValue = if (!isSubunit) product.unitsAdded else product.subunitsAdded
                 if (!isSubunit) {
                     product.copy(unitsAdded = maxOf(quantity, 0.0))
                 } else if (product.subunits <= 0.0) {
@@ -190,7 +195,15 @@ class MessagesController internal constructor(
                 }
             }
         )
+        if (!productFound) return
         cachedMessages = cachedMessages.map { if (it.id == messageId) updatedMsg else it }
-        s.launch { localRepo.updateMessage(updatedMsg) }
+        val delta = maxOf(quantity, 0.0) - previousValue
+        val unitType = if (isSubunit) UnitType.SUBUNIT else UnitType.UNIT
+        s.launch {
+            if (localRepo.updateMessage(updatedMsg) is Result.Ok) {
+                if (delta > 0) yaloRepo.addToCart(productSku, delta, unitType)
+                else if (delta < 0) yaloRepo.removeFromCart(productSku, -delta, unitType)
+            }
+        }
     }
 }

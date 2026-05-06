@@ -38,7 +38,10 @@ internal fun MessageList(
         }
         return
     }
-    val sorted = remember(messages) { messages.sortedByDescending { it.timestamp } }
+    // Sort by id (not timestamp) so the display order matches the stable DB id ordering.
+    // Polled messages have their id clamped via ensureReceiptOrder (always > user tempId),
+    // so id is immune to client/server clock skew that would break a timestamp sort.
+    val sorted = remember(messages) { messages.sortedByDescending { it.id ?: 0L } }
     val listState = rememberLazyListState()
     LaunchedEffect(sorted.size) {
         listState.animateScrollToItem(0)

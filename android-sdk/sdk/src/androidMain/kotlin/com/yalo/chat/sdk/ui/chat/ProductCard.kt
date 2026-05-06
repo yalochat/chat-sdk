@@ -121,7 +121,7 @@ internal fun ProductHorizontalCard(
             if (subunitsText != null) {
                 ProductQuantityStepper(
                     value = product.subunitsAdded,
-                    unitName = formatIcuUnit(product.subunits, product.subunitName ?: ""),
+                    unitName = formatIcuUnit(product.subunitsAdded, product.subunitName ?: ""),
                     onAdd = onAddSubunit,
                     onRemove = onRemoveSubunit,
                 )
@@ -166,7 +166,7 @@ internal fun ProductVerticalCard(
         if (subunitsText != null) {
             ProductQuantityStepper(
                 value = product.subunitsAdded,
-                unitName = formatIcuUnit(product.subunits, product.subunitName ?: ""),
+                unitName = formatIcuUnit(product.subunitsAdded, product.subunitName ?: ""),
                 onAdd = onAddSubunit,
                 onRemove = onRemoveSubunit,
             )
@@ -184,3 +184,4 @@ private fun subunitsLabel(product: Product): String? =
     } else null
 
 private fun formatPrice(price: Double): String = "%.2f".format(price)
+
