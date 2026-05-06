@@ -108,17 +108,6 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
-  static const VerificationMeta _quickRepliesMeta = const VerificationMeta(
-    'quickReplies',
-  );
-  late final GeneratedColumn<String> quickReplies = GeneratedColumn<String>(
-    'quick_replies',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
   static const VerificationMeta _headerMeta = const VerificationMeta('header');
   late final GeneratedColumn<String> header = GeneratedColumn<String>(
     'header',
@@ -148,17 +137,6 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
-  static const VerificationMeta _ctaButtonsMeta = const VerificationMeta(
-    'ctaButtons',
-  );
-  late final GeneratedColumn<String> ctaButtons = GeneratedColumn<String>(
-    'cta_buttons',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: '',
-  );
   static const VerificationMeta _timestampMeta = const VerificationMeta(
     'timestamp',
   );
@@ -182,11 +160,9 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
     amplitudes,
     duration,
     products,
-    quickReplies,
     header,
     footer,
     buttons,
-    ctaButtons,
     timestamp,
   ];
   @override
@@ -266,15 +242,6 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         products.isAcceptableOrUnknown(data['products']!, _productsMeta),
       );
     }
-    if (data.containsKey('quick_replies')) {
-      context.handle(
-        _quickRepliesMeta,
-        quickReplies.isAcceptableOrUnknown(
-          data['quick_replies']!,
-          _quickRepliesMeta,
-        ),
-      );
-    }
     if (data.containsKey('header')) {
       context.handle(
         _headerMeta,
@@ -291,12 +258,6 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
       context.handle(
         _buttonsMeta,
         buttons.isAcceptableOrUnknown(data['buttons']!, _buttonsMeta),
-      );
-    }
-    if (data.containsKey('cta_buttons')) {
-      context.handle(
-        _ctaButtonsMeta,
-        ctaButtons.isAcceptableOrUnknown(data['cta_buttons']!, _ctaButtonsMeta),
       );
     }
     if (data.containsKey('timestamp')) {
@@ -356,10 +317,6 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
         DriftSqlType.string,
         data['${effectivePrefix}products'],
       ),
-      quickReplies: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}quick_replies'],
-      ),
       header: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}header'],
@@ -371,10 +328,6 @@ class ChatMessage extends Table with TableInfo<ChatMessage, ChatMessageData> {
       buttons: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}buttons'],
-      ),
-      ctaButtons: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}cta_buttons'],
       ),
       timestamp: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
@@ -403,11 +356,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
   final String? amplitudes;
   final int? duration;
   final String? products;
-  final String? quickReplies;
   final String? header;
   final String? footer;
   final String? buttons;
-  final String? ctaButtons;
   final int timestamp;
   const ChatMessageData({
     required this.id,
@@ -420,11 +371,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     this.amplitudes,
     this.duration,
     this.products,
-    this.quickReplies,
     this.header,
     this.footer,
     this.buttons,
-    this.ctaButtons,
     required this.timestamp,
   });
   @override
@@ -450,9 +399,6 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     if (!nullToAbsent || products != null) {
       map['products'] = Variable<String>(products);
     }
-    if (!nullToAbsent || quickReplies != null) {
-      map['quick_replies'] = Variable<String>(quickReplies);
-    }
     if (!nullToAbsent || header != null) {
       map['header'] = Variable<String>(header);
     }
@@ -461,9 +407,6 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     }
     if (!nullToAbsent || buttons != null) {
       map['buttons'] = Variable<String>(buttons);
-    }
-    if (!nullToAbsent || ctaButtons != null) {
-      map['cta_buttons'] = Variable<String>(ctaButtons);
     }
     map['timestamp'] = Variable<int>(timestamp);
     return map;
@@ -489,9 +432,6 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       products: products == null && nullToAbsent
           ? const Value.absent()
           : Value(products),
-      quickReplies: quickReplies == null && nullToAbsent
-          ? const Value.absent()
-          : Value(quickReplies),
       header: header == null && nullToAbsent
           ? const Value.absent()
           : Value(header),
@@ -501,9 +441,6 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       buttons: buttons == null && nullToAbsent
           ? const Value.absent()
           : Value(buttons),
-      ctaButtons: ctaButtons == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ctaButtons),
       timestamp: Value(timestamp),
     );
   }
@@ -524,11 +461,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       amplitudes: serializer.fromJson<String?>(json['amplitudes']),
       duration: serializer.fromJson<int?>(json['duration']),
       products: serializer.fromJson<String?>(json['products']),
-      quickReplies: serializer.fromJson<String?>(json['quick_replies']),
       header: serializer.fromJson<String?>(json['header']),
       footer: serializer.fromJson<String?>(json['footer']),
       buttons: serializer.fromJson<String?>(json['buttons']),
-      ctaButtons: serializer.fromJson<String?>(json['cta_buttons']),
       timestamp: serializer.fromJson<int>(json['timestamp']),
     );
   }
@@ -546,11 +481,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
       'amplitudes': serializer.toJson<String?>(amplitudes),
       'duration': serializer.toJson<int?>(duration),
       'products': serializer.toJson<String?>(products),
-      'quick_replies': serializer.toJson<String?>(quickReplies),
       'header': serializer.toJson<String?>(header),
       'footer': serializer.toJson<String?>(footer),
       'buttons': serializer.toJson<String?>(buttons),
-      'cta_buttons': serializer.toJson<String?>(ctaButtons),
       'timestamp': serializer.toJson<int>(timestamp),
     };
   }
@@ -566,11 +499,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     Value<String?> amplitudes = const Value.absent(),
     Value<int?> duration = const Value.absent(),
     Value<String?> products = const Value.absent(),
-    Value<String?> quickReplies = const Value.absent(),
     Value<String?> header = const Value.absent(),
     Value<String?> footer = const Value.absent(),
     Value<String?> buttons = const Value.absent(),
-    Value<String?> ctaButtons = const Value.absent(),
     int? timestamp,
   }) => ChatMessageData(
     id: id ?? this.id,
@@ -583,11 +514,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     amplitudes: amplitudes.present ? amplitudes.value : this.amplitudes,
     duration: duration.present ? duration.value : this.duration,
     products: products.present ? products.value : this.products,
-    quickReplies: quickReplies.present ? quickReplies.value : this.quickReplies,
     header: header.present ? header.value : this.header,
     footer: footer.present ? footer.value : this.footer,
     buttons: buttons.present ? buttons.value : this.buttons,
-    ctaButtons: ctaButtons.present ? ctaButtons.value : this.ctaButtons,
     timestamp: timestamp ?? this.timestamp,
   );
   ChatMessageData copyWithCompanion(ChatMessageCompanion data) {
@@ -604,15 +533,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           : this.amplitudes,
       duration: data.duration.present ? data.duration.value : this.duration,
       products: data.products.present ? data.products.value : this.products,
-      quickReplies: data.quickReplies.present
-          ? data.quickReplies.value
-          : this.quickReplies,
       header: data.header.present ? data.header.value : this.header,
       footer: data.footer.present ? data.footer.value : this.footer,
       buttons: data.buttons.present ? data.buttons.value : this.buttons,
-      ctaButtons: data.ctaButtons.present
-          ? data.ctaButtons.value
-          : this.ctaButtons,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
     );
   }
@@ -630,11 +553,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           ..write('amplitudes: $amplitudes, ')
           ..write('duration: $duration, ')
           ..write('products: $products, ')
-          ..write('quickReplies: $quickReplies, ')
           ..write('header: $header, ')
           ..write('footer: $footer, ')
           ..write('buttons: $buttons, ')
-          ..write('ctaButtons: $ctaButtons, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
@@ -652,11 +573,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
     amplitudes,
     duration,
     products,
-    quickReplies,
     header,
     footer,
     buttons,
-    ctaButtons,
     timestamp,
   );
   @override
@@ -673,11 +592,9 @@ class ChatMessageData extends DataClass implements Insertable<ChatMessageData> {
           other.amplitudes == this.amplitudes &&
           other.duration == this.duration &&
           other.products == this.products &&
-          other.quickReplies == this.quickReplies &&
           other.header == this.header &&
           other.footer == this.footer &&
           other.buttons == this.buttons &&
-          other.ctaButtons == this.ctaButtons &&
           other.timestamp == this.timestamp);
 }
 
@@ -692,11 +609,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
   final Value<String?> amplitudes;
   final Value<int?> duration;
   final Value<String?> products;
-  final Value<String?> quickReplies;
   final Value<String?> header;
   final Value<String?> footer;
   final Value<String?> buttons;
-  final Value<String?> ctaButtons;
   final Value<int> timestamp;
   const ChatMessageCompanion({
     this.id = const Value.absent(),
@@ -709,11 +624,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     this.amplitudes = const Value.absent(),
     this.duration = const Value.absent(),
     this.products = const Value.absent(),
-    this.quickReplies = const Value.absent(),
     this.header = const Value.absent(),
     this.footer = const Value.absent(),
     this.buttons = const Value.absent(),
-    this.ctaButtons = const Value.absent(),
     this.timestamp = const Value.absent(),
   });
   ChatMessageCompanion.insert({
@@ -727,11 +640,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     this.amplitudes = const Value.absent(),
     this.duration = const Value.absent(),
     this.products = const Value.absent(),
-    this.quickReplies = const Value.absent(),
     this.header = const Value.absent(),
     this.footer = const Value.absent(),
     this.buttons = const Value.absent(),
-    this.ctaButtons = const Value.absent(),
     required int timestamp,
   }) : role = Value(role),
        content = Value(content),
@@ -749,11 +660,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     Expression<String>? amplitudes,
     Expression<int>? duration,
     Expression<String>? products,
-    Expression<String>? quickReplies,
     Expression<String>? header,
     Expression<String>? footer,
     Expression<String>? buttons,
-    Expression<String>? ctaButtons,
     Expression<int>? timestamp,
   }) {
     return RawValuesInsertable({
@@ -767,11 +676,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
       if (amplitudes != null) 'amplitudes': amplitudes,
       if (duration != null) 'duration': duration,
       if (products != null) 'products': products,
-      if (quickReplies != null) 'quick_replies': quickReplies,
       if (header != null) 'header': header,
       if (footer != null) 'footer': footer,
       if (buttons != null) 'buttons': buttons,
-      if (ctaButtons != null) 'cta_buttons': ctaButtons,
       if (timestamp != null) 'timestamp': timestamp,
     });
   }
@@ -787,11 +694,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     Value<String?>? amplitudes,
     Value<int?>? duration,
     Value<String?>? products,
-    Value<String?>? quickReplies,
     Value<String?>? header,
     Value<String?>? footer,
     Value<String?>? buttons,
-    Value<String?>? ctaButtons,
     Value<int>? timestamp,
   }) {
     return ChatMessageCompanion(
@@ -805,11 +710,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
       amplitudes: amplitudes ?? this.amplitudes,
       duration: duration ?? this.duration,
       products: products ?? this.products,
-      quickReplies: quickReplies ?? this.quickReplies,
       header: header ?? this.header,
       footer: footer ?? this.footer,
       buttons: buttons ?? this.buttons,
-      ctaButtons: ctaButtons ?? this.ctaButtons,
       timestamp: timestamp ?? this.timestamp,
     );
   }
@@ -847,9 +750,6 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     if (products.present) {
       map['products'] = Variable<String>(products.value);
     }
-    if (quickReplies.present) {
-      map['quick_replies'] = Variable<String>(quickReplies.value);
-    }
     if (header.present) {
       map['header'] = Variable<String>(header.value);
     }
@@ -858,9 +758,6 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
     }
     if (buttons.present) {
       map['buttons'] = Variable<String>(buttons.value);
-    }
-    if (ctaButtons.present) {
-      map['cta_buttons'] = Variable<String>(ctaButtons.value);
     }
     if (timestamp.present) {
       map['timestamp'] = Variable<int>(timestamp.value);
@@ -881,11 +778,9 @@ class ChatMessageCompanion extends UpdateCompanion<ChatMessageData> {
           ..write('amplitudes: $amplitudes, ')
           ..write('duration: $duration, ')
           ..write('products: $products, ')
-          ..write('quickReplies: $quickReplies, ')
           ..write('header: $header, ')
           ..write('footer: $footer, ')
           ..write('buttons: $buttons, ')
-          ..write('ctaButtons: $ctaButtons, ')
           ..write('timestamp: $timestamp')
           ..write(')'))
         .toString();
@@ -898,7 +793,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
   late final ChatMessage chatMessage = ChatMessage(this);
   Selectable<ChatMessageData> getMessagesFirstPage(int limit) {
     return customSelect(
-      'SELECT id, wi_id, role, content, type, status, file_name, amplitudes, duration, products, quick_replies, header, footer, buttons, cta_buttons, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
+      'SELECT id, wi_id, role, content, type, status, file_name, amplitudes, duration, products, header, footer, buttons, timestamp FROM chat_message ORDER BY id DESC LIMIT ?1',
       variables: [Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
@@ -906,7 +801,7 @@ abstract class _$DatabaseService extends GeneratedDatabase {
 
   Selectable<ChatMessageData> getMessagesPage(int cursor, int limit) {
     return customSelect(
-      'SELECT id, wi_id, role, content, type, status, file_name, amplitudes, duration, products, quick_replies, header, footer, buttons, cta_buttons, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
+      'SELECT id, wi_id, role, content, type, status, file_name, amplitudes, duration, products, header, footer, buttons, timestamp FROM chat_message WHERE id < ?1 ORDER BY id DESC LIMIT ?2',
       variables: [Variable<int>(cursor), Variable<int>(limit)],
       readsFrom: {chatMessage},
     ).asyncMap(chatMessage.mapFromRow);
@@ -931,11 +826,9 @@ typedef $ChatMessageCreateCompanionBuilder =
       Value<String?> amplitudes,
       Value<int?> duration,
       Value<String?> products,
-      Value<String?> quickReplies,
       Value<String?> header,
       Value<String?> footer,
       Value<String?> buttons,
-      Value<String?> ctaButtons,
       required int timestamp,
     });
 typedef $ChatMessageUpdateCompanionBuilder =
@@ -950,11 +843,9 @@ typedef $ChatMessageUpdateCompanionBuilder =
       Value<String?> amplitudes,
       Value<int?> duration,
       Value<String?> products,
-      Value<String?> quickReplies,
       Value<String?> header,
       Value<String?> footer,
       Value<String?> buttons,
-      Value<String?> ctaButtons,
       Value<int> timestamp,
     });
 
@@ -1017,11 +908,6 @@ class $ChatMessageFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get quickReplies => $composableBuilder(
-    column: $table.quickReplies,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get header => $composableBuilder(
     column: $table.header,
     builder: (column) => ColumnFilters(column),
@@ -1034,11 +920,6 @@ class $ChatMessageFilterComposer
 
   ColumnFilters<String> get buttons => $composableBuilder(
     column: $table.buttons,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get ctaButtons => $composableBuilder(
-    column: $table.ctaButtons,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1107,11 +988,6 @@ class $ChatMessageOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get quickReplies => $composableBuilder(
-    column: $table.quickReplies,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get header => $composableBuilder(
     column: $table.header,
     builder: (column) => ColumnOrderings(column),
@@ -1124,11 +1000,6 @@ class $ChatMessageOrderingComposer
 
   ColumnOrderings<String> get buttons => $composableBuilder(
     column: $table.buttons,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get ctaButtons => $composableBuilder(
-    column: $table.ctaButtons,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1179,11 +1050,6 @@ class $ChatMessageAnnotationComposer
   GeneratedColumn<String> get products =>
       $composableBuilder(column: $table.products, builder: (column) => column);
 
-  GeneratedColumn<String> get quickReplies => $composableBuilder(
-    column: $table.quickReplies,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<String> get header =>
       $composableBuilder(column: $table.header, builder: (column) => column);
 
@@ -1192,11 +1058,6 @@ class $ChatMessageAnnotationComposer
 
   GeneratedColumn<String> get buttons =>
       $composableBuilder(column: $table.buttons, builder: (column) => column);
-
-  GeneratedColumn<String> get ctaButtons => $composableBuilder(
-    column: $table.ctaButtons,
-    builder: (column) => column,
-  );
 
   GeneratedColumn<int> get timestamp =>
       $composableBuilder(column: $table.timestamp, builder: (column) => column);
@@ -1243,11 +1104,9 @@ class $ChatMessageTableManager
                 Value<String?> amplitudes = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
                 Value<String?> products = const Value.absent(),
-                Value<String?> quickReplies = const Value.absent(),
                 Value<String?> header = const Value.absent(),
                 Value<String?> footer = const Value.absent(),
                 Value<String?> buttons = const Value.absent(),
-                Value<String?> ctaButtons = const Value.absent(),
                 Value<int> timestamp = const Value.absent(),
               }) => ChatMessageCompanion(
                 id: id,
@@ -1260,11 +1119,9 @@ class $ChatMessageTableManager
                 amplitudes: amplitudes,
                 duration: duration,
                 products: products,
-                quickReplies: quickReplies,
                 header: header,
                 footer: footer,
                 buttons: buttons,
-                ctaButtons: ctaButtons,
                 timestamp: timestamp,
               ),
           createCompanionCallback:
@@ -1279,11 +1136,9 @@ class $ChatMessageTableManager
                 Value<String?> amplitudes = const Value.absent(),
                 Value<int?> duration = const Value.absent(),
                 Value<String?> products = const Value.absent(),
-                Value<String?> quickReplies = const Value.absent(),
                 Value<String?> header = const Value.absent(),
                 Value<String?> footer = const Value.absent(),
                 Value<String?> buttons = const Value.absent(),
-                Value<String?> ctaButtons = const Value.absent(),
                 required int timestamp,
               }) => ChatMessageCompanion.insert(
                 id: id,
@@ -1296,11 +1151,9 @@ class $ChatMessageTableManager
                 amplitudes: amplitudes,
                 duration: duration,
                 products: products,
-                quickReplies: quickReplies,
                 header: header,
                 footer: footer,
                 buttons: buttons,
-                ctaButtons: ctaButtons,
                 timestamp: timestamp,
               ),
           withReferenceMapper: (p0) => p0

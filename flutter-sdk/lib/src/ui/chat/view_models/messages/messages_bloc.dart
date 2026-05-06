@@ -11,6 +11,7 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/chat_message/chat_me
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
@@ -69,10 +70,10 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
-        log.info('App backgrounded — pausing polling');
+        log.info('App backgrounded, pausing polling');
         _yaloMessageRepository.pause();
       case AppLifecycleState.resumed:
-        log.info('App foregrounded — resuming polling');
+        log.info('App foregrounded, resuming polling');
         _yaloMessageRepository.resume();
       default:
         break;
@@ -182,11 +183,13 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
       yaloMessages,
       onData: (chatMessage) {
         log.fine('Inserted message received with id ${chatMessage.id}');
+        final replyLabels = chatMessage.buttons
+            .where((b) => b.type == ButtonType.reply)
+            .map((b) => b.text)
+            .toList();
         return state.copyWith(
           messages: [chatMessage, ...state.messages],
-          quickReplies: chatMessage.quickReplies.isEmpty
-              ? null
-              : chatMessage.quickReplies,
+          quickReplies: replyLabels.isEmpty ? null : replyLabels,
         );
       },
       onError: (error, stackTrace) {

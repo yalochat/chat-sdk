@@ -11,6 +11,7 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_reposito
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
@@ -1084,7 +1085,10 @@ void main() {
             role: MessageRole.assistant,
             type: MessageType.text,
             content: 'Test message',
-            quickReplies: ['Quick!', 'Think!'],
+            buttons: const [
+              Button(text: 'Quick!', type: ButtonType.reply),
+              Button(text: 'Think!', type: ButtonType.reply),
+            ],
             timestamp: fixedClock.now(),
           );
           when(
@@ -1107,10 +1111,99 @@ void main() {
                 role: MessageRole.assistant,
                 type: MessageType.text,
                 content: 'Test message',
-                quickReplies: ['Quick!', 'Think!'],
+                buttons: const [
+                  Button(text: 'Quick!', type: ButtonType.reply),
+                  Button(text: 'Think!', type: ButtonType.reply),
+                ],
                 timestamp: fixedClock.now(),
               ),
             ),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should project REPLY-typed buttons into state.quickReplies and ignore other types',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          final chatMessageStub = ChatMessage(
+            role: MessageRole.assistant,
+            type: MessageType.text,
+            content: 'Test message',
+            buttons: const [
+              Button(text: 'Yes', type: ButtonType.reply),
+              Button(text: 'No', type: ButtonType.reply),
+              Button(text: 'Postback', type: ButtonType.postback),
+              Button(
+                text: 'Visit',
+                type: ButtonType.link,
+                url: 'https://example.com',
+              ),
+            ],
+            timestamp: fixedClock.now(),
+          );
+          when(
+            () => yaloMessageRepository.messages(),
+          ).thenAnswer((_) => fakeStream.stream.asBroadcastStream());
+          when(
+            () => chatMessageRepository.insertChatMessage(chatMessageStub),
+          ).thenAnswer((_) async => Result.ok(chatMessageStub.copyWith(id: 1)));
+          bloc.add(ChatSubscribeToMessages());
+
+          fakeStream.sink.add(chatMessageStub);
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (s) => s.quickReplies,
+            'quickReplies',
+            equals(['Yes', 'No']),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should leave state.quickReplies empty when the message has no REPLY buttons',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          final chatMessageStub = ChatMessage(
+            role: MessageRole.assistant,
+            type: MessageType.text,
+            content: 'Test message',
+            buttons: const [
+              Button(text: 'Postback', type: ButtonType.postback),
+              Button(
+                text: 'Visit',
+                type: ButtonType.link,
+                url: 'https://example.com',
+              ),
+            ],
+            timestamp: fixedClock.now(),
+          );
+          when(
+            () => yaloMessageRepository.messages(),
+          ).thenAnswer((_) => fakeStream.stream.asBroadcastStream());
+          when(
+            () => chatMessageRepository.insertChatMessage(chatMessageStub),
+          ).thenAnswer((_) async => Result.ok(chatMessageStub.copyWith(id: 1)));
+          bloc.add(ChatSubscribeToMessages());
+
+          fakeStream.sink.add(chatMessageStub);
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (s) => s.quickReplies,
+            'quickReplies',
+            isEmpty,
           ),
         ],
       );

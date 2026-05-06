@@ -14,7 +14,6 @@ import 'package:cross_file/cross_file.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
@@ -61,43 +60,6 @@ void main() {
             mediaUrl: 'https://example.com/image.jpg',
             text: 'Caption',
             mediaType: 'image/jpeg',
-          ),
-        ),
-      ),
-      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-      userId: 'user-123',
-      status: 'IN_DELIVERY',
-    );
-
-    final assistantButtonsResponseStub = proto.PollMessageItem(
-      id: 'btn-1',
-      message: proto.SdkMessage(
-        buttonsMessageRequest: proto.ButtonsMessageRequest(
-          content: proto.ButtonsMessage(
-            header: 'Header text',
-            body: 'Choose an option',
-            footer: 'Footer text',
-            buttons: ['Yes', 'No', 'Maybe'],
-          ),
-        ),
-      ),
-      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-      userId: 'user-123',
-      status: 'IN_DELIVERY',
-    );
-
-    final assistantCtaResponseStub = proto.PollMessageItem(
-      id: 'cta-1',
-      message: proto.SdkMessage(
-        ctaMessageRequest: proto.CTAMessageRequest(
-          content: proto.CTAMessage(
-            header: 'CTA header',
-            body: 'Visit our site',
-            footer: 'CTA footer',
-            buttons: [
-              proto.CTAButton(text: 'Open', url: 'https://example.com'),
-              proto.CTAButton(text: 'Docs', url: 'https://example.com/docs'),
-            ],
           ),
         ),
       ),
@@ -404,106 +366,6 @@ void main() {
           expect(received, isEmpty);
         },
       );
-
-      test('emits a buttons message translated from buttonsMessageRequest', () async {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([assistantButtonsResponseStub]));
-
-        final message = await repo.messages().first;
-        repo.dispose();
-
-        expect(message.wiId, equals('btn-1'));
-        expect(message.type, equals(MessageType.buttons));
-        expect(message.role, equals(MessageRole.assistant));
-        expect(message.content, equals('Choose an option'));
-        expect(message.header, equals('Header text'));
-        expect(message.footer, equals('Footer text'));
-        expect(message.buttons, equals(['Yes', 'No', 'Maybe']));
-        expect(message.ctaButtons, isEmpty);
-      });
-
-      test('emits a buttons message with null header/footer when not set', () async {
-        final stub = proto.PollMessageItem(
-          id: 'btn-2',
-          message: proto.SdkMessage(
-            buttonsMessageRequest: proto.ButtonsMessageRequest(
-              content: proto.ButtonsMessage(
-                body: 'Pick one',
-                buttons: ['A'],
-              ),
-            ),
-          ),
-          date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-          userId: 'user-123',
-          status: 'IN_DELIVERY',
-        );
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([stub]));
-
-        final message = await repo.messages().first;
-        repo.dispose();
-
-        expect(message.type, equals(MessageType.buttons));
-        expect(message.header, isNull);
-        expect(message.footer, isNull);
-        expect(message.buttons, equals(['A']));
-      });
-
-      test('emits a cta message translated from ctaMessageRequest', () async {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([assistantCtaResponseStub]));
-
-        final message = await repo.messages().first;
-        repo.dispose();
-
-        expect(message.wiId, equals('cta-1'));
-        expect(message.type, equals(MessageType.cta));
-        expect(message.role, equals(MessageRole.assistant));
-        expect(message.content, equals('Visit our site'));
-        expect(message.header, equals('CTA header'));
-        expect(message.footer, equals('CTA footer'));
-        expect(message.buttons, isEmpty);
-        expect(
-          message.ctaButtons,
-          equals([
-            const CTAButton(text: 'Open', url: 'https://example.com'),
-            const CTAButton(text: 'Docs', url: 'https://example.com/docs'),
-          ]),
-        );
-      });
-
-      test('emits a cta message with null header/footer when not set', () async {
-        final stub = proto.PollMessageItem(
-          id: 'cta-2',
-          message: proto.SdkMessage(
-            ctaMessageRequest: proto.CTAMessageRequest(
-              content: proto.CTAMessage(
-                body: 'Body only',
-                buttons: [proto.CTAButton(text: 'Go', url: 'https://e.com')],
-              ),
-            ),
-          ),
-          date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-          userId: 'user-123',
-          status: 'IN_DELIVERY',
-        );
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([stub]));
-
-        final message = await repo.messages().first;
-        repo.dispose();
-
-        expect(message.type, equals(MessageType.cta));
-        expect(message.header, isNull);
-        expect(message.footer, isNull);
-        expect(message.ctaButtons, hasLength(1));
-        expect(message.ctaButtons.first.text, equals('Go'));
-        expect(message.ctaButtons.first.url, equals('https://e.com'));
-      });
 
       test('emits a product message with vertical orientation', () async {
         when(
