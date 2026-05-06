@@ -40,7 +40,7 @@ describe('YaloMediaServiceRemote', () => {
       );
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const file = new File(['fake image'], 'photo.jpeg', {
@@ -69,14 +69,14 @@ describe('YaloMediaServiceRemote', () => {
       vi.stubGlobal('fetch', fetchSpy);
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository('my-token')
       );
       const file = new File(['data'], 'photo.jpeg', { type: 'image/jpeg' });
       await service.uploadMedia(file);
 
       expect(fetchSpy).toHaveBeenCalledWith(
-        'https://api.example.com/all/media',
+        'https://api.example.com/v1/channels/all/media',
         expect.objectContaining({
           method: 'POST',
           headers: { Authorization: 'Bearer my-token' },
@@ -95,7 +95,7 @@ describe('YaloMediaServiceRemote', () => {
       );
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const file = new File(['data'], 'photo.jpeg', { type: 'image/jpeg' });
@@ -114,7 +114,7 @@ describe('YaloMediaServiceRemote', () => {
       };
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         tokenRepo
       );
       const file = new File(['data'], 'photo.jpeg', { type: 'image/jpeg' });
@@ -131,7 +131,7 @@ describe('YaloMediaServiceRemote', () => {
       );
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const file = new File(['data'], 'photo.jpeg', { type: 'image/jpeg' });
@@ -145,7 +145,7 @@ describe('YaloMediaServiceRemote', () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue('string error'));
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const file = new File(['data'], 'photo.jpeg', { type: 'image/jpeg' });
@@ -168,7 +168,7 @@ describe('YaloMediaServiceRemote', () => {
       );
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const result = await service.downloadMedia(
@@ -186,7 +186,7 @@ describe('YaloMediaServiceRemote', () => {
       );
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const result = await service.downloadMedia(
@@ -205,7 +205,7 @@ describe('YaloMediaServiceRemote', () => {
       );
 
       const service = new YaloMediaServiceRemote(
-        'https://api.example.com',
+        'api.example.com',
         makeTokenRepository()
       );
       const result = await service.downloadMedia(

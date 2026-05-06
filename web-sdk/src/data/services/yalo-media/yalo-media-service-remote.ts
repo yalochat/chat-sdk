@@ -12,7 +12,7 @@ export class YaloMediaServiceRemote implements YaloMediaService {
   private readonly _tokenRepository: TokenRepository;
 
   constructor(baseUrl: string, tokenRepository: TokenRepository) {
-    this._baseUrl = baseUrl;
+    this._baseUrl = `https://${baseUrl}/v1/channels`;
     this._tokenRepository = tokenRepository;
   }
 
