@@ -134,7 +134,7 @@ const SdkMessage$json = {
       '3': 10,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.TextMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.TextMessageRequest',
       '9': 0,
       '10': 'textMessageRequest'
     },
@@ -143,7 +143,7 @@ const SdkMessage$json = {
       '3': 12,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.VoiceNoteMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest',
       '9': 0,
       '10': 'voiceNoteMessageRequest'
     },
@@ -152,7 +152,7 @@ const SdkMessage$json = {
       '3': 14,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ImageMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ImageMessageRequest',
       '9': 0,
       '10': 'imageMessageRequest'
     },
@@ -161,7 +161,7 @@ const SdkMessage$json = {
       '3': 16,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageReceiptRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest',
       '9': 0,
       '10': 'messageReceiptRequest'
     },
@@ -170,7 +170,7 @@ const SdkMessage$json = {
       '3': 18,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.AttachmentMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest',
       '9': 0,
       '10': 'attachmentMessageRequest'
     },
@@ -179,7 +179,7 @@ const SdkMessage$json = {
       '3': 38,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.VideoMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.VideoMessageRequest',
       '9': 0,
       '10': 'videoMessageRequest'
     },
@@ -188,7 +188,7 @@ const SdkMessage$json = {
       '3': 20,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.AddToCartRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.AddToCartRequest',
       '9': 0,
       '10': 'addToCartRequest'
     },
@@ -197,7 +197,7 @@ const SdkMessage$json = {
       '3': 21,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.AddToCartResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.AddToCartResponse',
       '9': 0,
       '10': 'addToCartResponse'
     },
@@ -206,7 +206,7 @@ const SdkMessage$json = {
       '3': 22,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.RemoveFromCartRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest',
       '9': 0,
       '10': 'removeFromCartRequest'
     },
@@ -215,7 +215,7 @@ const SdkMessage$json = {
       '3': 23,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.RemoveFromCartResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse',
       '9': 0,
       '10': 'removeFromCartResponse'
     },
@@ -224,7 +224,7 @@ const SdkMessage$json = {
       '3': 24,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ClearCartRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ClearCartRequest',
       '9': 0,
       '10': 'clearCartRequest'
     },
@@ -233,7 +233,7 @@ const SdkMessage$json = {
       '3': 25,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ClearCartResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ClearCartResponse',
       '9': 0,
       '10': 'clearCartResponse'
     },
@@ -242,7 +242,7 @@ const SdkMessage$json = {
       '3': 26,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.GuidanceCardRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest',
       '9': 0,
       '10': 'guidanceCardRequest'
     },
@@ -251,7 +251,7 @@ const SdkMessage$json = {
       '3': 27,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.GuidanceCardResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse',
       '9': 0,
       '10': 'guidanceCardResponse'
     },
@@ -260,7 +260,7 @@ const SdkMessage$json = {
       '3': 28,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.AddPromotionRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.AddPromotionRequest',
       '9': 0,
       '10': 'addPromotionRequest'
     },
@@ -269,7 +269,7 @@ const SdkMessage$json = {
       '3': 29,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.AddPromotionResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.AddPromotionResponse',
       '9': 0,
       '10': 'addPromotionResponse'
     },
@@ -278,7 +278,7 @@ const SdkMessage$json = {
       '3': 30,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.PromotionMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest',
       '9': 0,
       '10': 'promotionMessageRequest'
     },
@@ -287,7 +287,7 @@ const SdkMessage$json = {
       '3': 31,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.PromotionMessageResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse',
       '9': 0,
       '10': 'promotionMessageResponse'
     },
@@ -296,7 +296,7 @@ const SdkMessage$json = {
       '3': 32,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ProductMessageRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ProductMessageRequest',
       '9': 0,
       '10': 'productMessageRequest'
     },
@@ -305,7 +305,7 @@ const SdkMessage$json = {
       '3': 33,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ProductMessageResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ProductMessageResponse',
       '9': 0,
       '10': 'productMessageResponse'
     },
@@ -314,7 +314,7 @@ const SdkMessage$json = {
       '3': 34,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ChatStatusRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ChatStatusRequest',
       '9': 0,
       '10': 'chatStatusRequest'
     },
@@ -323,7 +323,7 @@ const SdkMessage$json = {
       '3': 35,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ChatStatusResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ChatStatusResponse',
       '9': 0,
       '10': 'chatStatusResponse'
     },
@@ -332,7 +332,7 @@ const SdkMessage$json = {
       '3': 36,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.CustomCommandRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.CustomCommandRequest',
       '9': 0,
       '10': 'customCommandRequest'
     },
@@ -341,7 +341,7 @@ const SdkMessage$json = {
       '3': 37,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.CustomCommandResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.CustomCommandResponse',
       '9': 0,
       '10': 'customCommandResponse'
     },
@@ -350,7 +350,7 @@ const SdkMessage$json = {
       '3': 44,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.GetCommandsRequest',
+      '6': '.yalo.external_channel.in_app.sdk.v2.GetCommandsRequest',
       '9': 0,
       '10': 'getCommandsRequest'
     },
@@ -359,7 +359,7 @@ const SdkMessage$json = {
       '3': 45,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.GetCommandsResponse',
+      '6': '.yalo.external_channel.in_app.sdk.v2.GetCommandsResponse',
       '9': 0,
       '10': 'getCommandsResponse'
     },
@@ -374,58 +374,58 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'CgpTZGtNZXNzYWdlEiUKDmNvcnJlbGF0aW9uX2lkGAEgASgJUg1jb3JyZWxhdGlvbklkEjgKCX'
     'RpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBJr'
     'ChR0ZXh0X21lc3NhZ2VfcmVxdWVzdBgKIAEoCzI3LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl'
-    '9hcHAuc2RrLnYxLlRleHRNZXNzYWdlUmVxdWVzdEgAUhJ0ZXh0TWVzc2FnZVJlcXVlc3QSewoa'
+    '9hcHAuc2RrLnYyLlRleHRNZXNzYWdlUmVxdWVzdEgAUhJ0ZXh0TWVzc2FnZVJlcXVlc3QSewoa'
     'dm9pY2Vfbm90ZV9tZXNzYWdlX3JlcXVlc3QYDCABKAsyPC55YWxvLmV4dGVybmFsX2NoYW5uZW'
-    'wuaW5fYXBwLnNkay52MS5Wb2ljZU5vdGVNZXNzYWdlUmVxdWVzdEgAUhd2b2ljZU5vdGVNZXNz'
+    'wuaW5fYXBwLnNkay52Mi5Wb2ljZU5vdGVNZXNzYWdlUmVxdWVzdEgAUhd2b2ljZU5vdGVNZXNz'
     'YWdlUmVxdWVzdBJuChVpbWFnZV9tZXNzYWdlX3JlcXVlc3QYDiABKAsyOC55YWxvLmV4dGVybm'
-    'FsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5JbWFnZU1lc3NhZ2VSZXF1ZXN0SABSE2ltYWdlTWVz'
+    'FsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5JbWFnZU1lc3NhZ2VSZXF1ZXN0SABSE2ltYWdlTWVz'
     'c2FnZVJlcXVlc3QSdAoXbWVzc2FnZV9yZWNlaXB0X3JlcXVlc3QYECABKAsyOi55YWxvLmV4dG'
-    'VybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlUmVjZWlwdFJlcXVlc3RIAFIVbWVz'
+    'VybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5NZXNzYWdlUmVjZWlwdFJlcXVlc3RIAFIVbWVz'
     'c2FnZVJlY2VpcHRSZXF1ZXN0En0KGmF0dGFjaG1lbnRfbWVzc2FnZV9yZXF1ZXN0GBIgASgLMj'
-    '0ueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQXR0YWNobWVudE1lc3NhZ2VS'
+    '0ueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQXR0YWNobWVudE1lc3NhZ2VS'
     'ZXF1ZXN0SABSGGF0dGFjaG1lbnRNZXNzYWdlUmVxdWVzdBJuChV2aWRlb19tZXNzYWdlX3JlcX'
-    'Vlc3QYJiABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5WaWRlb01l'
+    'Vlc3QYJiABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5WaWRlb01l'
     'c3NhZ2VSZXF1ZXN0SABSE3ZpZGVvTWVzc2FnZVJlcXVlc3QSZgoTYWRkX3RvX2NhcnRfcmVxdW'
-    'VzdBgUIAEoCzI1LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkFkZFRvQ2Fy'
+    'VzdBgUIAEoCzI1LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkFkZFRvQ2Fy'
     'dFJlcXVlc3RIAFIQYWRkVG9DYXJ0UmVxdWVzdBJpChRhZGRfdG9fY2FydF9yZXNwb25zZRgVIA'
-    'EoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkFkZFRvQ2FydFJlc3Bv'
+    'EoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkFkZFRvQ2FydFJlc3Bv'
     'bnNlSABSEWFkZFRvQ2FydFJlc3BvbnNlEnUKGHJlbW92ZV9mcm9tX2NhcnRfcmVxdWVzdBgWIA'
-    'EoCzI6LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlJlbW92ZUZyb21DYXJ0'
+    'EoCzI6LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlbW92ZUZyb21DYXJ0'
     'UmVxdWVzdEgAUhVyZW1vdmVGcm9tQ2FydFJlcXVlc3QSeAoZcmVtb3ZlX2Zyb21fY2FydF9yZX'
-    'Nwb25zZRgXIAEoCzI7LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlJlbW92'
+    'Nwb25zZRgXIAEoCzI7LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlbW92'
     'ZUZyb21DYXJ0UmVzcG9uc2VIAFIWcmVtb3ZlRnJvbUNhcnRSZXNwb25zZRJlChJjbGVhcl9jYX'
-    'J0X3JlcXVlc3QYGCABKAsyNS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5D'
+    'J0X3JlcXVlc3QYGCABKAsyNS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5D'
     'bGVhckNhcnRSZXF1ZXN0SABSEGNsZWFyQ2FydFJlcXVlc3QSaAoTY2xlYXJfY2FydF9yZXNwb2'
-    '5zZRgZIAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkNsZWFyQ2Fy'
+    '5zZRgZIAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkNsZWFyQ2Fy'
     'dFJlc3BvbnNlSABSEWNsZWFyQ2FydFJlc3BvbnNlEm4KFWd1aWRhbmNlX2NhcmRfcmVxdWVzdB'
-    'gaIAEoCzI4LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkd1aWRhbmNlQ2Fy'
+    'gaIAEoCzI4LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkd1aWRhbmNlQ2Fy'
     'ZFJlcXVlc3RIAFITZ3VpZGFuY2VDYXJkUmVxdWVzdBJxChZndWlkYW5jZV9jYXJkX3Jlc3Bvbn'
-    'NlGBsgASgLMjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuR3VpZGFuY2VD'
+    'NlGBsgASgLMjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuR3VpZGFuY2VD'
     'YXJkUmVzcG9uc2VIAFIUZ3VpZGFuY2VDYXJkUmVzcG9uc2USbgoVYWRkX3Byb21vdGlvbl9yZX'
-    'F1ZXN0GBwgASgLMjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQWRkUHJv'
+    'F1ZXN0GBwgASgLMjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQWRkUHJv'
     'bW90aW9uUmVxdWVzdEgAUhNhZGRQcm9tb3Rpb25SZXF1ZXN0EnEKFmFkZF9wcm9tb3Rpb25fcm'
-    'VzcG9uc2UYHSABKAsyOS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5BZGRQ'
+    'VzcG9uc2UYHSABKAsyOS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5BZGRQ'
     'cm9tb3Rpb25SZXNwb25zZUgAUhRhZGRQcm9tb3Rpb25SZXNwb25zZRJ6Chlwcm9tb3Rpb25fbW'
     'Vzc2FnZV9yZXF1ZXN0GB4gASgLMjwueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
-    'djEuUHJvbW90aW9uTWVzc2FnZVJlcXVlc3RIAFIXcHJvbW90aW9uTWVzc2FnZVJlcXVlc3QSfQ'
+    'djIuUHJvbW90aW9uTWVzc2FnZVJlcXVlc3RIAFIXcHJvbW90aW9uTWVzc2FnZVJlcXVlc3QSfQ'
     'oacHJvbW90aW9uX21lc3NhZ2VfcmVzcG9uc2UYHyABKAsyPS55YWxvLmV4dGVybmFsX2NoYW5u'
-    'ZWwuaW5fYXBwLnNkay52MS5Qcm9tb3Rpb25NZXNzYWdlUmVzcG9uc2VIAFIYcHJvbW90aW9uTW'
+    'ZWwuaW5fYXBwLnNkay52Mi5Qcm9tb3Rpb25NZXNzYWdlUmVzcG9uc2VIAFIYcHJvbW90aW9uTW'
     'Vzc2FnZVJlc3BvbnNlEnQKF3Byb2R1Y3RfbWVzc2FnZV9yZXF1ZXN0GCAgASgLMjoueWFsby5l'
-    'eHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuUHJvZHVjdE1lc3NhZ2VSZXF1ZXN0SABSFX'
+    'eHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuUHJvZHVjdE1lc3NhZ2VSZXF1ZXN0SABSFX'
     'Byb2R1Y3RNZXNzYWdlUmVxdWVzdBJ3Chhwcm9kdWN0X21lc3NhZ2VfcmVzcG9uc2UYISABKAsy'
-    'Oy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5Qcm9kdWN0TWVzc2FnZVJlc3'
+    'Oy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9kdWN0TWVzc2FnZVJlc3'
     'BvbnNlSABSFnByb2R1Y3RNZXNzYWdlUmVzcG9uc2USaAoTY2hhdF9zdGF0dXNfcmVxdWVzdBgi'
-    'IAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkNoYXRTdGF0dXNSZX'
+    'IAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkNoYXRTdGF0dXNSZX'
     'F1ZXN0SABSEWNoYXRTdGF0dXNSZXF1ZXN0EmsKFGNoYXRfc3RhdHVzX3Jlc3BvbnNlGCMgASgL'
-    'MjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQ2hhdFN0YXR1c1Jlc3Bvbn'
+    'MjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ2hhdFN0YXR1c1Jlc3Bvbn'
     'NlSABSEmNoYXRTdGF0dXNSZXNwb25zZRJxChZjdXN0b21fY29tbWFuZF9yZXF1ZXN0GCQgASgL'
-    'MjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQ3VzdG9tQ29tbWFuZFJlcX'
+    'MjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ3VzdG9tQ29tbWFuZFJlcX'
     'Vlc3RIAFIUY3VzdG9tQ29tbWFuZFJlcXVlc3QSdAoXY3VzdG9tX2NvbW1hbmRfcmVzcG9uc2UY'
-    'JSABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5DdXN0b21Db21tYW'
+    'JSABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5DdXN0b21Db21tYW'
     '5kUmVzcG9uc2VIAFIVY3VzdG9tQ29tbWFuZFJlc3BvbnNlEmsKFGdldF9jb21tYW5kc19yZXF1'
-    'ZXN0GCwgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuR2V0Q29tbW'
+    'ZXN0GCwgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuR2V0Q29tbW'
     'FuZHNSZXF1ZXN0SABSEmdldENvbW1hbmRzUmVxdWVzdBJuChVnZXRfY29tbWFuZHNfcmVzcG9u'
-    'c2UYLSABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5HZXRDb21tYW'
+    'c2UYLSABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HZXRDb21tYW'
     '5kc1Jlc3BvbnNlSABSE2dldENvbW1hbmRzUmVzcG9uc2VCCQoHcGF5bG9hZA==');
 
 @$core.Deprecated('Use buttonDescriptor instead')
@@ -438,7 +438,7 @@ const Button$json = {
       '3': 2,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ButtonType',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ButtonType',
       '10': 'buttonType'
     },
     {'1': 'url', '3': 3, '4': 1, '5': 9, '9': 0, '10': 'url', '17': true},
@@ -451,7 +451,7 @@ const Button$json = {
 /// Descriptor for `Button`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List buttonDescriptor = $convert.base64Decode(
     'CgZCdXR0b24SEgoEdGV4dBgBIAEoCVIEdGV4dBJQCgtidXR0b25fdHlwZRgCIAEoDjIvLnlhbG'
-    '8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkJ1dHRvblR5cGVSCmJ1dHRvblR5cGUS'
+    '8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkJ1dHRvblR5cGVSCmJ1dHRvblR5cGUS'
     'FQoDdXJsGAMgASgJSABSA3VybIgBAUIGCgRfdXJs');
 
 @$core.Deprecated('Use textMessageDescriptor instead')
@@ -472,7 +472,7 @@ const TextMessage$json = {
       '3': 3,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageStatus',
       '10': 'status'
     },
     {
@@ -480,7 +480,7 @@ const TextMessage$json = {
       '3': 4,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageRole',
       '10': 'role'
     },
   ],
@@ -490,8 +490,8 @@ const TextMessage$json = {
 final $typed_data.Uint8List textMessageDescriptor = $convert.base64Decode(
     'CgtUZXh0TWVzc2FnZRI4Cgl0aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZX'
     'N0YW1wUgl0aW1lc3RhbXASEgoEdGV4dBgCIAEoCVIEdGV4dBJKCgZzdGF0dXMYAyABKA4yMi55'
-    'YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3RhdHVzUgZzdGF0dX'
-    'MSRAoEcm9sZRgEIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1l'
+    'YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5NZXNzYWdlU3RhdHVzUgZzdGF0dX'
+    'MSRAoEcm9sZRgEIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLk1l'
     'c3NhZ2VSb2xlUgRyb2xl');
 
 @$core.Deprecated('Use textMessageRequestDescriptor instead')
@@ -503,7 +503,7 @@ const TextMessageRequest$json = {
       '3': 1,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.TextMessage',
+      '6': '.yalo.external_channel.in_app.sdk.v2.TextMessage',
       '10': 'content'
     },
     {
@@ -519,7 +519,7 @@ const TextMessageRequest$json = {
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '6': '.yalo.external_channel.in_app.sdk.v2.Button',
       '10': 'buttons'
     },
     {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
@@ -534,9 +534,9 @@ const TextMessageRequest$json = {
 /// Descriptor for `TextMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List textMessageRequestDescriptor = $convert.base64Decode(
     'ChJUZXh0TWVzc2FnZVJlcXVlc3QSSgoHY29udGVudBgBIAEoCzIwLnlhbG8uZXh0ZXJuYWxfY2'
-    'hhbm5lbC5pbl9hcHAuc2RrLnYxLlRleHRNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVzdGFtcBgC'
+    'hhbm5lbC5pbl9hcHAuc2RrLnYyLlRleHRNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVzdGFtcBgC'
     'IAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBJFCgdidXR0b25zGA'
-    'MgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQnV0dG9uUgdidXR0'
+    'MgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQnV0dG9uUgdidXR0'
     'b25zEhsKBmhlYWRlchgEIAEoCUgAUgZoZWFkZXKIAQESGwoGZm9vdGVyGAUgASgJSAFSBmZvb3'
     'RlcogBAUIJCgdfaGVhZGVyQgkKB19mb290ZXI=');
 
@@ -567,7 +567,7 @@ const VoiceMessage$json = {
       '3': 6,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageStatus',
       '10': 'status'
     },
     {
@@ -575,7 +575,7 @@ const VoiceMessage$json = {
       '3': 7,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageRole',
       '10': 'role'
     },
     {'1': 'byte_count', '3': 8, '4': 1, '5': 3, '10': 'byteCount'},
@@ -589,9 +589,9 @@ final $typed_data.Uint8List voiceMessageDescriptor = $convert.base64Decode(
     'VzdGFtcFIJdGltZXN0YW1wEhsKCW1lZGlhX3VybBgCIAEoCVIIbWVkaWFVcmwSLQoSYW1wbGl0'
     'dWRlc19wcmV2aWV3GAMgAygCUhFhbXBsaXR1ZGVzUHJldmlldxIaCghkdXJhdGlvbhgEIAEoAV'
     'IIZHVyYXRpb24SHQoKbWVkaWFfdHlwZRgFIAEoCVIJbWVkaWFUeXBlEkoKBnN0YXR1cxgGIAEo'
-    'DjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3NhZ2VTdGF0dXNSBn'
+    'DjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLk1lc3NhZ2VTdGF0dXNSBn'
     'N0YXR1cxJECgRyb2xlGAcgASgOMjAueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
-    'djEuTWVzc2FnZVJvbGVSBHJvbGUSHQoKYnl0ZV9jb3VudBgIIAEoA1IJYnl0ZUNvdW50EhsKCW'
+    'djIuTWVzc2FnZVJvbGVSBHJvbGUSHQoKYnl0ZV9jb3VudBgIIAEoA1IJYnl0ZUNvdW50EhsKCW'
     'ZpbGVfbmFtZRgJIAEoCVIIZmlsZU5hbWU=');
 
 @$core.Deprecated('Use voiceNoteMessageRequestDescriptor instead')
@@ -603,7 +603,7 @@ const VoiceNoteMessageRequest$json = {
       '3': 1,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.VoiceMessage',
+      '6': '.yalo.external_channel.in_app.sdk.v2.VoiceMessage',
       '10': 'content'
     },
     {
@@ -619,7 +619,7 @@ const VoiceNoteMessageRequest$json = {
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '6': '.yalo.external_channel.in_app.sdk.v2.Button',
       '10': 'buttons'
     },
     {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
@@ -634,9 +634,9 @@ const VoiceNoteMessageRequest$json = {
 /// Descriptor for `VoiceNoteMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List voiceNoteMessageRequestDescriptor = $convert.base64Decode(
     'ChdWb2ljZU5vdGVNZXNzYWdlUmVxdWVzdBJLCgdjb250ZW50GAEgASgLMjEueWFsby5leHRlcm'
-    '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuVm9pY2VNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVz'
+    '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuVm9pY2VNZXNzYWdlUgdjb250ZW50EjgKCXRpbWVz'
     'dGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBJFCgdidX'
-    'R0b25zGAMgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuQnV0dG9u'
+    'R0b25zGAMgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQnV0dG9u'
     'UgdidXR0b25zEhsKBmhlYWRlchgEIAEoCUgAUgZoZWFkZXKIAQESGwoGZm9vdGVyGAUgASgJSA'
     'FSBmZvb3RlcogBAUIJCgdfaGVhZGVyQgkKB19mb290ZXI=');
 
@@ -660,7 +660,7 @@ const ImageMessage$json = {
       '3': 5,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageStatus',
       '10': 'status'
     },
     {
@@ -668,7 +668,7 @@ const ImageMessage$json = {
       '3': 6,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageRole',
       '10': 'role'
     },
     {'1': 'byte_count', '3': 7, '4': 1, '5': 3, '10': 'byteCount'},
@@ -684,9 +684,9 @@ final $typed_data.Uint8List imageMessageDescriptor = $convert.base64Decode(
     'CgxJbWFnZU1lc3NhZ2USOAoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbW'
     'VzdGFtcFIJdGltZXN0YW1wEhcKBHRleHQYAiABKAlIAFIEdGV4dIgBARIbCgltZWRpYV91cmwY'
     'AyABKAlSCG1lZGlhVXJsEh0KCm1lZGlhX3R5cGUYBCABKAlSCW1lZGlhVHlwZRJKCgZzdGF0dX'
-    'MYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3Rh'
+    'MYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5NZXNzYWdlU3Rh'
     'dHVzUgZzdGF0dXMSRAoEcm9sZRgGIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcH'
-    'Auc2RrLnYxLk1lc3NhZ2VSb2xlUgRyb2xlEh0KCmJ5dGVfY291bnQYByABKANSCWJ5dGVDb3Vu'
+    'Auc2RrLnYyLk1lc3NhZ2VSb2xlUgRyb2xlEh0KCmJ5dGVfY291bnQYByABKANSCWJ5dGVDb3Vu'
     'dBIbCglmaWxlX25hbWUYCCABKAlSCGZpbGVOYW1lQgcKBV90ZXh0');
 
 @$core.Deprecated('Use imageMessageRequestDescriptor instead')
@@ -698,7 +698,7 @@ const ImageMessageRequest$json = {
       '3': 1,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ImageMessage',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ImageMessage',
       '10': 'content'
     },
     {
@@ -714,7 +714,7 @@ const ImageMessageRequest$json = {
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '6': '.yalo.external_channel.in_app.sdk.v2.Button',
       '10': 'buttons'
     },
     {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
@@ -729,9 +729,9 @@ const ImageMessageRequest$json = {
 /// Descriptor for `ImageMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List imageMessageRequestDescriptor = $convert.base64Decode(
     'ChNJbWFnZU1lc3NhZ2VSZXF1ZXN0EksKB2NvbnRlbnQYASABKAsyMS55YWxvLmV4dGVybmFsX2'
-    'NoYW5uZWwuaW5fYXBwLnNkay52MS5JbWFnZU1lc3NhZ2VSB2NvbnRlbnQSOAoJdGltZXN0YW1w'
+    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5JbWFnZU1lc3NhZ2VSB2NvbnRlbnQSOAoJdGltZXN0YW1w'
     'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEkUKB2J1dHRvbn'
-    'MYAyADKAsyKy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5CdXR0b25SB2J1'
+    'MYAyADKAsyKy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5CdXR0b25SB2J1'
     'dHRvbnMSGwoGaGVhZGVyGAQgASgJSABSBmhlYWRlcogBARIbCgZmb290ZXIYBSABKAlIAVIGZm'
     '9vdGVyiAEBQgkKB19oZWFkZXJCCQoHX2Zvb3Rlcg==');
 
@@ -755,7 +755,7 @@ const AttachmentMessage$json = {
       '3': 5,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageStatus',
       '10': 'status'
     },
     {
@@ -763,7 +763,7 @@ const AttachmentMessage$json = {
       '3': 6,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageRole',
       '10': 'role'
     },
     {'1': 'byte_count', '3': 7, '4': 1, '5': 3, '10': 'byteCount'},
@@ -779,9 +779,9 @@ final $typed_data.Uint8List attachmentMessageDescriptor = $convert.base64Decode(
     'ChFBdHRhY2htZW50TWVzc2FnZRI4Cgl0aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idW'
     'YuVGltZXN0YW1wUgl0aW1lc3RhbXASFwoEdGV4dBgCIAEoCUgAUgR0ZXh0iAEBEhsKCW1lZGlh'
     'X3VybBgDIAEoCVIIbWVkaWFVcmwSHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEkoKBn'
-    'N0YXR1cxgFIAEoDjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLk1lc3Nh'
+    'N0YXR1cxgFIAEoDjIyLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLk1lc3Nh'
     'Z2VTdGF0dXNSBnN0YXR1cxJECgRyb2xlGAYgASgOMjAueWFsby5leHRlcm5hbF9jaGFubmVsLm'
-    'luX2FwcC5zZGsudjEuTWVzc2FnZVJvbGVSBHJvbGUSHQoKYnl0ZV9jb3VudBgHIAEoA1IJYnl0'
+    'luX2FwcC5zZGsudjIuTWVzc2FnZVJvbGVSBHJvbGUSHQoKYnl0ZV9jb3VudBgHIAEoA1IJYnl0'
     'ZUNvdW50EhsKCWZpbGVfbmFtZRgIIAEoCVIIZmlsZU5hbWVCBwoFX3RleHQ=');
 
 @$core.Deprecated('Use attachmentMessageRequestDescriptor instead')
@@ -793,7 +793,7 @@ const AttachmentMessageRequest$json = {
       '3': 1,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.AttachmentMessage',
+      '6': '.yalo.external_channel.in_app.sdk.v2.AttachmentMessage',
       '10': 'content'
     },
     {
@@ -809,7 +809,7 @@ const AttachmentMessageRequest$json = {
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '6': '.yalo.external_channel.in_app.sdk.v2.Button',
       '10': 'buttons'
     },
     {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
@@ -824,9 +824,9 @@ const AttachmentMessageRequest$json = {
 /// Descriptor for `AttachmentMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List attachmentMessageRequestDescriptor = $convert.base64Decode(
     'ChhBdHRhY2htZW50TWVzc2FnZVJlcXVlc3QSUAoHY29udGVudBgBIAEoCzI2LnlhbG8uZXh0ZX'
-    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLkF0dGFjaG1lbnRNZXNzYWdlUgdjb250ZW50EjgK'
+    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkF0dGFjaG1lbnRNZXNzYWdlUgdjb250ZW50EjgK'
     'CXRpbWVzdGFtcBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcB'
-    'JFCgdidXR0b25zGAMgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEu'
+    'JFCgdidXR0b25zGAMgAygLMisueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIu'
     'QnV0dG9uUgdidXR0b25zEhsKBmhlYWRlchgEIAEoCUgAUgZoZWFkZXKIAQESGwoGZm9vdGVyGA'
     'UgASgJSAFSBmZvb3RlcogBAUIJCgdfaGVhZGVyQgkKB19mb290ZXI=');
 
@@ -850,7 +850,7 @@ const VideoMessage$json = {
       '3': 5,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageStatus',
       '10': 'status'
     },
     {
@@ -858,7 +858,7 @@ const VideoMessage$json = {
       '3': 6,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageRole',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageRole',
       '10': 'role'
     },
     {'1': 'byte_count', '3': 7, '4': 1, '5': 3, '10': 'byteCount'},
@@ -875,9 +875,9 @@ final $typed_data.Uint8List videoMessageDescriptor = $convert.base64Decode(
     'CgxWaWRlb01lc3NhZ2USOAoJdGltZXN0YW1wGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbW'
     'VzdGFtcFIJdGltZXN0YW1wEhcKBHRleHQYAiABKAlIAFIEdGV4dIgBARIbCgltZWRpYV91cmwY'
     'AyABKAlSCG1lZGlhVXJsEh0KCm1lZGlhX3R5cGUYBCABKAlSCW1lZGlhVHlwZRJKCgZzdGF0dX'
-    'MYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5NZXNzYWdlU3Rh'
+    'MYBSABKA4yMi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5NZXNzYWdlU3Rh'
     'dHVzUgZzdGF0dXMSRAoEcm9sZRgGIAEoDjIwLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcH'
-    'Auc2RrLnYxLk1lc3NhZ2VSb2xlUgRyb2xlEh0KCmJ5dGVfY291bnQYByABKANSCWJ5dGVDb3Vu'
+    'Auc2RrLnYyLk1lc3NhZ2VSb2xlUgRyb2xlEh0KCmJ5dGVfY291bnQYByABKANSCWJ5dGVDb3Vu'
     'dBIbCglmaWxlX25hbWUYCCABKAlSCGZpbGVOYW1lEhoKCGR1cmF0aW9uGAkgASgBUghkdXJhdG'
     'lvbkIHCgVfdGV4dA==');
 
@@ -890,7 +890,7 @@ const VideoMessageRequest$json = {
       '3': 1,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.VideoMessage',
+      '6': '.yalo.external_channel.in_app.sdk.v2.VideoMessage',
       '10': 'content'
     },
     {
@@ -906,7 +906,7 @@ const VideoMessageRequest$json = {
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.Button',
+      '6': '.yalo.external_channel.in_app.sdk.v2.Button',
       '10': 'buttons'
     },
     {'1': 'header', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'header', '17': true},
@@ -921,9 +921,9 @@ const VideoMessageRequest$json = {
 /// Descriptor for `VideoMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List videoMessageRequestDescriptor = $convert.base64Decode(
     'ChNWaWRlb01lc3NhZ2VSZXF1ZXN0EksKB2NvbnRlbnQYASABKAsyMS55YWxvLmV4dGVybmFsX2'
-    'NoYW5uZWwuaW5fYXBwLnNkay52MS5WaWRlb01lc3NhZ2VSB2NvbnRlbnQSOAoJdGltZXN0YW1w'
+    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5WaWRlb01lc3NhZ2VSB2NvbnRlbnQSOAoJdGltZXN0YW1w'
     'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEkUKB2J1dHRvbn'
-    'MYAyADKAsyKy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5CdXR0b25SB2J1'
+    'MYAyADKAsyKy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5CdXR0b25SB2J1'
     'dHRvbnMSGwoGaGVhZGVyGAQgASgJSABSBmhlYWRlcogBARIbCgZmb290ZXIYBSABKAlIAVIGZm'
     '9vdGVyiAEBQgkKB19oZWFkZXJCCQoHX2Zvb3Rlcg==');
 
@@ -936,7 +936,7 @@ const MessageReceiptRequest$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.MessageStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageStatus',
       '10': 'status'
     },
     {'1': 'message_id', '3': 2, '4': 1, '5': 9, '10': 'messageId'},
@@ -954,7 +954,7 @@ const MessageReceiptRequest$json = {
 /// Descriptor for `MessageReceiptRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List messageReceiptRequestDescriptor = $convert.base64Decode(
     'ChVNZXNzYWdlUmVjZWlwdFJlcXVlc3QSSgoGc3RhdHVzGAEgASgOMjIueWFsby5leHRlcm5hbF'
-    '9jaGFubmVsLmluX2FwcC5zZGsudjEuTWVzc2FnZVN0YXR1c1IGc3RhdHVzEh0KCm1lc3NhZ2Vf'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjIuTWVzc2FnZVN0YXR1c1IGc3RhdHVzEh0KCm1lc3NhZ2Vf'
     'aWQYAiABKAlSCW1lc3NhZ2VJZBI4Cgl0aW1lc3RhbXAYAyABKAsyGi5nb29nbGUucHJvdG9idW'
     'YuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
 
@@ -977,7 +977,7 @@ const AddToCartRequest$json = {
       '3': 4,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.UnitType',
+      '6': '.yalo.external_channel.in_app.sdk.v2.UnitType',
       '10': 'unitType'
     },
   ],
@@ -988,7 +988,7 @@ final $typed_data.Uint8List addToCartRequestDescriptor = $convert.base64Decode(
     'ChBBZGRUb0NhcnRSZXF1ZXN0EhAKA3NrdRgBIAEoCVIDc2t1EjgKCXRpbWVzdGFtcBgCIAEoCz'
     'IaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBIaCghxdWFudGl0eRgDIAEo'
     'AVIIcXVhbnRpdHkSSgoJdW5pdF90eXBlGAQgASgOMi0ueWFsby5leHRlcm5hbF9jaGFubmVsLm'
-    'luX2FwcC5zZGsudjEuVW5pdFR5cGVSCHVuaXRUeXBl');
+    'luX2FwcC5zZGsudjIuVW5pdFR5cGVSCHVuaXRUeXBl');
 
 @$core.Deprecated('Use addToCartResponseDescriptor instead')
 const AddToCartResponse$json = {
@@ -999,7 +999,7 @@ const AddToCartResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1016,7 +1016,7 @@ const AddToCartResponse$json = {
 /// Descriptor for `AddToCartResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List addToCartResponseDescriptor = $convert.base64Decode(
     'ChFBZGRUb0NhcnRSZXNwb25zZRJLCgZzdGF0dXMYASABKA4yMy55YWxvLmV4dGVybmFsX2NoYW'
-    '5uZWwuaW5fYXBwLnNkay52MS5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFtcBgC'
+    '5uZWwuaW5fYXBwLnNkay52Mi5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFtcBgC'
     'IAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
 
 @$core.Deprecated('Use removeFromCartRequestDescriptor instead')
@@ -1046,7 +1046,7 @@ const RemoveFromCartRequest$json = {
       '3': 4,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.UnitType',
+      '6': '.yalo.external_channel.in_app.sdk.v2.UnitType',
       '10': 'unitType'
     },
   ],
@@ -1060,7 +1060,7 @@ final $typed_data.Uint8List removeFromCartRequestDescriptor = $convert.base64Dec
     'ChVSZW1vdmVGcm9tQ2FydFJlcXVlc3QSEAoDc2t1GAEgASgJUgNza3USOAoJdGltZXN0YW1wGA'
     'IgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEh8KCHF1YW50aXR5'
     'GAMgASgBSABSCHF1YW50aXR5iAEBEkoKCXVuaXRfdHlwZRgEIAEoDjItLnlhbG8uZXh0ZXJuYW'
-    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlVuaXRUeXBlUgh1bml0VHlwZUILCglfcXVhbnRpdHk=');
+    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlVuaXRUeXBlUgh1bml0VHlwZUILCglfcXVhbnRpdHk=');
 
 @$core.Deprecated('Use removeFromCartResponseDescriptor instead')
 const RemoveFromCartResponse$json = {
@@ -1071,7 +1071,7 @@ const RemoveFromCartResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1088,7 +1088,7 @@ const RemoveFromCartResponse$json = {
 /// Descriptor for `RemoveFromCartResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List removeFromCartResponseDescriptor = $convert.base64Decode(
     'ChZSZW1vdmVGcm9tQ2FydFJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZXJuYW'
-    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGltZXN0'
+    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGltZXN0'
     'YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use clearCartRequestDescriptor instead')
@@ -1120,7 +1120,7 @@ const ClearCartResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1137,7 +1137,7 @@ const ClearCartResponse$json = {
 /// Descriptor for `ClearCartResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List clearCartResponseDescriptor = $convert.base64Decode(
     'ChFDbGVhckNhcnRSZXNwb25zZRJLCgZzdGF0dXMYASABKA4yMy55YWxvLmV4dGVybmFsX2NoYW'
-    '5uZWwuaW5fYXBwLnNkay52MS5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFtcBgC'
+    '5uZWwuaW5fYXBwLnNkay52Mi5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFtcBgC'
     'IAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
 
 @$core.Deprecated('Use guidanceCardRequestDescriptor instead')
@@ -1193,7 +1193,7 @@ const GuidanceCardResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1219,7 +1219,7 @@ const GuidanceCardResponse$json = {
 /// Descriptor for `GuidanceCardResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List guidanceCardResponseDescriptor = $convert.base64Decode(
     'ChRHdWlkYW5jZUNhcmRSZXNwb25zZRJLCgZzdGF0dXMYASABKA4yMy55YWxvLmV4dGVybmFsX2'
-    'NoYW5uZWwuaW5fYXBwLnNkay52MS5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFt'
+    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFt'
     'cBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcBIlCg5ndWlkYW'
     '5jZV90aXRsZRgDIAEoCVINZ3VpZGFuY2VUaXRsZRIxChRndWlkYW5jZV9kZXNjcmlwdGlvbhgE'
     'IAEoCVITZ3VpZGFuY2VEZXNjcmlwdGlvbhIlCg5ndWlkYW5jZV9jYXJkcxgFIAMoCVINZ3VpZG'
@@ -1256,7 +1256,7 @@ const AddPromotionResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1273,7 +1273,7 @@ const AddPromotionResponse$json = {
 /// Descriptor for `AddPromotionResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List addPromotionResponseDescriptor = $convert.base64Decode(
     'ChRBZGRQcm9tb3Rpb25SZXNwb25zZRJLCgZzdGF0dXMYASABKA4yMy55YWxvLmV4dGVybmFsX2'
-    'NoYW5uZWwuaW5fYXBwLnNkay52MS5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFt'
+    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFt'
     'cBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
 
 @$core.Deprecated('Use promotionMessageRequestDescriptor instead')
@@ -1314,7 +1314,7 @@ const PromotionMessageResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1331,7 +1331,7 @@ const PromotionMessageResponse$json = {
 /// Descriptor for `PromotionMessageResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List promotionMessageResponseDescriptor = $convert.base64Decode(
     'ChhQcm9tb3Rpb25NZXNzYWdlUmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm'
-    '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1l'
+    '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1l'
     'c3RhbXAYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
 
 @$core.Deprecated('Use productDescriptor instead')
@@ -1393,7 +1393,7 @@ const ProductMessageRequest$json = {
       '3': 1,
       '4': 3,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.Product',
+      '6': '.yalo.external_channel.in_app.sdk.v2.Product',
       '10': 'products'
     },
     {
@@ -1402,7 +1402,7 @@ const ProductMessageRequest$json = {
       '4': 1,
       '5': 14,
       '6':
-          '.yalo.external_channel.in_app.sdk.v1.ProductMessageRequest.Orientation',
+          '.yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.Orientation',
       '10': 'orientation'
     },
     {
@@ -1430,8 +1430,8 @@ const ProductMessageRequest_Orientation$json = {
 /// Descriptor for `ProductMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List productMessageRequestDescriptor = $convert.base64Decode(
     'ChVQcm9kdWN0TWVzc2FnZVJlcXVlc3QSSAoIcHJvZHVjdHMYASADKAsyLC55YWxvLmV4dGVybm'
-    'FsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5Qcm9kdWN0Ughwcm9kdWN0cxJoCgtvcmllbnRhdGlv'
-    'bhgCIAEoDjJGLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlByb2R1Y3RNZX'
+    'FsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9kdWN0Ughwcm9kdWN0cxJoCgtvcmllbnRhdGlv'
+    'bhgCIAEoDjJGLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlByb2R1Y3RNZX'
     'NzYWdlUmVxdWVzdC5PcmllbnRhdGlvblILb3JpZW50YXRpb24SOAoJdGltZXN0YW1wGAMgASgL'
     'MhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wImAKC09yaWVudGF0aW9uEh'
     'sKF09SSUVOVEFUSU9OX1VOU1BFQ0lGSUVEEAASGAoUT1JJRU5UQVRJT05fVkVSVElDQUwQARIa'
@@ -1446,7 +1446,7 @@ const ProductMessageResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1463,7 +1463,7 @@ const ProductMessageResponse$json = {
 /// Descriptor for `ProductMessageResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List productMessageResponseDescriptor = $convert.base64Decode(
     'ChZQcm9kdWN0TWVzc2FnZVJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZXJuYW'
-    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYxLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGltZXN0'
+    'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGltZXN0'
     'YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use chatStatusRequestDescriptor instead')
@@ -1496,7 +1496,7 @@ const ChatStatusResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {
@@ -1513,7 +1513,7 @@ const ChatStatusResponse$json = {
 /// Descriptor for `ChatStatusResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List chatStatusResponseDescriptor = $convert.base64Decode(
     'ChJDaGF0U3RhdHVzUmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm5hbF9jaG'
-    'FubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3RhbXAY'
+    'FubmVsLmluX2FwcC5zZGsudjIuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3RhbXAY'
     'AiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
 
 @$core.Deprecated('Use customCommandRequestDescriptor instead')
@@ -1548,7 +1548,7 @@ const CustomCommandResponse$json = {
       '3': 1,
       '4': 1,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.ResponseStatus',
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
       '10': 'status'
     },
     {'1': 'payload', '3': 2, '4': 1, '5': 9, '10': 'payload'},
@@ -1566,7 +1566,7 @@ const CustomCommandResponse$json = {
 /// Descriptor for `CustomCommandResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List customCommandResponseDescriptor = $convert.base64Decode(
     'ChVDdXN0b21Db21tYW5kUmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm5hbF'
-    '9jaGFubmVsLmluX2FwcC5zZGsudjEuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxIYCgdwYXlsb2Fk'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjIuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxIYCgdwYXlsb2Fk'
     'GAIgASgJUgdwYXlsb2FkEjgKCXRpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW'
     '1lc3RhbXBSCXRpbWVzdGFtcA==');
 
@@ -1599,7 +1599,7 @@ const GetCommandsResponse$json = {
       '3': 1,
       '4': 3,
       '5': 14,
-      '6': '.yalo.external_channel.in_app.sdk.v1.SdkCommand',
+      '6': '.yalo.external_channel.in_app.sdk.v2.SdkCommand',
       '10': 'commands'
     },
     {
@@ -1616,7 +1616,7 @@ const GetCommandsResponse$json = {
 /// Descriptor for `GetCommandsResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getCommandsResponseDescriptor = $convert.base64Decode(
     'ChNHZXRDb21tYW5kc1Jlc3BvbnNlEksKCGNvbW1hbmRzGAEgAygOMi8ueWFsby5leHRlcm5hbF'
-    '9jaGFubmVsLmluX2FwcC5zZGsudjEuU2RrQ29tbWFuZFIIY29tbWFuZHMSOAoJdGltZXN0YW1w'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjIuU2RrQ29tbWFuZFIIY29tbWFuZHMSOAoJdGltZXN0YW1w'
     'GAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use authRequestDescriptor instead')
@@ -1679,7 +1679,7 @@ const PollMessageItem$json = {
       '3': 2,
       '4': 1,
       '5': 11,
-      '6': '.yalo.external_channel.in_app.sdk.v1.SdkMessage',
+      '6': '.yalo.external_channel.in_app.sdk.v2.SdkMessage',
       '10': 'message'
     },
     {
@@ -1698,6 +1698,6 @@ const PollMessageItem$json = {
 /// Descriptor for `PollMessageItem`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List pollMessageItemDescriptor = $convert.base64Decode(
     'Cg9Qb2xsTWVzc2FnZUl0ZW0SDgoCaWQYASABKAlSAmlkEkkKB21lc3NhZ2UYAiABKAsyLy55YW'
-    'xvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52MS5TZGtNZXNzYWdlUgdtZXNzYWdlEi4K'
+    'xvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5TZGtNZXNzYWdlUgdtZXNzYWdlEi4K'
     'BGRhdGUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgRkYXRlEhcKB3VzZXJfaW'
     'QYBCABKAlSBnVzZXJJZBIWCgZzdGF0dXMYBSABKAlSBnN0YXR1cw==');

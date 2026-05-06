@@ -182,7 +182,7 @@ class SdkMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'SdkMessage',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..oo(0, [
       10,
@@ -705,7 +705,7 @@ class Button extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'Button',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'text')
     ..aE<ButtonType>(2, _omitFieldNames ? '' : 'buttonType',
@@ -787,7 +787,7 @@ class TextMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'TextMessage',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -888,7 +888,7 @@ class TextMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'TextMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<TextMessage>(1, _omitFieldNames ? '' : 'content',
         subBuilder: TextMessage.create)
@@ -1002,7 +1002,7 @@ class VoiceMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VoiceMessage',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -1147,7 +1147,7 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VoiceNoteMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<VoiceMessage>(1, _omitFieldNames ? '' : 'content',
         subBuilder: VoiceMessage.create)
@@ -1259,7 +1259,7 @@ class ImageMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ImageMessage',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -1398,7 +1398,7 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ImageMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<ImageMessage>(1, _omitFieldNames ? '' : 'content',
         subBuilder: ImageMessage.create)
@@ -1509,7 +1509,7 @@ class AttachmentMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AttachmentMessage',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -1648,7 +1648,7 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AttachmentMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<AttachmentMessage>(1, _omitFieldNames ? '' : 'content',
         subBuilder: AttachmentMessage.create)
@@ -1762,7 +1762,7 @@ class VideoMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VideoMessage',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -1911,7 +1911,7 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VideoMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<VideoMessage>(1, _omitFieldNames ? '' : 'content',
         subBuilder: VideoMessage.create)
@@ -2012,7 +2012,7 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'MessageReceiptRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<MessageStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: MessageStatus.values)
@@ -2099,7 +2099,7 @@ class AddToCartRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddToCartRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -2193,7 +2193,7 @@ class AddToCartResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddToCartResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -2269,7 +2269,7 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RemoveFromCartRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -2364,7 +2364,7 @@ class RemoveFromCartResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RemoveFromCartResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -2435,7 +2435,7 @@ class ClearCartRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ClearCartRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -2496,7 +2496,7 @@ class ClearCartResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ClearCartResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -2570,7 +2570,7 @@ class GuidanceCardRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GuidanceCardRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -2660,7 +2660,7 @@ class GuidanceCardResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GuidanceCardResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -2756,7 +2756,7 @@ class AddPromotionRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddPromotionRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'promotionId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -2827,7 +2827,7 @@ class AddPromotionResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddPromotionResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -2909,7 +2909,7 @@ class PromotionMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PromotionMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'promotionId')
     ..aOS(2, _omitFieldNames ? '' : 'title')
@@ -3031,7 +3031,7 @@ class PromotionMessageResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PromotionMessageResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -3124,7 +3124,7 @@ class Product extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'Product',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOS(2, _omitFieldNames ? '' : 'name')
@@ -3294,7 +3294,7 @@ class ProductMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ProductMessageRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..pPM<Product>(1, _omitFieldNames ? '' : 'products',
         subBuilder: Product.create)
@@ -3374,7 +3374,7 @@ class ProductMessageResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ProductMessageResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -3447,7 +3447,7 @@ class ChatStatusRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ChatStatusRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'status')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -3518,7 +3518,7 @@ class ChatStatusResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ChatStatusResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -3592,7 +3592,7 @@ class CustomCommandRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'CustomCommandRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'commandId')
     ..aOS(2, _omitFieldNames ? '' : 'payload')
@@ -3675,7 +3675,7 @@ class CustomCommandResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'CustomCommandResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
@@ -3757,7 +3757,7 @@ class GetCommandsRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GetCommandsRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
         subBuilder: $0.Timestamp.create)
@@ -3819,7 +3819,7 @@ class GetCommandsResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GetCommandsResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..pc<SdkCommand>(1, _omitFieldNames ? '' : 'commands', $pb.PbFieldType.KE,
         valueOf: SdkCommand.valueOf,
@@ -3891,7 +3891,7 @@ class AuthRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AuthRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'userType')
     ..aOS(2, _omitFieldNames ? '' : 'channelId')
@@ -3981,7 +3981,7 @@ class RefreshTokenRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RefreshTokenRequest',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'grantType')
     ..aOS(2, _omitFieldNames ? '' : 'refreshToken')
@@ -4055,7 +4055,7 @@ class AuthResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AuthResponse',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'accessToken')
     ..aOS(2, _omitFieldNames ? '' : 'tokenType')
@@ -4161,7 +4161,7 @@ class PollMessageItem extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PollMessageItem',
       package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v1'),
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOM<SdkMessage>(2, _omitFieldNames ? '' : 'message',
