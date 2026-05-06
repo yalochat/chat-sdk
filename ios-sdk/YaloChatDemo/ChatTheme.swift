@@ -91,9 +91,9 @@ public struct ChatTheme {
 
     public init(
         backgroundColor: Color          = Color(.systemBackground),
-        appBarBackgroundColor: Color     = Color(sdkHex: 0xF1F5FC),
+        appBarBackgroundColor: Color     = Color(.systemBackground),
         userBubbleColor: Color           = Color(sdkHex: 0xF9FAFC),
-        userBubbleTextColor: Color       = Color(.label),
+        userBubbleTextColor: Color       = Color(sdkHex: 0x111111),
         agentBubbleColor: Color          = Color(.systemGray5),
         agentBubbleTextColor: Color      = Color(.label),
         inputBackgroundColor: Color      = Color(.systemBackground),
