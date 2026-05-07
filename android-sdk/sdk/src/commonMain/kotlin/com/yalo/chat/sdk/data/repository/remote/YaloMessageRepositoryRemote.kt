@@ -16,11 +16,7 @@ import com.yalo.chat.sdk.data.remote.model.SdkVoiceNoteMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
-import com.yalo.chat.sdk.domain.model.CtaButton
-import com.yalo.chat.sdk.domain.model.MessageRole
-import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
-import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import com.yalo.chat.sdk.ui.chat.UnitType
 import kotlin.concurrent.Volatile
@@ -34,7 +30,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 
 // Polling: 1s interval, LRU deduplication cache (capacity 500).
 // The `since` query param tracks the last seen message timestamp so each poll only
@@ -63,11 +58,11 @@ internal class YaloMessageRepositoryRemote(
 
     // Non-atomic RMW: concurrent registrations on different threads could theoretically lose one
     // update, but registerCommand is always called from single-threaded app startup, so this is safe.
-    fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
+    override fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
         commands = commands + (command to callback)
     }
 
-    internal val commandsSnapshot: Map<ChatCommand, ChatCommandCallback> get() = commands
+    override val commandsSnapshot: Map<ChatCommand, ChatCommandCallback> get() = commands
 
     private val cache = SimpleCache<String, Boolean>(capacity = 500)
 
@@ -188,7 +183,9 @@ internal class YaloMessageRepositoryRemote(
     // get the full list. `since` is intentionally omitted here so startup always loads the full history.
     override suspend fun fetchMessages(since: Long): Result<List<ChatMessage>> =
         when (val result = apiService.fetchMessages()) {
-            is Result.Ok -> Result.Ok(result.result.mapIndexedNotNull { index, it -> it.toChatMessage(deduplicate = false, index = index) })
+            is Result.Ok -> Result.Ok(result.result.mapIndexedNotNull { index, it ->
+                it.toChatMessage(deduplicate = false, index = index, cache = cache, apiService = apiService, tempDir = tempDir)
+            })
             is Result.Error -> Result.Error(result.error)
         }
 
@@ -230,7 +227,7 @@ internal class YaloMessageRepositoryRemote(
                     // Phase 1: non-media messages — translate without IO and emit right away.
                     val nonMediaBatch = raw.mapIndexedNotNull { index, item ->
                         if (item.requiresMediaDownload()) return@mapIndexedNotNull null
-                        try { item.toChatMessage(deduplicate = true, index = index) }
+                        try { item.toChatMessage(deduplicate = true, index = index, cache = cache, apiService = apiService, tempDir = tempDir) }
                         catch (e: CancellationException) { throw e }
                         catch (e: Exception) { null }
                     }.let { ensureReceiptOrder(it) }
@@ -243,7 +240,7 @@ internal class YaloMessageRepositoryRemote(
                     // Phase 2: media messages — download one by one and emit each when ready.
                     raw.forEachIndexed { index, item ->
                         if (!item.requiresMediaDownload()) return@forEachIndexed
-                        val msg = try { item.toChatMessage(deduplicate = true, index = index) }
+                        val msg = try { item.toChatMessage(deduplicate = true, index = index, cache = cache, apiService = apiService, tempDir = tempDir) }
                         catch (e: CancellationException) { throw e }
                         catch (e: Exception) { null }
                         ?: return@forEachIndexed
@@ -295,212 +292,6 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
-    // Translates a poll response item to a ChatMessage.
-    // index is the position of this item in the server response array; used as the sub-second
-    // tiebreaker in stableId so messages with identical timestamps preserve server order.
-    private suspend fun YaloFetchMessagesResponse.toChatMessage(deduplicate: Boolean, index: Int = 0): ChatMessage? {
-        if (deduplicate && cache.get(id) != null) return null
-
-        val ts = parseIso8601(date)
-        val indexOffset = index % 1000
-        val stableId = if (ts != 0L) (ts / 1000L) * 1000L + indexOffset else indexOffset.toLong()
-
-        // Text message
-        message.textMessageRequest?.content?.let { textContent ->
-            if (deduplicate) cache.set(id, true)
-            return ChatMessage(
-                id = stableId,
-                wiId = id,
-                role = MessageRole.fromString(textContent.role ?: ""),
-                type = MessageType.Text,
-                status = MessageStatus.DELIVERED,
-                content = textContent.text,
-                timestamp = ts,
-            )
-        }
-
-        // Image message — download from CDN and save locally.
-        // Cache is set only after a successful download so a transient CDN failure
-        // does not permanently blacklist the message from future poll cycles.
-        message.imageMessageRequest?.content?.let { imgContent ->
-            return when (val downloadResult = apiService.downloadMedia(imgContent.mediaUrl)) {
-                is Result.Error -> null // skip silently — will retry on next poll cycle
-                is Result.Ok -> {
-                    val bytes = downloadResult.result
-                    val mimeType = imgContent.mediaType.takeIf { it.isNotEmpty() } ?: "image/jpeg"
-                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
-                        if (it == "jpeg") "jpg" else it
-                    }
-                    val localPath = PlatformFiles.writeToDir(
-                        dirPath = tempDir,
-                        filename = "${Uuid.random()}.$ext",
-                        bytes = bytes,
-                    ) ?: return null
-                    if (deduplicate) cache.set(id, true)
-                    ChatMessage(
-                        id = stableId,
-                        wiId = id,
-                        role = MessageRole.fromString(imgContent.role ?: "MESSAGE_ROLE_AGENT"),
-                        type = MessageType.Image,
-                        status = MessageStatus.DELIVERED,
-                        content = imgContent.text ?: "",
-                        fileName = localPath,
-                        mediaType = mimeType,
-                        byteCount = bytes.size.toLong(),
-                        timestamp = ts,
-                    )
-                }
-            }
-        }
-
-        // Video message — download from CDN and save locally.
-        // Mirrors Flutter's videoMessageRequest case in _translateMessageResponse().
-        // Cache is set only after a successful download (same pattern as image).
-        message.videoMessageRequest?.content?.let { videoContent ->
-            return when (val downloadResult = apiService.downloadMedia(videoContent.mediaUrl)) {
-                is Result.Error -> null // skip silently — will retry on next poll cycle
-                is Result.Ok -> {
-                    val bytes = downloadResult.result
-                    val mimeType = videoContent.mediaType.takeIf { it.isNotEmpty() } ?: "video/mp4"
-                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
-                        if (it.contains("mp4") || it == "mp4") "mp4" else it
-                    }
-                    val localPath = PlatformFiles.writeToDir(
-                        dirPath = tempDir,
-                        filename = "${Uuid.random()}.$ext",
-                        bytes = bytes,
-                    ) ?: return null
-                    if (deduplicate) cache.set(id, true)
-                    ChatMessage(
-                        id = stableId,
-                        wiId = id,
-                        role = MessageRole.fromString(videoContent.role ?: "MESSAGE_ROLE_AGENT"),
-                        type = MessageType.Video,
-                        status = MessageStatus.DELIVERED,
-                        content = videoContent.text ?: "",
-                        fileName = localPath,
-                        mediaType = mimeType,
-                        byteCount = bytes.size.toLong(),
-                        // Flutter stores duration in seconds (Double) → convert to millis for ChatMessage.
-                        duration = (videoContent.duration * 1000).toLong(),
-                        timestamp = ts,
-                    )
-                }
-            }
-        }
-
-        // Voice message — download from CDN and save locally.
-        // Mirrors the image/video download pattern; cache is set only after a successful download.
-        // amplitudesPreview (List<Float> from proto) is mapped to List<Double> for ChatMessage.
-        // duration arrives in seconds (proto double) → stored as millis in ChatMessage.
-        message.voiceNoteMessageRequest?.content?.let { voiceContent ->
-            return when (val downloadResult = apiService.downloadMedia(voiceContent.mediaUrl)) {
-                is Result.Error -> null // skip silently — will retry on next poll cycle
-                is Result.Ok -> {
-                    val bytes = downloadResult.result
-                    val mimeType = voiceContent.mediaType.takeIf { it.isNotEmpty() } ?: "audio/mp4"
-                    val ext = mimeType.substringAfter('/').substringBefore(';').trim().let {
-                        when {
-                            it.contains("mp4") -> "m4a"
-                            it.contains("mpeg") || it.contains("mp3") -> "mp3"
-                            else -> it
-                        }
-                    }
-                    val localPath = PlatformFiles.writeToDir(
-                        dirPath = tempDir,
-                        filename = "${Uuid.random()}.$ext",
-                        bytes = bytes,
-                    ) ?: return null
-                    if (deduplicate) cache.set(id, true)
-                    ChatMessage(
-                        id = stableId,
-                        wiId = id,
-                        role = MessageRole.fromString(voiceContent.role ?: "MESSAGE_ROLE_AGENT"),
-                        type = MessageType.Voice,
-                        status = MessageStatus.DELIVERED,
-                        fileName = localPath,
-                        amplitudes = voiceContent.amplitudesPreview.map { it.toDouble() },
-                        duration = (voiceContent.duration * 1000).toLong(),
-                        mediaType = mimeType,
-                        byteCount = bytes.size.toLong(),
-                        timestamp = ts,
-                    )
-                }
-            }
-        }
-
-        // Buttons message — body text + a list of reply labels rendered as outlined buttons.
-        // Tapping a button sends the label as a text message (same as quick reply chips).
-        message.buttonsMessageRequest?.content?.let { buttonsContent ->
-            if (deduplicate) cache.set(id, true)
-            return ChatMessage(
-                id = stableId,
-                wiId = id,
-                role = MessageRole.AGENT,
-                type = MessageType.Buttons,
-                status = MessageStatus.DELIVERED,
-                content = buttonsContent.body,
-                header = buttonsContent.header.takeIf { !it.isNullOrEmpty() },
-                footer = buttonsContent.footer.takeIf { !it.isNullOrEmpty() },
-                buttons = buttonsContent.buttons,
-                timestamp = ts,
-            )
-        }
-
-        // CTA message — body text + buttons that each open a URL in the browser.
-        message.ctaMessageRequest?.content?.let { ctaContent ->
-            if (deduplicate) cache.set(id, true)
-            return ChatMessage(
-                id = stableId,
-                wiId = id,
-                role = MessageRole.AGENT,
-                type = MessageType.CTA,
-                status = MessageStatus.DELIVERED,
-                content = ctaContent.body,
-                header = ctaContent.header.takeIf { !it.isNullOrEmpty() },
-                footer = ctaContent.footer.takeIf { !it.isNullOrEmpty() },
-                ctaButtons = ctaContent.buttons.map { CtaButton(text = it.text, url = it.url) },
-                timestamp = ts,
-            )
-        }
-
-        // Product message — vertical list or horizontal carousel, determined by orientation.
-        // No media download needed: products carry embedded metadata (SKU, name, price, images URLs).
-        message.productMessageRequest?.let { productMsg ->
-            if (deduplicate) cache.set(id, true)
-            val type = if (productMsg.orientation == ORIENTATION_HORIZONTAL)
-                MessageType.ProductCarousel else MessageType.Product
-            return ChatMessage(
-                id = stableId,
-                wiId = id,
-                role = MessageRole.AGENT,
-                type = type,
-                status = MessageStatus.DELIVERED,
-                timestamp = ts,
-                products = productMsg.products.map { p ->
-                    Product(
-                        sku = p.sku,
-                        name = p.name,
-                        price = p.price,
-                        imagesUrl = p.imagesUrl,
-                        salePrice = p.salePrice,
-                        subunits = p.subunits,
-                        unitStep = p.unitStep,
-                        unitName = p.unitName,
-                        subunitName = p.subunitName,
-                        subunitStep = p.subunitStep,
-                        unitsAdded = p.unitsAdded,
-                        subunitsAdded = p.subunitsAdded,
-                    )
-                },
-            )
-        }
-
-        // Unknown payload type — cache so it is not re-evaluated on every poll cycle.
-        if (deduplicate) cache.set(id, true)
-        return null
-    }
-
     // ── Cart operations ────────────────────────────────────────────────────────
     // Mirrors flutter-sdk YaloMessageRepositoryRemote.addToCart/removeFromCart/clearCart/addPromotion.
     // If a ChatCommand callback is registered, it fires instead of the API call (same pattern as Flutter).
@@ -544,34 +335,3 @@ internal class YaloMessageRepositoryRemote(
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 private const val TYPING_STATUS_TEXT = "Writing message..."
-// Cart command payload keys — centralised so refactors cannot silently diverge.
-internal const val KEY_SKU = "sku"
-internal const val KEY_QUANTITY = "quantity"
-internal const val KEY_UNIT_TYPE = "unitType"
-internal const val KEY_PROMOTION_ID = "promotionId"
-
-// Proto3 JSON enum names for unit_type (mirrors AddToCartRequest / RemoveFromCartRequest in sdk_message.proto).
-private fun UnitType?.toApiString(): String? = when (this) {
-    UnitType.UNIT -> "UNIT_TYPE_UNIT"
-    UnitType.SUBUNIT -> "UNIT_TYPE_SUBUNIT"
-    null -> null
-}
-// Proto3 JSON enum value name for horizontal orientation (carousel layout).
-// Any other value (including null/ORIENTATION_VERTICAL/unknown) maps to Product (list).
-private const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"
-
-// True for message types that require a CDN download before they can be translated.
-// Used by pollIncomingMessages() to separate the fast (text/buttons) path from the
-// slow (media download) path so non-media messages are emitted without delay.
-private fun YaloFetchMessagesResponse.requiresMediaDownload(): Boolean =
-    message.imageMessageRequest != null ||
-    message.videoMessageRequest != null ||
-    message.voiceNoteMessageRequest != null
-
-// ── ISO 8601 date parsing ─────────────────────────────────────────────────────
-private fun parseIso8601(date: String): Long =
-    try {
-        Instant.parse(date).toEpochMilliseconds()
-    } catch (_: Exception) {
-        0L
-    }

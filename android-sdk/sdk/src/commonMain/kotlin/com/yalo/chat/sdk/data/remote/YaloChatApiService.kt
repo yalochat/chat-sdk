@@ -16,6 +16,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.forms.submitFormWithBinaryData
@@ -76,7 +77,7 @@ internal class YaloChatApiService(
 
     // Returns a valid (accessToken, userId) pair, authenticating or refreshing as needed.
     // Mutex ensures only one in-flight auth call at a time even under concurrent requests.
-    private suspend fun ensureValidToken(): Result<Pair<String, String>> =
+    internal suspend fun ensureValidToken(): Result<Pair<String, String>> =
         tokenMutex.withLock {
             val token = accessToken
             if (token != null && Clock.System.now().toEpochMilliseconds() < tokenExpiresAt - TOKEN_REFRESH_BUFFER_MS) {
@@ -315,6 +316,7 @@ internal class YaloChatApiService(
 // internal: not part of the public SDK API surface.
 internal fun buildHttpClient(engine: io.ktor.client.engine.HttpClientEngine, debug: Boolean): HttpClient =
     HttpClient(engine) {
+        install(WebSockets)
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
