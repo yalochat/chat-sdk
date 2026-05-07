@@ -334,4 +334,4 @@ internal class YaloMessageRepositoryRemote(
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-private const val TYPING_STATUS_TEXT = "Writing message..."
+// TYPING_STATUS_TEXT is defined in MessageMapper.kt (shared with WebSocket transport).

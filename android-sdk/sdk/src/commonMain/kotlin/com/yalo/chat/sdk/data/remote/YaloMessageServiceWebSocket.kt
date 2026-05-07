@@ -6,6 +6,7 @@ import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.http.encodeURLParameter
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +71,7 @@ internal class YaloMessageServiceWebSocket(
                 }
                 val (token, _) = (tokenResult as Result.Ok).result
 
-                httpClient.webSocket("$wsUrl?token=${token.encodeForQuery()}") {
+                httpClient.webSocket("$wsUrl?token=${token.encodeURLParameter()}") {
                     reconnectAttempt = 0
                     for (frame in incoming) {
                         if (frame !is Frame.Text) continue
@@ -96,21 +97,5 @@ internal class YaloMessageServiceWebSocket(
         val delayMs = (INITIAL_BACKOFF_MS shl reconnectAttempt).coerceAtMost(MAX_BACKOFF_MS)
         reconnectAttempt = (reconnectAttempt + 1).coerceAtMost(MAX_BACKOFF_STEPS)
         delay(delayMs)
-    }
-}
-
-// Percent-encodes a token so it is safe to embed as a query parameter value.
-// Replaces characters that are not unreserved (RFC 3986) to avoid breaking the URL.
-private fun String.encodeForQuery(): String = buildString {
-    for (ch in this@encodeForQuery) {
-        if (ch.isLetterOrDigit() || ch == '-' || ch == '_' || ch == '.' || ch == '~') {
-            append(ch)
-        } else {
-            val bytes = ch.toString().encodeToByteArray()
-            for (b in bytes) {
-                append('%')
-                append(b.toInt().and(0xFF).toString(16).uppercase().padStart(2, '0'))
-            }
-        }
     }
 }

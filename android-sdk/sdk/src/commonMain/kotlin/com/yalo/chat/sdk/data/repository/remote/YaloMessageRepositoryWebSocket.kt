@@ -20,9 +20,11 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
 
@@ -78,7 +80,7 @@ internal class YaloMessageRepositoryWebSocket(
             return Result.Error(UnsupportedOperationException("WebSocket transport only supports text sends; got ${message.type}"))
         }
         val nowIso = Clock.System.now().toString()
-        _events.tryEmit(ChatEvent.TypingStart("Writing message..."))
+        _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
         val body = SdkMessageBody(
             correlationId = Uuid.random().toString(),
             timestamp = nowIso,
@@ -87,23 +89,36 @@ internal class YaloMessageRepositoryWebSocket(
                 timestamp = nowIso,
             ),
         )
-        return apiService.sendMessage(body)
+        val result = apiService.sendMessage(body)
+        if (result is Result.Error) _events.tryEmit(ChatEvent.TypingStop)
+        return result
     }
 
     // Each WebSocket frame that passes dedup becomes a single-item list, mirroring
     // the polling repo's per-message emission contract.
+    // Exceptions from toChatMessage (e.g. failed media download) are caught so the
+    // flow never terminates — same contract as YaloMessageRepositoryRemote.pollIncomingMessages.
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> =
-        wsService.frames.mapNotNull { frame ->
-            val msg = frame.toChatMessage(
-                deduplicate = true,
-                index = 0,
-                cache = cache,
-                apiService = apiService,
-                tempDir = tempDir,
-            ) ?: return@mapNotNull null
-            _events.tryEmit(ChatEvent.TypingStop)
-            listOf(msg)
-        }
+        wsService.frames
+            .mapNotNull { frame ->
+                try {
+                    frame.toChatMessage(
+                        deduplicate = true,
+                        index = 0,
+                        cache = cache,
+                        apiService = apiService,
+                        tempDir = tempDir,
+                    )
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    null
+                }
+            }
+            .map { msg ->
+                _events.tryEmit(ChatEvent.TypingStop)
+                listOf(msg)
+            }
 
     override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
 

@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
@@ -123,11 +124,11 @@ class YaloMessageRepositoryWebSocketTest {
                 batch.forEach { received.add(it.content) }
             }
         }
-        yield()
+        advanceUntilIdle()
 
         wsService._frames.emit(textFrame("wi-1", "Hello"))
         wsService._frames.emit(textFrame("wi-2", "World"))
-        yield()
+        advanceUntilIdle()
 
         assertEquals(listOf("Hello", "World"), received)
         job.cancel()
@@ -143,12 +144,12 @@ class YaloMessageRepositoryWebSocketTest {
                 batch.forEach { received.add(it.content) }
             }
         }
-        yield()
+        advanceUntilIdle()
 
         wsService._frames.emit(textFrame("wi-dup", "First"))
         wsService._frames.emit(textFrame("wi-dup", "Duplicate"))
         wsService._frames.emit(textFrame("wi-dup", "Triplicate"))
-        yield()
+        advanceUntilIdle()
 
         assertEquals(listOf("First"), received)
         job.cancel()
@@ -161,10 +162,10 @@ class YaloMessageRepositoryWebSocketTest {
 
         val eventJob = launch { repo.events().collect { events.add(it) } }
         val msgJob = launch { repo.pollIncomingMessages().collect {} }
-        yield()
+        advanceUntilIdle()
 
         wsService._frames.emit(textFrame("wi-event", "Test"))
-        yield()
+        advanceUntilIdle()
 
         assertTrue(events.any { it is ChatEvent.TypingStop })
         eventJob.cancel()
@@ -182,11 +183,11 @@ class YaloMessageRepositoryWebSocketTest {
                 batch.forEach { received.add(it.content) }
             }
         }
-        yield()
+        advanceUntilIdle()
 
         wsService._frames.emit(textFrame("wi-known", "Should be skipped"))
         wsService._frames.emit(textFrame("wi-new", "Should arrive"))
-        yield()
+        advanceUntilIdle()
 
         assertEquals(listOf("Should arrive"), received)
         job.cancel()
@@ -237,7 +238,7 @@ class YaloMessageRepositoryWebSocketTest {
         val (_, _, repo) = buildComponents(sendResponse = "{}")
         val events = mutableListOf<ChatEvent>()
         val job = launch { repo.events().collect { events.add(it) } }
-        yield()
+        advanceUntilIdle()
 
         repo.sendMessage(
             com.yalo.chat.sdk.domain.model.ChatMessage(
@@ -252,6 +253,22 @@ class YaloMessageRepositoryWebSocketTest {
 
         assertTrue(events.any { it is ChatEvent.TypingStart })
         job.cancel()
+    }
+
+    @Test
+    fun `sendMessage returns Error for non-text message types`() = runTest {
+        val (_, _, repo) = buildComponents()
+        val result = repo.sendMessage(
+            com.yalo.chat.sdk.domain.model.ChatMessage(
+                id = 1L,
+                role = com.yalo.chat.sdk.domain.model.MessageRole.USER,
+                type = MessageType.Image,
+                status = com.yalo.chat.sdk.domain.model.MessageStatus.SENT,
+                content = "",
+                timestamp = 0L,
+            )
+        )
+        assertIs<Result.Error<Unit>>(result)
     }
 
     // ── Command registration ───────────────────────────────────────────────────

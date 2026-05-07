@@ -16,6 +16,9 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.datetime.Instant
 
+// Shared typing-indicator text emitted by sendMessage across all transports.
+internal const val TYPING_STATUS_TEXT = "Writing message..."
+
 // Proto3 JSON enum value for horizontal carousel orientation.
 internal const val ORIENTATION_HORIZONTAL = "ORIENTATION_HORIZONTAL"
 
