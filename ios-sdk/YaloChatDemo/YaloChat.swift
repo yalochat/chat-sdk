@@ -27,8 +27,7 @@ public final class YaloChat {
             channelName: channelName,
             channelId: channelId,
             organizationId: organizationId,
-            environment: environment,
-            useFakeRepository: false
+            environment: environment
         )
         YaloChatSdk.shared.initialize(config: config)
     }
