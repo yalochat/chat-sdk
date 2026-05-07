@@ -24,9 +24,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 
 // Port of flutter-sdk YaloMessageRepositoryWebSocket.
@@ -46,11 +44,6 @@ internal class YaloMessageRepositoryWebSocket(
     @Volatile private var commands: Map<ChatCommand, ChatCommandCallback> = emptyMap()
     @Volatile private var paused = false
     private var scope: CoroutineScope? = null
-
-    // Monotonic counter incremented per incoming WS frame.
-    // Used as the `index` arg to toChatMessage() so messages arriving in the same
-    // second get distinct stableIds (avoids SQLite INSERT OR REPLACE collision).
-    private var wsFrameIndex: Int = 0
 
     // High-water mark for ensureReceiptOrder — mirrors pollHighWater in YaloMessageRepositoryRemote.
     private var wsHighWater: Long = 0L
@@ -105,31 +98,30 @@ internal class YaloMessageRepositoryWebSocket(
 
     // Each WebSocket frame that passes dedup becomes a single-item list, mirroring
     // the polling repo's per-message emission contract.
-    // Exceptions from toChatMessage (e.g. failed media download) are caught so the
-    // flow never terminates — same contract as YaloMessageRepositoryRemote.pollIncomingMessages.
-    override fun pollIncomingMessages(): Flow<List<ChatMessage>> =
-        wsService.frames
-            .mapNotNull { frame ->
-                try {
-                    frame.toChatMessage(
-                        deduplicate = true,
-                        index = wsFrameIndex++,
-                        cache = cache,
-                        apiService = apiService,
-                        tempDir = tempDir,
-                    )
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    null
-                }
-            }
-            .map { msg ->
-                val ordered = ensureReceiptOrder(listOf(msg))
-                _events.tryEmit(ChatEvent.TypingStop)
-                ordered
-            }
-            .filter { it.isNotEmpty() }
+    // frameIndex is a local var — structurally confined to the single collecting coroutine,
+    // so no atomicity is needed. Exceptions from toChatMessage are caught so the flow never
+    // terminates — same contract as YaloMessageRepositoryRemote.pollIncomingMessages.
+    override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
+        var frameIndex = 0
+        wsService.frames.collect { frame ->
+            val msg = try {
+                frame.toChatMessage(
+                    deduplicate = true,
+                    index = frameIndex++,
+                    cache = cache,
+                    apiService = apiService,
+                    tempDir = tempDir,
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            } ?: return@collect
+            val ordered = ensureReceiptOrder(listOf(msg))
+            _events.tryEmit(ChatEvent.TypingStop)
+            if (ordered.isNotEmpty()) emit(ordered)
+        }
+    }
 
     // Mirrors YaloMessageRepositoryRemote.ensureReceiptOrder — clamps each incoming
     // message id to max(stableId, clientClockAtReceipt) so bot WS replies always sort
@@ -161,6 +153,8 @@ internal class YaloMessageRepositoryWebSocket(
 
     // ── Command registration ───────────────────────────────────────────────────
 
+    // Non-atomic RMW: concurrent registrations on different threads could theoretically lose one
+    // update, but registerCommand is always called from single-threaded app startup, so this is safe.
     override fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
         commands = commands + (command to callback)
     }

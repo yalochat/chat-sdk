@@ -78,7 +78,9 @@ internal class YaloMessageServiceWebSocket(
                         parseFrame(frame.readText())?.let { _frames.emit(it) }
                     }
                 }
-                // Connection closed cleanly — reconnect immediately (no delay).
+                // Server closed the connection cleanly — apply backoff before reconnecting
+                // to avoid a tight reconnect storm if the server repeatedly drops the session.
+                scheduleReconnect()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (_: Exception) {

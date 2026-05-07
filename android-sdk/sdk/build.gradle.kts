@@ -135,8 +135,10 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
-        buildConfigField("Boolean", "USE_FAKE_REPOSITORY", localProps.getProperty("yalo.useFakeRepository", "false"))
-        buildConfigField("String",  "TRANSPORT",           "\"${localProps.getProperty("yalo.transport", "LONG_POLL")}\"")
+        val useFakeRepo = localProps.getProperty("yalo.useFakeRepository", "false")
+            .trim().toBooleanStrictOrNull() ?: false
+        buildConfigField("Boolean", "USE_FAKE_REPOSITORY", "$useFakeRepo")
+        buildConfigField("String",  "TRANSPORT",           "\"${localProps.getProperty("yalo.transport", "LONG_POLL").trim().uppercase()}\"")
     }
 
     compileOptions {
