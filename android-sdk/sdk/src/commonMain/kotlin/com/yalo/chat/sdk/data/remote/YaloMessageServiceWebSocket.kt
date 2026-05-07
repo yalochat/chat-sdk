@@ -63,26 +63,41 @@ internal class YaloMessageServiceWebSocket(
     private suspend fun connectLoop() {
         while (currentCoroutineContext().isActive) {
             try {
+                println("[YaloWS] connecting — attempt $reconnectAttempt — url: $wsUrl")
                 val tokenResult = apiService.ensureValidToken()
                 if (tokenResult is Result.Error) {
+                    println("[YaloWS] auth failed: ${tokenResult.error}")
                     scheduleReconnect()
                     continue
                 }
                 val (token, _) = (tokenResult as Result.Ok).result
+                println("[YaloWS] token OK — upgrading to WebSocket")
 
                 httpClient.webSocket("$wsUrl?token=${token.encodeURLParameter()}") {
                     reconnectAttempt = 0
+                    println("[YaloWS] connected")
                     for (frame in incoming) {
-                        if (frame !is Frame.Text) continue
-                        parseFrame(frame.readText())?.let { _frames.emit(it) }
+                        if (frame !is Frame.Text) {
+                            println("[YaloWS] non-text frame: ${frame::class.simpleName}")
+                            continue
+                        }
+                        val text = frame.readText()
+                        println("[YaloWS] frame received (${text.length} chars): ${text.take(200)}")
+                        val parsed = parseFrame(text)
+                        if (parsed != null) {
+                            println("[YaloWS] frame parsed OK — emitting")
+                            _frames.emit(parsed)
+                        } else {
+                            println("[YaloWS] frame parse FAILED")
+                        }
                     }
+                    println("[YaloWS] session ended cleanly")
                 }
-                // Server closed the connection cleanly — apply backoff before reconnecting
-                // to avoid a tight reconnect storm if the server repeatedly drops the session.
                 scheduleReconnect()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                println("[YaloWS] connection error: $e")
                 scheduleReconnect()
             }
         }
@@ -90,7 +105,8 @@ internal class YaloMessageServiceWebSocket(
 
     private fun parseFrame(text: String): YaloFetchMessagesResponse? = try {
         json.decodeFromString(text)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        println("[YaloWS] JSON parse error: $e")
         null
     }
 

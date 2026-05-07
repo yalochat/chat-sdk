@@ -104,6 +104,7 @@ internal class YaloMessageRepositoryWebSocket(
     override fun pollIncomingMessages(): Flow<List<ChatMessage>> = flow {
         var frameIndex = 0
         wsService.frames.collect { frame ->
+            println("[YaloWS] repo received frame — mapping to ChatMessage (index $frameIndex)")
             val msg = try {
                 frame.toChatMessage(
                     deduplicate = true,
@@ -114,9 +115,14 @@ internal class YaloMessageRepositoryWebSocket(
                 )
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                println("[YaloWS] toChatMessage error: $e")
                 null
-            } ?: return@collect
+            } ?: run {
+                println("[YaloWS] frame filtered (dedup or unknown type)")
+                return@collect
+            }
+            println("[YaloWS] message mapped — id=${msg.id} role=${msg.role} type=${msg.type}")
             val ordered = ensureReceiptOrder(listOf(msg))
             _events.tryEmit(ChatEvent.TypingStop)
             if (ordered.isNotEmpty()) emit(ordered)
