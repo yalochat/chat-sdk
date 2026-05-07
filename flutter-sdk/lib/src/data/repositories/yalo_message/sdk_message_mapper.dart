@@ -11,8 +11,8 @@ import 'package:uuid/uuid.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pbenum.dart'
@@ -27,14 +27,19 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
 }) async {
   switch (item.message.whichPayload()) {
     case proto.SdkMessage_Payload.textMessageRequest:
+      final request = item.message.textMessageRequest;
       return ChatMessage.text(
         role: MessageRole.assistant,
         timestamp: item.date.toDateTime(),
-        content: item.message.textMessageRequest.content.text,
+        content: request.content.text,
+        header: request.hasHeader() ? request.header : null,
+        footer: request.hasFooter() ? request.footer : null,
+        buttons: request.buttons.map(_toDomainButton).toList(),
         wiId: item.id,
       );
     case proto.SdkMessage_Payload.imageMessageRequest:
-      final content = item.message.imageMessageRequest.content;
+      final request = item.message.imageMessageRequest;
+      final content = request.content;
       final downloadResult = await mediaService.downloadMedia(content.mediaUrl);
       switch (downloadResult) {
         case Ok(:final Uint8List result):
@@ -52,6 +57,9 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
             fileName: localPath,
             mediaType: mimeType,
             byteCount: result.length,
+            header: request.hasHeader() ? request.header : null,
+            footer: request.hasFooter() ? request.footer : null,
+            buttons: request.buttons.map(_toDomainButton).toList(),
             wiId: item.id,
           );
         case Error(:final error):
@@ -59,7 +67,8 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
           return null;
       }
     case proto.SdkMessage_Payload.videoMessageRequest:
-      final content = item.message.videoMessageRequest.content;
+      final request = item.message.videoMessageRequest;
+      final content = request.content;
       final downloadResult = await mediaService.downloadMedia(content.mediaUrl);
       switch (downloadResult) {
         case Ok(:final Uint8List result):
@@ -78,36 +87,15 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
             duration: content.duration.toInt(),
             mediaType: mimeType,
             byteCount: result.length,
+            header: request.hasHeader() ? request.header : null,
+            footer: request.hasFooter() ? request.footer : null,
+            buttons: request.buttons.map(_toDomainButton).toList(),
             wiId: item.id,
           );
         case Error(:final error):
           _log.severe('Failed to download video for message ${item.id}', error);
           return null;
       }
-    case proto.SdkMessage_Payload.buttonsMessageRequest:
-      final content = item.message.buttonsMessageRequest.content;
-      return ChatMessage.buttons(
-        role: MessageRole.assistant,
-        timestamp: item.date.toDateTime(),
-        content: content.body,
-        header: content.hasHeader() ? content.header : null,
-        footer: content.hasFooter() ? content.footer : null,
-        buttons: content.buttons.toList(),
-        wiId: item.id,
-      );
-    case proto.SdkMessage_Payload.ctaMessageRequest:
-      final content = item.message.ctaMessageRequest.content;
-      return ChatMessage.cta(
-        role: MessageRole.assistant,
-        timestamp: item.date.toDateTime(),
-        content: content.body,
-        header: content.hasHeader() ? content.header : null,
-        footer: content.hasFooter() ? content.footer : null,
-        ctaButtons: content.buttons
-            .map((b) => CTAButton(text: b.text, url: b.url))
-            .toList(),
-        wiId: item.id,
-      );
     case proto.SdkMessage_Payload.productMessageRequest:
       final List<Product> products = item.message.productMessageRequest.products
           .map(_toDomainProduct)
@@ -149,6 +137,8 @@ proto.SdkMessage? chatMessageToSdkMessage(
   };
   final timestamp = DateTime.now();
 
+  final protoButtons = chatMessage.buttons.map(_toProtoButton).toList();
+
   return switch (chatMessage.type) {
     MessageType.text => proto.SdkMessage(
       correlationId: chatMessage.id.toString(),
@@ -160,6 +150,9 @@ proto.SdkMessage? chatMessageToSdkMessage(
           status: messageStatus,
           role: proto.MessageRole.MESSAGE_ROLE_USER,
         ),
+        header: chatMessage.header,
+        footer: chatMessage.footer,
+        buttons: protoButtons,
       ),
     ),
     MessageType.image => proto.SdkMessage(
@@ -176,6 +169,9 @@ proto.SdkMessage? chatMessageToSdkMessage(
           status: messageStatus,
           role: proto.MessageRole.MESSAGE_ROLE_USER,
         ),
+        header: chatMessage.header,
+        footer: chatMessage.footer,
+        buttons: protoButtons,
       ),
     ),
     MessageType.voice => proto.SdkMessage(
@@ -193,6 +189,9 @@ proto.SdkMessage? chatMessageToSdkMessage(
           status: messageStatus,
           role: proto.MessageRole.MESSAGE_ROLE_USER,
         ),
+        header: chatMessage.header,
+        footer: chatMessage.footer,
+        buttons: protoButtons,
       ),
     ),
     MessageType.video => proto.SdkMessage(
@@ -210,16 +209,44 @@ proto.SdkMessage? chatMessageToSdkMessage(
           status: messageStatus,
           role: proto.MessageRole.MESSAGE_ROLE_USER,
         ),
+        header: chatMessage.header,
+        footer: chatMessage.footer,
+        buttons: protoButtons,
       ),
     ),
     MessageType.product => null,
     MessageType.productCarousel => null,
     MessageType.promotion => null,
-    MessageType.quickReply => null,
     MessageType.unknown => null,
-    MessageType.buttons => null,
-    MessageType.cta => null,
   };
+}
+
+Button _toDomainButton(proto.Button b) {
+  final ButtonType type;
+  if (b.buttonType == proto_enum.ButtonType.BUTTON_TYPE_LINK) {
+    type = ButtonType.link;
+  } else if (b.buttonType == proto_enum.ButtonType.BUTTON_TYPE_POSTBACK) {
+    type = ButtonType.postback;
+  } else {
+    type = ButtonType.reply;
+  }
+  return Button(
+    text: b.text,
+    type: type,
+    url: b.hasUrl() ? b.url : null,
+  );
+}
+
+proto.Button _toProtoButton(Button b) {
+  return proto.Button(
+    text: b.text,
+    buttonType: switch (b.type) {
+      ButtonType.reply => proto_enum.ButtonType.BUTTON_TYPE_REPLY,
+      ButtonType.postback => proto_enum.ButtonType.BUTTON_TYPE_POSTBACK,
+      ButtonType.link => proto_enum.ButtonType.BUTTON_TYPE_LINK,
+    },
+    url: b.url,
+  );
 }
 
 Product _toDomainProduct(proto.Product p) {

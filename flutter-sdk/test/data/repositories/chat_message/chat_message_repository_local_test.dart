@@ -11,7 +11,6 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/chat_message/chat_me
 import 'package:yalo_chat_flutter_sdk/src/data/services/database/database_service.dart'
     hide ChatMessage;
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -103,7 +102,6 @@ void main() {
           fileName: 'test/image.png',
           byteCount: 0,
           mediaType: 'image/png',
-          quickReplies: ['ok!', 'quick', 'Think!'],
         );
         await chatRepository.insertChatMessage(message);
         await chatRepository.insertChatMessage(message);
@@ -269,7 +267,6 @@ void main() {
             unitName: 'box',
           ),
         ],
-        quickReplies: ['quick!', 'think!'],
       );
       var result = await chatRepository.insertChatMessage(message);
       expect(result, isA<Ok<ChatMessage>>());
@@ -379,128 +376,6 @@ void main() {
             ),
           ),
         );
-      },
-      tags: ['integration'],
-    );
-
-    test(
-      'should round-trip a buttons message preserving header, footer and buttons',
-      () async {
-        ChatMessage message = ChatMessage.buttons(
-          role: MessageRole.assistant,
-          timestamp: clock.now(),
-          header: 'Pick one',
-          content: 'Choose carefully',
-          footer: 'Tap to respond',
-          buttons: ['Yes', 'No', 'Maybe'],
-        );
-
-        final insertRes = await chatRepository.insertChatMessage(message);
-        expect(insertRes, isA<Ok<ChatMessage>>());
-
-        final pageRes = await chatRepository.getChatMessagePageDesc(null, 10);
-        expect(pageRes, isA<Ok<Page<ChatMessage>>>());
-
-        final stored = (pageRes as Ok<Page<ChatMessage>>).result.data.single;
-        expect(stored.type, equals(MessageType.buttons));
-        expect(stored.header, equals('Pick one'));
-        expect(stored.content, equals('Choose carefully'));
-        expect(stored.footer, equals('Tap to respond'));
-        expect(stored.buttons, equals(['Yes', 'No', 'Maybe']));
-        expect(stored.ctaButtons, isEmpty);
-      },
-      tags: ['integration'],
-    );
-
-    test(
-      'should round-trip a cta message preserving header, footer and ctaButtons',
-      () async {
-        ChatMessage message = ChatMessage.cta(
-          role: MessageRole.assistant,
-          timestamp: clock.now(),
-          header: 'Visit us',
-          content: 'Check out the site',
-          footer: 'External links',
-          ctaButtons: const [
-            CTAButton(text: 'Open', url: 'https://example.com'),
-            CTAButton(text: 'Docs', url: 'https://example.com/docs'),
-          ],
-        );
-
-        final insertRes = await chatRepository.insertChatMessage(message);
-        expect(insertRes, isA<Ok<ChatMessage>>());
-
-        final pageRes = await chatRepository.getChatMessagePageDesc(null, 10);
-        final stored = (pageRes as Ok<Page<ChatMessage>>).result.data.single;
-        expect(stored.type, equals(MessageType.cta));
-        expect(stored.header, equals('Visit us'));
-        expect(stored.content, equals('Check out the site'));
-        expect(stored.footer, equals('External links'));
-        expect(stored.buttons, isEmpty);
-        expect(
-          stored.ctaButtons,
-          equals(const [
-            CTAButton(text: 'Open', url: 'https://example.com'),
-            CTAButton(text: 'Docs', url: 'https://example.com/docs'),
-          ]),
-        );
-      },
-      tags: ['integration'],
-    );
-
-    test(
-      'should store buttons and cta as null when lists are empty and header/footer omitted',
-      () async {
-        ChatMessage message = ChatMessage.buttons(
-          role: MessageRole.assistant,
-          timestamp: clock.now(),
-          content: 'Body only',
-        );
-
-        await chatRepository.insertChatMessage(message);
-
-        final row = await (databaseService.select(
-          databaseService.chatMessage,
-        )..where((m) => m.id.equals(1))).getSingle();
-
-        expect(row.header, equals(null));
-        expect(row.footer, equals(null));
-        expect(row.buttons, equals(null));
-        expect(row.ctaButtons, equals(null));
-      },
-      tags: ['integration'],
-    );
-
-    test(
-      'should replace a buttons message with updated header, footer and buttons',
-      () async {
-        ChatMessage message = ChatMessage.buttons(
-          role: MessageRole.assistant,
-          timestamp: clock.now(),
-          content: 'Pick',
-          buttons: ['A'],
-        );
-        final inserted =
-            (await chatRepository.insertChatMessage(message))
-                as Ok<ChatMessage>;
-
-        final updated = inserted.result.copyWith(
-          header: 'Updated header',
-          footer: 'Updated footer',
-          buttons: ['A', 'B', 'C'],
-        );
-
-        final replaceRes = await chatRepository.replaceChatMessage(updated);
-        expect(
-          replaceRes,
-          isA<Ok<bool>>().having((s) => s.result, 'value', equals(true)),
-        );
-
-        final pageRes = await chatRepository.getChatMessagePageDesc(null, 10);
-        final stored = (pageRes as Ok<Page<ChatMessage>>).result.data.single;
-        expect(stored.header, equals('Updated header'));
-        expect(stored.footer, equals('Updated footer'));
-        expect(stored.buttons, equals(['A', 'B', 'C']));
       },
       tags: ['integration'],
     );

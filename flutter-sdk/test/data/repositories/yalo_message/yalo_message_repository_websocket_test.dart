@@ -19,7 +19,6 @@ import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_messag
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service_websocket.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
 
@@ -67,38 +66,6 @@ void main() {
             mediaUrl: 'https://example.com/image.jpg',
             text: 'Caption',
             mediaType: 'image/jpeg',
-          ),
-        ),
-      ),
-      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-      userId: 'user-123',
-      status: 'IN_DELIVERY',
-    );
-
-    final assistantButtonsStub = proto.PollMessageItem(
-      id: 'btn-1',
-      message: proto.SdkMessage(
-        buttonsMessageRequest: proto.ButtonsMessageRequest(
-          content: proto.ButtonsMessage(
-            header: 'Header text',
-            body: 'Choose an option',
-            footer: 'Footer text',
-            buttons: ['Yes', 'No'],
-          ),
-        ),
-      ),
-      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-      userId: 'user-123',
-      status: 'IN_DELIVERY',
-    );
-
-    final assistantCtaStub = proto.PollMessageItem(
-      id: 'cta-1',
-      message: proto.SdkMessage(
-        ctaMessageRequest: proto.CTAMessageRequest(
-          content: proto.CTAMessage(
-            body: 'Visit our site',
-            buttons: [proto.CTAButton(text: 'Open', url: 'https://e.com')],
           ),
         ),
       ),
@@ -271,41 +238,6 @@ void main() {
         await Future.delayed(Duration.zero);
 
         expect(received, isEmpty);
-      });
-
-      test('emits a buttons message translated from buttonsMessageRequest',
-          () async {
-        final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
-
-        incoming.add(assistantButtonsStub);
-        await Future.delayed(Duration.zero);
-
-        expect(received, hasLength(1));
-        expect(
-          received.single,
-          isA<ChatMessage>()
-              .having((m) => m.type, 'type', MessageType.buttons)
-              .having((m) => m.content, 'content', 'Choose an option')
-              .having((m) => m.header, 'header', 'Header text')
-              .having((m) => m.footer, 'footer', 'Footer text')
-              .having((m) => m.buttons, 'buttons', ['Yes', 'No']),
-        );
-      });
-
-      test('emits a cta message translated from ctaMessageRequest', () async {
-        final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
-
-        incoming.add(assistantCtaStub);
-        await Future.delayed(Duration.zero);
-
-        expect(received, hasLength(1));
-        expect(received.single.type, equals(MessageType.cta));
-        expect(
-          received.single.ctaButtons,
-          equals([const CTAButton(text: 'Open', url: 'https://e.com')]),
-        );
       });
 
       test('emits a product message with vertical orientation', () async {

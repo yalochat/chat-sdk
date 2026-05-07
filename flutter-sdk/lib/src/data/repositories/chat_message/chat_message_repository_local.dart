@@ -9,8 +9,8 @@ import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/database/database_service.dart'
     hide ChatMessage;
 
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/cta_button.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/database/database_service.dart'
     as db;
 import 'package:drift/drift.dart';
@@ -43,15 +43,11 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
       products: message.products.isEmpty
           ? null
           : jsonEncode(message.products.map((p) => p.toJson()).toList()),
-      quickReplies: message.quickReplies.isEmpty
-          ? null
-          : jsonEncode(message.quickReplies),
       header: message.header,
       footer: message.footer,
-      buttons: message.buttons.isEmpty ? null : jsonEncode(message.buttons),
-      ctaButtons: message.ctaButtons.isEmpty
+      buttons: message.buttons.isEmpty
           ? null
-          : jsonEncode(message.ctaButtons.map((b) => b.toJson()).toList()),
+          : jsonEncode(message.buttons.map((b) => b.toJson()).toList()),
       timestamp: message.timestamp.millisecondsSinceEpoch,
     );
   }
@@ -78,19 +74,11 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
                 .map((e) => Product.fromJson(e as Map<String, dynamic>))
                 .toList()
           : [],
-      quickReplies: data.quickReplies != null
-          ? (jsonDecode(data.quickReplies!) as List)
-                .map((e) => e as String)
-                .toList()
-          : [],
       header: data.header,
       footer: data.footer,
       buttons: data.buttons != null
-          ? (jsonDecode(data.buttons!) as List).map((e) => e as String).toList()
-          : [],
-      ctaButtons: data.ctaButtons != null
-          ? (jsonDecode(data.ctaButtons!) as List)
-                .map((e) => CTAButton.fromJson(e as Map<String, dynamic>))
+          ? (jsonDecode(data.buttons!) as List)
+                .map((e) => Button.fromJson(e as Map<String, dynamic>))
                 .toList()
           : [],
       timestamp: DateTime.fromMillisecondsSinceEpoch(data.timestamp),
@@ -179,23 +167,13 @@ final class ChatMessageRepositoryLocal extends ChatMessageRepository {
                         message.products.map((p) => p.toJson()).toList(),
                       ),
               ),
-              quickReplies: Value.absentIfNull(
-                message.quickReplies.isEmpty
-                    ? null
-                    : jsonEncode(message.quickReplies),
-              ),
               header: Value.absentIfNull(message.header),
               footer: Value.absentIfNull(message.footer),
               buttons: Value.absentIfNull(
                 message.buttons.isEmpty
                     ? null
-                    : jsonEncode(message.buttons),
-              ),
-              ctaButtons: Value.absentIfNull(
-                message.ctaButtons.isEmpty
-                    ? null
                     : jsonEncode(
-                        message.ctaButtons.map((b) => b.toJson()).toList(),
+                        message.buttons.map((b) => b.toJson()).toList(),
                       ),
               ),
               timestamp: message.timestamp.millisecondsSinceEpoch,
