@@ -21,7 +21,7 @@ struct ProductQuantityStepper: View {
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
-            .foregroundColor(value > 0 ? theme.expandControlColor : theme.messageFooterColor)
+            .foregroundColor(value > 0 ? theme.numericControlIconColor : theme.messageFooterColor)
             .disabled(value <= 0)
 
             Text("\(formatQuantity(value)) \(unitName)")
@@ -34,7 +34,7 @@ struct ProductQuantityStepper: View {
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
-            .foregroundColor(theme.expandControlColor)
+            .foregroundColor(theme.numericControlIconColor)
         }
     }
 }

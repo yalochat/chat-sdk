@@ -43,7 +43,7 @@ struct ChatInput: View {
                         imageObservable.showSourceSheet = true
                     } label: {
                         Image(systemName: theme.attachIconName)
-                            .foregroundColor(theme.messageFooterColor)
+                            .foregroundColor(theme.attachIconColor)
                             .padding(.leading, 4)
                     }
 

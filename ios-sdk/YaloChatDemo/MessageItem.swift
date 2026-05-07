@@ -43,7 +43,7 @@ struct MessageItem: View {
     @ViewBuilder
     private var errorIndicator: some View {
         if isUser && message.status === MessageStatus.error {
-            Image(systemName: "exclamationmark.circle.fill")
+            Image(systemName: theme.errorIconName)
                 .foregroundColor(theme.errorColor)
                 .font(.caption)
         }
@@ -81,15 +81,15 @@ struct MessageItem: View {
         Group {
             if message.type is MessageType.Image {
                 imageContent
-                    .cornerRadius(16)
+                    .cornerRadius(theme.bubbleCornerRadius)
             } else if message.type is MessageType.Video {
                 videoContent
-                    .cornerRadius(16)
+                    .cornerRadius(theme.bubbleCornerRadius)
             } else {
                 bubbleContent
                     .padding(12)
                     .background(bubbleColor)
-                    .cornerRadius(16)
+                    .cornerRadius(theme.bubbleCornerRadius)
             }
         }
     }
@@ -119,7 +119,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
-            Label("Image unavailable", systemImage: "photo")
+            Label("Image unavailable", systemImage: theme.imagePlaceholderIconName)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -244,9 +244,9 @@ struct MessageItem: View {
                 guard let mid = messageId, let path = message.fileName else { return }
                 audioObservable.togglePlayback(messageId: mid, fileName: path)
             } label: {
-                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                Image(systemName: isPlaying ? theme.pauseIconName : theme.playIconName)
                     .font(.title2)
-                    .foregroundColor(isUser ? theme.userBubbleTextColor : theme.waveformColor)
+                    .foregroundColor(isUser ? theme.userBubbleTextColor : (isPlaying ? theme.pauseAudioIconColor : theme.playAudioIconColor))
             }
             .disabled(message.fileName == nil || messageId == nil)
 

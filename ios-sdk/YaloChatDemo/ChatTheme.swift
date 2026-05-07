@@ -24,6 +24,7 @@ public struct ChatTheme {
     // MARK: - Input bar
     public var inputBackgroundColor: Color
     public var inputBorderColor: Color
+    public var inputHintColor: Color
 
     // MARK: - Send / mic action button
     public var sendButtonColor: Color
@@ -47,6 +48,7 @@ public struct ChatTheme {
     public var productPriceBackgroundColor: Color
     public var pricePerSubunitColor: Color
     public var imagePlaceholderColor: Color
+    public var currencyIconColor: Color
 
     // MARK: - CTA message buttons
     public var ctaButtonColor: Color
@@ -58,11 +60,27 @@ public struct ChatTheme {
     public var buttonsButtonBorderColor: Color
     public var buttonsButtonTextColor: Color
 
-    // MARK: - Icons / footer
+    // MARK: - Icons / footer / controls
     public var actionIconColor: Color
     public var messageFooterColor: Color
     public var expandControlColor: Color
     public var errorColor: Color
+
+    // MARK: - Action icon colors
+    public var cancelRecordingIconColor: Color
+    public var closeModalIconColor: Color
+    public var playAudioIconColor: Color
+    public var pauseAudioIconColor: Color
+    public var attachIconColor: Color
+    public var cameraIconColor: Color
+    public var galleryIconColor: Color
+    public var trashIconColor: Color
+    public var numericControlIconColor: Color
+    public var imagePlaceholderIconColor: Color
+
+    // MARK: - Attachment picker
+    public var attachmentPickerBackgroundColor: Color
+    public var pickerButtonBorderColor: Color
 
     // MARK: - Fonts
     public var userMessageFont: Font
@@ -73,6 +91,9 @@ public struct ChatTheme {
     public var messageHeaderFont: Font
     public var messageFooterFont: Font
 
+    // MARK: - Layout
+    public var bubbleCornerRadius: CGFloat
+
     // MARK: - Icon names (SF Symbols)
     public var sendIconName: String
     public var micIconName: String
@@ -80,66 +101,93 @@ public struct ChatTheme {
     public var shopIconName: String
     public var cartIconName: String
     public var cancelRecordingIconName: String
+    public var closeModalIconName: String
     public var playIconName: String
     public var pauseIconName: String
     public var addIconName: String
     public var removeIconName: String
     public var ctaArrowIconName: String
+    public var cameraIconName: String
+    public var galleryIconName: String
+    public var trashIconName: String
+    public var imagePlaceholderIconName: String
+    public var errorIconName: String
 
     // MARK: - Optional branding
     public var chatIconImage: Image?
 
     public init(
-        backgroundColor: Color          = Color(.systemBackground),
-        appBarBackgroundColor: Color     = Color(.systemBackground),
-        userBubbleColor: Color           = Color(sdkHex: 0xF9FAFC),
-        userBubbleTextColor: Color       = Color(sdkHex: 0x111111),
-        agentBubbleColor: Color          = Color(.systemGray5),
-        agentBubbleTextColor: Color      = Color(.label),
-        inputBackgroundColor: Color      = Color(.systemBackground),
-        inputBorderColor: Color          = Color(sdkHex: 0xE8E8E8),
-        sendButtonColor: Color           = Color(sdkHex: 0x2207F1),
-        sendButtonIconColor: Color       = Color(sdkHex: 0xEFF4FF),
-        waveformColor: Color             = Color(sdkHex: 0x5C5EE8),
-        quickReplyBackgroundColor: Color = .clear,
-        quickReplyBorderColor: Color     = Color(sdkHex: 0xECEDEF),
-        quickReplyTextColor: Color       = Color(sdkHex: 0x2207F1),
-        cardBackgroundColor: Color       = Color(.secondarySystemBackground),
-        cardBorderColor: Color           = Color(sdkHex: 0xDDE4EC),
-        productPriceColor: Color         = Color(sdkHex: 0x186C54),
-        productSalePriceColor: Color     = Color(sdkHex: 0x0B996D),
-        productPriceBackgroundColor: Color = Color(sdkHex: 0xECFDF5),
-        pricePerSubunitColor: Color      = Color(sdkHex: 0x334155),
-        imagePlaceholderColor: Color     = Color(sdkHex: 0xF9FAFC),
-        ctaButtonColor: Color            = .clear,
-        ctaButtonBorderColor: Color      = Color(sdkHex: 0xDDE4EC),
-        ctaButtonTextColor: Color        = Color(sdkHex: 0x111111),
-        buttonsButtonColor: Color        = .clear,
-        buttonsButtonBorderColor: Color  = Color(sdkHex: 0xDDE4EC),
-        buttonsButtonTextColor: Color    = Color(sdkHex: 0x111111),
-        actionIconColor: Color           = Color(.label),
-        messageFooterColor: Color        = Color(sdkHex: 0x7C8086),
-        expandControlColor: Color        = Color(sdkHex: 0x2207F1),
-        errorColor: Color                = .red,
-        userMessageFont: Font            = .body,
-        agentMessageFont: Font           = .body,
-        productTitleFont: Font           = .subheadline,
-        productSubunitsFont: Font        = .caption,
-        productPriceFont: Font           = .subheadline,
-        messageHeaderFont: Font          = .subheadline,
-        messageFooterFont: Font          = .caption,
-        sendIconName: String             = "paperplane.fill",
-        micIconName: String              = "mic.fill",
-        attachIconName: String           = "paperclip",
-        shopIconName: String             = "storefront",
-        cartIconName: String             = "cart",
-        cancelRecordingIconName: String  = "xmark.circle.fill",
-        playIconName: String             = "play.fill",
-        pauseIconName: String            = "pause.fill",
-        addIconName: String              = "plus",
-        removeIconName: String           = "minus",
-        ctaArrowIconName: String         = "arrow.right",
-        chatIconImage: Image?            = nil
+        backgroundColor: Color               = Color(.systemBackground),
+        appBarBackgroundColor: Color          = Color(.systemBackground),
+        userBubbleColor: Color                = Color(sdkHex: 0xF9FAFC),
+        userBubbleTextColor: Color            = Color(sdkHex: 0x111111),
+        agentBubbleColor: Color               = Color(.systemGray5),
+        agentBubbleTextColor: Color           = Color(.label),
+        inputBackgroundColor: Color           = Color(.systemBackground),
+        inputBorderColor: Color               = Color(sdkHex: 0xE8E8E8),
+        inputHintColor: Color                 = Color(sdkHex: 0xBEBEBE),
+        sendButtonColor: Color                = Color(sdkHex: 0x2207F1),
+        sendButtonIconColor: Color            = Color(sdkHex: 0xEFF4FF),
+        waveformColor: Color                  = Color(sdkHex: 0x5C5EE8),
+        quickReplyBackgroundColor: Color      = .clear,
+        quickReplyBorderColor: Color          = Color(sdkHex: 0xECEDEF),
+        quickReplyTextColor: Color            = Color(sdkHex: 0x2207F1),
+        cardBackgroundColor: Color            = Color(.secondarySystemBackground),
+        cardBorderColor: Color                = Color(sdkHex: 0xDDE4EC),
+        productPriceColor: Color              = Color(sdkHex: 0x186C54),
+        productSalePriceColor: Color          = Color(sdkHex: 0x0B996D),
+        productPriceBackgroundColor: Color    = Color(sdkHex: 0xECFDF5),
+        pricePerSubunitColor: Color           = Color(sdkHex: 0x334155),
+        imagePlaceholderColor: Color          = Color(sdkHex: 0xF9FAFC),
+        currencyIconColor: Color              = Color(sdkHex: 0x186C54),
+        ctaButtonColor: Color                 = .clear,
+        ctaButtonBorderColor: Color           = Color(sdkHex: 0xDDE4EC),
+        ctaButtonTextColor: Color             = Color(sdkHex: 0x111111),
+        buttonsButtonColor: Color             = .clear,
+        buttonsButtonBorderColor: Color       = Color(sdkHex: 0xDDE4EC),
+        buttonsButtonTextColor: Color         = Color(sdkHex: 0x111111),
+        actionIconColor: Color                = Color(.label),
+        messageFooterColor: Color             = Color(sdkHex: 0x7C8086),
+        expandControlColor: Color             = Color(sdkHex: 0x2207F1),
+        errorColor: Color                     = .red,
+        cancelRecordingIconColor: Color       = Color(sdkHex: 0x7C8086),
+        closeModalIconColor: Color            = Color(sdkHex: 0x7C8086),
+        playAudioIconColor: Color             = Color(sdkHex: 0x7C8086),
+        pauseAudioIconColor: Color            = Color(sdkHex: 0x7C8086),
+        attachIconColor: Color                = Color(sdkHex: 0x7C8086),
+        cameraIconColor: Color                = Color(sdkHex: 0x7C8086),
+        galleryIconColor: Color               = Color(sdkHex: 0x7C8086),
+        trashIconColor: Color                 = Color(sdkHex: 0x7C8086),
+        numericControlIconColor: Color        = Color(sdkHex: 0x7C8086),
+        imagePlaceholderIconColor: Color      = Color(sdkHex: 0x7C8086),
+        attachmentPickerBackgroundColor: Color = Color(sdkHex: 0xF1F5FC),
+        pickerButtonBorderColor: Color        = Color(sdkHex: 0xE6E6E6),
+        userMessageFont: Font                 = .body,
+        agentMessageFont: Font                = .body,
+        productTitleFont: Font                = .subheadline,
+        productSubunitsFont: Font             = .caption,
+        productPriceFont: Font                = .subheadline,
+        messageHeaderFont: Font               = .subheadline,
+        messageFooterFont: Font               = .caption,
+        bubbleCornerRadius: CGFloat           = 16,
+        sendIconName: String                  = "paperplane.fill",
+        micIconName: String                   = "mic.fill",
+        attachIconName: String                = "paperclip",
+        shopIconName: String                  = "storefront",
+        cartIconName: String                  = "cart",
+        cancelRecordingIconName: String       = "xmark.circle.fill",
+        closeModalIconName: String            = "xmark",
+        playIconName: String                  = "play.circle.fill",
+        pauseIconName: String                 = "pause.circle.fill",
+        addIconName: String                   = "plus",
+        removeIconName: String                = "minus",
+        ctaArrowIconName: String              = "arrow.right",
+        cameraIconName: String                = "camera",
+        galleryIconName: String               = "photo",
+        trashIconName: String                 = "trash",
+        imagePlaceholderIconName: String      = "photo",
+        errorIconName: String                 = "exclamationmark.circle.fill",
+        chatIconImage: Image?                 = nil
     ) {
         self.backgroundColor = backgroundColor
         self.appBarBackgroundColor = appBarBackgroundColor
@@ -149,6 +197,7 @@ public struct ChatTheme {
         self.agentBubbleTextColor = agentBubbleTextColor
         self.inputBackgroundColor = inputBackgroundColor
         self.inputBorderColor = inputBorderColor
+        self.inputHintColor = inputHintColor
         self.sendButtonColor = sendButtonColor
         self.sendButtonIconColor = sendButtonIconColor
         self.waveformColor = waveformColor
@@ -162,6 +211,7 @@ public struct ChatTheme {
         self.productPriceBackgroundColor = productPriceBackgroundColor
         self.pricePerSubunitColor = pricePerSubunitColor
         self.imagePlaceholderColor = imagePlaceholderColor
+        self.currencyIconColor = currencyIconColor
         self.ctaButtonColor = ctaButtonColor
         self.ctaButtonBorderColor = ctaButtonBorderColor
         self.ctaButtonTextColor = ctaButtonTextColor
@@ -172,6 +222,18 @@ public struct ChatTheme {
         self.messageFooterColor = messageFooterColor
         self.expandControlColor = expandControlColor
         self.errorColor = errorColor
+        self.cancelRecordingIconColor = cancelRecordingIconColor
+        self.closeModalIconColor = closeModalIconColor
+        self.playAudioIconColor = playAudioIconColor
+        self.pauseAudioIconColor = pauseAudioIconColor
+        self.attachIconColor = attachIconColor
+        self.cameraIconColor = cameraIconColor
+        self.galleryIconColor = galleryIconColor
+        self.trashIconColor = trashIconColor
+        self.numericControlIconColor = numericControlIconColor
+        self.imagePlaceholderIconColor = imagePlaceholderIconColor
+        self.attachmentPickerBackgroundColor = attachmentPickerBackgroundColor
+        self.pickerButtonBorderColor = pickerButtonBorderColor
         self.userMessageFont = userMessageFont
         self.agentMessageFont = agentMessageFont
         self.productTitleFont = productTitleFont
@@ -179,17 +241,24 @@ public struct ChatTheme {
         self.productPriceFont = productPriceFont
         self.messageHeaderFont = messageHeaderFont
         self.messageFooterFont = messageFooterFont
+        self.bubbleCornerRadius = bubbleCornerRadius
         self.sendIconName = sendIconName
         self.micIconName = micIconName
         self.attachIconName = attachIconName
         self.shopIconName = shopIconName
         self.cartIconName = cartIconName
         self.cancelRecordingIconName = cancelRecordingIconName
+        self.closeModalIconName = closeModalIconName
         self.playIconName = playIconName
         self.pauseIconName = pauseIconName
         self.addIconName = addIconName
         self.removeIconName = removeIconName
         self.ctaArrowIconName = ctaArrowIconName
+        self.cameraIconName = cameraIconName
+        self.galleryIconName = galleryIconName
+        self.trashIconName = trashIconName
+        self.imagePlaceholderIconName = imagePlaceholderIconName
+        self.errorIconName = errorIconName
         self.chatIconImage = chatIconImage
     }
 }
@@ -207,7 +276,7 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - Hex color helper (internal — used by ChatTheme defaults and views)
+// MARK: - Hex color helper
 
 extension Color {
     // Converts a 24-bit RGB hex value (e.g. 0x2207F1) to a SwiftUI Color.

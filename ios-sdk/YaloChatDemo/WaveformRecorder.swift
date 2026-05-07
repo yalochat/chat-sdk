@@ -16,7 +16,7 @@ struct WaveformRecorder: View {
         HStack(spacing: 12) {
             Button(action: audioObservable.cancelRecording) {
                 Image(systemName: theme.cancelRecordingIconName)
-                    .foregroundColor(theme.messageFooterColor)
+                    .foregroundColor(theme.cancelRecordingIconColor)
                     .font(.title2)
             }
 

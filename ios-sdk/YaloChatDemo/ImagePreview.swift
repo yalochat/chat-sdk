@@ -25,8 +25,8 @@ struct ImagePreview: View {
             Spacer()
 
             Button(action: onCancel) {
-                Image(systemName: theme.cancelRecordingIconName)
-                    .foregroundColor(theme.messageFooterColor)
+                Image(systemName: theme.closeModalIconName)
+                    .foregroundColor(theme.closeModalIconColor)
                     .font(.title2)
             }
 

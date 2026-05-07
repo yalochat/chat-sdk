@@ -80,6 +80,8 @@ data class ChatTheme(
     val productPriceBackgroundColor: Color = Color(0xFFEEF0FF),
     /** Text color for the per-subunit price label on product cards. */
     val pricePerSubunitColor: Color = Color(0xFF7C8086),
+    /** Color for message timestamps and footer text — mirrors Flutter's messageFooterColor. */
+    val messageFooterColor: Color = Color(0xFF7C8086),
     /** Border color of the picker buttons in the attachment sheet. */
     val pickerButtonBorderColor: Color = Color(0xFFE8E8E8),
     /** Background of quick reply chip buttons. */
