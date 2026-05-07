@@ -74,7 +74,7 @@ struct ProductCarouselView: View {
             GeometryReader { geo in
                 Color.clear
                     .onAppear { containerWidth = geo.size.width }
-                    .onChange(of: geo.size.width) { containerWidth = $0 }
+                    .onChange(of: geo.size.width) { newValue in containerWidth = newValue }
             }
         )
     }

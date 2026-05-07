@@ -70,7 +70,7 @@ struct ProductListView: View {
             GeometryReader { geo in
                 Color.clear
                     .onAppear { cardContentWidth = geo.size.width - 24 }
-                    .onChange(of: geo.size.width) { cardContentWidth = $0 - 24 }
+                    .onChange(of: geo.size.width) { newValue in cardContentWidth = newValue - 24 }
             }
         )
     }

@@ -136,7 +136,7 @@ public struct ChatTheme {
         waveformColor: Color                  = Color(sdkHex: 0x5C5EE8),
         quickReplyBackgroundColor: Color      = .clear,
         quickReplyBorderColor: Color          = Color(sdkHex: 0xECEDEF),
-        quickReplyTextColor: Color            = Color(sdkHex: 0x2207F1),
+        quickReplyTextColor: Color            = Color(sdkHex: 0x111111),
         cardBackgroundColor: Color            = Color(.secondarySystemBackground),
         cardBorderColor: Color                = Color(sdkHex: 0xDDE4EC),
         productPriceColor: Color              = Color(sdkHex: 0x186C54),

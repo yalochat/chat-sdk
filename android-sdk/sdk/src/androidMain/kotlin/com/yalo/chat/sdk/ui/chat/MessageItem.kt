@@ -42,6 +42,7 @@ import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
+import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 import kotlinx.coroutines.Dispatchers
@@ -96,7 +97,18 @@ internal fun MessageItem(
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Bottom,
     ) {
+        if (isUser && message.status == MessageStatus.ERROR) {
+            androidx.compose.material3.Icon(
+                imageVector = theme.errorIcon,
+                contentDescription = "Send failed",
+                tint = theme.errorColor,
+                modifier = Modifier
+                    .size(16.dp)
+                    .padding(end = 4.dp),
+            )
+        }
         Surface(
             shape = theme.bubbleShape,
             color = bubbleColor,
@@ -119,6 +131,7 @@ internal fun MessageItem(
                             content = message.content,
                             colors = markdownColor(
                                 text = messageTextStyle.color.takeOrElse { contentColor },
+                                linkText = theme.expandControlsStyle.color,
                             ),
                             typography = markdownTypography(
                                 paragraph = messageTextStyle,
@@ -176,6 +189,7 @@ private fun VideoMessageItem(
     message: ChatMessage,
     messageTextStyle: androidx.compose.ui.text.TextStyle,
 ) {
+    val theme = LocalChatTheme.current
     var thumbnail by remember { mutableStateOf<ImageBitmap?>(null) }
     var showPlayer by remember { mutableStateOf(false) }
 
@@ -227,7 +241,7 @@ private fun VideoMessageItem(
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .background(Color(0xFF1A1A1A)),
+                            .background(theme.imagePlaceholderBackgroundColor),
                     )
                 }
                 androidx.compose.material3.Icon(

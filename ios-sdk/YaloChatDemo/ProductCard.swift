@@ -132,14 +132,13 @@ private struct ProductPriceRow: View {
     @Environment(\.chatTheme) private var theme
 
     var body: some View {
+        let salePrice = product.salePrice?.doubleValue
         HStack(spacing: 4) {
             HStack(spacing: 2) {
                 Image(systemName: theme.currencyIconName)
                     .font(.caption)
                     .foregroundColor(theme.currencyIconColor)
-                let salePrice = product.salePrice?.doubleValue
-                let displayPrice = salePrice ?? product.price
-                Text(formatPrice(displayPrice))
+                Text(formatPrice(salePrice ?? product.price))
                     .font(theme.productPriceFont)
                     .fontWeight(.semibold)
                     .foregroundColor(theme.productPriceColor)
@@ -149,7 +148,6 @@ private struct ProductPriceRow: View {
             .background(theme.productPriceBackgroundColor)
             .cornerRadius(4)
 
-            let salePrice = product.salePrice?.doubleValue
             if salePrice != nil {
                 Text(formatPrice(product.price))
                     .font(.caption)

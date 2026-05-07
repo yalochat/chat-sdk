@@ -97,9 +97,16 @@ struct MessageItem: View {
     @ViewBuilder
     private var bubbleContent: some View {
         if message.type is MessageType.Text || message.type is MessageType.QuickReply {
-            Text(message.content)
-                .font(isUser ? theme.userMessageFont : theme.agentMessageFont)
-                .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
+            if isUser {
+                Text(message.content)
+                    .font(theme.userMessageFont)
+                    .foregroundColor(theme.userBubbleTextColor)
+            } else {
+                // foregroundColor is baked into the AttributedString for non-link runs so that
+                // links retain their distinct tint color and remain visually distinguishable.
+                Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                    .font(theme.agentMessageFont)
+            }
         } else if message.type is MessageType.Voice {
             voiceContent
         } else if message.type is MessageType.Buttons {
@@ -276,6 +283,19 @@ struct MessageItem: View {
 
     private var bubbleColor: Color {
         isUser ? theme.userBubbleColor : theme.agentBubbleColor
+    }
+
+    // Parses inline CommonMark via iOS 15 native AttributedString.
+    // Sets textColor on non-link runs so links keep their distinct tint color.
+    // Falls back to plain AttributedString on parse failure.
+    private func agentAttributed(_ content: String, color: Color) -> AttributedString {
+        var attributed = (try? AttributedString(markdown: content)) ?? AttributedString(content)
+        for run in attributed.runs {
+            if attributed[run.range].link == nil {
+                attributed[run.range].swiftUI.foregroundColor = color
+            }
+        }
+        return attributed
     }
 }
 

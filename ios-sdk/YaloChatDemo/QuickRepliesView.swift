@@ -47,6 +47,6 @@ private struct QuickReplyChip: View {
         }
         .buttonStyle(.plain)
         .foregroundColor(theme.quickReplyTextColor)
-        .frame(maxWidth: UIScreen.main.bounds.width * 0.5)
+        .frame(maxWidth: 220)
     }
 }

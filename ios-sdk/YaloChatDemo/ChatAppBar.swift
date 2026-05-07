@@ -30,11 +30,11 @@ struct ChatAppBar: View {
                 Text(channelName)
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.agentBubbleTextColor)
+                    .foregroundColor(theme.actionIconColor)
 
                 if isTyping && !typingStatusText.isEmpty {
                     Text(typingStatusText)
-                        .font(.caption)
+                        .font(theme.messageFooterFont)
                         .foregroundColor(theme.messageFooterColor)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
