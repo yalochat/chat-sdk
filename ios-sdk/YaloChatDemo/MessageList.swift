@@ -43,10 +43,6 @@ struct MessageList: View {
                             )
                         }
 
-                        if observable.isTyping {
-                            TypingIndicatorBubble()
-                                .id("typing")
-                        }
                     }
                     Color.clear.frame(height: 1).id("bottom")
                 }
@@ -54,13 +50,6 @@ struct MessageList: View {
                 .padding(.vertical, 8)
             }
             .onChange(of: observable.messages.count) { _ in
-                DispatchQueue.main.async {
-                    withAnimation(.linear(duration: 0.15)) {
-                        proxy.scrollTo("bottom", anchor: .bottom)
-                    }
-                }
-            }
-            .onChange(of: observable.isTyping) { _ in
                 DispatchQueue.main.async {
                     withAnimation(.linear(duration: 0.15)) {
                         proxy.scrollTo("bottom", anchor: .bottom)
@@ -85,36 +74,3 @@ extension ChatMessage {
     }
 }
 
-// Animated three-dot typing bubble — mirrors Flutter ChatTypingMessage.
-private struct TypingIndicatorBubble: View {
-
-    @State private var animating = false
-    @Environment(\.chatTheme) private var theme
-
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 0) {
-            HStack(spacing: 4) {
-                ForEach(0..<3) { index in
-                    Circle()
-                        .fill(theme.messageFooterColor)
-                        .frame(width: 8, height: 8)
-                        .scaleEffect(animating ? 1.0 : 0.5)
-                        .animation(
-                            .easeInOut(duration: 0.5)
-                                .repeatForever()
-                                .delay(Double(index) * 0.15),
-                            value: animating
-                        )
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(theme.agentBubbleColor)
-            .cornerRadius(16)
-
-            Spacer(minLength: 48)
-        }
-        .onAppear { animating = true }
-        .onDisappear { animating = false }
-    }
-}
