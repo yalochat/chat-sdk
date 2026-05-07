@@ -24,6 +24,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.datetime.Clock
@@ -45,6 +46,14 @@ internal class YaloMessageRepositoryWebSocket(
     @Volatile private var commands: Map<ChatCommand, ChatCommandCallback> = emptyMap()
     @Volatile private var paused = false
     private var scope: CoroutineScope? = null
+
+    // Monotonic counter incremented per incoming WS frame.
+    // Used as the `index` arg to toChatMessage() so messages arriving in the same
+    // second get distinct stableIds (avoids SQLite INSERT OR REPLACE collision).
+    private var wsFrameIndex: Int = 0
+
+    // High-water mark for ensureReceiptOrder — mirrors pollHighWater in YaloMessageRepositoryRemote.
+    private var wsHighWater: Long = 0L
 
     // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -104,7 +113,7 @@ internal class YaloMessageRepositoryWebSocket(
                 try {
                     frame.toChatMessage(
                         deduplicate = true,
-                        index = 0,
+                        index = wsFrameIndex++,
                         cache = cache,
                         apiService = apiService,
                         tempDir = tempDir,
@@ -116,9 +125,33 @@ internal class YaloMessageRepositoryWebSocket(
                 }
             }
             .map { msg ->
+                val ordered = ensureReceiptOrder(listOf(msg))
                 _events.tryEmit(ChatEvent.TypingStop)
-                listOf(msg)
+                ordered
             }
+            .filter { it.isNotEmpty() }
+
+    // Mirrors YaloMessageRepositoryRemote.ensureReceiptOrder — clamps each incoming
+    // message id to max(stableId, clientClockAtReceipt) so bot WS replies always sort
+    // after the user's most recent sent message in ORDER BY id ASC.
+    private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
+        if (messages.isEmpty()) return messages
+        val receiptFloor = Clock.System.now().toEpochMilliseconds()
+        var cursor = maxOf(receiptFloor, wsHighWater + 1)
+        return messages.map { msg ->
+            val rawId = msg.id ?: return@map msg
+            val id = if (rawId >= cursor) {
+                cursor = maxOf(cursor, rawId + 1)
+                rawId
+            } else {
+                val assigned = cursor
+                cursor++
+                assigned
+            }
+            if (id > wsHighWater) wsHighWater = id
+            if (id == rawId) msg else msg.copy(id = id)
+        }
+    }
 
     override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
 
