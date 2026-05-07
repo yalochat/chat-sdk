@@ -129,7 +129,7 @@ object YaloChat {
 
         val yaloRepo: YaloMessageRepository
         if (runCatching { Transport.valueOf(BuildConfig.TRANSPORT) }.getOrDefault(Transport.LONG_POLL) == Transport.WEBSOCKET) {
-            val wsUrl = "${config.environment.wsBaseUrl}/websocket/v1/connect/inapp"
+            val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
             val wsService = YaloMessageServiceWebSocket(
                 wsUrl = wsUrl,
                 apiService = apiService,

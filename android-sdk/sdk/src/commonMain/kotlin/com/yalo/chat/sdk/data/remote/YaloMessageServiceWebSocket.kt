@@ -35,9 +35,11 @@ internal class YaloMessageServiceWebSocket(
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     companion object {
-        private const val INITIAL_BACKOFF_MS = 1_000L
-        private const val MAX_BACKOFF_MS     = 30_000L
-        private const val MAX_BACKOFF_STEPS  = 5
+        private const val INITIAL_BACKOFF_MS  = 1_000L
+        private const val MAX_BACKOFF_MS      = 30_000L
+        // Caps the left-shift exponent in scheduleReconnect to prevent integer overflow.
+        // Produces delays: 1s, 2s, 4s, 8s, 16s, then 30s (clamped) for all subsequent attempts.
+        private const val MAX_BACKOFF_EXPONENT = 5
     }
 
     internal val _frames = MutableSharedFlow<YaloFetchMessagesResponse>(
@@ -94,7 +96,7 @@ internal class YaloMessageServiceWebSocket(
 
     private suspend fun scheduleReconnect() {
         val delayMs = (INITIAL_BACKOFF_MS shl reconnectAttempt).coerceAtMost(MAX_BACKOFF_MS)
-        reconnectAttempt = (reconnectAttempt + 1).coerceAtMost(MAX_BACKOFF_STEPS)
+        reconnectAttempt = (reconnectAttempt + 1).coerceAtMost(MAX_BACKOFF_EXPONENT)
         delay(delayMs)
     }
 }

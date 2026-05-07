@@ -2,6 +2,9 @@
 
 package com.yalo.chat.sdk
 
+/** WebSocket connection path appended to [YaloChatEnvironment.wsBaseUrl]. */
+internal const val WS_CONNECT_PATH = "/websocket/v1/connect/inapp"
+
 /** Selects which Yalo backend the SDK connects to. */
 enum class YaloChatEnvironment(
     internal val apiBaseUrl: String,

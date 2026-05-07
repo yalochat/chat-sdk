@@ -52,6 +52,8 @@ object YaloChatSdk {
     @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
     fun initialize(config: YaloChatConfig) {
         // Tear down any previous instance before re-initialising (idempotent re-init).
+        messagesController?.stop()
+        messagesController = null
         _syncService?.stop()
         _wsScope?.cancel()
         _wsScope = null
@@ -79,7 +81,7 @@ object YaloChatSdk {
             ?.path
             ?.let { "$it/ChatSdk" }
 
-        val wsUrl = "${config.environment.wsBaseUrl}/websocket/v1/connect/inapp"
+        val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
         val wsService = YaloMessageServiceWebSocket(
             wsUrl = wsUrl,
             apiService = apiService,
