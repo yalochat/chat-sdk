@@ -66,6 +66,9 @@ public struct ChatTheme {
     public var expandControlColor: Color
     public var errorColor: Color
 
+    // MARK: - Recording timer
+    public var timerColor: Color
+
     // MARK: - Action icon colors
     public var cancelRecordingIconColor: Color
     public var closeModalIconColor: Color
@@ -107,6 +110,8 @@ public struct ChatTheme {
     public var addIconName: String
     public var removeIconName: String
     public var ctaArrowIconName: String
+    public var stopRecordingIconName: String
+    public var currencyIconName: String
     public var cameraIconName: String
     public var galleryIconName: String
     public var trashIconName: String
@@ -150,6 +155,7 @@ public struct ChatTheme {
         messageFooterColor: Color             = Color(sdkHex: 0x7C8086),
         expandControlColor: Color             = Color(sdkHex: 0x2207F1),
         errorColor: Color                     = .red,
+        timerColor: Color                     = Color(sdkHex: 0x7C8086),
         cancelRecordingIconColor: Color       = Color(sdkHex: 0x7C8086),
         closeModalIconColor: Color            = Color(sdkHex: 0x7C8086),
         playAudioIconColor: Color             = Color(sdkHex: 0x7C8086),
@@ -182,6 +188,8 @@ public struct ChatTheme {
         addIconName: String                   = "plus",
         removeIconName: String                = "minus",
         ctaArrowIconName: String              = "arrow.right",
+        stopRecordingIconName: String         = "stop.circle.fill",
+        currencyIconName: String              = "dollarsign",
         cameraIconName: String                = "camera",
         galleryIconName: String               = "photo",
         trashIconName: String                 = "trash",
@@ -222,6 +230,7 @@ public struct ChatTheme {
         self.messageFooterColor = messageFooterColor
         self.expandControlColor = expandControlColor
         self.errorColor = errorColor
+        self.timerColor = timerColor
         self.cancelRecordingIconColor = cancelRecordingIconColor
         self.closeModalIconColor = closeModalIconColor
         self.playAudioIconColor = playAudioIconColor
@@ -254,6 +263,8 @@ public struct ChatTheme {
         self.addIconName = addIconName
         self.removeIconName = removeIconName
         self.ctaArrowIconName = ctaArrowIconName
+        self.stopRecordingIconName = stopRecordingIconName
+        self.currencyIconName = currencyIconName
         self.cameraIconName = cameraIconName
         self.galleryIconName = galleryIconName
         self.trashIconName = trashIconName

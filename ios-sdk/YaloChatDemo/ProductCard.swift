@@ -133,12 +133,23 @@ private struct ProductPriceRow: View {
 
     var body: some View {
         HStack(spacing: 4) {
+            HStack(spacing: 2) {
+                Image(systemName: theme.currencyIconName)
+                    .font(.caption)
+                    .foregroundColor(theme.currencyIconColor)
+                let salePrice = product.salePrice?.doubleValue
+                let displayPrice = salePrice ?? product.price
+                Text(formatPrice(displayPrice))
+                    .font(theme.productPriceFont)
+                    .fontWeight(.semibold)
+                    .foregroundColor(theme.productPriceColor)
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(theme.productPriceBackgroundColor)
+            .cornerRadius(4)
+
             let salePrice = product.salePrice?.doubleValue
-            let displayPrice = salePrice ?? product.price
-            Text(formatPrice(displayPrice))
-                .font(theme.productPriceFont)
-                .fontWeight(.semibold)
-                .foregroundColor(theme.productPriceColor)
             if salePrice != nil {
                 Text(formatPrice(product.price))
                     .font(.caption)
@@ -154,6 +165,14 @@ private struct ProductImage: View {
 
     @Environment(\.chatTheme) private var theme
 
+    private var placeholderContent: some View {
+        ZStack {
+            theme.imagePlaceholderColor
+            Image(systemName: theme.imagePlaceholderIconName)
+                .foregroundColor(theme.imagePlaceholderIconColor)
+        }
+    }
+
     var body: some View {
         Group {
             if let urlString, let url = URL(string: urlString) {
@@ -162,11 +181,11 @@ private struct ProductImage: View {
                     case .success(let image):
                         image.resizable().scaledToFill()
                     default:
-                        theme.imagePlaceholderColor
+                        placeholderContent
                     }
                 }
             } else {
-                theme.imagePlaceholderColor
+                placeholderContent
             }
         }
     }

@@ -11,21 +11,25 @@ package com.yalo.chat.sdk.ui.chat
 // ProductVerticalCard — image top, details below (Column layout).
 //   Used by ProductCarouselMessage (horizontal carousel).
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -38,19 +42,26 @@ import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 @Composable
 private fun ProductPriceRow(product: Product) {
     val theme = LocalChatTheme.current
-    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-        androidx.compose.material3.Icon(
-            imageVector = theme.currencyIcon,
-            contentDescription = null,
-            tint = theme.currencyIconColor,
-            modifier = Modifier.size(16.dp),
-        )
-        val displayPrice = product.salePrice ?: product.price
-        Text(
-            text = formatPrice(displayPrice),
-            style = theme.productPriceStyle,
-            modifier = Modifier.padding(start = 2.dp),
-        )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .background(theme.productPriceBackgroundColor, RoundedCornerShape(4.dp))
+                .padding(horizontal = 6.dp, vertical = 2.dp),
+        ) {
+            Icon(
+                imageVector = theme.currencyIcon,
+                contentDescription = null,
+                tint = theme.currencyIconColor,
+                modifier = Modifier.size(16.dp),
+            )
+            val displayPrice = product.salePrice ?: product.price
+            Text(
+                text = formatPrice(displayPrice),
+                style = theme.productPriceStyle,
+                modifier = Modifier.padding(start = 2.dp),
+            )
+        }
         if (product.salePrice != null) {
             Spacer(Modifier.width(4.dp))
             Text(
@@ -69,15 +80,27 @@ private fun ProductImage(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalChatTheme.current
-    AsyncImage(
-        model = imagesUrl.firstOrNull(),
-        contentDescription = "Product image",
-        contentScale = ContentScale.Crop,
-        modifier = modifier
-            .clip(RoundedCornerShape(8.dp)),
-        placeholder = ColorPainter(theme.imagePlaceholderBackgroundColor),
-        error = ColorPainter(theme.imagePlaceholderBackgroundColor),
-    )
+    Box(modifier = modifier.clip(RoundedCornerShape(8.dp))) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(theme.imagePlaceholderBackgroundColor),
+        ) {
+            Icon(
+                imageVector = theme.imagePlaceholderIcon,
+                contentDescription = null,
+                tint = theme.imagePlaceholderIconColor,
+                modifier = Modifier.size(32.dp),
+            )
+        }
+        AsyncImage(
+            model = imagesUrl.firstOrNull(),
+            contentDescription = "Product image",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+        )
+    }
 }
 
 // ── ProductHorizontalCard (image left | details right) ────────────────────────

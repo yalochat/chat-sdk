@@ -38,6 +38,7 @@ struct ChatView: View {
                 audioObservable: audioObservable
             )
         }
+        .background(YaloChat.theme.backgroundColor)
         .environment(\.chatTheme, YaloChat.theme)
         .onAppear {
             guard !hasStarted else { return }

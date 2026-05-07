@@ -22,10 +22,10 @@ struct WaveformRecorder: View {
 
             Text(audioObservable.durationText)
                 .monospacedDigit()
-                .foregroundColor(theme.errorColor)
+                .foregroundColor(theme.timerColor)
                 .frame(width: 48, alignment: .leading)
 
-            WaveformView(amplitudes: audioObservable.recordingAmplitudes, color: theme.errorColor)
+            WaveformView(amplitudes: audioObservable.recordingAmplitudes, color: theme.waveformColor)
                 .frame(height: 32)
 
             Button {
@@ -33,7 +33,7 @@ struct WaveformRecorder: View {
                     onSend(data.fileName, data.amplitudes, data.durationMs)
                 }
             } label: {
-                Image(systemName: "stop.circle.fill")
+                Image(systemName: theme.stopRecordingIconName)
                     .foregroundColor(theme.sendButtonIconColor)
                     .font(.title2)
                     .padding(6)
