@@ -8,13 +8,18 @@ import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
 import com.yalo.chat.sdk.data.local.createDatabase
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.data.remote.YaloMessageServiceWebSocket
 import com.yalo.chat.sdk.data.remote.buildHttpClient
-import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
+import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
 import com.yalo.chat.sdk.database.ChatDatabase
+import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import kotlin.native.Platform
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
@@ -30,8 +35,9 @@ object YaloChatSdk {
     private var _syncService: MessageSyncService? = null
     private var _httpClient: HttpClient? = null
     private var _driver: SqlDriver? = null
+    private var _wsScope: CoroutineScope? = null
 
-    internal var yaloRepo: YaloMessageRepositoryRemote? = null
+    internal var yaloRepo: YaloMessageRepository? = null
         private set
 
     internal var localRepo: LocalChatMessageRepository? = null
@@ -47,6 +53,8 @@ object YaloChatSdk {
     fun initialize(config: YaloChatConfig) {
         // Tear down any previous instance before re-initialising (idempotent re-init).
         _syncService?.stop()
+        _wsScope?.cancel()
+        _wsScope = null
         _httpClient?.close()
         _driver?.close()
 
@@ -70,11 +78,22 @@ object YaloChatSdk {
             .firstOrNull() as? NSURL)
             ?.path
             ?.let { "$it/ChatSdk" }
-        val repo = YaloMessageRepositoryRemote(
+
+        val wsUrl = "${config.environment.wsBaseUrl}/websocket/v1/connect/inapp"
+        val wsService = YaloMessageServiceWebSocket(
+            wsUrl = wsUrl,
+            apiService = apiService,
+            httpClient = httpClient,
+        )
+        val wsRepo = YaloMessageRepositoryWebSocket(
+            wsService = wsService,
             apiService = apiService,
             tempDir = cacheDir,
         )
-        yaloRepo = repo
+        val wsScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        _wsScope = wsScope
+        wsRepo.start(wsScope)
+        yaloRepo = wsRepo
 
         // NativeSqliteDriver stores the database in the app's Documents/databases/ directory.
         val driver = NativeSqliteDriver(ChatDatabase.Schema, "chat.db")
@@ -86,14 +105,14 @@ object YaloChatSdk {
         // Sync service is started lazily by MessagesController (via MessagesObservable.onAppear),
         // mirroring how MessagesViewModel governs the polling lifecycle on Android.
         val syncSvc = MessageSyncService(
-            yaloRepo = repo,
+            yaloRepo = wsRepo,
             localRepo = local,
             onSyncError = { e -> println("[YaloChatSdk] sync error: $e") },
         )
         _syncService = syncSvc
 
         messagesController = MessagesController(
-            yaloRepo = repo,
+            yaloRepo = wsRepo,
             localRepo = local,
             syncService = syncSvc,
         )
@@ -103,6 +122,8 @@ object YaloChatSdk {
         messagesController?.stop()
         messagesController = null
         _syncService = null
+        _wsScope?.cancel()
+        _wsScope = null
         _httpClient?.close()
         _httpClient = null
         _driver?.close()

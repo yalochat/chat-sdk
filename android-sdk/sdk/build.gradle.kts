@@ -138,7 +138,7 @@ android {
         val useFakeRepo = localProps.getProperty("yalo.useFakeRepository", "false")
             .trim().toBooleanStrictOrNull() ?: false
         buildConfigField("Boolean", "USE_FAKE_REPOSITORY", "$useFakeRepo")
-        buildConfigField("String",  "TRANSPORT",           "\"${localProps.getProperty("yalo.transport", "LONG_POLL").trim().uppercase()}\"")
+        buildConfigField("String",  "TRANSPORT",           "\"${localProps.getProperty("yalo.transport", "WEBSOCKET").trim().uppercase()}\"")
     }
 
     compileOptions {
