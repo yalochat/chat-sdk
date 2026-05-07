@@ -33,7 +33,7 @@ import com.yalo.chat.sdk.ui.chat.ImageViewModel
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.theme.ChatTheme
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 
 object YaloChat {
 
@@ -107,7 +107,7 @@ object YaloChat {
             return
         }
 
-        val httpClient = buildHttpClient(Android.create(), debug = BuildConfig.DEBUG)
+        val httpClient = buildHttpClient(OkHttp.create(), debug = BuildConfig.DEBUG)
         _httpClient = httpClient
 
         val apiService = YaloChatApiService(

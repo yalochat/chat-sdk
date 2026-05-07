@@ -51,8 +51,9 @@ kotlin {
             // Proto-generated sources and lite runtime are Android/JVM-only.
             implementation(libs.protobuf.kotlin.lite)
 
-            // Android Ktor engine and SQLite driver
-            implementation(libs.ktor.client.android)
+            // OkHttp engine — required for WebSocket support (ktor-client-android uses
+            // HttpURLConnection which does not implement WebSocketCapability).
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.sqldelight.android.driver)
 
             // Coroutines with Android dispatcher
