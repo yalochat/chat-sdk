@@ -80,7 +80,7 @@ object YaloChat {
         val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
         val audioRepo = AudioRepositoryLocal(context.applicationContext)
 
-        if (config.useFakeRepository) {
+        if (BuildConfig.USE_FAKE_REPOSITORY) {
             // Fake mode: the fake repo is a dev/test stub and does not execute real cart ops.
             // Re-buffer savedCommands so they are not lost — they will flush on the next real init().
             pendingCommands.putAll(savedCommands)
@@ -128,7 +128,7 @@ object YaloChat {
         val localRepo = LocalChatMessageRepository(db.chatMessageQueries, kotlinx.coroutines.Dispatchers.IO)
 
         val yaloRepo: YaloMessageRepository
-        if (config.transport == Transport.WEBSOCKET) {
+        if (runCatching { Transport.valueOf(BuildConfig.TRANSPORT) }.getOrDefault(Transport.LONG_POLL) == Transport.WEBSOCKET) {
             val wsUrl = "${config.environment.wsBaseUrl}/websocket/v1/connect/inapp"
             val wsService = YaloMessageServiceWebSocket(
                 wsUrl = wsUrl,

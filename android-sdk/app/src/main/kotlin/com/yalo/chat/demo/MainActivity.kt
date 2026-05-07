@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
                 organizationId = BuildConfig.YALO_ORGANIZATION_ID,
                 environment = runCatching { YaloChatEnvironment.valueOf(BuildConfig.YALO_ENVIRONMENT) }
                     .getOrDefault(YaloChatEnvironment.PRODUCTION),
-                useFakeRepository = BuildConfig.USE_FAKE_REPOSITORY,
             ),
             context = this,
         )

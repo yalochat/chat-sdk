@@ -3,6 +3,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
+val localProps = Properties().also { props ->
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { props.load(it) }
+}
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
@@ -130,6 +135,8 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
+        buildConfigField("Boolean", "USE_FAKE_REPOSITORY", localProps.getProperty("yalo.useFakeRepository", "false"))
+        buildConfigField("String",  "TRANSPORT",           "\"${localProps.getProperty("yalo.transport", "LONG_POLL")}\"")
     }
 
     compileOptions {
