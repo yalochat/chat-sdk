@@ -3,59 +3,52 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type { TokenRepository } from '@data/repositories/token/token-repository';
-import { YaloMessageRepositoryRemote } from './yalo-message-repository-remote';
+import { ProductMessageRequest_Orientation } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type {
+  MessageCallback,
+  YaloMessageService,
+} from '@data/services/yalo-message/yalo-message-service';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
+import { YaloMessageRepositoryRemote } from './yalo-message-repository-remote';
 
-// Flush the microtask queue (promise chain) for the initial poll() call
-// without triggering the 2000ms setTimeout that reschedules the next poll.
-// Fake timers only mock setTimeout/setInterval — native Promise resolution
-// still runs through the real microtask queue.
-const flushPoll = async () => {
-  for (let i = 0; i < 20; i++) {
-    await Promise.resolve();
-  }
+const okService = (): {
+  service: YaloMessageService;
+  emit: (item: unknown) => void;
+} => {
+  let cb: MessageCallback | undefined;
+  return {
+    service: {
+      sendMessage: vi.fn().mockResolvedValue(new Ok(undefined)),
+      subscribe: vi.fn((c: MessageCallback) => {
+        cb = c;
+      }),
+      unsubscribe: vi.fn(() => {
+        cb = undefined;
+      }),
+    },
+    emit: (item) => cb?.(item as never),
+  };
 };
 
-const setTabHidden = (hidden: boolean) => {
-  Object.defineProperty(document, 'hidden', {
-    configurable: true,
-    value: hidden,
-  });
-  Object.defineProperty(document, 'visibilityState', {
-    configurable: true,
-    value: hidden ? 'hidden' : 'visible',
-  });
-  document.dispatchEvent(new Event('visibilitychange'));
-};
-
-const makeToken = (userId: string) => {
-  const payload = btoa(JSON.stringify({ user_id: userId }))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-  return `header.${payload}.signature`;
-};
-
-const mockTokenRepository = (token: string): TokenRepository => ({
-  getToken: vi.fn().mockResolvedValue(new Ok(token)),
+const failingService = (
+  error: Error = new Error('send failed')
+): YaloMessageService => ({
+  sendMessage: vi.fn().mockResolvedValue(new Err(error)),
+  subscribe: vi.fn(),
+  unsubscribe: vi.fn(),
 });
 
-const failingTokenRepository = (): TokenRepository => ({
-  getToken: vi.fn().mockResolvedValue(new Err(new Error('auth failed'))),
-});
-
-const mockMediaService = (): YaloMediaService => ({
-  uploadMedia: vi.fn().mockResolvedValue(new Ok({})),
+const okMedia = (id = 'media-id'): YaloMediaService => ({
+  uploadMedia: vi.fn().mockResolvedValue(new Ok({ id })),
   downloadMedia: vi.fn().mockResolvedValue(new Ok({})),
 });
 
-const baseConfig = {
-  channelId: 'channel-1',
-  organizationId: 'org-1',
-  channelName: 'Test Chat',
-  target: 'chat-target',
-};
+const failingMedia = (
+  error: Error = new Error('upload failed')
+): YaloMediaService => ({
+  uploadMedia: vi.fn().mockResolvedValue(new Err(error)),
+  downloadMedia: vi.fn().mockResolvedValue(new Ok({})),
+});
 
 const makeMessage = (
   overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}
@@ -70,8 +63,11 @@ const makeMessage = (
     ...overrides,
   });
 
-const makePollItem = (id: string, text: string, date?: Date) => ({
+const textPollItem = (id: string, text: string, date?: Date) => ({
   id,
+  userId: 'user-1',
+  status: 0,
+  date,
   message: {
     correlationId: '',
     timestamp: new Date(),
@@ -85,1458 +81,374 @@ const makePollItem = (id: string, text: string, date?: Date) => ({
       },
     },
   },
-  date,
-  userId: 'user-1',
-  status: 0,
 });
 
-const makeVideoPollItem = (
+const productPollItem = (
   id: string,
-  opts: {
-    mediaUrl?: string;
-    mediaType?: string;
-    byteCount?: number;
-    fileName?: string;
-    duration?: number;
-    text?: string;
-    date?: Date;
-  } = {}
+  orientation: ProductMessageRequest_Orientation
 ) => ({
   id,
-  message: {
-    correlationId: '',
-    timestamp: new Date(),
-    videoMessageRequest: {
-      timestamp: new Date(),
-      content: {
-        mediaUrl: opts.mediaUrl ?? 'https://example.com/video.mp4',
-        mediaType: opts.mediaType ?? 'video/mp4',
-        byteCount: opts.byteCount ?? 1024,
-        fileName: opts.fileName ?? 'video.mp4',
-        duration: opts.duration ?? 30,
-        text: opts.text,
-        timestamp: undefined,
-        status: 1,
-        role: 2,
-      },
-    },
-  },
-  date: opts.date,
   userId: 'user-1',
   status: 0,
-});
-
-type ProductInput = {
-  sku?: string;
-  name?: string;
-  price?: number;
-  imagesUrl?: string[];
-  salePrice?: number;
-  subunits?: number;
-  unitStep?: number;
-  unitName?: string;
-  subunitName?: string;
-  subunitStep?: number;
-  unitsAdded?: number;
-  subunitsAdded?: number;
-};
-
-const makeProtoProduct = (overrides: ProductInput = {}) => ({
-  sku: overrides.sku ?? 'SKU-1',
-  name: overrides.name ?? 'Widget',
-  price: overrides.price ?? 9.99,
-  imagesUrl: overrides.imagesUrl ?? ['https://cdn.example.com/widget.png'],
-  salePrice: overrides.salePrice,
-  subunits: overrides.subunits ?? 1,
-  unitStep: overrides.unitStep ?? 1,
-  unitName: overrides.unitName ?? '{amount, plural, one {box} other {boxes}}',
-  subunitName: overrides.subunitName,
-  subunitStep: overrides.subunitStep ?? 1,
-  unitsAdded: overrides.unitsAdded ?? 0,
-  subunitsAdded: overrides.subunitsAdded ?? 0,
-});
-
-const makeProductPollItem = (
-  id: string,
-  opts: {
-    products?: ProductInput[];
-    orientation?: 'ORIENTATION_VERTICAL' | 'ORIENTATION_HORIZONTAL';
-    date?: Date;
-  } = {}
-) => ({
-  id,
   message: {
     correlationId: '',
     timestamp: new Date(),
     productMessageRequest: {
       timestamp: new Date(),
-      products: (opts.products ?? [{}]).map(makeProtoProduct),
-      orientation: opts.orientation ?? 'ORIENTATION_VERTICAL',
+      orientation,
+      products: [
+        {
+          sku: 'SKU-1',
+          name: 'Apples',
+          price: 5,
+          imagesUrl: ['https://cdn.example.com/a.png'],
+          salePrice: 4,
+          subunits: 1,
+          unitStep: 1,
+          unitName: '{amount, plural, one {bag} other {bags}}',
+          subunitStep: 1,
+          unitsAdded: 0,
+          subunitsAdded: 0,
+        },
+      ],
     },
   },
-  date: opts.date,
-  userId: 'user-1',
-  status: 0,
 });
 
-const mockOkFetch = (body: unknown = {}, status = 200) =>
-  vi.fn().mockResolvedValue({
-    ok: true,
-    status,
-    json: vi.fn().mockResolvedValue(body),
-  });
-
-const mockErrFetch = (status = 500) =>
-  vi.fn().mockResolvedValue({ ok: false, status, json: vi.fn() });
-
 describe('YaloMessageRepositoryRemote', () => {
-  const token = makeToken('user-42');
-
-  let addEventListenerSpy: ReturnType<typeof vi.spyOn>;
-
   beforeEach(() => {
     vi.useFakeTimers();
-    addEventListenerSpy = vi.spyOn(document, 'addEventListener');
   });
 
   afterEach(() => {
-    for (const [type, listener] of addEventListenerSpy.mock.calls) {
-      if (type === 'visibilitychange') {
-        document.removeEventListener('visibilitychange', listener as EventListener);
-      }
-    }
-    setTabHidden(false);
     vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
   describe('insertMessage', () => {
-    it('returns auth Err when auth fails', async () => {
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        failingTokenRepository(),
-        mockMediaService()
-      );
-      const result = await repo.insertMessage(makeMessage());
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('auth failed');
-    });
-
-    it('posts to /webchat/inbound_messages', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.insertMessage(makeMessage());
-
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/v1/channels/webchat/inbound_messages'
-      );
-      expect(fetchSpy.mock.calls[0][1].method).toBe('POST');
-    });
-
-    it('sends correct auth and channel headers', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.insertMessage(makeMessage());
-
-      const { headers } = fetchSpy.mock.calls[0][1];
-      expect(headers.authorization).toBe(`Bearer ${token}`);
-      expect(headers['x-channel-id']).toBe('channel-1');
-      expect(headers['x-user-id']).toBe('user-42');
-    });
-
-    it('includes message content in request body', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
+    it('sends a text SdkMessage via the service and returns Ok with the original message', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
       const msg = makeMessage({ id: 7, content: 'test content' });
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.insertMessage(msg);
 
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.correlationId).toBe('7');
-      expect(body.textMessageRequest.content.text).toBe('test content');
-    });
-
-    it('returns Ok with the original message on success', async () => {
-      vi.stubGlobal('fetch', mockOkFetch());
-
-      const msg = makeMessage();
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
       const result = await repo.insertMessage(msg);
 
       expect(result.ok).toBe(true);
       if (result.ok) expect(result.value).toBe(msg);
+      expect(service.sendMessage).toHaveBeenCalledOnce();
+      expect((service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({
+        correlationId: '7',
+        textMessageRequest: { content: { text: 'test content' } },
+      });
     });
 
-    it('returns Err on non-ok HTTP response', async () => {
-      vi.stubGlobal('fetch', mockErrFetch(422));
-
+    it('returns Err when the service rejects the send', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
+        failingService(new Error('socket closed')),
+        okMedia()
       );
+
       const result = await repo.insertMessage(makeMessage());
 
       expect(result.ok).toBe(false);
-      if (!result.ok)
-        expect(result.error.message).toBe('insertMessage failed: 422');
+      if (!result.ok) expect(result.error.message).toBe('socket closed');
     });
 
-    it('returns Err when fetch throws an Error', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockRejectedValue(new Error('Network error'))
-      );
+    it('uploads media before sending a video that has a blob and uses the returned media id', async () => {
+      const { service } = okService();
+      const media = okMedia('media-123');
+      const repo = new YaloMessageRepositoryRemote(service, media);
+      const msg = makeMessage({
+        type: 'video',
+        fileName: 'clip.mp4',
+        mediaType: 'video/mp4',
+        byteCount: 2048,
+        duration: 15,
+        blob: new Blob(['fake'], { type: 'video/mp4' }),
+      });
 
+      await repo.insertMessage(msg);
+
+      expect(media.uploadMedia).toHaveBeenCalledOnce();
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent).toMatchObject({
+        videoMessageRequest: {
+          content: {
+            mediaUrl: 'media-123',
+            mediaType: 'video/mp4',
+            byteCount: 2048,
+            duration: 15,
+            fileName: 'clip.mp4',
+          },
+        },
+      });
+    });
+
+    it('returns Err when media upload fails and never sends', async () => {
+      const { service } = okService();
       const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
+        service,
+        failingMedia(new Error('upload failed'))
       );
-      const result = await repo.insertMessage(makeMessage());
+      const msg = makeMessage({
+        type: 'image',
+        fileName: 'pic.png',
+        mediaType: 'image/png',
+        byteCount: 100,
+        blob: new Blob(['x'], { type: 'image/png' }),
+      });
+
+      const result = await repo.insertMessage(msg);
 
       expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('Network error');
+      if (!result.ok) expect(result.error.message).toBe('upload failed');
+      expect(service.sendMessage).not.toHaveBeenCalled();
     });
 
-    it('wraps non-Error thrown values', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockRejectedValue('oops'));
+    it('uses the local file name when there is no blob to upload', async () => {
+      const { service } = okService();
+      const media = okMedia();
+      const repo = new YaloMessageRepositoryRemote(service, media);
+      const msg = makeMessage({
+        type: 'image',
+        fileName: 'remote.png',
+        mediaType: 'image/png',
+        byteCount: 100,
+        content: 'caption',
+      });
 
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
+      await repo.insertMessage(msg);
+
+      expect(media.uploadMedia).not.toHaveBeenCalled();
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent).toMatchObject({
+        imageMessageRequest: { content: { mediaUrl: 'remote.png' } },
+      });
+    });
+
+    it('wraps thrown non-Error values into an Error', async () => {
+      const service: YaloMessageService = {
+        sendMessage: vi.fn().mockRejectedValue('oops'),
+        subscribe: vi.fn(),
+        unsubscribe: vi.fn(),
+      };
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
       const result = await repo.insertMessage(makeMessage());
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('oops');
     });
-
-    it('includes videoMessageRequest in body for video messages', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const msg = makeMessage({
-        type: 'video',
-        fileName: 'clip.mp4',
-        mediaType: 'video/mp4',
-        byteCount: 2048,
-        duration: 15,
-        content: 'my caption',
-      });
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.insertMessage(msg);
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.videoMessageRequest).toBeDefined();
-      expect(body.videoMessageRequest.content.mediaUrl).toBe('clip.mp4');
-      expect(body.videoMessageRequest.content.mediaType).toBe('video/mp4');
-      expect(body.videoMessageRequest.content.byteCount).toBe(2048);
-      expect(body.videoMessageRequest.content.fileName).toBe('clip.mp4');
-      expect(body.videoMessageRequest.content.duration).toBe(15);
-      expect(body.videoMessageRequest.content.text).toBe('my caption');
-      expect(body.textMessageRequest).toBeUndefined();
-    });
-
-    it('uploads media before sending video when blob is present', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const mediaService: YaloMediaService = {
-        uploadMedia: vi.fn().mockResolvedValue(new Ok({ id: 'media-123' })),
-        downloadMedia: vi.fn().mockResolvedValue(new Ok({})),
-      };
-      const msg = makeMessage({
-        type: 'video',
-        fileName: 'clip.mp4',
-        mediaType: 'video/mp4',
-        byteCount: 2048,
-        duration: 15,
-        blob: new Blob(['fake-video-data'], { type: 'video/mp4' }),
-      });
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mediaService
-      );
-      await repo.insertMessage(msg);
-
-      expect(mediaService.uploadMedia).toHaveBeenCalledOnce();
-      const uploadedFile = (mediaService.uploadMedia as ReturnType<typeof vi.fn>)
-        .mock.calls[0][0] as File;
-      expect(uploadedFile.name).toBe('clip.mp4');
-      expect(uploadedFile.type).toBe('video/mp4');
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.videoMessageRequest.content.mediaUrl).toBe('media-123');
-    });
   });
 
-  describe('addToCart', () => {
-    it('returns auth Err when auth fails', async () => {
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        failingTokenRepository(),
-        mockMediaService()
-      );
-      const result = await repo.addToCart('SKU-1', 'unit', 3);
+  describe('cart and promotion commands', () => {
+    it('sends an addToCartRequest with sku, quantity and unit type', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
 
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('auth failed');
-    });
-
-    it('posts to /webchat/inbound_messages with addToCartRequest', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.addToCart('SKU-1', 'unit', 5);
-
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/v1/channels/webchat/inbound_messages'
-      );
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.addToCartRequest).toMatchObject({
-        sku: 'SKU-1',
-        quantity: 5,
-      });
-    });
-
-    it('sends correct auth and channel headers', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.addToCart('SKU-1', 'unit', 1);
-
-      const { headers } = fetchSpy.mock.calls[0][1];
-      expect(headers).toMatchObject({
-        authorization: `Bearer ${token}`,
-        'x-channel-id': 'channel-1',
-        'x-user-id': 'user-42',
-      });
-    });
-
-    it('returns Ok on success', async () => {
-      vi.stubGlobal('fetch', mockOkFetch());
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.addToCart('SKU-1', 'unit', 2);
+      const result = await repo.addToCart('SKU-1', 'unit', 5);
 
       expect(result.ok).toBe(true);
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent).toMatchObject({
+        addToCartRequest: { sku: 'SKU-1', quantity: 5, unitType: 1 },
+      });
     });
 
-    it('returns Err on non-ok HTTP response', async () => {
-      vi.stubGlobal('fetch', mockErrFetch(422));
+    it('sends a removeFromCartRequest with subunit type and optional quantity', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
 
+      await repo.removeFromCart('SKU-1', 'subunit', 2);
+      await repo.removeFromCart('SKU-1', 'subunit');
+
+      const calls = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls;
+      expect(calls[0][0]).toMatchObject({
+        removeFromCartRequest: { sku: 'SKU-1', quantity: 2, unitType: 2 },
+      });
+      expect(calls[1][0].removeFromCartRequest.quantity).toBeUndefined();
+    });
+
+    it('sends a clearCartRequest with a timestamp', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.clearCart();
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent.clearCartRequest).toBeDefined();
+      expect(sent.clearCartRequest.timestamp).toBeInstanceOf(Date);
+    });
+
+    it('sends an addPromotionRequest with the promotion id', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.addPromotion('PROMO-1');
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent).toMatchObject({
+        addPromotionRequest: { promotionId: 'PROMO-1' },
+      });
+    });
+
+    it('propagates send failures from cart commands', async () => {
       const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
+        failingService(new Error('socket closed')),
+        okMedia()
       );
+
       const result = await repo.addToCart('SKU-1', 'unit', 1);
 
       expect(result.ok).toBe(false);
-      if (!result.ok)
-        expect(result.error.message).toBe('addToCart failed: 422');
-    });
-
-    it('returns Err when fetch throws', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockRejectedValue(new Error('Network error'))
-      );
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.addToCart('SKU-1', 'unit', 1);
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('Network error');
-    });
-  });
-
-  describe('removeFromCart', () => {
-    it('returns auth Err when auth fails', async () => {
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        failingTokenRepository(),
-        mockMediaService()
-      );
-      const result = await repo.removeFromCart('SKU-1', 'unit');
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('auth failed');
-    });
-
-    it('posts removeFromCartRequest with quantity', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.removeFromCart('SKU-1', 'unit', 2);
-
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/v1/channels/webchat/inbound_messages'
-      );
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.removeFromCartRequest).toMatchObject({
-        sku: 'SKU-1',
-        quantity: 2,
-      });
-    });
-
-    it('posts removeFromCartRequest without quantity to remove entire SKU', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.removeFromCart('SKU-1', 'unit');
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.removeFromCartRequest.sku).toBe('SKU-1');
-      expect(body.removeFromCartRequest.quantity).toBeUndefined();
-    });
-
-    it('sends correct auth and channel headers', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.removeFromCart('SKU-1', 'unit');
-
-      const { headers } = fetchSpy.mock.calls[0][1];
-      expect(headers).toMatchObject({
-        authorization: `Bearer ${token}`,
-        'x-channel-id': 'channel-1',
-        'x-user-id': 'user-42',
-      });
-    });
-
-    it('returns Ok on success', async () => {
-      vi.stubGlobal('fetch', mockOkFetch());
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.removeFromCart('SKU-1', 'unit');
-
-      expect(result.ok).toBe(true);
-    });
-
-    it('returns Err on non-ok HTTP response', async () => {
-      vi.stubGlobal('fetch', mockErrFetch(422));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.removeFromCart('SKU-1', 'unit');
-
-      expect(result.ok).toBe(false);
-      if (!result.ok)
-        expect(result.error.message).toBe('removeFromCart failed: 422');
-    });
-
-    it('returns Err when fetch throws', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockRejectedValue(new Error('Network error'))
-      );
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.removeFromCart('SKU-1', 'unit');
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('Network error');
-    });
-  });
-
-  describe('clearCart', () => {
-    it('returns auth Err when auth fails', async () => {
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        failingTokenRepository(),
-        mockMediaService()
-      );
-      const result = await repo.clearCart();
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('auth failed');
-    });
-
-    it('posts clearCartRequest to /webchat/inbound_messages', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.clearCart();
-
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/v1/channels/webchat/inbound_messages'
-      );
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.clearCartRequest).toBeDefined();
-      expect(body.clearCartRequest.timestamp).toBeDefined();
-    });
-
-    it('sends correct auth and channel headers', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.clearCart();
-
-      const { headers } = fetchSpy.mock.calls[0][1];
-      expect(headers).toMatchObject({
-        authorization: `Bearer ${token}`,
-        'x-channel-id': 'channel-1',
-        'x-user-id': 'user-42',
-      });
-    });
-
-    it('returns Ok on success', async () => {
-      vi.stubGlobal('fetch', mockOkFetch());
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.clearCart();
-
-      expect(result.ok).toBe(true);
-    });
-
-    it('returns Err on non-ok HTTP response', async () => {
-      vi.stubGlobal('fetch', mockErrFetch(500));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.clearCart();
-
-      expect(result.ok).toBe(false);
-      if (!result.ok)
-        expect(result.error.message).toBe('clearCart failed: 500');
-    });
-
-    it('returns Err when fetch throws', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockRejectedValue(new Error('Network error'))
-      );
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.clearCart();
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('Network error');
-    });
-  });
-
-  describe('addPromotion', () => {
-    it('returns auth Err when auth fails', async () => {
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        failingTokenRepository(),
-        mockMediaService()
-      );
-      const result = await repo.addPromotion('PROMO-1');
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('auth failed');
-    });
-
-    it('posts addPromotionRequest with promotionId', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.addPromotion('PROMO-1');
-
-      expect(fetchSpy).toHaveBeenCalledOnce();
-      expect(fetchSpy.mock.calls[0][0]).toBe(
-        'https://api.example.com/v1/channels/webchat/inbound_messages'
-      );
-
-      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
-      expect(body.addPromotionRequest).toMatchObject({
-        promotionId: 'PROMO-1',
-      });
-    });
-
-    it('sends correct auth and channel headers', async () => {
-      const fetchSpy = mockOkFetch();
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      await repo.addPromotion('PROMO-1');
-
-      const { headers } = fetchSpy.mock.calls[0][1];
-      expect(headers).toMatchObject({
-        authorization: `Bearer ${token}`,
-        'x-channel-id': 'channel-1',
-        'x-user-id': 'user-42',
-      });
-    });
-
-    it('returns Ok on success', async () => {
-      vi.stubGlobal('fetch', mockOkFetch());
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.addPromotion('PROMO-1');
-
-      expect(result.ok).toBe(true);
-    });
-
-    it('returns Err on non-ok HTTP response', async () => {
-      vi.stubGlobal('fetch', mockErrFetch(400));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.addPromotion('PROMO-1');
-
-      expect(result.ok).toBe(false);
-      if (!result.ok)
-        expect(result.error.message).toBe('addPromotion failed: 400');
-    });
-
-    it('returns Err when fetch throws', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockRejectedValue(new Error('Network error'))
-      );
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const result = await repo.addPromotion('PROMO-1');
-
-      expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('Network error');
+      if (!result.ok) expect(result.error.message).toBe('socket closed');
     });
   });
 
   describe('subscribeToMessages', () => {
-    it('does nothing when auth fails', async () => {
-      const fetchSpy = vi.fn();
-      vi.stubGlobal('fetch', fetchSpy);
+    it('subscribes to the service exactly once', () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
 
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        failingTokenRepository(),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
-
-      expect(fetchSpy).not.toHaveBeenCalled();
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('fetches /webchat/messages with correct headers', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
       repo.subscribeToMessages(vi.fn());
 
-      await flushPoll();
-
-      const [url, init] = fetchSpy.mock.calls[0];
-      expect(url).toMatch(
-        /^https:\/\/api\.example\.com\/v1\/channels\/webchat\/messages\?/
-      );
-      expect(init.headers.authorization).toBe(`Bearer ${token}`);
-      expect(init.headers['x-channel-id']).toBe('channel-1');
-      expect(init.headers['x-user-id']).toBe('user-42');
+      expect(service.subscribe).toHaveBeenCalledOnce();
     });
 
-    it('calls callback with new messages', async () => {
-      const items = [makePollItem('msg-1', 'Hi there')];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
+    it('translates a text frame into a ChatMessage and forwards it', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
 
-      await flushPoll();
-
-      expect(callback).toHaveBeenCalledOnce();
-      const [messages] = callback.mock.calls[0];
-      expect(messages).toHaveLength(1);
-      expect(messages[0]).toBeInstanceOf(ChatMessage);
-      expect(messages[0].content).toBe('Hi there');
-      expect(messages[0].role).toBe('AGENT');
-      expect(messages[0].wiId).toBe('msg-1');
-    });
-
-    it('does not call callback when there are no new messages', async () => {
-      vi.stubGlobal('fetch', mockOkFetch([]));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
-
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('deduplicates messages across polls', async () => {
-      const items = [makePollItem('msg-1', 'Hi')];
-      const fetchSpy = mockOkFetch(items);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      // First poll
-      await flushPoll();
-      expect(callback).toHaveBeenCalledOnce();
-
-      // Second poll — same item; advanceTimersByTimeAsync runs the timer AND awaits the async callback
-      await vi.advanceTimersByTimeAsync(2000);
-      expect(callback).toHaveBeenCalledOnce(); // still only once
-    });
-
-    it('filters out items without textMessageRequest', async () => {
-      const items = [
-        {
-          id: 'msg-no-text',
-          message: { correlationId: '', timestamp: new Date() },
-          date: undefined,
-          userId: '',
-          status: 0,
-        },
-        makePollItem('msg-with-text', 'Hello'),
-      ];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
-
-      expect(callback).toHaveBeenCalledOnce();
-      expect(callback.mock.calls[0][0]).toHaveLength(1);
-      expect(callback.mock.calls[0][0][0].wiId).toBe('msg-with-text');
-    });
-
-    it('uses the item date when available', async () => {
       const date = new Date('2026-06-01T12:00:00Z');
-      const items = [makePollItem('msg-1', 'Hi', date)];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
-
-      expect(callback.mock.calls[0][0][0].timestamp).toEqual(date);
-    });
-
-    it('swallows network errors and schedules next poll', async () => {
-      const fetchSpy = vi.fn().mockRejectedValue(new Error('Network error'));
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-
-      // Should not throw
-      expect(() => repo.subscribeToMessages(callback)).not.toThrow();
-      await flushPoll();
-
-      // Advance to the next poll — fetch should be called again with success
-      const successItems = [makePollItem('msg-1', 'recovered')];
-      fetchSpy.mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: vi.fn().mockResolvedValue(successItems),
-      });
-
-      await vi.advanceTimersByTimeAsync(2000);
-
-      expect(callback).toHaveBeenCalledOnce();
-    });
-
-    it('silently skips non-ok poll responses', async () => {
-      vi.stubGlobal('fetch', mockErrFetch(503));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
-
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('uses Date.now() - 5000 for since on the first poll', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-      vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-
-      await flushPoll();
-
-      const url = new URL(fetchSpy.mock.calls[0][0] as string);
-      expect(url.searchParams.get('since')).toBe(String(Date.now() - 5000));
-    });
-
-    it('uses the last received message timestamp for since on subsequent polls', async () => {
-      const firstBatch = [
-        makePollItem('msg-1', 'older', new Date('2026-06-01T12:00:00Z')),
-        makePollItem('msg-2', 'newest', new Date('2026-06-01T12:00:05Z')),
-      ];
-      const fetchSpy = mockOkFetch(firstBatch);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-
-      await flushPoll();
-      await vi.advanceTimersByTimeAsync(2000);
-
-      const secondUrl = new URL(fetchSpy.mock.calls[1][0] as string);
-      expect(secondUrl.searchParams.get('since')).toBe(
-        String(new Date('2026-06-01T12:00:05Z').getTime())
-      );
-    });
-
-    it('falls back to Date.now() - 5000 when polled items have no date', async () => {
-      const items = [makePollItem('msg-1', 'no date')];
-      const fetchSpy = mockOkFetch(items);
-      vi.stubGlobal('fetch', fetchSpy);
-      vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-
-      await flushPoll();
-      await vi.advanceTimersByTimeAsync(2000);
-
-      const secondSince = new URL(fetchSpy.mock.calls[1][0] as string)
-        .searchParams.get('since');
-      expect(secondSince).toBe(String(Date.now() - 5000));
-    });
-
-    it('schedules the next poll after the interval', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-
-      // advanceTimersByTimeAsync runs the scheduled timer AND awaits the async poll callback
-      await vi.advanceTimersByTimeAsync(2000);
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('translates video poll items into ChatMessage.video', async () => {
-      const date = new Date('2026-03-15T10:00:00Z');
-      const items = [
-        makeVideoPollItem('vid-1', {
-          mediaUrl: 'https://cdn.example.com/v.mp4',
-          mediaType: 'video/mp4',
-          byteCount: 5000,
-          duration: 60,
-          text: 'Watch this',
-          date,
-        }),
-      ];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
+      emit(textPollItem('msg-1', 'Hi there', date));
 
       expect(callback).toHaveBeenCalledOnce();
       const [messages] = callback.mock.calls[0];
       expect(messages).toHaveLength(1);
       expect(messages[0]).toBeInstanceOf(ChatMessage);
-      expect(messages[0].type).toBe('video');
-      expect(messages[0].role).toBe('AGENT');
-      expect(messages[0].fileName).toBe('https://cdn.example.com/v.mp4');
-      expect(messages[0].duration).toBe(60);
-      expect(messages[0].mediaType).toBe('video/mp4');
-      expect(messages[0].byteCount).toBe(5000);
-      expect(messages[0].content).toBe('Watch this');
-      expect(messages[0].wiId).toBe('vid-1');
-      expect(messages[0].timestamp).toEqual(date);
-    });
-
-    it('parses header, footer, and buttons from text poll items', async () => {
-      const items = [
-        {
-          id: 'msg-hfb',
-          message: {
-            correlationId: '',
-            timestamp: new Date(),
-            textMessageRequest: {
-              timestamp: new Date(),
-              header: 'Greetings',
-              footer: 'Powered by Yalo',
-              buttons: [
-                { text: 'Yes', buttonType: 0 },
-                { text: 'Push me', buttonType: 1 },
-                { text: 'Open', buttonType: 2, url: 'https://example.com' },
-              ],
-              content: {
-                text: 'Pick one',
-                timestamp: undefined,
-                status: 1,
-                role: 2,
-              },
-            },
-          },
-          userId: 'user-1',
-          status: 0,
-        },
-      ];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
-
-      await flushPoll();
-
-      const [messages] = callback.mock.calls[0];
       expect(messages[0]).toMatchObject({
         type: 'text',
         role: 'AGENT',
+        content: 'Hi there',
+        wiId: 'msg-1',
+        timestamp: date,
+      });
+    });
+
+    it('skips frames whose message body is missing or unrecognized', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({ id: 'no-msg', userId: 'u', status: 0 });
+      emit({
+        id: 'unknown',
+        userId: 'u',
+        status: 0,
+        message: { correlationId: '', timestamp: new Date() },
+      });
+
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it('parses header, footer, and buttons from text frames', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'txt-hfb',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          textMessageRequest: {
+            timestamp: new Date(),
+            header: 'Choose',
+            footer: 'Powered by Yalo',
+            buttons: [
+              { text: 'Yes', buttonType: 0 },
+              { text: 'Open', buttonType: 2, url: 'https://example.com' },
+            ],
+            content: {
+              text: 'Pick one',
+              timestamp: undefined,
+              status: 1,
+              role: 2,
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'text',
+        role: 'AGENT',
         content: 'Pick one',
-        header: 'Greetings',
+        header: 'Choose',
         footer: 'Powered by Yalo',
         buttons: [
           { text: 'Yes', type: 'reply' },
-          { text: 'Push me', type: 'postback' },
           { text: 'Open', type: 'link', url: 'https://example.com' },
         ],
       });
     });
 
-    it('parses header, footer, and buttons from media poll items', async () => {
-      const items = [
-        {
-          id: 'media-hfb',
-          message: {
-            correlationId: '',
-            timestamp: new Date(),
-            imageMessageRequest: {
-              timestamp: new Date(),
-              header: 'Photo of the day',
-              footer: 'Tap a button to react',
-              buttons: [{ text: 'Like', buttonType: 0 }],
-              content: {
-                mediaUrl: 'https://cdn.example.com/p.png',
-                mediaType: 'image/png',
-                byteCount: 100,
-                fileName: 'p.png',
-                text: '',
-                timestamp: undefined,
-                status: 1,
-                role: 2,
-              },
-            },
-          },
-          userId: 'user-1',
-          status: 0,
-        },
-      ];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
+    it('translates vertical product frames into ChatMessage.product', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
 
-      await flushPoll();
-
-      const [messages] = callback.mock.calls[0];
-      expect(messages[0]).toMatchObject({
-        type: 'image',
-        header: 'Photo of the day',
-        footer: 'Tap a button to react',
-        buttons: [{ text: 'Like', type: 'reply' }],
-      });
-    });
-
-    it('translates vertical product poll items into ChatMessage.product', async () => {
-      const date = new Date('2026-07-10T10:00:00Z');
-      const items = [
-        makeProductPollItem('prod-1', {
-          orientation: 'ORIENTATION_VERTICAL',
-          products: [
-            {
-              sku: 'A-1',
-              name: 'Apples',
-              price: 5,
-              imagesUrl: ['https://cdn.example.com/a.png'],
-              salePrice: 4,
-              unitName: '{amount, plural, one {bag} other {bags}}',
-            },
-            { sku: 'B-2', name: 'Bananas', price: 3 },
-          ],
-          date,
-        }),
-      ];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
+      emit(
+        productPollItem(
+          'prod-1',
+          ProductMessageRequest_Orientation.ORIENTATION_VERTICAL
+        )
       );
-      const callback = vi.fn();
-      repo.subscribeToMessages(callback);
 
-      await flushPoll();
-
-      expect(callback).toHaveBeenCalledOnce();
-      const [messages] = callback.mock.calls[0];
-      expect(messages).toHaveLength(1);
-      expect(messages[0]).toBeInstanceOf(ChatMessage);
-      expect(messages[0]).toMatchObject({
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
         type: 'product',
         role: 'AGENT',
         wiId: 'prod-1',
-        timestamp: date,
-        products: [
-          {
-            sku: 'A-1',
-            name: 'Apples',
-            price: 5,
-            salePrice: 4,
-            imagesUrl: ['https://cdn.example.com/a.png'],
-            unitName: '{amount, plural, one {bag} other {bags}}',
-          },
-          { sku: 'B-2', name: 'Bananas', price: 3 },
-        ],
+        products: [{ sku: 'SKU-1', name: 'Apples', price: 5 }],
       });
     });
 
-    it('translates horizontal product poll items into ChatMessage.carousel', async () => {
-      const date = new Date('2026-07-11T11:00:00Z');
-      const items = [
-        makeProductPollItem('car-1', {
-          orientation: 'ORIENTATION_HORIZONTAL',
-          products: [{ sku: 'C-3', name: 'Cherries', price: 7 }],
-          date,
-        }),
-      ];
-      vi.stubGlobal('fetch', mockOkFetch(items));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
+    it('translates horizontal product frames into ChatMessage.carousel', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
       const callback = vi.fn();
       repo.subscribeToMessages(callback);
 
-      await flushPoll();
+      emit(
+        productPollItem(
+          'car-1',
+          ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL
+        )
+      );
 
-      expect(callback).toHaveBeenCalledOnce();
-      const [messages] = callback.mock.calls[0];
-      expect(messages).toHaveLength(1);
-      expect(messages[0]).toMatchObject({
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
         type: 'productCarousel',
         role: 'AGENT',
         wiId: 'car-1',
-        timestamp: date,
-        products: [{ sku: 'C-3', name: 'Cherries', price: 7 }],
       });
-    });
-  });
-
-  describe('visibility', () => {
-    it('stops scheduling polls while the tab is hidden', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-
-      setTabHidden(true);
-
-      await vi.advanceTimersByTimeAsync(10_000);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('fires an immediate catch-up poll when the tab becomes visible again', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-
-      setTabHidden(true);
-      await vi.advanceTimersByTimeAsync(10_000);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-
-      setTabHidden(false);
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('resumes regular polling cadence after becoming visible', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-      await flushPoll();
-
-      setTabHidden(true);
-      setTabHidden(false);
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-
-      await vi.advanceTimersByTimeAsync(2000);
-      expect(fetchSpy).toHaveBeenCalledTimes(3);
-    });
-
-    it('does not poll on visibility change after unsubscribe', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-
-      repo.unsubscribeMessages();
-
-      setTabHidden(true);
-      setTabHidden(false);
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('unsubscribeMessages', () => {
-    it('stops polling after unsubscribe', async () => {
-      const fetchSpy = mockOkFetch([]);
-      vi.stubGlobal('fetch', fetchSpy);
+    it('forwards to the underlying service', () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
 
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
       repo.subscribeToMessages(vi.fn());
-
-      await flushPoll();
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-
       repo.unsubscribeMessages();
 
-      // Advance well past the poll interval — no timer should fire
-      await vi.advanceTimersByTimeAsync(10_000);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('resets the since watermark after unsubscribe', async () => {
-      const items = [
-        makePollItem('msg-1', 'Hi', new Date('2026-06-01T12:00:00Z')),
-      ];
-      const fetchSpy = mockOkFetch(items);
-      vi.stubGlobal('fetch', fetchSpy);
-      vi.setSystemTime(new Date('2026-06-02T00:00:00Z'));
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      repo.subscribeToMessages(vi.fn());
-      await flushPoll();
-
-      repo.unsubscribeMessages();
-      repo.subscribeToMessages(vi.fn());
-      await flushPoll();
-
-      const lastUrl = new URL(
-        fetchSpy.mock.calls[fetchSpy.mock.calls.length - 1][0] as string
-      );
-      expect(lastUrl.searchParams.get('since')).toBe(String(Date.now() - 5000));
-    });
-
-    it('clears seen IDs so resubscribing picks up old messages', async () => {
-      const items = [makePollItem('msg-1', 'Hi')];
-      const fetchSpy = mockOkFetch(items);
-      vi.stubGlobal('fetch', fetchSpy);
-
-      const repo = new YaloMessageRepositoryRemote(
-        'api.example.com',
-        baseConfig,
-        mockTokenRepository(token),
-        mockMediaService()
-      );
-      const callback = vi.fn();
-
-      repo.subscribeToMessages(callback);
-      await flushPoll();
-      expect(callback).toHaveBeenCalledTimes(1);
-
-      repo.unsubscribeMessages();
-
-      repo.subscribeToMessages(callback);
-      await flushPoll();
-      expect(callback).toHaveBeenCalledTimes(2); // same msg delivered again after reset
+      expect(service.unsubscribe).toHaveBeenCalledOnce();
     });
   });
 });

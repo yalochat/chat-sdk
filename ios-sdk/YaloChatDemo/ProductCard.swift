@@ -19,6 +19,8 @@ struct ProductHorizontalCard: View {
     var onAddSubunit: () -> Void = {}
     var onRemoveSubunit: () -> Void = {}
 
+    @Environment(\.chatTheme) private var theme
+
     private var hasSubunits: Bool {
         product.subunits > 1.0 && product.subunitName != nil
     }
@@ -32,14 +34,15 @@ struct ProductHorizontalCard: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(product.name)
-                    .font(.subheadline)
+                    .font(theme.productTitleFont)
                     .fontWeight(.medium)
                     .lineLimit(2)
+                    .foregroundColor(theme.agentBubbleTextColor)
 
                 if hasSubunits, let subunitName = product.subunitName {
                     Text("\(formatQuantity(product.subunits)) \(formatIcuUnit(product.subunits, subunitName))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(theme.productSubunitsFont)
+                        .foregroundColor(theme.pricePerSubunitColor)
                 }
 
                 ProductPriceRow(product: product)
@@ -74,6 +77,8 @@ struct ProductVerticalCard: View {
     var onAddSubunit: () -> Void = {}
     var onRemoveSubunit: () -> Void = {}
 
+    @Environment(\.chatTheme) private var theme
+
     private var hasSubunits: Bool {
         product.subunits > 1.0 && product.subunitName != nil
     }
@@ -90,14 +95,15 @@ struct ProductVerticalCard: View {
 
             if hasSubunits, let subunitName = product.subunitName {
                 Text("\(formatQuantity(product.subunits)) \(formatIcuUnit(product.subunits, subunitName))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(theme.productSubunitsFont)
+                    .foregroundColor(theme.pricePerSubunitColor)
             }
 
             Text(product.name)
-                .font(.subheadline)
+                .font(theme.productTitleFont)
                 .fontWeight(.medium)
                 .lineLimit(2)
+                .foregroundColor(theme.agentBubbleTextColor)
 
             ProductQuantityStepper(
                 value: product.unitsAdded,
@@ -123,19 +129,30 @@ struct ProductVerticalCard: View {
 private struct ProductPriceRow: View {
     let product: Product
 
+    @Environment(\.chatTheme) private var theme
+
     var body: some View {
+        let salePrice = product.salePrice?.doubleValue
         HStack(spacing: 4) {
-            let salePrice = product.salePrice?.doubleValue
-            let displayPrice = salePrice ?? product.price
-            Text(formatPrice(displayPrice))
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.accentColor)
+            HStack(spacing: 2) {
+                Image(systemName: theme.currencyIconName)
+                    .font(.caption)
+                    .foregroundColor(theme.currencyIconColor)
+                Text(formatPrice(salePrice ?? product.price))
+                    .font(theme.productPriceFont)
+                    .fontWeight(.semibold)
+                    .foregroundColor(theme.productPriceColor)
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(theme.productPriceBackgroundColor)
+            .cornerRadius(4)
+
             if salePrice != nil {
                 Text(formatPrice(product.price))
                     .font(.caption)
                     .strikethrough()
-                    .foregroundColor(.secondary)
+                    .foregroundColor(theme.productSalePriceColor)
             }
         }
     }
@@ -143,6 +160,16 @@ private struct ProductPriceRow: View {
 
 private struct ProductImage: View {
     let urlString: String?
+
+    @Environment(\.chatTheme) private var theme
+
+    private var placeholderContent: some View {
+        ZStack {
+            theme.imagePlaceholderColor
+            Image(systemName: theme.imagePlaceholderIconName)
+                .foregroundColor(theme.imagePlaceholderIconColor)
+        }
+    }
 
     var body: some View {
         Group {
@@ -152,11 +179,11 @@ private struct ProductImage: View {
                     case .success(let image):
                         image.resizable().scaledToFill()
                     default:
-                        Color(.systemGray5)
+                        placeholderContent
                     }
                 }
             } else {
-                Color(.systemGray5)
+                placeholderContent
             }
         }
     }

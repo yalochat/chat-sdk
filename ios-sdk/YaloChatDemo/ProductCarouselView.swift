@@ -15,11 +15,13 @@ struct ProductCarouselView: View {
     var onToggleExpand: () -> Void = {}
     var onUpdateQuantity: (String, Bool, Double) -> Void = { _, _, _ in }
 
+    @State private var containerWidth: CGFloat = 0
+    @Environment(\.chatTheme) private var theme
+
     private var products: [Product] {
         message.products
     }
 
-    @State private var containerWidth: CGFloat = 0
     private var cardWidth: CGFloat { containerWidth > 0 ? containerWidth * 0.6 : 180 }
 
     var body: some View {
@@ -46,11 +48,11 @@ struct ProductCarouselView: View {
                     )
                     .padding(12)
                     .frame(width: cardWidth)
-                    .background(Color(.secondarySystemBackground))
+                    .background(theme.cardBackgroundColor)
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(.systemGray4), lineWidth: 1)
+                            .stroke(theme.cardBorderColor, lineWidth: 1)
                     )
                 }
 
@@ -58,7 +60,7 @@ struct ProductCarouselView: View {
                     Button(action: onToggleExpand) {
                         Text(isExpanded ? "Show less" : "Show more")
                             .font(.subheadline)
-                            .foregroundColor(.accentColor)
+                            .foregroundColor(theme.expandControlColor)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 8)
                             .frame(width: 80)
@@ -72,7 +74,7 @@ struct ProductCarouselView: View {
             GeometryReader { geo in
                 Color.clear
                     .onAppear { containerWidth = geo.size.width }
-                    .onChange(of: geo.size.width) { containerWidth = $0 }
+                    .onChange(of: geo.size.width) { newValue in containerWidth = newValue }
             }
         )
     }

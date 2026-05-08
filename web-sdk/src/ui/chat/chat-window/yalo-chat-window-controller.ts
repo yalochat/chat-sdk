@@ -7,7 +7,7 @@ import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity'
 import type { ChatCommand } from '@domain/models/command/chat-command';
 import type { PageInfo } from '@domain/common/page';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
-import { YaloMessageRepositoryRemoteWebSocket } from '@data/repositories/yalo-message/yalo-message-repository-remote-websocket';
+import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
 import { YaloMessageServiceWebSocket } from '@data/services/yalo-message/yalo-message-service-websocket';
 import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
@@ -70,7 +70,7 @@ export default class YaloChatWindowController implements ReactiveController {
       import.meta.env.VITE_YALO_API_BASE_URL,
       tokenRepository
     );
-    this.host.yaloMessageRepository = new YaloMessageRepositoryRemoteWebSocket(
+    this.host.yaloMessageRepository = new YaloMessageRepositoryRemote(
       messageService,
       mediaService
     );

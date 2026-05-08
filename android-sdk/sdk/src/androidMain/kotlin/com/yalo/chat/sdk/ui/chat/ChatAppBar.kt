@@ -71,7 +71,7 @@ internal fun ChatAppBar(
                     ) {
                         Text(
                             text = statusText,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = theme.messageFooterStyle,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
