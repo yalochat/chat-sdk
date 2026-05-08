@@ -114,6 +114,7 @@ export default class YaloChatWindowController implements ReactiveController {
         this.host.logger.error('Unable to send message to Yalo', {
           error: yaloResult.error,
         });
+        await this._markMessageAsError(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert message locally', {
@@ -149,6 +150,7 @@ export default class YaloChatWindowController implements ReactiveController {
         this.host.logger.error('Unable to send voice message to Yalo', {
           error: yaloResult.error,
         });
+        await this._markMessageAsError(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert voice message locally', {
@@ -186,6 +188,7 @@ export default class YaloChatWindowController implements ReactiveController {
         this.host.logger.error('Unable to send attachment message to Yalo', {
           error: yaloResult.error,
         });
+        await this._markMessageAsError(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert attachment message locally', {
@@ -221,6 +224,7 @@ export default class YaloChatWindowController implements ReactiveController {
         this.host.logger.error('Unable to send image message to Yalo', {
           error: yaloResult.error,
         });
+        await this._markMessageAsError(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert image message locally', {
@@ -234,6 +238,54 @@ export default class YaloChatWindowController implements ReactiveController {
       this.isWriting = false;
       this.host.requestUpdate();
     }, this._writingTimeoutMs);
+  }
+
+  async retryMessage(e: CustomEvent) {
+    const message = e.detail as ChatMessage;
+    if (message.id === undefined) return;
+
+    const retrying = new ChatMessage({ ...message, status: 'IN_PROGRESS' });
+    const localResult =
+      await this.host.chatMessageRepository.replaceChatMessage(retrying);
+    if (!localResult.ok) {
+      this.host.logger.error('Unable to update message for retry', {
+        error: localResult.error,
+      });
+      return;
+    }
+
+    const index = this.chatMessages.findIndex((m) => m.id === retrying.id);
+    if (index !== -1) {
+      this.chatMessages = [...this.chatMessages];
+      this.chatMessages[index] = retrying;
+      this.host.requestUpdate();
+    }
+
+    const yaloResult =
+      await this.host.yaloMessageRepository.insertMessage(retrying);
+    if (!yaloResult.ok) {
+      this.host.logger.error('Unable to retry sending message to Yalo', {
+        error: yaloResult.error,
+      });
+      await this._markMessageAsError(retrying);
+    }
+  }
+
+  private async _markMessageAsError(message: ChatMessage): Promise<void> {
+    const errored = new ChatMessage({ ...message, status: 'ERROR' });
+    const result =
+      await this.host.chatMessageRepository.replaceChatMessage(errored);
+    if (!result.ok) {
+      this.host.logger.error('Unable to persist error status locally', {
+        error: result.error,
+      });
+      return;
+    }
+    const index = this.chatMessages.findIndex((m) => m.id === errored.id);
+    if (index === -1) return;
+    this.chatMessages = [...this.chatMessages];
+    this.chatMessages[index] = errored;
+    this.host.requestUpdate();
   }
 
   async updateProductQuantity(e: CustomEvent) {
