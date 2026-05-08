@@ -71,6 +71,11 @@ kotlin {
             // for HTTP/HTTPS URLs; coil-compose alone only handles local files and drawables).
             implementation(libs.coil.compose)
             implementation(libs.coil.network.okhttp)
+
+            // Markdown — Compose-native CommonMark renderer for agent messages.
+            // Mirrors flutter_markdown_plus used by the Flutter SDK's AssistantMessage widget.
+            implementation(libs.markdown.renderer)
+            implementation(libs.markdown.renderer.m3)
         }
 
         iosMain.dependencies {

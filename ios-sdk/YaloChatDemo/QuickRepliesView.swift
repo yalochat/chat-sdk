@@ -31,19 +31,22 @@ private struct QuickReplyChip: View {
     let text: String
     var onTap: () -> Void = {}
 
+    @Environment(\.chatTheme) private var theme
+
     var body: some View {
         Button(action: onTap) {
             Text(text)
                 .font(.subheadline)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
+                .background(theme.quickReplyBackgroundColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor, lineWidth: 1)
+                        .stroke(theme.quickReplyBorderColor, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
-        .foregroundColor(.accentColor)
-        .frame(maxWidth: UIScreen.main.bounds.width * 0.5)
+        .foregroundColor(theme.quickReplyTextColor)
+        .frame(maxWidth: 220)
     }
 }

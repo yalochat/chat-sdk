@@ -11,18 +11,30 @@ import ChatSdk
 //       channelName: "My Channel",
 //       channelId: "your-channel-id",
 //       organizationId: "your-org-id",
-//       environment: .staging
+//       environment: .staging,
+//       theme: ChatTheme(sendButtonColor: .purple),
+//       onShopPressed: { print("shop tapped") }
 //   )
 public final class YaloChat {
 
     private init() {}
 
+    private(set) static var theme: ChatTheme = ChatTheme()
+    private(set) static var onShopPressed: (() -> Void)? = nil
+    private(set) static var onCartPressed: (() -> Void)? = nil
+
     public static func initialize(
         channelName: String,
         channelId: String,
         organizationId: String,
-        environment: YaloChatEnvironment = .production
+        environment: YaloChatEnvironment = .production,
+        theme: ChatTheme = ChatTheme(),
+        onShopPressed: (() -> Void)? = nil,
+        onCartPressed: (() -> Void)? = nil
     ) {
+        YaloChat.theme = theme
+        YaloChat.onShopPressed = onShopPressed
+        YaloChat.onCartPressed = onCartPressed
         let config = YaloChatConfig(
             channelName: channelName,
             channelId: channelId,

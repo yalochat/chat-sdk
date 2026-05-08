@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Pause
@@ -58,7 +59,7 @@ data class ChatTheme(
     val waveColor: Color = Color(0xFF5C5EE8),
     val actionIconColor: Color = Color(0xFF000000),
     val cancelRecordingIconColor: Color = Color(0xFF7C8086),
-    /** Close icon color in ImagePreview. Defaults to white for contrast on the dark scrim. */
+    /** Close icon color in ImagePreview — defaults to white for contrast on the 85% black scrim. */
     val closeModalIconColor: Color = Color(0xFFFFFFFF),
     val playAudioIconColor: Color = Color(0xFF7C8086),
     val pauseAudioIconColor: Color = Color(0xFF7C8086),
@@ -66,20 +67,23 @@ data class ChatTheme(
     val cameraIconColor: Color = Color(0xFF7C8086),
     val galleryIconColor: Color = Color(0xFF7C8086),
     val trashIconColor: Color = Color(0xFF7C8086),
-    val currencyIconColor: Color = Color(0xFF2207F1),
+    val currencyIconColor: Color = Color(0xFF186C54),
     val numericControlIconColor: Color = Color(0xFF7C8086),
     val imagePlaceholderIconColor: Color = Color(0xFF7C8086),
     val imagePlaceholderBackgroundColor: Color = Color(0xFFF9FAFC),
     /** Background of product cards in the product carousel. */
     val cardBackgroundColor: Color = Color(0xFFFFFFFF),
     /** Border color of product cards. */
-    val cardBorderColor: Color = Color(0xFFE8E8E8),
+    val cardBorderColor: Color = Color(0xFFDDE4EC),
     /** Background of the attachment picker bottom sheet. */
     val attachmentPickerBackgroundColor: Color = Color(0xFFF1F5FC),
     /** Background color for sale/discount price chips on product cards. */
-    val productPriceBackgroundColor: Color = Color(0xFFEEF0FF),
+    val productPriceBackgroundColor: Color = Color(0xFFECFDF5),
     /** Text color for the per-subunit price label on product cards. */
     val pricePerSubunitColor: Color = Color(0xFF7C8086),
+    /** Color for message timestamps and footer text — mirrors Flutter's messageFooterColor. */
+    val messageFooterColor: Color = Color(0xFF7C8086),
+    val errorColor: Color = Color(0xFFE53935),
     /** Border color of the picker buttons in the attachment sheet. */
     val pickerButtonBorderColor: Color = Color(0xFFE8E8E8),
     /** Background of quick reply chip buttons. */
@@ -115,7 +119,7 @@ data class ChatTheme(
     val buttonsMessageButtonTextStyle: TextStyle = TextStyle(color = Color(0xFF111111)),
     val productTitleStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp, fontWeight = FontWeight.Bold),
     val productSubunitsStyle: TextStyle = TextStyle(color = Color(0xFF7C8086), fontSize = 12.sp),
-    val productPriceStyle: TextStyle = TextStyle(color = Color(0xFF2207F1), fontWeight = FontWeight.Bold),
+    val productPriceStyle: TextStyle = TextStyle(color = Color(0xFF186C54), fontWeight = FontWeight.Bold),
     val productSalePriceStrikeStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE), textDecoration = TextDecoration.LineThrough),
     val pricePerSubunitStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
     val expandControlsStyle: TextStyle = TextStyle(color = Color(0xFF2207F1)),
@@ -142,6 +146,7 @@ data class ChatTheme(
     val galleryIcon: ImageVector = Icons.Filled.Image,
     val trashIcon: ImageVector = Icons.Filled.Delete,
     val imagePlaceholderIcon: ImageVector = Icons.Filled.Image,
+    val errorIcon: ImageVector = Icons.Filled.Error,
     val shopIcon: ImageVector = Icons.Filled.Storefront,
     val cartIcon: ImageVector = Icons.Filled.ShoppingCart,
     val currencyIcon: ImageVector = Icons.Filled.AttachMoney,
