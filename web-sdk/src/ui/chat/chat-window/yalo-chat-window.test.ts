@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import './yalo-chat-window';
 import type { YaloChatWindow } from './yalo-chat-window';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { Err, Ok } from '@domain/common/result';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -208,6 +209,173 @@ describe('YaloChatWindow', () => {
       );
 
       expect(emitted).toBe(false);
+    });
+  });
+
+  describe('error display', () => {
+    it('marks message as ERROR when remote insert fails', async () => {
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Err(new Error('network down'))
+      );
+
+      const footer = getFooter(el);
+      await footer.updateComplete;
+
+      const textarea = getTextarea(el);
+      textarea.value = 'Will fail';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+
+      getSendButton(el).click();
+
+      await vi.waitUntil(() => {
+        const messages = el.shadowRoot
+          ?.querySelector('chat-message-list') as unknown as {
+          chatMessages: ChatMessage[];
+        };
+        return messages?.chatMessages?.[0]?.status === 'ERROR';
+      });
+
+      const list = el.shadowRoot?.querySelector(
+        'chat-message-list'
+      ) as unknown as { chatMessages: ChatMessage[] };
+
+      expect(list.chatMessages[0]).toMatchObject({
+        content: 'Will fail',
+        status: 'ERROR',
+      });
+
+      const persisted = await el.chatMessageRepository.getChatMessagePageDesc(
+        null,
+        10
+      );
+      expect(persisted.ok && persisted.value.data[0]).toMatchObject({
+        content: 'Will fail',
+        status: 'ERROR',
+      });
+    });
+
+    const findById = (
+      list: { chatMessages: ChatMessage[] },
+      id: number | undefined
+    ): ChatMessage | undefined =>
+      list.chatMessages.find((m) => m.id === id);
+
+    it('retries an errored message and clears the error on success', async () => {
+      const insertSpy = vi
+        .spyOn(el.yaloMessageRepository, 'insertMessage')
+        .mockResolvedValueOnce(new Err(new Error('network down')));
+
+      const footer = getFooter(el);
+      await footer.updateComplete;
+
+      const textarea = getTextarea(el);
+      textarea.value = 'Retry me';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+      getSendButton(el).click();
+
+      const list = el.shadowRoot?.querySelector(
+        'chat-message-list'
+      ) as unknown as { chatMessages: ChatMessage[] };
+
+      await vi.waitUntil(() =>
+        list.chatMessages.some(
+          (m) => m.content === 'Retry me' && m.status === 'ERROR'
+        )
+      );
+      const errored = list.chatMessages.find(
+        (m) => m.content === 'Retry me' && m.status === 'ERROR'
+      ) as ChatMessage;
+      const erroredId = errored.id;
+
+      insertSpy.mockResolvedValueOnce(new Ok(errored));
+
+      el.shadowRoot
+        ?.querySelector('chat-message-list')
+        ?.dispatchEvent(
+          new CustomEvent('yalo-chat-retry-message', {
+            detail: errored,
+            bubbles: true,
+            composed: true,
+          })
+        );
+
+      await vi.waitUntil(
+        () => findById(list, erroredId)?.status === 'IN_PROGRESS'
+      );
+
+      expect(insertSpy).toHaveBeenCalledTimes(2);
+      expect(findById(list, erroredId)).toMatchObject({
+        id: erroredId,
+        content: 'Retry me',
+        status: 'IN_PROGRESS',
+      });
+
+      const persisted = await el.chatMessageRepository.getChatMessagePageDesc(
+        null,
+        100
+      );
+      const persistedMessage =
+        persisted.ok && persisted.value.data.find((m) => m.id === erroredId);
+      expect(persistedMessage).toMatchObject({
+        id: erroredId,
+        content: 'Retry me',
+        status: 'IN_PROGRESS',
+      });
+    });
+
+    it('keeps the message in ERROR when retry fails again', async () => {
+      const insertSpy = vi
+        .spyOn(el.yaloMessageRepository, 'insertMessage')
+        .mockResolvedValue(new Err(new Error('still down')));
+
+      const footer = getFooter(el);
+      await footer.updateComplete;
+
+      const textarea = getTextarea(el);
+      textarea.value = 'Stays errored';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+      getSendButton(el).click();
+
+      const list = el.shadowRoot?.querySelector(
+        'chat-message-list'
+      ) as unknown as { chatMessages: ChatMessage[] };
+
+      await vi.waitUntil(() =>
+        list.chatMessages.some(
+          (m) => m.content === 'Stays errored' && m.status === 'ERROR'
+        )
+      );
+      const errored = list.chatMessages.find(
+        (m) => m.content === 'Stays errored' && m.status === 'ERROR'
+      ) as ChatMessage;
+      const erroredId = errored.id;
+
+      el.shadowRoot
+        ?.querySelector('chat-message-list')
+        ?.dispatchEvent(
+          new CustomEvent('yalo-chat-retry-message', {
+            detail: errored,
+            bubbles: true,
+            composed: true,
+          })
+        );
+
+      await vi.waitUntil(() => insertSpy.mock.calls.length >= 2);
+      await vi.waitUntil(() => findById(list, erroredId)?.status === 'ERROR');
+
+      expect(findById(list, erroredId)).toMatchObject({
+        id: erroredId,
+        status: 'ERROR',
+      });
     });
   });
 

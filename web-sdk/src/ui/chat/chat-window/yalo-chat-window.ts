@@ -119,6 +119,8 @@ export class YaloChatWindow extends LitElement {
               this._chatWindowController.fetchNextPage()}
             @yalo-chat-send-text-message=${(e: CustomEvent) =>
               this._chatWindowController.sendTextMessage(e)}
+            @yalo-chat-retry-message=${(e: CustomEvent) =>
+              this._chatWindowController.retryMessage(e)}
             @yalo-chat-product-quantity-change=${(e: CustomEvent) =>
               this._chatWindowController.updateProductQuantity(e)}
           >
