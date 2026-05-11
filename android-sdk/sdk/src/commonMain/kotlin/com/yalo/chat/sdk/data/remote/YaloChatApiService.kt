@@ -67,6 +67,7 @@ internal class YaloChatApiService(
     private val organizationId: String,
     // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
     internal val httpClient: HttpClient,
+    private val tokenStorage: TokenStorage? = null,
     private val externalUserId: String? = null,
 ) {
     private val apiBaseUrl = apiBaseUrl.trimEnd('/').removeSuffix("/inapp").removeSuffix("/webchat")
@@ -75,6 +76,16 @@ internal class YaloChatApiService(
     private var storedRefreshToken: String? = null
     private var tokenExpiresAt: Long = 0L
     private var userId: String = ""
+
+    init {
+        tokenStorage?.load()?.let { entry ->
+            accessToken = entry.accessToken
+            storedRefreshToken = entry.refreshToken
+            tokenExpiresAt = entry.expiresAt
+            // Re-derive userId from stored JWT so JWT decoding stays the single source of truth.
+            userId = extractUserIdFromJwt(entry.accessToken)
+        }
+    }
 
     // ── Token management ───────────────────────────────────────────────────────
 
@@ -160,6 +171,7 @@ internal class YaloChatApiService(
         storedRefreshToken = auth.refreshToken
         tokenExpiresAt = Clock.System.now().toEpochMilliseconds() + auth.expiresIn * 1000L
         userId = extractUserIdFromJwt(auth.accessToken)
+        tokenStorage?.save(TokenStorage.Entry(auth.accessToken, auth.refreshToken, tokenExpiresAt))
     }
 
     // JWT payloads use URL-safe base64 without padding. Add padding so

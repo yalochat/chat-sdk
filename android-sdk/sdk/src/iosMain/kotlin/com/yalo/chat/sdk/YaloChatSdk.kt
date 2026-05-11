@@ -10,6 +10,7 @@ import com.yalo.chat.sdk.data.local.createDatabase
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.YaloMessageServiceWebSocket
 import com.yalo.chat.sdk.data.remote.buildHttpClient
+import com.yalo.chat.sdk.data.KeychainTokenStorage
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
 import com.yalo.chat.sdk.database.ChatDatabase
@@ -75,6 +76,7 @@ object YaloChatSdk {
                 channelId = config.channelId,
                 organizationId = config.organizationId,
                 httpClient = httpClient,
+                tokenStorage = KeychainTokenStorage(),
                 externalUserId = config.userId,
             )
             // Use app-specific caches directory — mirrors Android's context.cacheDir.
