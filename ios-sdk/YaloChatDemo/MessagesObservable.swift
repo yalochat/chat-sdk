@@ -12,6 +12,10 @@ class MessagesObservable: ObservableObject {
     @Published var messages: [ChatMessage] = []
     @Published var userMessage: String = ""
     @Published var isLoading: Bool = false
+    @Published var hasMoreMessages: Bool = false
+
+    private var allMessages: [ChatMessage] = []
+    private var displayedCount: Int = 30
 
     // Typing indicator — mirrors Android MessagesViewModel.isSystemTypingMessage / chatStatusText.
     @Published var isTyping: Bool = false
@@ -53,8 +57,11 @@ class MessagesObservable: ObservableObject {
                     Self.log.debug("  [\(String(describing: msg.role))] [\(String(describing: msg.type))] id=\(msg.id?.int64Value ?? -1) ts=\(msg.timestamp)")
                 }
                 #endif
-                self?.messages = messages
+                let count = self?.displayedCount ?? 30
+                self?.allMessages = messages
+                self?.messages = Array(messages.suffix(count))
                 self?.isLoading = false
+                self?.hasMoreMessages = messages.count > count
                 self?.updateQuickRepliesFromMessages(messages)
             }
         }
@@ -95,6 +102,17 @@ class MessagesObservable: ObservableObject {
         typingStatusText = ""
         typingTimeoutTask?.cancel()
         typingTimeoutTask = nil
+        allMessages = []
+        displayedCount = 30
+        hasMoreMessages = false
+    }
+
+    func loadMoreMessages() {
+        let newCount = min(displayedCount + 30, allMessages.count)
+        guard newCount > displayedCount else { return }
+        displayedCount = newCount
+        messages = Array(allMessages.suffix(displayedCount))
+        hasMoreMessages = allMessages.count > displayedCount
     }
 
     func sendMessage() {

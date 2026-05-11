@@ -24,6 +24,11 @@ struct MessageList: View {
                                 .padding(.top, 32)
                         }
                     } else {
+                        if observable.hasMoreMessages {
+                            ProgressView()
+                                .padding(.top, 8)
+                                .onAppear { observable.loadMoreMessages() }
+                        }
                         ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in
                             let messageId = message.id?.int64Value
                             MessageItem(
@@ -49,7 +54,7 @@ struct MessageList: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            .onChange(of: observable.messages.count) { _ in
+            .onChange(of: observable.messages.last?.stableListId) { _ in
                 DispatchQueue.main.async {
                     withAnimation(.linear(duration: 0.15)) {
                         proxy.scrollTo("bottom", anchor: .bottom)
