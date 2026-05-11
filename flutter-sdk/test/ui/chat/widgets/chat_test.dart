@@ -50,6 +50,7 @@ void main() {
       VoidCallback? onShopPressed,
       VoidCallback? onCartPressed,
       ChatTheme theme = const ChatTheme(),
+      String? openContext,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -60,6 +61,7 @@ void main() {
             onShopPressed: onShopPressed,
             onCartPressed: onCartPressed,
             theme: theme,
+            openContext: openContext,
           ),
         ),
       );
@@ -172,6 +174,26 @@ void main() {
 
         await tester.tap(find.byIcon(const ChatTheme().cartIcon));
         expect(cartPressed, isTrue);
+
+        await disposeChat(tester);
+      });
+    });
+
+    group('opening context', () {
+      testWidgets('should default openContext to null', (tester) async {
+        await pumpChat(tester);
+
+        final Chat chat = tester.widget<Chat>(find.byType(Chat));
+        expect(chat.openContext, isNull);
+
+        await disposeChat(tester);
+      });
+
+      testWidgets('should expose the provided opening context', (tester) async {
+        await pumpChat(tester, openContext: 'product page of product 123');
+
+        final Chat chat = tester.widget<Chat>(find.byType(Chat));
+        expect(chat.openContext, equals('product page of product 123'));
 
         await disposeChat(tester);
       });

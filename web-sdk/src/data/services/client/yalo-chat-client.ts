@@ -77,8 +77,11 @@ export default class YaloChatClient {
     );
   }
 
-  open(): void {
-    if (this.chatWindowEl) this.chatWindowEl.open = true;
+  open(openContext?: string): void {
+    if (this.chatWindowEl) {
+      this.chatWindowEl.openContext = openContext;
+      this.chatWindowEl.open = true;
+    }
     this.targetEl?.classList.add('open');
   }
 

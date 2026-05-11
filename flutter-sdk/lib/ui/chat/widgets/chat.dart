@@ -18,6 +18,7 @@ class Chat extends StatelessWidget {
   final VoidCallback? onShopPressed;
   final VoidCallback? onCartPressed;
   final ChatTheme theme;
+  final String? openContext;
 
   const Chat({
     super.key,
@@ -27,6 +28,7 @@ class Chat extends StatelessWidget {
     this.onShopPressed,
     this.onCartPressed,
     this.theme = const ChatTheme(),
+    this.openContext,
   });
 
   @override
