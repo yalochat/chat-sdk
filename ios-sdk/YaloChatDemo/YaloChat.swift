@@ -44,10 +44,7 @@ public final class YaloChat {
             channelId: channelId,
             organizationId: organizationId,
             environment: environment,
-<<<<<<< HEAD
             userId: userId,
-=======
->>>>>>> 3b5f3a2 (feat(kmp/ios): useFakeData flag — toggle FakeYaloMessageRepository via YaloChatConfig)
             useFakeRepository: useFakeData
         )
         YaloChatSdk.shared.initialize(config: config)
