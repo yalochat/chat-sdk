@@ -12,21 +12,24 @@
   </head>
   <body>
     <img class="logo" src="yalo-logo.svg" alt="Yalo" />
-    <button type="button" class="fab" id="yalo-chat" aria-label="Open chat">
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <title>Chat button</title>
-        <path
-          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-        ></path>
-      </svg>
-    </button>
+    <div class="chat-widget">
+      <div id="yalo-chat"></div>
+      <button type="button" class="fab" id="chat-fab" aria-label="Open chat">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <title>Chat button</title>
+          <path
+            d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+          ></path>
+        </svg>
+      </button>
+    </div>
 
     <script type="module">
       import { YaloChatClient } from '/src/chat.ts';
@@ -36,10 +39,21 @@
         organizationId: '', // Your organization id
         channelName: 'Chat Demo', // Your channel name that will appear in the bot chat
         image: '/oris-icon.svg',
-        target: 'yalo-chat', // The target element to render over
+        target: 'yalo-chat',
+        userId: 'test-user-1', // Optional: identify the user with your own ID
       });
       client.init();
-      client.open();
+
+      const fab = document.getElementById('chat-fab');
+      fab.addEventListener('click', () => {
+        if (client.chatWindowEl?.open) {
+          client.close();
+          fab.classList.remove('open');
+        } else {
+          client.open();
+          fab.classList.add('open');
+        }
+      });
     </script>
   </body>
 </html>

@@ -33,6 +33,14 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
   /* Font family used across the entire chat widget.
      Set this to match your site typography. */
   --yalo-chat-font: sans-serif;
+
+  /* Width of the chat window. Accepts any CSS length
+     (px, rem, %, vw, etc.). */
+  --yalo-chat-width: 500px;
+
+  /* Height of the chat window. Accepts any CSS length
+     (px, rem, %, vh, etc.). */
+  --yalo-chat-height: 720px;
 }
 ```
 
@@ -310,20 +318,6 @@ Buttons attached to assistant messages, rendered below the body.
 
   /* Font size for the numeric input text. */
   --yalo-chat-numeric-font-size: 0.875rem;
-}
-```
-
-### Positioning
-
-These variables are set automatically at runtime based on the target element's position. You generally do not need to override them, but you can if you want to place the widget at a fixed location.
-
-```css
-:root {
-  /* Distance from the bottom edge of the viewport to the chat window. */
-  --yalo-chat-inset-bottom: 80px;
-
-  /* Distance from the right edge of the viewport to the chat window. */
-  --yalo-chat-inset-right: 24px;
 }
 ```
 
