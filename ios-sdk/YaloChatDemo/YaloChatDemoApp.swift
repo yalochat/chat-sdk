@@ -34,6 +34,15 @@ struct YaloChatDemoApp: App {
         //     onShopPressed: { print("shop tapped") },
         //     onCartPressed: { print("cart tapped") }
         // )
+
+        // TEST 3 — Fake repository (no backend required): use useFakeData to verify
+        //           all message types render correctly without real credentials.
+        // YaloChat.initialize(
+        //     channelName: "Demo",
+        //     channelId: "fake-channel",
+        //     organizationId: "fake-org",
+        //     useFakeData: true
+        // )
     }
 
     var body: some Scene {

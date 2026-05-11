@@ -3,7 +3,6 @@
 package com.yalo.chat.sdk.data
 
 import com.yalo.chat.sdk.data.remote.TokenStorage
-import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.NativePtr
 import kotlinx.cinterop.addressOf
@@ -20,11 +19,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import platform.CoreFoundation.CFDictionaryRef
 import platform.CoreFoundation.CFTypeRefVar
-import platform.CoreFoundation.kCFBooleanTrue
 import platform.Foundation.NSData
 import platform.Foundation.NSMutableDictionary
+import platform.Foundation.NSNumber
 import platform.Foundation.NSString
-import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.dataWithBytes
 import platform.posix.memcpy
 import platform.Security.SecItemAdd
@@ -32,16 +30,21 @@ import platform.Security.SecItemCopyMatching
 import platform.Security.SecItemDelete
 import platform.Security.kSecAttrAccessible
 import platform.Security.kSecAttrAccessibleAfterFirstUnlock
+import platform.Security.kSecAttrAccount
 import platform.Security.kSecAttrService
 import platform.Security.kSecClass
 import platform.Security.kSecClassGenericPassword
+import platform.Security.kSecMatchLimit
+import platform.Security.kSecMatchLimitOne
 import platform.Security.kSecReturnData
 import platform.Security.kSecValueData
 
 private const val KEYCHAIN_SERVICE = "com.yalo.chat.sdk.tokens"
+private const val KEYCHAIN_ACCOUNT = "tokens"
 
 // Security constants are CFStringRef (CPointer<__CFString>) — toll-free bridged to NSString.
-// interpretObjCPointer converts the raw C pointer to a Kotlin/Native ObjC reference.
+// nsKey() converts each CF constant's raw pointer to a Kotlin/Native ObjC reference so it
+// can be used as an NSMutableDictionary key (which requires NSCopyingProtocol at runtime).
 @OptIn(ExperimentalForeignApi::class)
 internal class KeychainTokenStorage : TokenStorage {
 
@@ -54,7 +57,10 @@ internal class KeychainTokenStorage : TokenStorage {
 
     override fun load(): TokenStorage.Entry? = try {
         val query = buildBaseQuery()
-        query.setObject(interpretObjCPointer<NSString>(kCFBooleanTrue!!.rawValue), forKey = nsKey(kSecReturnData!!.rawValue))
+        // kSecReturnData value must be a CFBooleanRef — use NSNumber(bool) not interpretObjCPointer<NSString>.
+        query.setObject(NSNumber(bool = true), forKey = nsKey(kSecReturnData!!.rawValue))
+        // kSecMatchLimitOne ensures SecItemCopyMatching returns a single NSData, not an NSArray.
+        query.setObject(nsKey(kSecMatchLimitOne!!.rawValue), forKey = nsKey(kSecMatchLimit!!.rawValue))
         memScoped {
             val result = alloc<CFTypeRefVar>()
             @Suppress("UNCHECKED_CAST")
@@ -102,6 +108,8 @@ internal class KeychainTokenStorage : TokenStorage {
         val q = NSMutableDictionary()
         q.setObject(nsKey(kSecClassGenericPassword!!.rawValue), forKey = nsKey(kSecClass!!.rawValue))
         q.setObject(KEYCHAIN_SERVICE, forKey = nsKey(kSecAttrService!!.rawValue))
+        // kSecAttrAccount makes the item uniquely addressable within the service.
+        q.setObject(KEYCHAIN_ACCOUNT, forKey = nsKey(kSecAttrAccount!!.rawValue))
         return q
     }
 

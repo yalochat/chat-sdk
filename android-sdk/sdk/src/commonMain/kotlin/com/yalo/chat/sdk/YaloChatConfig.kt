@@ -12,6 +12,10 @@ package com.yalo.chat.sdk
  * @param channelId        Yalo channel identifier (maps to `x-channel-id` request header).
  * @param organizationId   Yalo organization identifier (used during anonymous authentication).
  * @param environment      Target backend environment. Defaults to [YaloChatEnvironment.PRODUCTION].
+ * @param userId           Optional external user identifier. When set, auth uses
+ *                         `user_type: "third_party_anonymous"` and binds the session to this id.
+ * @param useFakeRepository For development/testing only. Replaces network calls with local
+ *                         seed data. Must not be set to true in production builds.
  */
 data class YaloChatConfig(
     val channelName: String,

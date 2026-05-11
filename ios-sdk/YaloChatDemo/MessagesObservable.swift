@@ -13,6 +13,7 @@ class MessagesObservable: ObservableObject {
     @Published var userMessage: String = ""
     @Published var isLoading: Bool = false
     @Published var hasMoreMessages: Bool = false
+    @Published var isLoadingMore: Bool = false
 
     private var allMessages: [ChatMessage] = []
     private var displayedCount: Int = 30
@@ -105,14 +106,18 @@ class MessagesObservable: ObservableObject {
         allMessages = []
         displayedCount = 30
         hasMoreMessages = false
+        isLoadingMore = false
     }
 
     func loadMoreMessages() {
+        guard !isLoadingMore else { return }
         let newCount = min(displayedCount + 30, allMessages.count)
         guard newCount > displayedCount else { return }
+        isLoadingMore = true
         displayedCount = newCount
         messages = Array(allMessages.suffix(displayedCount))
         hasMoreMessages = allMessages.count > displayedCount
+        isLoadingMore = false
     }
 
     func sendMessage() {

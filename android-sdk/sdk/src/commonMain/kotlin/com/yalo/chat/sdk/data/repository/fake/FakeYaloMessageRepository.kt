@@ -19,7 +19,7 @@ import kotlinx.datetime.Clock
 // Phase 1 stub — returns hardcoded messages covering all MessageType variants
 // (Text, Image, Voice, Product, ProductCarousel, Promotion, QuickReply, Unknown).
 // Replaced in Phase 2 by YaloMessageRepositoryRemote (FDE-51).
-class FakeYaloMessageRepository : YaloMessageRepository {
+internal class FakeYaloMessageRepository : YaloMessageRepository {
 
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> =
         Result.Ok(Unit)

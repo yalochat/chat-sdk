@@ -106,6 +106,7 @@ internal class YaloChatApiService(
                 // instead of retrying the refresh and doubling auth traffic.
                 accessToken = null
                 storedRefreshToken = null
+                tokenStorage?.clear()
             }
             doAuthenticate()
         }
@@ -129,6 +130,7 @@ internal class YaloChatApiService(
                 if (userId.isEmpty()) {
                     accessToken = null
                     storedRefreshToken = null
+                    tokenStorage?.clear()
                     return Result.Error(RuntimeException("auth succeeded but user_id could not be extracted from JWT"))
                 }
                 Result.Ok(auth.accessToken to userId)
@@ -155,6 +157,7 @@ internal class YaloChatApiService(
                 if (userId.isEmpty()) {
                     accessToken = null
                     storedRefreshToken = null
+                    tokenStorage?.clear()
                     return Result.Error(RuntimeException("token refresh succeeded but user_id could not be extracted from JWT"))
                 }
                 Result.Ok(auth.accessToken to userId)

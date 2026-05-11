@@ -115,6 +115,7 @@ object YaloChat {
             channelId = config.channelId,
             organizationId = config.organizationId,
             httpClient = httpClient,
+            externalUserId = config.userId,
         )
 
         val driver = AndroidSqliteDriver(

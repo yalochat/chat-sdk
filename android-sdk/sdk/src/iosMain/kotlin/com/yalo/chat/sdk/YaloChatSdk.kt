@@ -119,7 +119,7 @@ object YaloChatSdk {
         val syncSvc = MessageSyncService(
             yaloRepo = yaloRepo,
             localRepo = local,
-            onSyncError = { e -> println("[YaloChatSdk] sync error: $e") },
+            onSyncError = { e -> platform.Foundation.NSLog("[YaloChatSdk] sync error: %@", e.toString()) },
         )
         _syncService = syncSvc
 

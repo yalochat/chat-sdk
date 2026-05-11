@@ -76,14 +76,6 @@ class MessagesController internal constructor(
         }
     }
 
-    fun loadMoreMessages(cursor: Long, onComplete: ((Boolean) -> Unit)? = null) {
-        val s = scope ?: return
-        s.launch {
-            val ok = localRepo.getMessages(cursor = cursor, limit = 30) is Result.Ok
-            onComplete?.invoke(ok)
-        }
-    }
-
     fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         val s = scope ?: return
