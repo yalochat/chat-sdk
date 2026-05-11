@@ -18,6 +18,7 @@ data class YaloChatConfig(
     val channelId: String,
     val organizationId: String,
     val environment: YaloChatEnvironment = YaloChatEnvironment.PRODUCTION,
+    val useFakeRepository: Boolean = false,
 )
 
 /** Selects the real-time transport — SDK build-time flag, not exposed to integrators. */

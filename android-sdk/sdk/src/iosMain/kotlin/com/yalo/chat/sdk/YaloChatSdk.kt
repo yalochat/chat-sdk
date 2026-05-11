@@ -10,6 +10,7 @@ import com.yalo.chat.sdk.data.local.createDatabase
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.YaloMessageServiceWebSocket
 import com.yalo.chat.sdk.data.remote.buildHttpClient
+import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
 import com.yalo.chat.sdk.database.ChatDatabase
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
@@ -62,40 +63,46 @@ object YaloChatSdk {
 
         this.config = config
 
-        val httpClient = buildHttpClient(Darwin.create(), debug = Platform.isDebugBinary)
-        _httpClient = httpClient
+        val yaloRepo: YaloMessageRepository
+        if (config.useFakeRepository) {
+            yaloRepo = FakeYaloMessageRepository()
+        } else {
+            val httpClient = buildHttpClient(Darwin.create(), debug = Platform.isDebugBinary)
+            _httpClient = httpClient
 
-        val apiService = YaloChatApiService(
-            apiBaseUrl = config.environment.apiBaseUrl,
-            channelId = config.channelId,
-            organizationId = config.organizationId,
-            httpClient = httpClient,
-        )
-        // Use app-specific caches directory — mirrors Android's context.cacheDir.
-        // NSTemporaryDirectory() is purged aggressively by the OS between app launches;
-        // NSCachesDirectory is only cleared under storage pressure, so downloaded media
-        // (images, audio, video) survives cold restarts.
-        val cacheDir = (NSFileManager.defaultManager
-            .URLsForDirectory(NSCachesDirectory, NSUserDomainMask)
-            .firstOrNull() as? NSURL)
-            ?.path
-            ?.let { "$it/ChatSdk" }
+            val apiService = YaloChatApiService(
+                apiBaseUrl = config.environment.apiBaseUrl,
+                channelId = config.channelId,
+                organizationId = config.organizationId,
+                httpClient = httpClient,
+            )
+            // Use app-specific caches directory — mirrors Android's context.cacheDir.
+            // NSTemporaryDirectory() is purged aggressively by the OS between app launches;
+            // NSCachesDirectory is only cleared under storage pressure, so downloaded media
+            // (images, audio, video) survives cold restarts.
+            val cacheDir = (NSFileManager.defaultManager
+                .URLsForDirectory(NSCachesDirectory, NSUserDomainMask)
+                .firstOrNull() as? NSURL)
+                ?.path
+                ?.let { "$it/ChatSdk" }
 
-        val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
-        val wsService = YaloMessageServiceWebSocket(
-            wsUrl = wsUrl,
-            apiService = apiService,
-            httpClient = httpClient,
-        )
-        val wsRepo = YaloMessageRepositoryWebSocket(
-            wsService = wsService,
-            apiService = apiService,
-            tempDir = cacheDir,
-        )
-        val wsScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-        _wsScope = wsScope
-        wsRepo.start(wsScope)
-        yaloRepo = wsRepo
+            val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
+            val wsService = YaloMessageServiceWebSocket(
+                wsUrl = wsUrl,
+                apiService = apiService,
+                httpClient = httpClient,
+            )
+            val wsRepo = YaloMessageRepositoryWebSocket(
+                wsService = wsService,
+                apiService = apiService,
+                tempDir = cacheDir,
+            )
+            val wsScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+            _wsScope = wsScope
+            wsRepo.start(wsScope)
+            yaloRepo = wsRepo
+        }
+        this.yaloRepo = yaloRepo
 
         // NativeSqliteDriver stores the database in the app's Documents/databases/ directory.
         val driver = NativeSqliteDriver(ChatDatabase.Schema, "chat.db")
@@ -107,14 +114,14 @@ object YaloChatSdk {
         // Sync service is started lazily by MessagesController (via MessagesObservable.onAppear),
         // mirroring how MessagesViewModel governs the polling lifecycle on Android.
         val syncSvc = MessageSyncService(
-            yaloRepo = wsRepo,
+            yaloRepo = yaloRepo,
             localRepo = local,
             onSyncError = { e -> println("[YaloChatSdk] sync error: $e") },
         )
         _syncService = syncSvc
 
         messagesController = MessagesController(
-            yaloRepo = wsRepo,
+            yaloRepo = yaloRepo,
             localRepo = local,
             syncService = syncSvc,
         )
