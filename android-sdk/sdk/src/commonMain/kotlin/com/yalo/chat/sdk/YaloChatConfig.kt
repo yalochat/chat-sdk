@@ -18,6 +18,7 @@ data class YaloChatConfig(
     val channelId: String,
     val organizationId: String,
     val environment: YaloChatEnvironment = YaloChatEnvironment.PRODUCTION,
+    val userId: String? = null,
     val useFakeRepository: Boolean = false,
 )
 

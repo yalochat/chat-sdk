@@ -28,6 +28,7 @@ public final class YaloChat {
         channelId: String,
         organizationId: String,
         environment: YaloChatEnvironment = .production,
+        userId: String? = nil,
         theme: ChatTheme = ChatTheme(),
         onShopPressed: (() -> Void)? = nil,
         onCartPressed: (() -> Void)? = nil,
@@ -41,6 +42,7 @@ public final class YaloChat {
             channelId: channelId,
             organizationId: organizationId,
             environment: environment,
+            userId: userId,
             useFakeRepository: useFakeData
         )
         YaloChatSdk.shared.initialize(config: config)

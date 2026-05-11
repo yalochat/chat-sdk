@@ -75,6 +75,7 @@ object YaloChatSdk {
                 channelId = config.channelId,
                 organizationId = config.organizationId,
                 httpClient = httpClient,
+                externalUserId = config.userId,
             )
             // Use app-specific caches directory — mirrors Android's context.cacheDir.
             // NSTemporaryDirectory() is purged aggressively by the OS between app launches;

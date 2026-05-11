@@ -7,7 +7,7 @@ import com.yalo.chat.sdk.data.remote.model.SdkAddPromotionRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkAddToCartRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkClearCartRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkRemoveFromCartRequestBody
-import com.yalo.chat.sdk.data.remote.model.YaloAuthRequest
+import com.yalo.chat.sdk.data.remote.model.USER_TYPE_ANONYMOUS
 import com.yalo.chat.sdk.data.remote.model.YaloAuthResponse
 import com.yalo.chat.sdk.data.remote.model.MediaUploadResponse
 import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
@@ -36,9 +36,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 
 private const val HEADER_USER_ID = "x-user-id"
 private const val HEADER_CHANNEL_ID = "x-channel-id"
@@ -65,6 +67,7 @@ internal class YaloChatApiService(
     private val organizationId: String,
     // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
     internal val httpClient: HttpClient,
+    private val externalUserId: String? = null,
 ) {
     private val apiBaseUrl = apiBaseUrl.trimEnd('/').removeSuffix("/inapp").removeSuffix("/webchat")
     private val tokenMutex = Mutex()
@@ -98,15 +101,16 @@ internal class YaloChatApiService(
 
     private suspend fun doAuthenticate(): Result<Pair<String, String>> {
         return try {
+            val body = buildJsonObject {
+                put("user_type", if (externalUserId != null) "third_party_anonymous" else USER_TYPE_ANONYMOUS)
+                put("channel_id", channelId)
+                put("organization_id", organizationId)
+                put("timestamp", Clock.System.now().toEpochMilliseconds())
+                externalUserId?.let { put("user_id", it) }
+            }
             val response = httpClient.post("$apiBaseUrl/auth") {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    YaloAuthRequest(
-                        channelId = channelId,
-                        organizationId = organizationId,
-                        timestamp = Clock.System.now().toEpochMilliseconds(),
-                    )
-                )
+                setBody(body)
             }
             if (response.status.isSuccess()) {
                 val auth: YaloAuthResponse = response.body()
