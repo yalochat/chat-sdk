@@ -729,6 +729,34 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals("Pick an option", msg.content)
     }
 
+    @Test
+    fun `pollIncomingMessages maps button with absent buttonType field to REPLY (proto3 default)`() = runTest {
+        // Proto3 omits fields at their default value on the wire. BUTTON_TYPE_REPLY = 0 is the
+        // default, so a real server payload may omit the buttonType key entirely. The DTO default
+        // must catch this and produce ButtonType.REPLY.
+        val json = """[{"id":"btn-proto3-default","message":{"textMessageRequest":{"content":{"text":"Pick:","role":"MESSAGE_ROLE_AGENT"},"buttons":[{"text":"Yes"},{"text":"No"}]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        val msg = batch.first()
+        assertEquals(2, msg.buttons.size)
+        assertTrue(msg.buttons.all { it.type == ButtonType.REPLY }, "Absent buttonType must default to REPLY")
+        assertEquals(listOf("Yes", "No"), msg.buttons.map { it.text })
+    }
+
+    @Test
+    fun `pollIncomingMessages maps LINK button with absent url field to null url`() = runTest {
+        // url is optional in the proto — LINK buttons without a url field must map to Button(url=null),
+        // not crash. MessageButton handles null url as a no-op tap.
+        val json = """[{"id":"btn-link-no-url","message":{"textMessageRequest":{"content":{"text":"Visit:","role":"MESSAGE_ROLE_AGENT"},"buttons":[{"text":"Open","buttonType":"BUTTON_TYPE_LINK"}]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        val msg = batch.first()
+        assertEquals(1, msg.buttons.size)
+        assertEquals(ButtonType.LINK, msg.buttons.first().type)
+        assertNull(msg.buttons.first().url, "LINK button with no url field must have url=null")
+    }
+
     // ── pollIncomingMessages — legacy buttons messages (backward compat) ───────────
 
     private fun buttonsMessageJson(

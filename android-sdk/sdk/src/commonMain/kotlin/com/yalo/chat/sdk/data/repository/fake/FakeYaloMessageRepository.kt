@@ -85,7 +85,7 @@ class FakeYaloMessageRepository : YaloMessageRepository {
             ChatMessage(
                 id = 6L,
                 role = MessageRole.AGENT,
-                type = MessageType.QuickReply,
+                type = MessageType.Text,
                 status = MessageStatus.DELIVERED,
                 content = "Please choose an option:",
                 buttons = listOf(

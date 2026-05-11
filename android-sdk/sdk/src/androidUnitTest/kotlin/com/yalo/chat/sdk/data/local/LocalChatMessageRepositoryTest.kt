@@ -24,6 +24,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 // Uses JdbcSqliteDriver (in-memory) — no Android emulator required.
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -31,6 +32,7 @@ class LocalChatMessageRepositoryTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var driver: JdbcSqliteDriver
+    private lateinit var db: ChatDatabase
     private lateinit var repo: LocalChatMessageRepository
 
     @BeforeTest
@@ -38,7 +40,7 @@ class LocalChatMessageRepositoryTest {
         Dispatchers.setMain(dispatcher)
         driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         ChatDatabase.Schema.create(driver)
-        val db = createDatabase(driver)
+        db = createDatabase(driver)
         repo = LocalChatMessageRepository(db.chatMessageQueries, ioDispatcher = dispatcher)
     }
 
@@ -248,6 +250,69 @@ class LocalChatMessageRepositoryTest {
     }
 
     // ── CTA message round-trip ────────────────────────────────────────────────
+
+    // ── Backward-compat DB decode (legacy JSON column formats) ───────────────────
+
+    // These tests simulate rows written by a pre-proto-2.0 app version and verify that
+    // decodeButtons() reads them correctly without a DB migration.
+
+    @Test
+    fun `legacy List-String buttons column decoded as POSTBACK buttons`() = runTest {
+        // Old app wrote buttons as ["Yes","No"] (List<String>, POSTBACK-implied).
+        db.chatMessageQueries.insertOrReplace(
+            id = 100L, wi_id = "legacy-btn-1", role = "agent", content = "Choose:",
+            type = "buttons", status = "delivered", file_name = null, amplitudes = null,
+            duration = null, byte_count = null, media_type = null, products = null,
+            quick_replies = null, header_ = "Order help", footer = null,
+            buttons = """["Track order","Cancel order"]""", cta_buttons = null,
+            timestamp = 100_000L,
+        )
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(2, loaded.buttons.size)
+        assertTrue(loaded.buttons.all { it.type == ButtonType.POSTBACK })
+        assertEquals(listOf("Track order", "Cancel order"), loaded.buttons.map { it.text })
+    }
+
+    @Test
+    fun `legacy cta_buttons column decoded as LINK buttons`() = runTest {
+        // Old app wrote CTA buttons as List<CtaButton> JSON in cta_buttons; buttons was null.
+        db.chatMessageQueries.insertOrReplace(
+            id = 101L, wi_id = "legacy-cta-1", role = "agent", content = "Shop now",
+            type = "cta", status = "delivered", file_name = null, amplitudes = null,
+            duration = null, byte_count = null, media_type = null, products = null,
+            quick_replies = null, header_ = null, footer = null, buttons = null,
+            cta_buttons = """[{"text":"View Catalog","url":"https://example.com/catalog"},{"text":"View Promos","url":"https://example.com/promos"}]""",
+            timestamp = 101_000L,
+        )
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(2, loaded.buttons.size)
+        assertTrue(loaded.buttons.all { it.type == ButtonType.LINK })
+        assertEquals("View Catalog", loaded.buttons[0].text)
+        assertEquals("https://example.com/catalog", loaded.buttons[0].url)
+        assertEquals("View Promos", loaded.buttons[1].text)
+    }
+
+    @Test
+    fun `legacy quick_replies column decoded as REPLY buttons`() = runTest {
+        // Old app wrote quick replies as List<String> JSON in quick_replies; buttons was null.
+        db.chatMessageQueries.insertOrReplace(
+            id = 102L, wi_id = "legacy-qr-1", role = "agent", content = "Pick one:",
+            type = "quickReply", status = "delivered", file_name = null, amplitudes = null,
+            duration = null, byte_count = null, media_type = null, products = null,
+            quick_replies = """["Yes","No","Maybe"]""", header_ = null, footer = null,
+            buttons = null, cta_buttons = null, timestamp = 102_000L,
+        )
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(3, loaded.buttons.size)
+        assertTrue(loaded.buttons.all { it.type == ButtonType.REPLY })
+        assertEquals(listOf("Yes", "No", "Maybe"), loaded.buttons.map { it.text })
+    }
 
     @Test
     fun `CTA message round-trips header, footer and LINK buttons through DB`() = runTest {

@@ -2,9 +2,14 @@
 
 package com.yalo.chat.sdk.domain.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-enum class ButtonType { REPLY, POSTBACK, LINK }
+enum class ButtonType {
+    @SerialName("REPLY") REPLY,
+    @SerialName("POSTBACK") POSTBACK,
+    @SerialName("LINK") LINK,
+}
 
 @Serializable
 data class Button(

@@ -123,6 +123,7 @@ internal fun MessageItem(
                         val inlineButtons = message.buttons.filter { it.type != ButtonType.REPLY }
                         if (!isUser && (inlineButtons.isNotEmpty() || !message.header.isNullOrEmpty())) {
                             // Proto 2.0: agent text message with embedded buttons / header / footer.
+                            // Also triggered by header-only (no buttons) — same column layout, buttons loop is a no-op.
                             // Renders Markdown body between header and footer, then inline buttons.
                             androidx.compose.foundation.layout.Column(modifier = Modifier.fillMaxWidth()) {
                                 if (!message.header.isNullOrEmpty()) {
@@ -180,27 +181,48 @@ internal fun MessageItem(
                             )
                         }
                     }
-                    MessageType.Image -> AsyncImage(
-                        // fileName holds the local file path for user-sent images (set by
-                        // sendImageMessage). content holds the URL for agent/server images.
-                        // Fall back to content so both cases render correctly.
-                        model = message.fileName ?: message.content,
-                        contentDescription = "Image message",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(200.dp),
-                        placeholder = ColorPainter(theme.imagePlaceholderBackgroundColor),
-                        error = ColorPainter(theme.imagePlaceholderBackgroundColor),
-                    )
-                    MessageType.Voice -> AudioMessageItem(
-                        message = message,
-                        playingMessage = playingMessage,
-                        onPlay = onPlayAudio,
-                        onStop = onStopAudio,
-                    )
-                    MessageType.Video -> VideoMessageItem(
-                        message = message,
-                        messageTextStyle = messageTextStyle,
-                    )
+                    MessageType.Image -> androidx.compose.foundation.layout.Column(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        AsyncImage(
+                            // fileName holds the local file path for user-sent images (set by
+                            // sendImageMessage). content holds the URL for agent/server images.
+                            // Fall back to content so both cases render correctly.
+                            model = message.fileName ?: message.content,
+                            contentDescription = "Image message",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.size(200.dp),
+                            placeholder = ColorPainter(theme.imagePlaceholderBackgroundColor),
+                            error = ColorPainter(theme.imagePlaceholderBackgroundColor),
+                        )
+                        message.buttons.filter { it.type != ButtonType.REPLY }.forEach { button ->
+                            MessageButton(button = button, onEvent = onEvent)
+                        }
+                    }
+                    MessageType.Voice -> androidx.compose.foundation.layout.Column(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        AudioMessageItem(
+                            message = message,
+                            playingMessage = playingMessage,
+                            onPlay = onPlayAudio,
+                            onStop = onStopAudio,
+                        )
+                        message.buttons.filter { it.type != ButtonType.REPLY }.forEach { button ->
+                            MessageButton(button = button, onEvent = onEvent)
+                        }
+                    }
+                    MessageType.Video -> androidx.compose.foundation.layout.Column(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        VideoMessageItem(
+                            message = message,
+                            messageTextStyle = messageTextStyle,
+                        )
+                        message.buttons.filter { it.type != ButtonType.REPLY }.forEach { button ->
+                            MessageButton(button = button, onEvent = onEvent)
+                        }
+                    }
                     MessageType.Buttons -> ButtonsMessage(
                         message = message,
                         onEvent = onEvent,

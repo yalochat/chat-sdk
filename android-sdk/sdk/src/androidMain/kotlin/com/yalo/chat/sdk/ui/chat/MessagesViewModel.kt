@@ -246,8 +246,11 @@ internal class MessagesViewModel(
                     // triggers observeMessages, which would find the old QuickReply message
                     // and restore its replies).
                     val latestQrWiId = mergedMessages
-                        .lastOrNull { it.role == MessageRole.AGENT && it.buttons.any { b -> b.type == ButtonType.REPLY } }
-                        ?.wiId
+                        .lastOrNull {
+                            it.role == MessageRole.AGENT &&
+                            (it.type == MessageType.Text || it.type == MessageType.QuickReply) &&
+                            it.buttons.any { b -> b.type == ButtonType.REPLY }
+                        }?.wiId
                     val quickReplies = if (latestQrWiId != null && latestQrWiId != currentState.lastQuickReplyMessageWiId) {
                         mergedMessages.extractQuickReplies()
                     } else {
@@ -344,9 +347,12 @@ internal class MessagesViewModel(
     }
 }
 
-// Derives quick replies from the most recent agent message that carries REPLY-typed buttons,
-// mirroring the Flutter SDK behaviour where the last such message drives the overlay chips
-// above ChatInput.
+// Derives quick replies from the most recent agent Text message carrying REPLY-typed buttons.
+// Restricted to Text/QuickReply types so buttons on media messages (Image/Video/Voice) never
+// surface as chips — those message types render their own inline buttons instead.
 private fun List<ChatMessage>.extractQuickReplies(): List<String> =
-    lastOrNull { it.role == MessageRole.AGENT && it.buttons.any { b -> b.type == ButtonType.REPLY } }
-        ?.buttons?.filter { it.type == ButtonType.REPLY }?.map { it.text }.orEmpty()
+    lastOrNull {
+        it.role == MessageRole.AGENT &&
+        (it.type == MessageType.Text || it.type == MessageType.QuickReply) &&
+        it.buttons.any { b -> b.type == ButtonType.REPLY }
+    }?.buttons?.filter { it.type == ButtonType.REPLY }?.map { it.text }.orEmpty()

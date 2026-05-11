@@ -165,7 +165,7 @@ internal class LocalChatMessageRepository(
         buttonsJson?.let { json ->
             // Try new unified format (List<Button> with type field).
             val asButtons = try { Json.decodeFromString(buttonListSerializer, json) } catch (_: Exception) { null }
-            if (asButtons != null) return asButtons
+            if (!asButtons.isNullOrEmpty()) return asButtons
             // Fall back to old List<String> format (POSTBACK-implied, no URL).
             val asStrings = try { Json.decodeFromString(stringListSerializer, json) } catch (_: Exception) { null }
             if (asStrings != null) return asStrings.map { Button(text = it, type = ButtonType.POSTBACK) }
