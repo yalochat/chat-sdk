@@ -79,6 +79,18 @@ class ChatScreen extends StatelessWidget {
 | `organizationId` | `String` | Yes | Your Yalo organization ID. |
 | `userId` | `String?` | No | Your own user identifier. When provided, the chat session is linked to your user. |
 
+### Chat widget options
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `client` | `YaloChatClient` | Yes | The configured chat client. |
+| `theme` | `ChatTheme` | No | Visual customization for the chat UI. |
+| `appBar` | `PreferredSizeWidget?` | No | Custom app bar. Falls back to the default `ChatAppBar`. |
+| `showAttachmentButton` | `bool` | No | Whether the attachment button is shown in the input. Defaults to `true`. |
+| `onShopPressed` | `VoidCallback?` | No | Called when the shop icon is tapped. |
+| `onCartPressed` | `VoidCallback?` | No | Called when the cart icon is tapped. |
+| `openContext` | `String?` | No | Describes where the chat is being opened from. It can be a structured value such as an SKU like `"123"`, or natural language like `"product page of product 123"`. |
+
 ### Logging
 
 Yalo Flutter SDK uses the [logging](https://pub.dev/packages/logging)

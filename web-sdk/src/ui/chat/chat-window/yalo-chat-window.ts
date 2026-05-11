@@ -75,6 +75,9 @@ export class YaloChatWindow extends LitElement {
   open: boolean = false;
 
   @property({ attribute: false })
+  openContext?: string;
+
+  @property({ attribute: false })
   @provide({ context: yaloChatClientConfigContext })
   config!: YaloChatClientConfig;
 

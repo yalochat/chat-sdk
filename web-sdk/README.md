@@ -94,7 +94,7 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 | Method | Description |
 |--------|-------------|
 | `client.init()` | Initializes the chat widget and attaches it to the target element |
-| `client.open()` | Opens the chat window |
+| `client.open(openContext?)` | Opens the chat window. Accepts an optional `openContext` string describing where the chat is being opened from. It can be a structured value such as an SKU like `"123"`, or natural language like `"product page of product 123"` |
 | `client.close()` | Closes the chat window |
 | `client.registerCommand(command, callback)` | Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)) |
 

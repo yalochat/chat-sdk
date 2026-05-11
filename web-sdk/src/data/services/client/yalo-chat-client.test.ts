@@ -120,6 +120,26 @@ describe('YaloChatClient', () => {
       client.open();
       expect(targetEl.classList.contains('open')).toBe(true);
     });
+
+    it('forwards the openContext to the chat window when provided', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.open('product-page');
+      expect(getChatWindow().openContext).toBe('product-page');
+    });
+
+    it('leaves openContext undefined when not provided', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.open();
+      expect(getChatWindow().openContext).toBeUndefined();
+    });
   });
 
   describe('registerCommand', () => {
