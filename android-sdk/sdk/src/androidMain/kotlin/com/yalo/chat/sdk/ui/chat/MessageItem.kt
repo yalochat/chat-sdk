@@ -40,6 +40,7 @@ import coil3.compose.AsyncImage
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -118,27 +119,66 @@ internal fun MessageItem(
             Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                 when (message.type) {
                     MessageType.Text,
-                    MessageType.QuickReply -> if (isUser) {
-                        Text(
-                            text = message.content,
-                            style = messageTextStyle,
-                        )
-                    } else {
-                        // Agent messages render CommonMark — mirrors Flutter's flutter_markdown_plus.
-                        // Links open via LocalUriHandler (system browser), same as Flutter's
-                        // LaunchMode.externalApplication.
-                        Markdown(
-                            content = message.content,
-                            colors = markdownColor(
-                                text = messageTextStyle.color.takeOrElse { contentColor },
-                                linkText = theme.expandControlsStyle.color,
-                            ),
-                            typography = markdownTypography(
-                                paragraph = messageTextStyle,
-                                text = messageTextStyle,
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                    MessageType.QuickReply -> {
+                        val inlineButtons = message.buttons.filter { it.type != ButtonType.REPLY }
+                        if (!isUser && (inlineButtons.isNotEmpty() || !message.header.isNullOrEmpty())) {
+                            // Proto 2.0: agent text message with embedded buttons / header / footer.
+                            // Renders Markdown body between header and footer, then inline buttons.
+                            androidx.compose.foundation.layout.Column(modifier = Modifier.fillMaxWidth()) {
+                                if (!message.header.isNullOrEmpty()) {
+                                    Text(
+                                        text = message.header,
+                                        style = MaterialTheme.typography.bodyMedium.merge(theme.messageHeaderStyle),
+                                        modifier = Modifier.padding(bottom = 4.dp),
+                                    )
+                                }
+                                if (message.content.isNotEmpty()) {
+                                    Markdown(
+                                        content = message.content,
+                                        colors = markdownColor(
+                                            text = messageTextStyle.color.takeOrElse { contentColor },
+                                            linkText = theme.expandControlsStyle.color,
+                                        ),
+                                        typography = markdownTypography(
+                                            paragraph = messageTextStyle,
+                                            text = messageTextStyle,
+                                        ),
+                                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                                    )
+                                }
+                                if (!message.footer.isNullOrEmpty()) {
+                                    Text(
+                                        text = message.footer,
+                                        style = MaterialTheme.typography.bodyMedium.merge(theme.messageFooterStyle),
+                                        modifier = Modifier.padding(bottom = 8.dp),
+                                    )
+                                }
+                                inlineButtons.forEach { button ->
+                                    MessageButton(button = button, onEvent = onEvent)
+                                }
+                            }
+                        } else if (isUser) {
+                            Text(
+                                text = message.content,
+                                style = messageTextStyle,
+                            )
+                        } else {
+                            // Agent messages render CommonMark — mirrors Flutter's flutter_markdown_plus.
+                            // Links open via LocalUriHandler (system browser), same as Flutter's
+                            // LaunchMode.externalApplication.
+                            Markdown(
+                                content = message.content,
+                                colors = markdownColor(
+                                    text = messageTextStyle.color.takeOrElse { contentColor },
+                                    linkText = theme.expandControlsStyle.color,
+                                ),
+                                typography = markdownTypography(
+                                    paragraph = messageTextStyle,
+                                    text = messageTextStyle,
+                                ),
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                     MessageType.Image -> AsyncImage(
                         // fileName holds the local file path for user-sent images (set by
@@ -165,7 +205,7 @@ internal fun MessageItem(
                         message = message,
                         onEvent = onEvent,
                     )
-                    MessageType.CTA -> CtaMessage(message = message)
+                    MessageType.CTA -> CtaMessage(message = message, onEvent = onEvent)
                     MessageType.Unknown -> Text(
                         text = "Unsupported message",
                         style = messageTextStyle,

@@ -5,6 +5,8 @@ package com.yalo.chat.sdk.ui.chat
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.domain.model.Button
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -232,9 +234,9 @@ class MessagesViewModelTest {
     fun `ClearQuickReplies empties quickReplies list`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick:",
-                quickReplies = listOf("A", "B"))
+                buttons = listOf(Button("A", ButtonType.REPLY), Button("B", ButtonType.REPLY)))
         )
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.LoadMessages)
@@ -286,12 +288,12 @@ class MessagesViewModelTest {
     // ── QuickReplies extraction ───────────────────────────────────────────────
 
     @Test
-    fun `LoadMessages extracts quickReplies from QuickReply message`() = runTest {
+    fun `LoadMessages extracts quickReplies from message with REPLY buttons`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Choose:",
-                quickReplies = listOf("Yes", "No"))
+                buttons = listOf(Button("Yes", ButtonType.REPLY), Button("No", ButtonType.REPLY)))
         )
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.LoadMessages)
@@ -299,36 +301,35 @@ class MessagesViewModelTest {
     }
 
     @Test
-    fun `SubscribeToMessages extracts quickReplies when QuickReply message arrives`() = runTest {
+    fun `SubscribeToMessages extracts quickReplies when message with REPLY buttons arrives`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SubscribeToMessages)
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                quickReplies = listOf("Option A", "Option B"))
+                buttons = listOf(Button("Option A", ButtonType.REPLY), Button("Option B", ButtonType.REPLY)))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
         vm.viewModelScope.cancel()
     }
 
     @Test
-    fun `ClearQuickReplies not restored when subsequent non-QuickReply message arrives`() = runTest {
+    fun `ClearQuickReplies not restored when subsequent non-REPLY message arrives`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SubscribeToMessages)
-        // Seed a QuickReply message so quickReplies are populated
+        // Seed a message with REPLY buttons so quickReplies are populated
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                quickReplies = listOf("Option A", "Option B"))
+                buttons = listOf(Button("Option A", ButtonType.REPLY), Button("Option B", ButtonType.REPLY)))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
         // User taps a chip → clear
         vm.handleEvent(MessagesEvent.ClearQuickReplies)
         assertTrue(vm.state.value.quickReplies.isEmpty())
-        // A new non-QuickReply message arrives (e.g. user sends text) —
-        // quick replies must NOT be restored.
+        // A new text message arrives (e.g. user sends text) — quick replies must NOT be restored.
         chatRepo.insertMessage(
             ChatMessage(id = 2L, role = MessageRole.USER, type = MessageType.Text,
                 status = MessageStatus.SENT, content = "Option A")
@@ -338,27 +339,27 @@ class MessagesViewModelTest {
     }
 
     @Test
-    fun `ClearQuickReplies IS restored when a new QuickReply message with the same content arrives`() = runTest {
+    fun `ClearQuickReplies IS restored when a new message with REPLY buttons arrives`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.SubscribeToMessages)
-        // First QuickReply message
+        // First message with REPLY buttons
         chatRepo.insertMessage(
-            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                quickReplies = listOf("Yes", "No"))
+                buttons = listOf(Button("Yes", ButtonType.REPLY), Button("No", ButtonType.REPLY)))
         )
         assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies)
         vm.handleEvent(MessagesEvent.ClearQuickReplies)
         assertTrue(vm.state.value.quickReplies.isEmpty())
-        // Backend re-sends a QuickReply with identical options — different message (different wiId).
+        // Backend re-sends REPLY buttons with identical options — different message (different wiId).
         // The chip row MUST reappear even though the content is the same as the cleared one.
         chatRepo.insertMessage(
-            ChatMessage(id = 2L, wiId = "qr-wi-2", role = MessageRole.AGENT, type = MessageType.QuickReply,
+            ChatMessage(id = 2L, wiId = "qr-wi-2", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                quickReplies = listOf("Yes", "No"))
+                buttons = listOf(Button("Yes", ButtonType.REPLY), Button("No", ButtonType.REPLY)))
         )
-        assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies, "chip row must reappear for a new QuickReply message even if content is identical")
+        assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies, "chip row must reappear for a new REPLY message even if content is identical")
         vm.viewModelScope.cancel()
     }
 

@@ -36,7 +36,7 @@ class ChatMessageTest {
         assertEquals("", msg.content)
         assertEquals(MessageStatus.IN_PROGRESS, msg.status)
         assertEquals(emptyList(), msg.products)
-        assertEquals(emptyList(), msg.quickReplies)
+        assertEquals(emptyList(), msg.buttons)
         assertEquals(emptyList(), msg.amplitudes)
     }
 }

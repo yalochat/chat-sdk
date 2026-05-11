@@ -3,6 +3,8 @@
 package com.yalo.chat.sdk.data.repository.fake
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.domain.model.Button
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -86,7 +88,11 @@ class FakeYaloMessageRepository : YaloMessageRepository {
                 type = MessageType.QuickReply,
                 status = MessageStatus.DELIVERED,
                 content = "Please choose an option:",
-                quickReplies = listOf("Track order", "Cancel order", "Talk to agent"),
+                buttons = listOf(
+                    Button(text = "Track order", type = ButtonType.REPLY),
+                    Button(text = "Cancel order", type = ButtonType.REPLY),
+                    Button(text = "Talk to agent", type = ButtonType.REPLY),
+                ),
                 timestamp = Clock.System.now().toEpochMilliseconds() - 10_000,
             ),
             ChatMessage(

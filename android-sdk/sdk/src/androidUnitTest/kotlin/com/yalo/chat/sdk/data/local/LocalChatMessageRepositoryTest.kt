@@ -5,11 +5,12 @@ package com.yalo.chat.sdk.data.local
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.database.ChatDatabase
+import com.yalo.chat.sdk.domain.model.Button
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
-import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.Product
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -119,19 +120,26 @@ class LocalChatMessageRepositoryTest {
     // ── JSON columns round-trip ───────────────────────────────────────────────
 
     @Test
-    fun `quickReplies round-trip through JSON column`() = runTest {
+    fun `REPLY buttons round-trip through JSON column`() = runTest {
         val message = ChatMessage(
             id = 1L,
             role = MessageRole.AGENT,
-            type = MessageType.QuickReply,
+            type = MessageType.Text,
             status = MessageStatus.DELIVERED,
             content = "Pick one:",
-            quickReplies = listOf("Yes", "No", "Maybe"),
+            buttons = listOf(
+                Button(text = "Yes", type = ButtonType.REPLY),
+                Button(text = "No", type = ButtonType.REPLY),
+                Button(text = "Maybe", type = ButtonType.REPLY),
+            ),
         )
         repo.insertMessage(message)
         val result = repo.getMessages(cursor = null, limit = 1)
         assertIs<Result.Ok<List<ChatMessage>>>(result)
-        assertEquals(listOf("Yes", "No", "Maybe"), result.result.first().quickReplies)
+        assertEquals(
+            listOf("Yes", "No", "Maybe"),
+            result.result.first().buttons.filter { it.type == ButtonType.REPLY }.map { it.text },
+        )
     }
 
     @Test
@@ -198,7 +206,11 @@ class LocalChatMessageRepositoryTest {
             content = "Pick an option:",
             header = "Order help",
             footer = "Tap any option",
-            buttons = listOf("Track order", "Cancel order", "Contact support"),
+            buttons = listOf(
+                Button(text = "Track order", type = ButtonType.POSTBACK),
+                Button(text = "Cancel order", type = ButtonType.POSTBACK),
+                Button(text = "Contact support", type = ButtonType.POSTBACK),
+            ),
             timestamp = 1000L,
         )
         repo.insertMessage(message)
@@ -208,7 +220,7 @@ class LocalChatMessageRepositoryTest {
         assertEquals(MessageType.Buttons, loaded.type)
         assertEquals("Order help", loaded.header)
         assertEquals("Tap any option", loaded.footer)
-        assertEquals(listOf("Track order", "Cancel order", "Contact support"), loaded.buttons)
+        assertEquals(listOf("Track order", "Cancel order", "Contact support"), loaded.buttons.map { it.text })
         assertEquals("Pick an option:", loaded.content)
     }
 
@@ -220,7 +232,10 @@ class LocalChatMessageRepositoryTest {
             type = MessageType.Buttons,
             status = MessageStatus.DELIVERED,
             content = "Choose:",
-            buttons = listOf("Yes", "No"),
+            buttons = listOf(
+                Button(text = "Yes", type = ButtonType.POSTBACK),
+                Button(text = "No", type = ButtonType.POSTBACK),
+            ),
             timestamp = 2000L,
         )
         repo.insertMessage(message)
@@ -229,13 +244,13 @@ class LocalChatMessageRepositoryTest {
         val loaded = result.result.first()
         assertEquals(null, loaded.header)
         assertEquals(null, loaded.footer)
-        assertEquals(listOf("Yes", "No"), loaded.buttons)
+        assertEquals(listOf("Yes", "No"), loaded.buttons.map { it.text })
     }
 
     // ── CTA message round-trip ────────────────────────────────────────────────
 
     @Test
-    fun `CTA message round-trips header, footer and ctaButtons through DB`() = runTest {
+    fun `CTA message round-trips header, footer and LINK buttons through DB`() = runTest {
         val message = ChatMessage(
             id = 3L,
             wiId = "cta-wi-1",
@@ -245,9 +260,9 @@ class LocalChatMessageRepositoryTest {
             content = "Check out our catalog",
             header = "Shop now",
             footer = "Limited time offer",
-            ctaButtons = listOf(
-                CtaButton(text = "View Catalog", url = "https://example.com/catalog"),
-                CtaButton(text = "View Promotions", url = "https://example.com/promos"),
+            buttons = listOf(
+                Button(text = "View Catalog", type = ButtonType.LINK, url = "https://example.com/catalog"),
+                Button(text = "View Promotions", type = ButtonType.LINK, url = "https://example.com/promos"),
             ),
             timestamp = 3000L,
         )
@@ -258,9 +273,9 @@ class LocalChatMessageRepositoryTest {
         assertEquals(MessageType.CTA, loaded.type)
         assertEquals("Shop now", loaded.header)
         assertEquals("Limited time offer", loaded.footer)
-        assertEquals(2, loaded.ctaButtons.size)
-        assertEquals("View Catalog", loaded.ctaButtons[0].text)
-        assertEquals("https://example.com/catalog", loaded.ctaButtons[0].url)
-        assertEquals("View Promotions", loaded.ctaButtons[1].text)
+        assertEquals(2, loaded.buttons.size)
+        assertEquals("View Catalog", loaded.buttons[0].text)
+        assertEquals("https://example.com/catalog", loaded.buttons[0].url)
+        assertEquals("View Promotions", loaded.buttons[1].text)
     }
 }

@@ -61,6 +61,9 @@ fun ChatScreen(
     onShopPressed: (() -> Unit)? = null,
     /** Called when the user taps the cart icon in the chat app bar. Mirrors Flutter's Chat(onCartPressed:). */
     onCartPressed: (() -> Unit)? = null,
+    /** Describes where the chat is being opened from. Mirrors Flutter's Chat(openContext:). */
+    @Suppress("UNUSED_PARAMETER")
+    openContext: String? = null,
 ) {
     val context = LocalContext.current
     val factory = YaloChat.getViewModelFactory()

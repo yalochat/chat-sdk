@@ -31,11 +31,25 @@ internal data class SdkMessageResponseDto(
     val ctaMessageRequest: SdkCtaMessageResponseDto? = null,
 )
 
+// ── Unified button (proto 2.0) ────────────────────────────────────────────────
+
+// Proto3 JSON for sdk_message.proto Button — button_type is serialized as its enum name string
+// (e.g. "BUTTON_TYPE_POSTBACK"). url is omitted from JSON when absent (proto3 optional).
+@Serializable
+internal data class SdkButtonDto(
+    val text: String = "",
+    val buttonType: String = "BUTTON_TYPE_REPLY",
+    val url: String? = null,
+)
+
 // ── Text ──────────────────────────────────────────────────────────────────────
 
 @Serializable
 internal data class SdkTextMessageResponseDto(
     val content: SdkTextMessageContentDto? = null,
+    val buttons: List<SdkButtonDto> = emptyList(),
+    val header: String? = null,
+    val footer: String? = null,
 )
 
 @Serializable
@@ -73,6 +87,9 @@ internal data class SdkProductDto(
 @Serializable
 internal data class SdkImageMessageResponseDto(
     val content: SdkImageMessageContentDto? = null,
+    val buttons: List<SdkButtonDto> = emptyList(),
+    val header: String? = null,
+    val footer: String? = null,
 )
 
 @Serializable
@@ -88,6 +105,9 @@ internal data class SdkImageMessageContentDto(
 @Serializable
 internal data class SdkVideoMessageResponseDto(
     val content: SdkVideoMessageContentDto? = null,
+    val buttons: List<SdkButtonDto> = emptyList(),
+    val header: String? = null,
+    val footer: String? = null,
 )
 
 @Serializable
@@ -106,6 +126,9 @@ internal data class SdkVideoMessageContentDto(
 @Serializable
 internal data class SdkVoiceNoteMessageResponseDto(
     val content: SdkVoiceMessageContentDto? = null,
+    val buttons: List<SdkButtonDto> = emptyList(),
+    val header: String? = null,
+    val footer: String? = null,
 )
 
 @Serializable

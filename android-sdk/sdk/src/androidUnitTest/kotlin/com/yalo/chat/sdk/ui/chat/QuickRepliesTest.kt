@@ -5,6 +5,8 @@ package com.yalo.chat.sdk.ui.chat
 import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.domain.model.Button
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -57,13 +59,17 @@ class QuickRepliesTest {
     }
 
     @Test
-    fun `quickReplies is non-empty after loading a QuickReply message — chip row is visible`() = runTest {
+    fun `quickReplies is non-empty after loading a message with REPLY buttons — chip row is visible`() = runTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick an option:",
-                quickReplies = listOf("Yes", "No", "Maybe"),
+                buttons = listOf(
+                    Button(text = "Yes", type = ButtonType.REPLY),
+                    Button(text = "No", type = ButtonType.REPLY),
+                    Button(text = "Maybe", type = ButtonType.REPLY),
+                ),
             )
         )
         val vm = viewModel(chatRepo = chatRepo)
@@ -81,9 +87,12 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick:",
-                quickReplies = listOf("Track order", "Cancel order"),
+                buttons = listOf(
+                    Button(text = "Track order", type = ButtonType.REPLY),
+                    Button(text = "Cancel order", type = ButtonType.REPLY),
+                ),
             )
         )
         val vm = viewModel(chatRepo = chatRepo)
@@ -108,9 +117,13 @@ class QuickRepliesTest {
         val chatRepo = FakeChatMessageRepository()
         chatRepo.insertMessage(
             ChatMessage(
-                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.QuickReply,
+                id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "How can I help?",
-                quickReplies = listOf("Option A", "Option B", "Option C"),
+                buttons = listOf(
+                    Button(text = "Option A", type = ButtonType.REPLY),
+                    Button(text = "Option B", type = ButtonType.REPLY),
+                    Button(text = "Option C", type = ButtonType.REPLY),
+                ),
             )
         )
         val vm = viewModel(chatRepo = chatRepo)

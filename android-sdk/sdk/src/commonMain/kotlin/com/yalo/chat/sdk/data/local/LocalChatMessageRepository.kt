@@ -7,6 +7,8 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.database.ChatMessageQueries
 import com.yalo.chat.sdk.database.Chat_message
+import com.yalo.chat.sdk.domain.model.Button
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -116,11 +118,9 @@ internal class LocalChatMessageRepository(
         byteCount = byte_count,
         mediaType = media_type,
         products = products?.let { decodeProductList(it) } ?: emptyList(),
-        quickReplies = quick_replies?.let { decodeStringList(it) } ?: emptyList(),
         header = header_, // SQLDelight escapes 'header' (SQL keyword) → header_
         footer = footer,
-        buttons = buttons?.let { decodeStringList(it) } ?: emptyList(),
-        ctaButtons = cta_buttons?.let { decodeCtaButtonList(it) } ?: emptyList(),
+        buttons = decodeButtons(buttons, cta_buttons, quick_replies),
         timestamp = timestamp,
     )
 
@@ -137,11 +137,11 @@ internal class LocalChatMessageRepository(
         byte_count = byteCount,
         media_type = mediaType,
         products = products.takeIf { it.isNotEmpty() }?.let { encodeProductList(it) },
-        quick_replies = quickReplies.takeIf { it.isNotEmpty() }?.let { encodeStringList(it) },
+        quick_replies = null,
         header_ = header,
         footer = footer,
-        buttons = buttons.takeIf { it.isNotEmpty() }?.let { encodeStringList(it) },
-        cta_buttons = ctaButtons.takeIf { it.isNotEmpty() }?.let { encodeCtaButtonList(it) },
+        buttons = buttons.takeIf { it.isNotEmpty() }?.let { encodeButtonList(it) },
+        cta_buttons = null,
         timestamp = timestamp,
     )
 
@@ -151,6 +151,40 @@ internal class LocalChatMessageRepository(
     private val productListSerializer = ListSerializer(Product.serializer())
     private val stringListSerializer = ListSerializer(String.serializer())
     private val ctaButtonListSerializer = ListSerializer(CtaButton.serializer())
+    private val buttonListSerializer = ListSerializer(Button.serializer())
+
+    // Reads unified List<Button> from the three DB columns, handling both old and new formats.
+    // New records: `buttons` stores List<Button> JSON; `cta_buttons` and `quick_replies` are null.
+    // Old records: `buttons` stores List<String> JSON (POSTBACK-implied), `cta_buttons` stores
+    // List<CtaButton> JSON (LINK-implied), `quick_replies` stores List<String> JSON (REPLY-implied).
+    private fun decodeButtons(
+        buttonsJson: String?,
+        ctaJson: String?,
+        qrJson: String?,
+    ): List<Button> {
+        buttonsJson?.let { json ->
+            // Try new unified format (List<Button> with type field).
+            val asButtons = try { Json.decodeFromString(buttonListSerializer, json) } catch (_: Exception) { null }
+            if (asButtons != null) return asButtons
+            // Fall back to old List<String> format (POSTBACK-implied, no URL).
+            val asStrings = try { Json.decodeFromString(stringListSerializer, json) } catch (_: Exception) { null }
+            if (asStrings != null) return asStrings.map { Button(text = it, type = ButtonType.POSTBACK) }
+        }
+        val result = mutableListOf<Button>()
+        ctaJson?.let { json ->
+            try {
+                result += Json.decodeFromString(ctaButtonListSerializer, json)
+                    .map { Button(text = it.text, type = ButtonType.LINK, url = it.url) }
+            } catch (_: Exception) { }
+        }
+        qrJson?.let { json ->
+            try {
+                result += Json.decodeFromString(stringListSerializer, json)
+                    .map { Button(text = it, type = ButtonType.REPLY) }
+            } catch (_: Exception) { }
+        }
+        return result
+    }
 
     private fun decodeDoubleList(json: String): List<Double> =
         try { Json.decodeFromString(doubleListSerializer, json) } catch (_: Exception) { emptyList() }
@@ -158,23 +192,14 @@ internal class LocalChatMessageRepository(
     private fun decodeProductList(json: String): List<Product> =
         try { Json.decodeFromString(productListSerializer, json) } catch (_: Exception) { emptyList() }
 
-    private fun decodeStringList(json: String): List<String> =
-        try { Json.decodeFromString(stringListSerializer, json) } catch (_: Exception) { emptyList() }
-
-    private fun decodeCtaButtonList(json: String): List<CtaButton> =
-        try { Json.decodeFromString(ctaButtonListSerializer, json) } catch (_: Exception) { emptyList() }
-
     private fun encodeDoubleList(list: List<Double>): String =
         Json.encodeToString(doubleListSerializer, list)
 
     private fun encodeProductList(list: List<Product>): String =
         Json.encodeToString(productListSerializer, list)
 
-    private fun encodeStringList(list: List<String>): String =
-        Json.encodeToString(stringListSerializer, list)
-
-    private fun encodeCtaButtonList(list: List<CtaButton>): String =
-        Json.encodeToString(ctaButtonListSerializer, list)
+    private fun encodeButtonList(list: List<Button>): String =
+        Json.encodeToString(buttonListSerializer, list)
 }
 
 // Struct to carry insertOrReplace parameters (avoids a long positional call site).

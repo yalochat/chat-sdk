@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.domain.model.AudioData
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.ImageData
@@ -245,7 +246,7 @@ internal class MessagesViewModel(
                     // triggers observeMessages, which would find the old QuickReply message
                     // and restore its replies).
                     val latestQrWiId = mergedMessages
-                        .lastOrNull { it.type == MessageType.QuickReply && it.role == MessageRole.AGENT }
+                        .lastOrNull { it.role == MessageRole.AGENT && it.buttons.any { b -> b.type == ButtonType.REPLY } }
                         ?.wiId
                     val quickReplies = if (latestQrWiId != null && latestQrWiId != currentState.lastQuickReplyMessageWiId) {
                         mergedMessages.extractQuickReplies()
@@ -343,8 +344,9 @@ internal class MessagesViewModel(
     }
 }
 
-// Derives quick replies from the most recent QuickReply message in the list,
-// mirroring the Flutter SDK behaviour where the last agent quick-reply message
-// drives the overlay buttons above ChatInput.
+// Derives quick replies from the most recent agent message that carries REPLY-typed buttons,
+// mirroring the Flutter SDK behaviour where the last such message drives the overlay chips
+// above ChatInput.
 private fun List<ChatMessage>.extractQuickReplies(): List<String> =
-    lastOrNull { it.type == MessageType.QuickReply && it.role == MessageRole.AGENT }?.quickReplies.orEmpty()
+    lastOrNull { it.role == MessageRole.AGENT && it.buttons.any { b -> b.type == ButtonType.REPLY } }
+        ?.buttons?.filter { it.type == ButtonType.REPLY }?.map { it.text }.orEmpty()

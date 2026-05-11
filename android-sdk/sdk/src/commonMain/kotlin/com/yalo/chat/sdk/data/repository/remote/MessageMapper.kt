@@ -4,13 +4,16 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.data.remote.model.SdkButtonDto
+import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
+import com.yalo.chat.sdk.domain.model.Button
+import com.yalo.chat.sdk.domain.model.ButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.model.Product
-import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.ui.chat.UnitType
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -68,17 +71,22 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
     val stableId = if (ts != 0L) (ts / 1000L) * 1000L + indexOffset else indexOffset.toLong()
 
     // Text message
-    message.textMessageRequest?.content?.let { textContent ->
-        if (deduplicate) cache.set(id, true)
-        return ChatMessage(
-            id = stableId,
-            wiId = id,
-            role = MessageRole.fromString(textContent.role ?: ""),
-            type = MessageType.Text,
-            status = MessageStatus.DELIVERED,
-            content = textContent.text,
-            timestamp = ts,
-        )
+    message.textMessageRequest?.let { request ->
+        request.content?.let { textContent ->
+            if (deduplicate) cache.set(id, true)
+            return ChatMessage(
+                id = stableId,
+                wiId = id,
+                role = MessageRole.fromString(textContent.role ?: ""),
+                type = MessageType.Text,
+                status = MessageStatus.DELIVERED,
+                content = textContent.text,
+                buttons = request.buttons.map { it.toDomain() },
+                header = request.header?.takeIf { it.isNotEmpty() },
+                footer = request.footer?.takeIf { it.isNotEmpty() },
+                timestamp = ts,
+            )
+        }
     }
 
     // Image message — download from CDN and save locally.
@@ -97,6 +105,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                     bytes = bytes,
                 ) ?: return null
                 if (deduplicate) cache.set(id, true)
+                val imgRequest = message.imageMessageRequest!!
                 ChatMessage(
                     id = stableId,
                     wiId = id,
@@ -107,6 +116,9 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                     fileName = localPath,
                     mediaType = mimeType,
                     byteCount = bytes.size.toLong(),
+                    buttons = imgRequest.buttons.map { it.toDomain() },
+                    header = imgRequest.header?.takeIf { it.isNotEmpty() },
+                    footer = imgRequest.footer?.takeIf { it.isNotEmpty() },
                     timestamp = ts,
                 )
             }
@@ -129,6 +141,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                     bytes = bytes,
                 ) ?: return null
                 if (deduplicate) cache.set(id, true)
+                val videoRequest = message.videoMessageRequest!!
                 ChatMessage(
                     id = stableId,
                     wiId = id,
@@ -140,6 +153,9 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                     mediaType = mimeType,
                     byteCount = bytes.size.toLong(),
                     duration = (videoContent.duration * 1000).toLong(),
+                    buttons = videoRequest.buttons.map { it.toDomain() },
+                    header = videoRequest.header?.takeIf { it.isNotEmpty() },
+                    footer = videoRequest.footer?.takeIf { it.isNotEmpty() },
                     timestamp = ts,
                 )
             }
@@ -166,6 +182,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                     bytes = bytes,
                 ) ?: return null
                 if (deduplicate) cache.set(id, true)
+                val voiceRequest = message.voiceNoteMessageRequest!!
                 ChatMessage(
                     id = stableId,
                     wiId = id,
@@ -177,13 +194,16 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                     duration = (voiceContent.duration * 1000).toLong(),
                     mediaType = mimeType,
                     byteCount = bytes.size.toLong(),
+                    buttons = voiceRequest.buttons.map { it.toDomain() },
+                    header = voiceRequest.header?.takeIf { it.isNotEmpty() },
+                    footer = voiceRequest.footer?.takeIf { it.isNotEmpty() },
                     timestamp = ts,
                 )
             }
         }
     }
 
-    // Buttons message
+    // Buttons message (legacy pre-proto-2.0 format — POSTBACK-implied buttons)
     message.buttonsMessageRequest?.content?.let { buttonsContent ->
         if (deduplicate) cache.set(id, true)
         return ChatMessage(
@@ -195,12 +215,12 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
             content = buttonsContent.body,
             header = buttonsContent.header.takeIf { !it.isNullOrEmpty() },
             footer = buttonsContent.footer.takeIf { !it.isNullOrEmpty() },
-            buttons = buttonsContent.buttons,
+            buttons = buttonsContent.buttons.map { Button(text = it, type = ButtonType.POSTBACK) },
             timestamp = ts,
         )
     }
 
-    // CTA message
+    // CTA message (legacy pre-proto-2.0 format — LINK-implied buttons)
     message.ctaMessageRequest?.content?.let { ctaContent ->
         if (deduplicate) cache.set(id, true)
         return ChatMessage(
@@ -212,7 +232,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
             content = ctaContent.body,
             header = ctaContent.header.takeIf { !it.isNullOrEmpty() },
             footer = ctaContent.footer.takeIf { !it.isNullOrEmpty() },
-            ctaButtons = ctaContent.buttons.map { CtaButton(text = it.text, url = it.url) },
+            buttons = ctaContent.buttons.map { Button(text = it.text, type = ButtonType.LINK, url = it.url) },
             timestamp = ts,
         )
     }
@@ -251,4 +271,16 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
     // Unknown payload — cache to avoid re-evaluating on every cycle.
     if (deduplicate) cache.set(id, true)
     return null
+}
+
+// Maps proto3 buttonType string to the domain enum. Proto3 JSON serializes enum values as their
+// name strings (e.g. "BUTTON_TYPE_POSTBACK"). BUTTON_TYPE_REPLY = 0 is the proto3 default and
+// may be omitted from JSON, in which case the DTO default "BUTTON_TYPE_REPLY" is used.
+private fun SdkButtonDto.toDomain(): Button {
+    val type = when (buttonType) {
+        "BUTTON_TYPE_POSTBACK" -> ButtonType.POSTBACK
+        "BUTTON_TYPE_LINK" -> ButtonType.LINK
+        else -> ButtonType.REPLY
+    }
+    return Button(text = text, type = type, url = url)
 }
