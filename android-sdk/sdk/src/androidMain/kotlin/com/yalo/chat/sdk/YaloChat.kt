@@ -18,15 +18,22 @@ import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
+import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
+import com.yalo.chat.sdk.data.remote.YaloMessageServiceWebSocket
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatCommandCallback
+import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import com.yalo.chat.sdk.database.ChatDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import com.yalo.chat.sdk.ui.chat.AudioViewModel
 import com.yalo.chat.sdk.ui.chat.ImageViewModel
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.theme.ChatTheme
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
+import io.ktor.client.engine.okhttp.OkHttp
 
 object YaloChat {
 
@@ -36,7 +43,8 @@ object YaloChat {
     private var _httpClient: HttpClient? = null
     private var _driver: SqlDriver? = null
     private var _syncService: MessageSyncService? = null
-    private var _yaloRepo: YaloMessageRepositoryRemote? = null
+    private var _yaloRepo: YaloMessageRepository? = null
+    private var _wsScope: CoroutineScope? = null
     private val pendingCommands: MutableMap<ChatCommand, ChatCommandCallback> = mutableMapOf()
 
     val config: YaloChatConfig
@@ -59,6 +67,8 @@ object YaloChat {
 
         // Tear down any previous instance before re-initialising (idempotent re-init).
         _syncService?.stop()
+        _wsScope?.cancel()
+        _wsScope = null
         _httpClient?.close()
         _driver?.close()
         _yaloRepo = null
@@ -70,7 +80,7 @@ object YaloChat {
         val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
         val audioRepo = AudioRepositoryLocal(context.applicationContext)
 
-        if (config.useFakeRepository) {
+        if (BuildConfig.USE_FAKE_REPOSITORY) {
             // Fake mode: the fake repo is a dev/test stub and does not execute real cart ops.
             // Re-buffer savedCommands so they are not lost — they will flush on the next real init().
             pendingCommands.putAll(savedCommands)
@@ -97,7 +107,7 @@ object YaloChat {
             return
         }
 
-        val httpClient = buildHttpClient(Android.create(), debug = BuildConfig.DEBUG)
+        val httpClient = buildHttpClient(OkHttp.create(), debug = BuildConfig.DEBUG)
         _httpClient = httpClient
 
         val apiService = YaloChatApiService(
@@ -106,12 +116,6 @@ object YaloChat {
             organizationId = config.organizationId,
             httpClient = httpClient,
         )
-        val yaloRepo = YaloMessageRepositoryRemote(
-            apiService = apiService,
-            tempDir = context.applicationContext.cacheDir.absolutePath,
-        )
-        _yaloRepo = yaloRepo
-        savedCommands.forEach { (cmd, cb) -> yaloRepo.registerCommand(cmd, cb) }
 
         val driver = AndroidSqliteDriver(
             schema = ChatDatabase.Schema,
@@ -122,6 +126,35 @@ object YaloChat {
         _driver = driver
         val db = createDatabase(driver)
         val localRepo = LocalChatMessageRepository(db.chatMessageQueries, kotlinx.coroutines.Dispatchers.IO)
+
+        val yaloRepo: YaloMessageRepository
+        if (runCatching { Transport.valueOf(BuildConfig.TRANSPORT) }.getOrDefault(Transport.LONG_POLL) == Transport.WEBSOCKET) {
+            val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
+            val wsService = YaloMessageServiceWebSocket(
+                wsUrl = wsUrl,
+                apiService = apiService,
+                httpClient = httpClient,
+            )
+            val wsRepo = YaloMessageRepositoryWebSocket(
+                wsService = wsService,
+                apiService = apiService,
+                tempDir = context.applicationContext.cacheDir.absolutePath,
+            )
+            val wsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+            _wsScope = wsScope
+            wsRepo.start(wsScope)
+            _yaloRepo = wsRepo
+            savedCommands.forEach { (cmd, cb) -> wsRepo.registerCommand(cmd, cb) }
+            yaloRepo = wsRepo
+        } else {
+            val pollRepo = YaloMessageRepositoryRemote(
+                apiService = apiService,
+                tempDir = context.applicationContext.cacheDir.absolutePath,
+            )
+            _yaloRepo = pollRepo
+            savedCommands.forEach { (cmd, cb) -> pollRepo.registerCommand(cmd, cb) }
+            yaloRepo = pollRepo
+        }
 
         val syncService = MessageSyncService(
             yaloRepo = yaloRepo,
@@ -176,6 +209,8 @@ object YaloChat {
     /** Visible for testing only — resets singleton state to pristine. */
     internal fun resetForTest() {
         _syncService?.stop()
+        _wsScope?.cancel()
+        _wsScope = null
         _httpClient?.close()
         _driver?.close()
         _yaloRepo = null

@@ -3,6 +3,8 @@
 package com.yalo.chat.sdk.domain.repository
 
 import com.yalo.chat.sdk.common.Result
+import com.yalo.chat.sdk.domain.model.ChatCommand
+import com.yalo.chat.sdk.domain.model.ChatCommandCallback
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.ui.chat.UnitType
@@ -43,4 +45,14 @@ interface YaloMessageRepository {
     suspend fun removeFromCart(sku: String, quantity: Double?, unitType: UnitType? = null): Result<Unit> = Result.Ok(Unit)
     suspend fun clearCart(): Result<Unit> = Result.Ok(Unit)
     suspend fun addPromotion(promotionId: String): Result<Unit> = Result.Ok(Unit)
+
+    // Command registration — overridden by real transports; fake/test repos ignore commands.
+    fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {}
+    val commandsSnapshot: Map<ChatCommand, ChatCommandCallback> get() = emptyMap()
+
+    // Lifecycle hooks for app-level pause/resume (e.g. Activity.onStop / onStart).
+    // WebSocket transport disconnects on pause and reconnects on resume.
+    // Long-poll transport ignores these (polling is managed by the flow collector).
+    fun pause() {}
+    fun resume() {}
 }

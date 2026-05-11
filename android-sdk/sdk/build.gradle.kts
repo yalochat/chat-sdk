@@ -3,6 +3,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
+val localProps = Properties().also { props ->
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { props.load(it) }
+}
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.library)
@@ -34,6 +39,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
             implementation(libs.kotlinx.serialization.json)
@@ -45,8 +51,9 @@ kotlin {
             // Proto-generated sources and lite runtime are Android/JVM-only.
             implementation(libs.protobuf.kotlin.lite)
 
-            // Android Ktor engine and SQLite driver
-            implementation(libs.ktor.client.android)
+            // OkHttp engine — required for WebSocket support (ktor-client-android uses
+            // HttpURLConnection which does not implement WebSocketCapability).
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.sqldelight.android.driver)
 
             // Coroutines with Android dispatcher
@@ -134,6 +141,10 @@ android {
     defaultConfig {
         minSdk = 21
         consumerProguardFiles("consumer-proguard-rules.pro")
+        val useFakeRepo = localProps.getProperty("yalo.useFakeRepository", "false")
+            .trim().toBooleanStrictOrNull() ?: false
+        buildConfigField("Boolean", "USE_FAKE_REPOSITORY", "$useFakeRepo")
+        buildConfigField("String",  "TRANSPORT",           "\"${localProps.getProperty("yalo.transport", "WEBSOCKET").trim().uppercase()}\"")
     }
 
     compileOptions {
