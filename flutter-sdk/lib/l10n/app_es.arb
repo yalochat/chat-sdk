@@ -10,5 +10,13 @@
     "description": "Botón para subir desde galería"
   },
   "showMore": "Ver más",
-  "showLess": "Ver menos"
+  "showLess": "Ver menos",
+  "notDelivered": "No entregado.",
+  "@notDelivered": {
+    "description": "Etiqueta bajo un mensaje de usuario que no se pudo entregar"
+  },
+  "retry": "Reintentar",
+  "@retry": {
+    "description": "Texto de acción mostrado luego de la etiqueta de no entregado para reintentar el envío"
+  }
 }

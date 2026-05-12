@@ -10,5 +10,13 @@
     "description": "A button to take a photo from the gallery"
   },
   "showMore": "Show more",
-  "showLess": "Show less"
+  "showLess": "Show less",
+  "notDelivered": "Not delivered.",
+  "@notDelivered": {
+    "description": "Label shown under a user message that failed to deliver"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Action text shown after the not delivered label to retry sending the message"
+  }
 }
