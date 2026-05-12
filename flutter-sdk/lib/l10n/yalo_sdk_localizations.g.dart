@@ -136,6 +136,18 @@ abstract class YaloSdkLocalizations {
   /// In en, this message translates to:
   /// **'Show less'**
   String get showLess;
+
+  /// Label shown under a user message that failed to deliver
+  ///
+  /// In en, this message translates to:
+  /// **'Not delivered.'**
+  String get notDelivered;
+
+  /// Action text shown after the not delivered label to retry sending the message
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
 }
 
 class _YaloSdkLocalizationsDelegate

@@ -25,4 +25,10 @@ class YaloSdkLocalizationsEn extends YaloSdkLocalizations {
 
   @override
   String get showLess => 'Show less';
+
+  @override
+  String get notDelivered => 'Not delivered.';
+
+  @override
+  String get retry => 'Retry';
 }

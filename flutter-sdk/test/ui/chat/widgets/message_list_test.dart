@@ -190,6 +190,71 @@ void main() {
           expect(tester.takeException(), isA<UnimplementedError>());
         },
       );
+
+      testWidgets(
+        'should render error icon and not delivered label when status is error',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage(
+                  id: 1,
+                  role: MessageRole.user,
+                  type: MessageType.text,
+                  status: MessageStatus.error,
+                  timestamp: clock.now(),
+                  content: 'failed user message',
+                ),
+              ],
+            ),
+          );
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(find.text('failed user message'), findsOneWidget);
+          expect(
+            find.byKey(const Key('user_message_error_icon')),
+            findsOneWidget,
+          );
+          final retryFinder = find.byWidgetPredicate((widget) {
+            if (widget is! Text || widget.textSpan == null) {
+              return false;
+            }
+            final String plain = widget.textSpan!.toPlainText();
+            return plain.contains('Not delivered.') && plain.contains('Retry');
+          });
+          expect(retryFinder, findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'should not render error indicator when status is not error',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage(
+                  id: 3,
+                  role: MessageRole.user,
+                  type: MessageType.text,
+                  status: MessageStatus.sent,
+                  timestamp: clock.now(),
+                  content: 'delivered user message',
+                ),
+              ],
+            ),
+          );
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(find.text('delivered user message'), findsOneWidget);
+          expect(
+            find.byKey(const Key('user_message_error_icon')),
+            findsNothing,
+          );
+          expect(find.textContaining('Not delivered.'), findsNothing);
+        },
+      );
     });
 
     group('user voice messages', () {

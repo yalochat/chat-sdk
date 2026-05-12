@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'package:yalo_chat_flutter_sdk/src/common/translation.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/user_voice_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
@@ -23,10 +24,11 @@ class UserMessage extends StatelessWidget {
     );
     final chatThemeCubit = context.watch<ChatThemeCubit>();
     final size = MediaQuery.sizeOf(context);
+    final bool isError = message.status == MessageStatus.error;
     return Flexible(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          return Container(
+          final Widget bubble = Container(
             constraints: BoxConstraints(
               maxWidth: constraints.maxWidth * 0.8,
               maxHeight: size.height * 0.5,
@@ -53,6 +55,49 @@ class UserMessage extends StatelessWidget {
                 'Unimplemented user message type ${message.type}',
               ),
             },
+          );
+
+          if (!isError) {
+            return bubble;
+          }
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error,
+                    key: const Key('user_message_error_icon'),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  SizedBox(width: SdkConstants.rowItemSpace),
+                  Flexible(child: bubble),
+                ],
+              ),
+              SizedBox(height: SdkConstants.columnItemSpace / 2),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: '${context.translate.notDelivered} '),
+                    TextSpan(
+                      text: context.translate.retry,
+                      style: const TextStyle(
+                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                style: TextStyle(
+                  fontSize: SdkConstants.statusFontSize,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+            ],
           );
         },
       ),
