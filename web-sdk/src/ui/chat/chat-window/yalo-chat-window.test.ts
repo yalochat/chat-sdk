@@ -379,6 +379,20 @@ describe('YaloChatWindow', () => {
     });
   });
 
+  describe('sizing', () => {
+    it('respects --yalo-chat-width and --yalo-chat-height overrides', async () => {
+      el.open = true;
+      el.style.setProperty('--yalo-chat-width', '320px');
+      el.style.setProperty('--yalo-chat-height', '600px');
+      await el.updateComplete;
+
+      expect(getComputedStyle(el)).toMatchObject({
+        width: '320px',
+        height: '600px',
+      });
+    });
+  });
+
   describe('chat-footer expansion', () => {
     it('sets overflow-y to scroll when text exceeds max height', async () => {
       el.open = true;

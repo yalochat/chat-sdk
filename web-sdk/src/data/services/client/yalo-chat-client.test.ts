@@ -30,13 +30,22 @@ describe('YaloChatClient', () => {
   });
 
   describe('init', () => {
-    it('appends yalo-chat-window to the document body', async () => {
+    it('appends the chat window inside the target element', async () => {
       const client = new YaloChatClient(baseConfig);
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      expect(getChatWindow()).not.toBeNull();
+      expect(targetEl.querySelector('yalo-chat-window')).not.toBeNull();
+    });
+
+    it('does not open the chat window automatically', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      expect(getChatWindow().open).toBe(false);
     });
 
     it('sets config on the chat window element', async () => {
@@ -67,23 +76,12 @@ describe('YaloChatClient', () => {
       );
     });
 
-    it('opens chat when target is clicked and chat is closed', async () => {
+    it('does not bind a click handler to the target element', async () => {
       const client = new YaloChatClient(baseConfig);
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      targetEl.click();
-      expect(getChatWindow().open).toBe(true);
-    });
-
-    it('closes chat when target is clicked and chat is open', async () => {
-      const client = new YaloChatClient(baseConfig);
-      client.init();
-      await vi.waitUntil(
-        () => client.chatWindowEl?.yaloMessageRepository != null
-      );
-      client.open();
       targetEl.click();
       expect(getChatWindow().open).toBe(false);
     });
@@ -111,27 +109,20 @@ describe('YaloChatClient', () => {
       expect(getChatWindow().open).toBe(true);
     });
 
-    it('adds open class to target element', async () => {
-      const client = new YaloChatClient(baseConfig);
+    it('forwards the configured openContext to the chat window', async () => {
+      const client = new YaloChatClient({
+        ...baseConfig,
+        openContext: 'product-page',
+      });
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       client.open();
-      expect(targetEl.classList.contains('open')).toBe(true);
-    });
-
-    it('forwards the openContext to the chat window when provided', async () => {
-      const client = new YaloChatClient(baseConfig);
-      client.init();
-      await vi.waitUntil(
-        () => client.chatWindowEl?.yaloMessageRepository != null
-      );
-      client.open('product-page');
       expect(getChatWindow().openContext).toBe('product-page');
     });
 
-    it('leaves openContext undefined when not provided', async () => {
+    it('leaves openContext undefined when not configured', async () => {
       const client = new YaloChatClient(baseConfig);
       client.init();
       await vi.waitUntil(
@@ -207,17 +198,6 @@ describe('YaloChatClient', () => {
       client.open();
       client.close();
       expect(getChatWindow().open).toBe(false);
-    });
-
-    it('removes open class from target element', async () => {
-      const client = new YaloChatClient(baseConfig);
-      client.init();
-      await vi.waitUntil(
-        () => client.chatWindowEl?.yaloMessageRepository != null
-      );
-      client.open();
-      client.close();
-      expect(targetEl.classList.contains('open')).toBe(false);
     });
   });
 });

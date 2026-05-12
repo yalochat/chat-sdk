@@ -33,9 +33,11 @@ export default class YaloChatClient {
     ) as YaloChatWindow;
     this.chatWindowEl.config = this.config;
     this.chatWindowEl.commands = new Map(this._commands);
-    document.body.appendChild(this.chatWindowEl);
 
     this.targetEl = document.getElementById(this.config.target);
+
+    const mountInto = this.targetEl ?? document.body;
+    mountInto.appendChild(this.chatWindowEl);
 
     if (!this.targetEl) {
       console.warn(
@@ -44,50 +46,18 @@ export default class YaloChatClient {
       return;
     }
 
-    new ResizeObserver(() => this._updatePosition()).observe(this.targetEl);
-    window.addEventListener('resize', () => this._updatePosition());
-    this._updatePosition();
-
-    this.targetEl.addEventListener('click', () => {
-      if (this.chatWindowEl?.open) {
-        this.close();
-      } else {
-        this.open();
-      }
-    });
-
-    this.chatWindowEl.addEventListener('yalo-chat-close', () => {
-      this.close();
-    });
+    this.chatWindowEl.addEventListener('yalo-chat-close', () => this.close());
   }
 
-  private _updatePosition(): void {
-    if (!this.targetEl || !this.chatWindowEl) return;
-    const rect = this.targetEl.getBoundingClientRect();
-    const gap = 8;
-    const bottom = window.innerHeight - rect.top + gap;
-    const right = window.innerWidth - rect.right;
-    this.chatWindowEl.style.setProperty(
-      '--yalo-chat-inset-bottom',
-      `${bottom}px`
-    );
-    this.chatWindowEl.style.setProperty(
-      '--yalo-chat-inset-right',
-      `${right}px`
-    );
-  }
-
-  open(openContext?: string): void {
+  open(): void {
     if (this.chatWindowEl) {
-      this.chatWindowEl.openContext = openContext;
+      this.chatWindowEl.openContext = this.config.openContext;
       this.chatWindowEl.open = true;
     }
-    this.targetEl?.classList.add('open');
   }
 
   close(): void {
     if (this.chatWindowEl) this.chatWindowEl.open = false;
-    this.targetEl?.classList.remove('open');
   }
 
   registerCommand(command: ChatCommand, callback: ChatCommandCallback): void {

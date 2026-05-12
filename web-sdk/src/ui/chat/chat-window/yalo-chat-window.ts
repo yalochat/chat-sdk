@@ -40,12 +40,12 @@ export class YaloChatWindow extends LitElement {
       --yalo-chat-font: sans-serif;
       --yalo-chat-column-item-space: 8px;
       --yalo-chat-row-item-space: 8px;
+      --yalo-chat-width: 100%;
+      --yalo-chat-height: 100%;
 
       display: none;
-      position: fixed;
-      bottom: var(--yalo-chat-inset-bottom, 80px);
-      right: var(--yalo-chat-inset-right, 24px);
-      z-index: 9999;
+      width: var(--yalo-chat-width);
+      height: var(--yalo-chat-height);
     }
 
     :host([open]) {
@@ -53,12 +53,11 @@ export class YaloChatWindow extends LitElement {
     }
 
     .chat-window {
-      width: 500px;
-      height: 720px;
+      width: 100%;
+      height: 100%;
       background: var(--yalo-chat-background);
       border-radius: var(--yalo-chat-corner-radius);
       font-family: var(--yalo-chat-font);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
       display: flex;
       flex-direction: column;
       overflow: hidden;
