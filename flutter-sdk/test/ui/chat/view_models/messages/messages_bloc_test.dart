@@ -506,10 +506,14 @@ void main() {
             ),
           ],
         ),
-        act: (bloc) {
+        act: (bloc) async {
           when(
             () => chatMessageRepository.insertChatMessage(any()),
           ).thenAnswer((_) async => Result.error(Exception('test error')));
+          final Future<MessagesState> failureEmitted = bloc.stream.firstWhere(
+            (MessagesState s) =>
+                s.chatStatus == ChatStatus.failedMessageSent,
+          );
           bloc.add(
             ChatSendVoiceMessage(
               audioData: AudioData(
@@ -519,6 +523,7 @@ void main() {
               ),
             ),
           );
+          await failureEmitted;
         },
         expect: () => [
           isA<MessagesState>().having(
