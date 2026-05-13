@@ -231,14 +231,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Text message inserted successfully, id ${result.result.id}');
-        _yaloMessageRepository.sendMessage(result.result).then((sendResult) {
-          switch (sendResult) {
-            case Ok():
-              log.info('Text message sent successfully');
-            case Error():
-              log.severe('Failed to send text message', sendResult.error);
-          }
-        });
         emit(
           state.copyWith(
             // FIXME: Create a new way to track big message list copies
@@ -246,6 +238,16 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
             userMessage: '',
           ),
         );
+        final sendResult = await _yaloMessageRepository.sendMessage(
+          result.result,
+        );
+        switch (sendResult) {
+          case Ok():
+            log.info('Text message sent successfully');
+          case Error():
+            log.severe('Failed to send text message', sendResult.error);
+            await _markMessageAsError(result.result, emit);
+        }
         break;
       case Error<ChatMessage>():
         log.severe('Unable to insert text message', result.error);
@@ -283,15 +285,17 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Voice message inserted successfully, id ${result.result.id}');
-        _yaloMessageRepository.sendMessage(result.result).then((sendResult) {
-          switch (sendResult) {
-            case Ok():
-              log.info('Voice message sent successfully');
-            case Error():
-              log.severe('Failed to send voice message', sendResult.error);
-          }
-        });
         emit(state.copyWith(messages: [result.result, ...state.messages]));
+        final sendResult = await _yaloMessageRepository.sendMessage(
+          result.result,
+        );
+        switch (sendResult) {
+          case Ok():
+            log.info('Voice message sent successfully');
+          case Error():
+            log.severe('Failed to send voice message', sendResult.error);
+            await _markMessageAsError(result.result, emit);
+        }
         break;
       case Error<ChatMessage>():
         log.severe('Failed to insert voice message', result.error);
@@ -334,14 +338,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Image message inserted successfully, id ${result.result.id}');
-        _yaloMessageRepository.sendMessage(result.result).then((sendResult) {
-          switch (sendResult) {
-            case Ok():
-              log.info('Image message sent successfully');
-            case Error():
-              log.severe('Failed to send image message', sendResult.error);
-          }
-        });
         emit(
           state.copyWith(
             messages: [result.result, ...state.messages],
@@ -359,6 +355,16 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           case Error():
             log.severe('Unable to clean image from cache');
         }
+        final sendResult = await _yaloMessageRepository.sendMessage(
+          result.result,
+        );
+        switch (sendResult) {
+          case Ok():
+            log.info('Image message sent successfully');
+          case Error():
+            log.severe('Failed to send image message', sendResult.error);
+            await _markMessageAsError(result.result, emit);
+        }
         break;
       case Error<ChatMessage>():
         log.severe('Failed to insert voice message', result.error);
@@ -374,6 +380,40 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
             break;
         }
         emit(state.copyWith(chatStatus: ChatStatus.failedMessageSent));
+        break;
+    }
+  }
+
+  // Flags a previously inserted user message as failed to deliver, both in
+  // memory and in the local data source so the error survives reloads.
+  Future<void> _markMessageAsError(
+    ChatMessage message,
+    Emitter<MessagesState> emit,
+  ) async {
+    final int index = state.messages.indexWhere((m) => m.id == message.id);
+    if (index == -1) {
+      log.warning('Unable to find message ${message.id} to mark as error');
+      return;
+    }
+    final ChatMessage updatedMessage = state.messages[index].copyWith(
+      status: MessageStatus.error,
+    );
+    final List<ChatMessage> newMessages = [...state.messages];
+    newMessages[index] = updatedMessage;
+    emit(state.copyWith(messages: newMessages));
+
+    final persistResult = await _chatMessageRepository.replaceChatMessage(
+      updatedMessage,
+    );
+    switch (persistResult) {
+      case Ok():
+        log.info('Persisted error status for message ${message.id}');
+        break;
+      case Error():
+        log.severe(
+          'Unable to persist error status for message ${message.id}',
+          persistResult.error,
+        );
         break;
     }
   }
