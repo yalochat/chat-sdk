@@ -2,6 +2,8 @@
 
 import 'package:yalo_chat_flutter_sdk/src/common/translation.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_bloc.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/user_voice_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
@@ -61,43 +63,50 @@ class UserMessage extends StatelessWidget {
             return bubble;
           }
 
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error,
-                    key: const Key('user_message_error_icon'),
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  SizedBox(width: SdkConstants.rowItemSpace),
-                  Flexible(child: bubble),
-                ],
-              ),
-              SizedBox(height: SdkConstants.columnItemSpace / 2),
-              Text.rich(
-                TextSpan(
+          return GestureDetector(
+            key: const Key('user_message_retry'),
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.read<MessagesBloc>().add(
+              ChatRetryMessage(messageId: message.id!),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    TextSpan(text: '${context.translate.notDelivered} '),
-                    TextSpan(
-                      text: context.translate.retry,
-                      style: const TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Icon(
+                      Icons.error,
+                      key: const Key('user_message_error_icon'),
+                      color: Theme.of(context).colorScheme.error,
                     ),
+                    SizedBox(width: SdkConstants.rowItemSpace),
+                    Flexible(child: bubble),
                   ],
                 ),
-                style: TextStyle(
-                  fontSize: SdkConstants.statusFontSize,
-                  color: Theme.of(context).colorScheme.error,
+                SizedBox(height: SdkConstants.columnItemSpace / 2),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: '${context.translate.notDelivered} '),
+                      TextSpan(
+                        text: context.translate.retry,
+                        style: const TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  style: TextStyle(
+                    fontSize: SdkConstants.statusFontSize,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),

@@ -228,6 +228,62 @@ void main() {
       );
 
       testWidgets(
+        'should dispatch ChatRetryMessage when tapping an errored user message',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage(
+                  id: 42,
+                  role: MessageRole.user,
+                  type: MessageType.text,
+                  status: MessageStatus.error,
+                  timestamp: clock.now(),
+                  content: 'failed user message',
+                ),
+              ],
+            ),
+          );
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          await tester.tap(find.byKey(const Key('user_message_retry')));
+          await tester.pumpAndSettle();
+
+          verify(
+            () => chatBloc.add(ChatRetryMessage(messageId: 42)),
+          ).called(1);
+        },
+      );
+
+      testWidgets(
+        'should not render the retry tap target when status is not error',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(
+              messages: [
+                ChatMessage(
+                  id: 1,
+                  role: MessageRole.user,
+                  type: MessageType.text,
+                  status: MessageStatus.sent,
+                  timestamp: clock.now(),
+                  content: 'delivered message',
+                ),
+              ],
+            ),
+          );
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(
+            find.byKey(const Key('user_message_retry')),
+            findsNothing,
+          );
+        },
+      );
+
+      testWidgets(
         'should not render error indicator when status is not error',
         (tester) async {
           when(() => chatBloc.state).thenReturn(
