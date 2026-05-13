@@ -7,8 +7,8 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.database.ChatMessageQueries
 import com.yalo.chat.sdk.database.Chat_message
-import com.yalo.chat.sdk.domain.model.Button
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -151,36 +151,36 @@ internal class LocalChatMessageRepository(
     private val productListSerializer = ListSerializer(Product.serializer())
     private val stringListSerializer = ListSerializer(String.serializer())
     private val ctaButtonListSerializer = ListSerializer(CtaButton.serializer())
-    private val buttonListSerializer = ListSerializer(Button.serializer())
+    private val buttonListSerializer = ListSerializer(ChatButton.serializer())
 
-    // Reads unified List<Button> from the three DB columns, handling both old and new formats.
-    // New records: `buttons` stores List<Button> JSON; `cta_buttons` and `quick_replies` are null.
+    // Reads unified List<ChatButton> from the three DB columns, handling both old and new formats.
+    // New records: `buttons` stores List<ChatButton> JSON; `cta_buttons` and `quick_replies` are null.
     // Old records: `buttons` stores List<String> JSON (POSTBACK-implied), `cta_buttons` stores
     // List<CtaButton> JSON (LINK-implied), `quick_replies` stores List<String> JSON (REPLY-implied).
     private fun decodeButtons(
         buttonsJson: String?,
         ctaJson: String?,
         qrJson: String?,
-    ): List<Button> {
+    ): List<ChatButton> {
         buttonsJson?.let { json ->
-            // Try new unified format (List<Button> with type field).
+            // Try new unified format (List<ChatButton> with type field).
             val asButtons = try { Json.decodeFromString(buttonListSerializer, json) } catch (_: Exception) { null }
             if (!asButtons.isNullOrEmpty()) return asButtons
             // Fall back to old List<String> format (POSTBACK-implied, no URL).
             val asStrings = try { Json.decodeFromString(stringListSerializer, json) } catch (_: Exception) { null }
-            if (asStrings != null) return asStrings.map { Button(text = it, type = ButtonType.POSTBACK) }
+            if (asStrings != null) return asStrings.map { ChatButton(text = it, type = ChatButtonType.POSTBACK) }
         }
-        val result = mutableListOf<Button>()
+        val result = mutableListOf<ChatButton>()
         ctaJson?.let { json ->
             try {
                 result += Json.decodeFromString(ctaButtonListSerializer, json)
-                    .map { Button(text = it.text, type = ButtonType.LINK, url = it.url) }
+                    .map { ChatButton(text = it.text, type = ChatButtonType.LINK, url = it.url) }
             } catch (_: Exception) { }
         }
         qrJson?.let { json ->
             try {
                 result += Json.decodeFromString(stringListSerializer, json)
-                    .map { Button(text = it, type = ButtonType.REPLY) }
+                    .map { ChatButton(text = it, type = ChatButtonType.REPLY) }
             } catch (_: Exception) { }
         }
         return result
@@ -198,7 +198,7 @@ internal class LocalChatMessageRepository(
     private fun encodeProductList(list: List<Product>): String =
         Json.encodeToString(productListSerializer, list)
 
-    private fun encodeButtonList(list: List<Button>): String =
+    private fun encodeButtonList(list: List<ChatButton>): String =
         Json.encodeToString(buttonListSerializer, list)
 }
 

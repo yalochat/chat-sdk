@@ -3,7 +3,7 @@
 package com.yalo.chat.sdk.data.repository.fake
 
 import com.yalo.chat.sdk.common.Result
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageType
@@ -37,7 +37,7 @@ class FakeYaloMessageRepositoryTest {
         assertTrue(MessageType.Unknown in types)
         // Proto 2.0: quick replies are Text messages with REPLY-typed buttons, not a separate type.
         val hasReplyButtons = result.result.any { msg ->
-            msg.type == MessageType.Text && msg.buttons.any { it.type == ButtonType.REPLY }
+            msg.type == MessageType.Text && msg.buttons.any { it.type == ChatButtonType.REPLY }
         }
         assertTrue(hasReplyButtons, "Seed data must include a Text message with REPLY buttons")
     }

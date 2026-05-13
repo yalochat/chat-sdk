@@ -4,7 +4,7 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.ui.chat.UnitType
@@ -656,7 +656,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals("Choose action:", msg.content)
         assertEquals(1, msg.buttons.size)
         assertEquals("Track order", msg.buttons.first().text)
-        assertEquals(ButtonType.POSTBACK, msg.buttons.first().type)
+        assertEquals(ChatButtonType.POSTBACK, msg.buttons.first().type)
         assertNull(msg.buttons.first().url)
     }
 
@@ -672,7 +672,7 @@ class YaloMessageRepositoryRemoteTest {
         val msg = batch.first()
         assertEquals(MessageType.Text, msg.type)
         assertEquals(1, msg.buttons.size)
-        assertEquals(ButtonType.LINK, msg.buttons.first().type)
+        assertEquals(ChatButtonType.LINK, msg.buttons.first().type)
         assertEquals("Open", msg.buttons.first().text)
         assertEquals("https://shop.example.com", msg.buttons.first().url)
     }
@@ -688,7 +688,7 @@ class YaloMessageRepositoryRemoteTest {
         val batch = repo.pollIncomingMessages().first()
         val msg = batch.first()
         assertEquals(2, msg.buttons.size)
-        assertTrue(msg.buttons.all { it.type == ButtonType.REPLY })
+        assertTrue(msg.buttons.all { it.type == ChatButtonType.REPLY })
     }
 
     @Test
@@ -706,9 +706,9 @@ class YaloMessageRepositoryRemoteTest {
         val batch = repo.pollIncomingMessages().first()
         val msg = batch.first()
         assertEquals(3, msg.buttons.size)
-        assertEquals(ButtonType.POSTBACK, msg.buttons[0].type)
-        assertEquals(ButtonType.LINK, msg.buttons[1].type)
-        assertEquals(ButtonType.REPLY, msg.buttons[2].type)
+        assertEquals(ChatButtonType.POSTBACK, msg.buttons[0].type)
+        assertEquals(ChatButtonType.LINK, msg.buttons[1].type)
+        assertEquals(ChatButtonType.REPLY, msg.buttons[2].type)
         assertEquals("https://details.example.com", msg.buttons[1].url)
     }
 
@@ -733,27 +733,27 @@ class YaloMessageRepositoryRemoteTest {
     fun `pollIncomingMessages maps button with absent buttonType field to REPLY (proto3 default)`() = runTest {
         // Proto3 omits fields at their default value on the wire. BUTTON_TYPE_REPLY = 0 is the
         // default, so a real server payload may omit the buttonType key entirely. The DTO default
-        // must catch this and produce ButtonType.REPLY.
+        // must catch this and produce ChatButtonType.REPLY.
         val json = """[{"id":"btn-proto3-default","message":{"textMessageRequest":{"content":{"text":"Pick:","role":"MESSAGE_ROLE_AGENT"},"buttons":[{"text":"Yes"},{"text":"No"}]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
         val repo = buildRepo(listOf(json))
         val batch = repo.pollIncomingMessages().first()
         assertEquals(1, batch.size)
         val msg = batch.first()
         assertEquals(2, msg.buttons.size)
-        assertTrue(msg.buttons.all { it.type == ButtonType.REPLY }, "Absent buttonType must default to REPLY")
+        assertTrue(msg.buttons.all { it.type == ChatButtonType.REPLY }, "Absent buttonType must default to REPLY")
         assertEquals(listOf("Yes", "No"), msg.buttons.map { it.text })
     }
 
     @Test
     fun `pollIncomingMessages maps LINK button with absent url field to null url`() = runTest {
-        // url is optional in the proto — LINK buttons without a url field must map to Button(url=null),
+        // url is optional in the proto — LINK buttons without a url field must map to ChatButton(url=null),
         // not crash. MessageButton handles null url as a no-op tap.
         val json = """[{"id":"btn-link-no-url","message":{"textMessageRequest":{"content":{"text":"Visit:","role":"MESSAGE_ROLE_AGENT"},"buttons":[{"text":"Open","buttonType":"BUTTON_TYPE_LINK"}]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
         val repo = buildRepo(listOf(json))
         val batch = repo.pollIncomingMessages().first()
         val msg = batch.first()
         assertEquals(1, msg.buttons.size)
-        assertEquals(ButtonType.LINK, msg.buttons.first().type)
+        assertEquals(ChatButtonType.LINK, msg.buttons.first().type)
         assertNull(msg.buttons.first().url, "LINK button with no url field must have url=null")
     }
 
@@ -783,7 +783,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(MessageRole.AGENT, msg.role)
         assertEquals("Choose:", msg.content)
         assertEquals(2, msg.buttons.size)
-        assertTrue(msg.buttons.all { it.type == ButtonType.POSTBACK })
+        assertTrue(msg.buttons.all { it.type == ChatButtonType.POSTBACK })
         assertEquals(listOf("A", "B"), msg.buttons.map { it.text })
     }
 
@@ -823,7 +823,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(MessageRole.AGENT, msg.role)
         assertEquals("Shop now", msg.content)
         assertEquals(1, msg.buttons.size)
-        assertEquals(ButtonType.LINK, msg.buttons.first().type)
+        assertEquals(ChatButtonType.LINK, msg.buttons.first().type)
         assertEquals("View", msg.buttons.first().text)
         assertEquals("https://shop.example.com", msg.buttons.first().url)
     }
@@ -836,7 +836,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals("Promo", batch.first().header)
         assertEquals("Limited", batch.first().footer)
         assertEquals(2, batch.first().buttons.size)
-        assertTrue(batch.first().buttons.all { it.type == ButtonType.LINK })
+        assertTrue(batch.first().buttons.all { it.type == ChatButtonType.LINK })
     }
 
     // ── pollIncomingMessages — video messages ──────────────────────────────────────

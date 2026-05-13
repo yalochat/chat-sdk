@@ -5,8 +5,8 @@ package com.yalo.chat.sdk.data.local
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.database.ChatDatabase
-import com.yalo.chat.sdk.domain.model.Button
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -130,9 +130,9 @@ class LocalChatMessageRepositoryTest {
             status = MessageStatus.DELIVERED,
             content = "Pick one:",
             buttons = listOf(
-                Button(text = "Yes", type = ButtonType.REPLY),
-                Button(text = "No", type = ButtonType.REPLY),
-                Button(text = "Maybe", type = ButtonType.REPLY),
+                ChatButton(text = "Yes", type = ChatButtonType.REPLY),
+                ChatButton(text = "No", type = ChatButtonType.REPLY),
+                ChatButton(text = "Maybe", type = ChatButtonType.REPLY),
             ),
         )
         repo.insertMessage(message)
@@ -140,7 +140,7 @@ class LocalChatMessageRepositoryTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         assertEquals(
             listOf("Yes", "No", "Maybe"),
-            result.result.first().buttons.filter { it.type == ButtonType.REPLY }.map { it.text },
+            result.result.first().buttons.filter { it.type == ChatButtonType.REPLY }.map { it.text },
         )
     }
 
@@ -209,9 +209,9 @@ class LocalChatMessageRepositoryTest {
             header = "Order help",
             footer = "Tap any option",
             buttons = listOf(
-                Button(text = "Track order", type = ButtonType.POSTBACK),
-                Button(text = "Cancel order", type = ButtonType.POSTBACK),
-                Button(text = "Contact support", type = ButtonType.POSTBACK),
+                ChatButton(text = "Track order", type = ChatButtonType.POSTBACK),
+                ChatButton(text = "Cancel order", type = ChatButtonType.POSTBACK),
+                ChatButton(text = "Contact support", type = ChatButtonType.POSTBACK),
             ),
             timestamp = 1000L,
         )
@@ -235,8 +235,8 @@ class LocalChatMessageRepositoryTest {
             status = MessageStatus.DELIVERED,
             content = "Choose:",
             buttons = listOf(
-                Button(text = "Yes", type = ButtonType.POSTBACK),
-                Button(text = "No", type = ButtonType.POSTBACK),
+                ChatButton(text = "Yes", type = ChatButtonType.POSTBACK),
+                ChatButton(text = "No", type = ChatButtonType.POSTBACK),
             ),
             timestamp = 2000L,
         )
@@ -271,7 +271,7 @@ class LocalChatMessageRepositoryTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         val loaded = result.result.first()
         assertEquals(2, loaded.buttons.size)
-        assertTrue(loaded.buttons.all { it.type == ButtonType.POSTBACK })
+        assertTrue(loaded.buttons.all { it.type == ChatButtonType.POSTBACK })
         assertEquals(listOf("Track order", "Cancel order"), loaded.buttons.map { it.text })
     }
 
@@ -290,7 +290,7 @@ class LocalChatMessageRepositoryTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         val loaded = result.result.first()
         assertEquals(2, loaded.buttons.size)
-        assertTrue(loaded.buttons.all { it.type == ButtonType.LINK })
+        assertTrue(loaded.buttons.all { it.type == ChatButtonType.LINK })
         assertEquals("View Catalog", loaded.buttons[0].text)
         assertEquals("https://example.com/catalog", loaded.buttons[0].url)
         assertEquals("View Promos", loaded.buttons[1].text)
@@ -310,7 +310,7 @@ class LocalChatMessageRepositoryTest {
         assertIs<Result.Ok<List<ChatMessage>>>(result)
         val loaded = result.result.first()
         assertEquals(3, loaded.buttons.size)
-        assertTrue(loaded.buttons.all { it.type == ButtonType.REPLY })
+        assertTrue(loaded.buttons.all { it.type == ChatButtonType.REPLY })
         assertEquals(listOf("Yes", "No", "Maybe"), loaded.buttons.map { it.text })
     }
 
@@ -326,8 +326,8 @@ class LocalChatMessageRepositoryTest {
             header = "Shop now",
             footer = "Limited time offer",
             buttons = listOf(
-                Button(text = "View Catalog", type = ButtonType.LINK, url = "https://example.com/catalog"),
-                Button(text = "View Promotions", type = ButtonType.LINK, url = "https://example.com/promos"),
+                ChatButton(text = "View Catalog", type = ChatButtonType.LINK, url = "https://example.com/catalog"),
+                ChatButton(text = "View Promotions", type = ChatButtonType.LINK, url = "https://example.com/promos"),
             ),
             timestamp = 3000L,
         )

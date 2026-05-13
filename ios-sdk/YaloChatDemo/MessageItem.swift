@@ -153,12 +153,12 @@ struct MessageItem: View {
                     .font(theme.messageFooterFont)
                     .foregroundColor(theme.messageFooterColor)
             }
-            let labels = message.buttons
-            if !labels.isEmpty {
+            let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
+            if !inlineButtons.isEmpty {
                 VStack(spacing: 6) {
-                    ForEach(labels, id: \.self) { label in
-                        Button(action: { onButtonTap(label) }) {
-                            Text(label)
+                    ForEach(inlineButtons, id: \.text) { button in
+                        SwiftUI.Button(action: { onButtonTap(button.text) }) {
+                            Text(button.text)
                                 .font(.subheadline)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 8)
@@ -196,12 +196,12 @@ struct MessageItem: View {
                     .font(theme.messageFooterFont)
                     .foregroundColor(theme.messageFooterColor)
             }
-            let buttons = message.ctaButtons
+            let buttons = message.buttons.filter { $0.type == ChatButtonType.link }
             if !buttons.isEmpty {
                 VStack(spacing: 6) {
-                    ForEach(buttons, id: \.url) { button in
-                        Button(action: {
-                            if let url = URL(string: button.url) {
+                    ForEach(buttons, id: \.text) { button in
+                        SwiftUI.Button(action: {
+                            if let urlStr = button.url, let url = URL(string: urlStr) {
                                 UIApplication.shared.open(url)
                             }
                         }) {

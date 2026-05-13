@@ -14,7 +14,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Renders optional header + body text + optional footer + CTA (LINK) buttons that open URLs.
-// Delegates button rendering to MessageButton, which dispatches on ButtonType.
+// Delegates button rendering to MessageButton, which dispatches on ChatButtonType.
 @Composable
 internal fun CtaMessage(
     message: ChatMessage,

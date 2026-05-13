@@ -40,7 +40,7 @@ import coil3.compose.AsyncImage
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -120,8 +120,8 @@ internal fun MessageItem(
                 when (message.type) {
                     MessageType.Text,
                     MessageType.QuickReply -> {
-                        val inlineButtons = message.buttons.filter { it.type != ButtonType.REPLY }
-                        if (!isUser && (inlineButtons.isNotEmpty() || !message.header.isNullOrEmpty())) {
+                        val inlineButtons = message.buttons.filter { it.type != ChatButtonType.REPLY }
+                        if (!isUser && (inlineButtons.isNotEmpty() || !message.header.isNullOrEmpty() || !message.footer.isNullOrEmpty())) {
                             // Proto 2.0: agent text message with embedded buttons / header / footer.
                             // Also triggered by header-only (no buttons) — same column layout, buttons loop is a no-op.
                             // Renders Markdown body between header and footer, then inline buttons.
@@ -195,7 +195,7 @@ internal fun MessageItem(
                             placeholder = ColorPainter(theme.imagePlaceholderBackgroundColor),
                             error = ColorPainter(theme.imagePlaceholderBackgroundColor),
                         )
-                        message.buttons.filter { it.type != ButtonType.REPLY }.forEach { button ->
+                        message.buttons.filter { it.type != ChatButtonType.REPLY }.forEach { button ->
                             MessageButton(button = button, onEvent = onEvent)
                         }
                     }
@@ -208,7 +208,7 @@ internal fun MessageItem(
                             onPlay = onPlayAudio,
                             onStop = onStopAudio,
                         )
-                        message.buttons.filter { it.type != ButtonType.REPLY }.forEach { button ->
+                        message.buttons.filter { it.type != ChatButtonType.REPLY }.forEach { button ->
                             MessageButton(button = button, onEvent = onEvent)
                         }
                     }
@@ -219,7 +219,7 @@ internal fun MessageItem(
                             message = message,
                             messageTextStyle = messageTextStyle,
                         )
-                        message.buttons.filter { it.type != ButtonType.REPLY }.forEach { button ->
+                        message.buttons.filter { it.type != ChatButtonType.REPLY }.forEach { button ->
                             MessageButton(button = button, onEvent = onEvent)
                         }
                     }

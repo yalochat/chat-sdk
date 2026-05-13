@@ -5,8 +5,8 @@ package com.yalo.chat.sdk.ui.chat
 import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
-import com.yalo.chat.sdk.domain.model.Button
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
@@ -66,9 +66,9 @@ class QuickRepliesTest {
                 id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick an option:",
                 buttons = listOf(
-                    Button(text = "Yes", type = ButtonType.REPLY),
-                    Button(text = "No", type = ButtonType.REPLY),
-                    Button(text = "Maybe", type = ButtonType.REPLY),
+                    ChatButton(text = "Yes", type = ChatButtonType.REPLY),
+                    ChatButton(text = "No", type = ChatButtonType.REPLY),
+                    ChatButton(text = "Maybe", type = ChatButtonType.REPLY),
                 ),
             )
         )
@@ -90,8 +90,8 @@ class QuickRepliesTest {
                 id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick:",
                 buttons = listOf(
-                    Button(text = "Track order", type = ButtonType.REPLY),
-                    Button(text = "Cancel order", type = ButtonType.REPLY),
+                    ChatButton(text = "Track order", type = ChatButtonType.REPLY),
+                    ChatButton(text = "Cancel order", type = ChatButtonType.REPLY),
                 ),
             )
         )
@@ -120,9 +120,9 @@ class QuickRepliesTest {
                 id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "How can I help?",
                 buttons = listOf(
-                    Button(text = "Option A", type = ButtonType.REPLY),
-                    Button(text = "Option B", type = ButtonType.REPLY),
-                    Button(text = "Option C", type = ButtonType.REPLY),
+                    ChatButton(text = "Option A", type = ChatButtonType.REPLY),
+                    ChatButton(text = "Option B", type = ChatButtonType.REPLY),
+                    ChatButton(text = "Option C", type = ChatButtonType.REPLY),
                 ),
             )
         )

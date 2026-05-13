@@ -4,10 +4,12 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.data.remote.model.BUTTON_TYPE_LINK
+import com.yalo.chat.sdk.data.remote.model.BUTTON_TYPE_POSTBACK
 import com.yalo.chat.sdk.data.remote.model.SdkButtonDto
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
-import com.yalo.chat.sdk.domain.model.Button
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -215,7 +217,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
             content = buttonsContent.body,
             header = buttonsContent.header.takeIf { !it.isNullOrEmpty() },
             footer = buttonsContent.footer.takeIf { !it.isNullOrEmpty() },
-            buttons = buttonsContent.buttons.map { Button(text = it, type = ButtonType.POSTBACK) },
+            buttons = buttonsContent.buttons.map { ChatButton(text = it, type = ChatButtonType.POSTBACK) },
             timestamp = ts,
         )
     }
@@ -232,7 +234,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
             content = ctaContent.body,
             header = ctaContent.header.takeIf { !it.isNullOrEmpty() },
             footer = ctaContent.footer.takeIf { !it.isNullOrEmpty() },
-            buttons = ctaContent.buttons.map { Button(text = it.text, type = ButtonType.LINK, url = it.url) },
+            buttons = ctaContent.buttons.map { ChatButton(text = it.text, type = ChatButtonType.LINK, url = it.url) },
             timestamp = ts,
         )
     }
@@ -276,11 +278,11 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
 // Maps proto3 buttonType string to the domain enum. Proto3 JSON serializes enum values as their
 // name strings (e.g. "BUTTON_TYPE_POSTBACK"). BUTTON_TYPE_REPLY = 0 is the proto3 default and
 // may be omitted from JSON, in which case the DTO default "BUTTON_TYPE_REPLY" is used.
-private fun SdkButtonDto.toDomain(): Button {
+private fun SdkButtonDto.toDomain(): ChatButton {
     val type = when (buttonType) {
-        "BUTTON_TYPE_POSTBACK" -> ButtonType.POSTBACK
-        "BUTTON_TYPE_LINK" -> ButtonType.LINK
-        else -> ButtonType.REPLY
+        BUTTON_TYPE_POSTBACK -> ChatButtonType.POSTBACK
+        BUTTON_TYPE_LINK -> ChatButtonType.LINK
+        else -> ChatButtonType.REPLY
     }
-    return Button(text = text, type = type, url = url)
+    return ChatButton(text = text, type = type, url = url)
 }

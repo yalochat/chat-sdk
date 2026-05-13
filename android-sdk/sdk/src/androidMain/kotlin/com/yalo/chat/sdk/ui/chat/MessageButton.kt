@@ -20,24 +20,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.yalo.chat.sdk.domain.model.Button
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Renders a single proto 2.0 Button. Mirrors Flutter's MessageButton widget:
+// Renders a single proto 2.0 ChatButton. Mirrors Flutter's MessageButton widget:
 //   POSTBACK → OutlinedButton that fires SendTextMessage(button.text)
 //   LINK     → OutlinedButton with arrow icon that opens button.url in the system browser
 //   REPLY    → renders nothing (surfaces as quick-reply chips above ChatInput)
 @Composable
 internal fun MessageButton(
-    button: Button,
+    button: ChatButton,
     onEvent: (MessagesEvent) -> Unit,
 ) {
     val theme = LocalChatTheme.current
     val context = LocalContext.current
 
     when (button.type) {
-        ButtonType.POSTBACK -> OutlinedButton(
+        ChatButtonType.POSTBACK -> OutlinedButton(
             onClick = { onEvent(MessagesEvent.SendTextMessage(button.text)) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,7 +55,7 @@ internal fun MessageButton(
             )
         }
 
-        ButtonType.LINK -> OutlinedButton(
+        ChatButtonType.LINK -> OutlinedButton(
             onClick = {
                 val url = button.url ?: return@OutlinedButton
                 val uri = Uri.parse(url)
@@ -95,6 +95,6 @@ internal fun MessageButton(
             }
         }
 
-        ButtonType.REPLY -> Unit
+        ChatButtonType.REPLY -> Unit
     }
 }

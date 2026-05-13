@@ -29,6 +29,6 @@ data class ChatMessage(
     val footer: String? = null,
     // Unified button list (proto 2.0). POSTBACK buttons send text; LINK buttons open URLs;
     // REPLY buttons surface as quick-reply chips above ChatInput.
-    val buttons: List<Button> = emptyList(),
+    val buttons: List<ChatButton> = emptyList(),
     val timestamp: Long = Clock.System.now().toEpochMilliseconds(),
 )

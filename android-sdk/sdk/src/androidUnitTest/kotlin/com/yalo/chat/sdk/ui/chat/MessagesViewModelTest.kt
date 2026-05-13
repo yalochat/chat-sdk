@@ -5,8 +5,8 @@ package com.yalo.chat.sdk.ui.chat
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
-import com.yalo.chat.sdk.domain.model.Button
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
@@ -236,7 +236,7 @@ class MessagesViewModelTest {
         chatRepo.insertMessage(
             ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick:",
-                buttons = listOf(Button("A", ButtonType.REPLY), Button("B", ButtonType.REPLY)))
+                buttons = listOf(ChatButton("A", ChatButtonType.REPLY), ChatButton("B", ChatButtonType.REPLY)))
         )
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.LoadMessages)
@@ -293,7 +293,7 @@ class MessagesViewModelTest {
         chatRepo.insertMessage(
             ChatMessage(id = 1L, role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Choose:",
-                buttons = listOf(Button("Yes", ButtonType.REPLY), Button("No", ButtonType.REPLY)))
+                buttons = listOf(ChatButton("Yes", ChatButtonType.REPLY), ChatButton("No", ChatButtonType.REPLY)))
         )
         val vm = viewModel(chatRepo = chatRepo)
         vm.handleEvent(MessagesEvent.LoadMessages)
@@ -308,7 +308,7 @@ class MessagesViewModelTest {
         chatRepo.insertMessage(
             ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                buttons = listOf(Button("Option A", ButtonType.REPLY), Button("Option B", ButtonType.REPLY)))
+                buttons = listOf(ChatButton("Option A", ChatButtonType.REPLY), ChatButton("Option B", ChatButtonType.REPLY)))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
         vm.viewModelScope.cancel()
@@ -323,7 +323,7 @@ class MessagesViewModelTest {
         chatRepo.insertMessage(
             ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                buttons = listOf(Button("Option A", ButtonType.REPLY), Button("Option B", ButtonType.REPLY)))
+                buttons = listOf(ChatButton("Option A", ChatButtonType.REPLY), ChatButton("Option B", ChatButtonType.REPLY)))
         )
         assertEquals(listOf("Option A", "Option B"), vm.state.value.quickReplies)
         // User taps a chip → clear
@@ -347,7 +347,7 @@ class MessagesViewModelTest {
         chatRepo.insertMessage(
             ChatMessage(id = 1L, wiId = "qr-wi-1", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                buttons = listOf(Button("Yes", ButtonType.REPLY), Button("No", ButtonType.REPLY)))
+                buttons = listOf(ChatButton("Yes", ChatButtonType.REPLY), ChatButton("No", ChatButtonType.REPLY)))
         )
         assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies)
         vm.handleEvent(MessagesEvent.ClearQuickReplies)
@@ -357,7 +357,7 @@ class MessagesViewModelTest {
         chatRepo.insertMessage(
             ChatMessage(id = 2L, wiId = "qr-wi-2", role = MessageRole.AGENT, type = MessageType.Text,
                 status = MessageStatus.DELIVERED, content = "Pick one:",
-                buttons = listOf(Button("Yes", ButtonType.REPLY), Button("No", ButtonType.REPLY)))
+                buttons = listOf(ChatButton("Yes", ChatButtonType.REPLY), ChatButton("No", ChatButtonType.REPLY)))
         )
         assertEquals(listOf("Yes", "No"), vm.state.value.quickReplies, "chip row must reappear for a new REPLY message even if content is identical")
         vm.viewModelScope.cancel()

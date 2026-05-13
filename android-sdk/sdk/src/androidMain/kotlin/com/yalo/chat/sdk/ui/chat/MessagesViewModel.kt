@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.domain.model.AudioData
-import com.yalo.chat.sdk.domain.model.ButtonType
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.ImageData
@@ -249,7 +249,7 @@ internal class MessagesViewModel(
                         .lastOrNull {
                             it.role == MessageRole.AGENT &&
                             (it.type == MessageType.Text || it.type == MessageType.QuickReply) &&
-                            it.buttons.any { b -> b.type == ButtonType.REPLY }
+                            it.buttons.any { b -> b.type == ChatButtonType.REPLY }
                         }?.wiId
                     val quickReplies = if (latestQrWiId != null && latestQrWiId != currentState.lastQuickReplyMessageWiId) {
                         mergedMessages.extractQuickReplies()
@@ -354,5 +354,5 @@ private fun List<ChatMessage>.extractQuickReplies(): List<String> =
     lastOrNull {
         it.role == MessageRole.AGENT &&
         (it.type == MessageType.Text || it.type == MessageType.QuickReply) &&
-        it.buttons.any { b -> b.type == ButtonType.REPLY }
-    }?.buttons?.filter { it.type == ButtonType.REPLY }?.map { it.text }.orEmpty()
+        it.buttons.any { b -> b.type == ChatButtonType.REPLY }
+    }?.buttons?.filter { it.type == ChatButtonType.REPLY }?.map { it.text }.orEmpty()

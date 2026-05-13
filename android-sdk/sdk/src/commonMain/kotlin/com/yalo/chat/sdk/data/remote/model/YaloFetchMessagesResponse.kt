@@ -33,12 +33,16 @@ internal data class SdkMessageResponseDto(
 
 // ── Unified button (proto 2.0) ────────────────────────────────────────────────
 
-// Proto3 JSON for sdk_message.proto Button — button_type is serialized as its enum name string
+// Proto3 JSON for sdk_message.proto ChatButton — button_type is serialized as its enum name string
 // (e.g. "BUTTON_TYPE_POSTBACK"). url is omitted from JSON when absent (proto3 optional).
+internal const val BUTTON_TYPE_POSTBACK = "BUTTON_TYPE_POSTBACK"
+internal const val BUTTON_TYPE_LINK = "BUTTON_TYPE_LINK"
+internal const val BUTTON_TYPE_REPLY = "BUTTON_TYPE_REPLY"
+
 @Serializable
 internal data class SdkButtonDto(
     val text: String = "",
-    val buttonType: String = "BUTTON_TYPE_REPLY",
+    val buttonType: String = BUTTON_TYPE_REPLY,
     val url: String? = null,
 )
 
