@@ -115,3 +115,13 @@ final class ChatClearMessages extends MessagesEvent with EquatableMixin {
   @override
   List<Object?> get props => [];
 }
+
+// Event to retry sending a user message that previously failed to deliver.
+final class ChatRetryMessage extends MessagesEvent with EquatableMixin {
+  final int messageId;
+
+  ChatRetryMessage({required this.messageId});
+
+  @override
+  List<Object?> get props => [messageId];
+}

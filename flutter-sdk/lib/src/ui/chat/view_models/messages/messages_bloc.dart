@@ -60,6 +60,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     on<ChatSendVoiceMessage>(_handleSendVoiceMessage);
     on<ChatSendImageMessage>(_handleSendImageMessage);
     on<ChatClearMessages>(_handleClearMessages);
+    on<ChatRetryMessage>(_handleRetryMessage);
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
     on<ChatClearQuickReplies>(_handleClearQuickReplies);
@@ -414,6 +415,62 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           'Unable to persist error status for message ${message.id}',
           persistResult.error,
         );
+        break;
+    }
+  }
+
+  // Retries delivery of a previously failed user message. Only messages with
+  // MessageStatus.error are retried; other statuses are ignored.
+  Future<void> _handleRetryMessage(
+    ChatRetryMessage event,
+    Emitter<MessagesState> emit,
+  ) async {
+    final int index = state.messages.indexWhere((m) => m.id == event.messageId);
+    if (index == -1) {
+      log.warning('Unable to find message ${event.messageId} to retry');
+      return;
+    }
+    final ChatMessage message = state.messages[index];
+    if (message.status != MessageStatus.error) {
+      log.fine(
+        'Skipping retry for message ${event.messageId}, status ${message.status}',
+      );
+      return;
+    }
+
+    final ChatMessage retrying = message.copyWith(
+      status: MessageStatus.inProgress,
+    );
+    final List<ChatMessage> newMessages = [...state.messages];
+    newMessages[index] = retrying;
+    emit(state.copyWith(messages: newMessages));
+
+    final persistResult = await _chatMessageRepository.replaceChatMessage(
+      retrying,
+    );
+    switch (persistResult) {
+      case Ok():
+        log.info('Persisted retry status for message ${event.messageId}');
+        break;
+      case Error():
+        log.severe(
+          'Unable to persist retry status for message ${event.messageId}',
+          persistResult.error,
+        );
+        break;
+    }
+
+    final sendResult = await _yaloMessageRepository.sendMessage(retrying);
+    switch (sendResult) {
+      case Ok():
+        log.info('Retry succeeded for message ${event.messageId}');
+        break;
+      case Error():
+        log.severe(
+          'Retry failed for message ${event.messageId}',
+          sendResult.error,
+        );
+        await _markMessageAsError(retrying, emit);
         break;
     }
   }

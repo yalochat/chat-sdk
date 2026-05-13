@@ -2275,6 +2275,216 @@ void main() {
       );
     });
 
+    group('retry message', () {
+      final fixedClock = Clock.fixed(DateTime.now());
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should resend an errored message and leave it in progress on success',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              status: MessageStatus.error,
+              content: 'Test message',
+              timestamp: fixedClock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.sendMessage(any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+          bloc.add(ChatRetryMessage(messageId: 1));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages.first.status,
+            'status flips to inProgress',
+            equals(MessageStatus.inProgress),
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => yaloMessageRepository.sendMessage(
+              any(
+                that: isA<ChatMessage>().having(
+                  (m) => m.id,
+                  'id',
+                  equals(1),
+                ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should mark the message as error again when the retry sendMessage fails',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              status: MessageStatus.error,
+              content: 'Test message',
+              timestamp: fixedClock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.sendMessage(any()),
+          ).thenAnswer((_) async => Result.error(Exception('send failed')));
+          bloc.add(ChatRetryMessage(messageId: 1));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.messages.first.status,
+            'status flips to inProgress',
+            equals(MessageStatus.inProgress),
+          ),
+          isA<MessagesState>().having(
+            (state) => state.messages.first.status,
+            'status flips back to error',
+            equals(MessageStatus.error),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should not emit when the message id is unknown',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              status: MessageStatus.error,
+              content: 'Test message',
+              timestamp: fixedClock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) => bloc.add(ChatRetryMessage(messageId: 999)),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(() => yaloMessageRepository.sendMessage(any()));
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should not retry messages whose status is not error',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              status: MessageStatus.inProgress,
+              content: 'Test message',
+              timestamp: fixedClock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) => bloc.add(ChatRetryMessage(messageId: 1)),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(() => yaloMessageRepository.sendMessage(any()));
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should keep the errored message in its original position',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(
+          messages: [
+            ChatMessage(
+              id: 3,
+              role: MessageRole.assistant,
+              type: MessageType.text,
+              content: 'Other 3',
+              timestamp: fixedClock.now(),
+            ),
+            ChatMessage(
+              id: 2,
+              role: MessageRole.user,
+              type: MessageType.text,
+              status: MessageStatus.error,
+              content: 'Failing message',
+              timestamp: fixedClock.now(),
+            ),
+            ChatMessage(
+              id: 1,
+              role: MessageRole.user,
+              type: MessageType.text,
+              content: 'Other 1',
+              timestamp: fixedClock.now(),
+            ),
+          ],
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.sendMessage(any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+          bloc.add(ChatRetryMessage(messageId: 2));
+        },
+        expect: () => [
+          isA<MessagesState>()
+              .having(
+                (state) => state.messages.map((m) => m.id).toList(),
+                'preserved order',
+                equals([3, 2, 1]),
+              )
+              .having(
+                (state) => state.messages[1].status,
+                'middle message status',
+                equals(MessageStatus.inProgress),
+              ),
+        ],
+      );
+    });
+
     group('clear messages', () {
       blocTest<MessagesBloc, MessagesState>(
         'should emit empty messages when chat cleared',
