@@ -24,7 +24,13 @@ sealed class MessagesEvent {
         val unitType: UnitType,
         val quantity: Double,
     ) : MessagesEvent()
+<<<<<<< HEAD
     data class RetryMessage(val messageId: Long) : MessagesEvent()
+=======
+    // Mirrors Flutter's ChatRetryMessage — re-sends a message that previously failed.
+    data class RetryMessage(val messageId: Long) : MessagesEvent()
+    // Mirrors Flutter's didChangeAppLifecycleState: pause/resume remote polling.
+>>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
     data object PauseSync : MessagesEvent()
     data object ResumeSync : MessagesEvent()
 }

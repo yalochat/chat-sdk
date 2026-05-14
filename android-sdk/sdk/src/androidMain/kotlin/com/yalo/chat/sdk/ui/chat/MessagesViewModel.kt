@@ -265,6 +265,10 @@ internal class MessagesViewModel(
         }
     }
 
+<<<<<<< HEAD
+=======
+    // Mirrors Flutter's _handleRetryMessage.
+>>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
     private fun retryMessage(messageId: Long) {
         val msg = _state.value.messages.find { it.id == messageId } ?: return
         if (msg.status != MessageStatus.ERROR) return

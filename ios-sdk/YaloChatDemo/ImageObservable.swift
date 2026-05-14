@@ -29,7 +29,11 @@ class ImageObservable: ObservableObject {
             pickedImagePath = url.path
             mimeType = "image/jpeg"
         } catch {
+<<<<<<< HEAD
             errorMessage = Translate.imageSaveError
+=======
+            errorMessage = "Failed to save image. Please try again."
+>>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
         }
     }
 
