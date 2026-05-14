@@ -4,6 +4,7 @@ package com.yalo.chat.sdk.domain.audio
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class WaveformCompressorTest {
@@ -87,6 +88,13 @@ class WaveformCompressorTest {
     }
 
     // ── Edge cases ────────────────────────────────────────────────────────────
+
+    @Test
+    fun `odd binCount throws IllegalArgumentException`() {
+        assertFailsWith<IllegalArgumentException> {
+            WaveformCompressor(binCount = 3, defaultValue = -30.0)
+        }
+    }
 
     @Test
     fun `binCount zero produces empty snapshot without crash`() {

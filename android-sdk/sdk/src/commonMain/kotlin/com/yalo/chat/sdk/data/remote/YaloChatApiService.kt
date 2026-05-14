@@ -117,7 +117,7 @@ internal class YaloChatApiService(
                 put("user_type", if (externalUserId != null) "third_party_anonymous" else USER_TYPE_ANONYMOUS)
                 put("channel_id", channelId)
                 put("organization_id", organizationId)
-                put("timestamp", Clock.System.now().toEpochMilliseconds())
+                put("timestamp", Clock.System.now().epochSeconds)
                 externalUserId?.let { put("user_id", it) }
             }
             val response = httpClient.post("$apiBaseUrl/auth") {

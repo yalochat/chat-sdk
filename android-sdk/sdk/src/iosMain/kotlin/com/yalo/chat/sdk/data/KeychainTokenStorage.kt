@@ -40,13 +40,16 @@ import platform.Security.kSecReturnData
 import platform.Security.kSecValueData
 
 private const val KEYCHAIN_SERVICE = "com.yalo.chat.sdk.tokens"
-private const val KEYCHAIN_ACCOUNT = "tokens"
 
 // Security constants are CFStringRef (CPointer<__CFString>) — toll-free bridged to NSString.
 // nsKey() converts each CF constant's raw pointer to a Kotlin/Native ObjC reference so it
 // can be used as an NSMutableDictionary key (which requires NSCopyingProtocol at runtime).
 @OptIn(ExperimentalForeignApi::class)
-internal class KeychainTokenStorage : TokenStorage {
+internal class KeychainTokenStorage(channelId: String) : TokenStorage {
+
+    // Scope the Keychain account to channelId so re-init with a different channel never
+    // loads a token issued for the previous channel.
+    private val account = "tokens-$channelId"
 
     @Serializable
     private data class StoredTokens(
@@ -109,7 +112,7 @@ internal class KeychainTokenStorage : TokenStorage {
         q.setObject(nsKey(kSecClassGenericPassword!!.rawValue), forKey = nsKey(kSecClass!!.rawValue))
         q.setObject(KEYCHAIN_SERVICE, forKey = nsKey(kSecAttrService!!.rawValue))
         // kSecAttrAccount makes the item uniquely addressable within the service.
-        q.setObject(KEYCHAIN_ACCOUNT, forKey = nsKey(kSecAttrAccount!!.rawValue))
+        q.setObject(account, forKey = nsKey(kSecAttrAccount!!.rawValue))
         return q
     }
 

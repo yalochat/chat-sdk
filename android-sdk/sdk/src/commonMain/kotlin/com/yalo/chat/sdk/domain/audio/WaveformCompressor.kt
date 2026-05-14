@@ -15,6 +15,11 @@ internal class WaveformCompressor(
     val binCount: Int,
     val defaultValue: Double = -30.0,
 ) {
+    init {
+        // halve() merges pairs — an odd binCount silently drops the last bin.
+        require(binCount == 0 || binCount % 2 == 0) { "binCount must be even (got $binCount)" }
+    }
+
     private val bins = DoubleArray(binCount) { defaultValue }
     private var writeIdx = 0
     private var stride = 1

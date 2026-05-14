@@ -13,7 +13,8 @@ class MessagesObservable: ObservableObject {
     @Published var userMessage: String = ""
     @Published var isLoading: Bool = false
     @Published var hasMoreMessages: Bool = false
-    @Published var isLoadingMore: Bool = false
+    // Non-@Published: synchronous re-entrancy guard, not observed by views.
+    private var isLoadingMore: Bool = false
 
     private var allMessages: [ChatMessage] = []
     private var displayedCount: Int = 30

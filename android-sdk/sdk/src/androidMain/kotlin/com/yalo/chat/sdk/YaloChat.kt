@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.yalo.chat.sdk.data.MessageSyncService
+import com.yalo.chat.sdk.data.AndroidTokenStorage
 import com.yalo.chat.sdk.data.local.AudioRepositoryLocal
 import com.yalo.chat.sdk.data.local.ImageRepositoryLocal
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
@@ -115,6 +116,7 @@ object YaloChat {
             channelId = config.channelId,
             organizationId = config.organizationId,
             httpClient = httpClient,
+            tokenStorage = AndroidTokenStorage(context, config.channelId),
             externalUserId = config.userId,
         )
 

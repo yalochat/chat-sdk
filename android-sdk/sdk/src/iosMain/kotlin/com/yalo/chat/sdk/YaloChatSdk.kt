@@ -76,7 +76,7 @@ object YaloChatSdk {
                 channelId = config.channelId,
                 organizationId = config.organizationId,
                 httpClient = httpClient,
-                tokenStorage = KeychainTokenStorage(),
+                tokenStorage = KeychainTokenStorage(channelId = config.channelId),
                 externalUserId = config.userId,
             )
             // Use app-specific caches directory — mirrors Android's context.cacheDir.
