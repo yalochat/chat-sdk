@@ -114,9 +114,13 @@ internal class YaloChatApiService(
                 put("channel_id", channelId)
                 put("organization_id", organizationId)
 <<<<<<< HEAD
+<<<<<<< HEAD
                 // Backend contract: Unix seconds (10-digit), not milliseconds.
 =======
 >>>>>>> 7000b50 (fix(kmp/ios/android): address code review findings — token scoping, persistence, waveform guard, auth timestamp)
+=======
+                // Backend contract: Unix seconds (10-digit), not milliseconds.
+>>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
                 put("timestamp", Clock.System.now().epochSeconds)
                 externalUserId?.let { put("user_id", it) }
             }

@@ -27,7 +27,11 @@ struct MessageList: View {
                         if observable.hasMoreMessages {
                             ProgressView()
                                 .padding(.top, 8)
+<<<<<<< HEAD
                                 .id(observable.messages.first?.stableListId ?? "top")
+=======
+                                .id(observable.messages.count)
+>>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
                                 .onAppear { observable.loadMoreMessages() }
                         }
                         ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in
