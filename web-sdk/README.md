@@ -40,7 +40,7 @@ Add the icon font, place a sized container on your page, and initialize the clie
   <body>
     <div id="yalo-chat"></div>
 
-    <script src="https://chat-sdk-staging.yalochat.com/v0.0.1/sdk.js"></script>
+    <script src="https://chat-sdk-staging.yalochat.com/latest/sdk.js"></script>
     <script>
       var client = new YaloChatSdk.YaloChatClient({
         channelId: 'your-channel-id',
@@ -58,6 +58,16 @@ Add the icon font, place a sized container on your page, and initialize the clie
 `target` is the `id` of an HTML element on the page. The chat renders inside that element and fills it. You own the container's size and position, so the SDK does not impose floating-popup behavior, anchors, or click handlers.
 
 The chat is hidden until you call `client.open()`. Use `client.close()` to hide it.
+
+### Script URL
+
+The example above uses `/latest/sdk.js`, which always serves the most recent release. If you need a stable, reproducible build, pin to a specific version instead:
+
+```html
+<script src="https://chat-sdk-staging.yalochat.com/v1.0.0/sdk.js"></script>
+```
+
+Replace `v1.0.0` with the version you want to lock to.
 
 ### Floating popup pattern
 
