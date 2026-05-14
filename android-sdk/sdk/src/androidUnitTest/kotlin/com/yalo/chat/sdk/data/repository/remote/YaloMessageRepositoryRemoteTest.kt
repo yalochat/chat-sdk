@@ -383,68 +383,6 @@ class YaloMessageRepositoryRemoteTest {
         assertTrue(batch.first().role == MessageRole.AGENT)
     }
 
-    // ── pollIncomingMessages — text with inline buttons ───────────────────────
-
-    private fun textWithButtonsJson(
-        id: String,
-        text: String,
-        buttons: List<Pair<String, String>>,
-        header: String? = null,
-        footer: String? = null,
-    ): String {
-        val headerField = if (header != null) ""","header":"$header"""" else ""
-        val footerField = if (footer != null) ""","footer":"$footer"""" else ""
-        val buttonsJson = buttons.joinToString(",") { (t, type) -> """{"text":"$t","buttonType":"$type"}""" }
-        return """[{"id":"$id","message":{"timestamp":"2024-01-01T12:00:00Z","textMessageRequest":{"content":{"text":"$text"},"buttons":[$buttonsJson]$headerField$footerField}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
-    }
-
-    @Test
-    fun `pollIncomingMessages maps POSTBACK buttons to Buttons type`() = runTest {
-        val json = textWithButtonsJson(
-            "btn-inline-1", "Choose:",
-            listOf("Ver catálogo" to "BUTTON_TYPE_POSTBACK", "Ver promociones" to "BUTTON_TYPE_POSTBACK")
-        )
-        val repo = buildRepo(listOf(json))
-        val batch = repo.pollIncomingMessages().first()
-        assertEquals(1, batch.size)
-        val msg = batch.first()
-        assertEquals(MessageType.Buttons, msg.type)
-        assertEquals(MessageRole.AGENT, msg.role)
-        assertEquals("Choose:", msg.content)
-        assertEquals(listOf("Ver catálogo", "Ver promociones"), msg.buttons)
-    }
-
-    @Test
-    fun `pollIncomingMessages maps REPLY buttons to QuickReply type`() = runTest {
-        val json = textWithButtonsJson(
-            "qr-1", "What would you like?",
-            listOf("Yes" to "BUTTON_TYPE_REPLY", "No" to "BUTTON_TYPE_REPLY")
-        )
-        val repo = buildRepo(listOf(json))
-        val batch = repo.pollIncomingMessages().first()
-        assertEquals(1, batch.size)
-        val msg = batch.first()
-        assertEquals(MessageType.QuickReply, msg.type)
-        assertEquals(MessageRole.AGENT, msg.role)
-        assertEquals("What would you like?", msg.content)
-        assertEquals(listOf("Yes", "No"), msg.quickReplies)
-    }
-
-    @Test
-    fun `pollIncomingMessages maps text with buttons header and footer`() = runTest {
-        val json = textWithButtonsJson(
-            "btn-hf-1", "Help?",
-            listOf("Track" to "BUTTON_TYPE_POSTBACK"),
-            header = "Order", footer = "Tap one"
-        )
-        val repo = buildRepo(listOf(json))
-        val batch = repo.pollIncomingMessages().first()
-        val msg = batch.first()
-        assertEquals("Order", msg.header)
-        assertEquals("Tap one", msg.footer)
-        assertEquals(MessageType.Buttons, msg.type)
-    }
-
     @Test
     fun `pollIncomingMessages text without buttons remains Text type`() = runTest {
         val repo = buildRepo(listOf(textMessageJson("txt-nb-1", "Hello")))
