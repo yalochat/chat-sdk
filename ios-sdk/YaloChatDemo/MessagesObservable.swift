@@ -141,13 +141,15 @@ class MessagesObservable: ObservableObject {
     // ClearQuickReplies triggered by user send isn't undone by the next observeMessages emission.
     private func updateQuickRepliesFromMessages(_ messages: [ChatMessage]) {
         let lastQr = messages.last { msg in
-            msg.type is MessageType.QuickReply && msg.role === MessageRole.agent
+            (msg.type is MessageType.Text || msg.type is MessageType.QuickReply)
+                && msg.role === MessageRole.agent
+                && msg.buttons.contains { $0.type == ChatButtonType.reply }
         }
         guard let qrMsg = lastQr else { return }
         let wiId = qrMsg.wiId
         guard wiId != lastQuickReplyWiId else { return }
         lastQuickReplyWiId = wiId
-        quickReplies = qrMsg.quickReplies
+        quickReplies = qrMsg.buttons.filter { $0.type == ChatButtonType.reply }.map { $0.text }
     }
 
     // MARK: - Product expand

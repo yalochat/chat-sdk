@@ -4,6 +4,7 @@ package com.yalo.chat.sdk.data.repository.remote
 
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatEvent
 import com.yalo.chat.sdk.ui.chat.UnitType
@@ -614,7 +615,149 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(MessageRole.AGENT, batch.first().role)
     }
 
-    // ── pollIncomingMessages — buttons messages ────────────────────────────────────
+    // ── pollIncomingMessages — proto 2.0 text messages with buttons ───────────────
+
+    private fun textMessageWithButtonsJson(
+        id: String,
+        text: String = "Pick one",
+        buttons: List<Triple<String, String, String?>> = emptyList(),
+        header: String? = null,
+        footer: String? = null,
+        role: String = "MESSAGE_ROLE_AGENT",
+    ): String {
+        val extras = buildList {
+            if (header != null) add(""""header":"$header"""")
+            if (footer != null) add(""""footer":"$footer"""")
+            if (buttons.isNotEmpty()) {
+                val items = buttons.joinToString(",") { (btnText, btnType, url) ->
+                    if (url != null) """{"text":"$btnText","buttonType":"$btnType","url":"$url"}"""
+                    else """{"text":"$btnText","buttonType":"$btnType"}"""
+                }
+                add(""""buttons":[$items]""")
+            }
+        }
+        val extrasJson = if (extras.isEmpty()) "" else ",${extras.joinToString(",")}"
+        return """[{"id":"$id","message":{"textMessageRequest":{"content":{"text":"$text","role":"$role"}$extrasJson}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+    }
+
+    @Test
+    fun `pollIncomingMessages maps textMessageRequest POSTBACK button`() = runTest {
+        val json = textMessageWithButtonsJson(
+            id = "btn-p1",
+            text = "Choose action:",
+            buttons = listOf(Triple("Track order", "BUTTON_TYPE_POSTBACK", null)),
+        )
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        val msg = batch.first()
+        assertEquals(MessageType.Text, msg.type)
+        assertEquals(MessageRole.AGENT, msg.role)
+        assertEquals("Choose action:", msg.content)
+        assertEquals(1, msg.buttons.size)
+        assertEquals("Track order", msg.buttons.first().text)
+        assertEquals(ChatButtonType.POSTBACK, msg.buttons.first().type)
+        assertNull(msg.buttons.first().url)
+    }
+
+    @Test
+    fun `pollIncomingMessages maps textMessageRequest LINK button with url`() = runTest {
+        val json = textMessageWithButtonsJson(
+            id = "btn-l1",
+            text = "Visit our store:",
+            buttons = listOf(Triple("Open", "BUTTON_TYPE_LINK", "https://shop.example.com")),
+        )
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        val msg = batch.first()
+        assertEquals(MessageType.Text, msg.type)
+        assertEquals(1, msg.buttons.size)
+        assertEquals(ChatButtonType.LINK, msg.buttons.first().type)
+        assertEquals("Open", msg.buttons.first().text)
+        assertEquals("https://shop.example.com", msg.buttons.first().url)
+    }
+
+    @Test
+    fun `pollIncomingMessages maps textMessageRequest REPLY button`() = runTest {
+        val json = textMessageWithButtonsJson(
+            id = "btn-r1",
+            text = "Are you sure?",
+            buttons = listOf(Triple("Yes", "BUTTON_TYPE_REPLY", null), Triple("No", "BUTTON_TYPE_REPLY", null)),
+        )
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        val msg = batch.first()
+        assertEquals(2, msg.buttons.size)
+        assertTrue(msg.buttons.all { it.type == ChatButtonType.REPLY })
+    }
+
+    @Test
+    fun `pollIncomingMessages maps textMessageRequest with mixed button types`() = runTest {
+        val json = textMessageWithButtonsJson(
+            id = "btn-mix1",
+            text = "What would you like?",
+            buttons = listOf(
+                Triple("Confirm", "BUTTON_TYPE_POSTBACK", null),
+                Triple("Details", "BUTTON_TYPE_LINK", "https://details.example.com"),
+                Triple("Skip", "BUTTON_TYPE_REPLY", null),
+            ),
+        )
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        val msg = batch.first()
+        assertEquals(3, msg.buttons.size)
+        assertEquals(ChatButtonType.POSTBACK, msg.buttons[0].type)
+        assertEquals(ChatButtonType.LINK, msg.buttons[1].type)
+        assertEquals(ChatButtonType.REPLY, msg.buttons[2].type)
+        assertEquals("https://details.example.com", msg.buttons[1].url)
+    }
+
+    @Test
+    fun `pollIncomingMessages maps textMessageRequest header and footer`() = runTest {
+        val json = textMessageWithButtonsJson(
+            id = "btn-hf1",
+            text = "Pick an option",
+            buttons = listOf(Triple("Option A", "BUTTON_TYPE_POSTBACK", null)),
+            header = "Special Offer",
+            footer = "Valid today only",
+        )
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        val msg = batch.first()
+        assertEquals("Special Offer", msg.header)
+        assertEquals("Valid today only", msg.footer)
+        assertEquals("Pick an option", msg.content)
+    }
+
+    @Test
+    fun `pollIncomingMessages maps button with absent buttonType field to REPLY (proto3 default)`() = runTest {
+        // Proto3 omits fields at their default value on the wire. BUTTON_TYPE_REPLY = 0 is the
+        // default, so a real server payload may omit the buttonType key entirely. The DTO default
+        // must catch this and produce ChatButtonType.REPLY.
+        val json = """[{"id":"btn-proto3-default","message":{"textMessageRequest":{"content":{"text":"Pick:","role":"MESSAGE_ROLE_AGENT"},"buttons":[{"text":"Yes"},{"text":"No"}]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(1, batch.size)
+        val msg = batch.first()
+        assertEquals(2, msg.buttons.size)
+        assertTrue(msg.buttons.all { it.type == ChatButtonType.REPLY }, "Absent buttonType must default to REPLY")
+        assertEquals(listOf("Yes", "No"), msg.buttons.map { it.text })
+    }
+
+    @Test
+    fun `pollIncomingMessages maps LINK button with absent url field to null url`() = runTest {
+        // url is optional in the proto — LINK buttons without a url field must map to ChatButton(url=null),
+        // not crash. MessageButton handles null url as a no-op tap.
+        val json = """[{"id":"btn-link-no-url","message":{"textMessageRequest":{"content":{"text":"Visit:","role":"MESSAGE_ROLE_AGENT"},"buttons":[{"text":"Open","buttonType":"BUTTON_TYPE_LINK"}]}},"date":"2024-01-01T12:00:00Z","user_id":"u1","status":"IN_DELIVERY"}]"""
+        val repo = buildRepo(listOf(json))
+        val batch = repo.pollIncomingMessages().first()
+        val msg = batch.first()
+        assertEquals(1, msg.buttons.size)
+        assertEquals(ChatButtonType.LINK, msg.buttons.first().type)
+        assertNull(msg.buttons.first().url, "LINK button with no url field must have url=null")
+    }
+
+    // ── pollIncomingMessages — legacy buttons messages (backward compat) ───────────
 
     private fun buttonsMessageJson(
         id: String,
@@ -630,28 +773,31 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun `pollIncomingMessages emits buttons message`() = runTest {
+    fun `pollIncomingMessages maps legacy buttonsMessageRequest to POSTBACK buttons`() = runTest {
         val json = buttonsMessageJson("btn-1", body = "Choose:", buttons = listOf("A", "B"))
         val repo = buildRepo(listOf(json))
         val batch = repo.pollIncomingMessages().first()
         assertEquals(1, batch.size)
-        assertEquals(MessageType.Buttons, batch.first().type)
-        assertEquals(MessageRole.AGENT, batch.first().role)
-        assertEquals("Choose:", batch.first().content)
-        assertEquals(listOf("A", "B"), batch.first().buttons)
+        val msg = batch.first()
+        assertEquals(MessageType.Buttons, msg.type)
+        assertEquals(MessageRole.AGENT, msg.role)
+        assertEquals("Choose:", msg.content)
+        assertEquals(2, msg.buttons.size)
+        assertTrue(msg.buttons.all { it.type == ChatButtonType.POSTBACK })
+        assertEquals(listOf("A", "B"), msg.buttons.map { it.text })
     }
 
     @Test
-    fun `pollIncomingMessages emits buttons message with header and footer`() = runTest {
+    fun `pollIncomingMessages maps legacy buttonsMessageRequest with header and footer`() = runTest {
         val json = buttonsMessageJson("btn-2", body = "Help?", header = "Order", footer = "Tap one", buttons = listOf("Track", "Cancel"))
         val repo = buildRepo(listOf(json))
         val batch = repo.pollIncomingMessages().first()
         assertEquals("Order", batch.first().header)
         assertEquals("Tap one", batch.first().footer)
-        assertEquals(listOf("Track", "Cancel"), batch.first().buttons)
+        assertEquals(listOf("Track", "Cancel"), batch.first().buttons.map { it.text })
     }
 
-    // ── pollIncomingMessages — CTA messages ────────────────────────────────────────
+    // ── pollIncomingMessages — legacy CTA messages (backward compat) ──────────────
 
     private fun ctaMessageJson(
         id: String,
@@ -667,27 +813,30 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun `pollIncomingMessages emits CTA message`() = runTest {
+    fun `pollIncomingMessages maps legacy ctaMessageRequest to LINK buttons`() = runTest {
         val json = ctaMessageJson("cta-1", body = "Shop now", buttons = listOf("View" to "https://shop.example.com"))
         val repo = buildRepo(listOf(json))
         val batch = repo.pollIncomingMessages().first()
         assertEquals(1, batch.size)
-        assertEquals(MessageType.CTA, batch.first().type)
-        assertEquals(MessageRole.AGENT, batch.first().role)
-        assertEquals("Shop now", batch.first().content)
-        assertEquals(1, batch.first().ctaButtons.size)
-        assertEquals("View", batch.first().ctaButtons.first().text)
-        assertEquals("https://shop.example.com", batch.first().ctaButtons.first().url)
+        val msg = batch.first()
+        assertEquals(MessageType.CTA, msg.type)
+        assertEquals(MessageRole.AGENT, msg.role)
+        assertEquals("Shop now", msg.content)
+        assertEquals(1, msg.buttons.size)
+        assertEquals(ChatButtonType.LINK, msg.buttons.first().type)
+        assertEquals("View", msg.buttons.first().text)
+        assertEquals("https://shop.example.com", msg.buttons.first().url)
     }
 
     @Test
-    fun `pollIncomingMessages emits CTA message with header and footer`() = runTest {
+    fun `pollIncomingMessages maps legacy ctaMessageRequest with header and footer`() = runTest {
         val json = ctaMessageJson("cta-2", header = "Promo", footer = "Limited", buttons = listOf("Buy" to "https://a.com", "Learn" to "https://b.com"))
         val repo = buildRepo(listOf(json))
         val batch = repo.pollIncomingMessages().first()
         assertEquals("Promo", batch.first().header)
         assertEquals("Limited", batch.first().footer)
-        assertEquals(2, batch.first().ctaButtons.size)
+        assertEquals(2, batch.first().buttons.size)
+        assertTrue(batch.first().buttons.all { it.type == ChatButtonType.LINK })
     }
 
     // ── pollIncomingMessages — video messages ──────────────────────────────────────

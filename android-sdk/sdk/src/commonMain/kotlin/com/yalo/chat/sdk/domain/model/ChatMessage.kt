@@ -24,13 +24,11 @@ data class ChatMessage(
     val products: List<Product> = emptyList(),
     // Transient UI state — not stored in DB. Defaults to false on every load from storage.
     val expand: Boolean = false,
-    val quickReplies: List<QuickReply> = emptyList(),
-    // Optional header/footer text for buttons and CTA messages.
+    // Optional header/footer text for messages with buttons.
     val header: String? = null,
     val footer: String? = null,
-    // Reply button labels for ButtonsMessage — tapping sends the label as a text message.
-    val buttons: List<String> = emptyList(),
-    // CTA buttons (text + URL) for CtaMessage — tapping opens the URL in the browser.
-    val ctaButtons: List<CtaButton> = emptyList(),
+    // Unified button list (proto 2.0). POSTBACK buttons send text; LINK buttons open URLs;
+    // REPLY buttons surface as quick-reply chips above ChatInput.
+    val buttons: List<ChatButton> = emptyList(),
     val timestamp: Long = Clock.System.now().toEpochMilliseconds(),
 )

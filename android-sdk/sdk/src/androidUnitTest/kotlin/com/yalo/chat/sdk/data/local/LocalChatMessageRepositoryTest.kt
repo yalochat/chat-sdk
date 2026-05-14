@@ -5,11 +5,12 @@ package com.yalo.chat.sdk.data.local
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.database.ChatDatabase
+import com.yalo.chat.sdk.domain.model.ChatButton
+import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
-import com.yalo.chat.sdk.domain.model.CtaButton
 import com.yalo.chat.sdk.domain.model.Product
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +24,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 // Uses JdbcSqliteDriver (in-memory) — no Android emulator required.
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -30,6 +32,7 @@ class LocalChatMessageRepositoryTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private lateinit var driver: JdbcSqliteDriver
+    private lateinit var db: ChatDatabase
     private lateinit var repo: LocalChatMessageRepository
 
     @BeforeTest
@@ -37,7 +40,7 @@ class LocalChatMessageRepositoryTest {
         Dispatchers.setMain(dispatcher)
         driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
         ChatDatabase.Schema.create(driver)
-        val db = createDatabase(driver)
+        db = createDatabase(driver)
         repo = LocalChatMessageRepository(db.chatMessageQueries, ioDispatcher = dispatcher)
     }
 
@@ -119,19 +122,26 @@ class LocalChatMessageRepositoryTest {
     // ── JSON columns round-trip ───────────────────────────────────────────────
 
     @Test
-    fun `quickReplies round-trip through JSON column`() = runTest {
+    fun `REPLY buttons round-trip through JSON column`() = runTest {
         val message = ChatMessage(
             id = 1L,
             role = MessageRole.AGENT,
-            type = MessageType.QuickReply,
+            type = MessageType.Text,
             status = MessageStatus.DELIVERED,
             content = "Pick one:",
-            quickReplies = listOf("Yes", "No", "Maybe"),
+            buttons = listOf(
+                ChatButton(text = "Yes", type = ChatButtonType.REPLY),
+                ChatButton(text = "No", type = ChatButtonType.REPLY),
+                ChatButton(text = "Maybe", type = ChatButtonType.REPLY),
+            ),
         )
         repo.insertMessage(message)
         val result = repo.getMessages(cursor = null, limit = 1)
         assertIs<Result.Ok<List<ChatMessage>>>(result)
-        assertEquals(listOf("Yes", "No", "Maybe"), result.result.first().quickReplies)
+        assertEquals(
+            listOf("Yes", "No", "Maybe"),
+            result.result.first().buttons.filter { it.type == ChatButtonType.REPLY }.map { it.text },
+        )
     }
 
     @Test
@@ -198,7 +208,11 @@ class LocalChatMessageRepositoryTest {
             content = "Pick an option:",
             header = "Order help",
             footer = "Tap any option",
-            buttons = listOf("Track order", "Cancel order", "Contact support"),
+            buttons = listOf(
+                ChatButton(text = "Track order", type = ChatButtonType.POSTBACK),
+                ChatButton(text = "Cancel order", type = ChatButtonType.POSTBACK),
+                ChatButton(text = "Contact support", type = ChatButtonType.POSTBACK),
+            ),
             timestamp = 1000L,
         )
         repo.insertMessage(message)
@@ -208,7 +222,7 @@ class LocalChatMessageRepositoryTest {
         assertEquals(MessageType.Buttons, loaded.type)
         assertEquals("Order help", loaded.header)
         assertEquals("Tap any option", loaded.footer)
-        assertEquals(listOf("Track order", "Cancel order", "Contact support"), loaded.buttons)
+        assertEquals(listOf("Track order", "Cancel order", "Contact support"), loaded.buttons.map { it.text })
         assertEquals("Pick an option:", loaded.content)
     }
 
@@ -220,7 +234,10 @@ class LocalChatMessageRepositoryTest {
             type = MessageType.Buttons,
             status = MessageStatus.DELIVERED,
             content = "Choose:",
-            buttons = listOf("Yes", "No"),
+            buttons = listOf(
+                ChatButton(text = "Yes", type = ChatButtonType.POSTBACK),
+                ChatButton(text = "No", type = ChatButtonType.POSTBACK),
+            ),
             timestamp = 2000L,
         )
         repo.insertMessage(message)
@@ -229,13 +246,76 @@ class LocalChatMessageRepositoryTest {
         val loaded = result.result.first()
         assertEquals(null, loaded.header)
         assertEquals(null, loaded.footer)
-        assertEquals(listOf("Yes", "No"), loaded.buttons)
+        assertEquals(listOf("Yes", "No"), loaded.buttons.map { it.text })
     }
 
     // ── CTA message round-trip ────────────────────────────────────────────────
 
+    // ── Backward-compat DB decode (legacy JSON column formats) ───────────────────
+
+    // These tests simulate rows written by a pre-proto-2.0 app version and verify that
+    // decodeButtons() reads them correctly without a DB migration.
+
     @Test
-    fun `CTA message round-trips header, footer and ctaButtons through DB`() = runTest {
+    fun `legacy List-String buttons column decoded as POSTBACK buttons`() = runTest {
+        // Old app wrote buttons as ["Yes","No"] (List<String>, POSTBACK-implied).
+        db.chatMessageQueries.insertOrReplace(
+            id = 100L, wi_id = "legacy-btn-1", role = "agent", content = "Choose:",
+            type = "buttons", status = "delivered", file_name = null, amplitudes = null,
+            duration = null, byte_count = null, media_type = null, products = null,
+            quick_replies = null, header_ = "Order help", footer = null,
+            buttons = """["Track order","Cancel order"]""", cta_buttons = null,
+            timestamp = 100_000L,
+        )
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(2, loaded.buttons.size)
+        assertTrue(loaded.buttons.all { it.type == ChatButtonType.POSTBACK })
+        assertEquals(listOf("Track order", "Cancel order"), loaded.buttons.map { it.text })
+    }
+
+    @Test
+    fun `legacy cta_buttons column decoded as LINK buttons`() = runTest {
+        // Old app wrote CTA buttons as List<CtaButton> JSON in cta_buttons; buttons was null.
+        db.chatMessageQueries.insertOrReplace(
+            id = 101L, wi_id = "legacy-cta-1", role = "agent", content = "Shop now",
+            type = "cta", status = "delivered", file_name = null, amplitudes = null,
+            duration = null, byte_count = null, media_type = null, products = null,
+            quick_replies = null, header_ = null, footer = null, buttons = null,
+            cta_buttons = """[{"text":"View Catalog","url":"https://example.com/catalog"},{"text":"View Promos","url":"https://example.com/promos"}]""",
+            timestamp = 101_000L,
+        )
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(2, loaded.buttons.size)
+        assertTrue(loaded.buttons.all { it.type == ChatButtonType.LINK })
+        assertEquals("View Catalog", loaded.buttons[0].text)
+        assertEquals("https://example.com/catalog", loaded.buttons[0].url)
+        assertEquals("View Promos", loaded.buttons[1].text)
+    }
+
+    @Test
+    fun `legacy quick_replies column decoded as REPLY buttons`() = runTest {
+        // Old app wrote quick replies as List<String> JSON in quick_replies; buttons was null.
+        db.chatMessageQueries.insertOrReplace(
+            id = 102L, wi_id = "legacy-qr-1", role = "agent", content = "Pick one:",
+            type = "quickReply", status = "delivered", file_name = null, amplitudes = null,
+            duration = null, byte_count = null, media_type = null, products = null,
+            quick_replies = """["Yes","No","Maybe"]""", header_ = null, footer = null,
+            buttons = null, cta_buttons = null, timestamp = 102_000L,
+        )
+        val result = repo.getMessages(cursor = null, limit = 1)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        val loaded = result.result.first()
+        assertEquals(3, loaded.buttons.size)
+        assertTrue(loaded.buttons.all { it.type == ChatButtonType.REPLY })
+        assertEquals(listOf("Yes", "No", "Maybe"), loaded.buttons.map { it.text })
+    }
+
+    @Test
+    fun `CTA message round-trips header, footer and LINK buttons through DB`() = runTest {
         val message = ChatMessage(
             id = 3L,
             wiId = "cta-wi-1",
@@ -245,9 +325,9 @@ class LocalChatMessageRepositoryTest {
             content = "Check out our catalog",
             header = "Shop now",
             footer = "Limited time offer",
-            ctaButtons = listOf(
-                CtaButton(text = "View Catalog", url = "https://example.com/catalog"),
-                CtaButton(text = "View Promotions", url = "https://example.com/promos"),
+            buttons = listOf(
+                ChatButton(text = "View Catalog", type = ChatButtonType.LINK, url = "https://example.com/catalog"),
+                ChatButton(text = "View Promotions", type = ChatButtonType.LINK, url = "https://example.com/promos"),
             ),
             timestamp = 3000L,
         )
@@ -258,9 +338,9 @@ class LocalChatMessageRepositoryTest {
         assertEquals(MessageType.CTA, loaded.type)
         assertEquals("Shop now", loaded.header)
         assertEquals("Limited time offer", loaded.footer)
-        assertEquals(2, loaded.ctaButtons.size)
-        assertEquals("View Catalog", loaded.ctaButtons[0].text)
-        assertEquals("https://example.com/catalog", loaded.ctaButtons[0].url)
-        assertEquals("View Promotions", loaded.ctaButtons[1].text)
+        assertEquals(2, loaded.buttons.size)
+        assertEquals("View Catalog", loaded.buttons[0].text)
+        assertEquals("https://example.com/catalog", loaded.buttons[0].url)
+        assertEquals("View Promotions", loaded.buttons[1].text)
     }
 }
