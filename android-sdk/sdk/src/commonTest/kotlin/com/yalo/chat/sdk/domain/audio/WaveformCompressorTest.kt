@@ -4,7 +4,10 @@ package com.yalo.chat.sdk.domain.audio
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+<<<<<<< HEAD
 import kotlin.test.assertFailsWith
+=======
+>>>>>>> 04f0e4f (feat(kmp/ios/android): WaveformCompressor — streaming max-pool waveform (PR #146 parity))
 import kotlin.test.assertTrue
 
 class WaveformCompressorTest {
@@ -90,6 +93,7 @@ class WaveformCompressorTest {
     // ── Edge cases ────────────────────────────────────────────────────────────
 
     @Test
+<<<<<<< HEAD
     fun `odd binCount throws IllegalArgumentException`() {
         assertFailsWith<IllegalArgumentException> {
             WaveformCompressor(binCount = 3, defaultValue = -30.0)
@@ -97,6 +101,8 @@ class WaveformCompressorTest {
     }
 
     @Test
+=======
+>>>>>>> 04f0e4f (feat(kmp/ios/android): WaveformCompressor — streaming max-pool waveform (PR #146 parity))
     fun `binCount zero produces empty snapshot without crash`() {
         val c = WaveformCompressor(binCount = 0, defaultValue = -30.0)
         c.pushSample(-10.0)
