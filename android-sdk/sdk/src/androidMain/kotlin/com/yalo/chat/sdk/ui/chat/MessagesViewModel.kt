@@ -82,6 +82,9 @@ internal class MessagesViewModel(
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
+            is MessagesEvent.RetryMessage -> retryMessage(event.messageId)
+            is MessagesEvent.PauseSync -> yaloMessageRepository.pause()
+            is MessagesEvent.ResumeSync -> yaloMessageRepository.resume()
         }
     }
 
@@ -262,6 +265,20 @@ internal class MessagesViewModel(
                         lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
                     )
                 }
+            }
+        }
+    }
+
+    // Mirrors Flutter's _handleRetryMessage.
+    private fun retryMessage(messageId: Long) {
+        val msg = _state.value.messages.find { it.id == messageId } ?: return
+        if (msg.status != MessageStatus.ERROR) return
+        val retrying = msg.copy(status = MessageStatus.SENT)
+        _state.update { it.copy(messages = it.messages.map { m -> if (m.id == messageId) retrying else m }) }
+        viewModelScope.launch {
+            chatMessageRepository.updateMessage(retrying)
+            if (yaloMessageRepository.sendMessage(retrying) is Result.Error) {
+                chatMessageRepository.updateMessage(retrying.copy(status = MessageStatus.ERROR))
             }
         }
     }

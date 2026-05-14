@@ -154,6 +154,11 @@ class MessagesObservable: ObservableObject {
         )
     }
 
+    // Mirrors Flutter's ChatRetryMessage: re-sends an ERROR-status message.
+    func retryMessage(messageId: Int64) {
+        controller?.retryMessage(messageId: messageId)
+    }
+
     // MARK: - Quick replies
 
     func clearQuickReplies() {

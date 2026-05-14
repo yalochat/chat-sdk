@@ -76,6 +76,33 @@ class MessagesController internal constructor(
         }
     }
 
+    // Mirrors Flutter's _handleFetchMessages: loads the next page using the oldest
+    // displayed message id as the cursor. Swift calls this when the user scrolls to the top.
+    fun loadMoreMessages(cursor: Long, onComplete: ((Boolean) -> Unit)? = null) {
+        val s = scope ?: return
+        s.launch {
+            val ok = localRepo.getMessages(cursor = cursor, limit = 30) is Result.Ok
+            onComplete?.invoke(ok)
+        }
+    }
+
+    // Mirrors Flutter's _handleRetryMessage.
+    // Finds the ERROR message by id, transitions it to SENT, re-sends it,
+    // and rolls back to ERROR if the send fails again.
+    fun retryMessage(messageId: Long) {
+        val s = scope ?: return
+        val msg = cachedMessages.find { it.id == messageId } ?: return
+        if (msg.status != MessageStatus.ERROR) return
+        val retrying = msg.copy(status = MessageStatus.SENT)
+        cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
+        s.launch {
+            localRepo.updateMessage(retrying)
+            if (yaloRepo.sendMessage(retrying) is Result.Error) {
+                localRepo.updateMessage(retrying.copy(status = MessageStatus.ERROR))
+            }
+        }
+    }
+
     fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         val s = scope ?: return

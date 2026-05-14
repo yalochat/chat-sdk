@@ -44,6 +44,7 @@ struct MessageList: View {
                                         quantity: qty
                                     )
                                 },
+                                onRetry: { id in observable.retryMessage(messageId: id) },
                                 isExpanded: messageId.map { observable.expandedMessageIds.contains($0) } ?? false
                             )
                         }

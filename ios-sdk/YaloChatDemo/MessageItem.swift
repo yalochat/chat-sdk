@@ -12,6 +12,7 @@ struct MessageItem: View {
     var onButtonTap: (String) -> Void = { _ in }
     var onToggleExpand: (Int64) -> Void = { _ in }
     var onUpdateQuantity: (Int64, String, Bool, Double) -> Void = { _, _, _, _ in }
+    var onRetry: (Int64) -> Void = { _ in }
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
@@ -46,6 +47,9 @@ struct MessageItem: View {
             Image(systemName: theme.errorIconName)
                 .foregroundColor(theme.errorColor)
                 .font(.caption)
+                .onTapGesture {
+                    if let id = message.id?.int64Value { onRetry(id) }
+                }
         }
     }
 

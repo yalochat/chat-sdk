@@ -107,7 +107,8 @@ internal fun MessageItem(
                 tint = theme.errorColor,
                 modifier = Modifier
                     .size(16.dp)
-                    .padding(end = 4.dp),
+                    .padding(end = 4.dp)
+                    .clickable { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } },
             )
         }
         Surface(

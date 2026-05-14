@@ -30,6 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yalo.chat.sdk.YaloChat
 import com.yalo.chat.sdk.ui.chat.AudioEvent
@@ -194,6 +197,21 @@ fun ChatScreen(
         viewModel.handleEvent(MessagesEvent.SubscribeToMessages)
         viewModel.handleEvent(MessagesEvent.SubscribeToEvents)
         audioViewModel.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
+    }
+
+    // Mirrors Flutter's didChangeAppLifecycleState: pause polling when the app backgrounds,
+    // resume when it returns to foreground.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> viewModel.handleEvent(MessagesEvent.PauseSync)
+                Lifecycle.Event.ON_RESUME -> viewModel.handleEvent(MessagesEvent.ResumeSync)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     // Stop sync and reset state when the screen leaves composition so background
