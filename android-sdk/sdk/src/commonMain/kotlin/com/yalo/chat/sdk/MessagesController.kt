@@ -76,8 +76,7 @@ class MessagesController internal constructor(
         }
     }
 
-    // Mirrors Flutter's _handleFetchMessages: loads the next page using the oldest
-    // displayed message id as the cursor. Swift calls this when the user scrolls to the top.
+    // Not currently called by iOS, which slices in-memory. Available for DB-level cursor pagination.
     fun loadMoreMessages(cursor: Long, onComplete: ((Boolean) -> Unit)? = null) {
         val s = scope ?: return
         s.launch {
@@ -86,9 +85,6 @@ class MessagesController internal constructor(
         }
     }
 
-    // Mirrors Flutter's _handleRetryMessage.
-    // Finds the ERROR message by id, transitions it to SENT, re-sends it,
-    // and rolls back to ERROR if the send fails again.
     fun retryMessage(messageId: Long) {
         val s = scope ?: return
         val msg = cachedMessages.find { it.id == messageId } ?: return

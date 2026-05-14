@@ -269,7 +269,6 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's _handleRetryMessage.
     private fun retryMessage(messageId: Long) {
         val msg = _state.value.messages.find { it.id == messageId } ?: return
         if (msg.status != MessageStatus.ERROR) return

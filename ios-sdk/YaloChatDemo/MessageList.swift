@@ -27,6 +27,7 @@ struct MessageList: View {
                         if observable.hasMoreMessages {
                             ProgressView()
                                 .padding(.top, 8)
+                                .id(observable.messages.count)
                                 .onAppear { observable.loadMoreMessages() }
                         }
                         ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in

@@ -199,8 +199,6 @@ fun ChatScreen(
         audioViewModel.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
     }
 
-    // Mirrors Flutter's didChangeAppLifecycleState: pause polling when the app backgrounds,
-    // resume when it returns to foreground.
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
