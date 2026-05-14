@@ -5,7 +5,7 @@ import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/audio/waveform_compressor.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_bloc.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/audio/audio_state.dart';
@@ -15,16 +15,16 @@ import 'package:test/test.dart';
 
 class MockAudioRepository extends Mock implements AudioRepository {}
 
-class MockAudioUseCase extends Mock implements AudioProcessingUseCase {}
+class MockWaveformCompressor extends Mock implements WaveformCompressor {}
 
 void main() {
   group(AudioBloc, () {
     late AudioRepository audioRepository;
-    late AudioProcessingUseCase audioUseCase;
+    late WaveformCompressor waveformCompressor;
 
     setUp(() {
       audioRepository = MockAudioRepository();
-      audioUseCase = MockAudioUseCase();
+      waveformCompressor = MockWaveformCompressor();
     });
 
     group('completed audio subscription', () {
@@ -398,7 +398,7 @@ void main() {
         'should emit correctly',
         build: () => AudioBloc(
           audioRepository: audioRepository,
-          audioUseCase: audioUseCase,
+          waveformCompressor: waveformCompressor,
         ),
         seed: () => AudioState(
           audioData: AudioData(amplitudes: [-30, -30], duration: 0),
@@ -416,7 +416,7 @@ void main() {
             ),
           ).thenAnswer((_) => amplitudeStream);
           when(
-            () => audioUseCase.compressWaveformForPreview(any(), any(), any()),
+            () => waveformCompressor.snapshot(),
           ).thenReturn([-3.0, -160.0]);
           bloc.add(AudioAmplitudeSubscribe());
         },

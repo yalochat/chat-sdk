@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import { WaveformCompressor } from '@domain/audio/waveform-compressor';
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 
 export type RecordingStatus = 'idle' | 'recording' | 'error';
@@ -23,6 +24,7 @@ export class AudioRecordingController implements ReactiveController {
   amplitudes: number[] = new Array(AMPLITUDE_DATA_POINTS).fill(0);
   private _mediaRecorder: MediaRecorder | null = null;
   private _audioChunks: Blob[] = [];
+  private _waveformCompressor = new WaveformCompressor(AMPLITUDE_DATA_POINTS);
   private _stream: MediaStream | null = null;
   private _audioContext: AudioContext | null = null;
   private _analyser: AnalyserNode | null = null;
@@ -73,7 +75,7 @@ export class AudioRecordingController implements ReactiveController {
       const result: RecordingResult = {
         blob,
         duration: this.elapsedMs,
-        amplitudes: [...this.amplitudes],
+        amplitudes: this._waveformCompressor.snapshot(),
       };
       this._stopResolve?.(result);
       this._stopResolve = null;
@@ -83,6 +85,7 @@ export class AudioRecordingController implements ReactiveController {
     this._startTime = Date.now();
     this.elapsedMs = 0;
     this.amplitudes = new Array(AMPLITUDE_DATA_POINTS).fill(0);
+    this._waveformCompressor.reset();
     this.status = 'recording';
 
     this._timerInterval = setInterval(() => {
@@ -110,6 +113,7 @@ export class AudioRecordingController implements ReactiveController {
     }
     this._cleanup();
     this._audioChunks = [];
+    this._waveformCompressor.reset();
     this._stopResolve = null;
     this.status = 'idle';
     this.elapsedMs = 0;
@@ -133,13 +137,16 @@ export class AudioRecordingController implements ReactiveController {
   }
 
   private _sampleAmplitude(): void {
-    if (!this._analyser) return;
+    if (!this._analyser) {
+      return;
+    }
     const data = new Uint8Array(this._analyser.frequencyBinCount);
     this._analyser.getByteFrequencyData(data);
     const sum = data.reduce((acc, val) => acc + val, 0);
     const avg = sum / data.length;
     const normalized = Math.min(avg / 128, 1);
 
+    this._waveformCompressor.pushSample(normalized);
     this.amplitudes = this.amplitudes.slice(1);
     this.amplitudes.push(normalized);
   }

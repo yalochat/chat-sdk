@@ -4,7 +4,7 @@ import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/audio/audio_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/use_cases/audio/audio_processing_use_case.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/audio/waveform_compressor.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
@@ -20,13 +20,18 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
   @visibleForTesting
   static const double defaultAmplitude = -30;
   final AudioRepository _audioRepository;
-  final AudioProcessingUseCase _audioUseCase;
+  final WaveformCompressor _waveformCompressor;
   final Logger log = Logger('AudioViewModel');
   AudioBloc({
     required AudioRepository audioRepository,
-    AudioProcessingUseCase? audioUseCase,
+    WaveformCompressor? waveformCompressor,
   }) : _audioRepository = audioRepository,
-       _audioUseCase = audioUseCase ?? AudioProcessingUseCase(),
+       _waveformCompressor =
+           waveformCompressor ??
+           WaveformCompressor(
+             binCount: amplitudeDataPoints,
+             defaultValue: defaultAmplitude,
+           ),
        super(
          AudioState(
            audioData: AudioData(
@@ -188,11 +193,8 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
           millisecondsRecording % recordTickMs == 0,
           'Milliseconds must be a multiple of _recordTickMs',
         );
-        final wavePreview = _audioUseCase.compressWaveformForPreview(
-          data,
-          millisecondsRecording ~/ recordTickMs,
-          state.audioData.amplitudesFilePreview,
-        );
+        _waveformCompressor.pushSample(data);
+        final wavePreview = _waveformCompressor.snapshot();
 
         return state.copyWith(
           audioData: state.audioData.copyWith(
@@ -219,6 +221,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
         log.info(
           'Audio started successfully with file ${audioStreamResult.result}',
         );
+        _waveformCompressor.reset();
         emit(
           state.copyWith(
             isUserRecordingAudio: true,
