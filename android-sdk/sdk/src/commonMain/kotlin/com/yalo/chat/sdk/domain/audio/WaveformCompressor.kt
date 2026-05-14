@@ -19,6 +19,7 @@ internal class WaveformCompressor(
     val defaultValue: Double = -30.0,
 ) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     init {
         // halve() merges pairs — an odd binCount silently drops the last bin.
         require(binCount >= 0 && binCount % 2 == 0) { "binCount must be even and non-negative (got $binCount)" }
@@ -26,6 +27,13 @@ internal class WaveformCompressor(
 
 =======
 >>>>>>> 04f0e4f (feat(kmp/ios/android): WaveformCompressor — streaming max-pool waveform (PR #146 parity))
+=======
+    init {
+        // halve() merges pairs — an odd binCount silently drops the last bin.
+        require(binCount == 0 || binCount % 2 == 0) { "binCount must be even (got $binCount)" }
+    }
+
+>>>>>>> 7000b50 (fix(kmp/ios/android): address code review findings — token scoping, persistence, waveform guard, auth timestamp)
     private val bins = DoubleArray(binCount) { defaultValue }
     private var writeIdx = 0
     private var stride = 1

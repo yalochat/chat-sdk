@@ -113,7 +113,10 @@ internal class YaloChatApiService(
                 put("user_type", if (externalUserId != null) "third_party_anonymous" else USER_TYPE_ANONYMOUS)
                 put("channel_id", channelId)
                 put("organization_id", organizationId)
+<<<<<<< HEAD
                 // Backend contract: Unix seconds (10-digit), not milliseconds.
+=======
+>>>>>>> 7000b50 (fix(kmp/ios/android): address code review findings — token scoping, persistence, waveform guard, auth timestamp)
                 put("timestamp", Clock.System.now().epochSeconds)
                 externalUserId?.let { put("user_id", it) }
             }

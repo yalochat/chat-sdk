@@ -20,10 +20,15 @@ final class WaveformCompressor {
 
     init(binCount: Int, defaultValue: Double = -30.0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         // halve() merges pairs — an odd binCount silently drops the last bin.
         precondition(binCount == 0 || binCount % 2 == 0, "binCount must be even (got \(binCount))")
 =======
 >>>>>>> 04f0e4f (feat(kmp/ios/android): WaveformCompressor — streaming max-pool waveform (PR #146 parity))
+=======
+        // halve() merges pairs — an odd binCount silently drops the last bin.
+        precondition(binCount == 0 || binCount % 2 == 0, "binCount must be even (got \(binCount))")
+>>>>>>> 7000b50 (fix(kmp/ios/android): address code review findings — token scoping, persistence, waveform guard, auth timestamp)
         self.binCount = binCount
         self.defaultValue = defaultValue
         self.bins = Array(repeating: defaultValue, count: binCount)
