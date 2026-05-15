@@ -37,6 +37,35 @@ const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
     '.chat-action-button'
   ) as unknown as HTMLButtonElement;
 
+const DB_NAME = 'YaloChatMessages';
+
+const clearDb = (): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const open = indexedDB.open(DB_NAME);
+    open.onerror = () => reject(open.error);
+    open.onsuccess = () => {
+      const db = open.result;
+      const stores = Array.from(db.objectStoreNames);
+      if (stores.length === 0) {
+        db.close();
+        resolve();
+        return;
+      }
+      const tx = db.transaction(stores, 'readwrite');
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+      tx.onerror = () => {
+        db.close();
+        reject(tx.error);
+      };
+      for (const name of stores) {
+        tx.objectStore(name).clear();
+      }
+    };
+  });
+
 describe('YaloChatWindow', () => {
   let el: YaloChatWindow;
 
@@ -44,8 +73,9 @@ describe('YaloChatWindow', () => {
     el = await createElement();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     document.body.innerHTML = '';
+    await clearDb();
   });
 
   describe('open/close', () => {
