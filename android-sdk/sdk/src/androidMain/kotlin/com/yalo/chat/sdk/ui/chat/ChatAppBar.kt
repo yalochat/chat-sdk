@@ -30,10 +30,9 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Mirrors Flutter's ChatAppBar + ChatTitle:
+// Chat app bar with:
 //  - chatIconImage avatar aligned to the top of the title column (when theme.chatIconImage is non-null)
-//  - isTyping controls a height-animated subtitle below the channel name —
-//    mirrors Flutter's ChatTitle AnimatedContainer that collapses to 0 height when empty
+//  - isTyping controls a height-animated subtitle below the channel name that collapses to 0 height when empty
 //  - onShopPressed / onCartPressed as icon buttons in actions (when non-null)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

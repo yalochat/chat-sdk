@@ -2,10 +2,7 @@
 
 package com.yalo.chat.sdk.common
 
-// Port of flutter-sdk/lib/src/common/result.dart
-// Field names match Flutter exactly: Ok.result, Error.error.
 // Every repository method returns Result<T> instead of throwing exceptions.
-// Zero Android dependencies — KMP-ready.
 sealed class Result<out T> {
     data class Ok<out T>(val result: T) : Result<T>()
     data class Error<out T>(val error: Exception) : Result<T>()

@@ -45,14 +45,13 @@ internal class YaloMessageRepositoryRemote(
     // Exposed as internal so tests can override the interval without waiting.
     internal val pollingIntervalMs: Long = 1_000L,
     // Absolute path to the directory where downloaded agent media is saved.
-    // Mirrors Flutter's _directory. Platform-specific path provided by YaloChat.kt.
+    // Platform-specific path provided by YaloChat.kt.
     private val tempDir: String? = null,
 ) : YaloMessageRepository {
 
-    // Registered command callbacks — mirrors flutter-sdk YaloChatClient.commands.
-    // If a callback is registered for a command, it fires instead of the API call.
-    // @Volatile + immutable-map replacement: readers always see a consistent snapshot
-    // and ConcurrentModificationException is impossible (no shared mutable collection).
+    // Registered command callbacks — if a callback is registered for a command, it fires instead
+    // of the API call. @Volatile + immutable-map replacement: readers always see a consistent
+    // snapshot and ConcurrentModificationException is impossible (no shared mutable collection).
     @Volatile
     private var commands: Map<ChatCommand, ChatCommandCallback> = emptyMap()
 
@@ -76,9 +75,8 @@ internal class YaloMessageRepositoryRemote(
     // No atomic needed: pollIncomingMessages() is a single sequential coroutine.
     private var pollHighWater: Long = 0L
 
-    // Hot SharedFlow for typing events — mirrors Flutter's _typingEventsStreamController.
-    // UNLIMITED buffer prevents event loss when TypingStart and TypingStop are emitted in
-    // rapid succession (e.g. a poll cycle that errors immediately after a send).
+    // Hot SharedFlow for typing events — UNLIMITED buffer prevents event loss when TypingStart
+    // and TypingStop are emitted in rapid succession (e.g. a poll cycle that errors after a send).
     private val _events = MutableSharedFlow<ChatEvent>(extraBufferCapacity = Channel.UNLIMITED)
     override fun events(): Flow<ChatEvent> = _events.asSharedFlow()
 
@@ -293,8 +291,7 @@ internal class YaloMessageRepositoryRemote(
     }
 
     // ── Cart operations ────────────────────────────────────────────────────────
-    // Mirrors flutter-sdk YaloMessageRepositoryRemote.addToCart/removeFromCart/clearCart/addPromotion.
-    // If a ChatCommand callback is registered, it fires instead of the API call (same pattern as Flutter).
+    // If a ChatCommand callback is registered, it fires instead of the API call.
 
     override suspend fun addToCart(sku: String, quantity: Double, unitType: UnitType?): Result<Unit> {
         val callback = commands[ChatCommand.ADD_TO_CART]

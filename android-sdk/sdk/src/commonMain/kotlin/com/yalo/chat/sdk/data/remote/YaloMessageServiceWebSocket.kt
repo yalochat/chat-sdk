@@ -21,7 +21,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-// Port of flutter-sdk YaloMessageServiceWebSocket.
 // Manages a single WebSocket connection with exponential back-off reconnection.
 // Decoded frames are emitted on [frames]; consumers call connect(scope) to start
 // the loop and disconnect() to stop it. Thread-safety: connect/disconnect are

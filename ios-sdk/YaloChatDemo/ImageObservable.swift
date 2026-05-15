@@ -13,6 +13,7 @@ class ImageObservable: ObservableObject {
     @Published var showSourceSheet: Bool = false
     @Published var showGallery: Bool = false
     @Published var showCamera: Bool = false
+    @Published var errorMessage: String? = nil
 
     func setPickedImage(_ image: UIImage) {
         // Delete any previously staged temp file before overwriting.
@@ -28,7 +29,7 @@ class ImageObservable: ObservableObject {
             pickedImagePath = url.path
             mimeType = "image/jpeg"
         } catch {
-            // No-op — user can retry by picking again
+            errorMessage = Translate.imageSaveError
         }
     }
 

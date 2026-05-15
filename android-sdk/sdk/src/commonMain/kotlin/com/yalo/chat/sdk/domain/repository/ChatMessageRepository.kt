@@ -6,9 +6,6 @@ import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import kotlinx.coroutines.flow.Flow
 
-// Port of flutter-sdk/lib/src/data/repositories/chat_message_repository.dart
-// Phase 1: implemented by FakeChatMessageRepository (in-memory MutableList).
-// Phase 2: implemented by LocalChatMessageRepository (SQLDelight).
 interface ChatMessageRepository {
     suspend fun getMessages(cursor: Long?, limit: Int): Result<List<ChatMessage>>
     suspend fun insertMessage(message: ChatMessage): Result<Unit>

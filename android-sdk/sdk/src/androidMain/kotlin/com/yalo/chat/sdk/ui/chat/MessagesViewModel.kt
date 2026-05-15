@@ -82,6 +82,9 @@ internal class MessagesViewModel(
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
+            is MessagesEvent.RetryMessage -> retryMessage(event.messageId)
+            is MessagesEvent.PauseSync -> yaloMessageRepository.pause()
+            is MessagesEvent.ResumeSync -> yaloMessageRepository.resume()
         }
     }
 
@@ -107,8 +110,8 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's _handleEventsSubscription: collects ChatEvent from the repository
-    // and maps TypingStart/TypingStop to isSystemTypingMessage + chatStatusText in state.
+    // Collects ChatEvent from the repository and maps TypingStart/TypingStop to
+    // isSystemTypingMessage + chatStatusText in state.
     private fun subscribeToEvents() {
         if (eventsJob?.isActive == true) return
         eventsJob = viewModelScope.launch {
@@ -133,7 +136,6 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's ChatToggleMessageExpand handler.
     // Toggles expand in-memory; expand is never persisted to DB.
     private fun toggleMessageExpand(messageId: Long) {
         _state.update { state ->
@@ -145,11 +147,9 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's ChatUpdateProductQuantity handler.
     // Updates unitsAdded or subunitsAdded on the matching product inside the matching message,
-    // then persists the updated message to the local DB (mirrors Flutter's replaceChatMessage
-    // call — products are stored as JSON in the products column so quantities survive
-    // subsequent observeMessages emissions).
+    // then persists the updated message to the local DB — products are stored as JSON in
+    // the products column so quantities survive subsequent observeMessages emissions.
     private fun updateProductQuantity(
         messageId: Long,
         productSku: String,
@@ -171,10 +171,9 @@ internal class MessagesViewModel(
                         UnitType.SUBUNIT -> product.subunitsAdded
                     }
                     when (unitType) {
-                        // Mirrors Flutter: max(event.quantity, 0)
                         UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
-                        // Mirrors Flutter: subunit overflow promotes to whole units.
-                        // Adding more subunits than a pack contains auto-increments
+                        // Subunit overflow promotes to whole units:
+                        // adding more subunits than a pack contains auto-increments
                         // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
                         // +2 units, 1 subunit remaining).
                         UnitType.SUBUNIT -> {
@@ -262,6 +261,19 @@ internal class MessagesViewModel(
                         lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
                     )
                 }
+            }
+        }
+    }
+
+    private fun retryMessage(messageId: Long) {
+        val msg = _state.value.messages.find { it.id == messageId } ?: return
+        if (msg.status != MessageStatus.ERROR) return
+        val retrying = msg.copy(status = MessageStatus.SENT)
+        _state.update { it.copy(messages = it.messages.map { m -> if (m.id == messageId) retrying else m }) }
+        viewModelScope.launch {
+            chatMessageRepository.updateMessage(retrying)
+            if (yaloMessageRepository.sendMessage(retrying) is Result.Error) {
+                chatMessageRepository.updateMessage(retrying.copy(status = MessageStatus.ERROR))
             }
         }
     }

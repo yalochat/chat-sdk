@@ -2,9 +2,6 @@
 
 package com.yalo.chat.sdk.ui.chat
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/message_list/assistant_product_message.dart
-// with direction == Axis.vertical.
-//
 // Renders a collapsible vertical list of product cards. Shows at most
 // COLLAPSED_MAX_ITEMS products before offering a "Show more" expand button.
 // When expanded, a "Show less" button appears at the bottom.

@@ -7,7 +7,7 @@ import com.yalo.chat.sdk.data.remote.model.SdkAddPromotionRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkAddToCartRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkClearCartRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkRemoveFromCartRequestBody
-import com.yalo.chat.sdk.data.remote.model.YaloAuthRequest
+import com.yalo.chat.sdk.data.remote.model.USER_TYPE_ANONYMOUS
 import com.yalo.chat.sdk.data.remote.model.YaloAuthResponse
 import com.yalo.chat.sdk.data.remote.model.MediaUploadResponse
 import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
@@ -36,9 +36,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 
 private const val HEADER_USER_ID = "x-user-id"
 private const val HEADER_CHANNEL_ID = "x-channel-id"
@@ -47,24 +49,22 @@ private const val CLAIM_USER_ID = "user_id"
 // Refresh 30 s before actual expiry to avoid a race between expiry check and the API call.
 private const val TOKEN_REFRESH_BUFFER_MS = 30_000L
 
-// Port of flutter-sdk YaloChatClient.
-// Ktor replaces Dart's http package — same headers and endpoints.
 // All network errors are wrapped in Result.Error; no exceptions are thrown.
 //
-// Auth flow mirrors Flutter: POST /auth with channelId + organizationId → access_token.
+// Auth flow: POST /auth with channelId + organizationId → access_token.
 // The token is cached and refreshed automatically via POST /oauth/token.
 // A Mutex serialises concurrent auth calls so only one in-flight /auth request can exist.
 //
-// KMP note: the HttpClient (with its platform engine) is provided by the caller —
+// The HttpClient (with its platform engine) is provided by the caller —
 // YaloChat.kt on Android passes an Android-engine client, tests pass a MockEngine client.
-// When splitting to KMP: YaloChat.kt moves to androidMain and provides the Android engine;
-// an iosMain counterpart provides the Darwin engine.
 internal class YaloChatApiService(
     apiBaseUrl: String,
     private val channelId: String,
     private val organizationId: String,
     // Provided by the platform (YaloChat.kt on Android, tests via MockEngine).
     internal val httpClient: HttpClient,
+    private val tokenStorage: TokenStorage? = null,
+    private val externalUserId: String? = null,
 ) {
     private val apiBaseUrl = apiBaseUrl.trimEnd('/').removeSuffix("/inapp").removeSuffix("/webchat")
     private val tokenMutex = Mutex()
@@ -72,6 +72,16 @@ internal class YaloChatApiService(
     private var storedRefreshToken: String? = null
     private var tokenExpiresAt: Long = 0L
     private var userId: String = ""
+
+    init {
+        tokenStorage?.load()?.let { entry ->
+            accessToken = entry.accessToken
+            storedRefreshToken = entry.refreshToken
+            tokenExpiresAt = entry.expiresAt
+            // Re-derive userId from stored JWT so JWT decoding stays the single source of truth.
+            userId = extractUserIdFromJwt(entry.accessToken)
+        }
+    }
 
     // ── Token management ───────────────────────────────────────────────────────
 
@@ -92,21 +102,24 @@ internal class YaloChatApiService(
                 // instead of retrying the refresh and doubling auth traffic.
                 accessToken = null
                 storedRefreshToken = null
+                tokenStorage?.clear()
             }
             doAuthenticate()
         }
 
     private suspend fun doAuthenticate(): Result<Pair<String, String>> {
         return try {
+            val body = buildJsonObject {
+                put("user_type", if (externalUserId != null) "third_party_anonymous" else USER_TYPE_ANONYMOUS)
+                put("channel_id", channelId)
+                put("organization_id", organizationId)
+                // Backend contract: Unix seconds (10-digit), not milliseconds.
+                put("timestamp", Clock.System.now().epochSeconds)
+                externalUserId?.let { put("user_id", it) }
+            }
             val response = httpClient.post("$apiBaseUrl/auth") {
                 contentType(ContentType.Application.Json)
-                setBody(
-                    YaloAuthRequest(
-                        channelId = channelId,
-                        organizationId = organizationId,
-                        timestamp = Clock.System.now().toEpochMilliseconds(),
-                    )
-                )
+                setBody(body)
             }
             if (response.status.isSuccess()) {
                 val auth: YaloAuthResponse = response.body()
@@ -114,6 +127,7 @@ internal class YaloChatApiService(
                 if (userId.isEmpty()) {
                     accessToken = null
                     storedRefreshToken = null
+                    tokenStorage?.clear()
                     return Result.Error(RuntimeException("auth succeeded but user_id could not be extracted from JWT"))
                 }
                 Result.Ok(auth.accessToken to userId)
@@ -140,6 +154,7 @@ internal class YaloChatApiService(
                 if (userId.isEmpty()) {
                     accessToken = null
                     storedRefreshToken = null
+                    tokenStorage?.clear()
                     return Result.Error(RuntimeException("token refresh succeeded but user_id could not be extracted from JWT"))
                 }
                 Result.Ok(auth.accessToken to userId)
@@ -156,6 +171,7 @@ internal class YaloChatApiService(
         storedRefreshToken = auth.refreshToken
         tokenExpiresAt = Clock.System.now().toEpochMilliseconds() + auth.expiresIn * 1000L
         userId = extractUserIdFromJwt(auth.accessToken)
+        tokenStorage?.save(TokenStorage.Entry(auth.accessToken, auth.refreshToken, tokenExpiresAt))
     }
 
     // JWT payloads use URL-safe base64 without padding. Add padding so
@@ -199,7 +215,6 @@ internal class YaloChatApiService(
 
     // POST /all/media — multipart upload of a media file (image or voice).
     // Returns 201 with MediaUploadResponse JSON; the `id` field is used as `mediaUrl` in protos.
-    // Mirrors Flutter's YaloMediaServiceRemote.uploadMedia().
     suspend fun uploadMedia(
         bytes: ByteArray,
         filename: String,
@@ -235,7 +250,6 @@ internal class YaloChatApiService(
     }
 
     // GET <mediaUrl> — download media bytes from CDN. No auth header required (signed URL).
-    // Mirrors Flutter's YaloMediaServiceRemote.downloadMedia().
     suspend fun downloadMedia(url: String): Result<ByteArray> =
         try {
             val response = httpClient.get(url)
@@ -245,8 +259,8 @@ internal class YaloChatApiService(
             Result.Error(e)
         }
 
-    // Cart operations — mirrors flutter-sdk YaloMessageServiceRemote.
-    // Each method builds the corresponding proto-JSON SdkMessageBody and POSTs to /inapp/inbound_messages.
+    // Cart operations — each method builds the corresponding proto-JSON SdkMessageBody
+    // and POSTs to /inapp/inbound_messages.
 
     suspend fun addToCart(sku: String, quantity: Double, unitType: String? = null): Result<Unit> {
         val instant = Clock.System.now()

@@ -1,0 +1,32 @@
+/* Message list — shown when the conversation has no messages */
+"chat.no_messages_yet" = "No messages yet";
+
+/* Bubble fallback for message types the SDK does not render */
+"chat.unsupported_message_type" = "Unsupported message type";
+
+/* Placeholder when an image message has no local file path */
+"chat.image_unavailable" = "Image unavailable";
+
+/* Placeholder when a video message has no local file path */
+"chat.video_unavailable" = "Video unavailable";
+
+/* Error shown when the picked image cannot be written to a temp file */
+"chat.image_save_error" = "Failed to save image. Please try again.";
+
+/* App bar title fallback when no channel name is configured */
+"chat.default_channel_name" = "Chat";
+
+/* Title of the attachment source picker */
+"chat.attach_image_title" = "Attach Image";
+
+/* Photo library option in the attachment source picker */
+"chat.photo_library" = "Photo Library";
+
+/* Camera option in the attachment source picker */
+"chat.camera" = "Camera";
+
+/* Cancel button in the attachment source picker */
+"chat.cancel" = "Cancel";
+
+/* Placeholder text in the message text field */
+"chat.input_placeholder" = "Type a message…";

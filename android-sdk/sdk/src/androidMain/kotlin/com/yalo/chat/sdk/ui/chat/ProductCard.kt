@@ -2,9 +2,6 @@
 
 package com.yalo.chat.sdk.ui.chat
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/message_list/product_horizontal_card.dart
-// and product_vertical_card.dart.
-//
 // ProductHorizontalCard — image left, details right (Row layout).
 //   Used by ProductListMessage (vertical list of product messages).
 //
@@ -104,7 +101,7 @@ private fun ProductImage(
 }
 
 // ── ProductHorizontalCard (image left | details right) ────────────────────────
-// Used in the vertical product list. Mirrors Flutter's ProductHorizontalCard.
+// Used in the vertical product list.
 
 @Composable
 internal fun ProductHorizontalCard(
@@ -154,7 +151,7 @@ internal fun ProductHorizontalCard(
 }
 
 // ── ProductVerticalCard (image top | details below) ───────────────────────────
-// Used in the horizontal carousel. Mirrors Flutter's ProductVerticalCard.
+// Used in the horizontal carousel.
 
 @Composable
 internal fun ProductVerticalCard(
@@ -200,7 +197,6 @@ internal fun ProductVerticalCard(
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 // Returns the subunits label only when the product has more than 1 subunit and a subunit name.
-// Mirrors Flutter: `product.subunits > 1 && product.subunitName != null`.
 private fun subunitsLabel(product: Product): String? =
     if (product.subunits > 1.0 && product.subunitName != null) {
         "${formatQuantity(product.subunits)} ${formatIcuUnit(product.subunits, product.subunitName)}"

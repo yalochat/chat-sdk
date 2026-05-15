@@ -12,6 +12,7 @@ struct MessageItem: View {
     var onButtonTap: (String) -> Void = { _ in }
     var onToggleExpand: (Int64) -> Void = { _ in }
     var onUpdateQuantity: (Int64, String, Bool, Double) -> Void = { _, _, _, _ in }
+    var onRetry: (Int64) -> Void = { _ in }
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
@@ -46,6 +47,9 @@ struct MessageItem: View {
             Image(systemName: theme.errorIconName)
                 .foregroundColor(theme.errorColor)
                 .font(.caption)
+                .onTapGesture {
+                    if let id = message.id?.int64Value { onRetry(id) }
+                }
         }
     }
 
@@ -114,7 +118,7 @@ struct MessageItem: View {
         } else if message.type is MessageType.CTA {
             ctaContent
         } else {
-            Text("Unsupported message type")
+            Text(Translate.unsupportedMessage)
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -126,7 +130,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
-            Label("Image unavailable", systemImage: theme.imagePlaceholderIconName)
+            Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -233,7 +237,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             StableVideoPlayer(path: path)
         } else {
-            Label("Video unavailable", systemImage: "video")
+            Label(Translate.videoUnavailable, systemImage: "video")
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)

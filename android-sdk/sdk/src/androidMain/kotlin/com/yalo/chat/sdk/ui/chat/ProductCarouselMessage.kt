@@ -2,12 +2,8 @@
 
 package com.yalo.chat.sdk.ui.chat
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/message_list/assistant_product_message.dart
-// with direction == Axis.horizontal.
-//
 // Renders a horizontal LazyRow of product cards (ProductVerticalCard: image top, details below).
-// Supports expand/collapse with a "Show more" / "Show less" button at the end of the row,
-// mirroring Flutter's horizontal ExpandButton behaviour.
+// Supports expand/collapse with a "Show more" / "Show less" button at the end of the row.
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column

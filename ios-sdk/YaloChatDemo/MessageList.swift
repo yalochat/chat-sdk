@@ -19,11 +19,17 @@ struct MessageList: View {
                             ProgressView()
                                 .padding(.top, 32)
                         } else {
-                            Text("No messages yet")
+                            Text(Translate.noMessagesYet)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }
                     } else {
+                        if observable.hasMoreMessages {
+                            ProgressView()
+                                .padding(.top, 8)
+                                .id(observable.messages.first?.stableListId ?? "top")
+                                .onAppear { observable.loadMoreMessages() }
+                        }
                         ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in
                             let messageId = message.id?.int64Value
                             MessageItem(
@@ -39,6 +45,7 @@ struct MessageList: View {
                                         quantity: qty
                                     )
                                 },
+                                onRetry: { id in observable.retryMessage(messageId: id) },
                                 isExpanded: messageId.map { observable.expandedMessageIds.contains($0) } ?? false
                             )
                         }
@@ -49,7 +56,7 @@ struct MessageList: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            .onChange(of: observable.messages.count) { _ in
+            .onChange(of: observable.messages.last?.stableListId) { _ in
                 DispatchQueue.main.async {
                     withAnimation(.linear(duration: 0.15)) {
                         proxy.scrollTo("bottom", anchor: .bottom)

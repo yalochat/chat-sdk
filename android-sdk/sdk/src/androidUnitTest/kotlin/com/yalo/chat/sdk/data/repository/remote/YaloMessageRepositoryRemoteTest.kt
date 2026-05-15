@@ -383,6 +383,14 @@ class YaloMessageRepositoryRemoteTest {
         assertTrue(batch.first().role == MessageRole.AGENT)
     }
 
+    @Test
+    fun `pollIncomingMessages text without buttons remains Text type`() = runTest {
+        val repo = buildRepo(listOf(textMessageJson("txt-nb-1", "Hello")))
+        val batch = repo.pollIncomingMessages().first()
+        assertEquals(MessageType.Text, batch.first().type)
+        assertTrue(batch.first().buttons.isEmpty())
+    }
+
     // ── pollIncomingMessages — agent image receive ─────────────────────────────
 
     @Test

@@ -2,7 +2,6 @@
 
 package com.yalo.chat.sdk.domain.model
 
-// Port of flutter-sdk/lib/domain/models/command/chat_command.dart.
 // Client → Channel commands: instead of sending these actions through the default API,
 // host apps can register a callback via YaloChat.registerCommand() to handle them locally.
 enum class ChatCommand {

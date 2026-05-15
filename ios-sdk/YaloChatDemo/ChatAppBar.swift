@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Port of android-sdk ChatAppBar.kt and Flutter ChatAppBar widget.
 // Shows channel avatar (optional), channel name, animated typing status,
 // and optional shop/cart action buttons.
 

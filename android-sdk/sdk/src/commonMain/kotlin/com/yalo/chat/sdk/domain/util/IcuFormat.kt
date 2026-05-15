@@ -5,7 +5,6 @@ package com.yalo.chat.sdk.domain.util
 import kotlin.math.round
 
 // Resolves an ICU plural pattern for a given amount.
-// Mirrors Flutter format.dart: MessageFormat(pattern, locale:).format({'amount': amount.round()}).
 //
 // Handles the subset used by product unit names:
 //   {amount, plural, =1 {caja} other {cajas}}

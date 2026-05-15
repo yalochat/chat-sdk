@@ -15,13 +15,11 @@ import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-// Port of flutter-sdk ImageRepositoryLocal (image_picker + image_gallery_saver).
 // Handles two concerns:
 //   1. createCameraCapture() — creates a FileProvider URI for camera intent + backing File reference.
 //   2. saveGalleryUri()      — copies a gallery content URI to internal cache for a stable path.
 // URI strings are used in the domain/ViewModel layer (KMP-compatible); android.net.Uri is
 // used only at the Android platform boundary inside this class.
-// Phase 2 M3 (FDE-57).
 internal class ImageRepositoryLocal(private val context: Context) : ImagePickerRepository {
 
     // Creates a temp File in cache and wraps it in a FileProvider content URI string.

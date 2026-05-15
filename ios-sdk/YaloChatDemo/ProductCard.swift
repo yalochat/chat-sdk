@@ -1,7 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Port of android-sdk ProductCard.kt.
-//
 // ProductHorizontalCard — image left, details right. Used in the vertical product list.
 // ProductVerticalCard   — image top, details below. Used in the horizontal carousel.
 
@@ -199,7 +197,7 @@ private func formatQuantity(_ value: Double) -> String {
         : String(value)
 }
 
-// Mirrors Flutter format.dart formatUnit() — resolves ICU plural patterns.
+// Resolves ICU plural patterns.
 // Handles: {amount, plural, =1 {caja} other {cajas}} and plain strings.
 // Matching priority: exact (=N) → CLDR keyword (zero/one/other) → "other" → original.
 private func formatIcuUnit(_ amount: Double, _ pattern: String) -> String {

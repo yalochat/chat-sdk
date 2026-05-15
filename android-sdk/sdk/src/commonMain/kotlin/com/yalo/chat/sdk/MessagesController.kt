@@ -76,6 +76,20 @@ class MessagesController internal constructor(
         }
     }
 
+    fun retryMessage(messageId: Long) {
+        val s = scope ?: return
+        s.launch {
+            val msg = cachedMessages.find { it.id == messageId } ?: return@launch
+            if (msg.status != MessageStatus.ERROR) return@launch
+            val retrying = msg.copy(status = MessageStatus.SENT)
+            cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
+            localRepo.updateMessage(retrying)
+            if (yaloRepo.sendMessage(retrying) is Result.Error) {
+                localRepo.updateMessage(retrying.copy(status = MessageStatus.ERROR))
+            }
+        }
+    }
+
     fun sendTextMessage(text: String) {
         if (text.isBlank()) return
         val s = scope ?: return
@@ -152,7 +166,6 @@ class MessagesController internal constructor(
         }
     }
 
-    // Mirrors Android MessagesViewModel.subscribeToEvents().
     // Must be called after start() — requires an active scope.
     // Idempotent: re-entry after stop()/start() cycle restarts the job.
     fun startEventsObservation(onTypingStart: (String) -> Unit, onTypingStop: () -> Unit) {
@@ -168,7 +181,6 @@ class MessagesController internal constructor(
         }
     }
 
-    // Mirrors Android MessagesViewModel.updateProductQuantity().
     // isSubunit=false → update unitsAdded; isSubunit=true → update subunitsAdded with overflow.
     fun updateProductQuantity(messageId: Long, productSku: String, isSubunit: Boolean, quantity: Double) {
         val s = scope ?: return

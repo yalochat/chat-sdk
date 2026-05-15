@@ -1,8 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Port of android-sdk QuickReplies.kt + QuickReplyChip.kt.
-// Flutter renders chips above ChatInput via an Overlay; here we place QuickRepliesView
-// directly above ChatInput in ChatView's VStack — same visual result without Overlay.
+// Chips placed directly above ChatInput in ChatView's VStack.
 
 import SwiftUI
 

@@ -25,8 +25,8 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
-// Free of Android-specific imports: ChatMessageQueries is injected, ioDispatcher is injectable.
-// KMP note: when splitting to KMP, pass the appropriate CoroutineDispatcher from the platform.
+// ChatMessageQueries is injected, ioDispatcher is injectable.
+// When running on iOS, pass the appropriate CoroutineDispatcher from the platform.
 internal class LocalChatMessageRepository(
     private val queries: ChatMessageQueries,
     // Default to Dispatchers.Default for KMP (iOS); Android passes Dispatchers.IO explicitly.

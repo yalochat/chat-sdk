@@ -3,8 +3,6 @@
 import ChatSdk
 
 // Swift entry point for the Yalo Chat SDK.
-// Mirrors Flutter's YaloChatClient and Android's YaloChat.init() so integrating teams
-// use the same credential names across all platforms.
 //
 // Usage:
 //   YaloChat.initialize(
@@ -22,26 +20,40 @@ public final class YaloChat {
     private(set) static var theme: ChatTheme = ChatTheme()
     private(set) static var onShopPressed: (() -> Void)? = nil
     private(set) static var onCartPressed: (() -> Void)? = nil
+    private(set) static var onError: ((String) -> Void)? = nil
 
     public static func initialize(
         channelName: String,
         channelId: String,
         organizationId: String,
         environment: YaloChatEnvironment = .production,
+        userId: String? = nil,
         theme: ChatTheme = ChatTheme(),
         onShopPressed: (() -> Void)? = nil,
-        onCartPressed: (() -> Void)? = nil
+        onCartPressed: (() -> Void)? = nil,
+        commands: [YaloChatAction] = [],
+        onError: ((String) -> Void)? = nil,
+        useFakeData: Bool = false
     ) {
         YaloChat.theme = theme
         YaloChat.onShopPressed = onShopPressed
         YaloChat.onCartPressed = onCartPressed
+        YaloChat.onError = onError
         let config = YaloChatConfig(
             channelName: channelName,
             channelId: channelId,
             organizationId: organizationId,
-            environment: environment
+            environment: environment,
+            userId: userId,
+            useFakeRepository: useFakeData
         )
         YaloChatSdk.shared.initialize(config: config)
+        YaloChatSdk.shared.onError = onError.map { cb in { msg in cb(msg) } }
+        for action in commands {
+            YaloChatSdk.shared.registerCommand(command: action.command) { payload in
+                action.callback(payload)
+            }
+        }
     }
 
     public static func stop() {

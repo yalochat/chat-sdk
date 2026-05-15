@@ -30,6 +30,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yalo.chat.sdk.YaloChat
 import com.yalo.chat.sdk.ui.chat.AudioEvent
@@ -55,13 +58,13 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 fun ChatScreen(
     onBack: (() -> Unit)? = null,
     showAttachmentButton: Boolean = true,
-    /** Replaces the default app bar when non-null. Mirrors Flutter's Chat(appBar:) slot. */
+    /** Replaces the default app bar when non-null. */
     appBar: (@Composable () -> Unit)? = null,
-    /** Called when the user taps the shop icon in the chat app bar. Mirrors Flutter's Chat(onShopPressed:). */
+    /** Called when the user taps the shop icon in the chat app bar. */
     onShopPressed: (() -> Unit)? = null,
-    /** Called when the user taps the cart icon in the chat app bar. Mirrors Flutter's Chat(onCartPressed:). */
+    /** Called when the user taps the cart icon in the chat app bar. */
     onCartPressed: (() -> Unit)? = null,
-    /** Describes where the chat is being opened from. Mirrors Flutter's Chat(openContext:). */
+    /** Describes where the chat is being opened from. */
     @Suppress("UNUSED_PARAMETER")
     openContext: String? = null,
 ) {
@@ -127,7 +130,7 @@ fun ChatScreen(
 
     // ── Audio permission launcher ─────────────────────────────────────────────
 
-    // FDE-60: RECORD_AUDIO is a dangerous permission — request before starting recording.
+    // RECORD_AUDIO is a dangerous permission — request before starting recording.
     // On denial do nothing: no crash, no further action (graceful denial per DoD).
     val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -196,6 +199,19 @@ fun ChatScreen(
         audioViewModel.handleEvent(AudioEvent.SubscribeToPlaybackCompletion)
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_PAUSE -> viewModel.handleEvent(MessagesEvent.PauseSync)
+                Lifecycle.Event.ON_RESUME -> viewModel.handleEvent(MessagesEvent.ResumeSync)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     // Stop sync and reset state when the screen leaves composition so background
     // polling does not continue while the host app shows other screens.
     // Keyed to both ViewModels so disposal always targets the current instances.
@@ -225,15 +241,13 @@ fun ChatScreen(
                     )
                 },
                 bottomBar = {
-                    // Quick replies float above the input as a vertical column of chips,
-                    // mirroring Flutter's _createQuickReplyOverlay in chat_input.dart.
+                    // Quick replies float above the input as a vertical column of chips.
                     // Hidden during recording — user cannot tap a reply while recording audio.
                     Column {
                         if (!audioState.isRecording) {
                             QuickReplies(
                                 quickReplies = state.quickReplies,
                                 onChipClick = { text ->
-                                    // Mirror Flutter: ChatSendTextMessage then ChatClearQuickReplies.
                                     viewModel.handleEvent(MessagesEvent.SendTextMessage(text))
                                     viewModel.handleEvent(MessagesEvent.ClearQuickReplies)
                                 },

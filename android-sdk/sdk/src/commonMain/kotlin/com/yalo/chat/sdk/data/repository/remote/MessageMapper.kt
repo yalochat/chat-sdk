@@ -33,7 +33,7 @@ internal const val KEY_QUANTITY = "quantity"
 internal const val KEY_UNIT_TYPE = "unitType"
 internal const val KEY_PROMOTION_ID = "promotionId"
 
-// Proto3 JSON enum names for unit_type (mirrors sdk_message.proto).
+// Proto3 JSON enum names for unit_type.
 internal fun UnitType?.toApiString(): String? = when (this) {
     UnitType.UNIT -> "UNIT_TYPE_UNIT"
     UnitType.SUBUNIT -> "UNIT_TYPE_SUBUNIT"
@@ -92,7 +92,8 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
     }
 
     // Image message — download from CDN and save locally.
-    message.imageMessageRequest?.content?.let { imgContent ->
+    message.imageMessageRequest?.let { imgReq ->
+        val imgContent = imgReq.content ?: return@let
         return when (val downloadResult = apiService.downloadMedia(imgContent.mediaUrl)) {
             is Result.Error -> null
             is Result.Ok -> {
@@ -109,8 +110,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                 if (deduplicate) cache.set(id, true)
                 val imgRequest = message.imageMessageRequest!!
                 ChatMessage(
-                    id = stableId,
-                    wiId = id,
+                    id = stableId, wiId = id,
                     role = MessageRole.fromString(imgContent.role ?: "MESSAGE_ROLE_AGENT"),
                     type = MessageType.Image,
                     status = MessageStatus.DELIVERED,
@@ -128,7 +128,8 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
     }
 
     // Video message — download from CDN and save locally.
-    message.videoMessageRequest?.content?.let { videoContent ->
+    message.videoMessageRequest?.let { videoReq ->
+        val videoContent = videoReq.content ?: return@let
         return when (val downloadResult = apiService.downloadMedia(videoContent.mediaUrl)) {
             is Result.Error -> null
             is Result.Ok -> {
@@ -145,8 +146,7 @@ internal suspend fun YaloFetchMessagesResponse.toChatMessage(
                 if (deduplicate) cache.set(id, true)
                 val videoRequest = message.videoMessageRequest!!
                 ChatMessage(
-                    id = stableId,
-                    wiId = id,
+                    id = stableId, wiId = id,
                     role = MessageRole.fromString(videoContent.role ?: "MESSAGE_ROLE_AGENT"),
                     type = MessageType.Video,
                     status = MessageStatus.DELIVERED,

@@ -9,7 +9,7 @@ import com.yalo.chat.sdk.domain.model.AudioData
 import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.repository.AudioRepository
-import com.yalo.chat.sdk.domain.usecase.AudioProcessingUseCase
+import com.yalo.chat.sdk.domain.audio.WaveformCompressor
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
@@ -23,10 +23,13 @@ import kotlinx.coroutines.launch
 
 // Manages recording, amplitude streaming, and playback lifecycle.
 // Kept separate from MessagesViewModel so recording state (waveform, duration) is
-// isolated from message list state — the same separation the Flutter SDK uses.
+// isolated from message list state.
 internal class AudioViewModel(
     private val audioRepository: AudioRepository,
-    private val audioProcessingUseCase: AudioProcessingUseCase = AudioProcessingUseCase(),
+    private val waveformCompressor: WaveformCompressor = WaveformCompressor(
+        binCount = AMPLITUDE_DATA_POINTS,
+        defaultValue = DEFAULT_AMPLITUDE,
+    ),
 ) : ViewModel() {
 
     companion object {
@@ -84,6 +87,7 @@ internal class AudioViewModel(
             try {
                 when (val result = audioRepository.startRecording()) {
                     is Result.Ok -> {
+                        waveformCompressor.reset()
                         _state.update { s ->
                             s.copy(
                                 audioStatus = AudioStatus.RecordingAudio,
@@ -159,18 +163,10 @@ internal class AudioViewModel(
     private fun subscribeToAmplitudes() {
         amplitudeJob?.cancel()
         amplitudeJob = viewModelScope.launch {
-            var totalSamples = 0
             audioRepository.amplitudeFlow().collect { amplitude ->
-                totalSamples++
-                val current = _state.value
-                val maxPoints = current.audioData.amplitudes.size
-
-                val updatedPreview = audioProcessingUseCase.compressWaveformForPreview(
-                    newPoint = amplitude,
-                    totalSamples = totalSamples,
-                    preview = current.audioData.amplitudesPreview,
-                )
-
+                val maxPoints = _state.value.audioData.amplitudes.size
+                waveformCompressor.pushSample(amplitude)
+                val updatedPreview = waveformCompressor.snapshot()
                 _state.update { s ->
                     s.copy(
                         audioData = s.audioData.copy(
@@ -178,7 +174,6 @@ internal class AudioViewModel(
                             amplitudesPreview = updatedPreview,
                             durationMs = s.audioData.durationMs + RECORD_TICK_MS,
                         ),
-                        // Slide the waveform animation index.
                         amplitudeIndex = (s.amplitudeIndex - 1 + maxPoints) % maxPoints,
                     )
                 }

@@ -2,8 +2,7 @@
 
 package com.yalo.chat.sdk.ui.chat
 
-// Port of flutter-sdk/lib/src/ui/chat/widgets/message_list/numeric_text_field.dart
-// Simplified to icon buttons + display text; direct text editing omitted for now.
+// Icon buttons + display text; direct text editing omitted for now.
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding

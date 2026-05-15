@@ -2,7 +2,6 @@
 
 package com.yalo.chat.sdk.domain.model
 
-// Port of flutter-sdk/lib/src/domain/models/image/image_data.dart
 // ByteArray does not implement structural equals by default in Kotlin —
 // equals/hashCode are overridden to ensure two instances with identical bytes compare equal.
 data class ImageData(

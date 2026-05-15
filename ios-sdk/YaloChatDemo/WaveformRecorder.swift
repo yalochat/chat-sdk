@@ -3,7 +3,6 @@
 import SwiftUI
 
 // Active recording overlay shown in place of the normal ChatInput row.
-// Mirrors Flutter's AudioRecordingWidget: cancel button, duration, live waveform, send button.
 struct WaveformRecorder: View {
 
     @ObservedObject var audioObservable: AudioObservable

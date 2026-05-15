@@ -4,16 +4,20 @@ import Foundation
 import ChatSdk
 import os
 
-// Mirrors Flutter MessagesBloc: wraps MessagesController and exposes @Published
-// properties for SwiftUI. Initialization sequence follows Flutter's dependency
-// injection order: SubscribeToMessages → LoadMessages.
+// Wraps MessagesController and exposes @Published properties for SwiftUI.
 class MessagesObservable: ObservableObject {
 
     @Published var messages: [ChatMessage] = []
     @Published var userMessage: String = ""
     @Published var isLoading: Bool = false
+    @Published var hasMoreMessages: Bool = false
+    // Non-@Published: synchronous re-entrancy guard, not observed by views.
+    private var isLoadingMore: Bool = false
 
-    // Typing indicator — mirrors Android MessagesViewModel.isSystemTypingMessage / chatStatusText.
+    private var allMessages: [ChatMessage] = []
+    private var displayedCount: Int = 30
+
+    // Typing indicator.
     @Published var isTyping: Bool = false
     @Published var typingStatusText: String = ""
 
@@ -27,7 +31,6 @@ class MessagesObservable: ObservableObject {
     private static let log = Logger(subsystem: "com.yalo.chat.demo", category: "MessagesObservable")
 
     // Tracks the wiId of the QuickReply message that populated the current chip row.
-    // Mirrors Android MessagesViewModel.lastQuickReplyMessageWiId guard.
     private var lastQuickReplyWiId: String? = nil
 
     private var typingTimeoutTask: Task<Void, Never>?
@@ -53,8 +56,19 @@ class MessagesObservable: ObservableObject {
                     Self.log.debug("  [\(String(describing: msg.role))] [\(String(describing: msg.type))] id=\(msg.id?.int64Value ?? -1) ts=\(msg.timestamp)")
                 }
                 #endif
-                self?.messages = messages
+                let prevTotal = self?.allMessages.count ?? 0
+                let newArrivals = max(0, messages.count - prevTotal)
+                self?.allMessages = messages
+                let current = self?.displayedCount ?? 30
+                // On initial load keep the window at displayedCount; on live updates grow
+                // by the number of new arrivals so paginated older messages stay in view.
+                let count = prevTotal == 0
+                    ? min(current, messages.count)
+                    : min(current + newArrivals, messages.count)
+                self?.displayedCount = count
+                self?.messages = Array(messages.suffix(count))
                 self?.isLoading = false
+                self?.hasMoreMessages = messages.count > count
                 self?.updateQuickRepliesFromMessages(messages)
             }
         }
@@ -95,6 +109,23 @@ class MessagesObservable: ObservableObject {
         typingStatusText = ""
         typingTimeoutTask?.cancel()
         typingTimeoutTask = nil
+        allMessages = []
+        displayedCount = 30
+        hasMoreMessages = false
+        isLoadingMore = false
+    }
+
+    func loadMoreMessages() {
+        guard !isLoadingMore else { return }
+        let newCount = min(displayedCount + 30, allMessages.count)
+        guard newCount > displayedCount else { return }
+        isLoadingMore = true
+        displayedCount = newCount
+        messages = Array(allMessages.suffix(displayedCount))
+        hasMoreMessages = allMessages.count > displayedCount
+        // Clear after the current SwiftUI render cycle so the re-entrancy guard holds
+        // through the layout pass that would otherwise immediately re-fire onAppear.
+        Task { @MainActor in self.isLoadingMore = false }
     }
 
     func sendMessage() {
@@ -130,13 +161,17 @@ class MessagesObservable: ObservableObject {
         )
     }
 
+    func retryMessage(messageId: Int64) {
+        controller?.retryMessage(messageId: messageId)
+    }
+
     // MARK: - Quick replies
 
     func clearQuickReplies() {
         quickReplies = []
     }
 
-    // Derives the current chip row from messages, same logic as Android extractQuickReplies().
+    // Derives the current chip row from messages.
     // Only updates when a new QuickReply message (different wiId) arrives so that a
     // ClearQuickReplies triggered by user send isn't undone by the next observeMessages emission.
     private func updateQuickRepliesFromMessages(_ messages: [ChatMessage]) {

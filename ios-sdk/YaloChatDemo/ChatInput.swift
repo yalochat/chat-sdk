@@ -3,7 +3,7 @@
 import SwiftUI
 import UIKit
 
-// Mirrors Flutter ChatInput. Action-button logic follows Flutter's switch:
+// Action-button logic:
 //   recording → stop/send voice  |  has-image → send image
 //   has-text → send text  |  else → mic (start recording)
 struct ChatInput: View {
@@ -47,7 +47,7 @@ struct ChatInput: View {
                             .padding(.leading, 4)
                     }
 
-                    TextField("Type a message…", text: $messagesObservable.userMessage)
+                    TextField(Translate.inputPlaceholder, text: $messagesObservable.userMessage)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(theme.inputBackgroundColor)
@@ -64,12 +64,12 @@ struct ChatInput: View {
                 .padding(.vertical, 8)
             }
         }
-        .confirmationDialog("Attach Image", isPresented: $imageObservable.showSourceSheet) {
-            Button("Photo Library") { imageObservable.showGallery = true }
+        .confirmationDialog(Translate.attachImageTitle, isPresented: $imageObservable.showSourceSheet) {
+            Button(Translate.photoLibrary) { imageObservable.showGallery = true }
             if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                Button("Camera") { imageObservable.showCamera = true }
+                Button(Translate.camera) { imageObservable.showCamera = true }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(Translate.cancel, role: .cancel) {}
         }
         .sheet(isPresented: $imageObservable.showGallery) {
             PHPickerRepresentable(imageObservable: imageObservable)

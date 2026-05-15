@@ -9,18 +9,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-// Port of flutter-sdk YaloMessageRepositoryRemote._startPolling() + _handleMessagesSubscription().
 // Separates the remote polling concern from MessagesViewModel — the ViewModel only observes
 // the local store, while this service keeps the local store in sync with the server.
 //
 // Data flow:
-//   YaloMessageRepositoryRemote.pollIncomingMessages()
+//   YaloMessageRepository.pollIncomingMessages()
 //     → emit(batch) on each non-empty poll cycle
 //     → MessageSyncService inserts batch into LocalChatMessageRepository (single transaction)
 //     → LocalChatMessageRepository.observeMessages() emits updated list
 //     → MessagesViewModel updates UI
-//
-// FDE-56: Free of Android-specific imports (KMP-compatible).
 internal class MessageSyncService(
     private val yaloRepo: YaloMessageRepository,
     private val localRepo: ChatMessageRepository,

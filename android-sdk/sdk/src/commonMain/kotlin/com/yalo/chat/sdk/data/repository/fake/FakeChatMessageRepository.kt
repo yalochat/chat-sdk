@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-// Phase 1 stub — in-memory list with StateFlow for reactive observation.
-// Replaced in Phase 2 by ChatMessageRepositoryLocal (SQLDelight, FDE-55).
+// In-memory stub with StateFlow for reactive observation.
 class FakeChatMessageRepository(
     initialMessages: List<ChatMessage> = emptyList(),
 ) : ChatMessageRepository {
