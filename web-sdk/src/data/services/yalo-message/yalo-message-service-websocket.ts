@@ -19,7 +19,6 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   private readonly _tokenRepository: TokenRepository;
   private _socket?: WebSocket;
   private _callback?: MessageCallback;
-  private _pendingFrames: string[] = [];
   private _reconnectAttempt = 0;
   private _reconnectTimeout?: ReturnType<typeof setTimeout>;
   private _running = false;
@@ -38,7 +37,6 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   unsubscribe(): void {
     this._running = false;
     this._callback = undefined;
-    this._pendingFrames = [];
     this._reconnectAttempt = 0;
     if (this._reconnectTimeout) {
       clearTimeout(this._reconnectTimeout);
@@ -51,17 +49,12 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   }
 
   async sendMessage(message: SdkMessage): Promise<Result<void>> {
+    if (this._socket?.readyState !== WebSocket.OPEN) {
+      return new Err(new Error('WebSocket is not connected'));
+    }
     try {
       const frame = JSON.stringify(SdkMessage.toJSON(message));
-      if (this._socket?.readyState === WebSocket.OPEN) {
-        this._socket.send(frame);
-      } else {
-        this._pendingFrames.push(frame);
-        if (!this._running) {
-          this._running = true;
-          this._connect();
-        }
-      }
+      this._socket.send(frame);
       return new Ok(undefined);
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
@@ -84,9 +77,6 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
 
     socket.addEventListener('open', () => {
       this._reconnectAttempt = 0;
-      const queued = this._pendingFrames;
-      this._pendingFrames = [];
-      for (const frame of queued) socket.send(frame);
     });
 
     socket.addEventListener('message', (event: MessageEvent) => {
@@ -99,9 +89,17 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
       }
     });
 
+    socket.addEventListener('error', () => {
+      socket.close();
+    });
+
     socket.addEventListener('close', () => {
-      if (this._socket === socket) this._socket = undefined;
-      if (this._running) this._scheduleReconnect();
+      if (this._socket === socket) {
+        this._socket = undefined;
+      }
+      if (this._running) {
+        this._scheduleReconnect();
+      }
     });
   }
 

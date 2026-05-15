@@ -25,7 +25,6 @@ class YaloMessageServiceWebSocket {
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _subscription;
   StreamController<PollMessageItem>? _controller;
-  final List<String> _pendingFrames = [];
   Timer? _reconnectTimer;
   int _reconnectAttempt = 0;
   bool _running = false;
@@ -50,18 +49,13 @@ class YaloMessageServiceWebSocket {
   }
 
   Future<Result<Unit>> sendSdkMessage(SdkMessage message) async {
+    final channel = _channel;
+    if (channel == null) {
+      return Result.error(Exception('WebSocket is not connected'));
+    }
     try {
       final frame = jsonEncode(message.toProto3Json());
-      final channel = _channel;
-      if (channel != null) {
-        channel.sink.add(frame);
-      } else {
-        _pendingFrames.add(frame);
-        if (!_running) {
-          _running = true;
-          _connect();
-        }
-      }
+      channel.sink.add(frame);
       return Result.ok(Unit());
     } on Exception catch (e) {
       return Result.error(e);
@@ -70,7 +64,6 @@ class YaloMessageServiceWebSocket {
 
   void dispose() {
     _running = false;
-    _pendingFrames.clear();
     _reconnectAttempt = 0;
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
@@ -108,12 +101,6 @@ class YaloMessageServiceWebSocket {
 
     _channel = channel;
     _reconnectAttempt = 0;
-
-    final queued = List<String>.from(_pendingFrames);
-    _pendingFrames.clear();
-    for (final frame in queued) {
-      channel.sink.add(frame);
-    }
 
     _subscription = channel.stream.listen(
       _onFrame,

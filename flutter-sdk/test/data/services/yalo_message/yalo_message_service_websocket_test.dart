@@ -186,27 +186,20 @@ void main() {
       expect(received, hasLength(1));
     });
 
-    test('sendSdkMessage queues frames before connection is open', () async {
+    test('sendSdkMessage returns Error when the connection is not open',
+        () async {
       final completer = Completer<Result<TokenEntry>>();
       when(() => auth.auth()).thenAnswer((_) => completer.future);
 
       service.messages().listen((_) {});
       final result = await service.sendSdkMessage(_textMessage('queued'));
 
-      expect(result, isA<Ok<Unit>>());
-      expect(channels, isEmpty);
-
-      completer.complete(Result.ok(_tokenEntry('abc')));
-      await Future.delayed(Duration.zero);
-
-      expect(channels.single.sent, hasLength(1));
-      final body =
-          jsonDecode(channels.single.sent.single as String)
-              as Map<String, dynamic>;
+      expect(result, isA<Error<Unit>>());
       expect(
-        body['textMessageRequest']['content']['text'],
-        equals('queued'),
+        (result as Error<Unit>).error.toString(),
+        contains('WebSocket is not connected'),
       );
+      expect(channels, isEmpty);
     });
 
     test('sendSdkMessage writes directly when connection is open', () async {
@@ -217,24 +210,33 @@ void main() {
       service.messages().listen((_) {});
       await Future.delayed(Duration.zero);
 
-      await service.sendSdkMessage(_textMessage('hi'));
-
-      expect(channels.single.sent, hasLength(1));
-    });
-
-    test('sendSdkMessage opens connection if no listener has subscribed yet',
-        () async {
-      when(
-        () => auth.auth(),
-      ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
-
       final result = await service.sendSdkMessage(_textMessage('hi'));
-      await Future.delayed(Duration.zero);
 
       expect(result, isA<Ok<Unit>>());
-      expect(channels, hasLength(1));
       expect(channels.single.sent, hasLength(1));
+      final body =
+          jsonDecode(channels.single.sent.single as String)
+              as Map<String, dynamic>;
+      expect(
+        body['textMessageRequest']['content']['text'],
+        equals('hi'),
+      );
     });
+
+    test(
+      'sendSdkMessage returns Error when called before any listener subscribes',
+      () async {
+        when(
+          () => auth.auth(),
+        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+
+        final result = await service.sendSdkMessage(_textMessage('hi'));
+        await Future.delayed(Duration.zero);
+
+        expect(result, isA<Error<Unit>>());
+        expect(channels, isEmpty);
+      },
+    );
 
     test('reconnects with exponential backoff after the socket closes',
         () async {
