@@ -19,7 +19,11 @@ struct MessageList: View {
                             ProgressView()
                                 .padding(.top, 32)
                         } else {
+<<<<<<< HEAD
                             Text(Translate.noMessagesYet)
+=======
+                            Text(NSLocalizedString("chat.no_messages_yet", comment: ""))
+>>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }

@@ -118,7 +118,11 @@ struct MessageItem: View {
         } else if message.type is MessageType.CTA {
             ctaContent
         } else {
+<<<<<<< HEAD
             Text(Translate.unsupportedMessage)
+=======
+            Text(NSLocalizedString("chat.unsupported_message_type", comment: ""))
+>>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -130,7 +134,11 @@ struct MessageItem: View {
         if let path = message.fileName {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
+<<<<<<< HEAD
             Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
+=======
+            Label(NSLocalizedString("chat.image_unavailable", comment: ""), systemImage: theme.imagePlaceholderIconName)
+>>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -237,7 +245,11 @@ struct MessageItem: View {
         if let path = message.fileName {
             StableVideoPlayer(path: path)
         } else {
+<<<<<<< HEAD
             Label(Translate.videoUnavailable, systemImage: "video")
+=======
+            Label(NSLocalizedString("chat.video_unavailable", comment: ""), systemImage: "video")
+>>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
