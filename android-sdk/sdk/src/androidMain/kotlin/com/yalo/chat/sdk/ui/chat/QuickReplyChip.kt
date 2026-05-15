@@ -13,13 +13,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Port of flutter-sdk QuickReply widget (quick_reply.dart).
-// Flutter renders each chip as a TextButton inside a bordered Container with:
+// Each chip is a bordered button with:
 //   - max width = 50% of screen width
 //   - background = theme.quickReplyColor
 //   - border    = theme.quickReplyBorderColor
 //   - text      = theme.quickReplyStyle
-// On tap: the parent dispatches ChatSendTextMessage then ChatClearQuickReplies.
 @Composable
 internal fun QuickReplyChip(
     text: String,

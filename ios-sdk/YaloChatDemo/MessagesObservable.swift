@@ -4,9 +4,7 @@ import Foundation
 import ChatSdk
 import os
 
-// Mirrors Flutter MessagesBloc: wraps MessagesController and exposes @Published
-// properties for SwiftUI. Initialization sequence follows Flutter's dependency
-// injection order: SubscribeToMessages → LoadMessages.
+// Wraps MessagesController and exposes @Published properties for SwiftUI.
 class MessagesObservable: ObservableObject {
 
     @Published var messages: [ChatMessage] = []
@@ -19,7 +17,7 @@ class MessagesObservable: ObservableObject {
     private var allMessages: [ChatMessage] = []
     private var displayedCount: Int = 30
 
-    // Typing indicator — mirrors Android MessagesViewModel.isSystemTypingMessage / chatStatusText.
+    // Typing indicator.
     @Published var isTyping: Bool = false
     @Published var typingStatusText: String = ""
 
@@ -33,7 +31,6 @@ class MessagesObservable: ObservableObject {
     private static let log = Logger(subsystem: "com.yalo.chat.demo", category: "MessagesObservable")
 
     // Tracks the wiId of the QuickReply message that populated the current chip row.
-    // Mirrors Android MessagesViewModel.lastQuickReplyMessageWiId guard.
     private var lastQuickReplyWiId: String? = nil
 
     private var typingTimeoutTask: Task<Void, Never>?
@@ -164,7 +161,7 @@ class MessagesObservable: ObservableObject {
         quickReplies = []
     }
 
-    // Derives the current chip row from messages, same logic as Android extractQuickReplies().
+    // Derives the current chip row from messages.
     // Only updates when a new QuickReply message (different wiId) arrives so that a
     // ClearQuickReplies triggered by user send isn't undone by the next observeMessages emission.
     private func updateQuickRepliesFromMessages(_ messages: [ChatMessage]) {

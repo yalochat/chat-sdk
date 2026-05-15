@@ -2,7 +2,6 @@
 
 package com.yalo.chat.sdk.domain.model
 
-// Port of MessageStatus enum from flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
 enum class MessageStatus(val value: String) {
     SENT("SENT"),
     DELIVERED("DELIVERED"),

@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/image/image_bloc.dart
 // Handles image pick flow: gallery / camera → preview → send (or cancel).
 // Launching the system picker is done via side effects so the ViewModel stays
 // free of Android Activity/Fragment dependencies (testable on JVM).

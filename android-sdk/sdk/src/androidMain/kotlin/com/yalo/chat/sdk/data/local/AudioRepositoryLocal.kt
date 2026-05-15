@@ -56,10 +56,10 @@ internal class AudioRepositoryLocal(
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 setOutputFile(file.absolutePath)
-                // Defensive FDE-60: on hardware error release the exact instance that errored
-                // and clear state. The listener fires asynchronously during active recording,
-                // so recorder is already assigned — using the callback's erroredRecorder
-                // parameter is clearer and avoids any ambiguity.
+                // On hardware error release the exact instance that errored and clear state.
+                // The listener fires asynchronously during active recording, so recorder is
+                // already assigned — using the callback's erroredRecorder parameter is clearer
+                // and avoids any ambiguity.
                 setOnErrorListener { erroredRecorder, _, _ ->
                     isRecording = false
                     erroredRecorder.release()

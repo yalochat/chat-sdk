@@ -165,9 +165,8 @@ internal fun MessageItem(
                                 style = messageTextStyle,
                             )
                         } else {
-                            // Agent messages render CommonMark — mirrors Flutter's flutter_markdown_plus.
-                            // Links open via LocalUriHandler (system browser), same as Flutter's
-                            // LaunchMode.externalApplication.
+                            // Agent messages render CommonMark.
+                            // Links open via LocalUriHandler (system browser).
                             Markdown(
                                 content = message.content,
                                 colors = markdownColor(
@@ -315,7 +314,7 @@ private fun VideoMessageItem(
                 )
             }
         }
-        // Caption — mirrors Flutter's SelectableText below the video when content is non-empty.
+        // Caption — shown below the video when content is non-empty.
         if (message.content.isNotEmpty()) {
             Text(
                 text = message.content,

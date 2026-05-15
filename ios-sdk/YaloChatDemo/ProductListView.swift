@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Port of android-sdk ProductListMessage.kt.
 // Vertical list of ProductHorizontalCard views, collapsed to 3 items with a Show more button.
 
 import SwiftUI

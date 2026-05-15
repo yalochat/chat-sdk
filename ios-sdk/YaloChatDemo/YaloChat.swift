@@ -3,8 +3,6 @@
 import ChatSdk
 
 // Swift entry point for the Yalo Chat SDK.
-// Mirrors Flutter's YaloChatClient and Android's YaloChat.init() so integrating teams
-// use the same credential names across all platforms.
 //
 // Usage:
 //   YaloChat.initialize(

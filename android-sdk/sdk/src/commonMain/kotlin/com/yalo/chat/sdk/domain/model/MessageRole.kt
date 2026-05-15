@@ -2,8 +2,6 @@
 
 package com.yalo.chat.sdk.domain.model
 
-// Port of MessageRole enum from flutter-sdk/lib/src/domain/models/chat_message/chat_message.dart
-// Flutter: user('USER'), assistant('AGENT')
 enum class MessageRole(val value: String) {
     USER("USER"),
     AGENT("AGENT");

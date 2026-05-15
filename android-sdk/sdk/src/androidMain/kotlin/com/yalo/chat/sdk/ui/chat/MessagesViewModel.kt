@@ -110,8 +110,8 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's _handleEventsSubscription: collects ChatEvent from the repository
-    // and maps TypingStart/TypingStop to isSystemTypingMessage + chatStatusText in state.
+    // Collects ChatEvent from the repository and maps TypingStart/TypingStop to
+    // isSystemTypingMessage + chatStatusText in state.
     private fun subscribeToEvents() {
         if (eventsJob?.isActive == true) return
         eventsJob = viewModelScope.launch {
@@ -136,7 +136,6 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's ChatToggleMessageExpand handler.
     // Toggles expand in-memory; expand is never persisted to DB.
     private fun toggleMessageExpand(messageId: Long) {
         _state.update { state ->
@@ -148,11 +147,9 @@ internal class MessagesViewModel(
         }
     }
 
-    // Mirrors Flutter's ChatUpdateProductQuantity handler.
     // Updates unitsAdded or subunitsAdded on the matching product inside the matching message,
-    // then persists the updated message to the local DB (mirrors Flutter's replaceChatMessage
-    // call — products are stored as JSON in the products column so quantities survive
-    // subsequent observeMessages emissions).
+    // then persists the updated message to the local DB — products are stored as JSON in
+    // the products column so quantities survive subsequent observeMessages emissions.
     private fun updateProductQuantity(
         messageId: Long,
         productSku: String,
@@ -174,10 +171,9 @@ internal class MessagesViewModel(
                         UnitType.SUBUNIT -> product.subunitsAdded
                     }
                     when (unitType) {
-                        // Mirrors Flutter: max(event.quantity, 0)
                         UnitType.UNIT -> product.copy(unitsAdded = maxOf(quantity, 0.0))
-                        // Mirrors Flutter: subunit overflow promotes to whole units.
-                        // Adding more subunits than a pack contains auto-increments
+                        // Subunit overflow promotes to whole units:
+                        // adding more subunits than a pack contains auto-increments
                         // unitsAdded by the overflow (e.g. 25 subunits with 12/pack →
                         // +2 units, 1 subunit remaining).
                         UnitType.SUBUNIT -> {

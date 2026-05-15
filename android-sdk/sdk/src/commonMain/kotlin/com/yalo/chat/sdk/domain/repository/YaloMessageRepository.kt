@@ -11,24 +11,18 @@ import com.yalo.chat.sdk.ui.chat.UnitType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
-// Port of flutter-sdk/lib/src/data/repositories/yalo_message_repository.dart
-// Phase 1: implemented by FakeYaloMessageRepository (in-memory hardcoded messages).
-// Phase 2: implemented by YaloMessageRepositoryRemote (Ktor HTTP + polling).
 interface YaloMessageRepository {
     suspend fun sendMessage(message: ChatMessage): Result<Unit>
     // `since` is unused in the single-shot startup load (full history fetch).
     // Continuous polling uses its own internal watermark via pollIncomingMessages().
     suspend fun fetchMessages(since: Long): Result<List<ChatMessage>>
 
-    // Phase 2: continuous polling flow — each emission is the batch of new messages
-    // from one poll cycle. Empty batches are suppressed; only non-empty lists are emitted.
-    // FakeYaloMessageRepository returns emptyFlow() (no-op for Phase 1 tests).
-    // YaloMessageRepositoryRemote polls on a 1s interval; client-side deduplication via SimpleCache.
+    // Continuous polling flow — each emission is the batch of new messages from one poll cycle.
+    // Empty batches are suppressed; only non-empty lists are emitted.
     fun pollIncomingMessages(): Flow<List<ChatMessage>>
 
-    // Typing event stream — mirrors Flutter's _typingEventsStreamController.
-    // TypingStart is emitted by sendMessage(); TypingStop is emitted when the poll receives
-    // messages or encounters an error. FakeYaloMessageRepository returns emptyFlow().
+    // Typing event stream: TypingStart is emitted by sendMessage(); TypingStop is emitted
+    // when messages arrive or a fetch error occurs.
     fun events(): Flow<ChatEvent> = emptyFlow()
 
     // Pre-warm the in-memory dedup cache with message IDs already persisted in the local DB.
@@ -37,10 +31,8 @@ interface YaloMessageRepository {
     // Default is a no-op; overridden by YaloMessageRepositoryRemote.
     fun warmDedupCache(wiIds: Collection<String>) {}
 
-    // Cart operations — mirrors flutter-sdk YaloMessageRepository.
-    // Default no-op so FakeYaloMessageRepository and test stubs don't need to override them.
-    // YaloMessageRepositoryRemote overrides these: if a ChatCommand callback is registered the
-    // callback fires and the API call is skipped; otherwise the request is sent to the backend.
+    // Cart operations — default no-op so fake/test repos don't need to override them.
+    // If a ChatCommand callback is registered the callback fires instead of the API call.
     suspend fun addToCart(sku: String, quantity: Double, unitType: UnitType? = null): Result<Unit> = Result.Ok(Unit)
     suspend fun removeFromCart(sku: String, quantity: Double?, unitType: UnitType? = null): Result<Unit> = Result.Ok(Unit)
     suspend fun clearCart(): Result<Unit> = Result.Ok(Unit)

@@ -53,7 +53,6 @@ object YaloChat {
 
     // Theme is passed separately from config because it is Android/Compose-specific.
     // commonMain YaloChatConfig holds only platform-agnostic fields.
-    // Mirrors Flutter's Chat(client:, theme:) where config and theme are separate params.
     val theme: ChatTheme
         get() = _theme
 
@@ -185,12 +184,10 @@ object YaloChat {
 
     /**
      * Registers a callback for a [ChatCommand]. When the command is triggered by the chat UI,
-     * the callback fires instead of the built-in API call. Mirrors Flutter's
-     * `YaloChatClient.registerCommand(command, callback)`.
+     * the callback fires instead of the built-in API call.
      *
      * Can be called before or after [init]. Registrations made before [init] are buffered and
-     * applied automatically when [init] runs, matching Flutter/web SDK "before or after init"
-     * behaviour.
+     * applied automatically when [init] runs.
      *
      * @param command  The command to intercept (e.g. [ChatCommand.ADD_TO_CART]).
      * @param callback Receives a payload map or null. See [ChatCommandCallback] for per-command

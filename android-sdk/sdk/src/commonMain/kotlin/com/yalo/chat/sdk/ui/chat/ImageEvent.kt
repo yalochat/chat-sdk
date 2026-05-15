@@ -2,7 +2,6 @@
 
 package com.yalo.chat.sdk.ui.chat
 
-// Port of flutter-sdk/lib/src/ui/chat/view_models/image/image_event.dart
 // URIs are passed as Strings to keep this class free of android.net.Uri — safe for KMP / JVM tests.
 sealed class ImageEvent {
     /** User tapped the gallery option — triggers gallery picker launch. */

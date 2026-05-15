@@ -3,7 +3,7 @@
 import SwiftUI
 import UIKit
 
-// Mirrors Flutter ChatInput. Action-button logic follows Flutter's switch:
+// Action-button logic:
 //   recording → stop/send voice  |  has-image → send image
 //   has-text → send text  |  else → mic (start recording)
 struct ChatInput: View {

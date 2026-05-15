@@ -16,9 +16,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.datetime.Clock
 
-// Phase 1 stub — returns hardcoded messages covering all MessageType variants
+// Stub — returns hardcoded messages covering all MessageType variants
 // (Text, Image, Voice, Product, ProductCarousel, Promotion, QuickReply, Unknown).
-// Replaced in Phase 2 by YaloMessageRepositoryRemote (FDE-51).
 internal class FakeYaloMessageRepository : YaloMessageRepository {
 
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> =

@@ -58,13 +58,13 @@ import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 fun ChatScreen(
     onBack: (() -> Unit)? = null,
     showAttachmentButton: Boolean = true,
-    /** Replaces the default app bar when non-null. Mirrors Flutter's Chat(appBar:) slot. */
+    /** Replaces the default app bar when non-null. */
     appBar: (@Composable () -> Unit)? = null,
-    /** Called when the user taps the shop icon in the chat app bar. Mirrors Flutter's Chat(onShopPressed:). */
+    /** Called when the user taps the shop icon in the chat app bar. */
     onShopPressed: (() -> Unit)? = null,
-    /** Called when the user taps the cart icon in the chat app bar. Mirrors Flutter's Chat(onCartPressed:). */
+    /** Called when the user taps the cart icon in the chat app bar. */
     onCartPressed: (() -> Unit)? = null,
-    /** Describes where the chat is being opened from. Mirrors Flutter's Chat(openContext:). */
+    /** Describes where the chat is being opened from. */
     @Suppress("UNUSED_PARAMETER")
     openContext: String? = null,
 ) {
@@ -130,7 +130,7 @@ fun ChatScreen(
 
     // ── Audio permission launcher ─────────────────────────────────────────────
 
-    // FDE-60: RECORD_AUDIO is a dangerous permission — request before starting recording.
+    // RECORD_AUDIO is a dangerous permission — request before starting recording.
     // On denial do nothing: no crash, no further action (graceful denial per DoD).
     val recordAudioPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -241,15 +241,13 @@ fun ChatScreen(
                     )
                 },
                 bottomBar = {
-                    // Quick replies float above the input as a vertical column of chips,
-                    // mirroring Flutter's _createQuickReplyOverlay in chat_input.dart.
+                    // Quick replies float above the input as a vertical column of chips.
                     // Hidden during recording — user cannot tap a reply while recording audio.
                     Column {
                         if (!audioState.isRecording) {
                             QuickReplies(
                                 quickReplies = state.quickReplies,
                                 onChipClick = { text ->
-                                    // Mirror Flutter: ChatSendTextMessage then ChatClearQuickReplies.
                                     viewModel.handleEvent(MessagesEvent.SendTextMessage(text))
                                     viewModel.handleEvent(MessagesEvent.ClearQuickReplies)
                                 },

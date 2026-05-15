@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 
 // Manages recording, amplitude streaming, and playback lifecycle.
 // Kept separate from MessagesViewModel so recording state (waveform, duration) is
-// isolated from message list state — the same separation the Flutter SDK uses.
+// isolated from message list state.
 internal class AudioViewModel(
     private val audioRepository: AudioRepository,
     private val waveformCompressor: WaveformCompressor = WaveformCompressor(

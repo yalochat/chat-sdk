@@ -31,9 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Full theme contract for the Yalo Chat SDK — mirrors Flutter SDK's ChatTheme.
+ * Full theme contract for the Yalo Chat SDK.
  *
- * All properties have defaults matching the Flutter SDK's built-in light theme, so
+ * All properties have defaults matching the SDK's built-in light theme, so
  * partial construction works out of the box:
  * ```
  * ChatTheme(sendButtonColor = Color(0xFF00AA00))
@@ -81,7 +81,7 @@ data class ChatTheme(
     val productPriceBackgroundColor: Color = Color(0xFFECFDF5),
     /** Text color for the per-subunit price label on product cards. */
     val pricePerSubunitColor: Color = Color(0xFF7C8086),
-    /** Color for message timestamps and footer text — mirrors Flutter's messageFooterColor. */
+    /** Color for message timestamps and footer text. */
     val messageFooterColor: Color = Color(0xFF7C8086),
     val errorColor: Color = Color(0xFFE53935),
     /** Border color of the picker buttons in the attachment sheet. */
@@ -152,19 +152,18 @@ data class ChatTheme(
     val currencyIcon: ImageVector = Icons.Filled.AttachMoney,
     val addIcon: ImageVector = Icons.Filled.Add,
     val removeIcon: ImageVector = Icons.Filled.Remove,
-    /** Arrow icon rendered on CTA buttons — port of Flutter ChatTheme.ctaArrowForwardIcon. */
+    /** Arrow icon rendered on CTA buttons. */
     val ctaArrowForwardIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowForward,
 ) {
     companion object {
         /**
-         * Default theme matching the Flutter SDK's built-in light theme values.
+         * Default theme using the SDK's built-in light theme values.
          * Equivalent to `ChatTheme()` — provided as a named constant for readability.
          */
         val Default = ChatTheme()
 
         /**
-         * Derives a ChatTheme from the host app's Material [colorScheme], using the same
-         * color-slot mapping as Flutter SDK's ChatTheme.fromThemeData. Properties not
+         * Derives a ChatTheme from the host app's Material [colorScheme]. Properties not
          * covered by Material color tokens fall back to [Default] values.
          */
         fun fromMaterialTheme(colorScheme: ColorScheme): ChatTheme = Default.copy(

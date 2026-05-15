@@ -49,18 +49,14 @@ private const val CLAIM_USER_ID = "user_id"
 // Refresh 30 s before actual expiry to avoid a race between expiry check and the API call.
 private const val TOKEN_REFRESH_BUFFER_MS = 30_000L
 
-// Port of flutter-sdk YaloChatClient.
-// Ktor replaces Dart's http package — same headers and endpoints.
 // All network errors are wrapped in Result.Error; no exceptions are thrown.
 //
-// Auth flow mirrors Flutter: POST /auth with channelId + organizationId → access_token.
+// Auth flow: POST /auth with channelId + organizationId → access_token.
 // The token is cached and refreshed automatically via POST /oauth/token.
 // A Mutex serialises concurrent auth calls so only one in-flight /auth request can exist.
 //
-// KMP note: the HttpClient (with its platform engine) is provided by the caller —
+// The HttpClient (with its platform engine) is provided by the caller —
 // YaloChat.kt on Android passes an Android-engine client, tests pass a MockEngine client.
-// When splitting to KMP: YaloChat.kt moves to androidMain and provides the Android engine;
-// an iosMain counterpart provides the Darwin engine.
 internal class YaloChatApiService(
     apiBaseUrl: String,
     private val channelId: String,
@@ -219,7 +215,6 @@ internal class YaloChatApiService(
 
     // POST /all/media — multipart upload of a media file (image or voice).
     // Returns 201 with MediaUploadResponse JSON; the `id` field is used as `mediaUrl` in protos.
-    // Mirrors Flutter's YaloMediaServiceRemote.uploadMedia().
     suspend fun uploadMedia(
         bytes: ByteArray,
         filename: String,
@@ -255,7 +250,6 @@ internal class YaloChatApiService(
     }
 
     // GET <mediaUrl> — download media bytes from CDN. No auth header required (signed URL).
-    // Mirrors Flutter's YaloMediaServiceRemote.downloadMedia().
     suspend fun downloadMedia(url: String): Result<ByteArray> =
         try {
             val response = httpClient.get(url)
@@ -265,8 +259,8 @@ internal class YaloChatApiService(
             Result.Error(e)
         }
 
-    // Cart operations — mirrors flutter-sdk YaloMessageServiceRemote.
-    // Each method builds the corresponding proto-JSON SdkMessageBody and POSTs to /inapp/inbound_messages.
+    // Cart operations — each method builds the corresponding proto-JSON SdkMessageBody
+    // and POSTs to /inapp/inbound_messages.
 
     suspend fun addToCart(sku: String, quantity: Double, unitType: String? = null): Result<Unit> {
         val instant = Clock.System.now()

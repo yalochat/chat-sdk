@@ -175,7 +175,6 @@ class MessagesController internal constructor(
         }
     }
 
-    // Mirrors Android MessagesViewModel.subscribeToEvents().
     // Must be called after start() — requires an active scope.
     // Idempotent: re-entry after stop()/start() cycle restarts the job.
     fun startEventsObservation(onTypingStart: (String) -> Unit, onTypingStop: () -> Unit) {
@@ -191,7 +190,6 @@ class MessagesController internal constructor(
         }
     }
 
-    // Mirrors Android MessagesViewModel.updateProductQuantity().
     // isSubunit=false → update unitsAdded; isSubunit=true → update subunitsAdded with overflow.
     fun updateProductQuantity(messageId: Long, productSku: String, isSubunit: Boolean, quantity: Double) {
         val s = scope ?: return

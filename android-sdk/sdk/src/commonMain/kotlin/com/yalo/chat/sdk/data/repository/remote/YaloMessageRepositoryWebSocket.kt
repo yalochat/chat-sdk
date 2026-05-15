@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Clock
 
-// Port of flutter-sdk YaloMessageRepositoryWebSocket.
 // Implements YaloMessageRepository using a persistent WebSocket connection.
 // Plug-in replacement for YaloMessageRepositoryRemote — MessagesViewModel and
 // MessageSyncService are unaware of which transport is active.
@@ -45,7 +44,7 @@ internal class YaloMessageRepositoryWebSocket(
     @Volatile private var paused = false
     private var scope: CoroutineScope? = null
 
-    // High-water mark for ensureReceiptOrder — mirrors pollHighWater in YaloMessageRepositoryRemote.
+    // High-water mark for ensureReceiptOrder.
     private var wsHighWater: Long = 0L
 
     // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -123,9 +122,8 @@ internal class YaloMessageRepositoryWebSocket(
         }
     }
 
-    // Mirrors YaloMessageRepositoryRemote.ensureReceiptOrder — clamps each incoming
-    // message id to max(stableId, clientClockAtReceipt) so bot WS replies always sort
-    // after the user's most recent sent message in ORDER BY id ASC.
+    // Clamps each incoming message id to max(stableId, clientClockAtReceipt) so bot
+    // WS replies always sort after the user's most recent sent message in ORDER BY id ASC.
     private fun ensureReceiptOrder(messages: List<ChatMessage>): List<ChatMessage> {
         if (messages.isEmpty()) return messages
         val receiptFloor = Clock.System.now().toEpochMilliseconds()

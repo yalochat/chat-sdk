@@ -1,7 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Port of android-sdk ProductQuantityStepper.kt.
-
 import SwiftUI
 
 struct ProductQuantityStepper: View {

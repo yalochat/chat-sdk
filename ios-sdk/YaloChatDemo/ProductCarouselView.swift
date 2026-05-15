@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Port of android-sdk ProductCarouselMessage.kt.
 // Horizontal scroll of ProductVerticalCard views, collapsed to 3 with a Show more item.
 
 import SwiftUI

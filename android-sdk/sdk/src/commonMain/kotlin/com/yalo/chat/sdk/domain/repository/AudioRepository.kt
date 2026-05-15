@@ -6,8 +6,6 @@ import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.domain.model.AudioData
 import kotlinx.coroutines.flow.Flow
 
-// Port of flutter-sdk/lib/src/data/repositories/audio/audio_repository.dart
-// Phase 2 M4: implemented by AudioRepositoryLocal (MediaRecorder / MediaPlayer).
 interface AudioRepository {
 
     companion object {
@@ -21,8 +19,8 @@ interface AudioRepository {
     // Stop recording — returns AudioData with fileName and durationMs.
     suspend fun stopRecording(): Result<AudioData>
 
-    // FDE-61: amplitude stream polled every RECORD_TICK_MS during active recording (DBFS values,
-    // matching Flutter). Only emits while recording — callers should subscribe after StartRecording.
+    // Amplitude stream polled every RECORD_TICK_MS during active recording (DBFS values).
+    // Only emits while recording — callers should subscribe after StartRecording.
     // buffer(Channel.UNLIMITED) is intentional: duration is tracked by counting emitted samples,
     // so no samples must be dropped (conflate() would undercount duration).
     fun amplitudeFlow(): Flow<Double>

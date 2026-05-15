@@ -36,7 +36,6 @@ internal data class SdkTextMessageBody(
 )
 
 // ── Image ─────────────────────────────────────────────────────────────────────
-// Mirrors proto ImageMessageRequest / ImageMessage.
 
 @Serializable
 internal data class SdkImageMessageRequestBody(
@@ -55,7 +54,6 @@ internal data class SdkImageMessageBody(
 )
 
 // ── Voice note ────────────────────────────────────────────────────────────────
-// Mirrors proto VoiceNoteMessageRequest / VoiceMessage.
 
 @Serializable
 internal data class SdkVoiceNoteMessageRequestBody(
@@ -75,7 +73,6 @@ internal data class SdkVoiceMessageBody(
 )
 
 // ── Cart operations ───────────────────────────────────────────────────────────
-// Mirror proto AddToCartRequest / RemoveFromCartRequest / ClearCartRequest / AddPromotionRequest.
 
 @Serializable
 internal data class SdkAddToCartRequestBody(

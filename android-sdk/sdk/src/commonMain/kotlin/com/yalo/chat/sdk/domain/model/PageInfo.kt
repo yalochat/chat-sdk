@@ -2,8 +2,7 @@
 
 package com.yalo.chat.sdk.domain.model
 
-// Port of flutter-sdk/lib/src/common/page.dart
-// All cursor fields are nullable Longs — matching Flutter's int? cursor fields.
+// All cursor fields are nullable Longs.
 data class PageInfo(
     val cursor: Long? = null,
     val nextCursor: Long? = null,

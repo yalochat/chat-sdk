@@ -33,7 +33,7 @@ internal const val KEY_QUANTITY = "quantity"
 internal const val KEY_UNIT_TYPE = "unitType"
 internal const val KEY_PROMOTION_ID = "promotionId"
 
-// Proto3 JSON enum names for unit_type (mirrors sdk_message.proto).
+// Proto3 JSON enum names for unit_type.
 internal fun UnitType?.toApiString(): String? = when (this) {
     UnitType.UNIT -> "UNIT_TYPE_UNIT"
     UnitType.SUBUNIT -> "UNIT_TYPE_SUBUNIT"

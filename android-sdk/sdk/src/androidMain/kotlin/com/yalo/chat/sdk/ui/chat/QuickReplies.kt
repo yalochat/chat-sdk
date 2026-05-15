@@ -19,11 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.ui.theme.ChatTheme
 import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
 
-// Port of flutter-sdk _createQuickReplyOverlay in chat_input.dart.
-// Flutter renders chips in a vertical Column floating above ChatInput via an Overlay
-// widget anchored to the top-center of the input bar. In Compose we approximate the
-// same visual result by placing this composable directly above ChatInput inside the
-// Scaffold bottomBar Column, instead of using an Overlay.
+// Renders chips in a vertical Column above the chat input.
 //
 // expandVertically/shrinkVertically animate the height from 0 to full smoothly so
 // the transition is not jarring to the user, even though the bottomBar height does

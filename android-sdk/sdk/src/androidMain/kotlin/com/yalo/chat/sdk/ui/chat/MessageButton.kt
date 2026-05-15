@@ -24,7 +24,7 @@ import com.yalo.chat.sdk.domain.model.ChatButton
 import com.yalo.chat.sdk.domain.model.ChatButtonType
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
-// Renders a single proto 2.0 ChatButton. Mirrors Flutter's MessageButton widget:
+// Renders a single proto 2.0 ChatButton:
 //   POSTBACK → OutlinedButton that fires SendTextMessage(button.text)
 //   LINK     → OutlinedButton with arrow icon that opens button.url in the system browser
 //   REPLY    → renders nothing (surfaces as quick-reply chips above ChatInput)

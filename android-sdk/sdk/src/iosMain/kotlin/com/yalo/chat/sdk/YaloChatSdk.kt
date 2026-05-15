@@ -27,8 +27,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
-// iOS entry point — mirrors YaloChat.kt in androidMain.
-// Wires the shared commonMain business logic with iOS platform drivers:
+// iOS entry point — wires the shared commonMain business logic with iOS platform drivers:
 //   - Darwin HTTP engine (URLSession) via ktor-client-darwin
 //   - NativeSqliteDriver via sqldelight-native-driver
 // Called from Swift by YaloChat.initialize() — see ios-sdk/YaloChatDemo/YaloChat.swift.
@@ -79,7 +78,6 @@ object YaloChatSdk {
                 tokenStorage = KeychainTokenStorage(channelId = config.channelId),
                 externalUserId = config.userId,
             )
-            // Use app-specific caches directory — mirrors Android's context.cacheDir.
             // NSTemporaryDirectory() is purged aggressively by the OS between app launches;
             // NSCachesDirectory is only cleared under storage pressure, so downloaded media
             // (images, audio, video) survives cold restarts.
@@ -114,8 +112,7 @@ object YaloChatSdk {
         val local = LocalChatMessageRepository(db.chatMessageQueries, Dispatchers.Default)
         localRepo = local
 
-        // Sync service is started lazily by MessagesController (via MessagesObservable.onAppear),
-        // mirroring how MessagesViewModel governs the polling lifecycle on Android.
+        // Sync service is started lazily by MessagesController (via MessagesObservable.onAppear).
         val syncSvc = MessageSyncService(
             yaloRepo = yaloRepo,
             localRepo = local,

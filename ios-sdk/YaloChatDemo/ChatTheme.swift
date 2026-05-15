@@ -1,9 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-// Mirrors Flutter's ChatTheme and Android's ChatTheme.
 // Inject via .environment(\.chatTheme, theme) at ChatView root;
 // consume via @Environment(\.chatTheme) in child views.
-// Default values match Flutter SDK's light theme color constants (SdkColors).
+// Default values match the SDK's built-in light theme color constants.
 
 import SwiftUI
 

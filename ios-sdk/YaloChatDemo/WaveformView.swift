@@ -2,7 +2,7 @@
 
 import SwiftUI
 
-// Bar-chart waveform mirroring Flutter WaveformPainter.
+// Bar-chart waveform renderer.
 // Each amplitude is in dBFS (–∞…0). Bar height = max(5 %, 10^(dBFS/20)) × maxHeight.
 // Bars occupy 80 % of available width; remaining 20 % is distributed as inter-bar gaps.
 struct WaveformView: View {
