@@ -21,6 +21,7 @@ struct MessageList: View {
                         } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                             Text(Translate.noMessagesYet)
 =======
                             Text(NSLocalizedString("chat.no_messages_yet", comment: ""))
@@ -28,6 +29,9 @@ struct MessageList: View {
 =======
                             Text(L10n.noMessagesYet)
 >>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
+=======
+                            Text(Translate.noMessagesYet)
+>>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }

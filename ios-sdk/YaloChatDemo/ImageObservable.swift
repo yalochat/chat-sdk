@@ -32,6 +32,7 @@ class ImageObservable: ObservableObject {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             errorMessage = Translate.imageSaveError
 =======
             errorMessage = "Failed to save image. Please try again."
@@ -42,6 +43,9 @@ class ImageObservable: ObservableObject {
 =======
             errorMessage = L10n.imageSaveError
 >>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
+=======
+            errorMessage = Translate.imageSaveError
+>>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
         }
     }
 

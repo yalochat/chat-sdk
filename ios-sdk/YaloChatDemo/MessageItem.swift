@@ -120,6 +120,7 @@ struct MessageItem: View {
         } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             Text(Translate.unsupportedMessage)
 =======
             Text(NSLocalizedString("chat.unsupported_message_type", comment: ""))
@@ -127,6 +128,9 @@ struct MessageItem: View {
 =======
             Text(L10n.unsupportedMessage)
 >>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
+=======
+            Text(Translate.unsupportedMessage)
+>>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -140,6 +144,7 @@ struct MessageItem: View {
         } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
 =======
             Label(NSLocalizedString("chat.image_unavailable", comment: ""), systemImage: theme.imagePlaceholderIconName)
@@ -147,6 +152,9 @@ struct MessageItem: View {
 =======
             Label(L10n.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
 >>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
+=======
+            Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
+>>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -255,6 +263,7 @@ struct MessageItem: View {
         } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             Label(Translate.videoUnavailable, systemImage: "video")
 =======
             Label(NSLocalizedString("chat.video_unavailable", comment: ""), systemImage: "video")
@@ -262,6 +271,9 @@ struct MessageItem: View {
 =======
             Label(L10n.videoUnavailable, systemImage: "video")
 >>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
+=======
+            Label(Translate.videoUnavailable, systemImage: "video")
+>>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
