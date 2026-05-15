@@ -90,6 +90,12 @@ describe('ChatMessageRepositoryLocal', () => {
       expect(inserted.role).toBe('AGENT');
       expect(inserted.type).toBe('text');
     });
+
+    it('returns Err when the database is closed', async () => {
+      db.close();
+      const result = await repo.insertChatMessage(makeMessage());
+      expect(result).toBeInstanceOf(Err);
+    });
   });
 
   describe('replaceChatMessage', () => {
@@ -130,6 +136,23 @@ describe('ChatMessageRepositoryLocal', () => {
       expect(messages.find((m) => m.id === inserted.id)?.content).toBe(
         'updated content'
       );
+    });
+
+    it('returns Err when the database is closed', async () => {
+      const insertResult = await repo.insertChatMessage(makeMessage());
+      const inserted = (insertResult as Ok<ChatMessage>).value;
+      db.close();
+
+      const result = await repo.replaceChatMessage(inserted);
+      expect(result).toBeInstanceOf(Err);
+    });
+  });
+
+  describe('close', () => {
+    it('closes the database so subsequent operations fail', async () => {
+      await repo.close();
+      const result = await repo.insertChatMessage(makeMessage());
+      expect(result).toBeInstanceOf(Err);
     });
   });
 
@@ -244,6 +267,12 @@ describe('ChatMessageRepositoryLocal', () => {
         result as Ok<{ data: ChatMessage[]; pageInfo: { cursor?: number } }>
       ).value.pageInfo;
       expect(pageInfo.cursor).toBeUndefined();
+    });
+
+    it('returns Err when the database is closed', async () => {
+      db.close();
+      const result = await repo.getChatMessagePageDesc(null, 10);
+      expect(result).toBeInstanceOf(Err);
     });
   });
 });

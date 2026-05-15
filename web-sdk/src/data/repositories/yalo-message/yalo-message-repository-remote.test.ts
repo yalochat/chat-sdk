@@ -3,7 +3,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { ProductMessageRequest_Orientation } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import {
+  ButtonType,
+  MessageRole,
+  MessageStatus,
+  ProductMessageRequest_Orientation,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type {
   MessageCallback,
   YaloMessageService,
@@ -239,6 +244,87 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('oops');
     });
+
+    it('sends a voice message with amplitudes and duration', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia('voice-id'));
+      const msg = makeMessage({
+        type: 'voice',
+        fileName: 'note.ogg',
+        mediaType: 'audio/ogg',
+        byteCount: 500,
+        amplitudes: [1, 2, 3],
+        duration: 12,
+        blob: new Blob(['x'], { type: 'audio/ogg' }),
+      });
+
+      await repo.insertMessage(msg);
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent).toMatchObject({
+        voiceNoteMessageRequest: {
+          content: {
+            mediaUrl: 'voice-id',
+            mediaType: 'audio/ogg',
+            byteCount: 500,
+            fileName: 'note.ogg',
+            amplitudesPreview: [1, 2, 3],
+            duration: 12,
+          },
+        },
+      });
+    });
+
+    it('sends an attachment message with file metadata', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia('attach-id'));
+      const msg = makeMessage({
+        type: 'attachment',
+        fileName: 'doc.pdf',
+        content: 'see attached',
+        mediaType: 'application/pdf',
+        byteCount: 4096,
+        blob: new Blob(['x'], { type: 'application/pdf' }),
+      });
+
+      await repo.insertMessage(msg);
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent).toMatchObject({
+        attachmentMessageRequest: {
+          content: {
+            text: 'see attached',
+            mediaUrl: 'attach-id',
+            mediaType: 'application/pdf',
+            byteCount: 4096,
+            fileName: 'doc.pdf',
+          },
+        },
+      });
+    });
+
+    it('uses an empty correlationId when the message has no id', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.insertMessage(makeMessage({ id: undefined }));
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      expect(sent.correlationId).toBe('');
+    });
+
+    it('returns Err for unsupported message types', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      const result = await repo.insertMessage(
+        makeMessage({ type: 'product', content: '' })
+      );
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('UnimplementedError');
+      expect(service.sendMessage).not.toHaveBeenCalled();
+    });
   });
 
   describe('cart and promotion commands', () => {
@@ -417,6 +503,255 @@ describe('YaloMessageRepositoryRemote', () => {
         wiId: 'prod-1',
         products: [{ sku: 'SKU-1', name: 'Apples', price: 5 }],
       });
+    });
+
+    it('translates an imageMessageRequest preferring mediaUrl over fileName', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'img-1',
+        userId: 'u',
+        status: 0,
+        date: new Date('2026-02-02T00:00:00Z'),
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          imageMessageRequest: {
+            timestamp: new Date(),
+            buttons: [],
+            content: {
+              text: 'caption',
+              timestamp: undefined,
+              status: MessageStatus.MESSAGE_STATUS_SENT,
+              role: MessageRole.MESSAGE_ROLE_AGENT,
+              mediaUrl: 'https://cdn/img.png',
+              mediaType: 'image/png',
+              byteCount: 1000,
+              fileName: 'fallback.png',
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'image',
+        content: 'caption',
+        fileName: 'https://cdn/img.png',
+        mediaType: 'image/png',
+        byteCount: 1000,
+      });
+    });
+
+    it('falls back to fileName when image mediaUrl is empty', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'img-2',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          imageMessageRequest: {
+            timestamp: new Date(),
+            buttons: [],
+            content: {
+              text: undefined,
+              timestamp: undefined,
+              status: MessageStatus.MESSAGE_STATUS_SENT,
+              role: MessageRole.MESSAGE_ROLE_AGENT,
+              mediaUrl: '',
+              mediaType: 'image/png',
+              byteCount: 0,
+              fileName: 'local.png',
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'image',
+        fileName: 'local.png',
+        content: '',
+      });
+    });
+
+    it('translates a voiceNoteMessageRequest into a voice ChatMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'voice-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          voiceNoteMessageRequest: {
+            timestamp: new Date(),
+            buttons: [],
+            content: {
+              timestamp: undefined,
+              status: MessageStatus.MESSAGE_STATUS_SENT,
+              role: MessageRole.MESSAGE_ROLE_AGENT,
+              mediaUrl: 'voice.ogg',
+              mediaType: 'audio/ogg',
+              byteCount: 200,
+              fileName: 'voice.ogg',
+              amplitudesPreview: [0, 5, 9],
+              duration: 7,
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'voice',
+        fileName: 'voice.ogg',
+        amplitudes: [0, 5, 9],
+        duration: 7,
+        mediaType: 'audio/ogg',
+        byteCount: 200,
+      });
+    });
+
+    it('translates a videoMessageRequest into a video ChatMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'video-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          videoMessageRequest: {
+            timestamp: new Date(),
+            buttons: [],
+            content: {
+              text: 'a clip',
+              timestamp: undefined,
+              status: MessageStatus.MESSAGE_STATUS_SENT,
+              role: MessageRole.MESSAGE_ROLE_AGENT,
+              mediaUrl: 'https://cdn/v.mp4',
+              mediaType: 'video/mp4',
+              byteCount: 2048,
+              fileName: 'fallback.mp4',
+              duration: 30,
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'video',
+        content: 'a clip',
+        fileName: 'https://cdn/v.mp4',
+        duration: 30,
+        mediaType: 'video/mp4',
+        byteCount: 2048,
+      });
+    });
+
+    it('translates an attachmentMessageRequest into an attachment ChatMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'att-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          attachmentMessageRequest: {
+            timestamp: new Date(),
+            buttons: [],
+            content: {
+              text: 'see file',
+              timestamp: undefined,
+              status: MessageStatus.MESSAGE_STATUS_SENT,
+              role: MessageRole.MESSAGE_ROLE_AGENT,
+              mediaUrl: 'https://cdn/doc.pdf',
+              mediaType: 'application/pdf',
+              byteCount: 4096,
+              fileName: 'doc.pdf',
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'attachment',
+        content: 'see file',
+        fileName: 'https://cdn/doc.pdf',
+        mediaType: 'application/pdf',
+        byteCount: 4096,
+      });
+    });
+
+    it('falls back to current time when the frame has no date', () => {
+      vi.useRealTimers();
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      const before = Date.now();
+      emit(textPollItem('msg-no-date', 'no date'));
+      const after = Date.now();
+
+      const received = callback.mock.calls[0][0][0];
+      expect(received.timestamp.getTime()).toBeGreaterThanOrEqual(before);
+      expect(received.timestamp.getTime()).toBeLessThanOrEqual(after);
+    });
+
+    it('maps postback buttons and defaults unrecognized button types to reply', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'btn-mix',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          textMessageRequest: {
+            timestamp: new Date(),
+            buttons: [
+              { text: 'Back', buttonType: ButtonType.BUTTON_TYPE_POSTBACK },
+              { text: 'Mystery', buttonType: ButtonType.UNRECOGNIZED },
+            ],
+            content: {
+              text: 'hi',
+              timestamp: undefined,
+              status: MessageStatus.MESSAGE_STATUS_SENT,
+              role: MessageRole.MESSAGE_ROLE_AGENT,
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0].buttons).toEqual([
+        { text: 'Back', type: 'postback', url: undefined },
+        { text: 'Mystery', type: 'reply', url: undefined },
+      ]);
     });
 
     it('translates horizontal product frames into ChatMessage.carousel', () => {

@@ -205,6 +205,21 @@ describe('YaloMessageServiceWebSocket', () => {
       open(sockets[0]);
       expect(sockets[0].send).toHaveBeenCalledTimes(1);
     });
+
+    it('returns Err when the socket send throws', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[0]);
+      sockets[0].send.mockImplementation(() => {
+        throw new Error('socket failed');
+      });
+
+      const result = await service.sendMessage(makeTextMessage('boom'));
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('socket failed');
+    });
   });
 
   describe('reconnect', () => {
@@ -288,6 +303,19 @@ describe('YaloMessageServiceWebSocket', () => {
       open(sockets[1]);
 
       expect(sockets[1].send).not.toHaveBeenCalled();
+    });
+
+    it('cancels a pending reconnect timer scheduled after a close', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[0]);
+
+      closed(sockets[0]);
+      service.unsubscribe();
+
+      await vi.advanceTimersByTimeAsync(60000);
+      expect(sockets).toHaveLength(1);
     });
   });
 });
