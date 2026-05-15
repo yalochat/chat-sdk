@@ -19,7 +19,7 @@ struct MessageList: View {
                             ProgressView()
                                 .padding(.top, 32)
                         } else {
-                            Text(NSLocalizedString("chat.no_messages_yet", comment: ""))
+                            Text(L10n.noMessagesYet)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }
