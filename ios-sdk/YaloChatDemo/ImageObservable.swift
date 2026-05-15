@@ -29,7 +29,7 @@ class ImageObservable: ObservableObject {
             pickedImagePath = url.path
             mimeType = "image/jpeg"
         } catch {
-            errorMessage = "Failed to save image. Please try again."
+            errorMessage = NSLocalizedString("chat.image_save_error", comment: "")
         }
     }
 

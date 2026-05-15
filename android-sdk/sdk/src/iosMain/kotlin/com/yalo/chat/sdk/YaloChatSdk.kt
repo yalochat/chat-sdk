@@ -14,6 +14,8 @@ import com.yalo.chat.sdk.data.KeychainTokenStorage
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
 import com.yalo.chat.sdk.database.ChatDatabase
+import com.yalo.chat.sdk.domain.model.ChatCommand
+import com.yalo.chat.sdk.domain.model.ChatCommandCallback
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
@@ -49,6 +51,8 @@ object YaloChatSdk {
 
     var config: YaloChatConfig? = null
         private set
+
+    var onError: ((String) -> Unit)? = null
 
     @OptIn(kotlin.experimental.ExperimentalNativeApi::class)
     fun initialize(config: YaloChatConfig) {
@@ -116,7 +120,10 @@ object YaloChatSdk {
         val syncSvc = MessageSyncService(
             yaloRepo = yaloRepo,
             localRepo = local,
-            onSyncError = { e -> platform.Foundation.NSLog("[YaloChatSdk] sync error: %@", e.toString()) },
+            onSyncError = { e ->
+                platform.Foundation.NSLog("[YaloChatSdk] sync error: %@", e.toString())
+                onError?.invoke(e.message ?: e.toString())
+            },
         )
         _syncService = syncSvc
 
@@ -125,6 +132,10 @@ object YaloChatSdk {
             localRepo = local,
             syncService = syncSvc,
         )
+    }
+
+    fun registerCommand(command: ChatCommand, callback: ChatCommandCallback) {
+        yaloRepo?.registerCommand(command, callback)
     }
 
     fun stop() {

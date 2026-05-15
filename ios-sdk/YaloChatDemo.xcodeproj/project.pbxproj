@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		05EC6220E4CB1538B732F344 /* ProductCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15C5E70CA427D78455A0813 /* ProductCarouselView.swift */; };
 		1CA7117B4899F43F28A9826F /* ChatAppBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6D254CEAF7AAB2C559BD85 /* ChatAppBar.swift */; };
+		1CD34D3B315B77B79DFD37F1 /* YaloChatAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED2567261F6D10227B02251 /* YaloChatAction.swift */; };
 		1F144E784B4B0E906FE68740 /* ChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23407D6589CAA8A5F7913634 /* ChatInput.swift */; };
 		293282042EBD6BFA90E3A048 /* ChatSdk.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */; };
 		298C9277BFCC3894687B6572 /* ProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF71DFCB68275F5614937DD /* ProductCard.swift */; };
@@ -16,6 +17,7 @@
 		3B6D0B8DF56C3C234BB333F7 /* ChatSdk.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4C742AB16C89C1739033D236 /* ProductListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D263572F6DC2DB3526C49426 /* ProductListView.swift */; };
 		545EDBDC5656A750127042E0 /* ProductQuantityStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */; };
+		625D030BDCB26FCD405CFBB4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = D296B566EFA4B056BA35A4A6 /* Localizable.strings */; };
 		674DB9AB8BB94548B4659911 /* YaloChatDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3502AF3994D977BB2687443 /* YaloChatDemoApp.swift */; };
 		68B260F91753D81C4891F80D /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF775B29AF50036FBF2DD96 /* MessageList.swift */; };
 		6F5A5B00189F413AC54EB39E /* YaloChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C966BE803A724D942922CAA /* YaloChat.swift */; };
@@ -23,9 +25,9 @@
 		839B1BF06817BB1B18B8356C /* MessageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D563B68F202040D37D6212 /* MessageItem.swift */; };
 		A81CB6A93AB6D6DADE6559DD /* ChatTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128F8CE7D0D35F336D2DAC2 /* ChatTheme.swift */; };
 		AA69F96977B9913EF39272DD /* ImageObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 192FC4739922F8D122901DB5 /* ImageObservable.swift */; };
+		BA83046D4CADCBD0AD893604 /* WaveformCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */; };
 		D26FBEBB44B22F7370ED0CFF /* ImagePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3435CA5533A84581B92E052 /* ImagePreview.swift */; };
 		E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */; };
-		A4C8F2E1B3D09765E4F1A2B3 /* WaveformCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D9A3F2C4E10876F5A2B3C4 /* WaveformCompressor.swift */; };
 		E65E5168702C7E1DFC950C7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6524E179EB88397E204954 /* ContentView.swift */; };
 		E87B26E53C6C69473298A5A5 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE541740117006132C1A380 /* Credentials.swift */; };
 		E93401D6E82F2C157FF4EC0A /* Credentials.swift.example in Resources */ = {isa = PBXBuildFile; fileRef = 8FCF82F16CCFF7E3A3D06DB5 /* Credentials.swift.example */; };
@@ -53,13 +55,14 @@
 		0EF71DFCB68275F5614937DD /* ProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCard.swift; sourceTree = "<group>"; };
 		192FC4739922F8D122901DB5 /* ImageObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageObservable.swift; sourceTree = "<group>"; };
 		23407D6589CAA8A5F7913634 /* ChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInput.swift; sourceTree = "<group>"; };
+		2ED2567261F6D10227B02251 /* YaloChatAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChatAction.swift; sourceTree = "<group>"; };
 		34E80F747F4EC2822662317B /* YaloChatDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = YaloChatDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4128F8CE7D0D35F336D2DAC2 /* ChatTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTheme.swift; sourceTree = "<group>"; };
 		43FDB5E608E371946FE0DFC6 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ChatSdk.xcframework; path = "../android-sdk/sdk/build/XCFrameworks/release/ChatSdk.xcframework"; sourceTree = "<group>"; };
 		4D6D254CEAF7AAB2C559BD85 /* ChatAppBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppBar.swift; sourceTree = "<group>"; };
 		6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformRecorder.swift; sourceTree = "<group>"; };
-		B5D9A3F2C4E10876F5A2B3C4 /* WaveformCompressor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformCompressor.swift; sourceTree = "<group>"; };
+		6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformCompressor.swift; sourceTree = "<group>"; };
 		6C966BE803A724D942922CAA /* YaloChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChat.swift; sourceTree = "<group>"; };
 		75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductQuantityStepper.swift; sourceTree = "<group>"; };
 		76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRepliesView.swift; sourceTree = "<group>"; };
@@ -68,6 +71,7 @@
 		A15C5E70CA427D78455A0813 /* ProductCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCarouselView.swift; sourceTree = "<group>"; };
 		A3502AF3994D977BB2687443 /* YaloChatDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChatDemoApp.swift; sourceTree = "<group>"; };
 		B4AE3EAFF0C8C544F642946C /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
+		B6D12EA3158328A83F178A91 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		BA6524E179EB88397E204954 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BF05C7967323A2B01F9565F3 /* AudioObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioObservable.swift; sourceTree = "<group>"; };
 		CDF775B29AF50036FBF2DD96 /* MessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageList.swift; sourceTree = "<group>"; };
@@ -136,11 +140,13 @@
 				D263572F6DC2DB3526C49426 /* ProductListView.swift */,
 				75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */,
 				76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */,
-				B5D9A3F2C4E10876F5A2B3C4 /* WaveformCompressor.swift */,
+				6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */,
 				6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */,
 				B4AE3EAFF0C8C544F642946C /* WaveformView.swift */,
 				6C966BE803A724D942922CAA /* YaloChat.swift */,
+				2ED2567261F6D10227B02251 /* YaloChatAction.swift */,
 				A3502AF3994D977BB2687443 /* YaloChatDemoApp.swift */,
+				D296B566EFA4B056BA35A4A6 /* Localizable.strings */,
 			);
 			path = YaloChatDemo;
 			sourceTree = "<group>";
@@ -208,6 +214,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E93401D6E82F2C157FF4EC0A /* Credentials.swift.example in Resources */,
+				625D030BDCB26FCD405CFBB4 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,15 +242,27 @@
 				4C742AB16C89C1739033D236 /* ProductListView.swift in Sources */,
 				545EDBDC5656A750127042E0 /* ProductQuantityStepper.swift in Sources */,
 				7DBD15E184CA198AD1FCA13C /* QuickRepliesView.swift in Sources */,
-				A4C8F2E1B3D09765E4F1A2B3 /* WaveformCompressor.swift in Sources */,
+				BA83046D4CADCBD0AD893604 /* WaveformCompressor.swift in Sources */,
 				E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */,
 				F0D47773279173F7C3093CA2 /* WaveformView.swift in Sources */,
 				6F5A5B00189F413AC54EB39E /* YaloChat.swift in Sources */,
+				1CD34D3B315B77B79DFD37F1 /* YaloChatAction.swift in Sources */,
 				674DB9AB8BB94548B4659911 /* YaloChatDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		D296B566EFA4B056BA35A4A6 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B6D12EA3158328A83F178A91 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		23E661A384529B623570DBB2 /* Release */ = {

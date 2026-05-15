@@ -118,7 +118,7 @@ struct MessageItem: View {
         } else if message.type is MessageType.CTA {
             ctaContent
         } else {
-            Text("Unsupported message type")
+            Text(NSLocalizedString("chat.unsupported_message_type", comment: ""))
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -130,7 +130,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
-            Label("Image unavailable", systemImage: theme.imagePlaceholderIconName)
+            Label(NSLocalizedString("chat.image_unavailable", comment: ""), systemImage: theme.imagePlaceholderIconName)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -237,7 +237,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             StableVideoPlayer(path: path)
         } else {
-            Label("Video unavailable", systemImage: "video")
+            Label(NSLocalizedString("chat.video_unavailable", comment: ""), systemImage: "video")
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)

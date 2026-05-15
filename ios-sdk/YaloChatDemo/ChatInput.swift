@@ -47,7 +47,7 @@ struct ChatInput: View {
                             .padding(.leading, 4)
                     }
 
-                    TextField("Type a message…", text: $messagesObservable.userMessage)
+                    TextField(NSLocalizedString("chat.input_placeholder", comment: ""), text: $messagesObservable.userMessage)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(theme.inputBackgroundColor)
@@ -64,12 +64,12 @@ struct ChatInput: View {
                 .padding(.vertical, 8)
             }
         }
-        .confirmationDialog("Attach Image", isPresented: $imageObservable.showSourceSheet) {
-            Button("Photo Library") { imageObservable.showGallery = true }
+        .confirmationDialog(NSLocalizedString("chat.attach_image_title", comment: ""), isPresented: $imageObservable.showSourceSheet) {
+            Button(NSLocalizedString("chat.photo_library", comment: "")) { imageObservable.showGallery = true }
             if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                Button("Camera") { imageObservable.showCamera = true }
+                Button(NSLocalizedString("chat.camera", comment: "")) { imageObservable.showCamera = true }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(NSLocalizedString("chat.cancel", comment: ""), role: .cancel) {}
         }
         .sheet(isPresented: $imageObservable.showGallery) {
             PHPickerRepresentable(imageObservable: imageObservable)
