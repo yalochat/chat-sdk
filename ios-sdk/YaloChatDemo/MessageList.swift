@@ -40,10 +40,14 @@ struct MessageList: View {
                             ProgressView()
                                 .padding(.top, 8)
 <<<<<<< HEAD
+<<<<<<< HEAD
                                 .id(observable.messages.first?.stableListId ?? "top")
 =======
                                 .id(observable.messages.count)
 >>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
+=======
+                                .id(observable.messages.first?.stableListId ?? "top")
+>>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
                                 .onAppear { observable.loadMoreMessages() }
                         }
                         ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in

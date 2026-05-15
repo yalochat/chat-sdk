@@ -78,6 +78,7 @@ class MessagesController internal constructor(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fun retryMessage(messageId: Long) {
         val s = scope ?: return
         s.launch {
@@ -99,14 +100,19 @@ class MessagesController internal constructor(
         }
     }
 
+=======
+>>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
     fun retryMessage(messageId: Long) {
         val s = scope ?: return
-        val msg = cachedMessages.find { it.id == messageId } ?: return
-        if (msg.status != MessageStatus.ERROR) return
-        val retrying = msg.copy(status = MessageStatus.SENT)
-        cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
         s.launch {
+<<<<<<< HEAD
 >>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
+=======
+            val msg = cachedMessages.find { it.id == messageId } ?: return@launch
+            if (msg.status != MessageStatus.ERROR) return@launch
+            val retrying = msg.copy(status = MessageStatus.SENT)
+            cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
+>>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
             localRepo.updateMessage(retrying)
             if (yaloRepo.sendMessage(retrying) is Result.Error) {
                 localRepo.updateMessage(retrying.copy(status = MessageStatus.ERROR))
