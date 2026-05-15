@@ -29,7 +29,7 @@ class ImageObservable: ObservableObject {
             pickedImagePath = url.path
             mimeType = "image/jpeg"
         } catch {
-            errorMessage = L10n.imageSaveError
+            errorMessage = Translate.imageSaveError
         }
     }
 

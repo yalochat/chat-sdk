@@ -19,7 +19,7 @@ struct MessageList: View {
                             ProgressView()
                                 .padding(.top, 32)
                         } else {
-                            Text(L10n.noMessagesYet)
+                            Text(Translate.noMessagesYet)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }

@@ -26,8 +26,8 @@
 		A81CB6A93AB6D6DADE6559DD /* ChatTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128F8CE7D0D35F336D2DAC2 /* ChatTheme.swift */; };
 		AA69F96977B9913EF39272DD /* ImageObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 192FC4739922F8D122901DB5 /* ImageObservable.swift */; };
 		BA83046D4CADCBD0AD893604 /* WaveformCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */; };
-		CB9685438617A7FF13CD90D5 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82071341F39EF0CE914D8E5A /* L10n.swift */; };
 		D26FBEBB44B22F7370ED0CFF /* ImagePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3435CA5533A84581B92E052 /* ImagePreview.swift */; };
+		DB694895E876B249D9AAD277 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7DC3F41FCAE080E7CE8975 /* Translate.swift */; };
 		E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */; };
 		E65E5168702C7E1DFC950C7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6524E179EB88397E204954 /* ContentView.swift */; };
 		E87B26E53C6C69473298A5A5 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE541740117006132C1A380 /* Credentials.swift */; };
@@ -67,7 +67,6 @@
 		6C966BE803A724D942922CAA /* YaloChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChat.swift; sourceTree = "<group>"; };
 		75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductQuantityStepper.swift; sourceTree = "<group>"; };
 		76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRepliesView.swift; sourceTree = "<group>"; };
-		82071341F39EF0CE914D8E5A /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		83913A0C24BC4B8FD220EB07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8FCF82F16CCFF7E3A3D06DB5 /* Credentials.swift.example */ = {isa = PBXFileReference; path = Credentials.swift.example; sourceTree = "<group>"; };
 		A15C5E70CA427D78455A0813 /* ProductCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCarouselView.swift; sourceTree = "<group>"; };
@@ -79,6 +78,7 @@
 		CDF775B29AF50036FBF2DD96 /* MessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageList.swift; sourceTree = "<group>"; };
 		D263572F6DC2DB3526C49426 /* ProductListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListView.swift; sourceTree = "<group>"; };
 		D3435CA5533A84581B92E052 /* ImagePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreview.swift; sourceTree = "<group>"; };
+		DD7DC3F41FCAE080E7CE8975 /* Translate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translate.swift; sourceTree = "<group>"; };
 		EAE541740117006132C1A380 /* Credentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		F820AEACBF2AB583B73D583F /* MessagesObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesObservable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -134,7 +134,6 @@
 				192FC4739922F8D122901DB5 /* ImageObservable.swift */,
 				D3435CA5533A84581B92E052 /* ImagePreview.swift */,
 				83913A0C24BC4B8FD220EB07 /* Info.plist */,
-				82071341F39EF0CE914D8E5A /* L10n.swift */,
 				05D563B68F202040D37D6212 /* MessageItem.swift */,
 				CDF775B29AF50036FBF2DD96 /* MessageList.swift */,
 				F820AEACBF2AB583B73D583F /* MessagesObservable.swift */,
@@ -143,6 +142,7 @@
 				D263572F6DC2DB3526C49426 /* ProductListView.swift */,
 				75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */,
 				76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */,
+				DD7DC3F41FCAE080E7CE8975 /* Translate.swift */,
 				6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */,
 				6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */,
 				B4AE3EAFF0C8C544F642946C /* WaveformView.swift */,
@@ -237,7 +237,6 @@
 				E87B26E53C6C69473298A5A5 /* Credentials.swift in Sources */,
 				AA69F96977B9913EF39272DD /* ImageObservable.swift in Sources */,
 				D26FBEBB44B22F7370ED0CFF /* ImagePreview.swift in Sources */,
-				CB9685438617A7FF13CD90D5 /* L10n.swift in Sources */,
 				839B1BF06817BB1B18B8356C /* MessageItem.swift in Sources */,
 				68B260F91753D81C4891F80D /* MessageList.swift in Sources */,
 				322A00049C2FC71AD22F25E1 /* MessagesObservable.swift in Sources */,
@@ -246,6 +245,7 @@
 				4C742AB16C89C1739033D236 /* ProductListView.swift in Sources */,
 				545EDBDC5656A750127042E0 /* ProductQuantityStepper.swift in Sources */,
 				7DBD15E184CA198AD1FCA13C /* QuickRepliesView.swift in Sources */,
+				DB694895E876B249D9AAD277 /* Translate.swift in Sources */,
 				BA83046D4CADCBD0AD893604 /* WaveformCompressor.swift in Sources */,
 				E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */,
 				F0D47773279173F7C3093CA2 /* WaveformView.swift in Sources */,

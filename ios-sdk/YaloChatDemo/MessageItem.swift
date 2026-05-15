@@ -118,7 +118,7 @@ struct MessageItem: View {
         } else if message.type is MessageType.CTA {
             ctaContent
         } else {
-            Text(L10n.unsupportedMessage)
+            Text(Translate.unsupportedMessage)
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -130,7 +130,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
-            Label(L10n.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
+            Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -237,7 +237,7 @@ struct MessageItem: View {
         if let path = message.fileName {
             StableVideoPlayer(path: path)
         } else {
-            Label(L10n.videoUnavailable, systemImage: "video")
+            Label(Translate.videoUnavailable, systemImage: "video")
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)

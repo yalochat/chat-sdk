@@ -16,7 +16,7 @@ struct ChatView: View {
     var body: some View {
         VStack(spacing: 0) {
             ChatAppBar(
-                channelName: YaloChatSdk.shared.config?.channelName ?? L10n.defaultChannelName,
+                channelName: YaloChatSdk.shared.config?.channelName ?? Translate.defaultChannelName,
                 typingStatusText: observable.typingStatusText,
                 isTyping: observable.isTyping,
                 onShopPressed: YaloChat.onShopPressed,

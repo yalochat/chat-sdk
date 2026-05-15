@@ -8,7 +8,7 @@ private func string(_ key: String) -> String {
     NSLocalizedString(key, comment: "")
 }
 
-enum L10n {
+enum Translate {
     static let noMessagesYet      = string("chat.no_messages_yet")
     static let unsupportedMessage = string("chat.unsupported_message_type")
     static let imageUnavailable   = string("chat.image_unavailable")
