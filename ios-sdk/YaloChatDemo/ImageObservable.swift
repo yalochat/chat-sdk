@@ -31,6 +31,7 @@ class ImageObservable: ObservableObject {
         } catch {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             errorMessage = Translate.imageSaveError
 =======
             errorMessage = "Failed to save image. Please try again."
@@ -38,6 +39,9 @@ class ImageObservable: ObservableObject {
 =======
             errorMessage = NSLocalizedString("chat.image_save_error", comment: "")
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+            errorMessage = L10n.imageSaveError
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
         }
     }
 

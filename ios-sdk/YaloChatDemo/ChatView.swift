@@ -17,10 +17,14 @@ struct ChatView: View {
         VStack(spacing: 0) {
             ChatAppBar(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 channelName: YaloChatSdk.shared.config?.channelName ?? Translate.defaultChannelName,
 =======
                 channelName: YaloChatSdk.shared.config?.channelName ?? NSLocalizedString("chat.default_channel_name", comment: ""),
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+                channelName: YaloChatSdk.shared.config?.channelName ?? L10n.defaultChannelName,
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
                 typingStatusText: observable.typingStatusText,
                 isTyping: observable.isTyping,
                 onShopPressed: YaloChat.onShopPressed,

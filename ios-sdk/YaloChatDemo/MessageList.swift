@@ -20,10 +20,14 @@ struct MessageList: View {
                                 .padding(.top, 32)
                         } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
                             Text(Translate.noMessagesYet)
 =======
                             Text(NSLocalizedString("chat.no_messages_yet", comment: ""))
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+                            Text(L10n.noMessagesYet)
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }

@@ -48,10 +48,14 @@ struct ChatInput: View {
                     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                     TextField(Translate.inputPlaceholder, text: $messagesObservable.userMessage)
 =======
                     TextField(NSLocalizedString("chat.input_placeholder", comment: ""), text: $messagesObservable.userMessage)
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+                    TextField(L10n.inputPlaceholder, text: $messagesObservable.userMessage)
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(theme.inputBackgroundColor)
@@ -69,6 +73,7 @@ struct ChatInput: View {
             }
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
         .confirmationDialog(Translate.attachImageTitle, isPresented: $imageObservable.showSourceSheet) {
             Button(Translate.photoLibrary) { imageObservable.showGallery = true }
             if UIImagePickerController.isSourceTypeAvailable(.camera) {
@@ -78,11 +83,19 @@ struct ChatInput: View {
 =======
         .confirmationDialog(NSLocalizedString("chat.attach_image_title", comment: ""), isPresented: $imageObservable.showSourceSheet) {
             Button(NSLocalizedString("chat.photo_library", comment: "")) { imageObservable.showGallery = true }
+=======
+        .confirmationDialog(L10n.attachImageTitle, isPresented: $imageObservable.showSourceSheet) {
+            Button(L10n.photoLibrary) { imageObservable.showGallery = true }
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
             if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                Button(NSLocalizedString("chat.camera", comment: "")) { imageObservable.showCamera = true }
+                Button(L10n.camera) { imageObservable.showCamera = true }
             }
+<<<<<<< HEAD
             Button(NSLocalizedString("chat.cancel", comment: ""), role: .cancel) {}
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+            Button(L10n.cancel, role: .cancel) {}
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
         }
         .sheet(isPresented: $imageObservable.showGallery) {
             PHPickerRepresentable(imageObservable: imageObservable)

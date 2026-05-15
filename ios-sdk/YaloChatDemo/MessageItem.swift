@@ -119,10 +119,14 @@ struct MessageItem: View {
             ctaContent
         } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
             Text(Translate.unsupportedMessage)
 =======
             Text(NSLocalizedString("chat.unsupported_message_type", comment: ""))
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+            Text(L10n.unsupportedMessage)
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -135,10 +139,14 @@ struct MessageItem: View {
             LocalFileImage(path: path, fallbackColor: bubbleColor)
         } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
             Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
 =======
             Label(NSLocalizedString("chat.image_unavailable", comment: ""), systemImage: theme.imagePlaceholderIconName)
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+            Label(L10n.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
@@ -246,10 +254,14 @@ struct MessageItem: View {
             StableVideoPlayer(path: path)
         } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
             Label(Translate.videoUnavailable, systemImage: "video")
 =======
             Label(NSLocalizedString("chat.video_unavailable", comment: ""), systemImage: "video")
 >>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
+=======
+            Label(L10n.videoUnavailable, systemImage: "video")
+>>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                 .font(.caption)
                 .padding(12)
