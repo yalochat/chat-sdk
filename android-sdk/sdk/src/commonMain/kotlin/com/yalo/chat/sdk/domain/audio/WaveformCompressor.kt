@@ -9,15 +9,13 @@ import kotlin.math.max
 // merged so the older half of the recording lives in the first half of the buffer and
 // the stride for new samples doubles. Memory stays O(binCount) regardless of recording
 // length, and snapshot() always spans the entire recording uniformly.
-//
-// Mirrors Flutter WaveformCompressor introduced in PR #146.
 internal class WaveformCompressor(
     val binCount: Int,
     val defaultValue: Double = -30.0,
 ) {
     init {
         // halve() merges pairs — an odd binCount silently drops the last bin.
-        require(binCount == 0 || binCount % 2 == 0) { "binCount must be even (got $binCount)" }
+        require(binCount >= 0 && binCount % 2 == 0) { "binCount must be even and non-negative (got $binCount)" }
     }
 
     private val bins = DoubleArray(binCount) { defaultValue }

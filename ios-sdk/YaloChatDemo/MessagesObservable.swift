@@ -56,8 +56,16 @@ class MessagesObservable: ObservableObject {
                     Self.log.debug("  [\(String(describing: msg.role))] [\(String(describing: msg.type))] id=\(msg.id?.int64Value ?? -1) ts=\(msg.timestamp)")
                 }
                 #endif
-                let count = self?.displayedCount ?? 30
+                let prevTotal = self?.allMessages.count ?? 0
+                let newArrivals = max(0, messages.count - prevTotal)
                 self?.allMessages = messages
+                let current = self?.displayedCount ?? 30
+                // On initial load keep the window at displayedCount; on live updates grow
+                // by the number of new arrivals so paginated older messages stay in view.
+                let count = prevTotal == 0
+                    ? min(current, messages.count)
+                    : min(current + newArrivals, messages.count)
+                self?.displayedCount = count
                 self?.messages = Array(messages.suffix(count))
                 self?.isLoading = false
                 self?.hasMoreMessages = messages.count > count
@@ -115,7 +123,9 @@ class MessagesObservable: ObservableObject {
         displayedCount = newCount
         messages = Array(allMessages.suffix(displayedCount))
         hasMoreMessages = allMessages.count > displayedCount
-        isLoadingMore = false
+        // Clear after the current SwiftUI render cycle so the re-entrancy guard holds
+        // through the layout pass that would otherwise immediately re-fire onAppear.
+        Task { @MainActor in self.isLoadingMore = false }
     }
 
     func sendMessage() {

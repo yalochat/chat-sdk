@@ -29,7 +29,7 @@ import platform.Security.SecItemAdd
 import platform.Security.SecItemCopyMatching
 import platform.Security.SecItemDelete
 import platform.Security.kSecAttrAccessible
-import platform.Security.kSecAttrAccessibleAfterFirstUnlock
+import platform.Security.kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
 import platform.Security.kSecAttrAccount
 import platform.Security.kSecAttrService
 import platform.Security.kSecClass
@@ -94,7 +94,7 @@ internal class KeychainTokenStorage(channelId: String) : TokenStorage {
             SecItemDelete(buildBaseQuery() as CFDictionaryRef)
             val attrs = buildBaseQuery()
             attrs.setObject(data, forKey = nsKey(kSecValueData!!.rawValue))
-            attrs.setObject(nsKey(kSecAttrAccessibleAfterFirstUnlock!!.rawValue), forKey = nsKey(kSecAttrAccessible!!.rawValue))
+            attrs.setObject(nsKey(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly!!.rawValue), forKey = nsKey(kSecAttrAccessible!!.rawValue))
             @Suppress("UNCHECKED_CAST")
             SecItemAdd(attrs as CFDictionaryRef, null)
         } catch (_: Exception) { }

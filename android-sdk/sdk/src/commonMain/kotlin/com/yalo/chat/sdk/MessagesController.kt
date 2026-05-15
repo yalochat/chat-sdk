@@ -76,22 +76,13 @@ class MessagesController internal constructor(
         }
     }
 
-    // Not currently called by iOS, which slices in-memory. Available for DB-level cursor pagination.
-    fun loadMoreMessages(cursor: Long, onComplete: ((Boolean) -> Unit)? = null) {
-        val s = scope ?: return
-        s.launch {
-            val ok = localRepo.getMessages(cursor = cursor, limit = 30) is Result.Ok
-            onComplete?.invoke(ok)
-        }
-    }
-
     fun retryMessage(messageId: Long) {
         val s = scope ?: return
-        val msg = cachedMessages.find { it.id == messageId } ?: return
-        if (msg.status != MessageStatus.ERROR) return
-        val retrying = msg.copy(status = MessageStatus.SENT)
-        cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
         s.launch {
+            val msg = cachedMessages.find { it.id == messageId } ?: return@launch
+            if (msg.status != MessageStatus.ERROR) return@launch
+            val retrying = msg.copy(status = MessageStatus.SENT)
+            cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
             localRepo.updateMessage(retrying)
             if (yaloRepo.sendMessage(retrying) is Result.Error) {
                 localRepo.updateMessage(retrying.copy(status = MessageStatus.ERROR))
