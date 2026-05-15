@@ -26,8 +26,4 @@ export default class UserMessageController implements ReactiveController {
       })
     );
   }
-
-  handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') this.retryMessage();
-  }
 }

@@ -1,11 +1,14 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { ContextProvider } from '@lit/context';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import {
+  defaultIcons,
+  type YaloChatClientConfig,
+} from '@domain/config/chat-config';
 import { loggerContext, type Logger } from '@log/logger-context';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { Product } from '@domain/models/product/product';
@@ -17,6 +20,7 @@ const config: YaloChatClientConfig = {
   organizationId: 'org-1',
   channelName: 'Test',
   target: 'target',
+  icons: defaultIcons,
 };
 
 const noopLogger: Logger = {
@@ -994,6 +998,224 @@ describe('ChatMessageList', () => {
       });
       // delta = 2 - 3 = -1 < 0 → removeFromCart
       expect(detail.value).toBeLessThan(3);
+    });
+  });
+
+  describe('voice playback', () => {
+    class FakeAudio extends EventTarget {
+      src: string;
+      play = vi.fn(() => Promise.resolve());
+      pause = vi.fn();
+      constructor(src: string) {
+        super();
+        this.src = src;
+        audioInstances.push(this);
+      }
+    }
+
+    let audioInstances: FakeAudio[] = [];
+
+    beforeEach(() => {
+      audioInstances = [];
+      vi.stubGlobal('Audio', FakeAudio);
+      vi.stubGlobal('URL', {
+        createObjectURL: vi.fn(() => 'blob:fake-url'),
+        revokeObjectURL: vi.fn(),
+      });
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    const getVoiceMessage = async (
+      list: ChatMessageList
+    ): Promise<LitElement> => {
+      const host = list.shadowRoot!.querySelector(
+        'assistant-message, user-message'
+      ) as LitElement;
+      await host.updateComplete;
+      const voice = host.shadowRoot!.querySelector(
+        'voice-message'
+      ) as LitElement;
+      await voice.updateComplete;
+      return voice;
+    };
+
+    const getPlayButton = (voice: LitElement): HTMLButtonElement =>
+      voice.shadowRoot!.querySelector('.play-button') as HTMLButtonElement;
+
+    const voiceFromRemote = (
+      overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}
+    ) =>
+      ChatMessage.voice({
+        id: 100,
+        role: 'AGENT',
+        timestamp,
+        fileName: 'https://cdn/voice.ogg',
+        amplitudes: [0.1, 0.5, 0.9],
+        duration: 3000,
+        ...overrides,
+      });
+
+    it('renders the play icon by default', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+
+      expect(getPlayButton(voice).textContent).toContain('play_arrow');
+    });
+
+    it('starts playback and swaps to the pause icon when the play button is clicked', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      expect(audioInstances).toHaveLength(1);
+      expect(audioInstances[0].play).toHaveBeenCalledOnce();
+      expect(getPlayButton(voice).textContent).toContain('pause');
+    });
+
+    it('pauses playback and swaps back to the play icon when clicked again', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      expect(audioInstances[0].pause).toHaveBeenCalledOnce();
+      expect(getPlayButton(voice).textContent).toContain('play_arrow');
+    });
+
+    it('reuses the same audio across play/pause cycles', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      expect(audioInstances).toHaveLength(1);
+      expect(audioInstances[0].play).toHaveBeenCalledTimes(2);
+    });
+
+    it('resets the icon to play when the audio finishes', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      audioInstances[0].dispatchEvent(new Event('ended'));
+      await voice.updateComplete;
+
+      expect(getPlayButton(voice).textContent).toContain('play_arrow');
+    });
+
+    it('uses a blob URL as the audio source when the message has a blob', async () => {
+      const blob = new Blob(['audio'], { type: 'audio/webm' });
+      const list = await renderList([
+        ChatMessage.voice({
+          id: 101,
+          role: 'USER',
+          timestamp,
+          fileName: 'local-recording.webm',
+          amplitudes: [0.2],
+          duration: 1000,
+          blob,
+        }),
+      ]);
+      const voice = await getVoiceMessage(list);
+
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      expect(URL.createObjectURL).toHaveBeenCalledWith(blob);
+      expect(audioInstances[0].src).toBe('blob:fake-url');
+    });
+
+    it('falls back to fileName as the audio source when the message has no blob', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+
+      expect(audioInstances[0].src).toContain('https://cdn/voice.ogg');
+      expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('pauses the audio when the voice element is removed from the DOM', async () => {
+      const list = await renderList([voiceFromRemote()]);
+      const voice = await getVoiceMessage(list);
+      getPlayButton(voice).click();
+      await voice.updateComplete;
+      const audio = audioInstances[0];
+
+      list.chatMessages = [];
+      await list.updateComplete;
+
+      expect(audio.pause).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('video loading', () => {
+    const getVideoMessage = async (
+      list: ChatMessageList
+    ): Promise<LitElement> => {
+      const assistant = list.shadowRoot!.querySelector(
+        'assistant-message'
+      ) as LitElement;
+      await assistant.updateComplete;
+      const videoMsg = assistant.shadowRoot!.querySelector(
+        'video-message'
+      ) as LitElement;
+      await videoMsg.updateComplete;
+      return videoMsg;
+    };
+
+    const getVideoElement = (videoMsg: LitElement): HTMLVideoElement =>
+      videoMsg.shadowRoot!.querySelector('video') as HTMLVideoElement;
+
+    const videoFromRemote = () =>
+      ChatMessage.video({
+        id: 200,
+        role: 'AGENT',
+        timestamp,
+        fileName: 'https://cdn/clip.mp4',
+        duration: 10,
+      });
+
+    it('shows the loader spinner before the video data has loaded', async () => {
+      const list = await renderList([videoFromRemote()]);
+      const videoMsg = await getVideoMessage(list);
+
+      expect(videoMsg.shadowRoot!.querySelector('.spinner')).not.toBeNull();
+    });
+
+    it('hides the loader spinner once the video fires loadeddata', async () => {
+      const list = await renderList([videoFromRemote()]);
+      const videoMsg = await getVideoMessage(list);
+
+      getVideoElement(videoMsg).dispatchEvent(new Event('loadeddata'));
+      await videoMsg.updateComplete;
+
+      expect(videoMsg.shadowRoot!.querySelector('.spinner')).toBeNull();
+    });
+
+    it('hides the loader spinner once the video fires error', async () => {
+      const list = await renderList([videoFromRemote()]);
+      const videoMsg = await getVideoMessage(list);
+
+      getVideoElement(videoMsg).dispatchEvent(new Event('error'));
+      await videoMsg.updateComplete;
+
+      expect(videoMsg.shadowRoot!.querySelector('.spinner')).toBeNull();
     });
   });
 

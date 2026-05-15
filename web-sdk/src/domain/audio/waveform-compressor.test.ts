@@ -87,6 +87,14 @@ describe('WaveformCompressor', () => {
     }
   });
 
+  it('ignores pushed samples when constructed with a zero bin count', () => {
+    const compressor = new WaveformCompressor(0);
+
+    compressor.pushSample(0.9);
+
+    expect(compressor.snapshot()).toEqual([]);
+  });
+
   it('clears the buffer and rewinds the stride on reset', () => {
     const compressor = new WaveformCompressor(4);
     pushAll(compressor, [0.5, 0.9, 0.3, 0.1, 0.7]);

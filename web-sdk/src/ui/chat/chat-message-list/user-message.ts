@@ -136,7 +136,6 @@ export class UserMessage extends LitElement {
           role="button"
           tabindex="0"
           @click=${() => this._controller.retryMessage()}
-          @keydown=${(e: KeyboardEvent) => this._controller.handleKeydown(e)}
         >
           <div class="error-row">
             <span class="error-icon" aria-hidden="true">
