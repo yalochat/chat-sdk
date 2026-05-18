@@ -4,8 +4,12 @@ import type { LitElement } from 'lit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import './yalo-chat-window';
 import type { YaloChatWindow } from './yalo-chat-window';
-import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { Product } from '@domain/models/product/product';
 import { Err, Ok } from '@domain/common/result';
+import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
+import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
+import type { PollCallback } from '@data/repositories/yalo-message/yalo-message-repository';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -26,6 +30,37 @@ const createElement = async (): Promise<YaloChatWindow> => {
 
 const getFooter = (el: YaloChatWindow): LitElement =>
   el.shadowRoot?.querySelector('chat-footer') as unknown as LitElement;
+
+const getMessageList = (
+  el: YaloChatWindow
+): { chatMessages: ChatMessage[]; isLoading: boolean; isWriting: boolean } =>
+  el.shadowRoot?.querySelector('chat-message-list') as unknown as {
+    chatMessages: ChatMessage[];
+    isLoading: boolean;
+    isWriting: boolean;
+  };
+
+const dispatchFromFooter = (
+  el: YaloChatWindow,
+  type: string,
+  detail: unknown
+): void => {
+  getFooter(el).dispatchEvent(
+    new CustomEvent(type, { detail, bubbles: true, composed: true })
+  );
+};
+
+const dispatchFromList = (
+  el: YaloChatWindow,
+  type: string,
+  detail?: unknown
+): void => {
+  el.shadowRoot
+    ?.querySelector('chat-message-list')
+    ?.dispatchEvent(
+      new CustomEvent(type, { detail, bubbles: true, composed: true })
+    );
+};
 
 const getTextarea = (el: YaloChatWindow): HTMLTextAreaElement =>
   getFooter(el).shadowRoot?.querySelector(
@@ -240,6 +275,33 @@ describe('YaloChatWindow', () => {
 
       expect(emitted).toBe(false);
     });
+
+    it('does not add the message when local insert fails', async () => {
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
+      const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
+
+      dispatchFromFooter(
+        el,
+        'yalo-chat-send-text-message',
+        ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: 'will not persist',
+        })
+      );
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to insert message locally'
+        )
+      );
+      expect(remoteSpy).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages).toHaveLength(0);
+    });
   });
 
   describe('error display', () => {
@@ -355,6 +417,98 @@ describe('YaloChatWindow', () => {
       expect(persistedMessage).toMatchObject({
         id: erroredId,
         content: 'Retry me',
+        status: 'IN_PROGRESS',
+      });
+    });
+
+    it('ignores a retry event when the message has no id', async () => {
+      const insertSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
+      const replaceSpy = vi.spyOn(
+        el.chatMessageRepository,
+        'replaceChatMessage'
+      );
+
+      dispatchFromList(
+        el,
+        'yalo-chat-retry-message',
+        ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: 'no id',
+        })
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      expect(insertSpy).not.toHaveBeenCalled();
+      expect(replaceSpy).not.toHaveBeenCalled();
+    });
+
+    it('does not retry remotely when replacing locally for retry fails', async () => {
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Err(new Error('network down'))
+      );
+
+      const footer = getFooter(el);
+      await footer.updateComplete;
+      const textarea = getTextarea(el);
+      textarea.value = 'fails to retry';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+      getSendButton(el).click();
+
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0]?.status === 'ERROR'
+      );
+      const errored = getMessageList(el).chatMessages[0];
+
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.chatMessageRepository,
+        'replaceChatMessage'
+      ).mockResolvedValue(new Err(new Error('replace fail')));
+      const insertSpy = vi
+        .spyOn(el.yaloMessageRepository, 'insertMessage')
+        .mockClear();
+
+      dispatchFromList(el, 'yalo-chat-retry-message', errored);
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to update message for retry'
+        )
+      );
+      expect(insertSpy).not.toHaveBeenCalled();
+    });
+
+    it('logs an error when persisting the ERROR status fails', async () => {
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Err(new Error('network down'))
+      );
+      vi.spyOn(
+        el.chatMessageRepository,
+        'replaceChatMessage'
+      ).mockResolvedValue(new Err(new Error('replace fail')));
+
+      const footer = getFooter(el);
+      await footer.updateComplete;
+      const textarea = getTextarea(el);
+      textarea.value = 'cannot mark errored';
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+      getSendButton(el).click();
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to persist error status locally'
+        )
+      );
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        content: 'cannot mark errored',
         status: 'IN_PROGRESS',
       });
     });
@@ -475,5 +629,702 @@ describe('YaloChatWindow', () => {
 
       expect(textarea.style.height).toBe('auto');
     });
+  });
+
+  describe('sending voice messages', () => {
+    const buildVoiceMessage = (): ChatMessage =>
+      ChatMessage.voice({
+        role: 'USER',
+        timestamp: new Date(),
+        fileName: 'voice-1.webm',
+        amplitudes: [1, 2, 3],
+        duration: 1,
+        blob: new Blob(['audio'], { type: 'audio/webm' }),
+        mediaType: 'audio/webm',
+      });
+
+    it('persists the voice message locally and keeps it in progress on success', async () => {
+      const voice = buildVoiceMessage();
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(voice)
+      );
+
+      dispatchFromFooter(el, 'yalo-chat-send-voice-message', {
+        message: voice,
+        blob: voice.blob,
+      });
+
+      await vi.waitUntil(() => getMessageList(el).chatMessages.length > 0);
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        type: 'voice',
+        fileName: 'voice-1.webm',
+        status: 'IN_PROGRESS',
+      });
+    });
+
+    it('marks the voice message as ERROR when remote insert fails', async () => {
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Err(new Error('upload failed'))
+      );
+      const voice = buildVoiceMessage();
+
+      dispatchFromFooter(el, 'yalo-chat-send-voice-message', {
+        message: voice,
+        blob: voice.blob,
+      });
+
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0]?.status === 'ERROR'
+      );
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        type: 'voice',
+        status: 'ERROR',
+      });
+    });
+
+    it('flips isWriting to true after a successful send', async () => {
+      const voice = buildVoiceMessage();
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(voice)
+      );
+
+      dispatchFromFooter(el, 'yalo-chat-send-voice-message', {
+        message: voice,
+        blob: voice.blob,
+      });
+
+      await vi.waitUntil(() => getMessageList(el).isWriting === true);
+    });
+
+    it('does not add the voice message when local insert fails', async () => {
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
+      const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
+      const voice = buildVoiceMessage();
+
+      dispatchFromFooter(el, 'yalo-chat-send-voice-message', {
+        message: voice,
+        blob: voice.blob,
+      });
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to insert voice message locally'
+        )
+      );
+      expect(remoteSpy).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages).toHaveLength(0);
+    });
+  });
+
+  describe('sending image messages', () => {
+    const buildImageMessage = (): ChatMessage =>
+      ChatMessage.image({
+        role: 'USER',
+        timestamp: new Date(),
+        fileName: 'photo.png',
+        mediaType: 'image/png',
+        blob: new Blob(['img'], { type: 'image/png' }),
+      });
+
+    it('persists an image message and keeps it in progress on success', async () => {
+      const image = buildImageMessage();
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(image)
+      );
+
+      dispatchFromFooter(el, 'yalo-chat-send-image-message', {
+        message: image,
+        file: new File([image.blob!], image.fileName!, {
+          type: image.mediaType,
+        }),
+      });
+
+      await vi.waitUntil(() => getMessageList(el).chatMessages.length > 0);
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        type: 'image',
+        fileName: 'photo.png',
+        status: 'IN_PROGRESS',
+      });
+    });
+
+    it('marks an image message as ERROR when remote insert fails', async () => {
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Err(new Error('upload failed'))
+      );
+      const image = buildImageMessage();
+
+      dispatchFromFooter(el, 'yalo-chat-send-image-message', {
+        message: image,
+        file: new File([image.blob!], image.fileName!, {
+          type: image.mediaType,
+        }),
+      });
+
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0]?.status === 'ERROR'
+      );
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        type: 'image',
+        status: 'ERROR',
+      });
+    });
+
+    it('does not add the image message when local insert fails', async () => {
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
+      const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
+      const image = buildImageMessage();
+
+      dispatchFromFooter(el, 'yalo-chat-send-image-message', {
+        message: image,
+        file: new File([image.blob!], image.fileName!, {
+          type: image.mediaType,
+        }),
+      });
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to insert image message locally'
+        )
+      );
+      expect(remoteSpy).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages).toHaveLength(0);
+    });
+  });
+
+  describe('sending attachment messages', () => {
+    const buildAttachmentMessage = (): ChatMessage =>
+      ChatMessage.attachment({
+        role: 'USER',
+        timestamp: new Date(),
+        fileName: 'doc.pdf',
+        mediaType: 'application/pdf',
+        blob: new Blob(['pdf'], { type: 'application/pdf' }),
+      });
+
+    it('persists an attachment message and keeps it in progress on success', async () => {
+      const attachment = buildAttachmentMessage();
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(attachment)
+      );
+
+      dispatchFromFooter(el, 'yalo-chat-send-attachment-message', {
+        message: attachment,
+        file: new File([attachment.blob!], attachment.fileName!, {
+          type: attachment.mediaType,
+        }),
+      });
+
+      await vi.waitUntil(() => getMessageList(el).chatMessages.length > 0);
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        type: 'attachment',
+        fileName: 'doc.pdf',
+        status: 'IN_PROGRESS',
+      });
+    });
+
+    it('marks an attachment message as ERROR when remote insert fails', async () => {
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Err(new Error('upload failed'))
+      );
+      const attachment = buildAttachmentMessage();
+
+      dispatchFromFooter(el, 'yalo-chat-send-attachment-message', {
+        message: attachment,
+        file: new File([attachment.blob!], attachment.fileName!, {
+          type: attachment.mediaType,
+        }),
+      });
+
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0]?.status === 'ERROR'
+      );
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        type: 'attachment',
+        status: 'ERROR',
+      });
+    });
+
+    it('does not add the attachment message when local insert fails', async () => {
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
+      const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
+      const attachment = buildAttachmentMessage();
+
+      dispatchFromFooter(el, 'yalo-chat-send-attachment-message', {
+        message: attachment,
+        file: new File([attachment.blob!], attachment.fileName!, {
+          type: attachment.mediaType,
+        }),
+      });
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to insert attachment message locally'
+        )
+      );
+      expect(remoteSpy).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages).toHaveLength(0);
+    });
+  });
+
+  describe('product quantity updates', () => {
+    const seedProductMessage = async (
+      product: Product
+    ): Promise<{ id: number }> => {
+      const message = ChatMessage.product({
+        role: 'AGENT',
+        timestamp: new Date(),
+        products: [product],
+      });
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(message)
+      );
+      dispatchFromFooter(el, 'yalo-chat-send-text-message', message);
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0]?.products?.[0]?.sku === product.sku
+      );
+      const id = getMessageList(el).chatMessages[0].id;
+      if (id === undefined) {
+        throw new Error('expected seeded message to have an id');
+      }
+      return { id };
+    };
+
+    it('increments unitsAdded and forwards a positive delta to addToCart', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-1',
+          name: 'Soda',
+          price: 1,
+          unitName: 'unit',
+        })
+      );
+      const addToCart = vi
+        .spyOn(el.yaloMessageRepository, 'addToCart')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-1',
+        unitType: 'unit',
+        value: 3,
+      });
+
+      await vi.waitUntil(() => addToCart.mock.calls.length > 0);
+      expect(addToCart).toHaveBeenCalledWith('sku-1', 'unit', 3);
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        sku: 'sku-1',
+        unitsAdded: 3,
+      });
+    });
+
+    it('routes addToCart through a registered command when present', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-2',
+          name: 'Snack',
+          price: 2,
+          unitName: 'unit',
+        })
+      );
+      const callback = vi.fn();
+      el.commands.set('addToCart', callback);
+      const addToCart = vi
+        .spyOn(el.yaloMessageRepository, 'addToCart')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-2',
+        unitType: 'unit',
+        value: 2,
+      });
+
+      await vi.waitUntil(() => callback.mock.calls.length > 0);
+      expect(callback).toHaveBeenCalledWith({
+        sku: 'sku-2',
+        quantity: 2,
+        unitType: 'unit',
+      });
+      expect(addToCart).not.toHaveBeenCalled();
+    });
+
+    it('forwards a negative delta to removeFromCart', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-3',
+          name: 'Item',
+          price: 3,
+          unitName: 'unit',
+          unitsAdded: 5,
+        })
+      );
+      const removeFromCart = vi
+        .spyOn(el.yaloMessageRepository, 'removeFromCart')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-3',
+        unitType: 'unit',
+        value: 2,
+      });
+
+      await vi.waitUntil(() => removeFromCart.mock.calls.length > 0);
+      expect(removeFromCart).toHaveBeenCalledWith('sku-3', 'unit', 3);
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        unitsAdded: 2,
+      });
+    });
+
+    it('routes removeFromCart through a registered command when present', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-3b',
+          name: 'Item',
+          price: 3,
+          unitName: 'unit',
+          unitsAdded: 4,
+        })
+      );
+      const callback = vi.fn();
+      el.commands.set('removeFromCart', callback);
+      const removeFromCart = vi
+        .spyOn(el.yaloMessageRepository, 'removeFromCart')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-3b',
+        unitType: 'unit',
+        value: 1,
+      });
+
+      await vi.waitUntil(() => callback.mock.calls.length > 0);
+      expect(callback).toHaveBeenCalledWith({
+        sku: 'sku-3b',
+        quantity: 3,
+        unitType: 'unit',
+      });
+      expect(removeFromCart).not.toHaveBeenCalled();
+    });
+
+    it('rolls over subunits into whole units when value exceeds subunits per unit', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-4',
+          name: 'Pack',
+          price: 4,
+          unitName: 'pack',
+          subunitName: 'piece',
+          subunits: 6,
+        })
+      );
+      vi.spyOn(el.yaloMessageRepository, 'addToCart').mockResolvedValue(
+        new Ok(undefined)
+      );
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-4',
+        unitType: 'subunit',
+        value: 14,
+      });
+
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0].products[0].unitsAdded === 2
+      );
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        unitsAdded: 2,
+        subunitsAdded: 2,
+      });
+    });
+
+    it('clamps negative inputs to zero', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-5',
+          name: 'Thing',
+          price: 5,
+          unitName: 'unit',
+          unitsAdded: 2,
+        })
+      );
+      const removeFromCart = vi
+        .spyOn(el.yaloMessageRepository, 'removeFromCart')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-5',
+        unitType: 'unit',
+        value: -7,
+      });
+
+      await vi.waitUntil(() => removeFromCart.mock.calls.length > 0);
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        unitsAdded: 0,
+      });
+      expect(removeFromCart).toHaveBeenCalledWith('sku-5', 'unit', 2);
+    });
+
+    it('is a no-op when the message id is unknown', async () => {
+      await seedProductMessage(
+        new Product({
+          sku: 'sku-6',
+          name: 'Other',
+          price: 6,
+          unitName: 'unit',
+        })
+      );
+      const addToCart = vi
+        .spyOn(el.yaloMessageRepository, 'addToCart')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: 99999,
+        sku: 'sku-6',
+        unitType: 'unit',
+        value: 1,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      expect(addToCart).not.toHaveBeenCalled();
+    });
+
+    it('does not send a cart command when replacing the message fails', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-7',
+          name: 'Item',
+          price: 7,
+          unitName: 'unit',
+        })
+      );
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.chatMessageRepository,
+        'replaceChatMessage'
+      ).mockResolvedValue(new Err(new Error('replace fail')));
+      const addToCart = vi.spyOn(el.yaloMessageRepository, 'addToCart');
+
+      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
+        messageId: seeded.id,
+        sku: 'sku-7',
+        unitType: 'unit',
+        value: 4,
+      });
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to update product quantity'
+        )
+      );
+      expect(addToCart).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        unitsAdded: 0,
+      });
+    });
+  });
+});
+
+describe('YaloChatWindow initial fetch failure', () => {
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('logs an error and renders an empty list when the initial fetch fails', async () => {
+    vi.spyOn(
+      ChatMessageRepositoryLocal.prototype,
+      'getChatMessagePageDesc'
+    ).mockResolvedValue(new Err(new Error('db down')));
+
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = baseConfig;
+    const errorSpy = vi.spyOn(el.logger, 'error');
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(errorSpy).toHaveBeenCalledWith('Unable to fetch messages');
+    expect(getMessageList(el).chatMessages).toHaveLength(0);
+  });
+});
+
+describe('YaloChatWindow incoming messages', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+  let unsubscribeSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    unsubscribeSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'unsubscribeMessages')
+      .mockReturnValue();
+    el = await createElement();
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('prepends an incoming message to the list', async () => {
+    expect(subscribeCallback).toBeDefined();
+    const incoming = ChatMessage.text({
+      role: 'AGENT',
+      timestamp: new Date(),
+      content: 'Hello from agent',
+    });
+
+    subscribeCallback!([incoming]);
+
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0]?.content === 'Hello from agent'
+    );
+    expect(getMessageList(el).chatMessages[0]).toMatchObject({
+      content: 'Hello from agent',
+      role: 'AGENT',
+    });
+  });
+
+  it('clears isWriting when incoming messages arrive', async () => {
+    vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+      new Ok(
+        ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: 'hi',
+        })
+      )
+    );
+    dispatchFromFooter(
+      el,
+      'yalo-chat-send-text-message',
+      ChatMessage.text({
+        role: 'USER',
+        timestamp: new Date(),
+        content: 'hi',
+      })
+    );
+
+    await vi.waitUntil(() => getMessageList(el).isWriting === true);
+
+    subscribeCallback!([
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date(),
+        content: 'reply',
+      }),
+    ]);
+
+    await vi.waitUntil(() => getMessageList(el).isWriting === false);
+  });
+
+  it('unsubscribes when the element is removed from the DOM', () => {
+    unsubscribeSpy.mockClear();
+    el.remove();
+    expect(unsubscribeSpy).toHaveBeenCalled();
+  });
+});
+
+describe('YaloChatWindow pagination', () => {
+  let el: YaloChatWindow;
+  let pageSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    pageSpy = vi
+      .spyOn(ChatMessageRepositoryLocal.prototype, 'getChatMessagePageDesc')
+      .mockImplementation(async (cursor: number | null) => {
+      if (cursor === null) {
+        return new Ok({
+          data: [
+            ChatMessage.text({
+              id: 1,
+              role: 'USER',
+              timestamp: new Date(2026, 0, 1),
+              content: 'first',
+            }),
+          ],
+          pageInfo: { cursor: undefined, nextCursor: 1, pageSize: 500 },
+        });
+      }
+      return new Ok({
+        data: [
+          ChatMessage.text({
+            id: 2,
+            role: 'USER',
+            timestamp: new Date(2025, 0, 1),
+            content: 'second',
+          }),
+        ],
+        pageInfo: { cursor: 1, nextCursor: undefined, pageSize: 500 },
+      });
+    });
+    el = await createElement();
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('appends the next page when fetch-next-page is dispatched', async () => {
+    await vi.waitUntil(() => getMessageList(el).chatMessages.length === 1);
+
+    dispatchFromList(el, 'yalo-chat-fetch-next-page');
+
+    await vi.waitUntil(() => getMessageList(el).chatMessages.length === 2);
+    expect(getMessageList(el).chatMessages.map((m) => m.content)).toEqual([
+      'first',
+      'second',
+    ]);
+  });
+
+  it('does not call the repository when there is no next cursor', async () => {
+    dispatchFromList(el, 'yalo-chat-fetch-next-page');
+    await vi.waitUntil(() => getMessageList(el).chatMessages.length === 2);
+
+    pageSpy.mockClear();
+    dispatchFromList(el, 'yalo-chat-fetch-next-page');
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    expect(pageSpy).not.toHaveBeenCalled();
+  });
+
+  it('logs an error when the next page fetch fails', async () => {
+    const errorSpy = vi.spyOn(el.logger, 'error');
+    vi.spyOn(
+      el.chatMessageRepository,
+      'getChatMessagePageDesc'
+    ).mockResolvedValueOnce(new Err(new Error('db down')));
+
+    dispatchFromList(el, 'yalo-chat-fetch-next-page');
+
+    await vi.waitUntil(() => errorSpy.mock.calls.length > 0);
+    expect(errorSpy).toHaveBeenCalledWith('Unable to fetch next message page');
   });
 });

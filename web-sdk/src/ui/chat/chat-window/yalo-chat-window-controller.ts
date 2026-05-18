@@ -4,7 +4,6 @@ import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
-import type { ChatCommand } from '@domain/models/command/chat-command';
 import type { PageInfo } from '@domain/common/page';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
@@ -421,15 +420,6 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.requestUpdate();
     }
   };
-
-  executeCommand(command: ChatCommand, payload: unknown): void {
-    const callback = this.host.commands.get(command);
-    if (callback) {
-      callback(payload);
-    } else {
-      this.host.logger.warn(`No handler registered for command: ${command}`);
-    }
-  }
 
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
