@@ -24,6 +24,8 @@ export default class YaloChatWindowController implements ReactiveController {
 
   isWriting: boolean = false;
 
+  chatStatusText: string = '';
+
   private readonly _messagePageSize = 500;
   private readonly _writingTimeoutMs = 30000;
   private _writingTimeout?: ReturnType<typeof setTimeout>;
@@ -406,8 +408,21 @@ export default class YaloChatWindowController implements ReactiveController {
     clearTimeout(this._writingTimeout);
     this.isWriting = false;
     this.host.logger.debug(`Received ${chatMessages.length} messages`);
+
+    const statusMessages = chatMessages.filter((m) => m.type === 'chat-status');
+    const regularMessages = chatMessages.filter(
+      (m) => m.type !== 'chat-status'
+    );
+
+    if (statusMessages.length > 0) {
+      this.chatStatusText = statusMessages[statusMessages.length - 1].content;
+      this.host.requestUpdate();
+    }
+
+    if (regularMessages.length === 0) return;
+
     const results = await Promise.all(
-      chatMessages.map((message) =>
+      regularMessages.map((message) =>
         this.host.chatMessageRepository.insertChatMessage(message)
       )
     );

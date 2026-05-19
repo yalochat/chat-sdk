@@ -208,6 +208,14 @@ export function pollMessageItemToChatMessage(
     });
   }
 
+  if (msg.chatStatusRequest) {
+    return ChatMessage.chatStatus({
+      timestamp,
+      content: msg.chatStatusRequest.status,
+      wiId: item.id,
+    });
+  }
+
   if (msg.productMessageRequest) {
     const products = msg.productMessageRequest.products.map(toDomainProduct);
     const isCarousel =

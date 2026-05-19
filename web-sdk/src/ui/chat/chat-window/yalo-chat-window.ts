@@ -111,7 +111,11 @@ export class YaloChatWindow extends LitElement {
   render() {
     return html`
       <div class="chat-window">
-        <chat-header @close=${this._handleClose}> </chat-header>
+        <chat-header
+          .statusMessage=${this._chatWindowController.chatStatusText}
+          @close=${this._handleClose}
+        >
+        </chat-header>
         <main class="chat-body">
           <chat-message-list
             .chatMessages=${this._chatWindowController.chatMessages}
