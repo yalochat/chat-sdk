@@ -18,15 +18,6 @@ void main() {
       });
     });
 
-    group(ChatSubscribeToEvents, () {
-      test('should support equality comparison', () {
-        final event1 = ChatSubscribeToEvents();
-        final event2 = ChatSubscribeToEvents();
-
-        expect(event1, equals(event2));
-      });
-    });
-
     group(ChatSubscribeToMessages, () {
       test('should support equality comparison', () {
         final event1 = ChatSubscribeToMessages();

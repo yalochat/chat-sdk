@@ -12,7 +12,6 @@ import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/media_upload_
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
@@ -158,6 +157,7 @@ void main() {
         messageService: mockMessageService,
         mediaService: mockMediaService,
         directory: () async => tempDir,
+        chatStatusTimeout: const Duration(milliseconds: 50),
       );
     });
 
@@ -167,12 +167,6 @@ void main() {
 
     tearDown(() {
       repo.dispose();
-    });
-
-    group('events', () {
-      test('returns a broadcast stream', () {
-        expect(repo.events().isBroadcast, isTrue);
-      });
     });
 
     group('messages', () {
@@ -189,7 +183,9 @@ void main() {
           () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
 
-        final message = await repo.messages().first;
+        final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
         repo.dispose();
 
         expect(message.content, equals('Hello'));
@@ -229,10 +225,15 @@ void main() {
           final received = <ChatMessage>[];
           final completer = Completer<void>();
 
-          repo.messages().listen((msg) {
-            received.add(msg);
-            if (!completer.isCompleted) completer.complete();
-          });
+          repo
+              .messages()
+              .where((m) => m.type != MessageType.chatStatus)
+              .listen((msg) {
+                received.add(msg);
+                if (!completer.isCompleted) {
+                  completer.complete();
+                }
+              });
 
           await completer.future;
           await Future.delayed(Duration.zero);
@@ -249,7 +250,9 @@ void main() {
             () => mockMessageService.fetchMessages(any()),
           ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
 
-          await repo.messages().first;
+          await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
           repo.dispose();
 
           expect(repo.cache.get('msg-1'), equals(true));
@@ -257,19 +260,17 @@ void main() {
       );
 
       test(
-        'emits TypingStop to the events stream when messages are received',
+        'emits a clearing chat status message before delivering messages',
         () async {
           when(
             () => mockMessageService.fetchMessages(any()),
           ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
 
-          final eventFuture = repo.events().first;
-          repo.messages().listen((_) {});
-
-          final event = await eventFuture;
+          final first = await repo.messages().first;
           repo.dispose();
 
-          expect(event, isA<TypingStop>());
+          expect(first.type, equals(MessageType.chatStatus));
+          expect(first.content, isEmpty);
         },
       );
 
@@ -284,7 +285,9 @@ void main() {
             () => mockMediaService.downloadMedia(any()),
           ).thenAnswer((_) async => Result.ok(imageBytes));
 
-          final message = await repo.messages().first;
+          final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
           repo.dispose();
 
           expect(message.wiId, equals('img-1'));
@@ -330,7 +333,9 @@ void main() {
             () => mockMediaService.downloadMedia(any()),
           ).thenAnswer((_) async => Result.ok(videoBytes));
 
-          final message = await repo.messages().first;
+          final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
           repo.dispose();
 
           expect(message.wiId, equals('vid-1'));
@@ -372,7 +377,9 @@ void main() {
           () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([assistantProductResponseStub]));
 
-        final message = await repo.messages().first;
+        final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
         repo.dispose();
 
         expect(message.wiId, equals('prod-1'));
@@ -405,7 +412,9 @@ void main() {
           () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([assistantCarouselResponseStub]));
 
-        final message = await repo.messages().first;
+        final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
         repo.dispose();
 
         expect(message.wiId, equals('carousel-1'));
@@ -451,7 +460,9 @@ void main() {
           () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([stub]));
 
-        final message = await repo.messages().first;
+        final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
         repo.dispose();
 
         expect(message.products.first.salePrice, isNull);
@@ -482,26 +493,26 @@ void main() {
           () => mockMessageService.fetchMessages(any()),
         ).thenAnswer((_) async => Result.ok([stub]));
 
-        final message = await repo.messages().first;
+        final message = await repo.messages().firstWhere(
+          (m) => m.type != MessageType.chatStatus,
+        );
         repo.dispose();
 
         expect(message.type, equals(MessageType.product));
       });
 
       test(
-        'emits TypingStop to the events stream when fetchMessages fails',
+        'emits a clearing chat status message when fetchMessages fails',
         () async {
           when(
             () => mockMessageService.fetchMessages(any()),
           ).thenAnswer((_) async => Result.error(Exception('Network error')));
 
-          final eventFuture = repo.events().first;
-          repo.messages().listen((_) {});
-
-          final event = await eventFuture;
+          final first = await repo.messages().first;
           repo.dispose();
 
-          expect(event, isA<TypingStop>());
+          expect(first.type, equals(MessageType.chatStatus));
+          expect(first.content, isEmpty);
         },
       );
     });
@@ -512,20 +523,6 @@ void main() {
         timestamp: DateTime.utc(2024),
         content: 'Hello',
       );
-
-      test('emits TypingStart to the events stream before sending', () async {
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
-
-        final eventFuture = repo.events().first;
-        await repo.sendMessage(textMessage);
-
-        final event = await eventFuture;
-
-        expect(event, isA<TypingStart>());
-        expect((event as TypingStart).statusText, equals('Writing message...'));
-      });
 
       test('returns Result.ok when the client succeeds', () async {
         when(

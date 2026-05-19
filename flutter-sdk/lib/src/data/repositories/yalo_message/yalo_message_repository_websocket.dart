@@ -13,7 +13,6 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_me
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service_websocket.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
@@ -22,9 +21,11 @@ import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
 final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
   final StreamController<ChatMessage> _messagesStreamController =
       StreamController<ChatMessage>.broadcast();
-  final StreamController<ChatEvent> _typingEventsStreamController =
-      StreamController<ChatEvent>.broadcast();
   final cache = SimpleCache<String, bool>(capacity: 500);
+  // Safety net: if the backend leaves the chat status non-empty and goes
+  // silent (no further messages of any kind), drop the header after this delay.
+  final Duration chatStatusTimeout;
+  Timer? _chatStatusTimer;
 
   final YaloChatClient yaloChatClient;
   final YaloMessageServiceWebSocket websocketService;
@@ -42,7 +43,29 @@ final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
     required this.messageService,
     required this.mediaService,
     Future<Directory> Function()? directory,
+    this.chatStatusTimeout = const Duration(seconds: 15),
   }) : _directory = directory ?? getTemporaryDirectory;
+
+  // A non-empty chat status arms a timer that clears the chat status if the
+  // backend goes silent; any subsequent emission cancels it.
+  void _emit(ChatMessage message) {
+    if (_messagesStreamController.isClosed) {
+      return;
+    }
+    _messagesStreamController.sink.add(message);
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
+    if (message.type == MessageType.chatStatus && message.content.isNotEmpty) {
+      _chatStatusTimer = Timer(chatStatusTimeout, () {
+        if (_messagesStreamController.isClosed) {
+          return;
+        }
+        _messagesStreamController.sink.add(
+          ChatMessage.chatStatus(timestamp: DateTime.now()),
+        );
+      });
+    }
+  }
 
   @override
   Stream<ChatMessage> messages() {
@@ -50,45 +73,38 @@ final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
     return _messagesStreamController.stream;
   }
 
-  @override
-  Stream<ChatEvent> events() => _typingEventsStreamController.stream;
-
   void _subscribe() {
-    if (_subscription != null || _paused) return;
+    if (_subscription != null || _paused) {
+      return;
+    }
     _subscription = websocketService.messages().listen(
       _onItem,
       onError: (Object error) {
         log.severe('WebSocket stream error', error);
-        if (!_typingEventsStreamController.isClosed) {
-          _typingEventsStreamController.sink.add(TypingStop());
-        }
+        _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
       },
     );
   }
 
   Future<void> _onItem(proto.PollMessageItem item) async {
-    final ChatEvent? chatEvent = pollMessageItemToChatEvent(item);
-    if (chatEvent != null) {
-      if (!_typingEventsStreamController.isClosed) {
-        _typingEventsStreamController.sink.add(chatEvent);
-      }
-      return;
-    }
-
     final ChatMessage? message = await pollMessageItemToChatMessage(
       item,
       mediaService: mediaService,
       directory: _directory,
     );
-    if (message == null) return;
-    if (message.wiId == null || cache.get(message.wiId!) != null) return;
-    cache.set(message.wiId!, true);
-    if (_typingEventsStreamController.isClosed ||
-        _messagesStreamController.isClosed) {
+    if (message == null) {
       return;
     }
-    _typingEventsStreamController.sink.add(TypingStop());
-    _messagesStreamController.sink.add(message);
+    if (message.type == MessageType.chatStatus) {
+      _emit(message);
+      return;
+    }
+    if (message.wiId == null || cache.get(message.wiId!) != null) {
+      return;
+    }
+    cache.set(message.wiId!, true);
+    _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
+    _emit(message);
   }
 
   @override
@@ -169,11 +185,15 @@ final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
     _paused = true;
     _subscription?.cancel();
     _subscription = null;
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
   }
 
   @override
   void resume() {
-    if (!_paused) return;
+    if (!_paused) {
+      return;
+    }
     log.info('Subscription resumed');
     _paused = false;
     _subscribe();
@@ -184,11 +204,10 @@ final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
     _paused = false;
     _subscription?.cancel();
     _subscription = null;
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
     if (!_messagesStreamController.isClosed) {
       _messagesStreamController.close();
-    }
-    if (!_typingEventsStreamController.isClosed) {
-      _typingEventsStreamController.close();
     }
   }
 }

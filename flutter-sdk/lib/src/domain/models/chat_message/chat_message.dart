@@ -22,6 +22,7 @@ enum MessageType {
   product('product'),
   productCarousel('productCarousel'),
   promotion('promotion'),
+  chatStatus('chatStatus'),
 
   unknown('unknown');
 
@@ -192,6 +193,28 @@ class ChatMessage extends Equatable {
        duration = null,
        byteCount = null,
        mediaType = null,
+       header = null,
+       footer = null,
+       buttons = const [];
+
+  // A transient control message used to drive the chat status header
+  // (e.g. "Writing message..."). When [content] is empty the status should
+  // be cleared. These are never persisted nor appended to the message list.
+  const ChatMessage.chatStatus({
+    required this.timestamp,
+    this.content = '',
+    this.id,
+    this.wiId,
+    this.role = MessageRole.assistant,
+  }) : type = MessageType.chatStatus,
+       status = MessageStatus.delivered,
+       fileName = null,
+       amplitudes = null,
+       duration = null,
+       byteCount = null,
+       mediaType = null,
+       products = const [],
+       expand = false,
        header = null,
        footer = null,
        buttons = const [];

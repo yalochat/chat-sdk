@@ -12,20 +12,21 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/sdk_mes
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
 
 final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   final StreamController<ChatMessage> _messagesStreamController =
       StreamController();
-  final StreamController<ChatEvent> _typingEventsStreamController =
-      StreamController();
   bool polling = false;
   bool _paused = false;
   final int pollingRate = 1;
   final int pollingRateWindow = 5;
   final cache = SimpleCache<String, bool>(capacity: 500);
+  // Safety net: if the backend leaves the chat status non-empty and goes
+  // silent (no further messages of any kind), drop the header after this delay.
+  final Duration chatStatusTimeout;
+  Timer? _chatStatusTimer;
 
   final YaloChatClient yaloChatClient;
   final YaloMessageService messageService;
@@ -38,7 +39,29 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     required this.messageService,
     required this.mediaService,
     Future<Directory> Function()? directory,
+    this.chatStatusTimeout = const Duration(seconds: 15),
   }) : _directory = directory ?? getTemporaryDirectory;
+
+  // A non-empty chat status arms a timer that clears the chat status if the
+  // backend goes silent; any subsequent emission cancels it.
+  void _emit(ChatMessage message) {
+    if (_messagesStreamController.isClosed) {
+      return;
+    }
+    _messagesStreamController.sink.add(message);
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
+    if (message.type == MessageType.chatStatus && message.content.isNotEmpty) {
+      _chatStatusTimer = Timer(chatStatusTimeout, () {
+        if (_messagesStreamController.isClosed) {
+          return;
+        }
+        _messagesStreamController.sink.add(
+          ChatMessage.chatStatus(timestamp: DateTime.now()),
+        );
+      });
+    }
+  }
 
   Future<void> _startPolling() async {
     polling = true;
@@ -63,20 +86,15 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
           );
           final messages = translated.whereType<ChatMessage>();
           if (messages.isNotEmpty) {
-            _typingEventsStreamController.sink.add(TypingStop());
-            await _messagesStreamController.sink.addStream(
-              Stream.fromIterable(
-                messages.where((message) {
-                  if (message.wiId == null ||
-                      cache.get(message.wiId!) != null) {
-                    return false;
-                  }
-
-                  cache.set(message.wiId!, true);
-                  return true;
-                }),
-              ),
-            );
+            _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
+            for (final message in messages) {
+              if (message.wiId == null ||
+                  cache.get(message.wiId!) != null) {
+                continue;
+              }
+              cache.set(message.wiId!, true);
+              _emit(message);
+            }
           }
           break;
         case Error():
@@ -84,7 +102,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
             'Unable to fetch messages since $timestamp',
             newMessagesResult.error,
           );
-          _typingEventsStreamController.sink.add(TypingStop());
+          _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
           break;
       }
       await Future.delayed(Duration(seconds: pollingRate));
@@ -96,11 +114,15 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     log.info('Polling paused');
     _paused = true;
     polling = false;
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
   }
 
   @override
   void resume() {
-    if (!_paused) return;
+    if (!_paused) {
+      return;
+    }
     log.info('Polling resumed');
     _paused = false;
     _startPolling();
@@ -110,11 +132,9 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   void dispose() {
     polling = false;
     _paused = false;
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
   }
-
-  @override
-  Stream<ChatEvent> events() =>
-      _typingEventsStreamController.stream.asBroadcastStream();
 
   @override
   Stream<ChatMessage> messages() {
@@ -124,9 +144,6 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   @override
   Future<Result<Unit>> sendMessage(ChatMessage chatMessage) async {
-    _typingEventsStreamController.sink.add(
-      TypingStart(statusText: 'Writing message...'),
-    );
     String? mediaId;
     if (chatMessage.type == MessageType.image ||
         chatMessage.type == MessageType.voice ||

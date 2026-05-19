@@ -10,7 +10,6 @@ import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/chat_message/chat_message_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
@@ -53,7 +52,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
        ) {
     WidgetsBinding.instance.addObserver(this);
     on<ChatLoadMessages>(_handleFetchMessages);
-    on<ChatSubscribeToEvents>(_handleEventsSubscription);
     on<ChatSubscribeToMessages>(_handleMessagesSubscription);
     on<ChatUpdateUserMessage>(_handleUpdateUserMessage);
     on<ChatSendTextMessage>(_handleSendTextMessage);
@@ -129,60 +127,44 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     }
   }
 
-  // Subscribe to the yalo messages events stream
-  Future<void> _handleEventsSubscription(
-    ChatSubscribeToEvents event,
-    Emitter<MessagesState> emit,
-  ) async {
-    log.info('Subscribing to yalo messages events channel');
-    final yaloMessageEvents = _yaloMessageRepository.events();
-    await emit.forEach(
-      yaloMessageEvents,
-      onData: (chatEvent) {
-        log.finest('Received chat event $chatEvent');
-        final result = switch (chatEvent) {
-          TypingStart() => state.copyWith(
-            isSystemTypingMessage: true,
-            chatStatusText: chatEvent.statusText,
-          ),
-          TypingStop() => state.copyWith(
-            isSystemTypingMessage: false,
-            chatStatusText: '',
-          ),
-        };
-        return result;
-      },
-    );
-  }
-
-  // Subscribes to the yalo messages, message stream
+  // Subscribes to the yalo messages, message stream. Incoming items are either
+  // a regular ChatMessage (persisted and appended to the list) or a transient
+  // ChatMessage.chatStatus that only updates the header.
   Future<void> _handleMessagesSubscription(
     ChatSubscribeToMessages event,
     Emitter<MessagesState> emit,
   ) async {
     log.info('Subscribing to yalo message, messages stream');
-    final yaloMessages = _yaloMessageRepository
-        .messages()
-        .asyncMap<ChatMessage>((message) async {
-          assert(
-            message.role == MessageRole.assistant,
-            'Subscription must only receive assistant messages',
-          );
-          log.info('Inserting incoming chat message to db');
-          final result = await _chatMessageRepository.insertChatMessage(
-            message,
-          );
-          switch (result) {
-            case Ok<ChatMessage>():
-              return result.result;
-            case Error<ChatMessage>():
-              throw result.error;
-          }
-        });
+    final yaloMessages = _yaloMessageRepository.messages().asyncMap<ChatMessage>(
+      (message) async {
+        if (message.type == MessageType.chatStatus) {
+          return message;
+        }
+        assert(
+          message.role == MessageRole.assistant,
+          'Subscription must only receive assistant messages',
+        );
+        log.info('Inserting incoming chat message to db');
+        final result = await _chatMessageRepository.insertChatMessage(message);
+        switch (result) {
+          case Ok<ChatMessage>():
+            return result.result;
+          case Error<ChatMessage>():
+            throw result.error;
+        }
+      },
+    );
 
     await emit.forEach(
       yaloMessages,
       onData: (chatMessage) {
+        if (chatMessage.type == MessageType.chatStatus) {
+          log.finest('Received chat status "${chatMessage.content}"');
+          return state.copyWith(
+            isSystemTypingMessage: chatMessage.content.isNotEmpty,
+            chatStatusText: chatMessage.content,
+          );
+        }
         log.fine('Inserted message received with id ${chatMessage.id}');
         final replyLabels = chatMessage.buttons
             .where((b) => b.type == ButtonType.reply)

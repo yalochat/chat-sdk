@@ -17,7 +17,6 @@ import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/media_upload_
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service_websocket.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
@@ -162,6 +161,7 @@ void main() {
         messageService: mockMessageService,
         mediaService: mockMediaService,
         directory: () async => tempDir,
+        chatStatusTimeout: const Duration(milliseconds: 50),
       );
     });
 
@@ -178,7 +178,10 @@ void main() {
 
       test('emits translated text messages from websocket frames', () async {
         final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
         incoming.add(assistantTextStub);
         await Future.delayed(Duration.zero);
@@ -205,7 +208,10 @@ void main() {
 
       test('caches wiId after emission to suppress duplicates', () async {
         final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
         incoming.add(assistantTextStub);
         incoming.add(assistantTextStub);
@@ -215,15 +221,14 @@ void main() {
         expect(repo.cache.get('msg-1'), isTrue);
       });
 
-      test('emits TypingStop on the events stream when a message arrives',
+      test('emits a clearing chat status before delivering a message',
           () async {
-        final eventFuture = repo.events().first;
-        repo.messages().listen((_) {});
-
+        final firstFuture = repo.messages().first;
         incoming.add(assistantTextStub);
-        final event = await eventFuture;
+        final first = await firstFuture;
 
-        expect(event, isA<TypingStop>());
+        expect(first.type, equals(MessageType.chatStatus));
+        expect(first.content, isEmpty);
       });
 
       test('downloads image and emits message with local fileName', () async {
@@ -231,7 +236,9 @@ void main() {
         when(() => mockMediaService.downloadMedia(any()))
             .thenAnswer((_) async => Result.ok(imageBytes));
 
-        final messageFuture = repo.messages().first;
+        final messageFuture = repo
+            .messages()
+            .firstWhere((m) => m.type != MessageType.chatStatus);
         incoming.add(assistantImageStub);
         final message = await messageFuture;
 
@@ -252,7 +259,10 @@ void main() {
             .thenAnswer((_) => downloadCompleter.future);
 
         final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
         incoming.add(assistantImageStub);
         downloadCompleter.complete(Result.error(Exception('network error')));
@@ -264,7 +274,10 @@ void main() {
 
       test('emits a product message with vertical orientation', () async {
         final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
         incoming.add(assistantProductStub);
         await Future.delayed(Duration.zero);
@@ -287,7 +300,10 @@ void main() {
 
       test('emits a carousel message with horizontal orientation', () async {
         final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
         incoming.add(assistantCarouselStub);
         await Future.delayed(Duration.zero);
@@ -296,55 +312,65 @@ void main() {
         expect(received.single.products.first.sku, equals('sku-2'));
       });
 
-      test('emits TypingStart with status text on ChatStatusRequest', () async {
-        final eventFuture = repo.events().first;
-        repo.messages().listen((_) {});
-
+      test('forwards ChatStatusRequest frames as a chat status message',
+          () async {
+        final messageFuture = repo.messages().first;
         incoming.add(chatStatusStub);
-        final event = await eventFuture;
+        final message = await messageFuture;
 
-        expect(event, isA<TypingStart>());
-        expect(
-          (event as TypingStart).statusText,
-          equals('Agent is typing'),
-        );
+        expect(message.type, equals(MessageType.chatStatus));
+        expect(message.content, equals('Agent is typing'));
       });
 
-      test('emits TypingStop on ChatStatusRequest with empty status', () async {
-        final eventFuture = repo.events().first;
-        repo.messages().listen((_) {});
-
+      test('forwards an empty ChatStatusRequest as a clearing chat status',
+          () async {
+        final messageFuture = repo.messages().first;
         incoming.add(emptyChatStatusStub);
-        final event = await eventFuture;
+        final message = await messageFuture;
 
-        expect(event, isA<TypingStop>());
+        expect(message.type, equals(MessageType.chatStatus));
+        expect(message.content, isEmpty);
       });
 
-      test('does not emit a ChatMessage for ChatStatusRequest frames',
+      test(
+          'emits a clearing chat status after the timeout when the backend goes silent',
           () async {
         final received = <ChatMessage>[];
         repo.messages().listen(received.add);
 
         incoming.add(chatStatusStub);
-        await Future.delayed(Duration.zero);
+        await Future.delayed(const Duration(milliseconds: 80));
 
-        expect(received, isEmpty);
+        expect(received, hasLength(2));
+        expect(received.first.content, equals('Agent is typing'));
+        expect(received.last.type, equals(MessageType.chatStatus));
+        expect(received.last.content, isEmpty);
       });
 
-      test('emits TypingStop when the websocket stream errors', () async {
-        final eventFuture = repo.events().first;
-        repo.messages().listen((_) {}, onError: (_) {});
+      test('cancels the chat status timeout when a real message arrives',
+          () async {
+        final received = <ChatMessage>[];
+        repo.messages().listen(received.add);
 
+        incoming.add(chatStatusStub);
+        await Future.delayed(const Duration(milliseconds: 10));
+        incoming.add(assistantTextStub);
+        await Future.delayed(const Duration(milliseconds: 80));
+
+        final clearingStatuses = received.where(
+          (m) => m.type == MessageType.chatStatus && m.content.isEmpty,
+        );
+        expect(clearingStatuses, hasLength(1));
+      });
+
+      test('emits a clearing chat status when the websocket stream errors',
+          () async {
+        final messageFuture = repo.messages().first;
         incoming.addError(Exception('boom'));
-        final event = await eventFuture;
+        final message = await messageFuture;
 
-        expect(event, isA<TypingStop>());
-      });
-    });
-
-    group('events', () {
-      test('returns a broadcast stream', () {
-        expect(repo.events().isBroadcast, isTrue);
+        expect(message.type, equals(MessageType.chatStatus));
+        expect(message.content, isEmpty);
       });
     });
 
@@ -598,7 +624,10 @@ void main() {
         repo.resume();
 
         final received = <ChatMessage>[];
-        repo.messages().listen(received.add);
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
         incoming.add(assistantTextStub);
         await Future.delayed(Duration.zero);
 
@@ -614,15 +643,13 @@ void main() {
     });
 
     group('dispose', () {
-      test('closes the messages and events streams', () async {
+      test('closes the messages stream', () async {
         final messages = repo.messages();
-        final events = repo.events();
 
         repo.dispose();
         await Future.delayed(Duration.zero);
 
         expect(await messages.isEmpty, isTrue);
-        expect(await events.isEmpty, isTrue);
       });
     });
   });

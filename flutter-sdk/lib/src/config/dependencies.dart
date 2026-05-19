@@ -134,7 +134,6 @@ List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
               yaloMessageRepository: context.read<YaloMessageRepository>(),
             )
             ..add(ChatLoadMessages(direction: PageDirection.initial))
-            ..add(ChatSubscribeToEvents())
             ..add(ChatSubscribeToMessages()),
     ),
     BlocProvider<AudioBloc>(
