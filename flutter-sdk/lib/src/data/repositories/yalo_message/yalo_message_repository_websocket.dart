@@ -67,6 +67,14 @@ final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
   }
 
   Future<void> _onItem(proto.PollMessageItem item) async {
+    final ChatEvent? chatEvent = pollMessageItemToChatEvent(item);
+    if (chatEvent != null) {
+      if (!_typingEventsStreamController.isClosed) {
+        _typingEventsStreamController.sink.add(chatEvent);
+      }
+      return;
+    }
+
     final ChatMessage? message = await pollMessageItemToChatMessage(
       item,
       mediaService: mediaService,
@@ -85,9 +93,6 @@ final class YaloMessageRepositoryWebSocket implements YaloMessageRepository {
 
   @override
   Future<Result<Unit>> sendMessage(ChatMessage chatMessage) async {
-    _typingEventsStreamController.sink.add(
-      TypingStart(statusText: 'Writing message...'),
-    );
     String? mediaId;
     if (chatMessage.type == MessageType.image ||
         chatMessage.type == MessageType.voice ||

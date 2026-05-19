@@ -96,6 +96,28 @@ void main() {
       status: 'IN_DELIVERY',
     );
 
+    final chatStatusStub = proto.PollMessageItem(
+      id: 'status-1',
+      message: proto.SdkMessage(
+        chatStatusRequest: proto.ChatStatusRequest(
+          status: 'Agent is typing',
+        ),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
+    final emptyChatStatusStub = proto.PollMessageItem(
+      id: 'status-2',
+      message: proto.SdkMessage(
+        chatStatusRequest: proto.ChatStatusRequest(status: ''),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
     final assistantCarouselStub = proto.PollMessageItem(
       id: 'carousel-1',
       message: proto.SdkMessage(
@@ -274,6 +296,41 @@ void main() {
         expect(received.single.products.first.sku, equals('sku-2'));
       });
 
+      test('emits TypingStart with status text on ChatStatusRequest', () async {
+        final eventFuture = repo.events().first;
+        repo.messages().listen((_) {});
+
+        incoming.add(chatStatusStub);
+        final event = await eventFuture;
+
+        expect(event, isA<TypingStart>());
+        expect(
+          (event as TypingStart).statusText,
+          equals('Agent is typing'),
+        );
+      });
+
+      test('emits TypingStop on ChatStatusRequest with empty status', () async {
+        final eventFuture = repo.events().first;
+        repo.messages().listen((_) {});
+
+        incoming.add(emptyChatStatusStub);
+        final event = await eventFuture;
+
+        expect(event, isA<TypingStop>());
+      });
+
+      test('does not emit a ChatMessage for ChatStatusRequest frames',
+          () async {
+        final received = <ChatMessage>[];
+        repo.messages().listen(received.add);
+
+        incoming.add(chatStatusStub);
+        await Future.delayed(Duration.zero);
+
+        expect(received, isEmpty);
+      });
+
       test('emits TypingStop when the websocket stream errors', () async {
         final eventFuture = repo.events().first;
         repo.messages().listen((_) {}, onError: (_) {});
@@ -297,18 +354,6 @@ void main() {
         timestamp: DateTime.utc(2024),
         content: 'Hello',
       );
-
-      test('emits TypingStart on the events stream before sending', () async {
-        when(() => mockWebSocketService.sendSdkMessage(any()))
-            .thenAnswer((_) async => Result.ok(Unit()));
-
-        final eventFuture = repo.events().first;
-        await repo.sendMessage(textMessage);
-
-        final event = await eventFuture;
-        expect(event, isA<TypingStart>());
-        expect((event as TypingStart).statusText, equals('Writing message...'));
-      });
 
       test('delegates text messages to websocketService.sendSdkMessage',
           () async {

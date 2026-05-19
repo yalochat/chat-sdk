@@ -11,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
@@ -122,6 +123,18 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
     case _:
       return null;
   }
+}
+
+ChatEvent? pollMessageItemToChatEvent(proto.PollMessageItem item) {
+  if (item.message.whichPayload() !=
+      proto.SdkMessage_Payload.chatStatusRequest) {
+    return null;
+  }
+  final String status = item.message.chatStatusRequest.status;
+  if (status.isEmpty) {
+    return TypingStop();
+  }
+  return TypingStart(statusText: status);
 }
 
 proto.SdkMessage? chatMessageToSdkMessage(
