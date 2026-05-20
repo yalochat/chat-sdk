@@ -82,7 +82,7 @@ class ChatThemeTest {
     @Test
     fun `fromMaterialTheme preserves fontSize on assistantMessageTextStyle`() {
         val theme = ChatTheme.fromMaterialTheme(lightColorScheme())
-        assertEquals(18.sp, theme.assistantMessageTextStyle.fontSize)
+        assertEquals(SdkConstants.titleFontSize.sp, theme.assistantMessageTextStyle.fontSize)
     }
 
     @Test

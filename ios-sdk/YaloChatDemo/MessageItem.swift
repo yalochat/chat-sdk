@@ -99,7 +99,7 @@ struct MessageItem: View {
                     .cornerRadius(theme.bubbleCornerRadius)
             } else {
                 bubbleContent
-                    .padding(16)
+                    .padding(SdkConstants.messagePadding)
                     .background(bubbleColor)
                     .cornerRadius(theme.bubbleCornerRadius)
             }
@@ -115,7 +115,6 @@ struct MessageItem: View {
                     .font(theme.userMessageFont)
                     .foregroundColor(theme.userBubbleTextColor)
             } else {
-                // Proto 2.0 agent text: may carry header, footer, or inline buttons.
                 let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
                 let hasExtras = !inlineButtons.isEmpty
                     || !(message.header?.isEmpty ?? true)
@@ -142,7 +141,6 @@ struct MessageItem: View {
                         }
                     }
                 } else {
-                    // Plain agent text — no extras.
                     // foregroundColor is baked into the AttributedString for non-link runs so that
                     // links retain their distinct tint color and remain visually distinguishable.
                     Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
@@ -156,19 +154,7 @@ struct MessageItem: View {
         } else if message.type is MessageType.CTA {
             ctaContent
         } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
             Text(Translate.unsupportedMessage)
-=======
-            Text(NSLocalizedString("chat.unsupported_message_type", comment: ""))
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-            Text(L10n.unsupportedMessage)
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-            Text(Translate.unsupportedMessage)
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                 .font(.caption)
                 .italic()
                 .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
@@ -177,28 +163,6 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var imageContent: some View {
-<<<<<<< HEAD
-        if let path = message.fileName {
-            LocalFileImage(path: path, fallbackColor: bubbleColor)
-        } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
-=======
-            Label(NSLocalizedString("chat.image_unavailable", comment: ""), systemImage: theme.imagePlaceholderIconName)
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-            Label(L10n.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-            Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
-                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
-                .font(.caption)
-                .padding(12)
-                .background(bubbleColor)
-=======
         let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
         VStack(alignment: .leading, spacing: 0) {
             if let path = message.fileName {
@@ -207,23 +171,22 @@ struct MessageItem: View {
                 Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
                     .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                     .font(.caption)
-                    .padding(16)
+                    .padding(12)
                     .background(bubbleColor)
             }
             if !message.content.isEmpty {
                 Text(message.content)
                     .font(theme.agentMessageFont)
                     .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 12)
                     .padding(.top, 8)
-                    .padding(.bottom, inlineButtons.isEmpty ? 16 : 4)
+                    .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
             }
             if !inlineButtons.isEmpty {
                 inlineButtonsView(inlineButtons)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
             }
->>>>>>> 466267f (feat(kmp/ios): Proto 2.0 inline buttons on iOS + stepper optimistic updates + image/video captions)
         }
     }
 
@@ -288,7 +251,9 @@ struct MessageItem: View {
             ForEach(buttons, id: \.text) { button in
                 if button.type == ChatButtonType.link {
                     SwiftUI.Button(action: {
-                        if let urlStr = button.url, let url = URL(string: urlStr) {
+                        if let urlStr = button.url,
+                           let url = URL(string: urlStr),
+                           url.scheme == "https" || url.scheme == "http" {
                             UIApplication.shared.open(url)
                         }
                     }) {
@@ -330,28 +295,6 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var videoContent: some View {
-<<<<<<< HEAD
-        if let path = message.fileName {
-            StableVideoPlayer(path: path)
-        } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            Label(Translate.videoUnavailable, systemImage: "video")
-=======
-            Label(NSLocalizedString("chat.video_unavailable", comment: ""), systemImage: "video")
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-            Label(L10n.videoUnavailable, systemImage: "video")
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-            Label(Translate.videoUnavailable, systemImage: "video")
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
-                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
-                .font(.caption)
-                .padding(12)
-                .background(bubbleColor)
-=======
         let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
         VStack(alignment: .leading, spacing: 0) {
             if let path = message.fileName {
@@ -360,23 +303,22 @@ struct MessageItem: View {
                 Label(Translate.videoUnavailable, systemImage: "video")
                     .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                     .font(.caption)
-                    .padding(16)
+                    .padding(12)
                     .background(bubbleColor)
             }
             if !message.content.isEmpty {
                 Text(message.content)
                     .font(theme.agentMessageFont)
                     .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 12)
                     .padding(.top, 8)
-                    .padding(.bottom, inlineButtons.isEmpty ? 16 : 4)
+                    .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
             }
             if !inlineButtons.isEmpty {
                 inlineButtonsView(inlineButtons)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 16)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
             }
->>>>>>> 466267f (feat(kmp/ios): Proto 2.0 inline buttons on iOS + stepper optimistic updates + image/video captions)
         }
     }
 

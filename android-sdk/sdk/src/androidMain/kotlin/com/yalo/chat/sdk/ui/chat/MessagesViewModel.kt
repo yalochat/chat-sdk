@@ -265,13 +265,6 @@ internal class MessagesViewModel(
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    // Mirrors Flutter's _handleRetryMessage.
->>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
-=======
->>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
     private fun retryMessage(messageId: Long) {
         val msg = _state.value.messages.find { it.id == messageId } ?: return
         if (msg.status != MessageStatus.ERROR) return

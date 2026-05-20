@@ -80,7 +80,7 @@ object YaloChat {
         val imageRepo: ImagePickerRepository = ImageRepositoryLocal(context.applicationContext)
         val audioRepo = AudioRepositoryLocal(context.applicationContext)
 
-        if (BuildConfig.USE_FAKE_REPOSITORY) {
+        if (config.useFakeRepository || BuildConfig.USE_FAKE_REPOSITORY) {
             // Fake mode: the fake repo is a dev/test stub and does not execute real cart ops.
             // Re-buffer savedCommands so they are not lost — they will flush on the next real init().
             pendingCommands.putAll(savedCommands)
@@ -115,14 +115,15 @@ object YaloChat {
             channelId = config.channelId,
             organizationId = config.organizationId,
             httpClient = httpClient,
-            tokenStorage = AndroidTokenStorage(context, config.channelId),
+            tokenStorage = AndroidTokenStorage(context, config.channelId, config.userId),
             externalUserId = config.userId,
         )
 
+        val dbName = "chat_${config.channelId}${config.userId?.let { "_$it" } ?: ""}.db"
         val driver = AndroidSqliteDriver(
             schema = ChatDatabase.Schema,
             context = context.applicationContext,
-            name = "chat.db",
+            name = dbName,
             callback = AndroidSqliteDriver.Callback(ChatDatabase.Schema),
         )
         _driver = driver

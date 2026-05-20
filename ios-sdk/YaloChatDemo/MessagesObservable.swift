@@ -161,13 +161,6 @@ class MessagesObservable: ObservableObject {
         )
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    // Mirrors Flutter's ChatRetryMessage: re-sends an ERROR-status message.
->>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
-=======
->>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
     func retryMessage(messageId: Int64) {
         controller?.retryMessage(messageId: messageId)
     }

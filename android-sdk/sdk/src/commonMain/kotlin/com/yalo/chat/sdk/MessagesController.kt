@@ -40,9 +40,6 @@ class MessagesController internal constructor(
     // Latest messages snapshot — kept in sync by start() so updateProductQuantity can
     // find and patch a message without an extra DB round-trip.
     private var cachedMessages: List<ChatMessage> = emptyList()
-    // Stored so optimistic mutations can push updates immediately without waiting for the
-    // observeMessages() DB round-trip (e.g. product stepper taps feel instant on iOS).
-    private var onMessagesUpdate: ((List<ChatMessage>) -> Unit)? = null
 
     private fun nextTempId(): Long {
         val now = Clock.System.now().toEpochMilliseconds()
@@ -52,7 +49,6 @@ class MessagesController internal constructor(
 
     fun start(onMessagesUpdate: (List<ChatMessage>) -> Unit) {
         if (scope != null) return
-        this.onMessagesUpdate = onMessagesUpdate
         val s = CoroutineScope(SupervisorJob() + mainDispatcher)
         scope = s
         syncService.start(s)
@@ -70,7 +66,6 @@ class MessagesController internal constructor(
         eventsJob = null
         scope?.cancel()
         scope = null
-        onMessagesUpdate = null
     }
 
     fun loadMessages(onComplete: ((Boolean) -> Unit)? = null) {
@@ -81,9 +76,6 @@ class MessagesController internal constructor(
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     fun retryMessage(messageId: Long) {
         val s = scope ?: return
         s.launch {
@@ -91,37 +83,6 @@ class MessagesController internal constructor(
             if (msg.status != MessageStatus.ERROR) return@launch
             val retrying = msg.copy(status = MessageStatus.SENT)
             cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
-<<<<<<< HEAD
-=======
-    // Mirrors Flutter's _handleFetchMessages: loads the next page using the oldest
-    // displayed message id as the cursor. Swift calls this when the user scrolls to the top.
-=======
-    // Not currently called by iOS, which slices in-memory. Available for DB-level cursor pagination.
->>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
-    fun loadMoreMessages(cursor: Long, onComplete: ((Boolean) -> Unit)? = null) {
-        val s = scope ?: return
-        s.launch {
-            val ok = localRepo.getMessages(cursor = cursor, limit = 30) is Result.Ok
-            onComplete?.invoke(ok)
-        }
-    }
-
-=======
->>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
-    fun retryMessage(messageId: Long) {
-        val s = scope ?: return
-        s.launch {
-<<<<<<< HEAD
->>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
-=======
-            val msg = cachedMessages.find { it.id == messageId } ?: return@launch
-            if (msg.status != MessageStatus.ERROR) return@launch
-            val retrying = msg.copy(status = MessageStatus.SENT)
-            cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
->>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
-=======
-            onMessagesUpdate?.invoke(cachedMessages)
->>>>>>> 466267f (feat(kmp/ios): Proto 2.0 inline buttons on iOS + stepper optimistic updates + image/video captions)
             localRepo.updateMessage(retrying)
             if (yaloRepo.sendMessage(retrying) is Result.Error) {
                 localRepo.updateMessage(retrying.copy(status = MessageStatus.ERROR))
@@ -248,7 +209,6 @@ class MessagesController internal constructor(
         )
         if (!productFound) return
         cachedMessages = cachedMessages.map { if (it.id == messageId) updatedMsg else it }
-        onMessagesUpdate?.invoke(cachedMessages)
         val delta = maxOf(quantity, 0.0) - previousValue
         val unitType = if (isSubunit) UnitType.SUBUNIT else UnitType.UNIT
         s.launch {

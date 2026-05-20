@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import com.yalo.chat.sdk.ui.theme.SdkConstants
 import android.media.MediaMetadataRetriever
 import android.widget.VideoView
 import androidx.compose.foundation.Image
@@ -119,7 +120,7 @@ internal fun MessageItem(
             contentColor = contentColor,
             modifier = Modifier.widthIn(max = (screenWidthDp * if (isUser) 0.8f else 0.9f).dp),
         ) {
-            Box(modifier = Modifier.padding(16.dp)) {
+            Box(modifier = Modifier.padding(SdkConstants.messagePadding.dp)) {
                 when (message.type) {
                     MessageType.Text,
                     MessageType.QuickReply -> {

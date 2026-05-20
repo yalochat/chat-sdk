@@ -9,34 +9,15 @@ import kotlin.math.max
 // merged so the older half of the recording lives in the first half of the buffer and
 // the stride for new samples doubles. Memory stays O(binCount) regardless of recording
 // length, and snapshot() always spans the entire recording uniformly.
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-//
-// Mirrors Flutter WaveformCompressor introduced in PR #146.
->>>>>>> 04f0e4f (feat(kmp/ios/android): WaveformCompressor — streaming max-pool waveform (PR #146 parity))
-=======
->>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
 internal class WaveformCompressor(
     val binCount: Int,
     val defaultValue: Double = -30.0,
 ) {
-<<<<<<< HEAD
-<<<<<<< HEAD
     init {
         // halve() merges pairs — an odd binCount silently drops the last bin.
         require(binCount >= 0 && binCount % 2 == 0) { "binCount must be even and non-negative (got $binCount)" }
     }
 
-=======
->>>>>>> 04f0e4f (feat(kmp/ios/android): WaveformCompressor — streaming max-pool waveform (PR #146 parity))
-=======
-    init {
-        // halve() merges pairs — an odd binCount silently drops the last bin.
-        require(binCount >= 0 && binCount % 2 == 0) { "binCount must be even and non-negative (got $binCount)" }
-    }
-
->>>>>>> 7000b50 (fix(kmp/ios/android): address code review findings — token scoping, persistence, waveform guard, auth timestamp)
     private val bins = DoubleArray(binCount) { defaultValue }
     private var writeIdx = 0
     private var stride = 1

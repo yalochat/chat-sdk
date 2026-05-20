@@ -21,7 +21,7 @@ struct ChatAppBar: View {
                 iconImage
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 50, height: 50)
+                    .frame(width: SdkConstants.imageIconSize, height: SdkConstants.imageIconSize)
                     .clipShape(Circle())
             }
 

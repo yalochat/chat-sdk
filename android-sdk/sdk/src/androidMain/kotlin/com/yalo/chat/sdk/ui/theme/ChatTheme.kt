@@ -104,7 +104,7 @@ data class ChatTheme(
     val ctaButtonForegroundColor: Color = Color(0xFF111111),
     // ── Text styles ───────────────────────────────────────────────────────────
     val userMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
-    val assistantMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 18.sp),
+    val assistantMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = SdkConstants.titleFontSize.sp),
     val modalHeaderStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 18.sp, fontWeight = FontWeight.Bold),
     val hintTextStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE)),
     val timerTextStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
@@ -129,7 +129,7 @@ data class ChatTheme(
      * Declared as [CornerBasedShape] (covers [RoundedCornerShape], `CutCornerShape`, etc.)
      * so that Compose's stability analysis can verify the field is immutable.
      */
-    val bubbleShape: CornerBasedShape = RoundedCornerShape(16.dp),
+    val bubbleShape: CornerBasedShape = RoundedCornerShape(SdkConstants.messageBorderRadius.dp),
     // ── Image ─────────────────────────────────────────────────────────────────
     /** Optional URL for the channel avatar displayed in the app bar. Loaded by Coil. */
     val chatIconImage: String? = null,
@@ -174,7 +174,7 @@ data class ChatTheme(
             waveColor = colorScheme.primary,
             actionIconColor = colorScheme.onSurface,
             userMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = 16.sp),
-            assistantMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = 18.sp),
+            assistantMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = SdkConstants.titleFontSize.sp),
             hintTextStyle = TextStyle(color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f)),
             inputTextFieldColor = colorScheme.surface,
             inputTextFieldBorderColor = colorScheme.outline,

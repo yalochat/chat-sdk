@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import com.yalo.chat.sdk.ui.theme.SdkConstants
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -56,7 +57,7 @@ internal fun ChatAppBar(
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(50.dp)
+                            .size(SdkConstants.imageIconSize.dp)
                             .clip(CircleShape),
                     )
                     Spacer(modifier = Modifier.width(8.dp))

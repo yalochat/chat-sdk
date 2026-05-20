@@ -8,6 +8,7 @@ package com.yalo.chat.sdk.ui.chat
 // ProductVerticalCard — image top, details below (Column layout).
 //   Used by ProductCarouselMessage (horizontal carousel).
 
+import com.yalo.chat.sdk.ui.theme.SdkConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +44,7 @@ private fun ProductPriceRow(product: Product) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .background(theme.productPriceBackgroundColor, RoundedCornerShape(33.dp))
+                .background(theme.productPriceBackgroundColor, RoundedCornerShape(SdkConstants.productPriceBorderRadius.dp))
                 .padding(horizontal = 6.dp, vertical = 2.dp),
         ) {
             Icon(
@@ -77,7 +78,7 @@ private fun ProductImage(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalChatTheme.current
-    Box(modifier = modifier.clip(RoundedCornerShape(2.dp))) {
+    Box(modifier = modifier.clip(RoundedCornerShape(SdkConstants.productImageBorderRadius.dp))) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier

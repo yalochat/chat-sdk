@@ -7,15 +7,16 @@ import android.content.SharedPreferences
 import com.yalo.chat.sdk.data.remote.TokenStorage
 
 // Stores auth tokens in app-private SharedPreferences (MODE_PRIVATE — inaccessible to
-// other apps without root). Scoped to channelId so re-init with a different channel never
-// loads a token issued for the previous channel. Mirrors KeychainTokenStorage on iOS.
+// other apps without root). Scoped to channelId+userId so re-init with a different channel
+// or user never loads a token issued for a previous session.
 internal class AndroidTokenStorage(
     context: Context,
     channelId: String,
+    userId: String? = null,
 ) : TokenStorage {
 
     private val prefs: SharedPreferences = context.applicationContext.getSharedPreferences(
-        "yalo_chat_sdk_tokens_$channelId",
+        "yalo_chat_sdk_tokens_${channelId}${userId?.let { "_$it" } ?: ""}",
         Context.MODE_PRIVATE,
     )
 

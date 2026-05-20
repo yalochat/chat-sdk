@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import com.yalo.chat.sdk.ui.theme.SdkConstants
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,7 +31,7 @@ internal fun QuickReplyChip(
     OutlinedButton(
         onClick = onClick,
         modifier = Modifier.widthIn(max = maxChipWidth),
-        shape = RoundedCornerShape(25.dp),
+        shape = RoundedCornerShape(SdkConstants.inputBorderRadius.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = theme.quickReplyColor,
             contentColor = theme.quickReplyStyle.color,

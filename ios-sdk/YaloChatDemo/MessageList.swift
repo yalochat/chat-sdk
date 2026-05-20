@@ -19,19 +19,7 @@ struct MessageList: View {
                             ProgressView()
                                 .padding(.top, 32)
                         } else {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                             Text(Translate.noMessagesYet)
-=======
-                            Text(NSLocalizedString("chat.no_messages_yet", comment: ""))
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-                            Text(L10n.noMessagesYet)
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-                            Text(Translate.noMessagesYet)
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                                 .foregroundColor(theme.messageFooterColor)
                                 .padding(.top, 32)
                         }
@@ -39,15 +27,7 @@ struct MessageList: View {
                         if observable.hasMoreMessages {
                             ProgressView()
                                 .padding(.top, 8)
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 .id(observable.messages.first?.stableListId ?? "top")
-=======
-                                .id(observable.messages.count)
->>>>>>> 5f4db62 (fix: address Copilot review — pagination stall, auth timestamp comment, dead code comment, remove noisy comments)
-=======
-                                .id(observable.messages.first?.stableListId ?? "top")
->>>>>>> 62ffe04 (fix: address Copilot review — remove dead loadMoreMessages, thread-safe retryMessage, keychain ThisDeviceOnly, delete unused YaloAuthRequest, fix pagination window on new arrivals)
                                 .onAppear { observable.loadMoreMessages() }
                         }
                         ForEach(Array(observable.messages.enumerated()), id: \.element.stableListId) { _, message in

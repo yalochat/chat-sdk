@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.ui.chat
 
+import com.yalo.chat.sdk.ui.theme.SdkConstants
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -50,7 +51,7 @@ internal fun ChatInput(
             modifier = Modifier.weight(1f),
             placeholder = { Text("Type a message…", style = theme.hintTextStyle) },
             singleLine = true,
-            shape = RoundedCornerShape(25.dp),
+            shape = RoundedCornerShape(SdkConstants.inputBorderRadius.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = theme.inputTextFieldColor,
                 focusedContainerColor = theme.inputTextFieldColor,

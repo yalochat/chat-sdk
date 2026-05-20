@@ -47,19 +47,7 @@ struct ChatInput: View {
                             .padding(.leading, 4)
                     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                     TextField(Translate.inputPlaceholder, text: $messagesObservable.userMessage)
-=======
-                    TextField(NSLocalizedString("chat.input_placeholder", comment: ""), text: $messagesObservable.userMessage)
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-                    TextField(L10n.inputPlaceholder, text: $messagesObservable.userMessage)
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-                    TextField(Translate.inputPlaceholder, text: $messagesObservable.userMessage)
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(theme.inputBackgroundColor)
@@ -76,39 +64,12 @@ struct ChatInput: View {
                 .padding(.vertical, 8)
             }
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         .confirmationDialog(Translate.attachImageTitle, isPresented: $imageObservable.showSourceSheet) {
             Button(Translate.photoLibrary) { imageObservable.showGallery = true }
             if UIImagePickerController.isSourceTypeAvailable(.camera) {
                 Button(Translate.camera) { imageObservable.showCamera = true }
             }
             Button(Translate.cancel, role: .cancel) {}
-=======
-        .confirmationDialog(NSLocalizedString("chat.attach_image_title", comment: ""), isPresented: $imageObservable.showSourceSheet) {
-            Button(NSLocalizedString("chat.photo_library", comment: "")) { imageObservable.showGallery = true }
-=======
-        .confirmationDialog(L10n.attachImageTitle, isPresented: $imageObservable.showSourceSheet) {
-            Button(L10n.photoLibrary) { imageObservable.showGallery = true }
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-        .confirmationDialog(Translate.attachImageTitle, isPresented: $imageObservable.showSourceSheet) {
-            Button(Translate.photoLibrary) { imageObservable.showGallery = true }
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
-            if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                Button(Translate.camera) { imageObservable.showCamera = true }
-            }
-<<<<<<< HEAD
-<<<<<<< HEAD
-            Button(NSLocalizedString("chat.cancel", comment: ""), role: .cancel) {}
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-            Button(L10n.cancel, role: .cancel) {}
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-            Button(Translate.cancel, role: .cancel) {}
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
         }
         .sheet(isPresented: $imageObservable.showGallery) {
             PHPickerRepresentable(imageObservable: imageObservable)

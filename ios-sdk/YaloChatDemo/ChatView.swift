@@ -16,19 +16,7 @@ struct ChatView: View {
     var body: some View {
         VStack(spacing: 0) {
             ChatAppBar(
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
                 channelName: YaloChatSdk.shared.config?.channelName ?? Translate.defaultChannelName,
-=======
-                channelName: YaloChatSdk.shared.config?.channelName ?? NSLocalizedString("chat.default_channel_name", comment: ""),
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-                channelName: YaloChatSdk.shared.config?.channelName ?? L10n.defaultChannelName,
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-                channelName: YaloChatSdk.shared.config?.channelName ?? Translate.defaultChannelName,
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
                 typingStatusText: observable.typingStatusText,
                 isTyping: observable.isTyping,
                 onShopPressed: YaloChat.onShopPressed,

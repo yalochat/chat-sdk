@@ -29,23 +29,7 @@ class ImageObservable: ObservableObject {
             pickedImagePath = url.path
             mimeType = "image/jpeg"
         } catch {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
             errorMessage = Translate.imageSaveError
-=======
-            errorMessage = "Failed to save image. Please try again."
->>>>>>> 5502f3a (feat(kmp/ios/android): Flutter parity gaps — message retry, load-more cursor, lifecycle pause/resume, image error state)
-=======
-            errorMessage = NSLocalizedString("chat.image_save_error", comment: "")
->>>>>>> a9a5724 (feat(kmp/ios): M9 close — action callbacks, error callback, Localizable.strings)
-=======
-            errorMessage = L10n.imageSaveError
->>>>>>> ed97e13 (refactor(ios): introduce L10n enum — centralize localized strings, wrap NSLocalizedString)
-=======
-            errorMessage = Translate.imageSaveError
->>>>>>> 8a4d48f (refactor(ios): rename L10n → Translate to match Flutter's naming convention)
         }
     }
 
