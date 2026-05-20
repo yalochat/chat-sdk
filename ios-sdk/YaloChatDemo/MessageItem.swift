@@ -16,6 +16,7 @@ struct MessageItem: View {
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
+    @State private var containerWidth: CGFloat = 390
 
     private var isUser: Bool { message.role === MessageRole.user }
 
@@ -38,6 +39,13 @@ struct MessageItem: View {
                     Spacer(minLength: 48)
                 }
             }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { containerWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { containerWidth = $0 }
+                }
+            )
         }
     }
 
@@ -91,11 +99,12 @@ struct MessageItem: View {
                     .cornerRadius(theme.bubbleCornerRadius)
             } else {
                 bubbleContent
-                    .padding(12)
+                    .padding(16)
                     .background(bubbleColor)
                     .cornerRadius(theme.bubbleCornerRadius)
             }
         }
+        .frame(maxWidth: containerWidth * (isUser ? 0.8 : 0.9))
     }
 
     @ViewBuilder
@@ -107,7 +116,6 @@ struct MessageItem: View {
                     .foregroundColor(theme.userBubbleTextColor)
             } else {
                 // Proto 2.0 agent text: may carry header, footer, or inline buttons.
-                // When present, render the full column layout (mirrors Android MessageItem.kt:124-161).
                 let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
                 let hasExtras = !inlineButtons.isEmpty
                     || !(message.header?.isEmpty ?? true)
@@ -199,21 +207,21 @@ struct MessageItem: View {
                 Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
                     .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                     .font(.caption)
-                    .padding(12)
+                    .padding(16)
                     .background(bubbleColor)
             }
             if !message.content.isEmpty {
                 Text(message.content)
                     .font(theme.agentMessageFont)
                     .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
-                    .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
+                    .padding(.bottom, inlineButtons.isEmpty ? 16 : 4)
             }
             if !inlineButtons.isEmpty {
                 inlineButtonsView(inlineButtons)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
             }
 >>>>>>> 466267f (feat(kmp/ios): Proto 2.0 inline buttons on iOS + stepper optimistic updates + image/video captions)
         }
@@ -352,21 +360,21 @@ struct MessageItem: View {
                 Label(Translate.videoUnavailable, systemImage: "video")
                     .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
                     .font(.caption)
-                    .padding(12)
+                    .padding(16)
                     .background(bubbleColor)
             }
             if !message.content.isEmpty {
                 Text(message.content)
                     .font(theme.agentMessageFont)
                     .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 16)
                     .padding(.top, 8)
-                    .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
+                    .padding(.bottom, inlineButtons.isEmpty ? 16 : 4)
             }
             if !inlineButtons.isEmpty {
                 inlineButtonsView(inlineButtons)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 12)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
             }
 >>>>>>> 466267f (feat(kmp/ios): Proto 2.0 inline buttons on iOS + stepper optimistic updates + image/video captions)
         }

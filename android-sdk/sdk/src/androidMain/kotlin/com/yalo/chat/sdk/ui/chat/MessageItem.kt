@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.MaterialTheme
@@ -85,6 +86,7 @@ internal fun MessageItem(
         return
     }
 
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp
     val bubbleColor = if (isUser) theme.userBubbleColor else theme.agentBubbleColor
     val roleTextStyle = if (isUser) theme.userMessageTextStyle else theme.assistantMessageTextStyle
     // Merge with bodyMedium so a partial override (e.g. only color) preserves base font
@@ -115,9 +117,9 @@ internal fun MessageItem(
             shape = theme.bubbleShape,
             color = bubbleColor,
             contentColor = contentColor,
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = (screenWidthDp * if (isUser) 0.8f else 0.9f).dp),
         ) {
-            Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Box(modifier = Modifier.padding(16.dp)) {
                 when (message.type) {
                     MessageType.Text,
                     MessageType.QuickReply -> {

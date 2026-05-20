@@ -4,6 +4,7 @@ package com.yalo.chat.sdk.ui.chat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -24,12 +25,12 @@ internal fun QuickReplyChip(
     onClick: () -> Unit,
 ) {
     val theme = LocalChatTheme.current
-    // Mirror Flutter's BoxConstraints(maxWidth: size.width * 0.5).
     val maxChipWidth = (LocalConfiguration.current.screenWidthDp * 0.5).dp
 
     OutlinedButton(
         onClick = onClick,
         modifier = Modifier.widthIn(max = maxChipWidth),
+        shape = RoundedCornerShape(25.dp),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = theme.quickReplyColor,
             contentColor = theme.quickReplyStyle.color,

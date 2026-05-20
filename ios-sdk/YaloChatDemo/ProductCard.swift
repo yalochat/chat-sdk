@@ -28,7 +28,7 @@ struct ProductHorizontalCard: View {
             ProductImage(urlString: product.imagesUrl.first)
                 .frame(width: imageWidth, height: imageWidth * 4 / 3)
                 .clipped()
-                .cornerRadius(8)
+                .cornerRadius(2)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(product.name)
@@ -87,7 +87,7 @@ struct ProductVerticalCard: View {
                 .frame(maxWidth: .infinity)
                 .aspectRatio(4 / 3, contentMode: .fill)
                 .clipped()
-                .cornerRadius(8)
+                .cornerRadius(2)
 
             ProductPriceRow(product: product)
 
@@ -144,7 +144,7 @@ private struct ProductPriceRow: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(theme.productPriceBackgroundColor)
-            .cornerRadius(4)
+            .cornerRadius(33)
 
             if salePrice != nil {
                 Text(formatPrice(product.price))

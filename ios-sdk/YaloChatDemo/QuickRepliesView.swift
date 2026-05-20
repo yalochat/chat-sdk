@@ -39,7 +39,7 @@ private struct QuickReplyChip: View {
                 .padding(.vertical, 8)
                 .background(theme.quickReplyBackgroundColor)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 25)
                         .stroke(theme.quickReplyBorderColor, lineWidth: 1)
                 )
         }

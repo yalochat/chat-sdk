@@ -56,7 +56,7 @@ internal fun ChatAppBar(
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(50.dp)
                             .clip(CircleShape),
                     )
                     Spacer(modifier = Modifier.width(8.dp))

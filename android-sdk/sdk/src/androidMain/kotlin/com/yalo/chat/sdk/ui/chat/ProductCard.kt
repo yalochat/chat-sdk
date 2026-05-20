@@ -43,7 +43,7 @@ private fun ProductPriceRow(product: Product) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .background(theme.productPriceBackgroundColor, RoundedCornerShape(4.dp))
+                .background(theme.productPriceBackgroundColor, RoundedCornerShape(33.dp))
                 .padding(horizontal = 6.dp, vertical = 2.dp),
         ) {
             Icon(
@@ -77,7 +77,7 @@ private fun ProductImage(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalChatTheme.current
-    Box(modifier = modifier.clip(RoundedCornerShape(8.dp))) {
+    Box(modifier = modifier.clip(RoundedCornerShape(2.dp))) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
