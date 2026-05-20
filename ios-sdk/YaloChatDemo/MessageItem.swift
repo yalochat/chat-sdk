@@ -52,12 +52,15 @@ struct MessageItem: View {
     @ViewBuilder
     private var errorIndicator: some View {
         if isUser && message.status === MessageStatus.error {
-            Image(systemName: theme.errorIconName)
-                .foregroundColor(theme.errorColor)
-                .font(.caption)
-                .onTapGesture {
-                    if let id = message.id?.int64Value { onRetry(id) }
-                }
+            Button {
+                if let id = message.id?.int64Value { onRetry(id) }
+            } label: {
+                Image(systemName: theme.errorIconName)
+                    .foregroundColor(theme.errorColor)
+                    .font(.caption)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Translate.retry)
         }
     }
 
@@ -248,7 +251,7 @@ struct MessageItem: View {
     @ViewBuilder
     private func inlineButtonsView(_ buttons: [ChatButton]) -> some View {
         VStack(spacing: 6) {
-            ForEach(buttons, id: \.text) { button in
+            ForEach(Array(buttons.enumerated()), id: \.offset) { _, button in
                 if button.type == ChatButtonType.link {
                     SwiftUI.Button(action: {
                         if let urlStr = button.url,

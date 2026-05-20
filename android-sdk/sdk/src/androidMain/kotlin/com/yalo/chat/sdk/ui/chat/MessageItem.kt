@@ -104,15 +104,17 @@ internal fun MessageItem(
         verticalAlignment = Alignment.Bottom,
     ) {
         if (isUser && message.status == MessageStatus.ERROR) {
-            androidx.compose.material3.Icon(
-                imageVector = theme.errorIcon,
-                contentDescription = "Send failed",
-                tint = theme.errorColor,
-                modifier = Modifier
-                    .size(16.dp)
-                    .padding(end = 4.dp)
-                    .clickable { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } },
-            )
+            androidx.compose.material3.IconButton(
+                onClick = { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } },
+                modifier = Modifier.size(48.dp),
+            ) {
+                androidx.compose.material3.Icon(
+                    imageVector = theme.errorIcon,
+                    contentDescription = "Send failed",
+                    tint = theme.errorColor,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
         }
         Surface(
             shape = theme.bubbleShape,
