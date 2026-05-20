@@ -832,7 +832,7 @@ describe('YaloMessageRepositoryRemote', () => {
   });
 
   describe('unsubscribeMessages', () => {
-    it('forwards to the underlying service', () => {
+    it('unsubscribes from the underlying service', () => {
       const { service } = okService();
       const repo = new YaloMessageRepositoryRemote(service, okMedia());
 

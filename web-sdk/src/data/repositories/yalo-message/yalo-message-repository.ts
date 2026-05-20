@@ -34,6 +34,6 @@ export abstract class YaloMessageRepository {
   // via callback
   abstract subscribeToMessages(callback: PollCallback): void;
 
-  // Unsubscribe from the message polling
+  // Unsubscribe from the message stream
   abstract unsubscribeMessages(): void;
 }

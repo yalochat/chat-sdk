@@ -148,9 +148,9 @@ describe('ChatMessageRepositoryLocal', () => {
     });
   });
 
-  describe('close', () => {
+  describe('dispose', () => {
     it('closes the database so subsequent operations fail', async () => {
-      await repo.close();
+      await repo.dispose();
       const result = await repo.insertChatMessage(makeMessage());
       expect(result).toBeInstanceOf(Err);
     });

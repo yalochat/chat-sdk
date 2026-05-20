@@ -77,7 +77,7 @@ const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
     '.chat-action-button'
   ) as unknown as HTMLButtonElement;
 
-const DB_NAME = 'YaloChatMessages';
+const DB_NAME = `YaloChatMessages-${baseConfig.organizationId}-${baseConfig.channelId}-${baseConfig.target}`;
 
 const clearDb = (): Promise<void> =>
   new Promise((resolve, reject) => {

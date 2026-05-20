@@ -17,4 +17,7 @@ export interface ChatMessageRepository {
 
   // Replaces an existing message by id.
   replaceChatMessage(message: ChatMessage): Promise<Result<boolean>>;
+
+  // Releases the underlying storage resources held by the repository.
+  dispose(): Promise<void>;
 }

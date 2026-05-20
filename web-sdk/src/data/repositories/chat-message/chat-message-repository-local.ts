@@ -30,7 +30,7 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
     this.db = db;
   }
 
-  async close(): Promise<void> {
+  async dispose(): Promise<void> {
     this.db.close();
   }
 
