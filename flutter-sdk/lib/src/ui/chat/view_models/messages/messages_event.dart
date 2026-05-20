@@ -21,12 +21,6 @@ final class ChatLoadMessages extends MessagesEvent with EquatableMixin {
   List<Object?> get props => [direction];
 }
 
-// Event that is emitted to subscribe to yalo messages events
-final class ChatSubscribeToEvents extends MessagesEvent with EquatableMixin {
-  @override
-  List<Object?> get props => [];
-}
-
 // Event that is emitted to subscribe to yalo messages messages
 final class ChatSubscribeToMessages extends MessagesEvent with EquatableMixin {
   @override

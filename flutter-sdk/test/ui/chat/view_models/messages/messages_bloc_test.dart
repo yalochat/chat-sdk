@@ -10,7 +10,6 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/chat_message/chat_me
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/audio/audio_data.dart';
-import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_event/chat_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/button.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/image/image_data.dart';
@@ -1485,8 +1484,8 @@ void main() {
       );
     });
 
-    group('subscribe chat events', () {
-      late StreamController<ChatEvent> fakeStream;
+    group('chat status from messages stream', () {
+      late StreamController<ChatMessage> fakeStream;
       setUp(() {
         fakeStream = StreamController();
       });
@@ -1496,17 +1495,24 @@ void main() {
       });
 
       blocTest<MessagesBloc, MessagesState>(
-        'should emit status text when the repository sends start typing messages events from yalo message',
+        'should update the header when a chat status message arrives and clear it on an empty status',
         build: () => bloc,
         act: (bloc) {
           when(
-            () => yaloMessageRepository.events(),
+            () => yaloMessageRepository.messages(),
           ).thenAnswer((_) => fakeStream.stream.asBroadcastStream());
 
-          bloc.add(ChatSubscribeToEvents());
+          bloc.add(ChatSubscribeToMessages());
 
-          fakeStream.sink.add(TypingStart(statusText: 'Writing a message..'));
-          fakeStream.sink.add(TypingStop());
+          fakeStream.sink.add(
+            ChatMessage.chatStatus(
+              timestamp: clock.now(),
+              content: 'Writing a message..',
+            ),
+          );
+          fakeStream.sink.add(
+            ChatMessage.chatStatus(timestamp: clock.now()),
+          );
         },
         expect: () => [
           isA<MessagesState>()
