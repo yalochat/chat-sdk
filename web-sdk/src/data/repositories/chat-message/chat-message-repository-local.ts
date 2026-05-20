@@ -102,9 +102,26 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
           'readwrite'
         );
         const store = tx.objectStore(ChatMessageRepositoryLocal._STORE_NAME);
-        const request = store.add(data);
-        request.onsuccess = () => resolve(request.result as number);
-        request.onerror = () => reject(request.error);
+
+        if (data.wiId === undefined) {
+          const addReq = store.add(data);
+          addReq.onsuccess = () => resolve(addReq.result as number);
+          addReq.onerror = () => reject(addReq.error);
+          return;
+        }
+
+        const existingReq = store.index('wiId').get(data.wiId);
+        existingReq.onsuccess = () => {
+          const existing = existingReq.result as ChatMessageData | undefined;
+          if (existing) {
+            resolve(existing.id);
+            return;
+          }
+          const addReq = store.add(data);
+          addReq.onsuccess = () => resolve(addReq.result as number);
+          addReq.onerror = () => reject(addReq.error);
+        };
+        existingReq.onerror = () => reject(existingReq.error);
       });
 
       return new Ok(new ChatMessage({ ...message, id }));

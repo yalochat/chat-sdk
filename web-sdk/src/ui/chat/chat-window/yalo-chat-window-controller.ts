@@ -33,8 +33,8 @@ export default class YaloChatWindowController implements ReactiveController {
   private readonly _DB_VERSION = 2;
 
   private _openDb(): Promise<IDBDatabase> {
-    const { organizationId, channelId, target } = this.host.config;
-    const dbName = `YaloChatMessages-${organizationId}-${channelId}-${target}`;
+    const { organizationId, channelId, userId } = this.host.config;
+    const dbName = `YaloChatMessages-${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(dbName, this._DB_VERSION);
 
