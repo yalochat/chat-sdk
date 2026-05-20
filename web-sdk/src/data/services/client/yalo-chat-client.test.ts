@@ -131,6 +131,29 @@ describe('YaloChatClient', () => {
       client.open();
       expect(getChatWindow().openContext).toBeUndefined();
     });
+
+    it('invokes the onOpen handler after opening', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const onOpen = vi.fn(() => {
+        expect(getChatWindow().open).toBe(true);
+      });
+      client.init({ onOpen });
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.open();
+      expect(onOpen).toHaveBeenCalledOnce();
+    });
+
+    it('does not invoke onOpen until open is called', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const onOpen = vi.fn();
+      client.init({ onOpen });
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      expect(onOpen).not.toHaveBeenCalled();
+    });
   });
 
   describe('registerCommand', () => {
@@ -198,6 +221,90 @@ describe('YaloChatClient', () => {
       client.open();
       client.close();
       expect(getChatWindow().open).toBe(false);
+    });
+
+    it('invokes the onClose handler after closing programmatically', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const onClose = vi.fn(() => {
+        expect(getChatWindow().open).toBe(false);
+      });
+      client.init({ onClose });
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.open();
+      client.close();
+      expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it('invokes the onClose handler when closed via the yalo-chat-close event', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const onClose = vi.fn();
+      client.init({ onClose });
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.open();
+      getChatWindow().dispatchEvent(new Event('yalo-chat-close'));
+      expect(onClose).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('dispose', () => {
+    it('removes the chat window from the DOM', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.dispose();
+      expect(document.querySelector('yalo-chat-window')).toBeNull();
+    });
+
+    it('clears the chatWindowEl reference', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.dispose();
+      expect(client.chatWindowEl).toBeNull();
+    });
+
+    it('unsubscribes the message stream', async () => {
+      const { YaloMessageRepositoryRemote } = await import(
+        '@data/repositories/yalo-message/yalo-message-repository-remote'
+      );
+      const unsubscribeSpy = vi.spyOn(
+        YaloMessageRepositoryRemote.prototype,
+        'unsubscribeMessages'
+      );
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.dispose();
+      expect(unsubscribeSpy).toHaveBeenCalled();
+    });
+
+    it('is safe to call before init', () => {
+      const client = new YaloChatClient(baseConfig);
+      expect(() => client.dispose()).not.toThrow();
+    });
+
+    it('allows re-initializing after dispose', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.dispose();
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      expect(targetEl.querySelector('yalo-chat-window')).not.toBeNull();
     });
   });
 });

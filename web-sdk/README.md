@@ -159,7 +159,8 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 
 | Method | Description |
 |--------|-------------|
-| `client.init()` | Initializes the chat widget and attaches it inside the target element. The chat starts hidden. |
+| `client.init(options?)` | Initializes the chat widget and attaches it inside the target element. The chat starts hidden. `options.onOpen` runs every time the chat opens, `options.onClose` runs every time it closes (whether the user pressed the close button or your code called `close()`). |
 | `client.open()` | Shows the chat window. Uses the `openContext` from the config. |
 | `client.close()` | Hides the chat window. |
 | `client.registerCommand(command, callback)` | Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)) |
+| `client.dispose()` | Removes the chat widget from the page and releases its resources (closes the message stream and clears pending timers). Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal. |

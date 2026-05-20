@@ -40,18 +40,19 @@
         channelName: 'Chat Demo', // Your channel name that will appear in the bot chat
         image: '/oris-icon.svg',
         target: 'yalo-chat',
-        userId: 'test-user-1', // Optional: identify the user with your own ID
+        userId: '', // Optional: identify the user with your own ID
       });
-      client.init();
-
       const fab = document.getElementById('chat-fab');
+      client.init({
+        onOpen: () => fab.classList.add('open'),
+        onClose: () => fab.classList.remove('open'),
+      });
+
       fab.addEventListener('click', () => {
         if (client.chatWindowEl?.open) {
           client.close();
-          fab.classList.remove('open');
         } else {
           client.open();
-          fab.classList.add('open');
         }
       });
     </script>
