@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.data
 
+import com.yalo.chat.sdk.common.sanitizeStorageId
 import com.yalo.chat.sdk.data.remote.TokenStorage
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.NativePtr
@@ -49,7 +50,7 @@ internal class KeychainTokenStorage(channelId: String, userId: String? = null) :
 
     // Scope the Keychain account to channelId+userId so re-init with a different channel
     // or user never loads a token issued for a previous session.
-    private val account = "tokens-$channelId${userId?.let { "-$it" } ?: ""}"
+    private val account = "tokens-$channelId${userId?.let { "-${sanitizeStorageId(it)}" } ?: ""}"
 
     @Serializable
     private data class StoredTokens(

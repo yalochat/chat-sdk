@@ -4,6 +4,7 @@ package com.yalo.chat.sdk
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
+import com.yalo.chat.sdk.common.sanitizeStorageId
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
 import com.yalo.chat.sdk.data.local.createDatabase
@@ -114,7 +115,7 @@ object YaloChatSdk {
             yaloRepo = wsRepo
 
             // DB name includes channelId+userId so switching users never sees stale messages.
-            val dbName = "chat_${config.channelId}${config.userId?.let { "_$it" } ?: ""}.db"
+            val dbName = "chat_${config.channelId}${config.userId?.let { "_${sanitizeStorageId(it)}" } ?: ""}.db"
             val driver = NativeSqliteDriver(ChatDatabase.Schema, dbName)
             _driver = driver
             val db = createDatabase(driver)

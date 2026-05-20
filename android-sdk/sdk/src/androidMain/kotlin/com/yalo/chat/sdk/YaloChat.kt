@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.yalo.chat.sdk.common.sanitizeStorageId
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.AndroidTokenStorage
 import com.yalo.chat.sdk.data.local.AudioRepositoryLocal
@@ -119,7 +120,7 @@ object YaloChat {
             externalUserId = config.userId,
         )
 
-        val dbName = "chat_${config.channelId}${config.userId?.let { "_$it" } ?: ""}.db"
+        val dbName = "chat_${config.channelId}${config.userId?.let { "_${sanitizeStorageId(it)}" } ?: ""}.db"
         val driver = AndroidSqliteDriver(
             schema = ChatDatabase.Schema,
             context = context.applicationContext,

@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import com.yalo.chat.sdk.common.sanitizeStorageId
 import com.yalo.chat.sdk.data.remote.TokenStorage
 
 // Stores auth tokens using Keystore-backed EncryptedSharedPreferences on API 23+ so tokens
@@ -19,7 +20,7 @@ internal class AndroidTokenStorage(
     userId: String? = null,
 ) : TokenStorage {
 
-    private val prefName = "yalo_chat_sdk_tokens_${channelId}${userId?.let { "_$it" } ?: ""}"
+    private val prefName = "yalo_chat_sdk_tokens_${channelId}${userId?.let { "_${sanitizeStorageId(it)}" } ?: ""}"
 
     private val prefs: SharedPreferences = buildPrefs(context.applicationContext, prefName)
 

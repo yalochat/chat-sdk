@@ -1,6 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import Foundation
+import UIKit
 
 internal enum SdkConstants {
     static let messageBorderRadius: CGFloat = 16

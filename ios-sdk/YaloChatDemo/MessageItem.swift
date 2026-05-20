@@ -178,12 +178,19 @@ struct MessageItem: View {
                     .background(bubbleColor)
             }
             if !message.content.isEmpty {
-                Text(message.content)
-                    .font(theme.agentMessageFont)
-                    .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
-                    .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
+                Group {
+                    if isUser {
+                        Text(message.content)
+                            .font(theme.userMessageFont)
+                            .foregroundColor(theme.userBubbleTextColor)
+                    } else {
+                        Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                            .font(theme.agentMessageFont)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
             }
             if !inlineButtons.isEmpty {
                 inlineButtonsView(inlineButtons)
@@ -310,12 +317,19 @@ struct MessageItem: View {
                     .background(bubbleColor)
             }
             if !message.content.isEmpty {
-                Text(message.content)
-                    .font(theme.agentMessageFont)
-                    .foregroundColor(isUser ? theme.userBubbleTextColor : theme.agentBubbleTextColor)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
-                    .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
+                Group {
+                    if isUser {
+                        Text(message.content)
+                            .font(theme.userMessageFont)
+                            .foregroundColor(theme.userBubbleTextColor)
+                    } else {
+                        Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                            .font(theme.agentMessageFont)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
             }
             if !inlineButtons.isEmpty {
                 inlineButtonsView(inlineButtons)
