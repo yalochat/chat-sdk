@@ -30,26 +30,37 @@ export class TokenRepositoryLocal implements TokenRepository {
   }
 
   async getToken(): Promise<Result<string>> {
-    const stored = await this._read();
+    try {
+      const stored = await this._read();
 
-    if (stored && Date.now() < stored.expiresAt) {
-      return new Ok(stored.accessToken);
-    }
-
-    if (stored?.refreshToken) {
-      const result = await this._authService.refreshToken(stored.refreshToken);
-      if (result.ok) {
-        await this._write(result.value);
-        return new Ok(result.value.accessToken);
+      if (stored && Date.now() < stored.expiresAt) {
+        return new Ok(stored.accessToken);
       }
-      await this._clear();
+
+      if (stored?.refreshToken) {
+        const result = await this._authService.refreshToken(
+          stored.refreshToken
+        );
+        if (result.ok) {
+          await this._write(result.value);
+          return new Ok(result.value.accessToken);
+        }
+        await this._clear();
+      }
+
+      const result = await this._authService.fetchToken();
+      if (!result.ok) {
+        return new Err(result.error);
+      }
+
+      await this._write(result.value);
+      return new Ok(result.value.accessToken);
+    } catch (e) {
+      if (e instanceof Error) {
+        return new Err(e);
+      }
+      return new Err(new Error(String(e)));
     }
-
-    const result = await this._authService.fetchToken();
-    if (!result.ok) return new Err(result.error);
-
-    await this._write(result.value);
-    return new Ok(result.value.accessToken);
   }
 
   private _read(): Promise<StoredToken | null> {

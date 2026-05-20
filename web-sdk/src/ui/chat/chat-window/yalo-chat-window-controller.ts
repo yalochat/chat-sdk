@@ -30,12 +30,13 @@ export default class YaloChatWindowController implements ReactiveController {
   private readonly _writingTimeoutMs = 30000;
   private _writingTimeout?: ReturnType<typeof setTimeout>;
 
-  private readonly _DB_NAME = 'YaloChatMessages';
   private readonly _DB_VERSION = 2;
 
   private _openDb(): Promise<IDBDatabase> {
+    const { organizationId, channelId, userId } = this.host.config;
+    const dbName = `YaloChatMessages-${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this._DB_NAME, this._DB_VERSION);
+      const request = indexedDB.open(dbName, this._DB_VERSION);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
@@ -439,5 +440,6 @@ export default class YaloChatWindowController implements ReactiveController {
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
     this.host.yaloMessageRepository.unsubscribeMessages();
+    this.host.chatMessageRepository.dispose();
   }
 }

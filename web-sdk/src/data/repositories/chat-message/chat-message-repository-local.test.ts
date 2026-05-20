@@ -96,6 +96,30 @@ describe('ChatMessageRepositoryLocal', () => {
       const result = await repo.insertChatMessage(makeMessage());
       expect(result).toBeInstanceOf(Err);
     });
+
+    it('returns the existing record when inserting a duplicate wiId', async () => {
+      const first = await repo.insertChatMessage(
+        makeMessage({ wiId: 'remote-1', content: 'first write' })
+      );
+      const second = await repo.insertChatMessage(
+        makeMessage({ wiId: 'remote-1', content: 'second write' })
+      );
+
+      const firstId = (first as Ok<ChatMessage>).value.id;
+      const secondId = (second as Ok<ChatMessage>).value.id;
+      expect(secondId).toBe(firstId);
+
+      const page = await repo.getChatMessagePageDesc(null, 10);
+      expect((page as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(1);
+    });
+
+    it('still inserts distinct rows when wiId is undefined', async () => {
+      await repo.insertChatMessage(makeMessage());
+      await repo.insertChatMessage(makeMessage());
+
+      const page = await repo.getChatMessagePageDesc(null, 10);
+      expect((page as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(2);
+    });
   });
 
   describe('replaceChatMessage', () => {
@@ -148,9 +172,9 @@ describe('ChatMessageRepositoryLocal', () => {
     });
   });
 
-  describe('close', () => {
+  describe('dispose', () => {
     it('closes the database so subsequent operations fail', async () => {
-      await repo.close();
+      await repo.dispose();
       const result = await repo.insertChatMessage(makeMessage());
       expect(result).toBeInstanceOf(Err);
     });

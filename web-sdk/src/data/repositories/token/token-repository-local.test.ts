@@ -173,14 +173,28 @@ describe('TokenRepositoryLocal', () => {
 
     it('returns Err when fetchToken fails', async () => {
       const authService = makeAuthService({
-        fetchToken: vi.fn().mockResolvedValue(new Err(new Error('Auth failed: 401'))),
+        fetchToken: vi
+          .fn()
+          .mockResolvedValue(new Err(new Error('Auth failed: 401'))),
       });
       const repo = new TokenRepositoryLocal(db, authService);
 
       const result = await repo.getToken();
 
       expect(result.ok).toBe(false);
-      if (!result.ok) expect(result.error.message).toBe('Auth failed: 401');
+      if (!result.ok) {
+        expect(result.error.message).toBe('Auth failed: 401');
+      }
+    });
+
+    it('returns Err when the underlying IndexedDB connection is closed', async () => {
+      const authService = makeAuthService();
+      const repo = new TokenRepositoryLocal(db, authService);
+      db.close();
+
+      const result = await repo.getToken();
+
+      expect(result).toMatchObject({ ok: false });
     });
   });
 });
