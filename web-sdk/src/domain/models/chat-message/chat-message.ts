@@ -23,6 +23,7 @@ export const MessageTypes = [
   'promotion',
   'video',
   'attachment',
+  'chat-status',
   'unknown',
 ] as const;
 export type MessageType = (typeof MessageTypes)[number];
@@ -206,5 +207,17 @@ export class ChatMessage {
     expand?: boolean;
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'productCarousel' });
+  }
+
+  static chatStatus(params: {
+    timestamp: Date;
+    content: string;
+    wiId?: string;
+  }): ChatMessage {
+    return new ChatMessage({
+      ...params,
+      role: 'AGENT',
+      type: 'chat-status',
+    });
   }
 }

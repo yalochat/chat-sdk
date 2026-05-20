@@ -7,7 +7,7 @@ import {
 import { consume } from '@lit/context';
 import { msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('chat-header')
@@ -78,8 +78,8 @@ export class ChatHeader extends LitElement {
   @consume({ context: yaloChatClientConfigContext })
   config!: YaloChatClientConfig;
 
-  @state()
-  private _statusMessage: string = '';
+  @property({ attribute: false })
+  statusMessage: string = '';
 
   private _handleClose = () => {
     this.dispatchEvent(new Event('close'));
@@ -93,8 +93,8 @@ export class ChatHeader extends LitElement {
           : nothing}
         <hgroup class="chat-header-title-group">
           <h1 class="chat-header-title">${this.config.channelName}</h1>
-          ${this._statusMessage !== ''
-            ? html`<p class="chat-status">${this._statusMessage}</p>`
+          ${this.statusMessage !== ''
+            ? html`<p class="chat-status">${this.statusMessage}</p>`
             : nothing}
         </hgroup>
         <button

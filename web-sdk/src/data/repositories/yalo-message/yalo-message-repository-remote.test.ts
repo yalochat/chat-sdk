@@ -754,6 +754,62 @@ describe('YaloMessageRepositoryRemote', () => {
       ]);
     });
 
+    it('translates a chatStatusRequest into a chat-status ChatMessage with the status text', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'status-1',
+        userId: 'u',
+        status: 0,
+        date: new Date('2026-03-03T00:00:00Z'),
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          chatStatusRequest: {
+            status: 'Agent is typing',
+            timestamp: undefined,
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'chat-status',
+        role: 'AGENT',
+        content: 'Agent is typing',
+        wiId: 'status-1',
+      });
+    });
+
+    it('translates an empty chatStatusRequest status into a chat-status ChatMessage with empty content', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'status-2',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          chatStatusRequest: {
+            status: '',
+            timestamp: undefined,
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'chat-status',
+        role: 'AGENT',
+        content: '',
+      });
+    });
+
     it('translates horizontal product frames into ChatMessage.carousel', () => {
       const { service, emit } = okService();
       const repo = new YaloMessageRepositoryRemote(service, okMedia());

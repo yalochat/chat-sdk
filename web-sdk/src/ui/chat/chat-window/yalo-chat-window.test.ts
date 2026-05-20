@@ -40,6 +40,11 @@ const getMessageList = (
     isWriting: boolean;
   };
 
+const getHeader = (el: YaloChatWindow): { statusMessage: string } =>
+  el.shadowRoot?.querySelector('chat-header') as unknown as {
+    statusMessage: string;
+  };
+
 const dispatchFromFooter = (
   el: YaloChatWindow,
   type: string,
@@ -1241,6 +1246,68 @@ describe('YaloChatWindow incoming messages', () => {
     ]);
 
     await vi.waitUntil(() => getMessageList(el).isWriting === false);
+  });
+
+  it('forwards a chat-status message to the header without adding it to the list', async () => {
+    const status = ChatMessage.chatStatus({
+      timestamp: new Date(),
+      content: 'Agent is typing',
+      wiId: 'status-1',
+    });
+
+    subscribeCallback!([status]);
+
+    await vi.waitUntil(
+      () => getHeader(el).statusMessage === 'Agent is typing'
+    );
+    expect(getMessageList(el).chatMessages).toHaveLength(0);
+  });
+
+  it('clears the header status when an empty chat-status arrives', async () => {
+    subscribeCallback!([
+      ChatMessage.chatStatus({
+        timestamp: new Date(),
+        content: 'Agent is typing',
+      }),
+    ]);
+    await vi.waitUntil(
+      () => getHeader(el).statusMessage === 'Agent is typing'
+    );
+
+    subscribeCallback!([
+      ChatMessage.chatStatus({ timestamp: new Date(), content: '' }),
+    ]);
+
+    await vi.waitUntil(() => getHeader(el).statusMessage === '');
+  });
+
+  it('uses the last chat-status when multiple arrive in the same batch', async () => {
+    subscribeCallback!([
+      ChatMessage.chatStatus({ timestamp: new Date(), content: 'first' }),
+      ChatMessage.chatStatus({ timestamp: new Date(), content: 'second' }),
+    ]);
+
+    await vi.waitUntil(() => getHeader(el).statusMessage === 'second');
+  });
+
+  it('still prepends regular messages when the batch also contains a chat-status', async () => {
+    subscribeCallback!([
+      ChatMessage.chatStatus({
+        timestamp: new Date(),
+        content: 'Agent is typing',
+      }),
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date(),
+        content: 'And here is the reply',
+      }),
+    ]);
+
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0]?.content === 'And here is the reply'
+    );
+    expect(getHeader(el).statusMessage).toBe('Agent is typing');
+    expect(getMessageList(el).chatMessages).toHaveLength(1);
   });
 
   it('unsubscribes when the element is removed from the DOM', () => {
