@@ -15,6 +15,7 @@ junit = "4.13.2"
 coil = "3.0.4"
 protobuf = "4.29.3"
 markdownRenderer = "0.35.0"
+securityCrypto = "1.0.0"
 
 [libraries]
 # Compose
@@ -77,6 +78,9 @@ markdown-renderer-m3 = { group = "com.mikepenz", name = "multiplatform-markdown-
 
 # Protobuf — generated data classes from sdk_message.proto (javalite = Android-optimised runtime)
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobuf" }
+
+# Security — encrypted token storage (Keystore-backed AES-256, API 23+)
+security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }

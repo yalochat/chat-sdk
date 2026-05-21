@@ -48,8 +48,8 @@ data class ChatTheme(
     val appBarBackgroundColor: Color = Color(0xFFF1F5FC),
     /** Background of the user's outgoing message bubble. */
     val userBubbleColor: Color = Color(0xFFF9FAFC),
-    /** Background of the agent's incoming message bubble. */
-    val agentBubbleColor: Color = Color(0xFFFFFFFF),
+    /** Background of the agent's incoming message bubble. Transparent so agent text renders on the page background. */
+    val agentBubbleColor: Color = Color(0x00000000),
     val inputTextFieldColor: Color = Color(0xFFFFFFFF),
     val inputTextFieldBorderColor: Color = Color(0xFFE8E8E8),
     val sendButtonColor: Color = Color(0xFF2207F1),
@@ -85,11 +85,11 @@ data class ChatTheme(
     val messageFooterColor: Color = Color(0xFF7C8086),
     val errorColor: Color = Color(0xFFE53935),
     /** Border color of the picker buttons in the attachment sheet. */
-    val pickerButtonBorderColor: Color = Color(0xFFE8E8E8),
+    val pickerButtonBorderColor: Color = Color(0xFFE6E6E6),
     /** Background of quick reply chip buttons. */
     val quickReplyColor: Color = Color(0xFFF9FAFC),
     /** Border color of quick reply chip buttons. */
-    val quickReplyBorderColor: Color = Color(0xFFE8E8E8),
+    val quickReplyBorderColor: Color = Color(0xFFECEDEF),
     /** Background of buttons in a ButtonsMessage bubble (transparent by default). */
     val buttonsMessageButtonColor: Color = Color(0x00000000),
     /** Border color of buttons in a ButtonsMessage bubble. */
@@ -104,7 +104,7 @@ data class ChatTheme(
     val ctaButtonForegroundColor: Color = Color(0xFF111111),
     // ── Text styles ───────────────────────────────────────────────────────────
     val userMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
-    val assistantMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 16.sp),
+    val assistantMessageTextStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = SdkConstants.titleFontSize.sp),
     val modalHeaderStyle: TextStyle = TextStyle(color = Color(0xFF000000), fontSize = 18.sp, fontWeight = FontWeight.Bold),
     val hintTextStyle: TextStyle = TextStyle(color = Color(0xFFBEBEBE)),
     val timerTextStyle: TextStyle = TextStyle(color = Color(0xFF7C8086)),
@@ -129,7 +129,7 @@ data class ChatTheme(
      * Declared as [CornerBasedShape] (covers [RoundedCornerShape], `CutCornerShape`, etc.)
      * so that Compose's stability analysis can verify the field is immutable.
      */
-    val bubbleShape: CornerBasedShape = RoundedCornerShape(12.dp),
+    val bubbleShape: CornerBasedShape = RoundedCornerShape(SdkConstants.messageBorderRadius.dp),
     // ── Image ─────────────────────────────────────────────────────────────────
     /** Optional URL for the channel avatar displayed in the app bar. Loaded by Coil. */
     val chatIconImage: String? = null,
@@ -174,7 +174,7 @@ data class ChatTheme(
             waveColor = colorScheme.primary,
             actionIconColor = colorScheme.onSurface,
             userMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = 16.sp),
-            assistantMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = 16.sp),
+            assistantMessageTextStyle = TextStyle(color = colorScheme.onSurface, fontSize = SdkConstants.titleFontSize.sp),
             hintTextStyle = TextStyle(color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f)),
             inputTextFieldColor = colorScheme.surface,
             inputTextFieldBorderColor = colorScheme.outline,

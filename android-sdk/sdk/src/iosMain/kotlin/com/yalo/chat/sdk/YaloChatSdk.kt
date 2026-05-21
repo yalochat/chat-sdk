@@ -4,6 +4,7 @@ package com.yalo.chat.sdk
 
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.native.NativeSqliteDriver
+import com.yalo.chat.sdk.common.sanitizeStorageId
 import com.yalo.chat.sdk.data.MessageSyncService
 import com.yalo.chat.sdk.data.local.LocalChatMessageRepository
 import com.yalo.chat.sdk.data.local.createDatabase
@@ -11,11 +12,13 @@ import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.YaloMessageServiceWebSocket
 import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.KeychainTokenStorage
+import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
 import com.yalo.chat.sdk.database.ChatDatabase
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatCommandCallback
+import com.yalo.chat.sdk.domain.repository.ChatMessageRepository
 import com.yalo.chat.sdk.domain.repository.YaloMessageRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
@@ -43,7 +46,7 @@ object YaloChatSdk {
     internal var yaloRepo: YaloMessageRepository? = null
         private set
 
-    internal var localRepo: LocalChatMessageRepository? = null
+    internal var localRepo: ChatMessageRepository? = null
         private set
 
     var messagesController: MessagesController? = null
@@ -63,13 +66,17 @@ object YaloChatSdk {
         _wsScope?.cancel()
         _wsScope = null
         _httpClient?.close()
+        _httpClient = null
         _driver?.close()
+        _driver = null
 
         this.config = config
 
         val yaloRepo: YaloMessageRepository
+        val local: ChatMessageRepository
         if (config.useFakeRepository) {
             yaloRepo = FakeYaloMessageRepository()
+            local = FakeChatMessageRepository(FakeYaloMessageRepository.SEED_MESSAGES)
         } else {
             val httpClient = buildHttpClient(Darwin.create(), debug = Platform.isDebugBinary)
             _httpClient = httpClient
@@ -79,7 +86,7 @@ object YaloChatSdk {
                 channelId = config.channelId,
                 organizationId = config.organizationId,
                 httpClient = httpClient,
-                tokenStorage = KeychainTokenStorage(channelId = config.channelId),
+                tokenStorage = KeychainTokenStorage(channelId = config.channelId, userId = config.userId),
                 externalUserId = config.userId,
             )
             // NSTemporaryDirectory() is purged aggressively by the OS between app launches;
@@ -106,14 +113,15 @@ object YaloChatSdk {
             _wsScope = wsScope
             wsRepo.start(wsScope)
             yaloRepo = wsRepo
+
+            // DB name includes channelId+userId so switching users never sees stale messages.
+            val dbName = "chat_${config.channelId}${config.userId?.let { "_${sanitizeStorageId(it)}" } ?: ""}.db"
+            val driver = NativeSqliteDriver(ChatDatabase.Schema, dbName)
+            _driver = driver
+            val db = createDatabase(driver)
+            local = LocalChatMessageRepository(db.chatMessageQueries, Dispatchers.Default)
         }
         this.yaloRepo = yaloRepo
-
-        // NativeSqliteDriver stores the database in the app's Documents/databases/ directory.
-        val driver = NativeSqliteDriver(ChatDatabase.Schema, "chat.db")
-        _driver = driver
-        val db = createDatabase(driver)
-        val local = LocalChatMessageRepository(db.chatMessageQueries, Dispatchers.Default)
         localRepo = local
 
         // Sync service is started lazily by MessagesController (via MessagesObservable.onAppear).

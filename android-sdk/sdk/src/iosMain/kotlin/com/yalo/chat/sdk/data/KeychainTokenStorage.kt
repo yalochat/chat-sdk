@@ -2,6 +2,7 @@
 
 package com.yalo.chat.sdk.data
 
+import com.yalo.chat.sdk.common.sanitizeStorageId
 import com.yalo.chat.sdk.data.remote.TokenStorage
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.NativePtr
@@ -45,11 +46,11 @@ private const val KEYCHAIN_SERVICE = "com.yalo.chat.sdk.tokens"
 // nsKey() converts each CF constant's raw pointer to a Kotlin/Native ObjC reference so it
 // can be used as an NSMutableDictionary key (which requires NSCopyingProtocol at runtime).
 @OptIn(ExperimentalForeignApi::class)
-internal class KeychainTokenStorage(channelId: String) : TokenStorage {
+internal class KeychainTokenStorage(channelId: String, userId: String? = null) : TokenStorage {
 
-    // Scope the Keychain account to channelId so re-init with a different channel never
-    // loads a token issued for the previous channel.
-    private val account = "tokens-$channelId"
+    // Scope the Keychain account to channelId+userId so re-init with a different channel
+    // or user never loads a token issued for a previous session.
+    private val account = "tokens-$channelId${userId?.let { "-${sanitizeStorageId(it)}" } ?: ""}"
 
     @Serializable
     private data class StoredTokens(

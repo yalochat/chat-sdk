@@ -446,4 +446,80 @@ class MessagesControllerTest {
         val ids = result.result.mapNotNull { it.id }
         assertEquals(2, ids.distinct().size)
     }
+
+    // ── retryMessage ──────────────────────────────────────────────────────────
+
+    @Test
+    fun `retryMessage before start is a no-op`() = runTest {
+        val localRepo = FakeChatMessageRepository(
+            listOf(msg(1L).copy(status = MessageStatus.ERROR))
+        )
+        controller(localRepo = localRepo).retryMessage(1L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.single().status)
+    }
+
+    @Test
+    fun `retryMessage does nothing when message id is not found`() = runTest {
+        val localRepo = FakeChatMessageRepository(
+            listOf(msg(1L).copy(status = MessageStatus.ERROR))
+        )
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.retryMessage(999L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.single().status)
+    }
+
+    @Test
+    fun `retryMessage does nothing when message status is not ERROR`() = runTest {
+        val localRepo = FakeChatMessageRepository(
+            listOf(msg(1L).copy(status = MessageStatus.SENT))
+        )
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.retryMessage(1L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.SENT, result.result.single().status)
+    }
+
+    @Test
+    fun `retryMessage resets status to SENT on success`() = runTest {
+        val localRepo = FakeChatMessageRepository(
+            listOf(msg(1L).copy(status = MessageStatus.ERROR))
+        )
+        val ctrl = controller(localRepo = localRepo)
+        ctrl.start { }
+        ctrl.retryMessage(1L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.SENT, result.result.single().status)
+    }
+
+    @Test
+    fun `retryMessage sets status back to ERROR when send fails again`() = runTest {
+        val failingYaloRepo = object : YaloMessageRepository {
+            override suspend fun sendMessage(msg: ChatMessage) =
+                Result.Error<Unit>(RuntimeException("network error"))
+            override suspend fun fetchMessages(since: Long) = Result.Ok(emptyList<ChatMessage>())
+            override fun pollIncomingMessages(): Flow<List<ChatMessage>> = emptyFlow()
+            override fun events(): Flow<ChatEvent> = emptyFlow()
+        }
+        val localRepo = FakeChatMessageRepository(
+            listOf(msg(1L).copy(status = MessageStatus.ERROR))
+        )
+        val ctrl = MessagesController(
+            failingYaloRepo, localRepo,
+            MessageSyncService(failingYaloRepo, localRepo),
+            dispatcher,
+        ).also { tracked.add(it) }
+        ctrl.start { }
+        ctrl.retryMessage(1L)
+        val result = localRepo.getMessages(null, 10)
+        assertIs<Result.Ok<List<ChatMessage>>>(result)
+        assertEquals(MessageStatus.ERROR, result.result.single().status)
+    }
 }

@@ -16,6 +16,7 @@ struct MessageItem: View {
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
+    @State private var containerWidth: CGFloat = 390
 
     private var isUser: Bool { message.role === MessageRole.user }
 
@@ -38,18 +39,28 @@ struct MessageItem: View {
                     Spacer(minLength: 48)
                 }
             }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { containerWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { containerWidth = $0 }
+                }
+            )
         }
     }
 
     @ViewBuilder
     private var errorIndicator: some View {
         if isUser && message.status === MessageStatus.error {
-            Image(systemName: theme.errorIconName)
-                .foregroundColor(theme.errorColor)
-                .font(.caption)
-                .onTapGesture {
-                    if let id = message.id?.int64Value { onRetry(id) }
-                }
+            Button {
+                if let id = message.id?.int64Value { onRetry(id) }
+            } label: {
+                Image(systemName: theme.errorIconName)
+                    .foregroundColor(theme.errorColor)
+                    .font(.caption)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Translate.retry)
         }
     }
 
@@ -91,11 +102,12 @@ struct MessageItem: View {
                     .cornerRadius(theme.bubbleCornerRadius)
             } else {
                 bubbleContent
-                    .padding(12)
+                    .padding(SdkConstants.messagePadding)
                     .background(bubbleColor)
                     .cornerRadius(theme.bubbleCornerRadius)
             }
         }
+        .frame(maxWidth: containerWidth * (isUser ? 0.8 : 0.9))
     }
 
     @ViewBuilder
@@ -106,10 +118,37 @@ struct MessageItem: View {
                     .font(theme.userMessageFont)
                     .foregroundColor(theme.userBubbleTextColor)
             } else {
-                // foregroundColor is baked into the AttributedString for non-link runs so that
-                // links retain their distinct tint color and remain visually distinguishable.
-                Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
-                    .font(theme.agentMessageFont)
+                let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
+                let hasExtras = !inlineButtons.isEmpty
+                    || !(message.header?.isEmpty ?? true)
+                    || !(message.footer?.isEmpty ?? true)
+                if hasExtras {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let header = message.header, !header.isEmpty {
+                            Text(header)
+                                .font(theme.messageHeaderFont)
+                                .fontWeight(.semibold)
+                                .foregroundColor(theme.agentBubbleTextColor)
+                        }
+                        if !message.content.isEmpty {
+                            Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                                .font(theme.agentMessageFont)
+                        }
+                        if let footer = message.footer, !footer.isEmpty {
+                            Text(footer)
+                                .font(theme.messageFooterFont)
+                                .foregroundColor(theme.messageFooterColor)
+                        }
+                        if !inlineButtons.isEmpty {
+                            inlineButtonsView(inlineButtons)
+                        }
+                    }
+                } else {
+                    // foregroundColor is baked into the AttributedString for non-link runs so that
+                    // links retain their distinct tint color and remain visually distinguishable.
+                    Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                        .font(theme.agentMessageFont)
+                }
             }
         } else if message.type is MessageType.Voice {
             voiceContent
@@ -127,14 +166,37 @@ struct MessageItem: View {
 
     @ViewBuilder
     private var imageContent: some View {
-        if let path = message.fileName {
-            LocalFileImage(path: path, fallbackColor: bubbleColor)
-        } else {
-            Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
-                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
-                .font(.caption)
-                .padding(12)
-                .background(bubbleColor)
+        let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
+        VStack(alignment: .leading, spacing: 0) {
+            if let path = message.fileName {
+                LocalFileImage(path: path, fallbackColor: bubbleColor)
+            } else {
+                Label(Translate.imageUnavailable, systemImage: theme.imagePlaceholderIconName)
+                    .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
+                    .font(.caption)
+                    .padding(12)
+                    .background(bubbleColor)
+            }
+            if !message.content.isEmpty {
+                Group {
+                    if isUser {
+                        Text(message.content)
+                            .font(theme.userMessageFont)
+                            .foregroundColor(theme.userBubbleTextColor)
+                    } else {
+                        Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                            .font(theme.agentMessageFont)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
+            }
+            if !inlineButtons.isEmpty {
+                inlineButtonsView(inlineButtons)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
+            }
         }
     }
 
@@ -159,24 +221,7 @@ struct MessageItem: View {
             }
             let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
             if !inlineButtons.isEmpty {
-                VStack(spacing: 6) {
-                    ForEach(inlineButtons, id: \.text) { button in
-                        SwiftUI.Button(action: { onButtonTap(button.text) }) {
-                            Text(button.text)
-                                .font(.subheadline)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
-                                .background(theme.buttonsButtonColor)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(theme.buttonsButtonBorderColor, lineWidth: 1)
-                                )
-                        }
-                        .buttonStyle(.plain)
-                        .foregroundColor(theme.buttonsButtonTextColor)
-                    }
-                }
-                .padding(.top, 4)
+                inlineButtonsView(inlineButtons)
             }
         }
     }
@@ -202,46 +247,95 @@ struct MessageItem: View {
             }
             let buttons = message.buttons.filter { $0.type == ChatButtonType.link }
             if !buttons.isEmpty {
-                VStack(spacing: 6) {
-                    ForEach(buttons, id: \.text) { button in
-                        SwiftUI.Button(action: {
-                            if let urlStr = button.url, let url = URL(string: urlStr) {
-                                UIApplication.shared.open(url)
-                            }
-                        }) {
-                            HStack {
-                                Text(button.text)
-                                    .font(.subheadline)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                Image(systemName: theme.ctaArrowIconName)
-                                    .font(.caption)
-                            }
-                            .padding(.vertical, 8)
-                            .background(theme.ctaButtonColor)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(theme.ctaButtonBorderColor, lineWidth: 1)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .foregroundColor(theme.ctaButtonTextColor)
-                    }
-                }
-                .padding(.top, 4)
+                inlineButtonsView(buttons)
             }
         }
     }
 
+    // Renders a list of non-reply buttons with type-appropriate styling:
+    // POSTBACK → filled/outlined with buttonsButton* theme colors
+    // LINK → CTA row with arrow icon and ctaButton* theme colors
+    @ViewBuilder
+    private func inlineButtonsView(_ buttons: [ChatButton]) -> some View {
+        VStack(spacing: 6) {
+            ForEach(Array(buttons.enumerated()), id: \.offset) { _, button in
+                if button.type == ChatButtonType.link {
+                    SwiftUI.Button(action: {
+                        if let urlStr = button.url,
+                           let url = URL(string: urlStr),
+                           url.scheme == "https" || url.scheme == "http" {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        HStack {
+                            Text(button.text)
+                                .font(.subheadline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Image(systemName: theme.ctaArrowIconName)
+                                .font(.caption)
+                        }
+                        .padding(.vertical, 8)
+                        .background(theme.ctaButtonColor)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(theme.ctaButtonBorderColor, lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(theme.ctaButtonTextColor)
+                } else {
+                    SwiftUI.Button(action: { onButtonTap(button.text) }) {
+                        Text(button.text)
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(theme.buttonsButtonColor)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(theme.buttonsButtonBorderColor, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(theme.buttonsButtonTextColor)
+                }
+            }
+        }
+        .padding(.top, 4)
+    }
+
     @ViewBuilder
     private var videoContent: some View {
-        if let path = message.fileName {
-            StableVideoPlayer(path: path)
-        } else {
-            Label(Translate.videoUnavailable, systemImage: "video")
-                .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
-                .font(.caption)
-                .padding(12)
-                .background(bubbleColor)
+        let inlineButtons = message.buttons.filter { $0.type != ChatButtonType.reply }
+        VStack(alignment: .leading, spacing: 0) {
+            if let path = message.fileName {
+                StableVideoPlayer(path: path)
+            } else {
+                Label(Translate.videoUnavailable, systemImage: "video")
+                    .foregroundColor(isUser ? theme.userBubbleTextColor.opacity(0.8) : theme.messageFooterColor)
+                    .font(.caption)
+                    .padding(12)
+                    .background(bubbleColor)
+            }
+            if !message.content.isEmpty {
+                Group {
+                    if isUser {
+                        Text(message.content)
+                            .font(theme.userMessageFont)
+                            .foregroundColor(theme.userBubbleTextColor)
+                    } else {
+                        Text(agentAttributed(message.content, color: theme.agentBubbleTextColor))
+                            .font(theme.agentMessageFont)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, inlineButtons.isEmpty ? 12 : 4)
+            }
+            if !inlineButtons.isEmpty {
+                inlineButtonsView(inlineButtons)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
+            }
         }
     }
 

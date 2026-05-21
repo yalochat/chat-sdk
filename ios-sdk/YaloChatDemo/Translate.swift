@@ -20,4 +20,5 @@ enum Translate {
     static let camera             = string("chat.camera")
     static let cancel             = string("chat.cancel")
     static let inputPlaceholder   = string("chat.input_placeholder")
+    static let retry              = string("chat.retry")
 }

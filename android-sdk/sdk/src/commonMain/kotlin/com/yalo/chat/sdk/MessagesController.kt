@@ -40,6 +40,7 @@ class MessagesController internal constructor(
     // Latest messages snapshot — kept in sync by start() so updateProductQuantity can
     // find and patch a message without an extra DB round-trip.
     private var cachedMessages: List<ChatMessage> = emptyList()
+    private var onMessagesUpdate: ((List<ChatMessage>) -> Unit)? = null
 
     private fun nextTempId(): Long {
         val now = Clock.System.now().toEpochMilliseconds()
@@ -49,6 +50,7 @@ class MessagesController internal constructor(
 
     fun start(onMessagesUpdate: (List<ChatMessage>) -> Unit) {
         if (scope != null) return
+        this.onMessagesUpdate = onMessagesUpdate
         val s = CoroutineScope(SupervisorJob() + mainDispatcher)
         scope = s
         syncService.start(s)
@@ -83,6 +85,7 @@ class MessagesController internal constructor(
             if (msg.status != MessageStatus.ERROR) return@launch
             val retrying = msg.copy(status = MessageStatus.SENT)
             cachedMessages = cachedMessages.map { if (it.id == messageId) retrying else it }
+            onMessagesUpdate?.invoke(cachedMessages)
             localRepo.updateMessage(retrying)
             if (yaloRepo.sendMessage(retrying) is Result.Error) {
                 localRepo.updateMessage(retrying.copy(status = MessageStatus.ERROR))
@@ -209,6 +212,7 @@ class MessagesController internal constructor(
         )
         if (!productFound) return
         cachedMessages = cachedMessages.map { if (it.id == messageId) updatedMsg else it }
+        onMessagesUpdate?.invoke(cachedMessages)
         val delta = maxOf(quantity, 0.0) - previousValue
         val unitType = if (isSubunit) UnitType.SUBUNIT else UnitType.UNIT
         s.launch {
