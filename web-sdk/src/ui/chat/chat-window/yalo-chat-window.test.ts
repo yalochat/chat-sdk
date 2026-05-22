@@ -283,9 +283,10 @@ describe('YaloChatWindow', () => {
 
     it('does not add the message when local insert fails', async () => {
       const errorSpy = vi.spyOn(el.logger, 'error');
-      vi.spyOn(el.chatMessageRepository, 'insertChatMessage').mockResolvedValue(
-        new Err(new Error('db full'))
-      );
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
       const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
 
       dispatchFromFooter(
@@ -327,9 +328,8 @@ describe('YaloChatWindow', () => {
       getSendButton(el).click();
 
       await vi.waitUntil(() => {
-        const messages = el.shadowRoot?.querySelector(
-          'chat-message-list'
-        ) as unknown as {
+        const messages = el.shadowRoot
+          ?.querySelector('chat-message-list') as unknown as {
           chatMessages: ChatMessage[];
         };
         return messages?.chatMessages?.[0]?.status === 'ERROR';
@@ -357,7 +357,8 @@ describe('YaloChatWindow', () => {
     const findById = (
       list: { chatMessages: ChatMessage[] },
       id: number | undefined
-    ): ChatMessage | undefined => list.chatMessages.find((m) => m.id === id);
+    ): ChatMessage | undefined =>
+      list.chatMessages.find((m) => m.id === id);
 
     it('retries an errored message and clears the error on success', async () => {
       const insertSpy = vi
@@ -391,13 +392,15 @@ describe('YaloChatWindow', () => {
 
       insertSpy.mockResolvedValueOnce(new Ok(errored));
 
-      el.shadowRoot?.querySelector('chat-message-list')?.dispatchEvent(
-        new CustomEvent('yalo-chat-retry-message', {
-          detail: errored,
-          bubbles: true,
-          composed: true,
-        })
-      );
+      el.shadowRoot
+        ?.querySelector('chat-message-list')
+        ?.dispatchEvent(
+          new CustomEvent('yalo-chat-retry-message', {
+            detail: errored,
+            bubbles: true,
+            composed: true,
+          })
+        );
 
       await vi.waitUntil(
         () => findById(list, erroredId)?.status === 'IN_PROGRESS'
@@ -545,13 +548,15 @@ describe('YaloChatWindow', () => {
       ) as ChatMessage;
       const erroredId = errored.id;
 
-      el.shadowRoot?.querySelector('chat-message-list')?.dispatchEvent(
-        new CustomEvent('yalo-chat-retry-message', {
-          detail: errored,
-          bubbles: true,
-          composed: true,
-        })
-      );
+      el.shadowRoot
+        ?.querySelector('chat-message-list')
+        ?.dispatchEvent(
+          new CustomEvent('yalo-chat-retry-message', {
+            detail: errored,
+            bubbles: true,
+            composed: true,
+          })
+        );
 
       await vi.waitUntil(() => insertSpy.mock.calls.length >= 2);
       await vi.waitUntil(() => findById(list, erroredId)?.status === 'ERROR');
@@ -698,9 +703,10 @@ describe('YaloChatWindow', () => {
 
     it('does not add the voice message when local insert fails', async () => {
       const errorSpy = vi.spyOn(el.logger, 'error');
-      vi.spyOn(el.chatMessageRepository, 'insertChatMessage').mockResolvedValue(
-        new Err(new Error('db full'))
-      );
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
       const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
       const voice = buildVoiceMessage();
 
@@ -774,9 +780,10 @@ describe('YaloChatWindow', () => {
 
     it('does not add the image message when local insert fails', async () => {
       const errorSpy = vi.spyOn(el.logger, 'error');
-      vi.spyOn(el.chatMessageRepository, 'insertChatMessage').mockResolvedValue(
-        new Err(new Error('db full'))
-      );
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
       const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
       const image = buildImageMessage();
 
@@ -852,9 +859,10 @@ describe('YaloChatWindow', () => {
 
     it('does not add the attachment message when local insert fails', async () => {
       const errorSpy = vi.spyOn(el.logger, 'error');
-      vi.spyOn(el.chatMessageRepository, 'insertChatMessage').mockResolvedValue(
-        new Err(new Error('db full'))
-      );
+      vi.spyOn(
+        el.chatMessageRepository,
+        'insertChatMessage'
+      ).mockResolvedValue(new Err(new Error('db full')));
       const remoteSpy = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
       const attachment = buildAttachmentMessage();
 
@@ -889,8 +897,7 @@ describe('YaloChatWindow', () => {
       );
       dispatchFromFooter(el, 'yalo-chat-send-text-message', message);
       await vi.waitUntil(
-        () =>
-          getMessageList(el).chatMessages[0]?.products?.[0]?.sku === product.sku
+        () => getMessageList(el).chatMessages[0]?.products?.[0]?.sku === product.sku
       );
       const id = getMessageList(el).chatMessages[0].id;
       if (id === undefined) {
@@ -1250,7 +1257,9 @@ describe('YaloChatWindow incoming messages', () => {
 
     subscribeCallback!([status]);
 
-    await vi.waitUntil(() => getHeader(el).statusMessage === 'Agent is typing');
+    await vi.waitUntil(
+      () => getHeader(el).statusMessage === 'Agent is typing'
+    );
     expect(getMessageList(el).chatMessages).toHaveLength(0);
   });
 
@@ -1261,7 +1270,9 @@ describe('YaloChatWindow incoming messages', () => {
         content: 'Agent is typing',
       }),
     ]);
-    await vi.waitUntil(() => getHeader(el).statusMessage === 'Agent is typing');
+    await vi.waitUntil(
+      () => getHeader(el).statusMessage === 'Agent is typing'
+    );
 
     subscribeCallback!([
       ChatMessage.chatStatus({ timestamp: new Date(), content: '' }),
@@ -1293,8 +1304,7 @@ describe('YaloChatWindow incoming messages', () => {
     ]);
 
     await vi.waitUntil(
-      () =>
-        getMessageList(el).chatMessages[0]?.content === 'And here is the reply'
+      () => getMessageList(el).chatMessages[0]?.content === 'And here is the reply'
     );
     expect(getHeader(el).statusMessage).toBe('Agent is typing');
     expect(getMessageList(el).chatMessages).toHaveLength(1);
@@ -1315,31 +1325,31 @@ describe('YaloChatWindow pagination', () => {
     pageSpy = vi
       .spyOn(ChatMessageRepositoryLocal.prototype, 'getChatMessagePageDesc')
       .mockImplementation(async (cursor: number | null) => {
-        if (cursor === null) {
-          return new Ok({
-            data: [
-              ChatMessage.text({
-                id: 1,
-                role: 'USER',
-                timestamp: new Date(2026, 0, 1),
-                content: 'first',
-              }),
-            ],
-            pageInfo: { cursor: undefined, nextCursor: 1, pageSize: 500 },
-          });
-        }
+      if (cursor === null) {
         return new Ok({
           data: [
             ChatMessage.text({
-              id: 2,
+              id: 1,
               role: 'USER',
-              timestamp: new Date(2025, 0, 1),
-              content: 'second',
+              timestamp: new Date(2026, 0, 1),
+              content: 'first',
             }),
           ],
-          pageInfo: { cursor: 1, nextCursor: undefined, pageSize: 500 },
+          pageInfo: { cursor: undefined, nextCursor: 1, pageSize: 500 },
         });
+      }
+      return new Ok({
+        data: [
+          ChatMessage.text({
+            id: 2,
+            role: 'USER',
+            timestamp: new Date(2025, 0, 1),
+            content: 'second',
+          }),
+        ],
+        pageInfo: { cursor: 1, nextCursor: undefined, pageSize: 500 },
       });
+    });
     el = await createElement();
   });
 
