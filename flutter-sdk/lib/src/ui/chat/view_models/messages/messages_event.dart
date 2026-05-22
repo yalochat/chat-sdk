@@ -119,3 +119,12 @@ final class ChatRetryMessage extends MessagesEvent with EquatableMixin {
   @override
   List<Object?> get props => [messageId];
 }
+
+// Emitted internally when the await-response timer expires without an
+// assistant message having arrived. Clears the loading indicator.
+final class ChatAwaitResponseTimedOut extends MessagesEvent
+    with EquatableMixin {
+  const ChatAwaitResponseTimedOut();
+  @override
+  List<Object?> get props => [];
+}

@@ -22,6 +22,9 @@ class MessagesState extends Equatable {
   final bool isConnected;
   final bool isLoading;
   final bool isSystemTypingMessage;
+  // True while we have sent a user message and are still waiting for an
+  // assistant reply (drives the inline loading dots in the message list).
+  final bool isAwaitingResponse;
   final String chatTitle;
   final ChatStatus chatStatus;
   final String chatStatusText;
@@ -34,6 +37,7 @@ class MessagesState extends Equatable {
     this.isConnected = false,
     this.isLoading = false,
     this.isSystemTypingMessage = false,
+    this.isAwaitingResponse = false,
     this.chatTitle = '',
     this.chatStatus = ChatStatus.initial,
     this.chatStatusText = '',
@@ -51,6 +55,7 @@ class MessagesState extends Equatable {
     bool? isConnected,
     bool? isLoading,
     bool? isSystemTypingMessage,
+    bool? isAwaitingResponse,
     String? chatTitle,
     ChatStatus? chatStatus,
     String? chatStatusText,
@@ -64,6 +69,7 @@ class MessagesState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       isSystemTypingMessage:
           isSystemTypingMessage ?? this.isSystemTypingMessage,
+      isAwaitingResponse: isAwaitingResponse ?? this.isAwaitingResponse,
       chatTitle: chatTitle ?? this.chatTitle,
       chatStatus: chatStatus ?? this.chatStatus,
       chatStatusText: chatStatusText ?? this.chatStatusText,
@@ -79,6 +85,7 @@ class MessagesState extends Equatable {
     isConnected,
     isLoading,
     isSystemTypingMessage,
+    isAwaitingResponse,
     chatTitle,
     chatStatus,
     chatStatusText,

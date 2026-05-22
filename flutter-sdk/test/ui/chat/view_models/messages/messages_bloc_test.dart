@@ -18,6 +18,7 @@ import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:clock/clock.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -2535,6 +2536,202 @@ void main() {
         build: () => bloc,
         act: (bloc) => bloc.add(ChatClearMessages()),
         expect: () => [],
+      );
+    });
+
+    group('awaiting assistant response', () {
+      var fixedClock = Clock.fixed(DateTime.now());
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should flip isAwaitingResponse to true when a text message is sent',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(userMessage: 'Test message'),
+        act: (bloc) {
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage(
+                id: 1,
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: fixedClock.now(),
+              ),
+            ),
+          );
+          bloc.add(ChatSendTextMessage());
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.isAwaitingResponse,
+            'isAwaitingResponse',
+            isTrue,
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should clear isAwaitingResponse when an assistant message arrives',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(isAwaitingResponse: true),
+        act: (bloc) {
+          final assistantMessage = ChatMessage(
+            role: MessageRole.assistant,
+            type: MessageType.text,
+            content: 'Hi there',
+            timestamp: fixedClock.now(),
+          );
+          final stream = StreamController<ChatMessage>();
+          when(
+            () => yaloMessageRepository.messages(),
+          ).thenAnswer((_) => stream.stream.asBroadcastStream());
+          when(
+            () => chatMessageRepository.insertChatMessage(assistantMessage),
+          ).thenAnswer(
+            (_) async => Result.ok(assistantMessage.copyWith(id: 9)),
+          );
+          bloc.add(ChatSubscribeToMessages());
+          stream.sink.add(assistantMessage);
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.isAwaitingResponse,
+            'isAwaitingResponse',
+            isFalse,
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should preserve isAwaitingResponse when a chatStatus message arrives',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(isAwaitingResponse: true),
+        act: (bloc) {
+          final statusMessage = ChatMessage(
+            role: MessageRole.assistant,
+            type: MessageType.chatStatus,
+            content: 'Agent is typing',
+            timestamp: fixedClock.now(),
+          );
+          final stream = StreamController<ChatMessage>();
+          when(
+            () => yaloMessageRepository.messages(),
+          ).thenAnswer((_) => stream.stream.asBroadcastStream());
+          bloc.add(ChatSubscribeToMessages());
+          stream.sink.add(statusMessage);
+        },
+        expect: () => [
+          isA<MessagesState>()
+              .having(
+                (state) => state.isAwaitingResponse,
+                'isAwaitingResponse',
+                isTrue,
+              )
+              .having(
+                (state) => state.chatStatusText,
+                'chatStatusText',
+                equals('Agent is typing'),
+              ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should clear isAwaitingResponse when sending to yalo fails',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(userMessage: 'Test message'),
+        act: (bloc) {
+          final inserted = ChatMessage(
+            id: 1,
+            role: MessageRole.user,
+            type: MessageType.text,
+            content: 'Test message',
+            timestamp: fixedClock.now(),
+          );
+          when(
+            () => chatMessageRepository.insertChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(inserted));
+          when(
+            () => yaloMessageRepository.sendMessage(any()),
+          ).thenAnswer((_) async => Result.error(Exception('send failed')));
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          bloc.add(ChatSendTextMessage());
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.isAwaitingResponse,
+            'isAwaitingResponse',
+            isTrue,
+          ),
+          isA<MessagesState>().having(
+            (state) => state.isAwaitingResponse,
+            'isAwaitingResponse',
+            isFalse,
+          ),
+        ],
+      );
+
+      test(
+        'should clear isAwaitingResponse after the 1 minute timeout',
+        () {
+          fakeAsync((async) {
+            final clock = Clock.fixed(DateTime.now());
+            when(
+              () => chatMessageRepository.insertChatMessage(any()),
+            ).thenAnswer(
+              (_) async => Result.ok(
+                ChatMessage(
+                  id: 1,
+                  role: MessageRole.user,
+                  type: MessageType.text,
+                  content: 'Test message',
+                  timestamp: clock.now(),
+                ),
+              ),
+            );
+            final timeoutBloc = MessagesBloc(
+              chatMessageRepository: chatMessageRepository,
+              imageRepository: imageRepository,
+              yaloMessageRepository: yaloMessageRepository,
+              clock: clock,
+            );
+            addTearDown(timeoutBloc.close);
+
+            timeoutBloc.add(ChatSendTextMessage(text: 'Test message'));
+            async.flushMicrotasks();
+            expect(timeoutBloc.state.isAwaitingResponse, isTrue);
+
+            // Just under one minute - still waiting.
+            async.elapse(const Duration(seconds: 59));
+            async.flushMicrotasks();
+            expect(timeoutBloc.state.isAwaitingResponse, isTrue);
+
+            // Crossing the 1 minute mark fires the timeout.
+            async.elapse(const Duration(seconds: 1));
+            async.flushMicrotasks();
+            expect(timeoutBloc.state.isAwaitingResponse, isFalse);
+          });
+        },
       );
     });
 

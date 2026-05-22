@@ -6,6 +6,7 @@ import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_messag
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/typing_indicator.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
 import 'package:flutter/material.dart';
@@ -40,10 +41,16 @@ class _MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
-    return BlocSelector<MessagesBloc, MessagesState, (int, bool)>(
-      selector: (state) => (state.messages.length, state.isLoading),
+    return BlocSelector<MessagesBloc, MessagesState, (int, bool, bool)>(
+      selector: (state) =>
+          (state.messages.length, state.isLoading, state.isAwaitingResponse),
       builder: (context, state) {
-        final (length, isLoading) = state;
+        final (length, isLoading, isAwaitingResponse) = state;
+        // The list is reversed, so index 0 sits at the bottom. We reserve
+        // index 0 for the typing indicator when awaiting a server reply and
+        // the trailing slot for the pagination spinner.
+        final int typingOffset = isAwaitingResponse ? 1 : 0;
+        final int paginationOffset = isLoading ? 1 : 0;
         return Container(
           color: chatThemeCubit.chatTheme.backgroundColor,
           padding: EdgeInsets.only(bottom: SdkConstants.messageListPadding),
@@ -53,10 +60,14 @@ class _MessageListState extends State<MessageList> {
             scrollCacheExtent: ScrollCacheExtent.pixels(
               SdkConstants.chatCacheExtent,
             ),
-            itemCount: length + (isLoading ? 1 : 0),
+            itemCount: length + typingOffset + paginationOffset,
             controller: _scrollController,
             itemBuilder: (context, index) {
-              if (index == length) {
+              if (isAwaitingResponse && index == 0) {
+                return const TypingIndicator();
+              }
+              final int messageIndex = index - typingOffset;
+              if (messageIndex == length) {
                 return Center(
                   child: CircularProgressIndicator(
                     key: const Key('loading_spinner'),
@@ -66,7 +77,7 @@ class _MessageListState extends State<MessageList> {
               return Container(
                 margin: EdgeInsets.only(top: SdkConstants.messageListMargin),
                 child: BlocSelector<MessagesBloc, MessagesState, ChatMessage>(
-                  selector: (state) => state.messages[index],
+                  selector: (state) => state.messages[messageIndex],
                   builder: (context, message) {
                     assert(
                       message.id != null,

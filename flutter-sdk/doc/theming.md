@@ -59,6 +59,7 @@ ChatTheme.fromThemeData(
 |----------|------|-------------|
 | `userMessageColor` | `Color` | Background color of user message bubbles. |
 | `messageFooterColor` | `Color` | Color of the footer text below messages. |
+| `typingIndicatorDotColor` | `Color` | Color of the loading dots shown while waiting for a server reply. |
 
 ### Text input
 
