@@ -842,4 +842,125 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(service.unsubscribe).toHaveBeenCalledOnce();
     });
   });
+
+  describe('chat-status timeout', () => {
+    const statusPollItem = (id: string, status: string) => ({
+      id,
+      userId: 'u',
+      status: 0,
+      message: {
+        correlationId: '',
+        timestamp: new Date(),
+        chatStatusRequest: { status, timestamp: undefined },
+      },
+    });
+
+    it('emits an empty chat-status after 15s when the backend goes silent', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', 'Agent is typing'));
+      expect(callback).toHaveBeenCalledTimes(1);
+
+      vi.advanceTimersByTime(15000);
+
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(callback.mock.calls[1][0][0]).toMatchObject({
+        type: 'chat-status',
+        content: '',
+      });
+    });
+
+    it('does not emit an empty chat-status before the timeout elapses', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', 'Agent is typing'));
+      vi.advanceTimersByTime(14999);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('cancels the timeout when another message arrives', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', 'Agent is typing'));
+      vi.advanceTimersByTime(10000);
+      emit(textPollItem('msg-1', 'hi'));
+      vi.advanceTimersByTime(20000);
+
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(callback.mock.calls[1][0][0]).toMatchObject({ type: 'text' });
+    });
+
+    it('does not arm a timer for an empty chat-status', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', ''));
+      vi.advanceTimersByTime(30000);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('resets the timeout when a new non-empty chat-status arrives', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', 'Agent is typing'));
+      vi.advanceTimersByTime(10000);
+      emit(statusPollItem('status-2', 'Still typing'));
+      vi.advanceTimersByTime(10000);
+
+      expect(callback).toHaveBeenCalledTimes(2);
+
+      vi.advanceTimersByTime(5000);
+
+      expect(callback).toHaveBeenCalledTimes(3);
+      expect(callback.mock.calls[2][0][0]).toMatchObject({
+        type: 'chat-status',
+        content: '',
+      });
+    });
+
+    it('honors a custom timeout passed to the constructor', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia(), 5000);
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', 'Agent is typing'));
+      vi.advanceTimersByTime(5000);
+
+      expect(callback).toHaveBeenCalledTimes(2);
+      expect(callback.mock.calls[1][0][0]).toMatchObject({
+        type: 'chat-status',
+        content: '',
+      });
+    });
+
+    it('clears a pending chat-status timer on unsubscribe', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit(statusPollItem('status-1', 'Agent is typing'));
+      repo.unsubscribeMessages();
+      vi.advanceTimersByTime(30000);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+  });
 });

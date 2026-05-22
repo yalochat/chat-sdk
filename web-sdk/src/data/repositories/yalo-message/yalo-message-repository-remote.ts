@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import { Err, Ok, type Result } from '@domain/common/result';
-import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import {
   UnitType,
   type PollMessageItem,
@@ -18,13 +18,22 @@ import {
   pollMessageItemToChatMessage,
 } from './sdk-message-mapper';
 
+const DEFAULT_CHAT_STATUS_TIMEOUT_MS = 15000;
+
 export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _service: YaloMessageService;
   private readonly _mediaService: YaloMediaService;
+  private readonly _chatStatusTimeoutMs: number;
+  private _chatStatusTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(service: YaloMessageService, mediaService: YaloMediaService) {
+  constructor(
+    service: YaloMessageService,
+    mediaService: YaloMediaService,
+    chatStatusTimeoutMs: number = DEFAULT_CHAT_STATUS_TIMEOUT_MS
+  ) {
     this._service = service;
     this._mediaService = mediaService;
+    this._chatStatusTimeoutMs = chatStatusTimeoutMs;
   }
 
   async insertMessage(message: ChatMessage): Promise<Result<ChatMessage>> {
@@ -119,11 +128,34 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   subscribeToMessages(callback: PollCallback): void {
     this._service.subscribe((item: PollMessageItem) => {
       const message = pollMessageItemToChatMessage(item);
-      if (message) callback([message]);
+      if (message) {
+        this._emit(message, callback);
+      }
     });
   }
 
   unsubscribeMessages(): void {
+    this._clearChatStatusTimer();
     this._service.unsubscribe();
+  }
+
+  // A non-empty chat-status arms a timer that emits an empty chat-status if
+  // the backend goes silent; any subsequent emission cancels it.
+  private _emit(message: ChatMessage, callback: PollCallback): void {
+    callback([message]);
+    this._clearChatStatusTimer();
+    if (message.type === 'chat-status' && message.content.length > 0) {
+      this._chatStatusTimer = setTimeout(() => {
+        callback([ChatMessage.chatStatus({ timestamp: new Date(), content: '' })]);
+        this._chatStatusTimer = undefined;
+      }, this._chatStatusTimeoutMs);
+    }
+  }
+
+  private _clearChatStatusTimer(): void {
+    if (this._chatStatusTimer !== undefined) {
+      clearTimeout(this._chatStatusTimer);
+      this._chatStatusTimer = undefined;
+    }
   }
 }
