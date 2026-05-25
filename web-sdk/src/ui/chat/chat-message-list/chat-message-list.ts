@@ -11,6 +11,7 @@ import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import ChatMessageListController from './chat-message-list-controller';
 import './user-message';
 import './assistant-message';
+import './chat-quick-replies';
 
 @customElement('chat-message-list')
 export default class ChatMessageList extends LitElement {
@@ -166,6 +167,14 @@ export default class ChatMessageList extends LitElement {
   }
 
   render() {
+    const latestMessage = this.chatMessages[0];
+    const showsQuickReplies =
+      latestMessage?.role === 'AGENT' &&
+      latestMessage.buttons.some((button) => button.type === 'reply');
+    const quickReplies = showsQuickReplies
+      ? latestMessage.buttons.filter((button) => button.type === 'reply')
+      : [];
+
     return html`
       <ul class="message-list">
         ${this.isWriting
@@ -178,6 +187,8 @@ export default class ChatMessageList extends LitElement {
           (chatMessage) => chatMessage.id,
           (chatMessage) => {
             const isUser = chatMessage.role === 'USER';
+            const hideQuickReplies =
+              showsQuickReplies && chatMessage.id === latestMessage.id;
             return html`
               <li
                 class="chat-message ${isUser
@@ -188,6 +199,7 @@ export default class ChatMessageList extends LitElement {
                   ? html`<user-message .message=${chatMessage}></user-message>`
                   : html`<assistant-message
                       .message=${chatMessage}
+                      .hideQuickReplies=${hideQuickReplies}
                     ></assistant-message>`}
               </li>
             `;
@@ -195,6 +207,7 @@ export default class ChatMessageList extends LitElement {
         )}
         <li class="loader"></li>
       </ul>
+      <chat-quick-replies .replies=${quickReplies}></chat-quick-replies>
     `;
   }
 }
