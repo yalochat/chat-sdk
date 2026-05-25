@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cross_file/cross_file.dart';
@@ -25,11 +26,16 @@ import 'messages_state.dart';
 /// A Bloc for managing the chat messages in messages list
 class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     with WidgetsBindingObserver {
+  // Window between a user message being sent and the assistant reply we will
+  // wait for before clearing the inline loading indicator.
+  static const Duration awaitResponseTimeout = Duration(minutes: 1);
+
   final Clock blocClock;
   final ChatMessageRepository _chatMessageRepository;
   final ImageRepository _imageRepository;
   final YaloMessageRepository _yaloMessageRepository;
   final Logger log = Logger('ChatViewModel');
+  Timer? _awaitResponseTimer;
 
   MessagesBloc({
     String name = '',
@@ -62,6 +68,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
     on<ChatClearQuickReplies>(_handleClearQuickReplies);
+    on<ChatAwaitResponseTimedOut>(_handleAwaitResponseTimedOut);
   }
 
   @override
@@ -82,7 +89,38 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
   @override
   Future<void> close() {
     WidgetsBinding.instance.removeObserver(this);
+    _awaitResponseTimer?.cancel();
     return super.close();
+  }
+
+  // (Re)arms the timeout timer for the in-flight assistant reply. Callers are
+  // expected to fold `isAwaitingResponse: true` into their own emit so that
+  // only a single state change is published per send.
+  void _scheduleAwaitTimeout() {
+    _awaitResponseTimer?.cancel();
+    _awaitResponseTimer = Timer(awaitResponseTimeout, () {
+      if (isClosed) {
+        return;
+      }
+      add(const ChatAwaitResponseTimedOut());
+    });
+  }
+
+  // Cancels the timeout timer and clears the awaiting flag if it was set.
+  void _stopAwaitingResponse(Emitter<MessagesState> emit) {
+    _awaitResponseTimer?.cancel();
+    _awaitResponseTimer = null;
+    if (state.isAwaitingResponse) {
+      emit(state.copyWith(isAwaitingResponse: false));
+    }
+  }
+
+  void _handleAwaitResponseTimedOut(
+    ChatAwaitResponseTimedOut event,
+    Emitter<MessagesState> emit,
+  ) {
+    log.info('Await-response timer fired, clearing loading indicator');
+    _stopAwaitingResponse(emit);
   }
 
   // Event that handles the pagination of messages
@@ -170,9 +208,12 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
             .where((b) => b.type == ButtonType.reply)
             .map((b) => b.text)
             .toList();
+        _awaitResponseTimer?.cancel();
+        _awaitResponseTimer = null;
         return state.copyWith(
           messages: [chatMessage, ...state.messages],
           quickReplies: replyLabels.isEmpty ? null : replyLabels,
+          isAwaitingResponse: false,
         );
       },
       onError: (error, stackTrace) {
@@ -214,11 +255,13 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Text message inserted successfully, id ${result.result.id}');
+        _scheduleAwaitTimeout();
         emit(
           state.copyWith(
             // FIXME: Create a new way to track big message list copies
             messages: [result.result, ...state.messages],
             userMessage: '',
+            isAwaitingResponse: true,
           ),
         );
         final sendResult = await _yaloMessageRepository.sendMessage(
@@ -268,7 +311,13 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Voice message inserted successfully, id ${result.result.id}');
-        emit(state.copyWith(messages: [result.result, ...state.messages]));
+        _scheduleAwaitTimeout();
+        emit(
+          state.copyWith(
+            messages: [result.result, ...state.messages],
+            isAwaitingResponse: true,
+          ),
+        );
         final sendResult = await _yaloMessageRepository.sendMessage(
           result.result,
         );
@@ -321,10 +370,12 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     switch (result) {
       case Ok<ChatMessage>():
         log.info('Image message inserted successfully, id ${result.result.id}');
+        _scheduleAwaitTimeout();
         emit(
           state.copyWith(
             messages: [result.result, ...state.messages],
             userMessage: '',
+            isAwaitingResponse: true,
           ),
         );
         // free space from temporal space
@@ -368,7 +419,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
   }
 
   // Flags a previously inserted user message as failed to deliver, both in
-  // memory and in the local data source so the error survives reloads.
+  // memory and in the local data source so the error survives reloads. Also
+  // cancels the await-response timer (a failed delivery has no incoming reply
+  // to wait for) and clears the loading flag in the same emit.
   Future<void> _markMessageAsError(
     ChatMessage message,
     Emitter<MessagesState> emit,
@@ -383,7 +436,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     );
     final List<ChatMessage> newMessages = [...state.messages];
     newMessages[index] = updatedMessage;
-    emit(state.copyWith(messages: newMessages));
+    _awaitResponseTimer?.cancel();
+    _awaitResponseTimer = null;
+    emit(state.copyWith(messages: newMessages, isAwaitingResponse: false));
 
     final persistResult = await _chatMessageRepository.replaceChatMessage(
       updatedMessage,
@@ -425,7 +480,10 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     );
     final List<ChatMessage> newMessages = [...state.messages];
     newMessages[index] = retrying;
-    emit(state.copyWith(messages: newMessages));
+    _scheduleAwaitTimeout();
+    emit(
+      state.copyWith(messages: newMessages, isAwaitingResponse: true),
+    );
 
     final persistResult = await _chatMessageRepository.replaceChatMessage(
       retrying,

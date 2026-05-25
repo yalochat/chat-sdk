@@ -43,6 +43,8 @@ class ChatTheme {
   final Color buttonsMessageButtonBorderColor;
   final Color buttonsMessageButtonForegroundColor;
   final Color messageFooterColor;
+  // Color of the three dots shown while the SDK waits for an assistant reply.
+  final Color typingIndicatorDotColor;
 
   final TextStyle quickReplyStyle;
   final TextStyle modalHeaderStyle;
@@ -122,6 +124,7 @@ class ChatTheme {
     this.buttonsMessageButtonForegroundColor =
         SdkColors.buttonsMessageButtonForegroundColorLight,
     this.messageFooterColor = SdkColors.messageFooterColorLight,
+    this.typingIndicatorDotColor = SdkColors.messageControlIconColorLight,
 
     // Text Styles
     this.quickReplyStyle = const TextStyle(
@@ -237,6 +240,7 @@ class ChatTheme {
     Color? buttonsMessageButtonBorderColor,
     Color? buttonsMessageButtonForegroundColor,
     Color? messageFooterColor,
+    Color? typingIndicatorDotColor,
     TextStyle? quickReplyStyle,
     TextStyle? modalHeaderStyle,
     TextStyle? userMessageTextStyle,
@@ -327,6 +331,8 @@ class ChatTheme {
           buttonsMessageButtonForegroundColor ??
           this.buttonsMessageButtonForegroundColor,
       messageFooterColor: messageFooterColor ?? this.messageFooterColor,
+      typingIndicatorDotColor:
+          typingIndicatorDotColor ?? this.typingIndicatorDotColor,
       quickReplyStyle: quickReplyStyle ?? this.quickReplyStyle,
       modalHeaderStyle: modalHeaderStyle ?? this.modalHeaderStyle,
       userMessageTextStyle: userMessageTextStyle ?? this.userMessageTextStyle,
@@ -454,6 +460,9 @@ class ChatTheme {
       quickReplyStyle: baseTheme.quickReplyStyle.copyWith(
         color: themeData.colorScheme.onSurface,
       ),
+
+      // Typing indicator
+      typingIndicatorDotColor: themeData.colorScheme.onSurfaceVariant,
     );
   }
 }

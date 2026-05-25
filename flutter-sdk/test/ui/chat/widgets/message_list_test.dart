@@ -167,6 +167,33 @@ void main() {
       });
 
       testWidgets(
+        'should render the typing indicator when isAwaitingResponse is true',
+        (tester) async {
+          when(() => chatBloc.state).thenReturn(
+            MessagesState(isAwaitingResponse: true, messages: []),
+          );
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(
+            find.byKey(const Key('typing_indicator')),
+            findsOneWidget,
+          );
+        },
+      );
+
+      testWidgets(
+        'should not render the typing indicator when isAwaitingResponse is false',
+        (tester) async {
+          when(
+            () => chatBloc.state,
+          ).thenReturn(MessagesState(messages: []));
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          expect(find.byKey(const Key('typing_indicator')), findsNothing);
+        },
+      );
+
+      testWidgets(
         'should throw an unimplemented error when a unsupported user message is received',
         (tester) async {
           when(() => chatBloc.state).thenReturn(
