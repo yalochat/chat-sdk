@@ -216,6 +216,44 @@ Buttons attached to assistant messages, rendered below the body.
 }
 ```
 
+### Quick replies
+
+Reply-type buttons attached to the latest agent message render as chips in an emerging section above the input. Once a newer message arrives, those reply buttons render inline like postback buttons.
+
+```css
+:root {
+  /* Gap between quick reply chips. */
+  --yalo-chat-quick-replies-gap: 0.5rem;
+
+  /* Padding around the chip row. */
+  --yalo-chat-quick-replies-padding: 0.5rem;
+
+  /* Top border separating the quick replies from the message list. */
+  --yalo-chat-quick-replies-border: 1px solid #e8e8e8;
+
+  /* Padding inside each chip. */
+  --yalo-chat-quick-replies-chip-padding: 0.5rem 0.75rem;
+
+  /* Border color around each chip. */
+  --yalo-chat-quick-replies-chip-border-color: #9db1c8;
+
+  /* Border radius for each chip. */
+  --yalo-chat-quick-replies-chip-border-radius: 1.125rem;
+
+  /* Background color for each chip. */
+  --yalo-chat-quick-replies-chip-background: transparent;
+
+  /* Text color for each chip. */
+  --yalo-chat-quick-replies-chip-color: #111111;
+
+  /* Font size for chip text. */
+  --yalo-chat-quick-replies-chip-font-size: 0.875rem;
+
+  /* Duration of the open and close animation. */
+  --yalo-chat-quick-replies-animation-duration: 0.3s;
+}
+```
+
 ### Product messages
 
 ```css
