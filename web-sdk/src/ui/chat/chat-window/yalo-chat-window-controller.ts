@@ -29,6 +29,8 @@ export default class YaloChatWindowController implements ReactiveController {
   private readonly _messagePageSize = 500;
   private readonly _writingTimeoutMs = 30000;
   private _writingTimeout?: ReturnType<typeof setTimeout>;
+  private _guidanceCardRequested = false;
+  private _messagesLoaded = false;
 
   private readonly _DB_VERSION = 2;
 
@@ -93,10 +95,38 @@ export default class YaloChatWindowController implements ReactiveController {
     } else {
       this.host.logger.error('Unable to fetch messages');
     }
+    this._messagesLoaded = true;
     this.host.requestUpdate();
 
     // Subscribe to incoming message stream
     this.host.yaloMessageRepository.subscribeToMessages(this.onMessageReceived);
+
+    if (this.host.open) {
+      await this.requestGuidanceCardIfEmpty();
+    }
+  }
+
+  async requestGuidanceCardIfEmpty(): Promise<void> {
+    if (this._guidanceCardRequested) {
+      return;
+    }
+    if (!this._messagesLoaded) {
+      return;
+    }
+    if (this.chatMessages.length > 0) {
+      return;
+    }
+    this._guidanceCardRequested = true;
+    const context = this.host.openContext ?? this.host.config.openContext;
+    const result = await this.host.yaloMessageRepository.requestGuidanceCard(
+      this.host.config.target,
+      context
+    );
+    if (!result.ok) {
+      this.host.logger.error('Unable to request guidance cards', {
+        error: result.error,
+      });
+    }
   }
 
   async sendTextMessage(e: CustomEvent) {

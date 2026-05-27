@@ -366,6 +366,40 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(sent.clearCartRequest.timestamp).toBeInstanceOf(Date);
     });
 
+    it('sends a guidanceCardRequest with target id and context', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      const result = await repo.requestGuidanceCard(
+        'chat-mount',
+        'product-page'
+      );
+
+      expect(result.ok).toBe(true);
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent).toMatchObject({
+        guidanceCardRequest: {
+          targetId: 'chat-mount',
+          context: 'product-page',
+        },
+      });
+      expect(sent.guidanceCardRequest.timestamp).toBeInstanceOf(Date);
+      expect(sent.correlationId).toMatch(/^guidance-card-/);
+    });
+
+    it('omits targetId and context when not provided', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.requestGuidanceCard();
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent.guidanceCardRequest.targetId).toBeUndefined();
+      expect(sent.guidanceCardRequest.context).toBeUndefined();
+    });
+
     it('sends an addPromotionRequest with the promotion id', async () => {
       const { service } = okService();
       const repo = new YaloMessageRepositoryRemote(service, okMedia());

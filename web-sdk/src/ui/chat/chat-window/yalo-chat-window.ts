@@ -5,7 +5,7 @@ import type {
   ChatCommand,
   ChatCommandCallback,
 } from '@domain/models/command/chat-command';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, type PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import '@ui/chat/chat-header/chat-header';
@@ -98,6 +98,12 @@ export class YaloChatWindow extends LitElement {
 
   firstUpdated(): void {
     setLocale(this.config.locale || 'en');
+  }
+
+  updated(changed: PropertyValues<this>): void {
+    if (changed.has('open') && this.open) {
+      this._chatWindowController.requestGuidanceCardIfEmpty();
+    }
   }
 
   private _handleClose = () => {

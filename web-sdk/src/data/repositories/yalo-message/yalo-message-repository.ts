@@ -30,6 +30,12 @@ export abstract class YaloMessageRepository {
   // Sends an add-promotion command for the given promotion ID
   abstract addPromotion(promotionId: string): Promise<Result<void>>;
 
+  // Requests guidance cards from the channel for the given target and context
+  abstract requestGuidanceCard(
+    targetId?: string,
+    context?: string
+  ): Promise<Result<void>>;
+
   // Polls messages based on timestamp every X seconds and notifies
   // via callback
   abstract subscribeToMessages(callback: PollCallback): void;
