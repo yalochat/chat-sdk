@@ -67,10 +67,15 @@ const dispatchFromList = (
     );
 };
 
-const getTextarea = (el: YaloChatWindow): HTMLTextAreaElement =>
+const getInput = (el: YaloChatWindow): HTMLElement =>
   getFooter(el).shadowRoot?.querySelector(
     '.chat-input'
-  ) as unknown as HTMLTextAreaElement;
+  ) as unknown as HTMLElement;
+
+const typeInto = (input: HTMLElement, text: string): void => {
+  input.textContent = text;
+  input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+};
 
 const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
   getFooter(el).shadowRoot?.querySelector(
@@ -156,6 +161,32 @@ describe('YaloChatWindow', () => {
       await closed;
       expect(el.open).toBe(false);
     });
+
+    it('renders the close button by default', async () => {
+      const header = el.shadowRoot?.querySelector('chat-header') as LitElement;
+      await header.updateComplete;
+
+      expect(
+        header.shadowRoot?.querySelector('.chat-close-btn')
+      ).not.toBeNull();
+    });
+
+    it('hides the close button when config.hideCloseButton is true', async () => {
+      document.body.innerHTML = '';
+      const hidden = document.createElement(
+        'yalo-chat-window'
+      ) as YaloChatWindow;
+      hidden.config = { ...baseConfig, hideCloseButton: true };
+      document.body.appendChild(hidden);
+      await vi.waitUntil(() => hidden.yaloMessageRepository !== undefined);
+
+      const header = hidden.shadowRoot?.querySelector(
+        'chat-header'
+      ) as LitElement;
+      await header.updateComplete;
+
+      expect(header.shadowRoot?.querySelector('.chat-close-btn')).toBeNull();
+    });
   });
 
   describe('sending messages', () => {
@@ -163,11 +194,7 @@ describe('YaloChatWindow', () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Hello world';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(getInput(el), 'Hello world');
       await footer.updateComplete;
 
       const received = new Promise<ChatMessage>((resolve) => {
@@ -188,22 +215,19 @@ describe('YaloChatWindow', () => {
       expect(message.timestamp).toBeInstanceOf(Date);
     });
 
-    it('clears the textarea after sending', async () => {
+    it('clears the input after sending', async () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Hello world';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      const input = getInput(el);
+      typeInto(input, 'Hello world');
       await footer.updateComplete;
       getSendButton(el).click();
 
-      expect(textarea.value).toBe('');
+      expect(input.textContent).toBe('');
     });
 
-    it('does not emit when textarea is empty', async () => {
+    it('does not emit when the input is empty', async () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
@@ -217,7 +241,7 @@ describe('YaloChatWindow', () => {
       expect(emitted).toBe(false);
     });
 
-    it('does not emit when textarea contains only whitespace', async () => {
+    it('does not emit when the input contains only whitespace', async () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
@@ -226,7 +250,7 @@ describe('YaloChatWindow', () => {
         emitted = true;
       });
 
-      getTextarea(el).value = '   ';
+      typeInto(getInput(el), '   ');
       getSendButton(el).click();
 
       expect(emitted).toBe(false);
@@ -236,8 +260,8 @@ describe('YaloChatWindow', () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Via keyboard';
+      const input = getInput(el);
+      input.textContent = 'Via keyboard';
 
       const received = new Promise<ChatMessage>((resolve) => {
         el.addEventListener(
@@ -247,7 +271,7 @@ describe('YaloChatWindow', () => {
         );
       });
 
-      textarea.dispatchEvent(
+      input.dispatchEvent(
         new KeyboardEvent('keydown', {
           key: 'Enter',
           bubbles: true,
@@ -267,9 +291,9 @@ describe('YaloChatWindow', () => {
         emitted = true;
       });
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Draft';
-      textarea.dispatchEvent(
+      const input = getInput(el);
+      input.textContent = 'Draft';
+      input.dispatchEvent(
         new KeyboardEvent('keydown', {
           key: 'Enter',
           shiftKey: true,
@@ -318,11 +342,7 @@ describe('YaloChatWindow', () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Will fail';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(getInput(el), 'Will fail');
       await footer.updateComplete;
 
       getSendButton(el).click();
@@ -368,11 +388,7 @@ describe('YaloChatWindow', () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Retry me';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(getInput(el), 'Retry me');
       await footer.updateComplete;
       getSendButton(el).click();
 
@@ -455,11 +471,7 @@ describe('YaloChatWindow', () => {
 
       const footer = getFooter(el);
       await footer.updateComplete;
-      const textarea = getTextarea(el);
-      textarea.value = 'fails to retry';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(getInput(el), 'fails to retry');
       await footer.updateComplete;
       getSendButton(el).click();
 
@@ -499,11 +511,7 @@ describe('YaloChatWindow', () => {
 
       const footer = getFooter(el);
       await footer.updateComplete;
-      const textarea = getTextarea(el);
-      textarea.value = 'cannot mark errored';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(getInput(el), 'cannot mark errored');
       await footer.updateComplete;
       getSendButton(el).click();
 
@@ -526,11 +534,7 @@ describe('YaloChatWindow', () => {
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Stays errored';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(getInput(el), 'Stays errored');
       await footer.updateComplete;
       getSendButton(el).click();
 
@@ -583,56 +587,57 @@ describe('YaloChatWindow', () => {
   });
 
   describe('chat-footer expansion', () => {
-    it('sets overflow-y to scroll when text exceeds max height', async () => {
+    it('shows a scrollbar when content exceeds the max height', async () => {
       el.open = true;
       await el.updateComplete;
 
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
+      const input = getInput(el);
+      typeInto(
+        input,
+        'Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6'
       );
 
-      expect(textarea.style.overflowY).toBe('scroll');
+      expect(input.scrollHeight).toBeGreaterThan(input.clientHeight);
     });
 
-    it('grows the textarea height when long text is entered', async () => {
+    it('grows the input height when long text is entered', async () => {
       el.open = true;
       await el.updateComplete;
 
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      const initialHeight = textarea.scrollHeight;
+      const input = getInput(el);
+      const initialHeight = input.scrollHeight;
 
-      textarea.value = 'Line 1\nLine 2\nLine 3';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      typeInto(input, 'Line 1\nLine 2\nLine 3');
 
-      expect(textarea.scrollHeight).toBeGreaterThan(initialHeight);
+      expect(input.scrollHeight).toBeGreaterThan(initialHeight);
     });
 
-    it('resets textarea height after sending', async () => {
+    it('shrinks back to a single line after sending', async () => {
       el.open = true;
       await el.updateComplete;
 
       const footer = getFooter(el);
       await footer.updateComplete;
 
-      const textarea = getTextarea(el);
-      textarea.value = 'Line 1\nLine 2\nLine 3';
-      textarea.dispatchEvent(
-        new Event('input', { bubbles: true, composed: true })
-      );
+      const input = getInput(el);
+      const initialHeight = input.scrollHeight;
+      typeInto(input, 'Line 1\nLine 2\nLine 3');
+      const expandedHeight = input.scrollHeight;
+      expect(expandedHeight).toBeGreaterThan(initialHeight);
 
       getSendButton(el).click();
+      await footer.updateComplete;
 
-      expect(textarea.style.height).toBe('auto');
+      expect(input).toMatchObject({
+        textContent: '',
+        scrollHeight: initialHeight,
+      });
     });
   });
 

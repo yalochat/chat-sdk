@@ -40,9 +40,8 @@ export class YaloChatWindow extends LitElement {
       --yalo-chat-font: sans-serif;
       --yalo-chat-column-item-space: 8px;
       --yalo-chat-row-item-space: 8px;
-      --yalo-chat-width: 100%;
-      --yalo-chat-height: 100%;
-
+      --yalo-chat-width: auto;
+      --yalo-chat-height: auto;
       display: none;
       width: var(--yalo-chat-width);
       height: var(--yalo-chat-height);

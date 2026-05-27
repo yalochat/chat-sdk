@@ -23,6 +23,7 @@ export interface YaloChatClientConfig {
   audioWaveformColor?: string;
   userId?: string;
   openContext?: string;
+  hideCloseButton?: boolean;
 }
 
 export const defaultIcons: SdkIcons = {

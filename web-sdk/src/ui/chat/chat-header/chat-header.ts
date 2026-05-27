@@ -97,13 +97,15 @@ export class ChatHeader extends LitElement {
             ? html`<p class="chat-status">${this.statusMessage}</p>`
             : nothing}
         </hgroup>
-        <button
-          class="chat-close-btn"
-          aria-label="${msg(`Close Chat`)}"
-          @click=${this._handleClose}
-        >
-          ${unsafeHTML(this.config.icons?.close)}
-        </button>
+        ${this.config.hideCloseButton
+          ? nothing
+          : html`<button
+              class="chat-close-btn"
+              aria-label="${msg(`Close Chat`)}"
+              @click=${this._handleClose}
+            >
+              ${unsafeHTML(this.config.icons?.close)}
+            </button>`}
       </header>
     `;
   }

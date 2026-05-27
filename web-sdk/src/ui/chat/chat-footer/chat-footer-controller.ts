@@ -14,11 +14,11 @@ export class ChatFooterController implements ReactiveController {
 
   async sendTextMessage(e: Event) {
     e.preventDefault();
-    const value = this.host.textArea.value.trim();
-    if (!value) return;
-    this.host.textArea.value = '';
-    this.host.textArea.style.height = 'auto';
-    this.host.textArea.style.overflowY = 'hidden';
+    const value = this.host.input.innerText.trim();
+    if (!value) {
+      return;
+    }
+    this.host.input.textContent = '';
     this.host.hasText = false;
     this.host.logger.debug(`sending text message "${value}"`);
     const chatMessageToInsert = ChatMessage.text({
@@ -38,15 +38,7 @@ export class ChatFooterController implements ReactiveController {
   }
 
   handleOnInput() {
-    const el = this.host.textArea;
-    el.style.overflowY = 'hidden';
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-    const maxHeight = parseFloat(getComputedStyle(el).maxHeight);
-    if (el.scrollHeight > maxHeight) {
-      el.style.overflowY = 'scroll';
-    }
-    this.host.hasText = el.value.trim().length > 0;
+    this.host.hasText = (this.host.input.textContent ?? '').length > 0;
     this.host.requestUpdate();
   }
 

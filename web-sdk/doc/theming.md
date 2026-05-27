@@ -89,6 +89,9 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 
   /* Font size of the text typed into the message input field. */
   --yalo-chat-input-font-size: 16px;
+
+  /* Color of the placeholder shown inside the message input field when empty. */
+  --yalo-chat-input-placeholder-color: #757575;
 }
 ```
 
