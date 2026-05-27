@@ -125,6 +125,18 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     });
   }
 
+  async requestGuidanceCard(
+    targetId?: string,
+    context?: string
+  ): Promise<Result<void>> {
+    const timestamp = new Date();
+    return this._service.sendMessage({
+      correlationId: `guidance-card-${Date.now()}`,
+      guidanceCardRequest: { timestamp, targetId, context },
+      timestamp,
+    });
+  }
+
   subscribeToMessages(callback: PollCallback): void {
     this._service.subscribe((item: PollMessageItem) => {
       const message = pollMessageItemToChatMessage(item);

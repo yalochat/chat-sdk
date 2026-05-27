@@ -1400,3 +1400,124 @@ describe('YaloChatWindow pagination', () => {
     expect(errorSpy).toHaveBeenCalledWith('Unable to fetch next message page');
   });
 });
+
+describe('YaloChatWindow guidance card on first open', () => {
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  const createWith = async (
+    config: Partial<typeof baseConfig> & { openContext?: string } = {}
+  ): Promise<YaloChatWindow> => {
+    const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+    window.config = { ...baseConfig, ...config };
+    document.body.appendChild(window);
+    await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+    return window;
+  };
+
+  it('requests guidance cards on first open when there are no messages', async () => {
+    const window = await createWith({ openContext: 'product-page' });
+    const requestSpy = vi
+      .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+
+    window.open = true;
+    await window.updateComplete;
+
+    await vi.waitUntil(() => requestSpy.mock.calls.length > 0);
+    expect(requestSpy).toHaveBeenCalledWith('chat-target', 'product-page');
+  });
+
+  it('uses openContext set on the element when config.openContext is missing', async () => {
+    const window = await createWith();
+    window.openContext = 'home-page';
+    const requestSpy = vi
+      .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+
+    window.open = true;
+    await window.updateComplete;
+
+    await vi.waitUntil(() => requestSpy.mock.calls.length > 0);
+    expect(requestSpy).toHaveBeenCalledWith('chat-target', 'home-page');
+  });
+
+  it('does not request guidance cards when there is at least one stored message', async () => {
+    vi.spyOn(
+      ChatMessageRepositoryLocal.prototype,
+      'getChatMessagePageDesc'
+    ).mockResolvedValue(
+      new Ok({
+        data: [
+          ChatMessage.text({
+            id: 1,
+            role: 'USER',
+            timestamp: new Date(),
+            content: 'old',
+          }),
+        ],
+        pageInfo: { cursor: undefined, nextCursor: undefined, pageSize: 500 },
+      })
+    );
+    const window = await createWith();
+    const requestSpy = vi
+      .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+
+    window.open = true;
+    await window.updateComplete;
+
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(requestSpy).not.toHaveBeenCalled();
+  });
+
+  it('requests guidance cards only once across multiple opens', async () => {
+    const window = await createWith();
+    const requestSpy = vi
+      .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+
+    window.open = true;
+    await window.updateComplete;
+    await vi.waitUntil(() => requestSpy.mock.calls.length === 1);
+
+    window.open = false;
+    await window.updateComplete;
+    window.open = true;
+    await window.updateComplete;
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    expect(requestSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not request guidance cards while the chat stays closed', async () => {
+    const window = await createWith();
+    const requestSpy = vi
+      .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(requestSpy).not.toHaveBeenCalled();
+  });
+
+  it('logs an error when the guidance card request fails', async () => {
+    const window = await createWith();
+    const errorSpy = vi.spyOn(window.logger, 'error');
+    vi.spyOn(
+      window.yaloMessageRepository,
+      'requestGuidanceCard'
+    ).mockResolvedValue(new Err(new Error('socket closed')));
+
+    window.open = true;
+    await window.updateComplete;
+
+    await vi.waitUntil(() =>
+      errorSpy.mock.calls.some(
+        (c) => c[0] === 'Unable to request guidance cards'
+      )
+    );
+  });
+});
