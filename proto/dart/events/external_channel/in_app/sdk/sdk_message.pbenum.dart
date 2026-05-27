@@ -156,6 +156,8 @@ class SdkCommand extends $pb.ProtobufEnum {
       SdkCommand._(4, _omitEnumNames ? '' : 'SDK_COMMAND_GUIDANCE_CARD');
   static const SdkCommand SDK_COMMAND_ADD_PROMOTION =
       SdkCommand._(5, _omitEnumNames ? '' : 'SDK_COMMAND_ADD_PROMOTION');
+  static const SdkCommand SDK_COMMAND_UPDATE_CART_PRODUCT =
+      SdkCommand._(6, _omitEnumNames ? '' : 'SDK_COMMAND_UPDATE_CART_PRODUCT');
 
   static const $core.List<SdkCommand> values = <SdkCommand>[
     SDK_COMMAND_UNSPECIFIED,
@@ -164,10 +166,11 @@ class SdkCommand extends $pb.ProtobufEnum {
     SDK_COMMAND_CLEAR_CART,
     SDK_COMMAND_GUIDANCE_CARD,
     SDK_COMMAND_ADD_PROMOTION,
+    SDK_COMMAND_UPDATE_CART_PRODUCT,
   ];
 
   static final $core.List<SdkCommand?> _byValue =
-      $pb.ProtobufEnum.$_initByValueList(values, 5);
+      $pb.ProtobufEnum.$_initByValueList(values, 6);
   static SdkCommand? valueOf($core.int value) =>
       value < 0 || value >= _byValue.length ? null : _byValue[value];
 

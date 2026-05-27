@@ -106,6 +106,7 @@ const SdkCommand$json = {
     {'1': 'SDK_COMMAND_CLEAR_CART', '2': 3},
     {'1': 'SDK_COMMAND_GUIDANCE_CARD', '2': 4},
     {'1': 'SDK_COMMAND_ADD_PROMOTION', '2': 5},
+    {'1': 'SDK_COMMAND_UPDATE_CART_PRODUCT', '2': 6},
   ],
 };
 
@@ -114,7 +115,8 @@ final $typed_data.Uint8List sdkCommandDescriptor = $convert.base64Decode(
     'CgpTZGtDb21tYW5kEhsKF1NES19DT01NQU5EX1VOU1BFQ0lGSUVEEAASGwoXU0RLX0NPTU1BTk'
     'RfQUREX1RPX0NBUlQQARIgChxTREtfQ09NTUFORF9SRU1PVkVfRlJPTV9DQVJUEAISGgoWU0RL'
     'X0NPTU1BTkRfQ0xFQVJfQ0FSVBADEh0KGVNES19DT01NQU5EX0dVSURBTkNFX0NBUkQQBBIdCh'
-    'lTREtfQ09NTUFORF9BRERfUFJPTU9USU9OEAU=');
+    'lTREtfQ09NTUFORF9BRERfUFJPTU9USU9OEAUSIwofU0RLX0NPTU1BTkRfVVBEQVRFX0NBUlRf'
+    'UFJPRFVDVBAG');
 
 @$core.Deprecated('Use sdkMessageDescriptor instead')
 const SdkMessage$json = {
@@ -274,6 +276,24 @@ const SdkMessage$json = {
       '10': 'addPromotionResponse'
     },
     {
+      '1': 'update_cart_product_request',
+      '3': 46,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest',
+      '9': 0,
+      '10': 'updateCartProductRequest'
+    },
+    {
+      '1': 'update_cart_product_response',
+      '3': 47,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse',
+      '9': 0,
+      '10': 'updateCartProductResponse'
+    },
+    {
       '1': 'promotion_message_request',
       '3': 30,
       '4': 1,
@@ -405,28 +425,33 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'F1ZXN0GBwgASgLMjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQWRkUHJv'
     'bW90aW9uUmVxdWVzdEgAUhNhZGRQcm9tb3Rpb25SZXF1ZXN0EnEKFmFkZF9wcm9tb3Rpb25fcm'
     'VzcG9uc2UYHSABKAsyOS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5BZGRQ'
-    'cm9tb3Rpb25SZXNwb25zZUgAUhRhZGRQcm9tb3Rpb25SZXNwb25zZRJ6Chlwcm9tb3Rpb25fbW'
-    'Vzc2FnZV9yZXF1ZXN0GB4gASgLMjwueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsu'
-    'djIuUHJvbW90aW9uTWVzc2FnZVJlcXVlc3RIAFIXcHJvbW90aW9uTWVzc2FnZVJlcXVlc3QSfQ'
-    'oacHJvbW90aW9uX21lc3NhZ2VfcmVzcG9uc2UYHyABKAsyPS55YWxvLmV4dGVybmFsX2NoYW5u'
-    'ZWwuaW5fYXBwLnNkay52Mi5Qcm9tb3Rpb25NZXNzYWdlUmVzcG9uc2VIAFIYcHJvbW90aW9uTW'
-    'Vzc2FnZVJlc3BvbnNlEnQKF3Byb2R1Y3RfbWVzc2FnZV9yZXF1ZXN0GCAgASgLMjoueWFsby5l'
-    'eHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuUHJvZHVjdE1lc3NhZ2VSZXF1ZXN0SABSFX'
-    'Byb2R1Y3RNZXNzYWdlUmVxdWVzdBJ3Chhwcm9kdWN0X21lc3NhZ2VfcmVzcG9uc2UYISABKAsy'
-    'Oy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9kdWN0TWVzc2FnZVJlc3'
-    'BvbnNlSABSFnByb2R1Y3RNZXNzYWdlUmVzcG9uc2USaAoTY2hhdF9zdGF0dXNfcmVxdWVzdBgi'
-    'IAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkNoYXRTdGF0dXNSZX'
-    'F1ZXN0SABSEWNoYXRTdGF0dXNSZXF1ZXN0EmsKFGNoYXRfc3RhdHVzX3Jlc3BvbnNlGCMgASgL'
-    'MjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ2hhdFN0YXR1c1Jlc3Bvbn'
-    'NlSABSEmNoYXRTdGF0dXNSZXNwb25zZRJxChZjdXN0b21fY29tbWFuZF9yZXF1ZXN0GCQgASgL'
-    'MjkueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ3VzdG9tQ29tbWFuZFJlcX'
-    'Vlc3RIAFIUY3VzdG9tQ29tbWFuZFJlcXVlc3QSdAoXY3VzdG9tX2NvbW1hbmRfcmVzcG9uc2UY'
-    'JSABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5DdXN0b21Db21tYW'
-    '5kUmVzcG9uc2VIAFIVY3VzdG9tQ29tbWFuZFJlc3BvbnNlEmsKFGdldF9jb21tYW5kc19yZXF1'
-    'ZXN0GCwgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuR2V0Q29tbW'
-    'FuZHNSZXF1ZXN0SABSEmdldENvbW1hbmRzUmVxdWVzdBJuChVnZXRfY29tbWFuZHNfcmVzcG9u'
-    'c2UYLSABKAsyOC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HZXRDb21tYW'
-    '5kc1Jlc3BvbnNlSABSE2dldENvbW1hbmRzUmVzcG9uc2VCCQoHcGF5bG9hZA==');
+    'cm9tb3Rpb25SZXNwb25zZUgAUhRhZGRQcm9tb3Rpb25SZXNwb25zZRJ+Cht1cGRhdGVfY2FydF'
+    '9wcm9kdWN0X3JlcXVlc3QYLiABKAsyPS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNk'
+    'ay52Mi5VcGRhdGVDYXJ0UHJvZHVjdFJlcXVlc3RIAFIYdXBkYXRlQ2FydFByb2R1Y3RSZXF1ZX'
+    'N0EoEBChx1cGRhdGVfY2FydF9wcm9kdWN0X3Jlc3BvbnNlGC8gASgLMj4ueWFsby5leHRlcm5h'
+    'bF9jaGFubmVsLmluX2FwcC5zZGsudjIuVXBkYXRlQ2FydFByb2R1Y3RSZXNwb25zZUgAUhl1cG'
+    'RhdGVDYXJ0UHJvZHVjdFJlc3BvbnNlEnoKGXByb21vdGlvbl9tZXNzYWdlX3JlcXVlc3QYHiAB'
+    'KAsyPC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9tb3Rpb25NZXNzYW'
+    'dlUmVxdWVzdEgAUhdwcm9tb3Rpb25NZXNzYWdlUmVxdWVzdBJ9Chpwcm9tb3Rpb25fbWVzc2Fn'
+    'ZV9yZXNwb25zZRgfIAEoCzI9LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLl'
+    'Byb21vdGlvbk1lc3NhZ2VSZXNwb25zZUgAUhhwcm9tb3Rpb25NZXNzYWdlUmVzcG9uc2USdAoX'
+    'cHJvZHVjdF9tZXNzYWdlX3JlcXVlc3QYICABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
+    '5fYXBwLnNkay52Mi5Qcm9kdWN0TWVzc2FnZVJlcXVlc3RIAFIVcHJvZHVjdE1lc3NhZ2VSZXF1'
+    'ZXN0EncKGHByb2R1Y3RfbWVzc2FnZV9yZXNwb25zZRghIAEoCzI7LnlhbG8uZXh0ZXJuYWxfY2'
+    'hhbm5lbC5pbl9hcHAuc2RrLnYyLlByb2R1Y3RNZXNzYWdlUmVzcG9uc2VIAFIWcHJvZHVjdE1l'
+    'c3NhZ2VSZXNwb25zZRJoChNjaGF0X3N0YXR1c19yZXF1ZXN0GCIgASgLMjYueWFsby5leHRlcm'
+    '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ2hhdFN0YXR1c1JlcXVlc3RIAFIRY2hhdFN0YXR1'
+    'c1JlcXVlc3QSawoUY2hhdF9zdGF0dXNfcmVzcG9uc2UYIyABKAsyNy55YWxvLmV4dGVybmFsX2'
+    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5DaGF0U3RhdHVzUmVzcG9uc2VIAFISY2hhdFN0YXR1c1Jl'
+    'c3BvbnNlEnEKFmN1c3RvbV9jb21tYW5kX3JlcXVlc3QYJCABKAsyOS55YWxvLmV4dGVybmFsX2'
+    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5DdXN0b21Db21tYW5kUmVxdWVzdEgAUhRjdXN0b21Db21t'
+    'YW5kUmVxdWVzdBJ0ChdjdXN0b21fY29tbWFuZF9yZXNwb25zZRglIAEoCzI6LnlhbG8uZXh0ZX'
+    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkN1c3RvbUNvbW1hbmRSZXNwb25zZUgAUhVjdXN0'
+    'b21Db21tYW5kUmVzcG9uc2USawoUZ2V0X2NvbW1hbmRzX3JlcXVlc3QYLCABKAsyNy55YWxvLm'
+    'V4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HZXRDb21tYW5kc1JlcXVlc3RIAFISZ2V0'
+    'Q29tbWFuZHNSZXF1ZXN0Em4KFWdldF9jb21tYW5kc19yZXNwb25zZRgtIAEoCzI4LnlhbG8uZX'
+    'h0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkdldENvbW1hbmRzUmVzcG9uc2VIAFITZ2V0'
+    'Q29tbWFuZHNSZXNwb25zZUIJCgdwYXlsb2Fk');
 
 @$core.Deprecated('Use buttonDescriptor instead')
 const Button$json = {
@@ -1139,6 +1164,71 @@ final $typed_data.Uint8List clearCartResponseDescriptor = $convert.base64Decode(
     'ChFDbGVhckNhcnRSZXNwb25zZRJLCgZzdGF0dXMYASABKA4yMy55YWxvLmV4dGVybmFsX2NoYW'
     '5uZWwuaW5fYXBwLnNkay52Mi5SZXNwb25zZVN0YXR1c1IGc3RhdHVzEjgKCXRpbWVzdGFtcBgC'
     'IAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
+
+@$core.Deprecated('Use updateCartProductRequestDescriptor instead')
+const UpdateCartProductRequest$json = {
+  '1': 'UpdateCartProductRequest',
+  '2': [
+    {'1': 'sku', '3': 1, '4': 1, '5': 9, '10': 'sku'},
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {'1': 'units', '3': 3, '4': 1, '5': 1, '10': 'units'},
+    {
+      '1': 'subunits',
+      '3': 4,
+      '4': 1,
+      '5': 1,
+      '9': 0,
+      '10': 'subunits',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_subunits'},
+  ],
+};
+
+/// Descriptor for `UpdateCartProductRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateCartProductRequestDescriptor = $convert.base64Decode(
+    'ChhVcGRhdGVDYXJ0UHJvZHVjdFJlcXVlc3QSEAoDc2t1GAEgASgJUgNza3USOAoJdGltZXN0YW'
+    '1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1wEhQKBXVuaXRz'
+    'GAMgASgBUgV1bml0cxIfCghzdWJ1bml0cxgEIAEoAUgAUghzdWJ1bml0c4gBAUILCglfc3VidW'
+    '5pdHM=');
+
+@$core.Deprecated('Use updateCartProductResponseDescriptor instead')
+const UpdateCartProductResponse$json = {
+  '1': 'UpdateCartProductResponse',
+  '2': [
+    {
+      '1': 'status',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `UpdateCartProductResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List updateCartProductResponseDescriptor = $convert.base64Decode(
+    'ChlVcGRhdGVDYXJ0UHJvZHVjdFJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZX'
+    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGlt'
+    'ZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
 
 @$core.Deprecated('Use guidanceCardRequestDescriptor instead')
 const GuidanceCardRequest$json = {

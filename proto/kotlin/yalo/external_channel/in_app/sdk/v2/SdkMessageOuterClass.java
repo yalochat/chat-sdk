@@ -596,6 +596,10 @@ public final class SdkMessageOuterClass {
      * <code>SDK_COMMAND_ADD_PROMOTION = 5;</code>
      */
     SDK_COMMAND_ADD_PROMOTION(5),
+    /**
+     * <code>SDK_COMMAND_UPDATE_CART_PRODUCT = 6;</code>
+     */
+    SDK_COMMAND_UPDATE_CART_PRODUCT(6),
     UNRECOGNIZED(-1),
     ;
 
@@ -623,6 +627,10 @@ public final class SdkMessageOuterClass {
      * <code>SDK_COMMAND_ADD_PROMOTION = 5;</code>
      */
     public static final int SDK_COMMAND_ADD_PROMOTION_VALUE = 5;
+    /**
+     * <code>SDK_COMMAND_UPDATE_CART_PRODUCT = 6;</code>
+     */
+    public static final int SDK_COMMAND_UPDATE_CART_PRODUCT_VALUE = 6;
 
 
     @java.lang.Override
@@ -652,6 +660,7 @@ public final class SdkMessageOuterClass {
         case 3: return SDK_COMMAND_CLEAR_CART;
         case 4: return SDK_COMMAND_GUIDANCE_CARD;
         case 5: return SDK_COMMAND_ADD_PROMOTION;
+        case 6: return SDK_COMMAND_UPDATE_CART_PRODUCT;
         default: return null;
       }
     }
@@ -921,6 +930,28 @@ public final class SdkMessageOuterClass {
     yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.AddPromotionResponse getAddPromotionResponse();
 
     /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     * @return Whether the updateCartProductRequest field is set.
+     */
+    boolean hasUpdateCartProductRequest();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     * @return The updateCartProductRequest.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest getUpdateCartProductRequest();
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     * @return Whether the updateCartProductResponse field is set.
+     */
+    boolean hasUpdateCartProductResponse();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     * @return The updateCartProductResponse.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse getUpdateCartProductResponse();
+
+    /**
      * <pre>
      * Channel → client
      * </pre>
@@ -1086,6 +1117,8 @@ public final class SdkMessageOuterClass {
       GUIDANCE_CARD_RESPONSE(27),
       ADD_PROMOTION_REQUEST(28),
       ADD_PROMOTION_RESPONSE(29),
+      UPDATE_CART_PRODUCT_REQUEST(46),
+      UPDATE_CART_PRODUCT_RESPONSE(47),
       PROMOTION_MESSAGE_REQUEST(30),
       PROMOTION_MESSAGE_RESPONSE(31),
       PRODUCT_MESSAGE_REQUEST(32),
@@ -1127,6 +1160,8 @@ public final class SdkMessageOuterClass {
           case 27: return GUIDANCE_CARD_RESPONSE;
           case 28: return ADD_PROMOTION_REQUEST;
           case 29: return ADD_PROMOTION_RESPONSE;
+          case 46: return UPDATE_CART_PRODUCT_REQUEST;
+          case 47: return UPDATE_CART_PRODUCT_RESPONSE;
           case 30: return PROMOTION_MESSAGE_REQUEST;
           case 31: return PROMOTION_MESSAGE_RESPONSE;
           case 32: return PRODUCT_MESSAGE_REQUEST;
@@ -2141,6 +2176,110 @@ public final class SdkMessageOuterClass {
      */
     private void clearAddPromotionResponse() {
       if (payloadCase_ == 29) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int UPDATE_CART_PRODUCT_REQUEST_FIELD_NUMBER = 46;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     */
+    @java.lang.Override
+    public boolean hasUpdateCartProductRequest() {
+      return payloadCase_ == 46;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest getUpdateCartProductRequest() {
+      if (payloadCase_ == 46) {
+         return (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setUpdateCartProductRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 46;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeUpdateCartProductRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 46 &&
+          payload_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.newBuilder((yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 46;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+     */
+    private void clearUpdateCartProductRequest() {
+      if (payloadCase_ == 46) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int UPDATE_CART_PRODUCT_RESPONSE_FIELD_NUMBER = 47;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     */
+    @java.lang.Override
+    public boolean hasUpdateCartProductResponse() {
+      return payloadCase_ == 47;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse getUpdateCartProductResponse() {
+      if (payloadCase_ == 47) {
+         return (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setUpdateCartProductResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 47;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeUpdateCartProductResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 47 &&
+          payload_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.newBuilder((yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 47;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+     */
+    private void clearUpdateCartProductResponse() {
+      if (payloadCase_ == 47) {
         payloadCase_ = 0;
         payload_ = null;
       }
@@ -3754,6 +3893,102 @@ public final class SdkMessageOuterClass {
       }
 
       /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+       */
+      @java.lang.Override
+      public boolean hasUpdateCartProductRequest() {
+        return instance.hasUpdateCartProductRequest();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest getUpdateCartProductRequest() {
+        return instance.getUpdateCartProductRequest();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+       */
+      public Builder setUpdateCartProductRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest value) {
+        copyOnWrite();
+        instance.setUpdateCartProductRequest(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+       */
+      public Builder setUpdateCartProductRequest(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.Builder builderForValue) {
+        copyOnWrite();
+        instance.setUpdateCartProductRequest(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+       */
+      public Builder mergeUpdateCartProductRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest value) {
+        copyOnWrite();
+        instance.mergeUpdateCartProductRequest(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest update_cart_product_request = 46;</code>
+       */
+      public Builder clearUpdateCartProductRequest() {
+        copyOnWrite();
+        instance.clearUpdateCartProductRequest();
+        return this;
+      }
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+       */
+      @java.lang.Override
+      public boolean hasUpdateCartProductResponse() {
+        return instance.hasUpdateCartProductResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse getUpdateCartProductResponse() {
+        return instance.getUpdateCartProductResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+       */
+      public Builder setUpdateCartProductResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse value) {
+        copyOnWrite();
+        instance.setUpdateCartProductResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+       */
+      public Builder setUpdateCartProductResponse(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.Builder builderForValue) {
+        copyOnWrite();
+        instance.setUpdateCartProductResponse(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+       */
+      public Builder mergeUpdateCartProductResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse value) {
+        copyOnWrite();
+        instance.mergeUpdateCartProductResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse update_cart_product_response = 47;</code>
+       */
+      public Builder clearUpdateCartProductResponse() {
+        copyOnWrite();
+        instance.clearUpdateCartProductResponse();
+        return this;
+      }
+
+      /**
        * <pre>
        * Channel → client
        * </pre>
@@ -4328,13 +4563,15 @@ public final class SdkMessageOuterClass {
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.VideoMessageRequest.class,
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsRequest.class,
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsResponse.class,
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.class,
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.class,
             };
             java.lang.String info =
-                "\u0000\u001c\u0001\u0001\u0001-\u001c\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000" +
+                "\u0000\u001e\u0001\u0001\u0001/\u001e\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000" +
                 "\n<\u0000\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000" +
                 "\u0016<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c" +
                 "<\u0000\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$" +
-                "<\u0000%<\u0000&<\u0000,<\u0000-<\u0000";
+                "<\u0000%<\u0000&<\u0000,<\u0000-<\u0000.<\u0000/<\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -17703,6 +17940,1058 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<ClearCartResponse> PARSER;
 
     public static com.google.protobuf.Parser<ClearCartResponse> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface UpdateCartProductRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>string sku = 1;</code>
+     * @return The sku.
+     */
+    java.lang.String getSku();
+    /**
+     * <code>string sku = 1;</code>
+     * @return The bytes for sku.
+     */
+    com.google.protobuf.ByteString
+        getSkuBytes();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the update.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     * @return The units.
+     */
+    double getUnits();
+
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the update. Omit when
+     * the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return Whether the subunits field is set.
+     */
+    boolean hasSubunits();
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the update. Omit when
+     * the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return The subunits.
+     */
+    double getSubunits();
+  }
+  /**
+   * <pre>
+   * UpdateCartProductRequest sets the absolute quantities for a SKU in the
+   * active cart, replacing whatever was there before. It is intended to
+   * supersede AddToCartRequest / RemoveFromCartRequest so the channel does
+   * not need to reconcile incremental deltas.
+   *
+   * Semantics:
+   * - units = 0 and subunits absent (or 0) removes the SKU from the cart.
+   * - subunits is omitted for products that do not expose a subunit dimension.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest}
+   */
+  public  static final class UpdateCartProductRequest extends
+      com.google.protobuf.GeneratedMessageLite<
+          UpdateCartProductRequest, UpdateCartProductRequest.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest)
+      UpdateCartProductRequestOrBuilder {
+    private UpdateCartProductRequest() {
+      sku_ = "";
+    }
+    private int bitField0_;
+    public static final int SKU_FIELD_NUMBER = 1;
+    private java.lang.String sku_;
+    /**
+     * <code>string sku = 1;</code>
+     * @return The sku.
+     */
+    @java.lang.Override
+    public java.lang.String getSku() {
+      return sku_;
+    }
+    /**
+     * <code>string sku = 1;</code>
+     * @return The bytes for sku.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getSkuBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(sku_);
+    }
+    /**
+     * <code>string sku = 1;</code>
+     * @param value The sku to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setSku(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      sku_ = value;
+    }
+    /**
+     * <code>string sku = 1;</code>
+     */
+    private void clearSku() {
+
+      sku_ = getDefaultInstance().getSku();
+    }
+    /**
+     * <code>string sku = 1;</code>
+     * @param value The bytes for sku to set.
+     */
+    private void setSkuBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      sku_ = value.toStringUtf8();
+
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static final int UNITS_FIELD_NUMBER = 3;
+    private double units_;
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the update.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     * @return The units.
+     */
+    @java.lang.Override
+    public double getUnits() {
+      return units_;
+    }
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the update.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     * @param value The units to set.
+     */
+    private void setUnits(double value) {
+      
+      units_ = value;
+    }
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the update.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     */
+    private void clearUnits() {
+
+      units_ = 0D;
+    }
+
+    public static final int SUBUNITS_FIELD_NUMBER = 4;
+    private double subunits_;
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the update. Omit when
+     * the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return Whether the subunits field is set.
+     */
+    @java.lang.Override
+    public boolean hasSubunits() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the update. Omit when
+     * the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return The subunits.
+     */
+    @java.lang.Override
+    public double getSubunits() {
+      return subunits_;
+    }
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the update. Omit when
+     * the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @param value The subunits to set.
+     */
+    private void setSubunits(double value) {
+      bitField0_ |= 0x00000002;
+      subunits_ = value;
+    }
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the update. Omit when
+     * the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     */
+    private void clearSubunits() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      subunits_ = 0D;
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * UpdateCartProductRequest sets the absolute quantities for a SKU in the
+     * active cart, replacing whatever was there before. It is intended to
+     * supersede AddToCartRequest / RemoveFromCartRequest so the channel does
+     * not need to reconcile incremental deltas.
+     *
+     * Semantics:
+     * - units = 0 and subunits absent (or 0) removes the SKU from the cart.
+     * - subunits is omitted for products that do not expose a subunit dimension.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequestOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>string sku = 1;</code>
+       * @return The sku.
+       */
+      @java.lang.Override
+      public java.lang.String getSku() {
+        return instance.getSku();
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @return The bytes for sku.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getSkuBytes() {
+        return instance.getSkuBytes();
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @param value The sku to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSku(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setSku(value);
+        return this;
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSku() {
+        copyOnWrite();
+        instance.clearSku();
+        return this;
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @param value The bytes for sku to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSkuBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setSkuBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Absolute number of primary units for this SKU after the update.
+       * </pre>
+       *
+       * <code>double units = 3;</code>
+       * @return The units.
+       */
+      @java.lang.Override
+      public double getUnits() {
+        return instance.getUnits();
+      }
+      /**
+       * <pre>
+       * Absolute number of primary units for this SKU after the update.
+       * </pre>
+       *
+       * <code>double units = 3;</code>
+       * @param value The units to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUnits(double value) {
+        copyOnWrite();
+        instance.setUnits(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Absolute number of primary units for this SKU after the update.
+       * </pre>
+       *
+       * <code>double units = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUnits() {
+        copyOnWrite();
+        instance.clearUnits();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the update. Omit when
+       * the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @return Whether the subunits field is set.
+       */
+      @java.lang.Override
+      public boolean hasSubunits() {
+        return instance.hasSubunits();
+      }
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the update. Omit when
+       * the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @return The subunits.
+       */
+      @java.lang.Override
+      public double getSubunits() {
+        return instance.getSubunits();
+      }
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the update. Omit when
+       * the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @param value The subunits to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSubunits(double value) {
+        copyOnWrite();
+        instance.setSubunits(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the update. Omit when
+       * the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSubunits() {
+        copyOnWrite();
+        instance.clearSubunits();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "sku_",
+              "timestamp_",
+              "units_",
+              "subunits_",
+            };
+            java.lang.String info =
+                "\u0000\u0004\u0000\u0001\u0001\u0004\u0004\u0000\u0000\u0000\u0001\u0208\u0002\u1009" +
+                "\u0000\u0003\u0000\u0004\u1000\u0001";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest DEFAULT_INSTANCE;
+    static {
+      UpdateCartProductRequest defaultInstance = new UpdateCartProductRequest();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        UpdateCartProductRequest.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<UpdateCartProductRequest> PARSER;
+
+    public static com.google.protobuf.Parser<UpdateCartProductRequest> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface UpdateCartProductResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The enum numeric value on the wire for status.
+     */
+    int getStatusValue();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The status.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+  }
+  /**
+   * <pre>
+   * UpdateCartProductResponse acknowledges an UpdateCartProductRequest.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse}
+   */
+  public  static final class UpdateCartProductResponse extends
+      com.google.protobuf.GeneratedMessageLite<
+          UpdateCartProductResponse, UpdateCartProductResponse.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse)
+      UpdateCartProductResponseOrBuilder {
+    private UpdateCartProductResponse() {
+    }
+    private int bitField0_;
+    public static final int STATUS_FIELD_NUMBER = 1;
+    private int status_;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The enum numeric value on the wire for status.
+     */
+    @java.lang.Override
+    public int getStatusValue() {
+      return status_;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The status.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus() {
+      yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus result = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus.forNumber(status_);
+      return result == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @param value The enum numeric value on the wire for status to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setStatusValue(int value) {
+        status_ = value;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @param value The status to set.
+     */
+    private void setStatus(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus value) {
+      status_ = value.getNumber();
+
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     */
+    private void clearStatus() {
+
+      status_ = 0;
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * UpdateCartProductResponse acknowledges an UpdateCartProductRequest.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponseOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return The enum numeric value on the wire for status.
+       */
+      @java.lang.Override
+      public int getStatusValue() {
+        return instance.getStatusValue();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @param value The status to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStatusValue(int value) {
+        copyOnWrite();
+        instance.setStatusValue(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return The status.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus() {
+        return instance.getStatus();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @param value The enum numeric value on the wire for status to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setStatus(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus value) {
+        copyOnWrite();
+        instance.setStatus(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearStatus() {
+        copyOnWrite();
+        instance.clearStatus();
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "status_",
+              "timestamp_",
+            };
+            java.lang.String info =
+                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0000\u0000\u0001\f\u0002\u1009" +
+                "\u0000";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse DEFAULT_INSTANCE;
+    static {
+      UpdateCartProductResponse defaultInstance = new UpdateCartProductResponse();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        UpdateCartProductResponse.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<UpdateCartProductResponse> PARSER;
+
+    public static com.google.protobuf.Parser<UpdateCartProductResponse> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }

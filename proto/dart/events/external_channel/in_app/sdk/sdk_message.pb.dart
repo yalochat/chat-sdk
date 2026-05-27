@@ -50,6 +50,8 @@ enum SdkMessage_Payload {
   videoMessageRequest,
   getCommandsRequest,
   getCommandsResponse,
+  updateCartProductRequest,
+  updateCartProductResponse,
   notSet
 }
 
@@ -86,6 +88,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     VideoMessageRequest? videoMessageRequest,
     GetCommandsRequest? getCommandsRequest,
     GetCommandsResponse? getCommandsResponse,
+    UpdateCartProductRequest? updateCartProductRequest,
+    UpdateCartProductResponse? updateCartProductResponse,
   }) {
     final result = create();
     if (correlationId != null) result.correlationId = correlationId;
@@ -137,6 +141,10 @@ class SdkMessage extends $pb.GeneratedMessage {
       result.getCommandsRequest = getCommandsRequest;
     if (getCommandsResponse != null)
       result.getCommandsResponse = getCommandsResponse;
+    if (updateCartProductRequest != null)
+      result.updateCartProductRequest = updateCartProductRequest;
+    if (updateCartProductResponse != null)
+      result.updateCartProductResponse = updateCartProductResponse;
     return result;
   }
 
@@ -177,6 +185,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     38: SdkMessage_Payload.videoMessageRequest,
     44: SdkMessage_Payload.getCommandsRequest,
     45: SdkMessage_Payload.getCommandsResponse,
+    46: SdkMessage_Payload.updateCartProductRequest,
+    47: SdkMessage_Payload.updateCartProductResponse,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -210,7 +220,9 @@ class SdkMessage extends $pb.GeneratedMessage {
       37,
       38,
       44,
-      45
+      45,
+      46,
+      47
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -280,6 +292,12 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: GetCommandsRequest.create)
     ..aOM<GetCommandsResponse>(45, _omitFieldNames ? '' : 'getCommandsResponse',
         subBuilder: GetCommandsResponse.create)
+    ..aOM<UpdateCartProductRequest>(
+        46, _omitFieldNames ? '' : 'updateCartProductRequest',
+        subBuilder: UpdateCartProductRequest.create)
+    ..aOM<UpdateCartProductResponse>(
+        47, _omitFieldNames ? '' : 'updateCartProductResponse',
+        subBuilder: UpdateCartProductResponse.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -326,6 +344,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(38)
   @$pb.TagNumber(44)
   @$pb.TagNumber(45)
+  @$pb.TagNumber(46)
+  @$pb.TagNumber(47)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -354,6 +374,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(38)
   @$pb.TagNumber(44)
   @$pb.TagNumber(45)
+  @$pb.TagNumber(46)
+  @$pb.TagNumber(47)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -676,6 +698,30 @@ class SdkMessage extends $pb.GeneratedMessage {
   void clearGetCommandsResponse() => $_clearField(45);
   @$pb.TagNumber(45)
   GetCommandsResponse ensureGetCommandsResponse() => $_ensure(27);
+
+  @$pb.TagNumber(46)
+  UpdateCartProductRequest get updateCartProductRequest => $_getN(28);
+  @$pb.TagNumber(46)
+  set updateCartProductRequest(UpdateCartProductRequest value) =>
+      $_setField(46, value);
+  @$pb.TagNumber(46)
+  $core.bool hasUpdateCartProductRequest() => $_has(28);
+  @$pb.TagNumber(46)
+  void clearUpdateCartProductRequest() => $_clearField(46);
+  @$pb.TagNumber(46)
+  UpdateCartProductRequest ensureUpdateCartProductRequest() => $_ensure(28);
+
+  @$pb.TagNumber(47)
+  UpdateCartProductResponse get updateCartProductResponse => $_getN(29);
+  @$pb.TagNumber(47)
+  set updateCartProductResponse(UpdateCartProductResponse value) =>
+      $_setField(47, value);
+  @$pb.TagNumber(47)
+  $core.bool hasUpdateCartProductResponse() => $_has(29);
+  @$pb.TagNumber(47)
+  void clearUpdateCartProductResponse() => $_clearField(47);
+  @$pb.TagNumber(47)
+  UpdateCartProductResponse ensureUpdateCartProductResponse() => $_ensure(29);
 }
 
 /// Button represents a single tappable option attached to a message.
@@ -2522,6 +2568,185 @@ class ClearCartResponse extends $pb.GeneratedMessage {
   static ClearCartResponse getDefault() => _defaultInstance ??=
       $pb.GeneratedMessage.$_defaultFor<ClearCartResponse>(create);
   static ClearCartResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ResponseStatus get status => $_getN(0);
+  @$pb.TagNumber(1)
+  set status(ResponseStatus value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+}
+
+/// UpdateCartProductRequest sets the absolute quantities for a SKU in the
+/// active cart, replacing whatever was there before. It is intended to
+/// supersede AddToCartRequest / RemoveFromCartRequest so the channel does
+/// not need to reconcile incremental deltas.
+///
+/// Semantics:
+///   - units = 0 and subunits absent (or 0) removes the SKU from the cart.
+///   - subunits is omitted for products that do not expose a subunit dimension.
+class UpdateCartProductRequest extends $pb.GeneratedMessage {
+  factory UpdateCartProductRequest({
+    $core.String? sku,
+    $0.Timestamp? timestamp,
+    $core.double? units,
+    $core.double? subunits,
+  }) {
+    final result = create();
+    if (sku != null) result.sku = sku;
+    if (timestamp != null) result.timestamp = timestamp;
+    if (units != null) result.units = units;
+    if (subunits != null) result.subunits = subunits;
+    return result;
+  }
+
+  UpdateCartProductRequest._();
+
+  factory UpdateCartProductRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory UpdateCartProductRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UpdateCartProductRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'sku')
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..aD(3, _omitFieldNames ? '' : 'units')
+    ..aD(4, _omitFieldNames ? '' : 'subunits')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpdateCartProductRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpdateCartProductRequest copyWith(
+          void Function(UpdateCartProductRequest) updates) =>
+      super.copyWith((message) => updates(message as UpdateCartProductRequest))
+          as UpdateCartProductRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpdateCartProductRequest create() => UpdateCartProductRequest._();
+  @$core.override
+  UpdateCartProductRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static UpdateCartProductRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UpdateCartProductRequest>(create);
+  static UpdateCartProductRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get sku => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set sku($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasSku() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSku() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+
+  /// Absolute number of primary units for this SKU after the update.
+  @$pb.TagNumber(3)
+  $core.double get units => $_getN(2);
+  @$pb.TagNumber(3)
+  set units($core.double value) => $_setDouble(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasUnits() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUnits() => $_clearField(3);
+
+  /// Absolute number of subunits for this SKU after the update. Omit when
+  /// the product has no subunit dimension.
+  @$pb.TagNumber(4)
+  $core.double get subunits => $_getN(3);
+  @$pb.TagNumber(4)
+  set subunits($core.double value) => $_setDouble(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasSubunits() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSubunits() => $_clearField(4);
+}
+
+/// UpdateCartProductResponse acknowledges an UpdateCartProductRequest.
+class UpdateCartProductResponse extends $pb.GeneratedMessage {
+  factory UpdateCartProductResponse({
+    ResponseStatus? status,
+    $0.Timestamp? timestamp,
+  }) {
+    final result = create();
+    if (status != null) result.status = status;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  UpdateCartProductResponse._();
+
+  factory UpdateCartProductResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory UpdateCartProductResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UpdateCartProductResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
+        enumValues: ResponseStatus.values)
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpdateCartProductResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpdateCartProductResponse copyWith(
+          void Function(UpdateCartProductResponse) updates) =>
+      super.copyWith((message) => updates(message as UpdateCartProductResponse))
+          as UpdateCartProductResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpdateCartProductResponse create() => UpdateCartProductResponse._();
+  @$core.override
+  UpdateCartProductResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static UpdateCartProductResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UpdateCartProductResponse>(create);
+  static UpdateCartProductResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ResponseStatus get status => $_getN(0);
