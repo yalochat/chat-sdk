@@ -7,7 +7,7 @@ import {
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { consume } from '@lit/context';
 import { localized, msg } from '@lit/localize';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { keyed } from 'lit/directives/keyed.js';
@@ -24,7 +24,8 @@ export class ChatFooter extends LitElement {
     :host {
       --yalo-chat-input-border: 1px solid #e8e8e8;
       --yalo-chat-input-border-radius: 25.5px;
-      --yalo-chat-input-font-size: 16px;
+      --yalo-chat-input-font-size: 1rem;
+      --yalo-chat-input-placeholder-color: #757575;
       --yalo-chat-send-btn-background: #2207f1;
       --yalo-chat-send-btn-color: white;
       --yalo-chat-attachment-button-color: #7c8086;
@@ -44,17 +45,33 @@ export class ChatFooter extends LitElement {
     }
 
     .chat-input {
+      display: flex;
+      align-items: center;
+      line-height: 1.6rem;
       font-size: var(--yalo-chat-input-font-size);
-      line-height: 1.5;
-      appearance: none;
-      max-height: calc(1.5em * 3 + var(--yalo-chat-column-item-space) * 2);
+      max-height: calc(1.5em * 3);
       box-sizing: border-box;
       outline: none;
       font-family: inherit;
-      resize: none;
-      border: none;
-      overflow-y: hidden;
       width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chat-input-wrapper {
+      position: relative;
+      flex-grow: 1;
+    }
+
+    .chat-input-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      color: var(--yalo-chat-input-placeholder-color);
+      pointer-events: none;
     }
 
     .chat-action-button {
@@ -100,6 +117,11 @@ export class ChatFooter extends LitElement {
       display: flex;
     }
 
+    .action-button-container {
+      display: flex;
+      align-items: center;
+    }
+
     label[for='file-picker'] {
       display: flex;
       align-items: center;
@@ -108,6 +130,8 @@ export class ChatFooter extends LitElement {
       flex-shrink: 0;
       color: var(--yalo-chat-attachment-button-color);
       border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
       transition: background 200ms ease;
     }
 
@@ -127,7 +151,7 @@ export class ChatFooter extends LitElement {
   config!: YaloChatClientConfig;
 
   @query('.chat-input')
-  textArea!: HTMLTextAreaElement;
+  input!: HTMLElement;
 
   @state()
   hasText = false;
@@ -234,15 +258,27 @@ export class ChatFooter extends LitElement {
                     this._handleStopRecording()}
                 ></waveform-recorder>`
               : html` <div class="chat-input-container">
-                  <textarea
-                    id="yalo-chat-input"
-                    class="chat-input"
-                    rows="1"
-                    placeholder="${msg('Write a message...')}"
-                    @input=${() => this._chatFootercontroller.handleOnInput()}
-                    @keydown=${(e: KeyboardEvent) =>
-                      this._chatFootercontroller.handleOnKeyDown(e)}
-                  ></textarea>
+                  <div class="chat-input-wrapper">
+                    <div
+                      id="yalo-chat-input"
+                      class="chat-input"
+                      contenteditable="plaintext-only"
+                      role="textbox"
+                      aria-multiline="true"
+                      aria-label=${msg('Write a message...')}
+                      @input=${() => this._chatFootercontroller.handleOnInput()}
+                      @keydown=${(e: KeyboardEvent) =>
+                        this._chatFootercontroller.handleOnKeyDown(e)}
+                    ></div>
+                    ${this.hasText
+                      ? nothing
+                      : html`<div
+                          class="chat-input-placeholder"
+                          aria-hidden="true"
+                        >
+                          ${msg('Write a message...')}
+                        </div>`}
+                  </div>
                   <label for="file-picker">
                     ${unsafeHTML(this.config.icons?.attachment)}
                   </label>
@@ -250,27 +286,29 @@ export class ChatFooter extends LitElement {
                     id="file-picker"
                     type="file"
                     class="attachment-button"
-                    accept="image/*,.pdf"
+                    accept="image/*"
                     @change=${(e: Event) => this._handleFilePicked(e)}
                   />
                 </div>`}
           </div>
-          <button
-            class="chat-action-button"
-            type="button"
-            @click=${(e: Event) => this._handleActionClick(e)}
-          >
-            ${keyed(
-              shouldShowSend ? 'send' : 'mic',
-              html`<span class="icon-wrapper"
-                >${unsafeHTML(
-                  shouldShowSend
-                    ? this.config.icons?.send
-                    : this.config.icons?.mic
-                )}</span
-              >`
-            )}
-          </button>
+          <div class="action-button-container">
+            <button
+              class="chat-action-button"
+              type="button"
+              @click=${(e: Event) => this._handleActionClick(e)}
+            >
+              ${keyed(
+                shouldShowSend ? 'send' : 'mic',
+                html`<span class="icon-wrapper"
+                  >${unsafeHTML(
+                    shouldShowSend
+                      ? this.config.icons?.send
+                      : this.config.icons?.mic
+                  )}</span
+                >`
+              )}
+            </button>
+          </div>
         </form>
       </footer>
     `;

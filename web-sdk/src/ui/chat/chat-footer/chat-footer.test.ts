@@ -248,24 +248,66 @@ describe('ChatFooter', () => {
   });
 
   describe('action button icon', () => {
-    it('renders the mic icon when the textarea is empty and not recording', async () => {
+    it('renders the mic icon when the input is empty and not recording', async () => {
       const footer = await renderFooter();
 
       expect(getActionButton(footer).textContent).toContain('mic');
     });
 
-    it('renders the send icon when the textarea has content', async () => {
+    it('renders the send icon when the input has content', async () => {
       const footer = await renderFooter();
-      const textarea = footer.shadowRoot!.querySelector(
+      const input = footer.shadowRoot!.querySelector(
         '.chat-input'
-      ) as HTMLTextAreaElement;
-      textarea.value = 'Hello';
-      textarea.dispatchEvent(
+      ) as HTMLElement;
+      input.textContent = 'Hello';
+      input.dispatchEvent(
         new Event('input', { bubbles: true, composed: true })
       );
       await footer.updateComplete;
 
       expect(getActionButton(footer).textContent).toContain('send');
+    });
+  });
+
+  describe('placeholder', () => {
+    it('shows the placeholder when there is no text', async () => {
+      const footer = await renderFooter();
+      const placeholder = footer.shadowRoot!.querySelector(
+        '.chat-input-placeholder'
+      ) as HTMLElement | null;
+
+      expect(placeholder?.textContent?.trim()).toBe('Write a message...');
+    });
+
+    it('paints the placeholder with the configured placeholder color variable', async () => {
+      const footer = await renderFooter();
+      footer.style.setProperty(
+        '--yalo-chat-input-placeholder-color',
+        'rgb(255, 0, 0)'
+      );
+      await footer.updateComplete;
+      const placeholder = footer.shadowRoot!.querySelector(
+        '.chat-input-placeholder'
+      ) as HTMLElement;
+
+      expect(getComputedStyle(placeholder).color).toBe('rgb(255, 0, 0)');
+    });
+
+    it('hides the placeholder once the user types', async () => {
+      const footer = await renderFooter();
+      const input = footer.shadowRoot!.querySelector(
+        '.chat-input'
+      ) as HTMLElement;
+
+      input.textContent = 'hi';
+      input.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+
+      expect(
+        footer.shadowRoot!.querySelector('.chat-input-placeholder')
+      ).toBeNull();
     });
   });
 
