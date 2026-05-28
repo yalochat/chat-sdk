@@ -444,14 +444,14 @@ message ProductConfirmationMessageRequest {
   // Absolute number of subunits for this SKU after the confirmed change.
   // Omit when the product has no subunit dimension.
   optional double subunits = 4;
-  // Optional structural text rendered above the confirmation card body.
-  optional string header = 5;
-  // Optional body text rendered as the main content of the confirmation card.
-  optional string body = 6;
+  // Structural text rendered above the confirmation card body.
+  string header = 5;
+  // Body text rendered as the main content of the confirmation card.
+  string body = 6;
   // Optional call-to-action button rendered alongside the confirmation card.
   optional Button button = 7;
-  // Optional structural text rendered below the confirmation card body.
-  optional string footer = 8;
+  // Structural text rendered below the confirmation card body.
+  string footer = 8;
 }
 
 // ProductConfirmationMessageResponse acknowledges a ProductConfirmationMessageRequest.
