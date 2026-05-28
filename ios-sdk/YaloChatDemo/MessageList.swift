@@ -67,6 +67,14 @@ struct MessageList: View {
                     }
                 }
             }
+            .onChange(of: observable.isAwaitingResponse) { isAwaiting in
+                guard isAwaiting else { return }
+                DispatchQueue.main.async {
+                    withAnimation(.linear(duration: 0.15)) {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                }
+            }
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     proxy.scrollTo("bottom", anchor: .bottom)

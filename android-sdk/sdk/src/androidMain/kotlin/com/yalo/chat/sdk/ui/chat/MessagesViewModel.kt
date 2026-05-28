@@ -247,15 +247,7 @@ internal class MessagesViewModel(
         // so the UI always reads from a single source of truth (SQLDelight / fake repo).
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
-                val currentState = _state.value
-                if (currentState.isAwaitingResponse) {
-                    val existingAgentIds = currentState.messages
-                        .filter { it.role == MessageRole.AGENT }
-                        .mapNotNull { it.id }
-                        .toSet()
-                    val hasNewAgentMessage = messages.any { it.role == MessageRole.AGENT && it.id !in existingAgentIds }
-                    if (hasNewAgentMessage) stopAwaitingResponse()
-                }
+                var shouldCancelAwaitJob = false
                 _state.update { currentState ->
                     // Preserve in-memory expand flags: DB never stores `expand` (it always
                     // reads back as false), so re-mapping the observed list by id keeps
@@ -284,11 +276,23 @@ internal class MessagesViewModel(
                     } else {
                         currentState.quickReplies
                     }
+                    val existingAgentIds = currentState.messages
+                        .filter { it.role == MessageRole.AGENT }
+                        .mapNotNull { it.id }
+                        .toSet()
+                    val hasNewAgentMessage = currentState.isAwaitingResponse &&
+                        messages.any { it.role == MessageRole.AGENT && it.id !in existingAgentIds }
+                    if (hasNewAgentMessage) shouldCancelAwaitJob = true
                     currentState.copy(
                         messages = mergedMessages,
                         quickReplies = quickReplies,
                         lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
+                        isAwaitingResponse = if (hasNewAgentMessage) false else currentState.isAwaitingResponse,
                     )
+                }
+                if (shouldCancelAwaitJob) {
+                    awaitResponseJob?.cancel()
+                    awaitResponseJob = null
                 }
             }
         }
