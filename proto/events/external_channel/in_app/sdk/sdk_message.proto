@@ -38,6 +38,8 @@ message SdkMessage {
     GuidanceCardResponse     guidance_card_response      = 27;
     AddPromotionRequest      add_promotion_request       = 28;
     AddPromotionResponse     add_promotion_response      = 29;
+    UpdateCartProductRequest  update_cart_product_request  = 46;
+    UpdateCartProductResponse update_cart_product_response = 47;
 
     // Channel → client
     PromotionMessageRequest  promotion_message_request   = 30;
@@ -295,6 +297,30 @@ message ClearCartResponse {
   google.protobuf.Timestamp timestamp = 2;
 }
 
+// UpdateCartProductRequest sets the absolute quantities for a SKU in the
+// active cart, replacing whatever was there before. It is intended to
+// supersede AddToCartRequest / RemoveFromCartRequest so the channel does
+// not need to reconcile incremental deltas.
+//
+// Semantics:
+//   - units = 0 and subunits absent (or 0) removes the SKU from the cart.
+//   - subunits is omitted for products that do not expose a subunit dimension.
+message UpdateCartProductRequest {
+  string sku = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  // Absolute number of primary units for this SKU after the update.
+  double units = 3;
+  // Absolute number of subunits for this SKU after the update. Omit when
+  // the product has no subunit dimension.
+  optional double subunits = 4;
+}
+
+// UpdateCartProductResponse acknowledges an UpdateCartProductRequest.
+message UpdateCartProductResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
 // ---------------------------------------------------------------------------
 // Guidance cards  (client → channel)
 // ---------------------------------------------------------------------------
@@ -446,6 +472,7 @@ enum SdkCommand {
   SDK_COMMAND_CLEAR_CART = 3;
   SDK_COMMAND_GUIDANCE_CARD = 4;
   SDK_COMMAND_ADD_PROMOTION = 5;
+  SDK_COMMAND_UPDATE_CART_PRODUCT = 6;
 }
 
 // GetCommandsRequest is sent by the client to declare that it is ready to

@@ -294,6 +294,7 @@ export const SdkCommand = {
   SDK_COMMAND_CLEAR_CART: 3,
   SDK_COMMAND_GUIDANCE_CARD: 4,
   SDK_COMMAND_ADD_PROMOTION: 5,
+  SDK_COMMAND_UPDATE_CART_PRODUCT: 6,
   UNRECOGNIZED: -1,
 } as const;
 
@@ -306,6 +307,7 @@ export namespace SdkCommand {
   export type SDK_COMMAND_CLEAR_CART = typeof SdkCommand.SDK_COMMAND_CLEAR_CART;
   export type SDK_COMMAND_GUIDANCE_CARD = typeof SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
   export type SDK_COMMAND_ADD_PROMOTION = typeof SdkCommand.SDK_COMMAND_ADD_PROMOTION;
+  export type SDK_COMMAND_UPDATE_CART_PRODUCT = typeof SdkCommand.SDK_COMMAND_UPDATE_CART_PRODUCT;
   export type UNRECOGNIZED = typeof SdkCommand.UNRECOGNIZED;
 }
 
@@ -329,6 +331,9 @@ export function sdkCommandFromJSON(object: any): SdkCommand {
     case 5:
     case "SDK_COMMAND_ADD_PROMOTION":
       return SdkCommand.SDK_COMMAND_ADD_PROMOTION;
+    case 6:
+    case "SDK_COMMAND_UPDATE_CART_PRODUCT":
+      return SdkCommand.SDK_COMMAND_UPDATE_CART_PRODUCT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -350,6 +355,8 @@ export function sdkCommandToJSON(object: SdkCommand): string {
       return "SDK_COMMAND_GUIDANCE_CARD";
     case SdkCommand.SDK_COMMAND_ADD_PROMOTION:
       return "SDK_COMMAND_ADD_PROMOTION";
+    case SdkCommand.SDK_COMMAND_UPDATE_CART_PRODUCT:
+      return "SDK_COMMAND_UPDATE_CART_PRODUCT";
     case SdkCommand.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -386,8 +393,10 @@ export interface SdkMessage {
   guidanceCardRequest?: GuidanceCardRequest | undefined;
   guidanceCardResponse?: GuidanceCardResponse | undefined;
   addPromotionRequest?: AddPromotionRequest | undefined;
-  addPromotionResponse?:
-    | AddPromotionResponse
+  addPromotionResponse?: AddPromotionResponse | undefined;
+  updateCartProductRequest?: UpdateCartProductRequest | undefined;
+  updateCartProductResponse?:
+    | UpdateCartProductResponse
     | undefined;
   /** Channel → client */
   promotionMessageRequest?: PromotionMessageRequest | undefined;
@@ -575,6 +584,36 @@ export interface ClearCartRequest {
 
 /** ClearCartResponse acknowledges a ClearCartRequest. */
 export interface ClearCartResponse {
+  status: ResponseStatus;
+  timestamp: Date | undefined;
+}
+
+/**
+ * UpdateCartProductRequest sets the absolute quantities for a SKU in the
+ * active cart, replacing whatever was there before. It is intended to
+ * supersede AddToCartRequest / RemoveFromCartRequest so the channel does
+ * not need to reconcile incremental deltas.
+ *
+ * Semantics:
+ *   - units = 0 and subunits absent (or 0) removes the SKU from the cart.
+ *   - subunits is omitted for products that do not expose a subunit dimension.
+ */
+export interface UpdateCartProductRequest {
+  sku: string;
+  timestamp:
+    | Date
+    | undefined;
+  /** Absolute number of primary units for this SKU after the update. */
+  units: number;
+  /**
+   * Absolute number of subunits for this SKU after the update. Omit when
+   * the product has no subunit dimension.
+   */
+  subunits?: number | undefined;
+}
+
+/** UpdateCartProductResponse acknowledges an UpdateCartProductRequest. */
+export interface UpdateCartProductResponse {
   status: ResponseStatus;
   timestamp: Date | undefined;
 }
@@ -835,6 +874,8 @@ function createBaseSdkMessage(): SdkMessage {
     guidanceCardResponse: undefined,
     addPromotionRequest: undefined,
     addPromotionResponse: undefined,
+    updateCartProductRequest: undefined,
+    updateCartProductResponse: undefined,
     promotionMessageRequest: undefined,
     promotionMessageResponse: undefined,
     productMessageRequest: undefined,
@@ -903,6 +944,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.addPromotionResponse !== undefined) {
       AddPromotionResponse.encode(message.addPromotionResponse, writer.uint32(234).fork()).join();
+    }
+    if (message.updateCartProductRequest !== undefined) {
+      UpdateCartProductRequest.encode(message.updateCartProductRequest, writer.uint32(370).fork()).join();
+    }
+    if (message.updateCartProductResponse !== undefined) {
+      UpdateCartProductResponse.encode(message.updateCartProductResponse, writer.uint32(378).fork()).join();
     }
     if (message.promotionMessageRequest !== undefined) {
       PromotionMessageRequest.encode(message.promotionMessageRequest, writer.uint32(242).fork()).join();
@@ -1088,6 +1135,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.addPromotionResponse = AddPromotionResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 46: {
+          if (tag !== 370) {
+            break;
+          }
+
+          message.updateCartProductRequest = UpdateCartProductRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 47: {
+          if (tag !== 378) {
+            break;
+          }
+
+          message.updateCartProductResponse = UpdateCartProductResponse.decode(reader, reader.uint32());
+          continue;
+        }
         case 30: {
           if (tag !== 242) {
             break;
@@ -1265,6 +1328,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.add_promotion_response)
         ? AddPromotionResponse.fromJSON(object.add_promotion_response)
         : undefined,
+      updateCartProductRequest: isSet(object.updateCartProductRequest)
+        ? UpdateCartProductRequest.fromJSON(object.updateCartProductRequest)
+        : isSet(object.update_cart_product_request)
+        ? UpdateCartProductRequest.fromJSON(object.update_cart_product_request)
+        : undefined,
+      updateCartProductResponse: isSet(object.updateCartProductResponse)
+        ? UpdateCartProductResponse.fromJSON(object.updateCartProductResponse)
+        : isSet(object.update_cart_product_response)
+        ? UpdateCartProductResponse.fromJSON(object.update_cart_product_response)
+        : undefined,
       promotionMessageRequest: isSet(object.promotionMessageRequest)
         ? PromotionMessageRequest.fromJSON(object.promotionMessageRequest)
         : isSet(object.promotion_message_request)
@@ -1374,6 +1447,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.addPromotionResponse !== undefined) {
       obj.addPromotionResponse = AddPromotionResponse.toJSON(message.addPromotionResponse);
     }
+    if (message.updateCartProductRequest !== undefined) {
+      obj.updateCartProductRequest = UpdateCartProductRequest.toJSON(message.updateCartProductRequest);
+    }
+    if (message.updateCartProductResponse !== undefined) {
+      obj.updateCartProductResponse = UpdateCartProductResponse.toJSON(message.updateCartProductResponse);
+    }
     if (message.promotionMessageRequest !== undefined) {
       obj.promotionMessageRequest = PromotionMessageRequest.toJSON(message.promotionMessageRequest);
     }
@@ -1467,6 +1546,14 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.addPromotionResponse = (object.addPromotionResponse !== undefined && object.addPromotionResponse !== null)
       ? AddPromotionResponse.fromPartial(object.addPromotionResponse)
       : undefined;
+    message.updateCartProductRequest =
+      (object.updateCartProductRequest !== undefined && object.updateCartProductRequest !== null)
+        ? UpdateCartProductRequest.fromPartial(object.updateCartProductRequest)
+        : undefined;
+    message.updateCartProductResponse =
+      (object.updateCartProductResponse !== undefined && object.updateCartProductResponse !== null)
+        ? UpdateCartProductResponse.fromPartial(object.updateCartProductResponse)
+        : undefined;
     message.promotionMessageRequest =
       (object.promotionMessageRequest !== undefined && object.promotionMessageRequest !== null)
         ? PromotionMessageRequest.fromPartial(object.promotionMessageRequest)
@@ -3778,6 +3865,190 @@ export const ClearCartResponse: MessageFns<ClearCartResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ClearCartResponse>, I>>(object: I): ClearCartResponse {
     const message = createBaseClearCartResponse();
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateCartProductRequest(): UpdateCartProductRequest {
+  return { sku: "", timestamp: undefined, units: 0, subunits: undefined };
+}
+
+export const UpdateCartProductRequest: MessageFns<UpdateCartProductRequest> = {
+  encode(message: UpdateCartProductRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.sku !== "") {
+      writer.uint32(10).string(message.sku);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    if (message.units !== 0) {
+      writer.uint32(25).double(message.units);
+    }
+    if (message.subunits !== undefined) {
+      writer.uint32(33).double(message.subunits);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateCartProductRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateCartProductRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.sku = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 25) {
+            break;
+          }
+
+          message.units = reader.double();
+          continue;
+        }
+        case 4: {
+          if (tag !== 33) {
+            break;
+          }
+
+          message.subunits = reader.double();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateCartProductRequest {
+    return {
+      sku: isSet(object.sku) ? globalThis.String(object.sku) : "",
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      units: isSet(object.units) ? globalThis.Number(object.units) : 0,
+      subunits: isSet(object.subunits) ? globalThis.Number(object.subunits) : undefined,
+    };
+  },
+
+  toJSON(message: UpdateCartProductRequest): unknown {
+    const obj: any = {};
+    if (message.sku !== "") {
+      obj.sku = message.sku;
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.units !== 0) {
+      obj.units = message.units;
+    }
+    if (message.subunits !== undefined) {
+      obj.subunits = message.subunits;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateCartProductRequest>, I>>(base?: I): UpdateCartProductRequest {
+    return UpdateCartProductRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateCartProductRequest>, I>>(object: I): UpdateCartProductRequest {
+    const message = createBaseUpdateCartProductRequest();
+    message.sku = object.sku ?? "";
+    message.timestamp = object.timestamp ?? undefined;
+    message.units = object.units ?? 0;
+    message.subunits = object.subunits ?? undefined;
+    return message;
+  },
+};
+
+function createBaseUpdateCartProductResponse(): UpdateCartProductResponse {
+  return { status: 0, timestamp: undefined };
+}
+
+export const UpdateCartProductResponse: MessageFns<UpdateCartProductResponse> = {
+  encode(message: UpdateCartProductResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateCartProductResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseUpdateCartProductResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): UpdateCartProductResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: UpdateCartProductResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpdateCartProductResponse>, I>>(base?: I): UpdateCartProductResponse {
+    return UpdateCartProductResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpdateCartProductResponse>, I>>(object: I): UpdateCartProductResponse {
+    const message = createBaseUpdateCartProductResponse();
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     return message;
