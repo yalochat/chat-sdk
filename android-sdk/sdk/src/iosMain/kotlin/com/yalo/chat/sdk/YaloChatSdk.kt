@@ -14,6 +14,7 @@ import com.yalo.chat.sdk.data.remote.buildHttpClient
 import com.yalo.chat.sdk.data.KeychainTokenStorage
 import com.yalo.chat.sdk.data.repository.fake.FakeChatMessageRepository
 import com.yalo.chat.sdk.data.repository.fake.FakeYaloMessageRepository
+import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryRemote
 import com.yalo.chat.sdk.data.repository.remote.YaloMessageRepositoryWebSocket
 import com.yalo.chat.sdk.database.ChatDatabase
 import com.yalo.chat.sdk.domain.model.ChatCommand
@@ -31,6 +32,9 @@ import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
+
+// Mirrors BuildConfig.TRANSPORT on Android. Change to "LONG_POLL" to use the polling transport.
+private const val TRANSPORT = "WEBSOCKET"
 
 // iOS entry point — wires the shared commonMain business logic with iOS platform drivers:
 //   - Darwin HTTP engine (URLSession) via ktor-client-darwin
@@ -98,21 +102,28 @@ object YaloChatSdk {
                 ?.path
                 ?.let { "$it/ChatSdk" }
 
-            val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
-            val wsService = YaloMessageServiceWebSocket(
-                wsUrl = wsUrl,
-                apiService = apiService,
-                httpClient = httpClient,
-            )
-            val wsRepo = YaloMessageRepositoryWebSocket(
-                wsService = wsService,
-                apiService = apiService,
-                tempDir = cacheDir,
-            )
-            val wsScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-            _wsScope = wsScope
-            wsRepo.start(wsScope)
-            yaloRepo = wsRepo
+            if (runCatching { Transport.valueOf(TRANSPORT) }.getOrDefault(Transport.LONG_POLL) == Transport.WEBSOCKET) {
+                val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
+                val wsService = YaloMessageServiceWebSocket(
+                    wsUrl = wsUrl,
+                    apiService = apiService,
+                    httpClient = httpClient,
+                )
+                val wsRepo = YaloMessageRepositoryWebSocket(
+                    wsService = wsService,
+                    apiService = apiService,
+                    tempDir = cacheDir,
+                )
+                val wsScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+                _wsScope = wsScope
+                wsRepo.start(wsScope)
+                yaloRepo = wsRepo
+            } else {
+                yaloRepo = YaloMessageRepositoryRemote(
+                    apiService = apiService,
+                    tempDir = cacheDir,
+                )
+            }
 
             // DB name includes channelId+userId so switching users never sees stale messages.
             val dbName = "chat_${config.channelId}${config.userId?.let { "_${sanitizeStorageId(it)}" } ?: ""}.db"

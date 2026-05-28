@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_input_placeholder">Escribe un mensaje…</string>
+    <string name="chat_send_content_description">Enviar</string>
+    <string name="chat_send_image_content_description">Enviar imagen</string>
+    <string name="chat_send_image_label">¿Enviar imagen?</string>
+    <string name="chat_send_voice_content_description">Enviar mensaje de voz</string>
+    <string name="chat_choose_from_gallery">Subir desde galería</string>
+    <string name="chat_take_photo">Tomar foto</string>
+    <string name="chat_show_more">Ver más</string>
+    <string name="chat_show_less">Ver menos</string>
+    <string name="chat_not_delivered">No entregado.</string>
+    <string name="chat_unsupported_message">Mensaje no soportado</string>
+    <string name="chat_no_messages_yet">Sin mensajes aún</string>
+    <string name="chat_cancel_content_description">Cancelar</string>
+</resources>

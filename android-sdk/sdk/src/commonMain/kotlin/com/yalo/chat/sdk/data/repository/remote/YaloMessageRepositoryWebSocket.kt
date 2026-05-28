@@ -5,9 +5,13 @@ package com.yalo.chat.sdk.data.repository.remote
 import com.yalo.chat.sdk.common.Result
 import com.yalo.chat.sdk.data.remote.YaloChatApiService
 import com.yalo.chat.sdk.data.remote.YaloMessageServiceWebSocket
+import com.yalo.chat.sdk.data.remote.model.SdkImageMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkImageMessageRequestBody
 import com.yalo.chat.sdk.data.remote.model.SdkMessageBody
 import com.yalo.chat.sdk.data.remote.model.SdkTextMessageBody
 import com.yalo.chat.sdk.data.remote.model.SdkTextMessageRequestBody
+import com.yalo.chat.sdk.data.remote.model.SdkVoiceMessageBody
+import com.yalo.chat.sdk.data.remote.model.SdkVoiceNoteMessageRequestBody
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatCommandCallback
 import com.yalo.chat.sdk.domain.model.ChatEvent
@@ -77,22 +81,106 @@ internal class YaloMessageRepositoryWebSocket(
         }
 
     override suspend fun sendMessage(message: ChatMessage): Result<Unit> {
-        if (message.type != MessageType.Text) {
-            return Result.Error(UnsupportedOperationException("WebSocket transport only supports text sends; got ${message.type}"))
-        }
         val nowIso = Clock.System.now().toString()
-        _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
-        val body = SdkMessageBody(
-            correlationId = Uuid.random().toString(),
-            timestamp = nowIso,
-            textMessageRequest = SdkTextMessageRequestBody(
-                content = SdkTextMessageBody(text = message.content, timestamp = nowIso),
-                timestamp = nowIso,
-            ),
-        )
-        val result = apiService.sendMessage(body)
-        if (result is Result.Error) _events.tryEmit(ChatEvent.TypingStop)
-        return result
+        return when (message.type) {
+            MessageType.Text -> {
+                _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
+                val body = SdkMessageBody(
+                    correlationId = Uuid.random().toString(),
+                    timestamp = nowIso,
+                    textMessageRequest = SdkTextMessageRequestBody(
+                        content = SdkTextMessageBody(text = message.content, timestamp = nowIso),
+                        timestamp = nowIso,
+                    ),
+                )
+                val result = apiService.sendMessage(body)
+                if (result is Result.Error) _events.tryEmit(ChatEvent.TypingStop)
+                result
+            }
+
+            MessageType.Image -> {
+                val filePath = message.fileName
+                    ?: return Result.Error(IllegalArgumentException("image message missing fileName"))
+                val mimeType = message.mediaType ?: "image/jpeg"
+                _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
+                val bytes = try {
+                    PlatformFiles.readBytes(filePath)
+                } catch (e: Exception) {
+                    _events.tryEmit(ChatEvent.TypingStop)
+                    return Result.Error(e)
+                }
+                val filename = filePath.substringAfterLast('/')
+                when (val uploadResult = apiService.uploadMedia(bytes, filename, mimeType)) {
+                    is Result.Error -> {
+                        _events.tryEmit(ChatEvent.TypingStop)
+                        Result.Error(uploadResult.error)
+                    }
+                    is Result.Ok -> {
+                        val body = SdkMessageBody(
+                            correlationId = Uuid.random().toString(),
+                            timestamp = nowIso,
+                            imageMessageRequest = SdkImageMessageRequestBody(
+                                content = SdkImageMessageBody(
+                                    timestamp = nowIso,
+                                    text = message.content.takeIf { it.isNotEmpty() },
+                                    mediaUrl = uploadResult.result.id,
+                                    mediaType = mimeType,
+                                    byteCount = bytes.size.toLong(),
+                                    fileName = filename,
+                                ),
+                                timestamp = nowIso,
+                            ),
+                        )
+                        val result = apiService.sendMessage(body)
+                        if (result is Result.Error) _events.tryEmit(ChatEvent.TypingStop)
+                        result
+                    }
+                }
+            }
+
+            MessageType.Voice -> {
+                val filePath = message.fileName
+                    ?: return Result.Error(IllegalArgumentException("voice message missing fileName"))
+                val mimeType = message.mediaType ?: "audio/mp4"
+                _events.tryEmit(ChatEvent.TypingStart(TYPING_STATUS_TEXT))
+                val bytes = try {
+                    PlatformFiles.readBytes(filePath)
+                } catch (e: Exception) {
+                    _events.tryEmit(ChatEvent.TypingStop)
+                    return Result.Error(e)
+                }
+                val filename = filePath.substringAfterLast('/')
+                when (val uploadResult = apiService.uploadMedia(bytes, filename, mimeType)) {
+                    is Result.Error -> {
+                        _events.tryEmit(ChatEvent.TypingStop)
+                        Result.Error(uploadResult.error)
+                    }
+                    is Result.Ok -> {
+                        val body = SdkMessageBody(
+                            correlationId = Uuid.random().toString(),
+                            timestamp = nowIso,
+                            voiceNoteMessageRequest = SdkVoiceNoteMessageRequestBody(
+                                content = SdkVoiceMessageBody(
+                                    timestamp = nowIso,
+                                    mediaUrl = uploadResult.result.id,
+                                    mediaType = mimeType,
+                                    byteCount = bytes.size.toLong(),
+                                    fileName = filename,
+                                    amplitudesPreview = message.amplitudes.map { it.toFloat() },
+                                    duration = message.duration?.toDouble(),
+                                ),
+                                timestamp = nowIso,
+                            ),
+                        )
+                        val result = apiService.sendMessage(body)
+                        if (result is Result.Error) _events.tryEmit(ChatEvent.TypingStop)
+                        result
+                    }
+                }
+            }
+
+            else -> Result.Error(UnsupportedOperationException("Message type ${message.type} is not supported"))
+        }
     }
 
     // Each WebSocket frame that passes dedup becomes a single-item list, mirroring

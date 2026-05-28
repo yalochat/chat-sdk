@@ -90,8 +90,15 @@ public struct ChatTheme {
     public var productTitleFont: Font
     public var productSubunitsFont: Font
     public var productPriceFont: Font
+    public var productSalePriceFont: Font
     public var messageHeaderFont: Font
     public var messageFooterFont: Font
+    public var quickReplyFont: Font
+    public var ctaButtonFont: Font
+    public var buttonsButtonFont: Font
+    public var hintFont: Font
+    public var timerFont: Font
+    public var expandControlFont: Font
 
     // MARK: - Layout
     public var bubbleCornerRadius: CGFloat
@@ -172,8 +179,15 @@ public struct ChatTheme {
         productTitleFont: Font                = .subheadline,
         productSubunitsFont: Font             = .caption,
         productPriceFont: Font                = .subheadline,
+        productSalePriceFont: Font            = .caption,
         messageHeaderFont: Font               = .subheadline,
         messageFooterFont: Font               = .caption,
+        quickReplyFont: Font                  = .subheadline,
+        ctaButtonFont: Font                   = .subheadline,
+        buttonsButtonFont: Font               = .subheadline,
+        hintFont: Font                        = .body,
+        timerFont: Font                       = .caption,
+        expandControlFont: Font               = .subheadline,
         bubbleCornerRadius: CGFloat           = 16,
         sendIconName: String                  = "paperplane.fill",
         micIconName: String                   = "mic.fill",
@@ -247,8 +261,15 @@ public struct ChatTheme {
         self.productTitleFont = productTitleFont
         self.productSubunitsFont = productSubunitsFont
         self.productPriceFont = productPriceFont
+        self.productSalePriceFont = productSalePriceFont
         self.messageHeaderFont = messageHeaderFont
         self.messageFooterFont = messageFooterFont
+        self.quickReplyFont = quickReplyFont
+        self.ctaButtonFont = ctaButtonFont
+        self.buttonsButtonFont = buttonsButtonFont
+        self.hintFont = hintFont
+        self.timerFont = timerFont
+        self.expandControlFont = expandControlFont
         self.bubbleCornerRadius = bubbleCornerRadius
         self.sendIconName = sendIconName
         self.micIconName = micIconName

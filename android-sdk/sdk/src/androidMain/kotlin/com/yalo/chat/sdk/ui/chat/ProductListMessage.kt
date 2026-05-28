@@ -27,6 +27,8 @@ import com.yalo.chat.sdk.domain.model.MessageType
 import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.ui.theme.ChatTheme
 import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 private const val COLLAPSED_MAX_ITEMS = 3
@@ -108,7 +110,7 @@ internal fun ProductListMessage(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = if (expand) "Show less" else "Show more",
+                    text = if (expand) stringResource(R.string.chat_show_less) else stringResource(R.string.chat_show_more),
                     style = theme.expandControlsStyle,
                 )
             }

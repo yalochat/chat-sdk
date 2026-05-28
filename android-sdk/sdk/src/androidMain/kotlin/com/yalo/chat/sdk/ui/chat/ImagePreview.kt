@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Full-screen overlay that shows the picked image with Cancel (X) and Send buttons.
@@ -38,7 +40,7 @@ internal fun ImagePreview(
     ) {
         AsyncImage(
             model = imagePath,
-            contentDescription = "Image preview",
+            contentDescription = stringResource(R.string.chat_image_preview_content_description),
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxSize()
@@ -54,7 +56,7 @@ internal fun ImagePreview(
         ) {
             Icon(
                 imageVector = theme.closeModalIcon,
-                contentDescription = "Cancel",
+                contentDescription = stringResource(R.string.chat_cancel_content_description),
                 tint = theme.closeModalIconColor,
             )
         }
@@ -70,13 +72,13 @@ internal fun ImagePreview(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = "Send image?",
+                text = stringResource(R.string.chat_send_image_label),
                 style = MaterialTheme.typography.bodyMedium.merge(theme.modalHeaderStyle),
             )
             IconButton(onClick = onSend) {
                 Icon(
                     imageVector = theme.sendButtonIcon,
-                    contentDescription = "Send image",
+                    contentDescription = stringResource(R.string.chat_send_image_content_description),
                     tint = theme.sendButtonColor,
                 )
             }

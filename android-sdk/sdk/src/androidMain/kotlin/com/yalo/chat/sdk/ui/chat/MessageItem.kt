@@ -47,6 +47,8 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -104,15 +106,25 @@ internal fun MessageItem(
         verticalAlignment = Alignment.Bottom,
     ) {
         if (isUser && message.status == MessageStatus.ERROR) {
-            androidx.compose.material3.IconButton(
-                onClick = { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } },
-                modifier = Modifier.size(48.dp),
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(end = 4.dp),
             ) {
-                androidx.compose.material3.Icon(
-                    imageVector = theme.errorIcon,
-                    contentDescription = "Send failed",
-                    tint = theme.errorColor,
-                    modifier = Modifier.size(16.dp),
+                androidx.compose.material3.IconButton(
+                    onClick = { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } },
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    androidx.compose.material3.Icon(
+                        imageVector = theme.errorIcon,
+                        contentDescription = stringResource(R.string.chat_send_failed_content_description),
+                        tint = theme.errorColor,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+                Text(
+                    text = stringResource(R.string.chat_not_delivered),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = theme.errorColor,
                 )
             }
         }
@@ -194,12 +206,19 @@ internal fun MessageItem(
                             // sendImageMessage). content holds the URL for agent/server images.
                             // Fall back to content so both cases render correctly.
                             model = message.fileName ?: message.content,
-                            contentDescription = "Image message",
+                            contentDescription = stringResource(R.string.chat_image_message_content_description),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.size(200.dp),
                             placeholder = ColorPainter(theme.imagePlaceholderBackgroundColor),
                             error = ColorPainter(theme.imagePlaceholderBackgroundColor),
                         )
+                        if (message.content.isNotEmpty() && message.fileName != null) {
+                            Text(
+                                text = message.content,
+                                style = messageTextStyle,
+                                modifier = Modifier.padding(top = 4.dp),
+                            )
+                        }
                         message.buttons.filter { it.type != ChatButtonType.REPLY }.forEach { button ->
                             MessageButton(button = button, onEvent = onEvent)
                         }
@@ -234,7 +253,7 @@ internal fun MessageItem(
                     )
                     MessageType.CTA -> CtaMessage(message = message, onEvent = onEvent)
                     MessageType.Unknown -> Text(
-                        text = "Unsupported message",
+                        text = stringResource(R.string.chat_unsupported_message),
                         style = messageTextStyle,
                     )
                     else -> Text(
@@ -300,7 +319,7 @@ private fun VideoMessageItem(
                 if (thumbnail != null) {
                     Image(
                         bitmap = thumbnail!!,
-                        contentDescription = "Video thumbnail",
+                        contentDescription = stringResource(R.string.chat_video_thumbnail_content_description),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.matchParentSize(),
                     )
@@ -313,7 +332,7 @@ private fun VideoMessageItem(
                 }
                 androidx.compose.material3.Icon(
                     imageVector = Icons.Filled.PlayCircle,
-                    contentDescription = "Play video",
+                    contentDescription = stringResource(R.string.chat_play_video_content_description),
                     modifier = Modifier.size(48.dp),
                     tint = Color.White.copy(alpha = 0.85f),
                 )

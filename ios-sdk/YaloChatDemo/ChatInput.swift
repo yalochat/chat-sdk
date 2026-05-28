@@ -48,6 +48,7 @@ struct ChatInput: View {
                     }
 
                     TextField(Translate.inputPlaceholder, text: $messagesObservable.userMessage)
+                        .font(theme.hintFont)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
                         .background(theme.inputBackgroundColor)
@@ -85,6 +86,7 @@ struct ChatInput: View {
         if hasImage || !isBlank {
             Button(action: sendAction) {
                 Image(systemName: theme.sendIconName)
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundColor(theme.sendButtonIconColor)
                     .padding(10)
                     .background(theme.sendButtonColor)
@@ -93,6 +95,7 @@ struct ChatInput: View {
         } else {
             Button(action: audioObservable.startRecording) {
                 Image(systemName: theme.micIconName)
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundColor(theme.sendButtonIconColor)
                     .padding(10)
                     .background(theme.sendButtonColor)

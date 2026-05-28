@@ -14,7 +14,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.domain.model.ChatMessage
 
 // reverseLayout puts the newest message at the bottom, matching chat convention.
@@ -34,7 +36,7 @@ internal fun MessageList(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = "No messages yet")
+            Text(text = stringResource(R.string.chat_no_messages_yet))
         }
         return
     }

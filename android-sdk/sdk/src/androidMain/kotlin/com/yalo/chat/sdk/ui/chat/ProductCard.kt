@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.yalo.chat.sdk.domain.model.Product
 import com.yalo.chat.sdk.domain.util.formatIcuUnit
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // ── Shared price row ──────────────────────────────────────────────────────────
@@ -94,7 +96,7 @@ private fun ProductImage(
         }
         AsyncImage(
             model = imagesUrl.firstOrNull(),
-            contentDescription = "Product image",
+            contentDescription = stringResource(R.string.chat_product_image_content_description),
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize(),
         )

@@ -148,7 +148,7 @@ private struct ProductPriceRow: View {
 
             if salePrice != nil {
                 Text(formatPrice(product.price))
-                    .font(.caption)
+                    .font(theme.productSalePriceFont)
                     .strikethrough()
                     .foregroundColor(theme.productSalePriceColor)
             }

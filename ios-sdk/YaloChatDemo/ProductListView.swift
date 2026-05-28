@@ -55,8 +55,8 @@ struct ProductListView: View {
 
             if products.count > collapsedMaxItems {
                 Button(action: onToggleExpand) {
-                    Text(isExpanded ? "Show less" : "Show more")
-                        .font(.subheadline)
+                    Text(isExpanded ? Translate.showLess : Translate.showMore)
+                        .font(theme.expandControlFont)
                         .foregroundColor(theme.expandControlColor)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 4)

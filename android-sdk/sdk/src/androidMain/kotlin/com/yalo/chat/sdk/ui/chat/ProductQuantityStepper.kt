@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 @Composable
@@ -31,7 +33,7 @@ internal fun ProductQuantityStepper(
         IconButton(onClick = onRemove, enabled = value > 0.0) {
             Icon(
                 imageVector = theme.removeIcon,
-                contentDescription = "Remove",
+                contentDescription = stringResource(R.string.chat_remove_content_description),
                 tint = if (value > 0.0) theme.numericControlIconColor else theme.numericControlIconColor.copy(alpha = 0.38f),
             )
         }
@@ -42,7 +44,7 @@ internal fun ProductQuantityStepper(
         IconButton(onClick = onAdd) {
             Icon(
                 imageVector = theme.addIcon,
-                contentDescription = "Add",
+                contentDescription = stringResource(R.string.chat_add_content_description),
                 tint = theme.numericControlIconColor,
             )
         }

@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.AudioData
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Replaces ChatInput while the user is recording a voice message.
@@ -40,7 +42,7 @@ internal fun WaveformRecorder(
         IconButton(onClick = onCancel) {
             Icon(
                 imageVector = theme.cancelRecordingIcon,
-                contentDescription = "Cancel recording",
+                contentDescription = stringResource(R.string.chat_cancel_recording_content_description),
                 tint = theme.cancelRecordingIconColor,
             )
         }
@@ -63,7 +65,7 @@ internal fun WaveformRecorder(
         IconButton(onClick = onSend) {
             Icon(
                 imageVector = theme.sendButtonIcon,
-                contentDescription = "Send voice message",
+                contentDescription = stringResource(R.string.chat_send_voice_content_description),
                 tint = theme.sendButtonColor,
             )
         }

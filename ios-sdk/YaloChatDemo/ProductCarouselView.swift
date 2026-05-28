@@ -57,8 +57,8 @@ struct ProductCarouselView: View {
 
                 if showToggle {
                     Button(action: onToggleExpand) {
-                        Text(isExpanded ? "Show less" : "Show more")
-                            .font(.subheadline)
+                        Text(isExpanded ? Translate.showLess : Translate.showMore)
+                            .font(theme.expandControlFont)
                             .foregroundColor(theme.expandControlColor)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 8)
