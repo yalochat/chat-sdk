@@ -50,7 +50,10 @@ import com.yalo.chat.sdk.ui.chat.MessagesEvent
 import com.yalo.chat.sdk.ui.chat.MessagesViewModel
 import com.yalo.chat.sdk.ui.chat.WaveformRecorder
 import com.yalo.chat.sdk.ui.chat.isRecording
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.ChatThemeProvider
+import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // android.net.Uri is used only at the Activity Result boundary; URIs are Strings inside ViewModels.
 @OptIn(ExperimentalMaterial3Api::class)
@@ -228,8 +231,10 @@ fun ChatScreen(
     // ── Scaffold ──────────────────────────────────────────────────────────────
 
     ChatThemeProvider(YaloChat.theme) {
+        val theme = LocalChatTheme.current
         Box {
             Scaffold(
+                containerColor = theme.backgroundColor,
                 topBar = {
                     appBar?.invoke() ?: ChatAppBar(
                         title = YaloChat.config.channelName,
@@ -323,7 +328,7 @@ fun ChatScreen(
                         imageViewModel.handleEvent(ImageEvent.PickFromGallery)
                     },
                 ) {
-                    Text("Choose from Gallery")
+                    Text(stringResource(R.string.chat_choose_from_gallery))
                 }
                 TextButton(
                     onClick = {
@@ -331,7 +336,7 @@ fun ChatScreen(
                         imageViewModel.handleEvent(ImageEvent.PickFromCamera)
                     },
                 ) {
-                    Text("Take Photo")
+                    Text(stringResource(R.string.chat_take_photo))
                 }
             }
         }

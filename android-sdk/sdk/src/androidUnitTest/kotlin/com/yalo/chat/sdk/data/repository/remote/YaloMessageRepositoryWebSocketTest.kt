@@ -11,6 +11,9 @@ import com.yalo.chat.sdk.data.remote.model.SdkTextMessageResponseDto
 import com.yalo.chat.sdk.data.remote.model.YaloFetchMessagesResponse
 import com.yalo.chat.sdk.domain.model.ChatCommand
 import com.yalo.chat.sdk.domain.model.ChatEvent
+import com.yalo.chat.sdk.domain.model.ChatMessage
+import com.yalo.chat.sdk.domain.model.MessageRole
+import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -62,9 +65,14 @@ class YaloMessageRepositoryWebSocketTest {
         tempDir.deleteRecursively()
     }
 
+    private val uploadSuccessJson =
+        """{"id":"media-123","signed_url":"https://s3.example.com/media-123","original_name":"file","type":"image/jpeg","created_at":"2024-01-01T00:00:00Z","expires_at":"2024-12-31T00:00:00Z"}"""
+
     private fun buildComponents(
         fetchResponse: String = "[]",
         sendResponse: String = "{}",
+        uploadResponse: String = uploadSuccessJson,
+        uploadStatus: HttpStatusCode = HttpStatusCode.Created,
     ): Triple<YaloMessageServiceWebSocket, YaloChatApiService, YaloMessageRepositoryWebSocket> {
         val engine = MockEngine { request ->
             when {
@@ -72,6 +80,8 @@ class YaloMessageRepositoryWebSocketTest {
                     respond(authResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
                 request.url.encodedPath.contains("/messages") && request.method.value == "GET" ->
                     respond(fetchResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
+                request.url.encodedPath.contains("/all/media") ->
+                    respond(uploadResponse, uploadStatus, headersOf(HttpHeaders.ContentType, "application/json"))
                 else ->
                     respond(sendResponse, HttpStatusCode.OK, headersOf(HttpHeaders.ContentType, "application/json"))
             }
@@ -256,16 +266,110 @@ class YaloMessageRepositoryWebSocketTest {
     }
 
     @Test
-    fun `sendMessage returns Error for non-text message types`() = runTest {
+    fun `sendMessage image missing fileName returns Error`() = runTest {
         val (_, _, repo) = buildComponents()
         val result = repo.sendMessage(
-            com.yalo.chat.sdk.domain.model.ChatMessage(
+            ChatMessage(
                 id = 1L,
-                role = com.yalo.chat.sdk.domain.model.MessageRole.USER,
+                role = MessageRole.USER,
                 type = MessageType.Image,
-                status = com.yalo.chat.sdk.domain.model.MessageStatus.SENT,
+                status = MessageStatus.SENT,
                 content = "",
                 timestamp = 0L,
+            )
+        )
+        assertIs<Result.Error<Unit>>(result)
+    }
+
+    @Test
+    fun `sendMessage image with valid file returns Ok`() = runTest {
+        val imageFile = File(tempDir, "photo.jpg").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val (_, _, repo) = buildComponents()
+        val result = repo.sendMessage(
+            ChatMessage(
+                id = 1L,
+                role = MessageRole.USER,
+                type = MessageType.Image,
+                status = MessageStatus.SENT,
+                content = "",
+                timestamp = 0L,
+                fileName = imageFile.absolutePath,
+            )
+        )
+        assertIs<Result.Ok<Unit>>(result)
+    }
+
+    @Test
+    fun `sendMessage image upload failure returns Error`() = runTest {
+        val imageFile = File(tempDir, "photo.jpg").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val (_, _, repo) = buildComponents(
+            uploadResponse = """{"error":"upload failed"}""",
+            uploadStatus = HttpStatusCode.InternalServerError,
+        )
+        val result = repo.sendMessage(
+            ChatMessage(
+                id = 1L,
+                role = MessageRole.USER,
+                type = MessageType.Image,
+                status = MessageStatus.SENT,
+                content = "",
+                timestamp = 0L,
+                fileName = imageFile.absolutePath,
+            )
+        )
+        assertIs<Result.Error<Unit>>(result)
+    }
+
+    @Test
+    fun `sendMessage voice missing fileName returns Error`() = runTest {
+        val (_, _, repo) = buildComponents()
+        val result = repo.sendMessage(
+            ChatMessage(
+                id = 1L,
+                role = MessageRole.USER,
+                type = MessageType.Voice,
+                status = MessageStatus.SENT,
+                content = "",
+                timestamp = 0L,
+            )
+        )
+        assertIs<Result.Error<Unit>>(result)
+    }
+
+    @Test
+    fun `sendMessage voice with valid file returns Ok`() = runTest {
+        val voiceFile = File(tempDir, "note.m4a").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val (_, _, repo) = buildComponents()
+        val result = repo.sendMessage(
+            ChatMessage(
+                id = 1L,
+                role = MessageRole.USER,
+                type = MessageType.Voice,
+                status = MessageStatus.SENT,
+                content = "",
+                timestamp = 0L,
+                fileName = voiceFile.absolutePath,
+            )
+        )
+        assertIs<Result.Ok<Unit>>(result)
+    }
+
+    @Test
+    fun `sendMessage voice upload failure returns Error`() = runTest {
+        val voiceFile = File(tempDir, "note.m4a").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val (_, _, repo) = buildComponents(
+            uploadResponse = """{"error":"upload failed"}""",
+            uploadStatus = HttpStatusCode.InternalServerError,
+        )
+        val result = repo.sendMessage(
+            ChatMessage(
+                id = 1L,
+                role = MessageRole.USER,
+                type = MessageType.Voice,
+                status = MessageStatus.SENT,
+                content = "",
+                timestamp = 0L,
+                fileName = voiceFile.absolutePath,
             )
         )
         assertIs<Result.Error<Unit>>(result)

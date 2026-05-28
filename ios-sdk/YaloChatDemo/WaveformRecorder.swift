@@ -20,6 +20,7 @@ struct WaveformRecorder: View {
             }
 
             Text(audioObservable.durationText)
+                .font(theme.timerFont)
                 .monospacedDigit()
                 .foregroundColor(theme.timerColor)
                 .frame(width: 48, alignment: .leading)

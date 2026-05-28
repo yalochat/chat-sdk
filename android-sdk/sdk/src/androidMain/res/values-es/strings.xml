@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_input_placeholder">Escribe un mensaje</string>
+    <string name="chat_attach_content_description">Adjuntar imagen</string>
+    <string name="chat_record_content_description">Grabar mensaje de voz</string>
+    <string name="chat_send_content_description">Enviar</string>
+    <string name="chat_back_content_description">Atrás</string>
+    <string name="chat_shop_content_description">Tienda</string>
+    <string name="chat_cart_content_description">Carrito</string>
+    <string name="chat_retry">Reintentar</string>
+    <string name="chat_image_message_content_description">Mensaje de imagen</string>
+    <string name="chat_video_thumbnail_content_description">Miniatura de video</string>
+    <string name="chat_play_video_content_description">Reproducir video</string>
+    <string name="chat_unsupported_message">Tipo de mensaje no soportado</string>
+    <string name="chat_no_messages_yet">Sin mensajes aún</string>
+    <string name="chat_image_preview_content_description">Vista previa de imagen</string>
+    <string name="chat_cancel_content_description">Cancelar</string>
+    <string name="chat_send_image_content_description">Enviar imagen</string>
+    <string name="chat_send_image_label">¿Enviar imagen?</string>
+    <string name="chat_cancel_recording_content_description">Cancelar grabación</string>
+    <string name="chat_send_voice_content_description">Enviar mensaje de voz</string>
+    <string name="chat_pause_voice_content_description">Pausar mensaje de voz</string>
+    <string name="chat_play_voice_content_description">Reproducir mensaje de voz</string>
+    <string name="chat_choose_from_gallery">Subir desde galería</string>
+    <string name="chat_take_photo">Tomar foto</string>
+    <string name="chat_show_more">Ver más</string>
+    <string name="chat_show_less">Ver menos</string>
+    <string name="chat_not_delivered">No entregado.</string>
+    <string name="chat_remove_content_description">Eliminar</string>
+    <string name="chat_add_content_description">Agregar</string>
+    <string name="chat_product_image_content_description">Imagen del producto</string>
+</resources>

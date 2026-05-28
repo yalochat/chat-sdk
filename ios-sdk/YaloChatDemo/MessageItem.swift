@@ -16,7 +16,7 @@ struct MessageItem: View {
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
-    @State private var containerWidth: CGFloat = 390
+    @State private var rowWidth: CGFloat = 393
 
     private var isUser: Bool { message.role === MessageRole.user }
 
@@ -31,19 +31,19 @@ struct MessageItem: View {
         } else {
             HStack(alignment: .bottom, spacing: 4) {
                 if isUser {
-                    Spacer(minLength: 48)
+                    Spacer(minLength: rowWidth * 0.2)
                     errorIndicator
                     bubble
                 } else {
                     bubble
-                    Spacer(minLength: 48)
+                    Spacer(minLength: rowWidth * 0.1)
                 }
             }
             .background(
                 GeometryReader { geo in
                     Color.clear
-                        .onAppear { containerWidth = geo.size.width }
-                        .onChange(of: geo.size.width) { containerWidth = $0 }
+                        .onAppear { rowWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { rowWidth = $0 }
                 }
             )
         }
@@ -55,12 +55,17 @@ struct MessageItem: View {
             Button {
                 if let id = message.id?.int64Value { onRetry(id) }
             } label: {
-                Image(systemName: theme.errorIconName)
-                    .foregroundColor(theme.errorColor)
-                    .font(.caption)
+                VStack(spacing: 2) {
+                    Image(systemName: theme.errorIconName)
+                        .foregroundColor(theme.errorColor)
+                        .font(.caption)
+                    Text(Translate.notDelivered)
+                        .font(.caption2)
+                        .foregroundColor(theme.errorColor)
+                }
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Translate.retry)
+            .accessibilityLabel("\(Translate.notDelivered) \(Translate.retry)")
         }
     }
 
@@ -107,7 +112,6 @@ struct MessageItem: View {
                     .cornerRadius(theme.bubbleCornerRadius)
             }
         }
-        .frame(maxWidth: containerWidth * (isUser ? 0.8 : 0.9))
     }
 
     @ViewBuilder
@@ -269,7 +273,7 @@ struct MessageItem: View {
                     }) {
                         HStack {
                             Text(button.text)
-                                .font(.subheadline)
+                                .font(theme.ctaButtonFont)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             Image(systemName: theme.ctaArrowIconName)
                                 .font(.caption)
@@ -286,7 +290,7 @@ struct MessageItem: View {
                 } else {
                     SwiftUI.Button(action: { onButtonTap(button.text) }) {
                         Text(button.text)
-                            .font(.subheadline)
+                            .font(theme.buttonsButtonFont)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
                             .background(theme.buttonsButtonColor)
@@ -408,10 +412,10 @@ private struct StableVideoPlayer: View {
         Group {
             if let player {
                 VideoPlayer(player: player)
-                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180, alignment: .leading)
             } else {
                 Color.black
-                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180)
+                    .frame(maxWidth: 240, minHeight: 160, maxHeight: 180, alignment: .leading)
                     .overlay(
                         Image(systemName: "play.circle.fill")
                             .font(.largeTitle)
@@ -440,7 +444,7 @@ private struct LocalFileImage: View {
                 Image(uiImage: img)
                     .resizable()
                     .scaledToFill()
-                    .frame(maxWidth: 200, maxHeight: 200)
+                    .frame(maxWidth: 200, maxHeight: 200, alignment: .leading)
                     .clipped()
             } else {
                 fallbackColor

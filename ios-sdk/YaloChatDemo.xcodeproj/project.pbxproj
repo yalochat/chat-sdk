@@ -56,6 +56,7 @@
 		05D563B68F202040D37D6212 /* MessageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageItem.swift; sourceTree = "<group>"; };
 		0EF71DFCB68275F5614937DD /* ProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCard.swift; sourceTree = "<group>"; };
 		192FC4739922F8D122901DB5 /* ImageObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageObservable.swift; sourceTree = "<group>"; };
+		204E00CE5F4010F34FAC52DD /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		23407D6589CAA8A5F7913634 /* ChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInput.swift; sourceTree = "<group>"; };
 		2ED2567261F6D10227B02251 /* YaloChatAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChatAction.swift; sourceTree = "<group>"; };
 		34E80F747F4EC2822662317B /* YaloChatDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = YaloChatDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -201,6 +202,7 @@
 			knownRegions = (
 				Base,
 				en,
+				es,
 			);
 			mainGroup = 244AB61E08D7C520123CEA59;
 			minimizedProjectReferenceProxies = 1;
@@ -266,6 +268,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				B6D12EA3158328A83F178A91 /* en */,
+				204E00CE5F4010F34FAC52DD /* es */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

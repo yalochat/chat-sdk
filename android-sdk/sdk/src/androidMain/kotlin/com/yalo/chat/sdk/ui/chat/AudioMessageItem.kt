@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.yalo.chat.sdk.domain.model.ChatMessage
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Renders a voice message bubble: play/pause button + waveform preview of the recorded amplitudes.
@@ -36,7 +38,7 @@ internal fun AudioMessageItem(
         ) {
             Icon(
                 imageVector = if (isPlaying) theme.pauseAudioIcon else theme.playAudioIcon,
-                contentDescription = if (isPlaying) "Pause voice message" else "Play voice message",
+                contentDescription = if (isPlaying) stringResource(R.string.chat_pause_voice_content_description) else stringResource(R.string.chat_play_voice_content_description),
                 tint = if (isPlaying) theme.pauseAudioIconColor else theme.playAudioIconColor,
             )
         }

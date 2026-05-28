@@ -1,44 +1,44 @@
 /* Message list — shown when the conversation has no messages */
-"chat.no_messages_yet" = "No messages yet";
+"chat.no_messages_yet" = "Sin mensajes aún";
 
 /* Bubble fallback for message types the SDK does not render */
-"chat.unsupported_message_type" = "Unsupported message type";
+"chat.unsupported_message_type" = "Tipo de mensaje no soportado";
 
 /* Placeholder when an image message has no local file path */
-"chat.image_unavailable" = "Image unavailable";
+"chat.image_unavailable" = "Imagen no disponible";
 
 /* Placeholder when a video message has no local file path */
-"chat.video_unavailable" = "Video unavailable";
+"chat.video_unavailable" = "Video no disponible";
 
 /* Error shown when the picked image cannot be written to a temp file */
-"chat.image_save_error" = "Failed to save image. Please try again.";
+"chat.image_save_error" = "No se pudo guardar la imagen. Inténtalo de nuevo.";
 
 /* App bar title fallback when no channel name is configured */
 "chat.default_channel_name" = "Chat";
 
 /* Title of the attachment source picker */
-"chat.attach_image_title" = "Attach Image";
+"chat.attach_image_title" = "Adjuntar imagen";
 
 /* Photo library option in the attachment source picker */
-"chat.photo_library" = "Photo Library";
+"chat.photo_library" = "Subir desde galería";
 
 /* Camera option in the attachment source picker */
-"chat.camera" = "Camera";
+"chat.camera" = "Tomar foto";
 
 /* Cancel button in the attachment source picker */
-"chat.cancel" = "Cancel";
+"chat.cancel" = "Cancelar";
 
 /* Placeholder text in the message text field */
-"chat.input_placeholder" = "Type a message";
+"chat.input_placeholder" = "Escribe un mensaje";
 
 /* Accessibility label for the retry button on a failed message */
-"chat.retry" = "Retry";
+"chat.retry" = "Reintentar";
 
 /* Expand control on product lists and carousels */
-"chat.show_more" = "Show more";
+"chat.show_more" = "Ver más";
 
 /* Collapse control on product lists and carousels */
-"chat.show_less" = "Show less";
+"chat.show_less" = "Ver menos";
 
 /* Label shown below a user message that failed to deliver */
-"chat.not_delivered" = "Not delivered.";
+"chat.not_delivered" = "No entregado.";

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_input_placeholder">Type a message</string>
+    <string name="chat_attach_content_description">Attach image</string>
+    <string name="chat_record_content_description">Record voice message</string>
+    <string name="chat_send_content_description">Send</string>
+    <string name="chat_back_content_description">Back</string>
+    <string name="chat_shop_content_description">Shop</string>
+    <string name="chat_cart_content_description">Cart</string>
+    <string name="chat_retry">Retry</string>
+    <string name="chat_image_message_content_description">Image message</string>
+    <string name="chat_video_thumbnail_content_description">Video thumbnail</string>
+    <string name="chat_play_video_content_description">Play video</string>
+    <string name="chat_unsupported_message">Unsupported message type</string>
+    <string name="chat_no_messages_yet">No messages yet</string>
+    <string name="chat_image_preview_content_description">Image preview</string>
+    <string name="chat_cancel_content_description">Cancel</string>
+    <string name="chat_send_image_content_description">Send image</string>
+    <string name="chat_send_image_label">Send image?</string>
+    <string name="chat_cancel_recording_content_description">Cancel recording</string>
+    <string name="chat_send_voice_content_description">Send voice message</string>
+    <string name="chat_pause_voice_content_description">Pause voice message</string>
+    <string name="chat_play_voice_content_description">Play voice message</string>
+    <string name="chat_choose_from_gallery">Choose from gallery</string>
+    <string name="chat_take_photo">Take a photo</string>
+    <string name="chat_remove_content_description">Remove</string>
+    <string name="chat_add_content_description">Add</string>
+    <string name="chat_product_image_content_description">Product image</string>
+    <string name="chat_show_more">Show more</string>
+    <string name="chat_show_less">Show less</string>
+    <string name="chat_not_delivered">Not delivered.</string>
+</resources>

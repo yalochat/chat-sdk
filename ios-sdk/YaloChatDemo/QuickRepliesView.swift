@@ -34,7 +34,7 @@ private struct QuickReplyChip: View {
     var body: some View {
         Button(action: onTap) {
             Text(text)
-                .font(.subheadline)
+                .font(theme.quickReplyFont)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .background(theme.quickReplyBackgroundColor)

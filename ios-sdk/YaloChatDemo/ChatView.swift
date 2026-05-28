@@ -24,6 +24,7 @@ struct ChatView: View {
             )
 
             MessageList(observable: observable, audioObservable: audioObservable)
+                .frame(maxHeight: .infinity)
 
             Divider()
 

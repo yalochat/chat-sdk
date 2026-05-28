@@ -21,4 +21,7 @@ enum Translate {
     static let cancel             = string("chat.cancel")
     static let inputPlaceholder   = string("chat.input_placeholder")
     static let retry              = string("chat.retry")
+    static let showMore           = string("chat.show_more")
+    static let showLess           = string("chat.show_less")
+    static let notDelivered       = string("chat.not_delivered")
 }

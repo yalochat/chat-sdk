@@ -29,6 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import androidx.compose.ui.res.stringResource
+import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 
 // Chat app bar with:
@@ -82,19 +84,19 @@ internal fun ChatAppBar(
         navigationIcon = {
             if (onBack != null) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.chat_back_content_description))
                 }
             }
         },
         actions = {
             if (onShopPressed != null) {
                 IconButton(onClick = onShopPressed) {
-                    Icon(theme.shopIcon, contentDescription = "Shop", tint = theme.actionIconColor)
+                    Icon(theme.shopIcon, contentDescription = stringResource(R.string.chat_shop_content_description), tint = theme.actionIconColor)
                 }
             }
             if (onCartPressed != null) {
                 IconButton(onClick = onCartPressed) {
-                    Icon(theme.cartIcon, contentDescription = "Cart", tint = theme.actionIconColor)
+                    Icon(theme.cartIcon, contentDescription = stringResource(R.string.chat_cart_content_description), tint = theme.actionIconColor)
                 }
             }
         },
