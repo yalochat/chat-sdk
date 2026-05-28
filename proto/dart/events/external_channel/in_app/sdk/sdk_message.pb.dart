@@ -52,6 +52,8 @@ enum SdkMessage_Payload {
   getCommandsResponse,
   updateCartProductRequest,
   updateCartProductResponse,
+  productConfirmationMessageRequest,
+  productConfirmationMessageResponse,
   notSet
 }
 
@@ -90,6 +92,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     GetCommandsResponse? getCommandsResponse,
     UpdateCartProductRequest? updateCartProductRequest,
     UpdateCartProductResponse? updateCartProductResponse,
+    ProductConfirmationMessageRequest? productConfirmationMessageRequest,
+    ProductConfirmationMessageResponse? productConfirmationMessageResponse,
   }) {
     final result = create();
     if (correlationId != null) result.correlationId = correlationId;
@@ -145,6 +149,12 @@ class SdkMessage extends $pb.GeneratedMessage {
       result.updateCartProductRequest = updateCartProductRequest;
     if (updateCartProductResponse != null)
       result.updateCartProductResponse = updateCartProductResponse;
+    if (productConfirmationMessageRequest != null)
+      result.productConfirmationMessageRequest =
+          productConfirmationMessageRequest;
+    if (productConfirmationMessageResponse != null)
+      result.productConfirmationMessageResponse =
+          productConfirmationMessageResponse;
     return result;
   }
 
@@ -187,6 +197,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     45: SdkMessage_Payload.getCommandsResponse,
     46: SdkMessage_Payload.updateCartProductRequest,
     47: SdkMessage_Payload.updateCartProductResponse,
+    48: SdkMessage_Payload.productConfirmationMessageRequest,
+    49: SdkMessage_Payload.productConfirmationMessageResponse,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -222,7 +234,9 @@ class SdkMessage extends $pb.GeneratedMessage {
       44,
       45,
       46,
-      47
+      47,
+      48,
+      49
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -298,6 +312,12 @@ class SdkMessage extends $pb.GeneratedMessage {
     ..aOM<UpdateCartProductResponse>(
         47, _omitFieldNames ? '' : 'updateCartProductResponse',
         subBuilder: UpdateCartProductResponse.create)
+    ..aOM<ProductConfirmationMessageRequest>(
+        48, _omitFieldNames ? '' : 'productConfirmationMessageRequest',
+        subBuilder: ProductConfirmationMessageRequest.create)
+    ..aOM<ProductConfirmationMessageResponse>(
+        49, _omitFieldNames ? '' : 'productConfirmationMessageResponse',
+        subBuilder: ProductConfirmationMessageResponse.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -346,6 +366,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(45)
   @$pb.TagNumber(46)
   @$pb.TagNumber(47)
+  @$pb.TagNumber(48)
+  @$pb.TagNumber(49)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -376,6 +398,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(45)
   @$pb.TagNumber(46)
   @$pb.TagNumber(47)
+  @$pb.TagNumber(48)
+  @$pb.TagNumber(49)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -722,6 +746,36 @@ class SdkMessage extends $pb.GeneratedMessage {
   void clearUpdateCartProductResponse() => $_clearField(47);
   @$pb.TagNumber(47)
   UpdateCartProductResponse ensureUpdateCartProductResponse() => $_ensure(29);
+
+  @$pb.TagNumber(48)
+  ProductConfirmationMessageRequest get productConfirmationMessageRequest =>
+      $_getN(30);
+  @$pb.TagNumber(48)
+  set productConfirmationMessageRequest(
+          ProductConfirmationMessageRequest value) =>
+      $_setField(48, value);
+  @$pb.TagNumber(48)
+  $core.bool hasProductConfirmationMessageRequest() => $_has(30);
+  @$pb.TagNumber(48)
+  void clearProductConfirmationMessageRequest() => $_clearField(48);
+  @$pb.TagNumber(48)
+  ProductConfirmationMessageRequest ensureProductConfirmationMessageRequest() =>
+      $_ensure(30);
+
+  @$pb.TagNumber(49)
+  ProductConfirmationMessageResponse get productConfirmationMessageResponse =>
+      $_getN(31);
+  @$pb.TagNumber(49)
+  set productConfirmationMessageResponse(
+          ProductConfirmationMessageResponse value) =>
+      $_setField(49, value);
+  @$pb.TagNumber(49)
+  $core.bool hasProductConfirmationMessageResponse() => $_has(31);
+  @$pb.TagNumber(49)
+  void clearProductConfirmationMessageResponse() => $_clearField(49);
+  @$pb.TagNumber(49)
+  ProductConfirmationMessageResponse
+      ensureProductConfirmationMessageResponse() => $_ensure(31);
 }
 
 /// Button represents a single tappable option attached to a message.
@@ -3626,6 +3680,243 @@ class ProductMessageResponse extends $pb.GeneratedMessage {
   static ProductMessageResponse getDefault() => _defaultInstance ??=
       $pb.GeneratedMessage.$_defaultFor<ProductMessageResponse>(create);
   static ProductMessageResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ResponseStatus get status => $_getN(0);
+  @$pb.TagNumber(1)
+  set status(ResponseStatus value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+}
+
+/// ProductConfirmationMessageRequest confirms a product cart change in the
+/// client UI, identifying the affected SKU and the resulting unit/subunit
+/// quantities after the operation. Display-only fields (name, price, image)
+/// are resolved by the client from its own product catalog cache.
+class ProductConfirmationMessageRequest extends $pb.GeneratedMessage {
+  factory ProductConfirmationMessageRequest({
+    $core.String? sku,
+    $0.Timestamp? timestamp,
+    $core.double? units,
+    $core.double? subunits,
+    $core.String? header,
+    $core.String? body,
+    Button? button,
+    $core.String? footer,
+  }) {
+    final result = create();
+    if (sku != null) result.sku = sku;
+    if (timestamp != null) result.timestamp = timestamp;
+    if (units != null) result.units = units;
+    if (subunits != null) result.subunits = subunits;
+    if (header != null) result.header = header;
+    if (body != null) result.body = body;
+    if (button != null) result.button = button;
+    if (footer != null) result.footer = footer;
+    return result;
+  }
+
+  ProductConfirmationMessageRequest._();
+
+  factory ProductConfirmationMessageRequest.fromBuffer(
+          $core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ProductConfirmationMessageRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ProductConfirmationMessageRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'sku')
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..aD(3, _omitFieldNames ? '' : 'units')
+    ..aD(4, _omitFieldNames ? '' : 'subunits')
+    ..aOS(5, _omitFieldNames ? '' : 'header')
+    ..aOS(6, _omitFieldNames ? '' : 'body')
+    ..aOM<Button>(7, _omitFieldNames ? '' : 'button', subBuilder: Button.create)
+    ..aOS(8, _omitFieldNames ? '' : 'footer')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ProductConfirmationMessageRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ProductConfirmationMessageRequest copyWith(
+          void Function(ProductConfirmationMessageRequest) updates) =>
+      super.copyWith((message) =>
+              updates(message as ProductConfirmationMessageRequest))
+          as ProductConfirmationMessageRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ProductConfirmationMessageRequest create() =>
+      ProductConfirmationMessageRequest._();
+  @$core.override
+  ProductConfirmationMessageRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ProductConfirmationMessageRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ProductConfirmationMessageRequest>(
+          create);
+  static ProductConfirmationMessageRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get sku => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set sku($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasSku() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSku() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+
+  /// Absolute number of primary units for this SKU after the confirmed change.
+  @$pb.TagNumber(3)
+  $core.double get units => $_getN(2);
+  @$pb.TagNumber(3)
+  set units($core.double value) => $_setDouble(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasUnits() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearUnits() => $_clearField(3);
+
+  /// Absolute number of subunits for this SKU after the confirmed change.
+  /// Omit when the product has no subunit dimension.
+  @$pb.TagNumber(4)
+  $core.double get subunits => $_getN(3);
+  @$pb.TagNumber(4)
+  set subunits($core.double value) => $_setDouble(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasSubunits() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSubunits() => $_clearField(4);
+
+  /// Structural text rendered above the confirmation card body.
+  @$pb.TagNumber(5)
+  $core.String get header => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set header($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasHeader() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearHeader() => $_clearField(5);
+
+  /// Body text rendered as the main content of the confirmation card.
+  @$pb.TagNumber(6)
+  $core.String get body => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set body($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasBody() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearBody() => $_clearField(6);
+
+  /// Call-to-action button rendered alongside the confirmation card.
+  @$pb.TagNumber(7)
+  Button get button => $_getN(6);
+  @$pb.TagNumber(7)
+  set button(Button value) => $_setField(7, value);
+  @$pb.TagNumber(7)
+  $core.bool hasButton() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearButton() => $_clearField(7);
+  @$pb.TagNumber(7)
+  Button ensureButton() => $_ensure(6);
+
+  /// Structural text rendered below the confirmation card body.
+  @$pb.TagNumber(8)
+  $core.String get footer => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set footer($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasFooter() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearFooter() => $_clearField(8);
+}
+
+/// ProductConfirmationMessageResponse acknowledges a ProductConfirmationMessageRequest.
+class ProductConfirmationMessageResponse extends $pb.GeneratedMessage {
+  factory ProductConfirmationMessageResponse({
+    ResponseStatus? status,
+    $0.Timestamp? timestamp,
+  }) {
+    final result = create();
+    if (status != null) result.status = status;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  ProductConfirmationMessageResponse._();
+
+  factory ProductConfirmationMessageResponse.fromBuffer(
+          $core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ProductConfirmationMessageResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ProductConfirmationMessageResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
+        enumValues: ResponseStatus.values)
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ProductConfirmationMessageResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ProductConfirmationMessageResponse copyWith(
+          void Function(ProductConfirmationMessageResponse) updates) =>
+      super.copyWith((message) =>
+              updates(message as ProductConfirmationMessageResponse))
+          as ProductConfirmationMessageResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ProductConfirmationMessageResponse create() =>
+      ProductConfirmationMessageResponse._();
+  @$core.override
+  ProductConfirmationMessageResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ProductConfirmationMessageResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ProductConfirmationMessageResponse>(
+          create);
+  static ProductConfirmationMessageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   ResponseStatus get status => $_getN(0);

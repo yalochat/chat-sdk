@@ -1048,6 +1048,28 @@ public final class SdkMessageOuterClass {
     yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.CustomCommandResponse getCustomCommandResponse();
 
     /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     * @return Whether the productConfirmationMessageRequest field is set.
+     */
+    boolean hasProductConfirmationMessageRequest();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     * @return The productConfirmationMessageRequest.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest getProductConfirmationMessageRequest();
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     * @return Whether the productConfirmationMessageResponse field is set.
+     */
+    boolean hasProductConfirmationMessageResponse();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     * @return The productConfirmationMessageResponse.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse getProductConfirmationMessageResponse();
+
+    /**
      * <pre>
      * Client → channel
      * </pre>
@@ -1127,6 +1149,8 @@ public final class SdkMessageOuterClass {
       CHAT_STATUS_RESPONSE(35),
       CUSTOM_COMMAND_REQUEST(36),
       CUSTOM_COMMAND_RESPONSE(37),
+      PRODUCT_CONFIRMATION_MESSAGE_REQUEST(48),
+      PRODUCT_CONFIRMATION_MESSAGE_RESPONSE(49),
       GET_COMMANDS_REQUEST(44),
       GET_COMMANDS_RESPONSE(45),
       PAYLOAD_NOT_SET(0);
@@ -1170,6 +1194,8 @@ public final class SdkMessageOuterClass {
           case 35: return CHAT_STATUS_RESPONSE;
           case 36: return CUSTOM_COMMAND_REQUEST;
           case 37: return CUSTOM_COMMAND_RESPONSE;
+          case 48: return PRODUCT_CONFIRMATION_MESSAGE_REQUEST;
+          case 49: return PRODUCT_CONFIRMATION_MESSAGE_RESPONSE;
           case 44: return GET_COMMANDS_REQUEST;
           case 45: return GET_COMMANDS_RESPONSE;
           case 0: return PAYLOAD_NOT_SET;
@@ -2716,6 +2742,110 @@ public final class SdkMessageOuterClass {
      */
     private void clearCustomCommandResponse() {
       if (payloadCase_ == 37) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int PRODUCT_CONFIRMATION_MESSAGE_REQUEST_FIELD_NUMBER = 48;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     */
+    @java.lang.Override
+    public boolean hasProductConfirmationMessageRequest() {
+      return payloadCase_ == 48;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest getProductConfirmationMessageRequest() {
+      if (payloadCase_ == 48) {
+         return (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setProductConfirmationMessageRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 48;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeProductConfirmationMessageRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 48 &&
+          payload_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.newBuilder((yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 48;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+     */
+    private void clearProductConfirmationMessageRequest() {
+      if (payloadCase_ == 48) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int PRODUCT_CONFIRMATION_MESSAGE_RESPONSE_FIELD_NUMBER = 49;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     */
+    @java.lang.Override
+    public boolean hasProductConfirmationMessageResponse() {
+      return payloadCase_ == 49;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse getProductConfirmationMessageResponse() {
+      if (payloadCase_ == 49) {
+         return (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setProductConfirmationMessageResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 49;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeProductConfirmationMessageResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 49 &&
+          payload_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.newBuilder((yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 49;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+     */
+    private void clearProductConfirmationMessageResponse() {
+      if (payloadCase_ == 49) {
         payloadCase_ = 0;
         payload_ = null;
       }
@@ -4397,6 +4527,102 @@ public final class SdkMessageOuterClass {
       }
 
       /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+       */
+      @java.lang.Override
+      public boolean hasProductConfirmationMessageRequest() {
+        return instance.hasProductConfirmationMessageRequest();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest getProductConfirmationMessageRequest() {
+        return instance.getProductConfirmationMessageRequest();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+       */
+      public Builder setProductConfirmationMessageRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest value) {
+        copyOnWrite();
+        instance.setProductConfirmationMessageRequest(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+       */
+      public Builder setProductConfirmationMessageRequest(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.Builder builderForValue) {
+        copyOnWrite();
+        instance.setProductConfirmationMessageRequest(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+       */
+      public Builder mergeProductConfirmationMessageRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest value) {
+        copyOnWrite();
+        instance.mergeProductConfirmationMessageRequest(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;</code>
+       */
+      public Builder clearProductConfirmationMessageRequest() {
+        copyOnWrite();
+        instance.clearProductConfirmationMessageRequest();
+        return this;
+      }
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+       */
+      @java.lang.Override
+      public boolean hasProductConfirmationMessageResponse() {
+        return instance.hasProductConfirmationMessageResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse getProductConfirmationMessageResponse() {
+        return instance.getProductConfirmationMessageResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+       */
+      public Builder setProductConfirmationMessageResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse value) {
+        copyOnWrite();
+        instance.setProductConfirmationMessageResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+       */
+      public Builder setProductConfirmationMessageResponse(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.Builder builderForValue) {
+        copyOnWrite();
+        instance.setProductConfirmationMessageResponse(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+       */
+      public Builder mergeProductConfirmationMessageResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse value) {
+        copyOnWrite();
+        instance.mergeProductConfirmationMessageResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;</code>
+       */
+      public Builder clearProductConfirmationMessageResponse() {
+        copyOnWrite();
+        instance.clearProductConfirmationMessageResponse();
+        return this;
+      }
+
+      /**
        * <pre>
        * Client → channel
        * </pre>
@@ -4565,13 +4791,15 @@ public final class SdkMessageOuterClass {
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsResponse.class,
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductRequest.class,
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.class,
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.class,
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.class,
             };
             java.lang.String info =
-                "\u0000\u001e\u0001\u0001\u0001/\u001e\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000" +
-                "\n<\u0000\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000" +
-                "\u0016<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c" +
-                "<\u0000\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$" +
-                "<\u0000%<\u0000&<\u0000,<\u0000-<\u0000.<\u0000/<\u0000";
+                "\u0000 \u0001\u0001\u00011 \u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<\u0000" +
+                "\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000\u0016" +
+                "<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c<\u0000" +
+                "\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$<\u0000" +
+                "%<\u0000&<\u0000,<\u0000-<\u0000.<\u0000/<\u00000<\u00001<\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -25409,6 +25637,1686 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<ProductMessageResponse> PARSER;
 
     public static com.google.protobuf.Parser<ProductMessageResponse> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface ProductConfirmationMessageRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>string sku = 1;</code>
+     * @return The sku.
+     */
+    java.lang.String getSku();
+    /**
+     * <code>string sku = 1;</code>
+     * @return The bytes for sku.
+     */
+    com.google.protobuf.ByteString
+        getSkuBytes();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the confirmed change.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     * @return The units.
+     */
+    double getUnits();
+
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the confirmed change.
+     * Omit when the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return Whether the subunits field is set.
+     */
+    boolean hasSubunits();
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the confirmed change.
+     * Omit when the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return The subunits.
+     */
+    double getSubunits();
+
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     * @return The header.
+     */
+    java.lang.String getHeader();
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     * @return The bytes for header.
+     */
+    com.google.protobuf.ByteString
+        getHeaderBytes();
+
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     * @return The body.
+     */
+    java.lang.String getBody();
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     * @return The bytes for body.
+     */
+    com.google.protobuf.ByteString
+        getBodyBytes();
+
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     * @return Whether the button field is set.
+     */
+    boolean hasButton();
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     * @return The button.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button getButton();
+
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     * @return The footer.
+     */
+    java.lang.String getFooter();
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     * @return The bytes for footer.
+     */
+    com.google.protobuf.ByteString
+        getFooterBytes();
+  }
+  /**
+   * <pre>
+   * ProductConfirmationMessageRequest confirms a product cart change in the
+   * client UI, identifying the affected SKU and the resulting unit/subunit
+   * quantities after the operation. Display-only fields (name, price, image)
+   * are resolved by the client from its own product catalog cache.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest}
+   */
+  public  static final class ProductConfirmationMessageRequest extends
+      com.google.protobuf.GeneratedMessageLite<
+          ProductConfirmationMessageRequest, ProductConfirmationMessageRequest.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest)
+      ProductConfirmationMessageRequestOrBuilder {
+    private ProductConfirmationMessageRequest() {
+      sku_ = "";
+      header_ = "";
+      body_ = "";
+      footer_ = "";
+    }
+    private int bitField0_;
+    public static final int SKU_FIELD_NUMBER = 1;
+    private java.lang.String sku_;
+    /**
+     * <code>string sku = 1;</code>
+     * @return The sku.
+     */
+    @java.lang.Override
+    public java.lang.String getSku() {
+      return sku_;
+    }
+    /**
+     * <code>string sku = 1;</code>
+     * @return The bytes for sku.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getSkuBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(sku_);
+    }
+    /**
+     * <code>string sku = 1;</code>
+     * @param value The sku to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setSku(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      sku_ = value;
+    }
+    /**
+     * <code>string sku = 1;</code>
+     */
+    private void clearSku() {
+
+      sku_ = getDefaultInstance().getSku();
+    }
+    /**
+     * <code>string sku = 1;</code>
+     * @param value The bytes for sku to set.
+     */
+    private void setSkuBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      sku_ = value.toStringUtf8();
+
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static final int UNITS_FIELD_NUMBER = 3;
+    private double units_;
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the confirmed change.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     * @return The units.
+     */
+    @java.lang.Override
+    public double getUnits() {
+      return units_;
+    }
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the confirmed change.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     * @param value The units to set.
+     */
+    private void setUnits(double value) {
+      
+      units_ = value;
+    }
+    /**
+     * <pre>
+     * Absolute number of primary units for this SKU after the confirmed change.
+     * </pre>
+     *
+     * <code>double units = 3;</code>
+     */
+    private void clearUnits() {
+
+      units_ = 0D;
+    }
+
+    public static final int SUBUNITS_FIELD_NUMBER = 4;
+    private double subunits_;
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the confirmed change.
+     * Omit when the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return Whether the subunits field is set.
+     */
+    @java.lang.Override
+    public boolean hasSubunits() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the confirmed change.
+     * Omit when the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @return The subunits.
+     */
+    @java.lang.Override
+    public double getSubunits() {
+      return subunits_;
+    }
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the confirmed change.
+     * Omit when the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     * @param value The subunits to set.
+     */
+    private void setSubunits(double value) {
+      bitField0_ |= 0x00000002;
+      subunits_ = value;
+    }
+    /**
+     * <pre>
+     * Absolute number of subunits for this SKU after the confirmed change.
+     * Omit when the product has no subunit dimension.
+     * </pre>
+     *
+     * <code>optional double subunits = 4;</code>
+     */
+    private void clearSubunits() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      subunits_ = 0D;
+    }
+
+    public static final int HEADER_FIELD_NUMBER = 5;
+    private java.lang.String header_;
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     * @return The header.
+     */
+    @java.lang.Override
+    public java.lang.String getHeader() {
+      return header_;
+    }
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     * @return The bytes for header.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getHeaderBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(header_);
+    }
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     * @param value The header to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setHeader(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      header_ = value;
+    }
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     */
+    private void clearHeader() {
+
+      header_ = getDefaultInstance().getHeader();
+    }
+    /**
+     * <pre>
+     * Structural text rendered above the confirmation card body.
+     * </pre>
+     *
+     * <code>string header = 5;</code>
+     * @param value The bytes for header to set.
+     */
+    private void setHeaderBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      header_ = value.toStringUtf8();
+
+    }
+
+    public static final int BODY_FIELD_NUMBER = 6;
+    private java.lang.String body_;
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     * @return The body.
+     */
+    @java.lang.Override
+    public java.lang.String getBody() {
+      return body_;
+    }
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     * @return The bytes for body.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getBodyBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(body_);
+    }
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     * @param value The body to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setBody(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      body_ = value;
+    }
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     */
+    private void clearBody() {
+
+      body_ = getDefaultInstance().getBody();
+    }
+    /**
+     * <pre>
+     * Body text rendered as the main content of the confirmation card.
+     * </pre>
+     *
+     * <code>string body = 6;</code>
+     * @param value The bytes for body to set.
+     */
+    private void setBodyBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      body_ = value.toStringUtf8();
+
+    }
+
+    public static final int BUTTON_FIELD_NUMBER = 7;
+    private yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button button_;
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     */
+    @java.lang.Override
+    public boolean hasButton() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button getButton() {
+      return button_ == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button.getDefaultInstance() : button_;
+    }
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setButton(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      button_ = value;
+      bitField0_ |= 0x00000004;
+    }
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeButton(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button value) {
+      value.getClass();  // minimal bytecode null check
+      if (button_ != null &&
+          button_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button.getDefaultInstance()) {
+        button_ =
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button.newBuilder(button_).mergeFrom(value).buildPartial();
+      } else {
+        button_ = value;
+      }
+      bitField0_ |= 0x00000004;
+    }
+    /**
+     * <pre>
+     * Call-to-action button rendered alongside the confirmation card.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+     */
+    private void clearButton() {
+      button_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+    }
+
+    public static final int FOOTER_FIELD_NUMBER = 8;
+    private java.lang.String footer_;
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     * @return The footer.
+     */
+    @java.lang.Override
+    public java.lang.String getFooter() {
+      return footer_;
+    }
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     * @return The bytes for footer.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getFooterBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(footer_);
+    }
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     * @param value The footer to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setFooter(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      footer_ = value;
+    }
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     */
+    private void clearFooter() {
+
+      footer_ = getDefaultInstance().getFooter();
+    }
+    /**
+     * <pre>
+     * Structural text rendered below the confirmation card body.
+     * </pre>
+     *
+     * <code>string footer = 8;</code>
+     * @param value The bytes for footer to set.
+     */
+    private void setFooterBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      footer_ = value.toStringUtf8();
+
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * ProductConfirmationMessageRequest confirms a product cart change in the
+     * client UI, identifying the affected SKU and the resulting unit/subunit
+     * quantities after the operation. Display-only fields (name, price, image)
+     * are resolved by the client from its own product catalog cache.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequestOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>string sku = 1;</code>
+       * @return The sku.
+       */
+      @java.lang.Override
+      public java.lang.String getSku() {
+        return instance.getSku();
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @return The bytes for sku.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getSkuBytes() {
+        return instance.getSkuBytes();
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @param value The sku to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSku(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setSku(value);
+        return this;
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSku() {
+        copyOnWrite();
+        instance.clearSku();
+        return this;
+      }
+      /**
+       * <code>string sku = 1;</code>
+       * @param value The bytes for sku to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSkuBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setSkuBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Absolute number of primary units for this SKU after the confirmed change.
+       * </pre>
+       *
+       * <code>double units = 3;</code>
+       * @return The units.
+       */
+      @java.lang.Override
+      public double getUnits() {
+        return instance.getUnits();
+      }
+      /**
+       * <pre>
+       * Absolute number of primary units for this SKU after the confirmed change.
+       * </pre>
+       *
+       * <code>double units = 3;</code>
+       * @param value The units to set.
+       * @return This builder for chaining.
+       */
+      public Builder setUnits(double value) {
+        copyOnWrite();
+        instance.setUnits(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Absolute number of primary units for this SKU after the confirmed change.
+       * </pre>
+       *
+       * <code>double units = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearUnits() {
+        copyOnWrite();
+        instance.clearUnits();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the confirmed change.
+       * Omit when the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @return Whether the subunits field is set.
+       */
+      @java.lang.Override
+      public boolean hasSubunits() {
+        return instance.hasSubunits();
+      }
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the confirmed change.
+       * Omit when the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @return The subunits.
+       */
+      @java.lang.Override
+      public double getSubunits() {
+        return instance.getSubunits();
+      }
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the confirmed change.
+       * Omit when the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @param value The subunits to set.
+       * @return This builder for chaining.
+       */
+      public Builder setSubunits(double value) {
+        copyOnWrite();
+        instance.setSubunits(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Absolute number of subunits for this SKU after the confirmed change.
+       * Omit when the product has no subunit dimension.
+       * </pre>
+       *
+       * <code>optional double subunits = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearSubunits() {
+        copyOnWrite();
+        instance.clearSubunits();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Structural text rendered above the confirmation card body.
+       * </pre>
+       *
+       * <code>string header = 5;</code>
+       * @return The header.
+       */
+      @java.lang.Override
+      public java.lang.String getHeader() {
+        return instance.getHeader();
+      }
+      /**
+       * <pre>
+       * Structural text rendered above the confirmation card body.
+       * </pre>
+       *
+       * <code>string header = 5;</code>
+       * @return The bytes for header.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getHeaderBytes() {
+        return instance.getHeaderBytes();
+      }
+      /**
+       * <pre>
+       * Structural text rendered above the confirmation card body.
+       * </pre>
+       *
+       * <code>string header = 5;</code>
+       * @param value The header to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHeader(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setHeader(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Structural text rendered above the confirmation card body.
+       * </pre>
+       *
+       * <code>string header = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearHeader() {
+        copyOnWrite();
+        instance.clearHeader();
+        return this;
+      }
+      /**
+       * <pre>
+       * Structural text rendered above the confirmation card body.
+       * </pre>
+       *
+       * <code>string header = 5;</code>
+       * @param value The bytes for header to set.
+       * @return This builder for chaining.
+       */
+      public Builder setHeaderBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setHeaderBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Body text rendered as the main content of the confirmation card.
+       * </pre>
+       *
+       * <code>string body = 6;</code>
+       * @return The body.
+       */
+      @java.lang.Override
+      public java.lang.String getBody() {
+        return instance.getBody();
+      }
+      /**
+       * <pre>
+       * Body text rendered as the main content of the confirmation card.
+       * </pre>
+       *
+       * <code>string body = 6;</code>
+       * @return The bytes for body.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getBodyBytes() {
+        return instance.getBodyBytes();
+      }
+      /**
+       * <pre>
+       * Body text rendered as the main content of the confirmation card.
+       * </pre>
+       *
+       * <code>string body = 6;</code>
+       * @param value The body to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBody(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setBody(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Body text rendered as the main content of the confirmation card.
+       * </pre>
+       *
+       * <code>string body = 6;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearBody() {
+        copyOnWrite();
+        instance.clearBody();
+        return this;
+      }
+      /**
+       * <pre>
+       * Body text rendered as the main content of the confirmation card.
+       * </pre>
+       *
+       * <code>string body = 6;</code>
+       * @param value The bytes for body to set.
+       * @return This builder for chaining.
+       */
+      public Builder setBodyBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setBodyBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Call-to-action button rendered alongside the confirmation card.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+       */
+      @java.lang.Override
+      public boolean hasButton() {
+        return instance.hasButton();
+      }
+      /**
+       * <pre>
+       * Call-to-action button rendered alongside the confirmation card.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button getButton() {
+        return instance.getButton();
+      }
+      /**
+       * <pre>
+       * Call-to-action button rendered alongside the confirmation card.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+       */
+      public Builder setButton(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.setButton(value);
+        return this;
+        }
+      /**
+       * <pre>
+       * Call-to-action button rendered alongside the confirmation card.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+       */
+      public Builder setButton(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button.Builder builderForValue) {
+        copyOnWrite();
+        instance.setButton(builderForValue.build());
+        return this;
+      }
+      /**
+       * <pre>
+       * Call-to-action button rendered alongside the confirmation card.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+       */
+      public Builder mergeButton(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Button value) {
+        copyOnWrite();
+        instance.mergeButton(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Call-to-action button rendered alongside the confirmation card.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.Button button = 7;</code>
+       */
+      public Builder clearButton() {  copyOnWrite();
+        instance.clearButton();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Structural text rendered below the confirmation card body.
+       * </pre>
+       *
+       * <code>string footer = 8;</code>
+       * @return The footer.
+       */
+      @java.lang.Override
+      public java.lang.String getFooter() {
+        return instance.getFooter();
+      }
+      /**
+       * <pre>
+       * Structural text rendered below the confirmation card body.
+       * </pre>
+       *
+       * <code>string footer = 8;</code>
+       * @return The bytes for footer.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getFooterBytes() {
+        return instance.getFooterBytes();
+      }
+      /**
+       * <pre>
+       * Structural text rendered below the confirmation card body.
+       * </pre>
+       *
+       * <code>string footer = 8;</code>
+       * @param value The footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooter(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setFooter(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Structural text rendered below the confirmation card body.
+       * </pre>
+       *
+       * <code>string footer = 8;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearFooter() {
+        copyOnWrite();
+        instance.clearFooter();
+        return this;
+      }
+      /**
+       * <pre>
+       * Structural text rendered below the confirmation card body.
+       * </pre>
+       *
+       * <code>string footer = 8;</code>
+       * @param value The bytes for footer to set.
+       * @return This builder for chaining.
+       */
+      public Builder setFooterBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setFooterBytes(value);
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "sku_",
+              "timestamp_",
+              "units_",
+              "subunits_",
+              "header_",
+              "body_",
+              "button_",
+              "footer_",
+            };
+            java.lang.String info =
+                "\u0000\b\u0000\u0001\u0001\b\b\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\u0003" +
+                "\u0000\u0004\u1000\u0001\u0005\u0208\u0006\u0208\u0007\u1009\u0002\b\u0208";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest DEFAULT_INSTANCE;
+    static {
+      ProductConfirmationMessageRequest defaultInstance = new ProductConfirmationMessageRequest();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        ProductConfirmationMessageRequest.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<ProductConfirmationMessageRequest> PARSER;
+
+    public static com.google.protobuf.Parser<ProductConfirmationMessageRequest> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface ProductConfirmationMessageResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The enum numeric value on the wire for status.
+     */
+    int getStatusValue();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The status.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+  }
+  /**
+   * <pre>
+   * ProductConfirmationMessageResponse acknowledges a ProductConfirmationMessageRequest.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse}
+   */
+  public  static final class ProductConfirmationMessageResponse extends
+      com.google.protobuf.GeneratedMessageLite<
+          ProductConfirmationMessageResponse, ProductConfirmationMessageResponse.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse)
+      ProductConfirmationMessageResponseOrBuilder {
+    private ProductConfirmationMessageResponse() {
+    }
+    private int bitField0_;
+    public static final int STATUS_FIELD_NUMBER = 1;
+    private int status_;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The enum numeric value on the wire for status.
+     */
+    @java.lang.Override
+    public int getStatusValue() {
+      return status_;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The status.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus() {
+      yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus result = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus.forNumber(status_);
+      return result == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @param value The enum numeric value on the wire for status to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setStatusValue(int value) {
+        status_ = value;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @param value The status to set.
+     */
+    private void setStatus(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus value) {
+      status_ = value.getNumber();
+
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     */
+    private void clearStatus() {
+
+      status_ = 0;
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * ProductConfirmationMessageResponse acknowledges a ProductConfirmationMessageRequest.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponseOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return The enum numeric value on the wire for status.
+       */
+      @java.lang.Override
+      public int getStatusValue() {
+        return instance.getStatusValue();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @param value The status to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStatusValue(int value) {
+        copyOnWrite();
+        instance.setStatusValue(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return The status.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus() {
+        return instance.getStatus();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @param value The enum numeric value on the wire for status to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setStatus(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus value) {
+        copyOnWrite();
+        instance.setStatus(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearStatus() {
+        copyOnWrite();
+        instance.clearStatus();
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "status_",
+              "timestamp_",
+            };
+            java.lang.String info =
+                "\u0000\u0002\u0000\u0001\u0001\u0002\u0002\u0000\u0000\u0000\u0001\f\u0002\u1009" +
+                "\u0000";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse DEFAULT_INSTANCE;
+    static {
+      ProductConfirmationMessageResponse defaultInstance = new ProductConfirmationMessageResponse();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        ProductConfirmationMessageResponse.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<ProductConfirmationMessageResponse> PARSER;
+
+    public static com.google.protobuf.Parser<ProductConfirmationMessageResponse> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
