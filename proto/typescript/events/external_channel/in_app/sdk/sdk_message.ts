@@ -406,8 +406,10 @@ export interface SdkMessage {
   chatStatusRequest?: ChatStatusRequest | undefined;
   chatStatusResponse?: ChatStatusResponse | undefined;
   customCommandRequest?: CustomCommandRequest | undefined;
-  customCommandResponse?:
-    | CustomCommandResponse
+  customCommandResponse?: CustomCommandResponse | undefined;
+  productConfirmationMessageRequest?: ProductConfirmationMessageRequest | undefined;
+  productConfirmationMessageResponse?:
+    | ProductConfirmationMessageResponse
     | undefined;
   /** Client → channel */
   getCommandsRequest?: GetCommandsRequest | undefined;
@@ -762,6 +764,44 @@ export interface ProductMessageResponse {
   timestamp: Date | undefined;
 }
 
+/**
+ * ProductConfirmationMessageRequest confirms a product cart change in the
+ * client UI, identifying the affected SKU and the resulting unit/subunit
+ * quantities after the operation. Display-only fields (name, price, image)
+ * are resolved by the client from its own product catalog cache.
+ */
+export interface ProductConfirmationMessageRequest {
+  sku: string;
+  timestamp:
+    | Date
+    | undefined;
+  /** Absolute number of primary units for this SKU after the confirmed change. */
+  units: number;
+  /**
+   * Absolute number of subunits for this SKU after the confirmed change.
+   * Omit when the product has no subunit dimension.
+   */
+  subunits?:
+    | number
+    | undefined;
+  /** Structural text rendered above the confirmation card body. */
+  header: string;
+  /** Body text rendered as the main content of the confirmation card. */
+  body: string;
+  /** Call-to-action button rendered alongside the confirmation card. */
+  button:
+    | Button
+    | undefined;
+  /** Structural text rendered below the confirmation card body. */
+  footer: string;
+}
+
+/** ProductConfirmationMessageResponse acknowledges a ProductConfirmationMessageRequest. */
+export interface ProductConfirmationMessageResponse {
+  status: ResponseStatus;
+  timestamp: Date | undefined;
+}
+
 /** ChatStatusRequest pushes a custom status string to display in the chat UI. */
 export interface ChatStatusRequest {
   status: string;
@@ -884,6 +924,8 @@ function createBaseSdkMessage(): SdkMessage {
     chatStatusResponse: undefined,
     customCommandRequest: undefined,
     customCommandResponse: undefined,
+    productConfirmationMessageRequest: undefined,
+    productConfirmationMessageResponse: undefined,
     getCommandsRequest: undefined,
     getCommandsResponse: undefined,
   };
@@ -974,6 +1016,14 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.customCommandResponse !== undefined) {
       CustomCommandResponse.encode(message.customCommandResponse, writer.uint32(298).fork()).join();
+    }
+    if (message.productConfirmationMessageRequest !== undefined) {
+      ProductConfirmationMessageRequest.encode(message.productConfirmationMessageRequest, writer.uint32(386).fork())
+        .join();
+    }
+    if (message.productConfirmationMessageResponse !== undefined) {
+      ProductConfirmationMessageResponse.encode(message.productConfirmationMessageResponse, writer.uint32(394).fork())
+        .join();
     }
     if (message.getCommandsRequest !== undefined) {
       GetCommandsRequest.encode(message.getCommandsRequest, writer.uint32(354).fork()).join();
@@ -1215,6 +1265,25 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.customCommandResponse = CustomCommandResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 48: {
+          if (tag !== 386) {
+            break;
+          }
+
+          message.productConfirmationMessageRequest = ProductConfirmationMessageRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 49: {
+          if (tag !== 394) {
+            break;
+          }
+
+          message.productConfirmationMessageResponse = ProductConfirmationMessageResponse.decode(
+            reader,
+            reader.uint32(),
+          );
+          continue;
+        }
         case 44: {
           if (tag !== 354) {
             break;
@@ -1378,6 +1447,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.custom_command_response)
         ? CustomCommandResponse.fromJSON(object.custom_command_response)
         : undefined,
+      productConfirmationMessageRequest: isSet(object.productConfirmationMessageRequest)
+        ? ProductConfirmationMessageRequest.fromJSON(object.productConfirmationMessageRequest)
+        : isSet(object.product_confirmation_message_request)
+        ? ProductConfirmationMessageRequest.fromJSON(object.product_confirmation_message_request)
+        : undefined,
+      productConfirmationMessageResponse: isSet(object.productConfirmationMessageResponse)
+        ? ProductConfirmationMessageResponse.fromJSON(object.productConfirmationMessageResponse)
+        : isSet(object.product_confirmation_message_response)
+        ? ProductConfirmationMessageResponse.fromJSON(object.product_confirmation_message_response)
+        : undefined,
       getCommandsRequest: isSet(object.getCommandsRequest)
         ? GetCommandsRequest.fromJSON(object.getCommandsRequest)
         : isSet(object.get_commands_request)
@@ -1476,6 +1555,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.customCommandResponse !== undefined) {
       obj.customCommandResponse = CustomCommandResponse.toJSON(message.customCommandResponse);
+    }
+    if (message.productConfirmationMessageRequest !== undefined) {
+      obj.productConfirmationMessageRequest = ProductConfirmationMessageRequest.toJSON(
+        message.productConfirmationMessageRequest,
+      );
+    }
+    if (message.productConfirmationMessageResponse !== undefined) {
+      obj.productConfirmationMessageResponse = ProductConfirmationMessageResponse.toJSON(
+        message.productConfirmationMessageResponse,
+      );
     }
     if (message.getCommandsRequest !== undefined) {
       obj.getCommandsRequest = GetCommandsRequest.toJSON(message.getCommandsRequest);
@@ -1582,6 +1671,14 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.customCommandResponse =
       (object.customCommandResponse !== undefined && object.customCommandResponse !== null)
         ? CustomCommandResponse.fromPartial(object.customCommandResponse)
+        : undefined;
+    message.productConfirmationMessageRequest =
+      (object.productConfirmationMessageRequest !== undefined && object.productConfirmationMessageRequest !== null)
+        ? ProductConfirmationMessageRequest.fromPartial(object.productConfirmationMessageRequest)
+        : undefined;
+    message.productConfirmationMessageResponse =
+      (object.productConfirmationMessageResponse !== undefined && object.productConfirmationMessageResponse !== null)
+        ? ProductConfirmationMessageResponse.fromPartial(object.productConfirmationMessageResponse)
         : undefined;
     message.getCommandsRequest = (object.getCommandsRequest !== undefined && object.getCommandsRequest !== null)
       ? GetCommandsRequest.fromPartial(object.getCommandsRequest)
@@ -5126,6 +5223,273 @@ export const ProductMessageResponse: MessageFns<ProductMessageResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ProductMessageResponse>, I>>(object: I): ProductMessageResponse {
     const message = createBaseProductMessageResponse();
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseProductConfirmationMessageRequest(): ProductConfirmationMessageRequest {
+  return {
+    sku: "",
+    timestamp: undefined,
+    units: 0,
+    subunits: undefined,
+    header: "",
+    body: "",
+    button: undefined,
+    footer: "",
+  };
+}
+
+export const ProductConfirmationMessageRequest: MessageFns<ProductConfirmationMessageRequest> = {
+  encode(message: ProductConfirmationMessageRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.sku !== "") {
+      writer.uint32(10).string(message.sku);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    if (message.units !== 0) {
+      writer.uint32(25).double(message.units);
+    }
+    if (message.subunits !== undefined) {
+      writer.uint32(33).double(message.subunits);
+    }
+    if (message.header !== "") {
+      writer.uint32(42).string(message.header);
+    }
+    if (message.body !== "") {
+      writer.uint32(50).string(message.body);
+    }
+    if (message.button !== undefined) {
+      Button.encode(message.button, writer.uint32(58).fork()).join();
+    }
+    if (message.footer !== "") {
+      writer.uint32(66).string(message.footer);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProductConfirmationMessageRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProductConfirmationMessageRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.sku = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 25) {
+            break;
+          }
+
+          message.units = reader.double();
+          continue;
+        }
+        case 4: {
+          if (tag !== 33) {
+            break;
+          }
+
+          message.subunits = reader.double();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.header = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.body = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.button = Button.decode(reader, reader.uint32());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.footer = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ProductConfirmationMessageRequest {
+    return {
+      sku: isSet(object.sku) ? globalThis.String(object.sku) : "",
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      units: isSet(object.units) ? globalThis.Number(object.units) : 0,
+      subunits: isSet(object.subunits) ? globalThis.Number(object.subunits) : undefined,
+      header: isSet(object.header) ? globalThis.String(object.header) : "",
+      body: isSet(object.body) ? globalThis.String(object.body) : "",
+      button: isSet(object.button) ? Button.fromJSON(object.button) : undefined,
+      footer: isSet(object.footer) ? globalThis.String(object.footer) : "",
+    };
+  },
+
+  toJSON(message: ProductConfirmationMessageRequest): unknown {
+    const obj: any = {};
+    if (message.sku !== "") {
+      obj.sku = message.sku;
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.units !== 0) {
+      obj.units = message.units;
+    }
+    if (message.subunits !== undefined) {
+      obj.subunits = message.subunits;
+    }
+    if (message.header !== "") {
+      obj.header = message.header;
+    }
+    if (message.body !== "") {
+      obj.body = message.body;
+    }
+    if (message.button !== undefined) {
+      obj.button = Button.toJSON(message.button);
+    }
+    if (message.footer !== "") {
+      obj.footer = message.footer;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ProductConfirmationMessageRequest>, I>>(
+    base?: I,
+  ): ProductConfirmationMessageRequest {
+    return ProductConfirmationMessageRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ProductConfirmationMessageRequest>, I>>(
+    object: I,
+  ): ProductConfirmationMessageRequest {
+    const message = createBaseProductConfirmationMessageRequest();
+    message.sku = object.sku ?? "";
+    message.timestamp = object.timestamp ?? undefined;
+    message.units = object.units ?? 0;
+    message.subunits = object.subunits ?? undefined;
+    message.header = object.header ?? "";
+    message.body = object.body ?? "";
+    message.button = (object.button !== undefined && object.button !== null)
+      ? Button.fromPartial(object.button)
+      : undefined;
+    message.footer = object.footer ?? "";
+    return message;
+  },
+};
+
+function createBaseProductConfirmationMessageResponse(): ProductConfirmationMessageResponse {
+  return { status: 0, timestamp: undefined };
+}
+
+export const ProductConfirmationMessageResponse: MessageFns<ProductConfirmationMessageResponse> = {
+  encode(message: ProductConfirmationMessageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProductConfirmationMessageResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseProductConfirmationMessageResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ProductConfirmationMessageResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: ProductConfirmationMessageResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ProductConfirmationMessageResponse>, I>>(
+    base?: I,
+  ): ProductConfirmationMessageResponse {
+    return ProductConfirmationMessageResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ProductConfirmationMessageResponse>, I>>(
+    object: I,
+  ): ProductConfirmationMessageResponse {
+    const message = createBaseProductConfirmationMessageResponse();
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     return message;

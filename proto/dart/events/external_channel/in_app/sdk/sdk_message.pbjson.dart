@@ -366,6 +366,26 @@ const SdkMessage$json = {
       '10': 'customCommandResponse'
     },
     {
+      '1': 'product_confirmation_message_request',
+      '3': 48,
+      '4': 1,
+      '5': 11,
+      '6':
+          '.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest',
+      '9': 0,
+      '10': 'productConfirmationMessageRequest'
+    },
+    {
+      '1': 'product_confirmation_message_response',
+      '3': 49,
+      '4': 1,
+      '5': 11,
+      '6':
+          '.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse',
+      '9': 0,
+      '10': 'productConfirmationMessageResponse'
+    },
+    {
       '1': 'get_commands_request',
       '3': 44,
       '4': 1,
@@ -447,11 +467,17 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'NoYW5uZWwuaW5fYXBwLnNkay52Mi5DdXN0b21Db21tYW5kUmVxdWVzdEgAUhRjdXN0b21Db21t'
     'YW5kUmVxdWVzdBJ0ChdjdXN0b21fY29tbWFuZF9yZXNwb25zZRglIAEoCzI6LnlhbG8uZXh0ZX'
     'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkN1c3RvbUNvbW1hbmRSZXNwb25zZUgAUhVjdXN0'
-    'b21Db21tYW5kUmVzcG9uc2USawoUZ2V0X2NvbW1hbmRzX3JlcXVlc3QYLCABKAsyNy55YWxvLm'
-    'V4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HZXRDb21tYW5kc1JlcXVlc3RIAFISZ2V0'
-    'Q29tbWFuZHNSZXF1ZXN0Em4KFWdldF9jb21tYW5kc19yZXNwb25zZRgtIAEoCzI4LnlhbG8uZX'
-    'h0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkdldENvbW1hbmRzUmVzcG9uc2VIAFITZ2V0'
-    'Q29tbWFuZHNSZXNwb25zZUIJCgdwYXlsb2Fk');
+    'b21Db21tYW5kUmVzcG9uc2USmQEKJHByb2R1Y3RfY29uZmlybWF0aW9uX21lc3NhZ2VfcmVxdW'
+    'VzdBgwIAEoCzJGLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlByb2R1Y3RD'
+    'b25maXJtYXRpb25NZXNzYWdlUmVxdWVzdEgAUiFwcm9kdWN0Q29uZmlybWF0aW9uTWVzc2FnZV'
+    'JlcXVlc3QSnAEKJXByb2R1Y3RfY29uZmlybWF0aW9uX21lc3NhZ2VfcmVzcG9uc2UYMSABKAsy'
+    'Ry55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9kdWN0Q29uZmlybWF0aW'
+    '9uTWVzc2FnZVJlc3BvbnNlSABSInByb2R1Y3RDb25maXJtYXRpb25NZXNzYWdlUmVzcG9uc2US'
+    'awoUZ2V0X2NvbW1hbmRzX3JlcXVlc3QYLCABKAsyNy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
+    '5fYXBwLnNkay52Mi5HZXRDb21tYW5kc1JlcXVlc3RIAFISZ2V0Q29tbWFuZHNSZXF1ZXN0Em4K'
+    'FWdldF9jb21tYW5kc19yZXNwb25zZRgtIAEoCzI4LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl'
+    '9hcHAuc2RrLnYyLkdldENvbW1hbmRzUmVzcG9uc2VIAFITZ2V0Q29tbWFuZHNSZXNwb25zZUIJ'
+    'CgdwYXlsb2Fk');
 
 @$core.Deprecated('Use buttonDescriptor instead')
 const Button$json = {
@@ -1555,6 +1581,86 @@ final $typed_data.Uint8List productMessageResponseDescriptor = $convert.base64De
     'ChZQcm9kdWN0TWVzc2FnZVJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZXJuYW'
     'xfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGltZXN0'
     'YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
+
+@$core.Deprecated('Use productConfirmationMessageRequestDescriptor instead')
+const ProductConfirmationMessageRequest$json = {
+  '1': 'ProductConfirmationMessageRequest',
+  '2': [
+    {'1': 'sku', '3': 1, '4': 1, '5': 9, '10': 'sku'},
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {'1': 'units', '3': 3, '4': 1, '5': 1, '10': 'units'},
+    {
+      '1': 'subunits',
+      '3': 4,
+      '4': 1,
+      '5': 1,
+      '9': 0,
+      '10': 'subunits',
+      '17': true
+    },
+    {'1': 'header', '3': 5, '4': 1, '5': 9, '10': 'header'},
+    {'1': 'body', '3': 6, '4': 1, '5': 9, '10': 'body'},
+    {
+      '1': 'button',
+      '3': 7,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.Button',
+      '10': 'button'
+    },
+    {'1': 'footer', '3': 8, '4': 1, '5': 9, '10': 'footer'},
+  ],
+  '8': [
+    {'1': '_subunits'},
+  ],
+};
+
+/// Descriptor for `ProductConfirmationMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List productConfirmationMessageRequestDescriptor = $convert.base64Decode(
+    'CiFQcm9kdWN0Q29uZmlybWF0aW9uTWVzc2FnZVJlcXVlc3QSEAoDc2t1GAEgASgJUgNza3USOA'
+    'oJdGltZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w'
+    'EhQKBXVuaXRzGAMgASgBUgV1bml0cxIfCghzdWJ1bml0cxgEIAEoAUgAUghzdWJ1bml0c4gBAR'
+    'IWCgZoZWFkZXIYBSABKAlSBmhlYWRlchISCgRib2R5GAYgASgJUgRib2R5EkMKBmJ1dHRvbhgH'
+    'IAEoCzIrLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkJ1dHRvblIGYnV0dG'
+    '9uEhYKBmZvb3RlchgIIAEoCVIGZm9vdGVyQgsKCV9zdWJ1bml0cw==');
+
+@$core.Deprecated('Use productConfirmationMessageResponseDescriptor instead')
+const ProductConfirmationMessageResponse$json = {
+  '1': 'ProductConfirmationMessageResponse',
+  '2': [
+    {
+      '1': 'status',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `ProductConfirmationMessageResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List productConfirmationMessageResponseDescriptor =
+    $convert.base64Decode(
+        'CiJQcm9kdWN0Q29uZmlybWF0aW9uTWVzc2FnZVJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLn'
+        'lhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlc3BvbnNlU3RhdHVzUgZzdGF0'
+        'dXMSOAoJdGltZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZX'
+        'N0YW1w');
 
 @$core.Deprecated('Use chatStatusRequestDescriptor instead')
 const ChatStatusRequest$json = {

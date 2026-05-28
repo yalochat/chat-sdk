@@ -748,6 +748,54 @@ public object SdkMessageKt {
     }
 
     /**
+     * `.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;`
+     */
+    public var productConfirmationMessageRequest: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest
+      @kotlin.jvm.JvmName("getProductConfirmationMessageRequest")
+        get() = _builder.productConfirmationMessageRequest
+      @kotlin.jvm.JvmName("setProductConfirmationMessageRequest")
+        set(value) {
+        _builder.productConfirmationMessageRequest = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;`
+     */
+    public fun clearProductConfirmationMessageRequest() {
+      _builder.clearProductConfirmationMessageRequest()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest product_confirmation_message_request = 48;`
+     * @return Whether the productConfirmationMessageRequest field is set.
+     */
+    public fun hasProductConfirmationMessageRequest(): kotlin.Boolean {
+      return _builder.hasProductConfirmationMessageRequest()
+    }
+
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;`
+     */
+    public var productConfirmationMessageResponse: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse
+      @kotlin.jvm.JvmName("getProductConfirmationMessageResponse")
+        get() = _builder.productConfirmationMessageResponse
+      @kotlin.jvm.JvmName("setProductConfirmationMessageResponse")
+        set(value) {
+        _builder.productConfirmationMessageResponse = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;`
+     */
+    public fun clearProductConfirmationMessageResponse() {
+      _builder.clearProductConfirmationMessageResponse()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse product_confirmation_message_response = 49;`
+     * @return Whether the productConfirmationMessageResponse field is set.
+     */
+    public fun hasProductConfirmationMessageResponse(): kotlin.Boolean {
+      return _builder.hasProductConfirmationMessageResponse()
+    }
+
+    /**
      * ```
      * Client → channel
      * ```
@@ -898,6 +946,12 @@ public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOr
 
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.customCommandResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.CustomCommandResponse?
   get() = if (hasCustomCommandResponse()) getCustomCommandResponse() else null
+
+public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.productConfirmationMessageRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest?
+  get() = if (hasProductConfirmationMessageRequest()) getProductConfirmationMessageRequest() else null
+
+public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.productConfirmationMessageResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse?
+  get() = if (hasProductConfirmationMessageResponse()) getProductConfirmationMessageResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsRequest?
   get() = if (hasGetCommandsRequest()) getGetCommandsRequest() else null

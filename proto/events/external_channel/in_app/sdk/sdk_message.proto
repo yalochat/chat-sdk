@@ -50,6 +50,8 @@ message SdkMessage {
     ChatStatusResponse       chat_status_response        = 35;
     CustomCommandRequest     custom_command_request      = 36;
     CustomCommandResponse    custom_command_response     = 37;
+    ProductConfirmationMessageRequest  product_confirmation_message_request  = 48;
+    ProductConfirmationMessageResponse product_confirmation_message_response = 49;
 
     // Client → channel
     GetCommandsRequest       get_commands_request        = 44;
@@ -422,6 +424,38 @@ message ProductMessageRequest {
 
 // ProductMessageResponse acknowledges a ProductMessageRequest.
 message ProductMessageResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
+// Product confirmation message  (channel → client)
+// ---------------------------------------------------------------------------
+
+// ProductConfirmationMessageRequest confirms a product cart change in the
+// client UI, identifying the affected SKU and the resulting unit/subunit
+// quantities after the operation. Display-only fields (name, price, image)
+// are resolved by the client from its own product catalog cache.
+message ProductConfirmationMessageRequest {
+  string sku = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  // Absolute number of primary units for this SKU after the confirmed change.
+  double units = 3;
+  // Absolute number of subunits for this SKU after the confirmed change.
+  // Omit when the product has no subunit dimension.
+  optional double subunits = 4;
+  // Structural text rendered above the confirmation card body.
+  string header = 5;
+  // Body text rendered as the main content of the confirmation card.
+  string body = 6;
+  // Call-to-action button rendered alongside the confirmation card.
+  Button button = 7;
+  // Structural text rendered below the confirmation card body.
+  string footer = 8;
+}
+
+// ProductConfirmationMessageResponse acknowledges a ProductConfirmationMessageRequest.
+message ProductConfirmationMessageResponse {
   ResponseStatus status = 1;
   google.protobuf.Timestamp timestamp = 2;
 }
