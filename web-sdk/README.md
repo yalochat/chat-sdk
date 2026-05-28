@@ -2,6 +2,18 @@
 
 Yalo Webchat SDK lets you embed a chat widget into any website with a single script tag.
 
+## Table of contents
+
+- [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
+  - [Script URL](#script-url)
+  - [Floating popup pattern](#floating-popup-pattern)
+  - [Open via queue (`window.yaloOpen`)](#open-via-queue-windowyaloopen)
+- [Configuration](#configuration)
+  - [Custom icons](#custom-icons)
+- [Theming](#theming)
+- [Methods](#methods)
+
 ## Prerequisites
 
 The SDK uses [Material Symbols Outlined](https://fonts.google.com/icons) for its default icons. Add the following stylesheet to your page's `<head>`:
@@ -116,6 +128,30 @@ If you want a classic FAB-and-popup, wrap the chat container and a toggle button
 ```
 
 The chat container is listed first inside `.chat-widget` so column-flex places it above the FAB. When `yalo-chat-window` is hidden, the wrapper collapses around the button alone; when open, the chat appears above the button.
+
+### Open via queue (`window.yaloOpen`)
+
+If you can't guarantee the order in which the SDK script and your configuration script run (for example, when loading the SDK through a tag manager or another async loader), you can declare a `window.yaloOpen` array and push configuration objects to it. The SDK drains any items already in the array when it loads, and opens a chat window for any item pushed afterwards.
+
+```html
+<div id="yalo-chat"></div>
+
+<script>
+  window.yaloOpen = window.yaloOpen || [];
+  window.yaloOpen.push({
+    channelId: 'your-channel-id',
+    organizationId: 'your-organization-id',
+    channelName: 'Support',
+    target: 'yalo-chat',
+  });
+</script>
+
+<script src="https://chat-sdk.yalochat.com/latest/sdk.js"></script>
+```
+
+After the SDK loads, `window.yaloOpen.push(config)` keeps working and opens a new chat window for each pushed configuration. Each pushed configuration creates and opens an independent `YaloChatClient` instance.
+
+The target element referenced by `config.target` must exist in the DOM at the time the configuration is processed. Place the script after the target element or wrap the push in your own `DOMContentLoaded` handler if needed.
 
 ## Configuration
 
