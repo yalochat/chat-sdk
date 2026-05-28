@@ -33,8 +33,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
-// "WEBSOCKET" | "LONG_POLL"
-private const val TRANSPORT = "WEBSOCKET"
+private val TRANSPORT = Transport.WEBSOCKET
 
 // iOS entry point — wires the shared commonMain business logic with iOS platform drivers:
 //   - Darwin HTTP engine (URLSession) via ktor-client-darwin
@@ -101,10 +100,7 @@ object YaloChatSdk {
                 ?.path
                 ?.let { "$it/ChatSdk" }
 
-            val transport = runCatching { Transport.valueOf(TRANSPORT) }
-                .onFailure { platform.Foundation.NSLog("[YaloChatSdk] invalid TRANSPORT value \"%@\" — defaulting to LONG_POLL", TRANSPORT) }
-                .getOrDefault(Transport.LONG_POLL)
-            if (transport == Transport.WEBSOCKET) {
+            if (TRANSPORT == Transport.WEBSOCKET) {
                 val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
                 val wsService = YaloMessageServiceWebSocket(
                     wsUrl = wsUrl,

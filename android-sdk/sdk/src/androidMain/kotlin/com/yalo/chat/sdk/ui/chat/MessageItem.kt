@@ -110,13 +110,14 @@ internal fun MessageItem(
         verticalAlignment = Alignment.Bottom,
     ) {
         if (isUser && message.status == MessageStatus.ERROR) {
+            val notDeliveredLabel = stringResource(R.string.chat_not_delivered)
             val retryLabel = stringResource(R.string.chat_retry)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .clickable { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } }
                     .padding(end = 4.dp)
-                    .semantics { role = Role.Button; contentDescription = retryLabel },
+                    .semantics { role = Role.Button; contentDescription = "$notDeliveredLabel $retryLabel" },
             ) {
                 androidx.compose.material3.Icon(
                     imageVector = theme.errorIcon,

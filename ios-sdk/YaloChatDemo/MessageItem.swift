@@ -65,7 +65,7 @@ struct MessageItem: View {
                 }
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Translate.retry)
+            .accessibilityLabel("\(Translate.notDelivered) \(Translate.retry)")
         }
     }
 
