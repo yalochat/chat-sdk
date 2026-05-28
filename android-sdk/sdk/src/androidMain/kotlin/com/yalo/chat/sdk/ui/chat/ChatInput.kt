@@ -21,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.yalo.chat.sdk.R
@@ -73,10 +76,11 @@ internal fun ChatInput(
         if (userMessage.isBlank()) {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(theme.sendButtonColor)
-                    .clickable(onClick = onMicClick),
+                    .clickable(onClick = onMicClick)
+                    .semantics { role = Role.Button },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -89,10 +93,11 @@ internal fun ChatInput(
         } else {
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(theme.sendButtonColor)
-                    .clickable(onClick = onSendMessage),
+                    .clickable(onClick = onSendMessage)
+                    .semantics { role = Role.Button },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

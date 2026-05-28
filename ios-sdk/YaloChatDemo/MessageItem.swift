@@ -23,10 +23,6 @@ struct MessageItem: View {
         UIScreen.main.bounds.width - SdkConstants.messageListMargin * 2
     }
 
-    private var maxBubbleWidth: CGFloat {
-        listWidth * (isUser ? 0.8 : 0.9)
-    }
-
     // Product messages render their own card borders — bypass the bubble HStack layout.
     private var isProductMessage: Bool {
         message.type is MessageType.Product || message.type is MessageType.ProductCarousel
