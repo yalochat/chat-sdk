@@ -7,7 +7,7 @@ import { consume } from '@lit/context';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-@customElement('product-message-price')
+@customElement('yalo-chat-product-message-price')
 export class ProductMessagePrice extends LitElement {
   static styles = css`
     :host {

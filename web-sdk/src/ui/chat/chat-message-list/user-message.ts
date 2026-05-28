@@ -16,7 +16,7 @@ import './voice-message';
 import './attachment-message';
 
 @localized()
-@customElement('user-message')
+@customElement('yalo-chat-user-message')
 export class UserMessage extends LitElement {
   static styles = css`
     :host {
@@ -112,15 +112,15 @@ export class UserMessage extends LitElement {
     switch (this.message.type) {
       case 'voice':
         return html`<div class="voice-bubble">
-          <voice-message .message=${this.message}></voice-message>
+          <yalo-chat-voice-message .message=${this.message}></yalo-chat-voice-message>
         </div>`;
       case 'image':
         return html`<div class="image-bubble">
-          <image-message .message=${this.message}></image-message>
+          <yalo-chat-image-message .message=${this.message}></yalo-chat-image-message>
         </div>`;
       case 'attachment':
         return html`<span class="bubble">
-          <attachment-message .message=${this.message}></attachment-message>
+          <yalo-chat-attachment-message .message=${this.message}></yalo-chat-attachment-message>
         </span>`;
       case 'text':
       default:

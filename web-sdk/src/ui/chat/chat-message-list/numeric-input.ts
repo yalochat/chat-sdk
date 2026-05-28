@@ -4,7 +4,7 @@ import { css, html, LitElement } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import NumericInputController from './numeric-input-controller';
 
-@customElement('numeric-input')
+@customElement('yalo-chat-numeric-input')
 export class NumericInput extends LitElement {
   static styles = css`
     :host {

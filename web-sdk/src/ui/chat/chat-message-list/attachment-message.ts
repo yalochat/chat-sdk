@@ -8,7 +8,7 @@ import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
-@customElement('attachment-message')
+@customElement('yalo-chat-attachment-message')
 export class AttachmentMessage extends LitElement {
   static styles = css`
     :host {

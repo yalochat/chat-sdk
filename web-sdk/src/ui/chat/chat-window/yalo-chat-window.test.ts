@@ -29,19 +29,19 @@ const createElement = async (): Promise<YaloChatWindow> => {
 };
 
 const getFooter = (el: YaloChatWindow): LitElement =>
-  el.shadowRoot?.querySelector('chat-footer') as unknown as LitElement;
+  el.shadowRoot?.querySelector('yalo-chat-footer') as unknown as LitElement;
 
 const getMessageList = (
   el: YaloChatWindow
 ): { chatMessages: ChatMessage[]; isLoading: boolean; isWriting: boolean } =>
-  el.shadowRoot?.querySelector('chat-message-list') as unknown as {
+  el.shadowRoot?.querySelector('yalo-chat-message-list') as unknown as {
     chatMessages: ChatMessage[];
     isLoading: boolean;
     isWriting: boolean;
   };
 
 const getHeader = (el: YaloChatWindow): { statusMessage: string } =>
-  el.shadowRoot?.querySelector('chat-header') as unknown as {
+  el.shadowRoot?.querySelector('yalo-chat-header') as unknown as {
     statusMessage: string;
   };
 
@@ -61,7 +61,7 @@ const dispatchFromList = (
   detail?: unknown
 ): void => {
   el.shadowRoot
-    ?.querySelector('chat-message-list')
+    ?.querySelector('yalo-chat-message-list')
     ?.dispatchEvent(
       new CustomEvent(type, { detail, bubbles: true, composed: true })
     );
@@ -147,7 +147,7 @@ describe('YaloChatWindow', () => {
       el.open = true;
       await el.updateComplete;
 
-      const header = el.shadowRoot?.querySelector('chat-header') as LitElement;
+      const header = el.shadowRoot?.querySelector('yalo-chat-header') as LitElement;
       await header.updateComplete;
 
       const closed = new Promise<void>((resolve) => {
@@ -163,7 +163,7 @@ describe('YaloChatWindow', () => {
     });
 
     it('renders the close button by default', async () => {
-      const header = el.shadowRoot?.querySelector('chat-header') as LitElement;
+      const header = el.shadowRoot?.querySelector('yalo-chat-header') as LitElement;
       await header.updateComplete;
 
       expect(
@@ -181,7 +181,7 @@ describe('YaloChatWindow', () => {
       await vi.waitUntil(() => hidden.yaloMessageRepository !== undefined);
 
       const header = hidden.shadowRoot?.querySelector(
-        'chat-header'
+        'yalo-chat-header'
       ) as LitElement;
       await header.updateComplete;
 
@@ -349,14 +349,14 @@ describe('YaloChatWindow', () => {
 
       await vi.waitUntil(() => {
         const messages = el.shadowRoot
-          ?.querySelector('chat-message-list') as unknown as {
+          ?.querySelector('yalo-chat-message-list') as unknown as {
           chatMessages: ChatMessage[];
         };
         return messages?.chatMessages?.[0]?.status === 'ERROR';
       });
 
       const list = el.shadowRoot?.querySelector(
-        'chat-message-list'
+        'yalo-chat-message-list'
       ) as unknown as { chatMessages: ChatMessage[] };
 
       expect(list.chatMessages[0]).toMatchObject({
@@ -393,7 +393,7 @@ describe('YaloChatWindow', () => {
       getSendButton(el).click();
 
       const list = el.shadowRoot?.querySelector(
-        'chat-message-list'
+        'yalo-chat-message-list'
       ) as unknown as { chatMessages: ChatMessage[] };
 
       await vi.waitUntil(() =>
@@ -409,7 +409,7 @@ describe('YaloChatWindow', () => {
       insertSpy.mockResolvedValueOnce(new Ok(errored));
 
       el.shadowRoot
-        ?.querySelector('chat-message-list')
+        ?.querySelector('yalo-chat-message-list')
         ?.dispatchEvent(
           new CustomEvent('yalo-chat-retry-message', {
             detail: errored,
@@ -539,7 +539,7 @@ describe('YaloChatWindow', () => {
       getSendButton(el).click();
 
       const list = el.shadowRoot?.querySelector(
-        'chat-message-list'
+        'yalo-chat-message-list'
       ) as unknown as { chatMessages: ChatMessage[] };
 
       await vi.waitUntil(() =>
@@ -553,7 +553,7 @@ describe('YaloChatWindow', () => {
       const erroredId = errored.id;
 
       el.shadowRoot
-        ?.querySelector('chat-message-list')
+        ?.querySelector('yalo-chat-message-list')
         ?.dispatchEvent(
           new CustomEvent('yalo-chat-retry-message', {
             detail: errored,

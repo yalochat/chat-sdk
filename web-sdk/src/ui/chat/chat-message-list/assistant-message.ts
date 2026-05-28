@@ -15,7 +15,7 @@ import './product-message';
 import './video-message';
 import './voice-message';
 
-@customElement('assistant-message')
+@customElement('yalo-chat-assistant-message')
 export class AssistantMessage extends LitElement {
   static styles = css`
     :host {
@@ -141,38 +141,38 @@ export class AssistantMessage extends LitElement {
     switch (this.message.type) {
       case 'voice':
         body = html`<div class="voice-bubble">
-          <voice-message .message=${this.message}></voice-message>
+          <yalo-chat-voice-message .message=${this.message}></yalo-chat-voice-message>
         </div>`;
         break;
       case 'image':
         body = html`<div class="image-bubble">
-          <image-message .message=${this.message}></image-message>
+          <yalo-chat-image-message .message=${this.message}></yalo-chat-image-message>
         </div>`;
         break;
       case 'video':
         body = html`<div class="video-bubble">
-          <video-message .message=${this.message}></video-message>
+          <yalo-chat-video-message .message=${this.message}></yalo-chat-video-message>
         </div>`;
         break;
       case 'attachment':
         body = html`<div class="attachment-bubble">
-          <attachment-message .message=${this.message}></attachment-message>
+          <yalo-chat-attachment-message .message=${this.message}></yalo-chat-attachment-message>
         </div>`;
         break;
       case 'product':
         body = html`<div class="product-bubble">
-          <product-message
+          <yalo-chat-product-message
             .message=${this.message}
             direction="vertical"
-          ></product-message>
+          ></yalo-chat-product-message>
         </div>`;
         break;
       case 'productCarousel':
         body = html`<div class="product-bubble">
-          <product-message
+          <yalo-chat-product-message
             .message=${this.message}
             direction="horizontal"
-          ></product-message>
+          ></yalo-chat-product-message>
         </div>`;
         break;
       case 'text':

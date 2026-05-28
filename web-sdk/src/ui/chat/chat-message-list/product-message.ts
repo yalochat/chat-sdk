@@ -10,7 +10,7 @@ export type ProductMessageDirection = 'vertical' | 'horizontal';
 
 const COLLAPSED_MAX_ITEMS = 3;
 
-@customElement('product-message')
+@customElement('yalo-chat-product-message')
 @localized()
 export class ProductMessage extends LitElement {
   static styles = css`
@@ -115,12 +115,12 @@ export class ProductMessage extends LitElement {
         ${visible.map(
           (product) => html`
             <div class="item">
-              <product-card
+              <yalo-chat-product-card
                 .product=${product}
                 .messageId=${this.message.id!}
                 .layout=${cardLayout}
                 .currency=${this.currency}
-              ></product-card>
+              ></yalo-chat-product-card>
             </div>
           `
         )}

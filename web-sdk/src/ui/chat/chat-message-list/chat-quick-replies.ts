@@ -5,7 +5,7 @@ import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import ChatQuickRepliesController from './chat-quick-replies-controller';
 
-@customElement('chat-quick-replies')
+@customElement('yalo-chat-quick-replies')
 export default class ChatQuickReplies extends LitElement {
   static styles = css`
     :host {
