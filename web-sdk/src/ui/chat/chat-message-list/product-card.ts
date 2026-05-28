@@ -12,7 +12,7 @@ import './product-message-price';
 
 export type ProductCardLayout = 'horizontal' | 'vertical';
 
-@customElement('product-card')
+@customElement('yalo-chat-product-card')
 export class ProductCard extends LitElement {
   static styles = css`
     :host {
@@ -149,23 +149,23 @@ export class ProductCard extends LitElement {
                 ${this._controller.formatUnit(subunits, subunitName)}
               </div>`
             : nothing}
-          <product-message-price
+          <yalo-chat-product-message-price
             .price=${price}
             .salePrice=${salePrice}
             .pricePerSubunit=${this._controller.pricePerSubunit}
             .currency=${this.currency}
-          ></product-message-price>
+          ></yalo-chat-product-message-price>
           <div class="quantities">
-            <numeric-input
+            <yalo-chat-numeric-input
               .value=${unitsAdded}
               .step=${unitStep}
               .unitName=${this._controller.formatUnit(unitsAdded, unitName)}
               @yalo-chat-numeric-add=${this._controller.onUnitChange}
               @yalo-chat-numeric-remove=${this._controller.onUnitChange}
               @yalo-chat-numeric-change=${this._controller.onUnitChange}
-            ></numeric-input>
+            ></yalo-chat-numeric-input>
             ${subunitName
-              ? html`<numeric-input
+              ? html`<yalo-chat-numeric-input
                   .value=${subunitsAdded}
                   .step=${subunitStep}
                   .unitName=${this._controller.formatUnit(
@@ -175,7 +175,7 @@ export class ProductCard extends LitElement {
                   @yalo-chat-numeric-add=${this._controller.onSubunitChange}
                   @yalo-chat-numeric-remove=${this._controller.onSubunitChange}
                   @yalo-chat-numeric-change=${this._controller.onSubunitChange}
-                ></numeric-input>`
+                ></yalo-chat-numeric-input>`
               : nothing}
           </div>
         </div>

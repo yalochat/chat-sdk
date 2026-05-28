@@ -17,7 +17,7 @@ import { loggerContext, type Logger } from '@log/logger-context';
 
 import '@ui/chat/waveform-painter/waveform-painter';
 
-@customElement('chat-footer')
+@customElement('yalo-chat-footer')
 @localized()
 export class ChatFooter extends LitElement {
   static styles = css`
@@ -249,14 +249,14 @@ export class ChatFooter extends LitElement {
         >
           <div class="chat-input-box">
             ${this._audioController.status === 'recording'
-              ? html`<waveform-recorder
+              ? html`<yalo-chat-waveform-recorder
                   time=${this._audioController.formatTime(
                     this._audioController.elapsedMs
                   )}
                   .amplitudes=${this._audioController.amplitudes}
                   @yalo-chat-stop-voice-message=${() =>
                     this._handleStopRecording()}
-                ></waveform-recorder>`
+                ></yalo-chat-waveform-recorder>`
               : html` <div class="chat-input-container">
                   <div class="chat-input-wrapper">
                     <div

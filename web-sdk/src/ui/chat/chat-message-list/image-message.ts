@@ -4,7 +4,7 @@ import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
-@customElement('image-message')
+@customElement('yalo-chat-image-message')
 export class ImageMessage extends LitElement {
   static styles = css`
     :host {

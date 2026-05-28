@@ -49,7 +49,7 @@ const renderFooter = async (): Promise<ChatFooter> => {
   const wrapper = document.createElement(
     'test-footer-context-provider'
   ) as TestFooterContextProvider;
-  const footer = document.createElement('chat-footer') as ChatFooter;
+  const footer = document.createElement('yalo-chat-footer') as ChatFooter;
   wrapper.appendChild(footer);
   document.body.appendChild(wrapper);
   await wrapper.updateComplete;
@@ -64,7 +64,7 @@ const getActionButton = (footer: ChatFooter): HTMLButtonElement =>
   footer.shadowRoot!.querySelector('.chat-action-button') as HTMLButtonElement;
 
 const getWaveformRecorder = (footer: ChatFooter): Element | null =>
-  footer.shadowRoot!.querySelector('waveform-recorder');
+  footer.shadowRoot!.querySelector('yalo-chat-waveform-recorder');
 
 const fireFilePicked = (input: HTMLInputElement, files: File[]) => {
   Object.defineProperty(input, 'files', {

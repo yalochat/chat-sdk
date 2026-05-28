@@ -10,7 +10,7 @@ import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
-@customElement('chat-header')
+@customElement('yalo-chat-header')
 export class ChatHeader extends LitElement {
   static styles = css`
     :host {

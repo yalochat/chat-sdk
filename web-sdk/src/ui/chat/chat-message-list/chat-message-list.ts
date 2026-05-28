@@ -13,7 +13,7 @@ import './user-message';
 import './assistant-message';
 import './chat-quick-replies';
 
-@customElement('chat-message-list')
+@customElement('yalo-chat-message-list')
 export default class ChatMessageList extends LitElement {
   static styles = css`
     :host {
@@ -196,18 +196,18 @@ export default class ChatMessageList extends LitElement {
                   : 'agent-message'}"
               >
                 ${isUser
-                  ? html`<user-message .message=${chatMessage}></user-message>`
-                  : html`<assistant-message
+                  ? html`<yalo-chat-user-message .message=${chatMessage}></yalo-chat-user-message>`
+                  : html`<yalo-chat-assistant-message
                       .message=${chatMessage}
                       .hideQuickReplies=${hideQuickReplies}
-                    ></assistant-message>`}
+                    ></yalo-chat-assistant-message>`}
               </li>
             `;
           }
         )}
         <li class="loader"></li>
       </ul>
-      <chat-quick-replies .replies=${quickReplies}></chat-quick-replies>
+      <yalo-chat-quick-replies .replies=${quickReplies}></yalo-chat-quick-replies>
     `;
   }
 }

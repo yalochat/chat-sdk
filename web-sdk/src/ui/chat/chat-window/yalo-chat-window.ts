@@ -116,13 +116,13 @@ export class YaloChatWindow extends LitElement {
   render() {
     return html`
       <div class="chat-window">
-        <chat-header
+        <yalo-chat-header
           .statusMessage=${this._chatWindowController.chatStatusText}
           @close=${this._handleClose}
         >
-        </chat-header>
+        </yalo-chat-header>
         <main class="chat-body">
-          <chat-message-list
+          <yalo-chat-message-list
             .chatMessages=${this._chatWindowController.chatMessages}
             .isLoading=${this._chatWindowController.isLoadingMessages}
             .isWriting=${this._chatWindowController.isWriting}
@@ -135,9 +135,9 @@ export class YaloChatWindow extends LitElement {
             @yalo-chat-product-quantity-change=${(e: CustomEvent) =>
               this._chatWindowController.updateProductQuantity(e)}
           >
-          </chat-message-list>
+          </yalo-chat-message-list>
         </main>
-        <chat-footer
+        <yalo-chat-footer
           @yalo-chat-send-text-message=${(e: CustomEvent) =>
             this._chatWindowController.sendTextMessage(e)}
           @yalo-chat-send-voice-message=${(e: CustomEvent) =>
@@ -147,7 +147,7 @@ export class YaloChatWindow extends LitElement {
           @yalo-chat-send-attachment-message=${(e: CustomEvent) =>
             this._chatWindowController.sendAttachmentMessage(e)}
         >
-        </chat-footer>
+        </yalo-chat-footer>
       </div>
     `;
   }

@@ -9,7 +9,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import '@ui/chat/waveform-painter/waveform-painter';
 
-@customElement('voice-message')
+@customElement('yalo-chat-voice-message')
 export class VoiceMessage extends LitElement {
   static styles = css`
     :host {
@@ -41,7 +41,7 @@ export class VoiceMessage extends LitElement {
       font-family: 'Material Symbols Outlined';
     }
 
-    waveform-recorder {
+    yalo-chat-waveform-recorder {
       flex-grow: 1;
     }
   `;
@@ -97,10 +97,10 @@ export class VoiceMessage extends LitElement {
             this._playing ? this.config.icons?.pause : this.config.icons?.play
           )}
         </button>
-        <waveform-recorder
+        <yalo-chat-waveform-recorder
           .amplitudes=${this.message.amplitudes ?? []}
           .animated=${false}
-        ></waveform-recorder>
+        ></yalo-chat-waveform-recorder>
       </div>
     `;
   }

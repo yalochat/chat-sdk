@@ -10,7 +10,7 @@ import { customElement, property, query } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { WaveformPainterController } from './waveform-painter-controller';
 
-@customElement('waveform-recorder')
+@customElement('yalo-chat-waveform-recorder')
 @localized()
 export class WaveformPainter extends LitElement {
   static styles = css`
