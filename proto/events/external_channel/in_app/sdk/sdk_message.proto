@@ -448,8 +448,8 @@ message ProductConfirmationMessageRequest {
   string header = 5;
   // Body text rendered as the main content of the confirmation card.
   string body = 6;
-  // Optional call-to-action button rendered alongside the confirmation card.
-  optional Button button = 7;
+  // Call-to-action button rendered alongside the confirmation card.
+  Button button = 7;
   // Structural text rendered below the confirmation card body.
   string footer = 8;
 }
