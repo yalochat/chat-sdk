@@ -20,6 +20,7 @@ class MessagesObservable: ObservableObject {
     // Typing indicator.
     @Published var isTyping: Bool = false
     @Published var typingStatusText: String = ""
+    @Published var isAwaitingResponse: Bool = false
 
     // Quick reply chips derived from the last QuickReply-type agent message.
     // Cleared when the user sends a message; restored when a new QuickReply message arrives.
@@ -34,9 +35,27 @@ class MessagesObservable: ObservableObject {
     private var lastQuickReplyWiId: String? = nil
 
     private var typingTimeoutTask: Task<Void, Never>?
+    private var awaitResponseTask: Task<Void, Never>?
 
     private var controller: MessagesController? {
         YaloChatSdk.shared.messagesController
+    }
+
+    private func beginAwaitingResponse() {
+        isAwaitingResponse = true
+        awaitResponseTask?.cancel()
+        awaitResponseTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 60_000_000_000)
+            guard !Task.isCancelled else { return }
+            self?.isAwaitingResponse = false
+            self?.awaitResponseTask = nil
+        }
+    }
+
+    private func stopAwaitingResponse() {
+        awaitResponseTask?.cancel()
+        awaitResponseTask = nil
+        isAwaitingResponse = false
     }
 
     func onAppear() {
@@ -58,6 +77,18 @@ class MessagesObservable: ObservableObject {
                 #endif
                 let prevTotal = self?.allMessages.count ?? 0
                 let newArrivals = max(0, messages.count - prevTotal)
+                if self?.isAwaitingResponse == true {
+                    let prevAgentIds = Set(
+                        (self?.allMessages ?? [])
+                            .filter { $0.role === MessageRole.agent }
+                            .compactMap { $0.id?.int64Value }
+                    )
+                    let hasNewAgent = messages.contains { msg in
+                        guard msg.role === MessageRole.agent, let mid = msg.id?.int64Value else { return false }
+                        return !prevAgentIds.contains(mid)
+                    }
+                    if hasNewAgent { self?.stopAwaitingResponse() }
+                }
                 self?.allMessages = messages
                 let current = self?.displayedCount ?? 30
                 // On initial load keep the window at displayedCount; on live updates grow
@@ -109,6 +140,9 @@ class MessagesObservable: ObservableObject {
         typingStatusText = ""
         typingTimeoutTask?.cancel()
         typingTimeoutTask = nil
+        isAwaitingResponse = false
+        awaitResponseTask?.cancel()
+        awaitResponseTask = nil
         allMessages = []
         displayedCount = 30
         hasMoreMessages = false
@@ -136,6 +170,7 @@ class MessagesObservable: ObservableObject {
         #endif
         userMessage = ""
         clearQuickReplies()
+        beginAwaitingResponse()
         controller?.sendTextMessage(text: text)
     }
 
@@ -146,14 +181,17 @@ class MessagesObservable: ObservableObject {
         Self.log.debug("sendTextMessage: \(trimmed.prefix(60))")
         #endif
         clearQuickReplies()
+        beginAwaitingResponse()
         controller?.sendTextMessage(text: trimmed)
     }
 
     func sendImageMessage(fileName: String, mimeType: String) {
+        beginAwaitingResponse()
         controller?.sendImageMessage(fileName: fileName, mimeType: mimeType)
     }
 
     func sendVoiceMessage(fileName: String, amplitudes: [Double], durationMs: Int64) {
+        beginAwaitingResponse()
         controller?.sendVoiceMessage(
             fileName: fileName,
             amplitudes: amplitudes.map { KotlinDouble(value: $0) },
@@ -162,6 +200,7 @@ class MessagesObservable: ObservableObject {
     }
 
     func retryMessage(messageId: Int64) {
+        beginAwaitingResponse()
         controller?.retryMessage(messageId: messageId)
     }
 

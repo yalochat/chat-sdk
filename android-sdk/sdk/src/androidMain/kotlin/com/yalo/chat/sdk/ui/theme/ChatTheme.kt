@@ -84,6 +84,7 @@ data class ChatTheme(
     /** Color for message timestamps and footer text. */
     val messageFooterColor: Color = Color(0xFF7C8086),
     val errorColor: Color = Color(0xFFE53935),
+    val typingIndicatorDotColor: Color = Color(0xFF7C8086),
     /** Border color of the picker buttons in the attachment sheet. */
     val pickerButtonBorderColor: Color = Color(0xFFE6E6E6),
     /** Background of quick reply chip buttons. */

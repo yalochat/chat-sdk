@@ -26,6 +26,7 @@ import com.yalo.chat.sdk.domain.model.ChatMessage
 internal fun MessageList(
     messages: List<ChatMessage>,
     modifier: Modifier = Modifier,
+    isAwaitingResponse: Boolean = false,
     playingMessage: ChatMessage? = null,
     onPlayAudio: (ChatMessage) -> Unit = {},
     onStopAudio: () -> Unit = {},
@@ -55,6 +56,11 @@ internal fun MessageList(
             .fillMaxSize()
             .padding(bottom = 4.dp),
     ) {
+        if (isAwaitingResponse) {
+            item(key = "typing_indicator") {
+                TypingIndicator()
+            }
+        }
         items(items = sorted, key = { it.id ?: it.wiId ?: it.timestamp }) { message ->
             MessageItem(
                 message = message,

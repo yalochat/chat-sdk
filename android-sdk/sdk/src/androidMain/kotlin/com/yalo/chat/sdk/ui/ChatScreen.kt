@@ -291,6 +291,7 @@ fun ChatScreen(
                 MessageList(
                     messages = state.messages,
                     modifier = Modifier.padding(paddingValues),
+                    isAwaitingResponse = state.isAwaitingResponse,
                     playingMessage = audioState.playingMessage,
                     onPlayAudio = { audioViewModel.handleEvent(AudioEvent.Play(it)) },
                     onStopAudio = { audioViewModel.handleEvent(AudioEvent.Stop) },

@@ -49,6 +49,10 @@ struct MessageList: View {
                                 isExpanded: messageId.map { observable.expandedMessageIds.contains($0) } ?? false
                             )
                         }
+                        if observable.isAwaitingResponse {
+                            TypingIndicatorView()
+                                .padding(.horizontal, 8)
+                        }
 
                     }
                     Color.clear.frame(height: 1).id("bottom")
