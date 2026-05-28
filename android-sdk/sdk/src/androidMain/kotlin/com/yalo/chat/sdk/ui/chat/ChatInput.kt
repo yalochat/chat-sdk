@@ -80,7 +80,7 @@ internal fun ChatInput(
                     .clip(CircleShape)
                     .background(theme.sendButtonColor)
                     .clickable(onClick = onMicClick)
-                    .semantics { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = Role.Button },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -97,7 +97,7 @@ internal fun ChatInput(
                     .clip(CircleShape)
                     .background(theme.sendButtonColor)
                     .clickable(onClick = onSendMessage)
-                    .semantics { role = Role.Button },
+                    .semantics(mergeDescendants = true) { role = Role.Button },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

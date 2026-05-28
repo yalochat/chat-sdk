@@ -16,7 +16,7 @@ struct MessageItem: View {
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
-    @State private var containerWidth: CGFloat = 390
+    @State private var rowWidth: CGFloat = 393
 
     private var isUser: Bool { message.role === MessageRole.user }
 
@@ -31,19 +31,19 @@ struct MessageItem: View {
         } else {
             HStack(alignment: .bottom, spacing: 4) {
                 if isUser {
-                    Spacer(minLength: 48)
+                    Spacer(minLength: rowWidth * 0.2)
                     errorIndicator
                     bubble
                 } else {
                     bubble
-                    Spacer(minLength: 48)
+                    Spacer(minLength: rowWidth * 0.1)
                 }
             }
             .background(
                 GeometryReader { geo in
                     Color.clear
-                        .onAppear { containerWidth = geo.size.width }
-                        .onChange(of: geo.size.width) { containerWidth = $0 }
+                        .onAppear { rowWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { rowWidth = $0 }
                 }
             )
         }
@@ -112,7 +112,6 @@ struct MessageItem: View {
                     .cornerRadius(theme.bubbleCornerRadius)
             }
         }
-        .frame(maxWidth: containerWidth * (isUser ? 0.8 : 0.9))
     }
 
     @ViewBuilder
