@@ -48,6 +48,10 @@ import com.yalo.chat.sdk.domain.model.MessageRole
 import com.yalo.chat.sdk.domain.model.MessageStatus
 import com.yalo.chat.sdk.domain.model.MessageType
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import com.yalo.chat.sdk.R
 import com.yalo.chat.sdk.ui.theme.LocalChatTheme
 import kotlinx.coroutines.Dispatchers
@@ -106,21 +110,20 @@ internal fun MessageItem(
         verticalAlignment = Alignment.Bottom,
     ) {
         if (isUser && message.status == MessageStatus.ERROR) {
+            val retryLabel = stringResource(R.string.chat_retry)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(end = 4.dp),
+                modifier = Modifier
+                    .clickable { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } }
+                    .padding(end = 4.dp)
+                    .semantics { role = Role.Button; contentDescription = retryLabel },
             ) {
-                androidx.compose.material3.IconButton(
-                    onClick = { message.id?.let { onEvent(MessagesEvent.RetryMessage(it)) } },
-                    modifier = Modifier.size(36.dp),
-                ) {
-                    androidx.compose.material3.Icon(
-                        imageVector = theme.errorIcon,
-                        contentDescription = stringResource(R.string.chat_send_failed_content_description),
-                        tint = theme.errorColor,
-                        modifier = Modifier.size(16.dp),
-                    )
-                }
+                androidx.compose.material3.Icon(
+                    imageVector = theme.errorIcon,
+                    contentDescription = null,
+                    tint = theme.errorColor,
+                    modifier = Modifier.size(20.dp),
+                )
                 Text(
                     text = stringResource(R.string.chat_not_delivered),
                     style = MaterialTheme.typography.labelSmall,

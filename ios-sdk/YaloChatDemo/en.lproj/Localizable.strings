@@ -29,7 +29,7 @@
 "chat.cancel" = "Cancel";
 
 /* Placeholder text in the message text field */
-"chat.input_placeholder" = "Type a message…";
+"chat.input_placeholder" = "Type a message";
 
 /* Accessibility label for the retry button on a failed message */
 "chat.retry" = "Retry";

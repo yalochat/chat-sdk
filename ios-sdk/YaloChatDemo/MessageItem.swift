@@ -16,12 +16,9 @@ struct MessageItem: View {
     var isExpanded: Bool = false
 
     @Environment(\.chatTheme) private var theme
+    @State private var containerWidth: CGFloat = 390
 
     private var isUser: Bool { message.role === MessageRole.user }
-
-    private var listWidth: CGFloat {
-        UIScreen.main.bounds.width - SdkConstants.messageListMargin * 2
-    }
 
     // Product messages render their own card borders — bypass the bubble HStack layout.
     private var isProductMessage: Bool {
@@ -34,14 +31,21 @@ struct MessageItem: View {
         } else {
             HStack(alignment: .bottom, spacing: 4) {
                 if isUser {
-                    Spacer(minLength: listWidth * 0.2)
+                    Spacer(minLength: 48)
                     errorIndicator
                     bubble
                 } else {
                     bubble
-                    Spacer(minLength: listWidth * 0.1)
+                    Spacer(minLength: 48)
                 }
             }
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { containerWidth = geo.size.width }
+                        .onChange(of: geo.size.width) { containerWidth = $0 }
+                }
+            )
         }
     }
 
@@ -108,6 +112,7 @@ struct MessageItem: View {
                     .cornerRadius(theme.bubbleCornerRadius)
             }
         }
+        .frame(maxWidth: containerWidth * (isUser ? 0.8 : 0.9))
     }
 
     @ViewBuilder

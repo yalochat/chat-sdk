@@ -79,7 +79,7 @@ internal fun ImagePreview(
                 Icon(
                     imageVector = theme.sendButtonIcon,
                     contentDescription = stringResource(R.string.chat_send_image_content_description),
-                    tint = theme.sendButtonColor,
+                    tint = theme.sendButtonForegroundColor,
                 )
             }
         }

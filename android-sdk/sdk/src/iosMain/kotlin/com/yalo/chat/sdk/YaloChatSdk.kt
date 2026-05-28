@@ -33,13 +33,12 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
-// Mirrors BuildConfig.TRANSPORT on Android. Change to "LONG_POLL" to use the polling transport.
+// "WEBSOCKET" | "LONG_POLL"
 private const val TRANSPORT = "WEBSOCKET"
 
 // iOS entry point — wires the shared commonMain business logic with iOS platform drivers:
 //   - Darwin HTTP engine (URLSession) via ktor-client-darwin
 //   - NativeSqliteDriver via sqldelight-native-driver
-// Called from Swift by YaloChat.initialize() — see ios-sdk/YaloChatDemo/YaloChat.swift.
 object YaloChatSdk {
 
     private var _syncService: MessageSyncService? = null
@@ -102,7 +101,10 @@ object YaloChatSdk {
                 ?.path
                 ?.let { "$it/ChatSdk" }
 
-            if (runCatching { Transport.valueOf(TRANSPORT) }.getOrDefault(Transport.LONG_POLL) == Transport.WEBSOCKET) {
+            val transport = runCatching { Transport.valueOf(TRANSPORT) }
+                .onFailure { platform.Foundation.NSLog("[YaloChatSdk] invalid TRANSPORT value \"%@\" — defaulting to LONG_POLL", TRANSPORT) }
+                .getOrDefault(Transport.LONG_POLL)
+            if (transport == Transport.WEBSOCKET) {
                 val wsUrl = "${config.environment.wsBaseUrl}$WS_CONNECT_PATH"
                 val wsService = YaloMessageServiceWebSocket(
                     wsUrl = wsUrl,

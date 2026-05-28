@@ -23,7 +23,9 @@ import kotlinx.serialization.json.Json
 
 // Manages a single WebSocket connection with exponential back-off reconnection.
 // Decoded frames are emitted on [frames]; consumers call connect(scope) to start
-// the loop and disconnect() to stop it.
+// the loop and disconnect() to stop it. Thread-safety: connect/disconnect are
+// expected to be called from the same coroutine scope; the connection loop itself
+// runs on the provided scope's dispatcher.
 internal class YaloMessageServiceWebSocket(
     // Full WebSocket URL without the auth token, e.g. "wss://api.yalochat.com/websocket/v1/connect/inapp"
     private val wsUrl: String,
@@ -34,6 +36,8 @@ internal class YaloMessageServiceWebSocket(
     companion object {
         private const val INITIAL_BACKOFF_MS  = 1_000L
         private const val MAX_BACKOFF_MS      = 30_000L
+        // Caps the left-shift exponent in scheduleReconnect to prevent integer overflow.
+        // Produces delays: 1s, 2s, 4s, 8s, 16s, then 30s (clamped) for all subsequent attempts.
         private const val MAX_BACKOFF_EXPONENT = 5
     }
 
