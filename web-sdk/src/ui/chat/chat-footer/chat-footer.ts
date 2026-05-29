@@ -29,6 +29,8 @@ export class ChatFooter extends LitElement {
       --yalo-chat-send-btn-background: #2207f1;
       --yalo-chat-send-btn-color: white;
       --yalo-chat-attachment-button-color: #7c8086;
+      --yalo-chat-action-button-size: 2.5rem;
+      --yalo-chat-icon-font-size: 1.5rem;
     }
 
     .chat-form {
@@ -81,8 +83,8 @@ export class ChatFooter extends LitElement {
       background: var(--yalo-chat-send-btn-background);
       color: var(--yalo-chat-send-btn-color);
       border-radius: 50%;
-      width: 2.5rem;
-      height: 2.5rem;
+      width: var(--yalo-chat-action-button-size);
+      height: var(--yalo-chat-action-button-size);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -109,7 +111,7 @@ export class ChatFooter extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1.5rem;
+      font-size: var(--yalo-chat-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
 

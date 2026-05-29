@@ -22,6 +22,7 @@ export class UserMessage extends LitElement {
     :host {
       --yalo-chat-user-message-error-color: #a01600;
       --yalo-chat-user-message-error-text-color: #461a1a;
+      --yalo-chat-bubble-padding: 0.5rem 0.75rem;
       display: flex;
       justify-content: flex-end;
       margin: 0.25rem 0.5rem;
@@ -71,7 +72,7 @@ export class UserMessage extends LitElement {
 
     .bubble {
       max-width: 80%;
-      padding: 0.5rem 0.75rem;
+      padding: var(--yalo-chat-bubble-padding);
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
       background: var(--yalo-chat-user-message-background, #f9fafc);
@@ -86,7 +87,7 @@ export class UserMessage extends LitElement {
 
     .voice-bubble {
       width: 60%;
-      padding: 0.5rem 0.75rem;
+      padding: var(--yalo-chat-bubble-padding);
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
       background: var(--yalo-chat-user-message-background, #f9fafc);

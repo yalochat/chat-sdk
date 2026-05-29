@@ -5,7 +5,7 @@ import type {
   ChatCommand,
   ChatCommandCallback,
 } from '@domain/models/command/chat-command';
-import { css, html, LitElement, type PropertyValues } from 'lit';
+import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import '@ui/chat/chat-header/chat-header';
@@ -116,11 +116,13 @@ export class YaloChatWindow extends LitElement {
   render() {
     return html`
       <div class="chat-window">
-        <yalo-chat-header
-          .statusMessage=${this._chatWindowController.chatStatusText}
-          @close=${this._handleClose}
-        >
-        </yalo-chat-header>
+        ${this.config.hideHeader
+          ? nothing
+          : html`<yalo-chat-header
+              .statusMessage=${this._chatWindowController.chatStatusText}
+              @close=${this._handleClose}
+            >
+            </yalo-chat-header>`}
         <main class="chat-body">
           <yalo-chat-message-list
             .chatMessages=${this._chatWindowController.chatMessages}

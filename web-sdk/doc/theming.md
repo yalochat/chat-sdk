@@ -33,16 +33,32 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
   /* Font family used across the entire chat widget.
      Set this to match your site typography. */
   --yalo-chat-font: sans-serif;
+}
+```
 
-  /* Width of the chat window. Accepts any CSS length
-     (px, rem, %, vw, etc.). */
+#### Width and height
+
+`--yalo-chat-width` and `--yalo-chat-height` must be set on the `yalo-chat-window` element itself (or as an inline `style` on it). Setting them on `:root` or on a wrapping element has no effect: the component declares its own defaults in `:host`, and `:host` wins over inherited custom properties.
+
+Fixed size:
+
+```css
+yalo-chat-window {
   --yalo-chat-width: 500px;
-
-  /* Height of the chat window. Accepts any CSS length
-     (px, rem, %, vh, etc.). */
   --yalo-chat-height: 720px;
 }
 ```
+
+Fill the parent container (the embedding pattern, for full-page or panel embeds):
+
+```css
+yalo-chat-window {
+  --yalo-chat-width: 100%;
+  --yalo-chat-height: 100%;
+}
+```
+
+Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults are `auto`, which collapses the window to its content.
 
 ### Spacing
 
@@ -108,6 +124,13 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 
   /* Color of the attachment (file picker) button next to the input field. */
   --yalo-chat-attachment-button-color: #7c8086;
+
+  /* Width and height of the round send/mic action button. */
+  --yalo-chat-action-button-size: 2.5rem;
+
+  /* Font size of the Material Symbols icons inside the footer
+     (send, mic, attachment). */
+  --yalo-chat-icon-font-size: 1.5rem;
 }
 ```
 
@@ -125,6 +148,13 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
   /* Text color of the "Not delivered" label
      shown below messages that failed to send. */
   --yalo-chat-user-message-error-text-color: #461a1a;
+
+  /* Padding inside user message bubbles (text and voice).
+     Accepts any valid CSS `padding` shorthand
+     (one, two, three, or four length values).
+     Lower it when embedding the chat in a narrow column
+     so the bubble does not eat too much horizontal space. */
+  --yalo-chat-bubble-padding: 0.5rem 0.75rem;
 }
 ```
 
