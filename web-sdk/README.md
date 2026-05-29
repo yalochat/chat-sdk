@@ -168,6 +168,7 @@ The target element referenced by `config.target` must exist in the DOM at the ti
 | `userId`             | `string`   | No       | Your own user identifier. When provided, the chat session is linked to your user. |
 | `openContext`        | `string`   | No       | Context describing where the chat is being opened from. Can be a structured value such as an SKU like `"123"`, or natural language like `"product page of product 123"`. Fixed for the lifetime of the chat instance. |
 | `hideCloseButton`    | `boolean`  | No       | When `true`, the close button is not rendered in the chat header. Useful when the chat is embedded full-screen or hosted in a surface that already provides its own close affordance. |
+| `hideHeader`         | `boolean`  | No       | When `true`, the chat header is not rendered. Use this when the surrounding page already shows the channel name and avatar, or when embedding the chat in a layout that supplies its own header. |
 | `persistent`         | `boolean`  | No       | When `true` (default), the conversation is kept across sessions in the browser's local database. When `false`, the local database is cleared before the chat is initialized, so every open starts with an empty conversation. |
 
 ### Custom icons

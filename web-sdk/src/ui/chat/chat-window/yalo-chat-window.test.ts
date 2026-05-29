@@ -187,6 +187,23 @@ describe('YaloChatWindow', () => {
 
       expect(header.shadowRoot?.querySelector('.chat-close-btn')).toBeNull();
     });
+
+    it('renders the header by default', async () => {
+      expect(el.shadowRoot?.querySelector('yalo-chat-header')).not.toBeNull();
+    });
+
+    it('hides the header when config.hideHeader is true', async () => {
+      document.body.innerHTML = '';
+      const hidden = document.createElement(
+        'yalo-chat-window'
+      ) as YaloChatWindow;
+      hidden.config = { ...baseConfig, hideHeader: true };
+      document.body.appendChild(hidden);
+      await vi.waitUntil(() => hidden.yaloMessageRepository !== undefined);
+      await hidden.updateComplete;
+
+      expect(hidden.shadowRoot?.querySelector('yalo-chat-header')).toBeNull();
+    });
   });
 
   describe('sending messages', () => {
