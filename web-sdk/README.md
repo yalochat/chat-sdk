@@ -20,7 +20,7 @@ The SDK uses [Material Symbols Outlined](https://fonts.google.com/icons) for its
 
 ```html
 <link
-  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,close,description,error,mic,pause,play_arrow,send,stop"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,check,close,description,error,mic,pause,play_arrow,send,stop"
   rel="stylesheet"
 />
 ```
@@ -39,7 +39,7 @@ Add the icon font, place a sized container on your page, and initialize the clie
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Website</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,close,description,error,mic,pause,play_arrow,send,stop"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,check,close,description,error,mic,pause,play_arrow,send,stop"
       rel="stylesheet"
     />
     <style>
@@ -186,7 +186,7 @@ var client = new YaloChatSdk.YaloChatClient({
 });
 ```
 
-Available icon keys: `close`, `send`, `mic`, `attachment`, `play`, `pause`, `document`, `arrowForward`, `error`.
+Available icon keys: `close`, `send`, `mic`, `attachment`, `play`, `pause`, `document`, `arrowForward`, `error`, `check`.
 
 ## Theming
 

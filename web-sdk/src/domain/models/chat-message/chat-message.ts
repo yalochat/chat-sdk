@@ -35,6 +35,7 @@ export const MessageStatuses = [
   'ERROR',
   'SENT',
   'IN_PROGRESS',
+  'CLICKED',
 ] as const;
 export type MessageStatus = (typeof MessageStatuses)[number];
 

@@ -11,6 +11,7 @@ import AssistantMessageController from './assistant-message-controller';
 import { renderMarkdown } from './render-markdown';
 import './attachment-message';
 import './image-message';
+import './product-confirmation-message';
 import './product-message';
 import './video-message';
 import './voice-message';
@@ -175,6 +176,10 @@ export class AssistantMessage extends LitElement {
           ></yalo-chat-product-message>
         </div>`;
         break;
+      case 'productConfirmation':
+        return html`<yalo-chat-product-confirmation-message
+          .message=${this.message}
+        ></yalo-chat-product-confirmation-message>`;
       case 'text':
       default:
         body = html`<p>${renderMarkdown(this.message.content)}</p>`;
