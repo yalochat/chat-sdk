@@ -23,10 +23,11 @@ export class ProductConfirmationMessage extends LitElement {
       --yalo-chat-product-confirmation-title-color: #111111;
       --yalo-chat-product-confirmation-title-font-weight: bold;
       --yalo-chat-product-confirmation-body-color: #111111;
-      --yalo-chat-product-confirmation-button-color: #111111;
+      --yalo-chat-product-confirmation-button-background: #111111;
+      --yalo-chat-product-confirmation-button-color: #ffffff;
       --yalo-chat-product-confirmation-button-background-clicked: #0b996d;
       --yalo-chat-product-confirmation-button-color-clicked: #ffffff;
-      --yalo-chat-product-confirmation-button-border-color: #dde4ec;
+      --yalo-chat-product-confirmation-button-border: none;
       --yalo-chat-product-confirmation-button-border-radius: 0.5rem;
       --yalo-chat-product-confirmation-button-padding: 0.5rem;
       --yalo-chat-product-confirmation-button-font-size: 0.875rem;
@@ -65,10 +66,9 @@ export class ProductConfirmationMessage extends LitElement {
       justify-content: center;
       gap: 0.25rem;
       padding: var(--yalo-chat-product-confirmation-button-padding);
-      border: 1px solid
-        var(--yalo-chat-product-confirmation-button-border-color);
+      border: var(--yalo-chat-product-confirmation-button-border);
       border-radius: var(--yalo-chat-product-confirmation-button-border-radius);
-      background: transparent;
+      background: var(--yalo-chat-product-confirmation-button-background);
       color: var(--yalo-chat-product-confirmation-button-color);
       font-size: var(--yalo-chat-product-confirmation-button-font-size);
       cursor: pointer;

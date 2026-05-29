@@ -367,8 +367,11 @@ Reply-type buttons attached to the latest agent message render as chips in an em
   /* Color of the body text. */
   --yalo-chat-product-confirmation-body-color: #111111;
 
-  /* Color of the call-to-action button before it is clicked. */
-  --yalo-chat-product-confirmation-button-color: #111111;
+  /* Background color of the call-to-action button before it is clicked. */
+  --yalo-chat-product-confirmation-button-background: #111111;
+
+  /* Text color of the call-to-action button before it is clicked. */
+  --yalo-chat-product-confirmation-button-color: #ffffff;
 
   /* Background color of the call-to-action button after it has been clicked. */
   --yalo-chat-product-confirmation-button-background-clicked: #0b996d;
@@ -376,8 +379,10 @@ Reply-type buttons attached to the latest agent message render as chips in an em
   /* Text color of the call-to-action button after it has been clicked. */
   --yalo-chat-product-confirmation-button-color-clicked: #ffffff;
 
-  /* Border color of the call-to-action button. */
-  --yalo-chat-product-confirmation-button-border-color: #dde4ec;
+  /* Full border shorthand for the call-to-action button.
+     Accepts any valid CSS border value (e.g. `1px solid #111111`).
+     Defaults to `none` so the button reads as a solid pill. */
+  --yalo-chat-product-confirmation-button-border: none;
 
   /* Border radius of the call-to-action button. */
   --yalo-chat-product-confirmation-button-border-radius: 0.5rem;
