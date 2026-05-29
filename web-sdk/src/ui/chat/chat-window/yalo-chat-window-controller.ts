@@ -96,28 +96,6 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.logger.error('Unable to fetch messages');
     }
     this._messagesLoaded = true;
-
-    // TODO: remove preview mock once productConfirmation is wired to the backend.
-    this.chatMessages = [
-      ChatMessage.productConfirmation({
-        id: -1,
-        role: 'AGENT',
-        timestamp: new Date(),
-        header: 'Producto agregado',
-        content: 'Has agregado 3 cajas de manzanas a tu carrito.',
-        footer: 'Cambiar cantidad',
-        button: { text: 'Continuar comprando', type: 'postback' },
-        product: new Product({
-          sku: 'SKU-PREVIEW',
-          name: '',
-          price: 0,
-          unitName: '',
-          unitsAdded: 3,
-        }),
-      }),
-      ...this.chatMessages,
-    ];
-
     this.host.requestUpdate();
 
     // Subscribe to incoming message stream
