@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val AWAIT_RESPONSE_TIMEOUT_MS = 60_000L
+
 // subscribeToMessages() only observes the local store — remote polling is delegated to
 // MessageSyncService, which writes incoming server messages to SQLDelight so the
 // observeMessages() flow is the single source of truth for the UI.
@@ -47,12 +49,16 @@ internal class MessagesViewModel(
     private var typingTimeoutJob: Job? = null
 
     private var awaitResponseJob: Job? = null
+    // Epoch-ms recorded when beginAwaitingResponse() fires; agent messages older than
+    // this are history/pagination replays and must not dismiss the indicator.
+    private var awaitResponseStartTime: Long = 0L
 
     private fun beginAwaitingResponse() {
+        awaitResponseStartTime = System.currentTimeMillis()
         _state.update { it.copy(isAwaitingResponse = true) }
         awaitResponseJob?.cancel()
         awaitResponseJob = viewModelScope.launch {
-            delay(60_000L)
+            delay(AWAIT_RESPONSE_TIMEOUT_MS)
             _state.update { it.copy(isAwaitingResponse = false) }
             awaitResponseJob = null
         }
@@ -141,7 +147,7 @@ internal class MessagesViewModel(
                         _state.update { it.copy(isSystemTypingMessage = true, chatStatusText = event.statusText) }
                         typingTimeoutJob?.cancel()
                         typingTimeoutJob = viewModelScope.launch {
-                            delay(60_000L)
+                            delay(AWAIT_RESPONSE_TIMEOUT_MS)
                             _state.update { it.copy(isSystemTypingMessage = false, chatStatusText = "") }
                             typingTimeoutJob = null
                         }
@@ -248,6 +254,9 @@ internal class MessagesViewModel(
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
                 var shouldCancelAwaitJob = false
+                // Capture before the CAS loop so the timestamp check is consistent
+                // across retries of the update lambda.
+                val startTime = awaitResponseStartTime
                 _state.update { currentState ->
                     // Preserve in-memory expand flags: DB never stores `expand` (it always
                     // reads back as false), so re-mapping the observed list by id keeps
@@ -281,7 +290,7 @@ internal class MessagesViewModel(
                         .mapNotNull { it.id }
                         .toSet()
                     val hasNewAgentMessage = currentState.isAwaitingResponse &&
-                        messages.any { it.role == MessageRole.AGENT && it.id !in existingAgentIds }
+                        messages.any { it.role == MessageRole.AGENT && it.id !in existingAgentIds && it.timestamp >= startTime }
                     if (hasNewAgentMessage) shouldCancelAwaitJob = true
                     currentState.copy(
                         messages = mergedMessages,

@@ -30,22 +30,27 @@ class MessagesObservable: ObservableObject {
     @Published var expandedMessageIds: Set<Int64> = []
 
     private static let log = Logger(subsystem: "com.yalo.chat.demo", category: "MessagesObservable")
+    private static let awaitResponseTimeoutNs: UInt64 = 60_000_000_000
 
     // Tracks the wiId of the QuickReply message that populated the current chip row.
     private var lastQuickReplyWiId: String? = nil
 
     private var typingTimeoutTask: Task<Void, Never>?
     private var awaitResponseTask: Task<Void, Never>?
+    // Epoch-ms recorded when beginAwaitingResponse() fires; agent messages older than
+    // this are history/pagination replays and must not dismiss the indicator.
+    private var awaitResponseStartTime: Int64 = 0
 
     private var controller: MessagesController? {
         YaloChatSdk.shared.messagesController
     }
 
     private func beginAwaitingResponse() {
+        awaitResponseStartTime = Int64(Date().timeIntervalSince1970 * 1000)
         isAwaitingResponse = true
         awaitResponseTask?.cancel()
         awaitResponseTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(nanoseconds: 60_000_000_000)
+            try? await Task.sleep(nanoseconds: Self.awaitResponseTimeoutNs)
             guard !Task.isCancelled else { return }
             self?.isAwaitingResponse = false
             self?.awaitResponseTask = nil
@@ -83,9 +88,10 @@ class MessagesObservable: ObservableObject {
                             .filter { $0.role === MessageRole.agent }
                             .compactMap { $0.id?.int64Value }
                     )
+                    let startTime = self?.awaitResponseStartTime ?? Int64.max
                     let hasNewAgent = messages.contains { msg in
                         guard msg.role === MessageRole.agent, let mid = msg.id?.int64Value else { return false }
-                        return !prevAgentIds.contains(mid)
+                        return !prevAgentIds.contains(mid) && msg.timestamp >= startTime
                     }
                     if hasNewAgent { self?.stopAwaitingResponse() }
                 }
@@ -185,6 +191,8 @@ class MessagesObservable: ObservableObject {
         controller?.sendTextMessage(text: trimmed)
     }
 
+    // Media sends delegate fully to the controller with no error callback — the 60-second
+    // timeout is the only safety net when no agent reply arrives after a failed upload.
     func sendImageMessage(fileName: String, mimeType: String) {
         beginAwaitingResponse()
         controller?.sendImageMessage(fileName: fileName, mimeType: mimeType)
