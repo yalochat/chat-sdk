@@ -25,6 +25,7 @@ export interface YaloChatClientConfig {
   userId?: string;
   openContext?: string;
   hideCloseButton?: boolean;
+  persistent?: boolean;
 }
 
 export const defaultIcons: SdkIcons = {

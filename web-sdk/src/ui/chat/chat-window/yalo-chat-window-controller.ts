@@ -34,11 +34,14 @@ export default class YaloChatWindowController implements ReactiveController {
 
   private readonly _DB_VERSION = 2;
 
-  private _openDb(): Promise<IDBDatabase> {
+  private get _dbName(): string {
     const { organizationId, channelId, userId } = this.host.config;
-    const dbName = `YaloChatMessages-${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
+    return `YaloChatMessages-${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
+  }
+
+  private _openDb(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(dbName, this._DB_VERSION);
+      const request = indexedDB.open(this._dbName, this._DB_VERSION);
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
@@ -51,6 +54,15 @@ export default class YaloChatWindowController implements ReactiveController {
     });
   }
 
+  private _deleteDb(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.deleteDatabase(this._dbName);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+      request.onblocked = () => resolve();
+    });
+  }
+
   constructor(host: YaloChatWindow) {
     this.host = host;
     this.host.addController(this);
@@ -58,6 +70,9 @@ export default class YaloChatWindowController implements ReactiveController {
 
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
+    if (this.host.config.persistent === false) {
+      await this._deleteDb();
+    }
     const db = await this._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(db);
 

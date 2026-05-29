@@ -1149,6 +1149,69 @@ describe('YaloChatWindow', () => {
   });
 });
 
+describe('YaloChatWindow persistent flag', () => {
+  let deleteSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    deleteSpy = vi.spyOn(indexedDB, 'deleteDatabase');
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('does not delete the local database when persistent is not set', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = baseConfig;
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not delete the local database when persistent is true', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, persistent: true };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
+  it('deletes the local database before opening when persistent is false', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, persistent: false };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(deleteSpy).toHaveBeenCalledWith(DB_NAME);
+  });
+
+  it('starts with an empty conversation when persistent is false even if the database has prior messages', async () => {
+    const seeded = document.createElement('yalo-chat-window') as YaloChatWindow;
+    seeded.config = baseConfig;
+    document.body.appendChild(seeded);
+    await vi.waitUntil(() => seeded.yaloMessageRepository !== undefined);
+    await seeded.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+        content: 'older',
+      })
+    );
+    seeded.remove();
+
+    const fresh = document.createElement('yalo-chat-window') as YaloChatWindow;
+    fresh.config = { ...baseConfig, persistent: false };
+    document.body.appendChild(fresh);
+    await vi.waitUntil(() => fresh.yaloMessageRepository !== undefined);
+
+    expect(getMessageList(fresh).chatMessages).toHaveLength(0);
+  });
+});
+
 describe('YaloChatWindow initial fetch failure', () => {
   afterEach(async () => {
     document.body.innerHTML = '';
