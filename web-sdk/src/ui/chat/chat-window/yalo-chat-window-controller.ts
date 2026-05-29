@@ -303,6 +303,51 @@ export default class YaloChatWindowController implements ReactiveController {
     }
   }
 
+  async markProductConfirmationClicked(e: CustomEvent) {
+    const message = e.detail as ChatMessage;
+    if (message.id === undefined) {
+      return;
+    }
+    if (message.status === 'CLICKED') {
+      return;
+    }
+
+    const clicked = new ChatMessage({ ...message, status: 'CLICKED' });
+    const result =
+      await this.host.chatMessageRepository.replaceChatMessage(clicked);
+    if (!result.ok) {
+      this.host.logger.error('Unable to persist clicked status locally', {
+        error: result.error,
+      });
+      return;
+    }
+
+    const index = this.chatMessages.findIndex((m) => m.id === clicked.id);
+    if (index === -1) {
+      return;
+    }
+    this.chatMessages = [...this.chatMessages];
+    this.chatMessages[index] = clicked;
+    this.host.requestUpdate();
+
+    const product = clicked.products[0];
+    if (!product) {
+      return;
+    }
+    const subunits =
+      product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
+    const sendResult = await this.host.yaloMessageRepository.updateCartProduct(
+      product.sku,
+      product.unitsAdded,
+      subunits
+    );
+    if (!sendResult.ok) {
+      this.host.logger.error('Unable to send updateCartProduct', {
+        error: sendResult.error,
+      });
+    }
+  }
+
   private async _markMessageAsError(message: ChatMessage): Promise<void> {
     const errored = new ChatMessage({ ...message, status: 'ERROR' });
     const result =

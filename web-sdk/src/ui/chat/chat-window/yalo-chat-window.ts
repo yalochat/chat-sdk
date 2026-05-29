@@ -134,6 +134,8 @@ export class YaloChatWindow extends LitElement {
               this._chatWindowController.retryMessage(e)}
             @yalo-chat-product-quantity-change=${(e: CustomEvent) =>
               this._chatWindowController.updateProductQuantity(e)}
+            @yalo-chat-product-confirmation-clicked=${(e: CustomEvent) =>
+              this._chatWindowController.markProductConfirmationClicked(e)}
           >
           </yalo-chat-message-list>
         </main>

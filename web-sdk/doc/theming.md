@@ -335,6 +335,72 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 }
 ```
 
+### Product confirmation
+
+```css
+:root {
+  /* Background color of the confirmation card. */
+  --yalo-chat-product-confirmation-background: #ffffff;
+
+  /* Border color of the confirmation card. */
+  --yalo-chat-product-confirmation-border-color: #dde4ec;
+
+  /* Border radius of the confirmation card. */
+  --yalo-chat-product-confirmation-border-radius: 1rem;
+
+  /* Drop shadow applied to the confirmation card. */
+  --yalo-chat-product-confirmation-box-shadow: 0 4.396px 8px 0
+    rgba(0, 0, 0, 0.06);
+
+  /* Padding inside the confirmation card. */
+  --yalo-chat-product-confirmation-padding: 1rem;
+
+  /* Vertical gap between title, body, button, and footer. */
+  --yalo-chat-product-confirmation-gap: 0.75rem;
+
+  /* Color of the bold title rendered at the top of the card. */
+  --yalo-chat-product-confirmation-title-color: #111111;
+
+  /* Font weight applied to the title. */
+  --yalo-chat-product-confirmation-title-font-weight: bold;
+
+  /* Color of the body text. */
+  --yalo-chat-product-confirmation-body-color: #111111;
+
+  /* Background color of the call-to-action button before it is clicked. */
+  --yalo-chat-product-confirmation-button-background: #111111;
+
+  /* Text color of the call-to-action button before it is clicked. */
+  --yalo-chat-product-confirmation-button-color: #ffffff;
+
+  /* Background color of the call-to-action button after it has been clicked. */
+  --yalo-chat-product-confirmation-button-background-clicked: #0b996d;
+
+  /* Text color of the call-to-action button after it has been clicked. */
+  --yalo-chat-product-confirmation-button-color-clicked: #ffffff;
+
+  /* Full border shorthand for the call-to-action button.
+     Accepts any valid CSS border value (e.g. `1px solid #111111`).
+     Defaults to `none` so the button reads as a solid pill. */
+  --yalo-chat-product-confirmation-button-border: none;
+
+  /* Border radius of the call-to-action button. */
+  --yalo-chat-product-confirmation-button-border-radius: 0.5rem;
+
+  /* Padding inside the call-to-action button. */
+  --yalo-chat-product-confirmation-button-padding: 0.5rem;
+
+  /* Font size of the call-to-action button label. */
+  --yalo-chat-product-confirmation-button-font-size: 0.875rem;
+
+  /* Color of the underlined footer link. */
+  --yalo-chat-product-confirmation-footer-color: #444444;
+
+  /* Font size of the underlined footer link. */
+  --yalo-chat-product-confirmation-footer-font-size: 0.875rem;
+}
+```
+
 ### Numeric input
 
 ```css

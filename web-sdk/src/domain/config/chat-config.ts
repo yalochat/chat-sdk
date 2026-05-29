@@ -10,6 +10,7 @@ export interface SdkIcons {
   document?: string;
   arrowForward?: string;
   error?: string;
+  check?: string;
 }
 
 export interface YaloChatClientConfig {
@@ -37,4 +38,5 @@ export const defaultIcons: SdkIcons = {
   arrowForward:
     '<span class="material-symbols-outlined">arrow_forward</span>',
   error: '<span class="material-symbols-outlined">error</span>',
+  check: '<span class="material-symbols-outlined">check</span>',
 };

@@ -568,6 +568,130 @@ describe('ChatMessageList', () => {
     });
   });
 
+  describe('product confirmation messages', () => {
+    const confirmation = (
+      overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}
+    ) =>
+      ChatMessage.productConfirmation({
+        id: 300,
+        role: 'AGENT',
+        timestamp,
+        header: 'Added to cart',
+        content: 'You have 3 bags',
+        footer: 'Continue shopping',
+        button: { text: 'Done', type: 'reply' },
+        product: buildProduct({ sku: 'sku-1', unitsAdded: 3 }),
+        ...overrides,
+      });
+
+    const getCard = async (list: ChatMessageList) => {
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      ) as LitElement;
+      await assistant.updateComplete;
+      const card = assistant.shadowRoot!.querySelector(
+        'yalo-chat-product-confirmation-message'
+      ) as LitElement;
+      await card.updateComplete;
+      return card;
+    };
+
+    it('renders header, body, button, and footer inside the confirmation card', async () => {
+      const list = await renderList([confirmation()]);
+      const card = await getCard(list);
+
+      expect(card.shadowRoot!.querySelector('.title')!.textContent).toContain(
+        'Added to cart'
+      );
+      expect(card.shadowRoot!.querySelector('.body')!.textContent).toContain(
+        'You have 3 bags'
+      );
+      expect(card.shadowRoot!.querySelector('.button')!.textContent).toContain(
+        'Done'
+      );
+      expect(card.shadowRoot!.querySelector('.footer')!.textContent).toContain(
+        'Continue shopping'
+      );
+    });
+
+    it('marks the button as clicked after the user taps it and disables it', async () => {
+      const list = await renderList([confirmation()]);
+      const card = await getCard(list);
+
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+      expect(button.classList.contains('clicked')).toBe(false);
+
+      button.click();
+      await card.updateComplete;
+
+      expect(button.classList.contains('clicked')).toBe(true);
+      expect(button.disabled).toBe(true);
+    });
+
+    it('dispatches yalo-chat-product-confirmation-clicked with the message on button click', async () => {
+      const message = confirmation({ id: 305 });
+      const list = await renderList([message]);
+      const card = await getCard(list);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-product-confirmation-clicked', listener);
+
+      card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!.click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        id: 305,
+        type: 'productConfirmation',
+      });
+    });
+
+    it('renders the button as clicked when the message status is CLICKED', async () => {
+      const list = await renderList([
+        confirmation({ status: 'CLICKED' }),
+      ]);
+      const card = await getCard(list);
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+
+      expect(button.classList.contains('clicked')).toBe(true);
+      expect(button.disabled).toBe(true);
+    });
+
+    it('dispatches yalo-chat-send-text-message with the footer text on footer click', async () => {
+      const list = await renderList([confirmation()]);
+      const card = await getCard(list);
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-send-text-message', listener);
+
+      card.shadowRoot!.querySelector<HTMLButtonElement>('.footer')!.click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+      expect(detail).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'Continue shopping',
+      });
+    });
+
+    it('does not render the outer assistant-message header, footer, or buttons', async () => {
+      const list = await renderList([confirmation()]);
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      ) as LitElement;
+      await assistant.updateComplete;
+
+      expect(assistant.shadowRoot!.querySelector('.header')).toBeNull();
+      expect(assistant.shadowRoot!.querySelector('.footer')).toBeNull();
+      expect(assistant.shadowRoot!.querySelector('.buttons')).toBeNull();
+    });
+  });
+
   describe('quick replies', () => {
     it('renders quick replies from the latest agent message in the emerging section', async () => {
       const list = await renderList([

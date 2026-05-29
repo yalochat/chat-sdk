@@ -20,6 +20,7 @@ export const MessageTypes = [
   'voice',
   'product',
   'productCarousel',
+  'productConfirmation',
   'promotion',
   'video',
   'attachment',
@@ -34,6 +35,7 @@ export const MessageStatuses = [
   'ERROR',
   'SENT',
   'IN_PROGRESS',
+  'CLICKED',
 ] as const;
 export type MessageStatus = (typeof MessageStatuses)[number];
 
@@ -207,6 +209,27 @@ export class ChatMessage {
     expand?: boolean;
   }): ChatMessage {
     return new ChatMessage({ ...params, type: 'productCarousel' });
+  }
+
+  static productConfirmation(params: {
+    role: MessageRole;
+    timestamp: Date;
+    product: Product;
+    content: string;
+    header: string;
+    footer: string;
+    button: MessageButton;
+    id?: number;
+    wiId?: string;
+    status?: MessageStatus;
+  }): ChatMessage {
+    const { product, button, ...rest } = params;
+    return new ChatMessage({
+      ...rest,
+      type: 'productConfirmation',
+      products: [product],
+      buttons: [button],
+    });
   }
 
   static chatStatus(params: {

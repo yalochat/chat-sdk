@@ -355,6 +355,33 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(calls[1][0].removeFromCartRequest.quantity).toBeUndefined();
     });
 
+    it('sends an updateCartProductRequest with absolute units and subunits', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      const result = await repo.updateCartProduct('SKU-1', 3, 4);
+
+      expect(result.ok).toBe(true);
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent).toMatchObject({
+        updateCartProductRequest: { sku: 'SKU-1', units: 3, subunits: 4 },
+      });
+      expect(sent.updateCartProductRequest.timestamp).toBeInstanceOf(Date);
+      expect(sent.correlationId).toMatch(/^update-cart-product-SKU-1-/);
+    });
+
+    it('omits subunits from updateCartProductRequest when not provided', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.updateCartProduct('SKU-1', 2);
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent.updateCartProductRequest.subunits).toBeUndefined();
+    });
+
     it('sends a clearCartRequest with a timestamp', async () => {
       const { service } = okService();
       const repo = new YaloMessageRepositoryRemote(service, okMedia());
@@ -841,6 +868,92 @@ describe('YaloMessageRepositoryRemote', () => {
         type: 'chat-status',
         role: 'AGENT',
         content: '',
+      });
+    });
+
+    it('translates a productConfirmationMessageRequest into a productConfirmation ChatMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'pc-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          productConfirmationMessageRequest: {
+            sku: 'SKU-1',
+            timestamp: undefined,
+            units: 3,
+            subunits: 2,
+            header: 'Added to cart',
+            body: 'You have 3 bags',
+            footer: 'Tap to undo',
+            button: {
+              text: 'Continue',
+              buttonType: ButtonType.BUTTON_TYPE_REPLY,
+            },
+          },
+        },
+      });
+
+      expect(callback.mock.calls[0][0][0]).toMatchObject({
+        type: 'productConfirmation',
+        role: 'AGENT',
+        wiId: 'pc-1',
+        header: 'Added to cart',
+        content: 'You have 3 bags',
+        footer: 'Tap to undo',
+        buttons: [{ text: 'Continue', type: 'reply' }],
+        products: [
+          {
+            sku: 'SKU-1',
+            name: '',
+            price: 0,
+            unitName: '',
+            unitsAdded: 3,
+            subunitsAdded: 2,
+          },
+        ],
+      });
+    });
+
+    it('omits subunits on the confirmed product when not provided', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'pc-2',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: '',
+          timestamp: new Date(),
+          productConfirmationMessageRequest: {
+            sku: 'SKU-2',
+            timestamp: undefined,
+            units: 1,
+            header: 'h',
+            body: 'b',
+            footer: 'f',
+            button: {
+              text: 'OK',
+              buttonType: ButtonType.BUTTON_TYPE_REPLY,
+            },
+          },
+        },
+      });
+
+      const message = callback.mock.calls[0][0][0] as ChatMessage;
+      expect(message.products[0]).toMatchObject({
+        sku: 'SKU-2',
+        unitsAdded: 1,
+        subunitsAdded: 0,
       });
     });
 
