@@ -42,3 +42,6 @@
 
 /* Label shown below a user message that failed to deliver */
 "chat.not_delivered" = "Not delivered.";
+
+/* Typing status shown in the app bar while awaiting an agent reply */
+"chat.writing_message" = "Writing message...";

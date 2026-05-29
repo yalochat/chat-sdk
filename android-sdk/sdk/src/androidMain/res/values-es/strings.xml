@@ -26,6 +26,7 @@
     <string name="chat_show_more">Ver más</string>
     <string name="chat_show_less">Ver menos</string>
     <string name="chat_not_delivered">No entregado.</string>
+    <string name="chat_writing_message">Escribiendo mensaje...</string>
     <string name="chat_remove_content_description">Eliminar</string>
     <string name="chat_add_content_description">Agregar</string>
     <string name="chat_product_image_content_description">Imagen del producto</string>
