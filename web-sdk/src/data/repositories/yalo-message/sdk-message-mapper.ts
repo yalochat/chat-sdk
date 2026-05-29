@@ -230,6 +230,27 @@ export function pollMessageItemToChatMessage(
     });
   }
 
+  if (msg.productConfirmationMessageRequest) {
+    const req = msg.productConfirmationMessageRequest;
+    return ChatMessage.productConfirmation({
+      role: 'AGENT',
+      timestamp,
+      wiId: item.id,
+      content: req.body,
+      header: req.header,
+      footer: req.footer,
+      button: toMessageButton(req.button!),
+      product: new Product({
+        sku: req.sku,
+        name: '',
+        price: 0,
+        unitName: '',
+        unitsAdded: req.units,
+        subunitsAdded: req.subunits,
+      }),
+    });
+  }
+
   return null;
 }
 
@@ -240,7 +261,11 @@ function toMessageButtons(
 }
 
 function toMessageButton(b: ProtoButton): MessageButton {
-  return { text: b.text, type: toMessageButtonType(b.buttonType), url: b.url };
+  return {
+    text: b.text,
+    type: toMessageButtonType(b.buttonType),
+    url: b.url,
+  };
 }
 
 function toMessageButtonType(t: ButtonType): MessageButtonType {

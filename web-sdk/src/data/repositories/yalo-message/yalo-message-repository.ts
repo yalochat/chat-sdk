@@ -24,6 +24,14 @@ export abstract class YaloMessageRepository {
     quantity?: number
   ): Promise<Result<void>>;
 
+  // Sets the absolute cart quantities for the given SKU, replacing whatever
+  // was there before. Will supersede addToCart and removeFromCart.
+  abstract updateCartProduct(
+    sku: string,
+    units: number,
+    subunits?: number
+  ): Promise<Result<void>>;
+
   // Sends a clear-cart command to remove all items from the cart
   abstract clearCart(): Promise<Result<void>>;
 

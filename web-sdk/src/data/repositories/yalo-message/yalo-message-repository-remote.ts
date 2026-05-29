@@ -107,6 +107,24 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     });
   }
 
+  async updateCartProduct(
+    sku: string,
+    units: number,
+    subunits?: number
+  ): Promise<Result<void>> {
+    const timestamp = new Date();
+    return this._service.sendMessage({
+      correlationId: `update-cart-product-${sku}-${Date.now()}`,
+      updateCartProductRequest: {
+        sku,
+        units,
+        subunits,
+        timestamp,
+      },
+      timestamp,
+    });
+  }
+
   async clearCart(): Promise<Result<void>> {
     const timestamp = new Date();
     return this._service.sendMessage({
