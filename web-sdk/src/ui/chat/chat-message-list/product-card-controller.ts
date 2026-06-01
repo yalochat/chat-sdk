@@ -40,6 +40,19 @@ export default class ProductCardController implements ReactiveController {
     this._emitQuantityChange('subunit', e.detail.value);
   };
 
+  onCartButtonClick = () => {
+    this.host.dispatchEvent(
+      new CustomEvent('yalo-chat-product-add-to-cart', {
+        detail: {
+          messageId: this.host.messageId,
+          sku: this.host.product.sku,
+        },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  };
+
   private _emitQuantityChange(unitType: ProductUnitType, value: number) {
     const detail: ChangeQuantity = {
       messageId: this.host.messageId,

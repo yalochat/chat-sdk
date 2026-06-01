@@ -31,6 +31,7 @@ export class AssistantMessage extends LitElement {
       --yalo-chat-buttons-background: transparent;
       --yalo-chat-buttons-color: #111111;
       --yalo-chat-buttons-font-size: 0.875rem;
+      --yalo-chat-assistant-message-icon-font-size: 1rem;
       display: flow;
       justify-content: flex-start;
       margin: 0.25rem 0.5rem;
@@ -116,7 +117,7 @@ export class AssistantMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1rem;
+      font-size: var(--yalo-chat-assistant-message-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
 

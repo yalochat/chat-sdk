@@ -87,6 +87,10 @@ Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults ar
 
   /* Color of the close button icon in the header. */
   --yalo-chat-close-btn-color: #010101;
+
+  /* Font size of the Material Symbols icons rendered inside the header
+     (close button). */
+  --yalo-chat-header-icon-font-size: 1.5rem;
 }
 ```
 
@@ -130,7 +134,7 @@ Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults ar
 
   /* Font size of the Material Symbols icons inside the footer
      (send, mic, attachment). */
-  --yalo-chat-icon-font-size: 1.5rem;
+  --yalo-chat-footer-icon-font-size: 1.5rem;
 }
 ```
 
@@ -155,6 +159,10 @@ Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults ar
      Lower it when embedding the chat in a narrow column
      so the bubble does not eat too much horizontal space. */
   --yalo-chat-bubble-padding: 0.5rem 0.75rem;
+
+  /* Font size of the Material Symbols icons rendered inside user message
+     bubbles (the error indicator). */
+  --yalo-chat-user-message-icon-font-size: 1.25rem;
 }
 ```
 
@@ -190,6 +198,14 @@ Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults ar
   /* Color of the elapsed-time text displayed
      next to the waveform while recording. */
   --yalo-chat-waveform-timer-color: #7c8086;
+
+  /* Font size of the Material Symbols icons inside voice message bubbles
+     (play/pause). */
+  --yalo-chat-voice-message-icon-font-size: 1.5rem;
+
+  /* Font size of the Material Symbols icons rendered on the waveform
+     recorder overlay (cancel button). */
+  --yalo-chat-waveform-icon-font-size: 1.5em;
 }
 ```
 
@@ -199,6 +215,9 @@ Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults ar
 :root {
   /* Color of the file-type icon shown inside attachment message bubbles. */
   --yalo-chat-attachment-icon-color: #7c8086;
+
+  /* Font size of the Material Symbols icon shown next to the file name. */
+  --yalo-chat-attachment-message-icon-font-size: 1.5rem;
 }
 ```
 
@@ -217,6 +236,10 @@ Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults ar
 
   /* Font size of the optional footer rendered below an assistant message body. */
   --yalo-chat-message-footer-font-size: 0.75em;
+
+  /* Font size of the Material Symbols icons rendered inside assistant
+     messages (e.g. the loading spinner glyph). */
+  --yalo-chat-assistant-message-icon-font-size: 1rem;
 }
 ```
 
@@ -332,6 +355,33 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 
   /* Gap between the product image and product details. */
   --yalo-chat-product-gap: 0.5rem;
+
+  /* Background color of the cart call-to-action button before it is added. */
+  --yalo-chat-product-card-button-background: #111111;
+
+  /* Text color of the cart call-to-action button before it is added. */
+  --yalo-chat-product-card-button-color: #ffffff;
+
+  /* Background color of the cart button while the product is in the cart. */
+  --yalo-chat-product-card-button-background-clicked: #0b996d;
+
+  /* Text color of the cart button while the product is in the cart. */
+  --yalo-chat-product-card-button-color-clicked: #ffffff;
+
+  /* Border shorthand applied to the cart button. */
+  --yalo-chat-product-card-button-border: none;
+
+  /* Border radius of the cart button. */
+  --yalo-chat-product-card-button-border-radius: 0.5rem;
+
+  /* Padding inside the cart button. */
+  --yalo-chat-product-card-button-padding: 0.5rem;
+
+  /* Font size of the cart button label. */
+  --yalo-chat-product-card-button-font-size: 0.875rem;
+
+  /* Font size of the check icon shown when the product is in the cart. */
+  --yalo-chat-product-card-button-icon-font-size: 1rem;
 }
 ```
 
@@ -428,6 +478,10 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 
   /* Font size of the underlined footer link. */
   --yalo-chat-product-confirmation-footer-font-size: 0.875rem;
+
+  /* Font size of the check icon shown on the call-to-action button
+     after it has been clicked. */
+  --yalo-chat-product-confirmation-icon-font-size: 1rem;
 }
 ```
 

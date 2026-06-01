@@ -348,6 +348,197 @@ describe('ChatMessageList', () => {
       expect(expandedToggle.textContent?.trim()).toBe('Show less');
     });
 
+    describe('product card cart button', () => {
+      const getCartButton = async (
+        list: ChatMessageList
+      ): Promise<HTMLButtonElement> => {
+        const card = await getProductCard(list);
+        return card.shadowRoot!.querySelector<HTMLButtonElement>(
+          '.cart-button'
+        )!;
+      };
+
+      it('starts with "Add to cart" and no in-cart class when product.inCart is false', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 80,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a' })],
+          }),
+        ]);
+
+        const button = await getCartButton(list);
+        expect(button.textContent?.trim()).toBe('Add to cart');
+        expect(button.classList.contains('in-cart')).toBe(false);
+        expect(button.disabled).toBe(false);
+      });
+
+      it('starts in "In the cart" when the persisted product.inCart is true', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 81,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a', inCart: true })],
+          }),
+        ]);
+
+        const button = await getCartButton(list);
+        expect(button.textContent?.trim()).toContain('In the cart');
+        expect(button.classList.contains('in-cart')).toBe(true);
+        expect(button.disabled).toBe(true);
+      });
+
+      it('transitions to "In the cart" with the check icon after the user clicks "Add to cart"', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 82,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a' })],
+          }),
+        ]);
+
+        const button = await getCartButton(list);
+        button.click();
+        const card = await getProductCard(list);
+        await card.updateComplete;
+
+        const refreshed = card.shadowRoot!.querySelector<HTMLButtonElement>(
+          '.cart-button'
+        )!;
+        expect(refreshed.textContent?.trim()).toContain('In the cart');
+        expect(refreshed.classList.contains('in-cart')).toBe(true);
+        expect(refreshed.querySelector('.icon')).not.toBeNull();
+      });
+
+      it('dispatches yalo-chat-product-add-to-cart with messageId and sku on click', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 83,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'sku-xyz' })],
+          }),
+        ]);
+
+        const listener = vi.fn();
+        list.addEventListener('yalo-chat-product-add-to-cart', listener);
+
+        const button = await getCartButton(list);
+        button.click();
+
+        expect(listener).toHaveBeenCalledOnce();
+        const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
+        expect(detail).toMatchObject({ messageId: 83, sku: 'sku-xyz' });
+      });
+
+      it('shows "Update the cart" when the quantity changes after being added', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 84,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a', unitsAdded: 1 })],
+          }),
+        ]);
+
+        const card = await getProductCard(list);
+        const initialButton =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
+        initialButton.click();
+        await card.updateComplete;
+
+        list.chatMessages = [
+          ChatMessage.product({
+            id: 84,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a', unitsAdded: 2 })],
+          }),
+        ];
+        await list.updateComplete;
+        const updatedCard = await getProductCard(list);
+        await updatedCard.updateComplete;
+
+        const updatedButton =
+          updatedCard.shadowRoot!.querySelector<HTMLButtonElement>(
+            '.cart-button'
+          )!;
+        expect(updatedButton.textContent?.trim()).toBe('Update the cart');
+        expect(updatedButton.classList.contains('in-cart')).toBe(false);
+        expect(updatedButton.disabled).toBe(false);
+      });
+
+      it('resets to "Add to cart" when the same card position renders a different sku', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 86,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a' })],
+          }),
+        ]);
+
+        const initialButton = (await getProductCard(list)).shadowRoot!
+          .querySelector<HTMLButtonElement>('.cart-button')!;
+        initialButton.click();
+        await (await getProductCard(list)).updateComplete;
+
+        list.chatMessages = [
+          ChatMessage.product({
+            id: 86,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'b' })],
+          }),
+        ];
+        await list.updateComplete;
+
+        const card = await getProductCard(list);
+        await card.updateComplete;
+        const button =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
+        expect(button.textContent?.trim()).toBe('Add to cart');
+        expect(button.classList.contains('in-cart')).toBe(false);
+      });
+
+      it('returns to "In the cart" after clicking "Update the cart"', async () => {
+        const list = await renderList([
+          ChatMessage.product({
+            id: 85,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a', unitsAdded: 1, inCart: true })],
+          }),
+        ]);
+
+        list.chatMessages = [
+          ChatMessage.product({
+            id: 85,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a', unitsAdded: 3, inCart: true })],
+          }),
+        ];
+        await list.updateComplete;
+
+        const card = await getProductCard(list);
+        await card.updateComplete;
+        const button =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
+        expect(button.textContent?.trim()).toBe('Update the cart');
+
+        button.click();
+        await card.updateComplete;
+        const finalButton =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
+        expect(finalButton.textContent?.trim()).toContain('In the cart');
+        expect(finalButton.classList.contains('in-cart')).toBe(true);
+      });
+    });
+
     it('falls back to text rendering for unknown type', async () => {
       const list = await renderList([
         new ChatMessage({
@@ -1137,8 +1328,8 @@ describe('ChatMessageList', () => {
     });
   });
 
-  describe('product quantity commands', () => {
-    it('clicking + emits a positive delta mapped to addToCart', async () => {
+  describe('product quantity events', () => {
+    it('clicking + emits yalo-chat-product-quantity-change with the new unit value', async () => {
       const list = await renderList([
         ChatMessage.product({
           id: 60,
@@ -1158,19 +1349,16 @@ describe('ChatMessageList', () => {
       const buttons =
         input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
 
-      buttons[1].click(); // +
+      buttons[1].click();
 
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
         sku: 'beer-sku',
         unitType: 'unit',
         value: 3,
       });
-      // delta = 3 - 2 = 1 > 0 → addToCart
-      expect(detail.value).toBeGreaterThan(2);
     });
 
-    it('clicking - emits a negative delta mapped to removeFromCart', async () => {
+    it('clicking - emits yalo-chat-product-quantity-change with the new unit value', async () => {
       const list = await renderList([
         ChatMessage.product({
           id: 61,
@@ -1190,19 +1378,16 @@ describe('ChatMessageList', () => {
       const buttons =
         input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
 
-      buttons[0].click(); // -
+      buttons[0].click();
 
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
         sku: 'beer-sku',
         unitType: 'unit',
         value: 2,
       });
-      // delta = 2 - 3 = -1 < 0 → removeFromCart
-      expect(detail.value).toBeLessThan(3);
     });
 
-    it('clicking - at zero does not emit, resulting in no command', async () => {
+    it('clicking - at zero does not emit a quantity change', async () => {
       const list = await renderList([
         ChatMessage.product({
           id: 62,
@@ -1222,13 +1407,12 @@ describe('ChatMessageList', () => {
       const buttons =
         input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
 
-      buttons[0].click(); // -
+      buttons[0].click();
 
-      // No event emitted → delta = 0 → no command triggered
       expect(listener).not.toHaveBeenCalled();
     });
 
-    it('clicking + on subunits emits a positive delta mapped to addToCart', async () => {
+    it('clicking + on subunits emits yalo-chat-product-quantity-change with the new subunit value', async () => {
       const list = await renderList([
         ChatMessage.product({
           id: 63,
@@ -1256,19 +1440,16 @@ describe('ChatMessageList', () => {
       const subunitButtons =
         inputs[1].shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
 
-      subunitButtons[1].click(); // + on subunits
+      subunitButtons[1].click();
 
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
         sku: 'beer-sku',
         unitType: 'subunit',
         value: 3,
       });
-      // delta = 3 - 2 = 1 > 0 → addToCart
-      expect(detail.value).toBeGreaterThan(2);
     });
 
-    it('clicking - on subunits emits a negative delta mapped to removeFromCart', async () => {
+    it('clicking - on subunits emits yalo-chat-product-quantity-change with the new subunit value', async () => {
       const list = await renderList([
         ChatMessage.product({
           id: 64,
@@ -1296,16 +1477,13 @@ describe('ChatMessageList', () => {
       const subunitButtons =
         inputs[1].shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
 
-      subunitButtons[0].click(); // - on subunits
+      subunitButtons[0].click();
 
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
         sku: 'beer-sku',
         unitType: 'subunit',
         value: 2,
       });
-      // delta = 2 - 3 = -1 < 0 → removeFromCart
-      expect(detail.value).toBeLessThan(3);
     });
   });
 

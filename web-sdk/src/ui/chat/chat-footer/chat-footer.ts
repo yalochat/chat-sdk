@@ -30,7 +30,7 @@ export class ChatFooter extends LitElement {
       --yalo-chat-send-btn-color: white;
       --yalo-chat-attachment-button-color: #7c8086;
       --yalo-chat-action-button-size: 2.5rem;
-      --yalo-chat-icon-font-size: 1.5rem;
+      --yalo-chat-footer-icon-font-size: 1.5rem;
     }
 
     .chat-form {
@@ -111,7 +111,7 @@ export class ChatFooter extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-icon-font-size);
+      font-size: var(--yalo-chat-footer-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
 

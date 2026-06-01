@@ -2,8 +2,7 @@
 
 // Client -> Channel commands
 export const ChatCommands = [
-  'addToCart',
-  'removeFromCart',
+  'updateCartProduct',
   'clearCart',
   'guidanceCard',
   'addPromotion',

@@ -160,12 +160,12 @@ describe('YaloChatClient', () => {
     it('stores the command and passes it to the chat window after init', async () => {
       const client = new YaloChatClient(baseConfig);
       const callback = vi.fn();
-      client.registerCommand('addToCart', callback);
+      client.registerCommand('updateCartProduct', callback);
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      expect(getChatWindow().commands.get('addToCart')).toBe(callback);
+      expect(getChatWindow().commands.get('updateCartProduct')).toBe(callback);
     });
 
     it('updates the chat window when registering after init', async () => {
@@ -175,24 +175,24 @@ describe('YaloChatClient', () => {
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       const callback = vi.fn();
-      client.registerCommand('removeFromCart', callback);
-      expect(getChatWindow().commands.get('removeFromCart')).toBe(callback);
+      client.registerCommand('clearCart', callback);
+      expect(getChatWindow().commands.get('clearCart')).toBe(callback);
     });
 
     it('allows registering multiple commands', async () => {
       const client = new YaloChatClient(baseConfig);
-      const addCallback = vi.fn();
-      const removeCallback = vi.fn();
-      client.registerCommand('addToCart', addCallback);
-      client.registerCommand('removeFromCart', removeCallback);
+      const updateCallback = vi.fn();
+      const clearCallback = vi.fn();
+      client.registerCommand('updateCartProduct', updateCallback);
+      client.registerCommand('clearCart', clearCallback);
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       expect(getChatWindow().commands).toMatchObject(
         new Map<ChatCommand, unknown>([
-          ['addToCart', addCallback],
-          ['removeFromCart', removeCallback],
+          ['updateCartProduct', updateCallback],
+          ['clearCart', clearCallback],
         ])
       );
     });

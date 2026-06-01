@@ -18,6 +18,7 @@ export class WaveformPainter extends LitElement {
       --yalo-chat-waveform-color: #2207f1;
       --yalo-chat-waveform-close-button-color: #7c8086;
       --yalo-chat-waveform-timer-color: #7c8086;
+      --yalo-chat-waveform-icon-font-size: 1.5em;
     }
 
     .waveform-recorder {
@@ -47,7 +48,7 @@ export class WaveformPainter extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1.5em;
+      font-size: var(--yalo-chat-waveform-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
 

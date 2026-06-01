@@ -328,33 +328,6 @@ describe('YaloMessageRepositoryRemote', () => {
   });
 
   describe('cart and promotion commands', () => {
-    it('sends an addToCartRequest with sku, quantity and unit type', async () => {
-      const { service } = okService();
-      const repo = new YaloMessageRepositoryRemote(service, okMedia());
-
-      const result = await repo.addToCart('SKU-1', 'unit', 5);
-
-      expect(result.ok).toBe(true);
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
-      expect(sent).toMatchObject({
-        addToCartRequest: { sku: 'SKU-1', quantity: 5, unitType: 1 },
-      });
-    });
-
-    it('sends a removeFromCartRequest with subunit type and optional quantity', async () => {
-      const { service } = okService();
-      const repo = new YaloMessageRepositoryRemote(service, okMedia());
-
-      await repo.removeFromCart('SKU-1', 'subunit', 2);
-      await repo.removeFromCart('SKU-1', 'subunit');
-
-      const calls = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls;
-      expect(calls[0][0]).toMatchObject({
-        removeFromCartRequest: { sku: 'SKU-1', quantity: 2, unitType: 2 },
-      });
-      expect(calls[1][0].removeFromCartRequest.quantity).toBeUndefined();
-    });
-
     it('sends an updateCartProductRequest with absolute units and subunits', async () => {
       const { service } = okService();
       const repo = new YaloMessageRepositoryRemote(service, okMedia());
@@ -445,7 +418,7 @@ describe('YaloMessageRepositoryRemote', () => {
         okMedia()
       );
 
-      const result = await repo.addToCart('SKU-1', 'unit', 1);
+      const result = await repo.updateCartProduct('SKU-1', 1);
 
       expect(result.ok).toBe(false);
       if (!result.ok) expect(result.error.message).toBe('socket closed');

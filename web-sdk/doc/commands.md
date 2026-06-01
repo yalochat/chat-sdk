@@ -7,14 +7,9 @@ You can register commands before or after calling `init()`.
 ## Usage
 
 ```js
-client.registerCommand('addToCart', function (payload) {
-  // payload: { sku: string, quantity: number }
-  console.log('Adding', payload.quantity, 'of', payload.sku);
-});
-
-client.registerCommand('removeFromCart', function (payload) {
-  // payload: { sku: string, quantity: number }
-  console.log('Removing', payload.quantity, 'of', payload.sku);
+client.registerCommand('updateCartProduct', function (payload) {
+  // payload: { sku: string, units: number, subunits?: number }
+  console.log('Updating cart for', payload.sku, 'to', payload.units);
 });
 
 client.init();
@@ -24,8 +19,7 @@ client.init();
 
 | Command | Triggered when | Callback payload |
 |---------|---------------|-----------------|
-| `addToCart` | User increases a product quantity | `{ sku: string, quantity: number }` |
-| `removeFromCart` | User decreases a product quantity | `{ sku: string, quantity: number }` |
+| `updateCartProduct` | User confirms a product in a product message via "Add to cart" | `{ sku: string, units: number, subunits?: number }` |
 | `clearCart` | Cart is cleared | `unknown` |
 | `guidanceCard` | Guidance cards are requested | `unknown` |
 | `addPromotion` | A promotion is applied | `unknown` |

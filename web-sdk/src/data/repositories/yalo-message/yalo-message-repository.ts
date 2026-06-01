@@ -2,7 +2,6 @@
 
 import type { Result } from '@domain/common/result';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type { ProductUnitType } from '@domain/models/product/product';
 
 export type PollCallback = (messages: ChatMessage[]) => void;
 
@@ -10,22 +9,8 @@ export abstract class YaloMessageRepository {
   // Inserts a chat message to the inbound messages API
   abstract insertMessage(message: ChatMessage): Promise<Result<ChatMessage>>;
 
-  // Sends an add-to-cart command for the given SKU and quantity
-  abstract addToCart(
-    sku: string,
-    unitType: ProductUnitType,
-    quantity: number
-  ): Promise<Result<void>>;
-
-  // Sends a remove-from-cart command for the given SKU and optional quantity
-  abstract removeFromCart(
-    sku: string,
-    unitType: ProductUnitType,
-    quantity?: number
-  ): Promise<Result<void>>;
-
   // Sets the absolute cart quantities for the given SKU, replacing whatever
-  // was there before. Will supersede addToCart and removeFromCart.
+  // was there before.
   abstract updateCartProduct(
     sku: string,
     units: number,
