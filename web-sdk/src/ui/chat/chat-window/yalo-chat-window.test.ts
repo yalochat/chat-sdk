@@ -1244,6 +1244,43 @@ describe('YaloChatWindow persistent flag', () => {
     expect(deleteSpy).toHaveBeenCalledWith(DB_NAME);
   });
 
+  it('deletes the local database on pagehide when persistent is false', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, persistent: false };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+    deleteSpy.mockClear();
+
+    window.dispatchEvent(new PageTransitionEvent('pagehide'));
+
+    expect(deleteSpy).toHaveBeenCalledWith(DB_NAME);
+  });
+
+  it('does not delete the local database on pagehide when persistent is true', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, persistent: true };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+    deleteSpy.mockClear();
+
+    window.dispatchEvent(new PageTransitionEvent('pagehide'));
+
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not delete the local database on pagehide after the element is disconnected', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, persistent: false };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+    el.remove();
+    deleteSpy.mockClear();
+
+    window.dispatchEvent(new PageTransitionEvent('pagehide'));
+
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
   it('starts with an empty conversation when persistent is false even if the database has prior messages', async () => {
     const seeded = document.createElement('yalo-chat-window') as YaloChatWindow;
     seeded.config = baseConfig;
