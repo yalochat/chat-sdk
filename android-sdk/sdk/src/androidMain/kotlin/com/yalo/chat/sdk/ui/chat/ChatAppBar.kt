@@ -72,7 +72,7 @@ internal fun ChatAppBar(
                         exit = shrinkVertically(),
                     ) {
                         Text(
-                            text = statusText,
+                            text = stringResource(R.string.chat_writing_message),
                             style = theme.messageFooterStyle,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

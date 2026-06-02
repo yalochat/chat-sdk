@@ -65,6 +65,9 @@ public struct ChatTheme {
     public var expandControlColor: Color
     public var errorColor: Color
 
+    // MARK: - Typing indicator
+    public var typingIndicatorDotColor: Color
+
     // MARK: - Recording timer
     public var timerColor: Color
 
@@ -161,6 +164,7 @@ public struct ChatTheme {
         messageFooterColor: Color             = Color(sdkHex: 0x7C8086),
         expandControlColor: Color             = Color(sdkHex: 0x2207F1),
         errorColor: Color                     = .red,
+        typingIndicatorDotColor: Color        = Color(sdkHex: 0x7C8086),
         timerColor: Color                     = Color(sdkHex: 0x7C8086),
         cancelRecordingIconColor: Color       = Color(sdkHex: 0x7C8086),
         closeModalIconColor: Color            = Color(sdkHex: 0x7C8086),
@@ -243,6 +247,7 @@ public struct ChatTheme {
         self.messageFooterColor = messageFooterColor
         self.expandControlColor = expandControlColor
         self.errorColor = errorColor
+        self.typingIndicatorDotColor = typingIndicatorDotColor
         self.timerColor = timerColor
         self.cancelRecordingIconColor = cancelRecordingIconColor
         self.closeModalIconColor = closeModalIconColor

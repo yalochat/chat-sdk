@@ -49,6 +49,10 @@ struct MessageList: View {
                                 isExpanded: messageId.map { observable.expandedMessageIds.contains($0) } ?? false
                             )
                         }
+                        if observable.isAwaitingResponse {
+                            TypingIndicatorView()
+                                .padding(.horizontal, 8)
+                        }
 
                     }
                     Color.clear.frame(height: 1).id("bottom")
@@ -57,6 +61,14 @@ struct MessageList: View {
                 .padding(.vertical, 8)
             }
             .onChange(of: observable.messages.last?.stableListId) { _ in
+                DispatchQueue.main.async {
+                    withAnimation(.linear(duration: 0.15)) {
+                        proxy.scrollTo("bottom", anchor: .bottom)
+                    }
+                }
+            }
+            .onChange(of: observable.isAwaitingResponse) { isAwaiting in
+                guard isAwaiting else { return }
                 DispatchQueue.main.async {
                     withAnimation(.linear(duration: 0.15)) {
                         proxy.scrollTo("bottom", anchor: .bottom)

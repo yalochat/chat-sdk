@@ -29,4 +29,5 @@
     <string name="chat_show_more">Show more</string>
     <string name="chat_show_less">Show less</string>
     <string name="chat_not_delivered">Not delivered.</string>
+    <string name="chat_writing_message">Writing message...</string>
 </resources>

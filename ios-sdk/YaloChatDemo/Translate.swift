@@ -24,4 +24,5 @@ enum Translate {
     static let showMore           = string("chat.show_more")
     static let showLess           = string("chat.show_less")
     static let notDelivered       = string("chat.not_delivered")
+    static let writingMessage     = string("chat.writing_message")
 }

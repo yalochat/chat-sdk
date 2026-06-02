@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+private const val AWAIT_RESPONSE_TIMEOUT_MS = 60_000L
+
 // subscribeToMessages() only observes the local store — remote polling is delegated to
 // MessageSyncService, which writes incoming server messages to SQLDelight so the
 // observeMessages() flow is the single source of truth for the UI.
@@ -45,6 +47,28 @@ internal class MessagesViewModel(
 
     // Auto-cancels the typing indicator if no TypingStop arrives within 60 seconds.
     private var typingTimeoutJob: Job? = null
+
+    private var awaitResponseJob: Job? = null
+    // Epoch-ms recorded when beginAwaitingResponse() fires; agent messages older than
+    // this are history/pagination replays and must not dismiss the indicator.
+    private var awaitResponseStartTime: Long = 0L
+
+    private fun beginAwaitingResponse() {
+        awaitResponseStartTime = System.currentTimeMillis()
+        _state.update { it.copy(isAwaitingResponse = true) }
+        awaitResponseJob?.cancel()
+        awaitResponseJob = viewModelScope.launch {
+            delay(AWAIT_RESPONSE_TIMEOUT_MS)
+            _state.update { it.copy(isAwaitingResponse = false) }
+            awaitResponseJob = null
+        }
+    }
+
+    private fun stopAwaitingResponse() {
+        awaitResponseJob?.cancel()
+        awaitResponseJob = null
+        _state.update { it.copy(isAwaitingResponse = false) }
+    }
 
     // Refreshed against the wall clock on every send so user-message tempIds always sort
     // AFTER agent messages whose ids were bumped to receiptFloor by ensureReceiptOrder.
@@ -79,6 +103,8 @@ internal class MessagesViewModel(
                 eventsJob = null
                 typingTimeoutJob?.cancel()
                 typingTimeoutJob = null
+                awaitResponseJob?.cancel()
+                awaitResponseJob = null
                 _state.value = MessagesState()
             }
             is MessagesEvent.ClearQuickReplies -> _state.update { it.copy(quickReplies = emptyList()) }
@@ -121,7 +147,7 @@ internal class MessagesViewModel(
                         _state.update { it.copy(isSystemTypingMessage = true, chatStatusText = event.statusText) }
                         typingTimeoutJob?.cancel()
                         typingTimeoutJob = viewModelScope.launch {
-                            delay(60_000L)
+                            delay(AWAIT_RESPONSE_TIMEOUT_MS)
                             _state.update { it.copy(isSystemTypingMessage = false, chatStatusText = "") }
                             typingTimeoutJob = null
                         }
@@ -227,6 +253,10 @@ internal class MessagesViewModel(
         // so the UI always reads from a single source of truth (SQLDelight / fake repo).
         subscriptionJob = viewModelScope.launch {
             chatMessageRepository.observeMessages().collect { messages ->
+                var shouldCancelAwaitJob = false
+                // Capture before the CAS loop so the timestamp check is consistent
+                // across retries of the update lambda.
+                val startTime = awaitResponseStartTime
                 _state.update { currentState ->
                     // Preserve in-memory expand flags: DB never stores `expand` (it always
                     // reads back as false), so re-mapping the observed list by id keeps
@@ -255,11 +285,23 @@ internal class MessagesViewModel(
                     } else {
                         currentState.quickReplies
                     }
+                    val existingAgentIds = currentState.messages
+                        .filter { it.role == MessageRole.AGENT }
+                        .mapNotNull { it.id }
+                        .toSet()
+                    val hasNewAgentMessage = currentState.isAwaitingResponse &&
+                        messages.any { it.role == MessageRole.AGENT && it.id !in existingAgentIds && it.timestamp >= startTime }
+                    if (hasNewAgentMessage) shouldCancelAwaitJob = true
                     currentState.copy(
                         messages = mergedMessages,
                         quickReplies = quickReplies,
                         lastQuickReplyMessageWiId = latestQrWiId ?: currentState.lastQuickReplyMessageWiId,
+                        isAwaitingResponse = if (hasNewAgentMessage) false else currentState.isAwaitingResponse,
                     )
+                }
+                if (shouldCancelAwaitJob) {
+                    awaitResponseJob?.cancel()
+                    awaitResponseJob = null
                 }
             }
         }
@@ -270,9 +312,11 @@ internal class MessagesViewModel(
         if (msg.status != MessageStatus.ERROR) return
         val retrying = msg.copy(status = MessageStatus.SENT)
         _state.update { it.copy(messages = it.messages.map { m -> if (m.id == messageId) retrying else m }) }
+        beginAwaitingResponse()
         viewModelScope.launch {
             chatMessageRepository.updateMessage(retrying)
             if (yaloMessageRepository.sendMessage(retrying) is Result.Error) {
+                stopAwaitingResponse()
                 chatMessageRepository.updateMessage(retrying.copy(status = MessageStatus.ERROR))
             }
         }
@@ -280,6 +324,7 @@ internal class MessagesViewModel(
 
     private fun sendTextMessage(text: String) {
         if (text.isBlank()) return
+        beginAwaitingResponse()
         viewModelScope.launch {
             val tempId = nextTempId()
             val optimistic = ChatMessage(
@@ -292,22 +337,26 @@ internal class MessagesViewModel(
             when (chatMessageRepository.insertMessage(optimistic)) {
                 is Result.Ok -> {
                     _state.update { it.copy(userMessage = "") }
-                    // Send to remote and update the optimistic message on failure.
                     launch {
                         if (yaloMessageRepository.sendMessage(optimistic) is Result.Error) {
+                            stopAwaitingResponse()
                             chatMessageRepository.updateMessage(
                                 optimistic.copy(status = MessageStatus.ERROR)
                             )
                         }
                     }
                 }
-                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                is Result.Error -> {
+                    stopAwaitingResponse()
+                    _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                }
             }
         }
     }
 
     private fun sendVoiceMessage(audioData: AudioData) {
         if (audioData.fileName.isEmpty()) return
+        beginAwaitingResponse()
         viewModelScope.launch {
             val tempId = nextTempId()
             val message = ChatMessage(
@@ -323,18 +372,23 @@ internal class MessagesViewModel(
             when (chatMessageRepository.insertMessage(message)) {
                 is Result.Ok -> launch {
                     if (yaloMessageRepository.sendMessage(message) is Result.Error) {
+                        stopAwaitingResponse()
                         chatMessageRepository.updateMessage(
                             message.copy(status = MessageStatus.ERROR)
                         )
                     }
                 }
-                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                is Result.Error -> {
+                    stopAwaitingResponse()
+                    _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                }
             }
         }
     }
 
     private fun sendImageMessage(imageData: ImageData) {
         if (imageData.path == null) return
+        beginAwaitingResponse()
         viewModelScope.launch {
             val tempId = nextTempId()
             val message = ChatMessage(
@@ -348,12 +402,16 @@ internal class MessagesViewModel(
             when (chatMessageRepository.insertMessage(message)) {
                 is Result.Ok -> launch {
                     if (yaloMessageRepository.sendMessage(message) is Result.Error) {
+                        stopAwaitingResponse()
                         chatMessageRepository.updateMessage(
                             message.copy(status = MessageStatus.ERROR)
                         )
                     }
                 }
-                is Result.Error -> _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                is Result.Error -> {
+                    stopAwaitingResponse()
+                    _state.update { it.copy(chatStatus = ChatStatus.Failure) }
+                }
             }
         }
     }

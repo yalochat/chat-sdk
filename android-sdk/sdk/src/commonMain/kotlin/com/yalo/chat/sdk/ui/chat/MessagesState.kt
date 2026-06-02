@@ -20,4 +20,5 @@ data class MessagesState(
     // Typing indicator — set to true + the status string when TypingStart is received; reset on TypingStop.
     val isSystemTypingMessage: Boolean = false,
     val chatStatusText: String = "",
+    val isAwaitingResponse: Boolean = false,
 )
