@@ -48,6 +48,10 @@ export class Product {
   // The subunits added by the user
   readonly subunitsAdded: number;
 
+  // Whether the product has been confirmed as added to the cart by the user.
+  // Persisted so the "In the cart" affordance survives reloads.
+  readonly inCart: boolean;
+
   constructor(params: {
     sku: string;
     name: string;
@@ -61,6 +65,7 @@ export class Product {
     subunitStep?: number;
     unitsAdded?: number;
     subunitsAdded?: number;
+    inCart?: boolean;
   }) {
     this.sku = params.sku;
     this.name = params.name;
@@ -74,5 +79,6 @@ export class Product {
     this.subunitStep = params.subunitStep ?? 1;
     this.unitsAdded = params.unitsAdded ?? 0;
     this.subunitsAdded = params.subunitsAdded ?? 0;
+    this.inCart = params.inCart ?? false;
   }
 }

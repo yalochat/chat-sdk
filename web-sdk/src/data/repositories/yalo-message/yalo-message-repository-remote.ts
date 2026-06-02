@@ -2,11 +2,7 @@
 
 import { Err, Ok, type Result } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import {
-  UnitType,
-  type PollMessageItem,
-} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
-import type { ProductUnitType } from '@domain/models/product/product';
+import type { PollMessageItem } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
 import type { YaloMessageService } from '@data/services/yalo-message/yalo-message-service';
 import type {
@@ -63,48 +59,6 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
     }
-  }
-
-  async addToCart(
-    sku: string,
-    unitType: ProductUnitType,
-    quantity: number
-  ): Promise<Result<void>> {
-    const timestamp = new Date();
-    return this._service.sendMessage({
-      correlationId: `add-to-cart-${sku}-${Date.now()}`,
-      addToCartRequest: {
-        sku,
-        quantity,
-        timestamp,
-        unitType:
-          unitType === 'unit'
-            ? UnitType.UNIT_TYPE_UNIT
-            : UnitType.UNIT_TYPE_SUBUNIT,
-      },
-      timestamp,
-    });
-  }
-
-  async removeFromCart(
-    sku: string,
-    unitType: ProductUnitType,
-    quantity?: number
-  ): Promise<Result<void>> {
-    const timestamp = new Date();
-    return this._service.sendMessage({
-      correlationId: `remove-from-cart-${sku}-${Date.now()}`,
-      removeFromCartRequest: {
-        sku,
-        quantity,
-        timestamp,
-        unitType:
-          unitType === 'unit'
-            ? UnitType.UNIT_TYPE_UNIT
-            : UnitType.UNIT_TYPE_SUBUNIT,
-      },
-      timestamp,
-    });
   }
 
   async updateCartProduct(

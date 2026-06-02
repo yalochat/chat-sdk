@@ -13,6 +13,7 @@ import '@ui/chat/waveform-painter/waveform-painter';
 export class VoiceMessage extends LitElement {
   static styles = css`
     :host {
+      --yalo-chat-voice-message-icon-font-size: 1.5rem;
       display: block;
     }
 
@@ -37,7 +38,7 @@ export class VoiceMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1.5rem;
+      font-size: var(--yalo-chat-voice-message-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
 

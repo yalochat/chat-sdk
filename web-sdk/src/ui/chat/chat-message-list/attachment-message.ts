@@ -12,6 +12,7 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 export class AttachmentMessage extends LitElement {
   static styles = css`
     :host {
+      --yalo-chat-attachment-message-icon-font-size: 1.5rem;
       display: block;
     }
 
@@ -35,7 +36,7 @@ export class AttachmentMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1.5rem;
+      font-size: var(--yalo-chat-attachment-message-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
   `;

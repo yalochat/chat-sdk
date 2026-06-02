@@ -928,7 +928,7 @@ describe('YaloChatWindow', () => {
       return { id };
     };
 
-    it('increments unitsAdded and forwards a positive delta to addToCart', async () => {
+    it('increments unitsAdded and persists the updated message', async () => {
       const seeded = await seedProductMessage(
         new Product({
           sku: 'sku-1',
@@ -937,9 +937,10 @@ describe('YaloChatWindow', () => {
           unitName: 'unit',
         })
       );
-      const addToCart = vi
-        .spyOn(el.yaloMessageRepository, 'addToCart')
-        .mockResolvedValue(new Ok(undefined));
+      const updateCart = vi.spyOn(
+        el.yaloMessageRepository,
+        'updateCartProduct'
+      );
 
       dispatchFromList(el, 'yalo-chat-product-quantity-change', {
         messageId: seeded.id,
@@ -948,103 +949,14 @@ describe('YaloChatWindow', () => {
         value: 3,
       });
 
-      await vi.waitUntil(() => addToCart.mock.calls.length > 0);
-      expect(addToCart).toHaveBeenCalledWith('sku-1', 'unit', 3);
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0].products[0].unitsAdded === 3
+      );
+      expect(updateCart).not.toHaveBeenCalled();
       expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
         sku: 'sku-1',
         unitsAdded: 3,
       });
-    });
-
-    it('routes addToCart through a registered command when present', async () => {
-      const seeded = await seedProductMessage(
-        new Product({
-          sku: 'sku-2',
-          name: 'Snack',
-          price: 2,
-          unitName: 'unit',
-        })
-      );
-      const callback = vi.fn();
-      el.commands.set('addToCart', callback);
-      const addToCart = vi
-        .spyOn(el.yaloMessageRepository, 'addToCart')
-        .mockResolvedValue(new Ok(undefined));
-
-      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
-        messageId: seeded.id,
-        sku: 'sku-2',
-        unitType: 'unit',
-        value: 2,
-      });
-
-      await vi.waitUntil(() => callback.mock.calls.length > 0);
-      expect(callback).toHaveBeenCalledWith({
-        sku: 'sku-2',
-        quantity: 2,
-        unitType: 'unit',
-      });
-      expect(addToCart).not.toHaveBeenCalled();
-    });
-
-    it('forwards a negative delta to removeFromCart', async () => {
-      const seeded = await seedProductMessage(
-        new Product({
-          sku: 'sku-3',
-          name: 'Item',
-          price: 3,
-          unitName: 'unit',
-          unitsAdded: 5,
-        })
-      );
-      const removeFromCart = vi
-        .spyOn(el.yaloMessageRepository, 'removeFromCart')
-        .mockResolvedValue(new Ok(undefined));
-
-      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
-        messageId: seeded.id,
-        sku: 'sku-3',
-        unitType: 'unit',
-        value: 2,
-      });
-
-      await vi.waitUntil(() => removeFromCart.mock.calls.length > 0);
-      expect(removeFromCart).toHaveBeenCalledWith('sku-3', 'unit', 3);
-      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
-        unitsAdded: 2,
-      });
-    });
-
-    it('routes removeFromCart through a registered command when present', async () => {
-      const seeded = await seedProductMessage(
-        new Product({
-          sku: 'sku-3b',
-          name: 'Item',
-          price: 3,
-          unitName: 'unit',
-          unitsAdded: 4,
-        })
-      );
-      const callback = vi.fn();
-      el.commands.set('removeFromCart', callback);
-      const removeFromCart = vi
-        .spyOn(el.yaloMessageRepository, 'removeFromCart')
-        .mockResolvedValue(new Ok(undefined));
-
-      dispatchFromList(el, 'yalo-chat-product-quantity-change', {
-        messageId: seeded.id,
-        sku: 'sku-3b',
-        unitType: 'unit',
-        value: 1,
-      });
-
-      await vi.waitUntil(() => callback.mock.calls.length > 0);
-      expect(callback).toHaveBeenCalledWith({
-        sku: 'sku-3b',
-        quantity: 3,
-        unitType: 'unit',
-      });
-      expect(removeFromCart).not.toHaveBeenCalled();
     });
 
     it('rolls over subunits into whole units when value exceeds subunits per unit', async () => {
@@ -1057,9 +969,6 @@ describe('YaloChatWindow', () => {
           subunitName: 'piece',
           subunits: 6,
         })
-      );
-      vi.spyOn(el.yaloMessageRepository, 'addToCart').mockResolvedValue(
-        new Ok(undefined)
       );
 
       dispatchFromList(el, 'yalo-chat-product-quantity-change', {
@@ -1088,9 +997,6 @@ describe('YaloChatWindow', () => {
           unitsAdded: 2,
         })
       );
-      const removeFromCart = vi
-        .spyOn(el.yaloMessageRepository, 'removeFromCart')
-        .mockResolvedValue(new Ok(undefined));
 
       dispatchFromList(el, 'yalo-chat-product-quantity-change', {
         messageId: seeded.id,
@@ -1099,11 +1005,9 @@ describe('YaloChatWindow', () => {
         value: -7,
       });
 
-      await vi.waitUntil(() => removeFromCart.mock.calls.length > 0);
-      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
-        unitsAdded: 0,
-      });
-      expect(removeFromCart).toHaveBeenCalledWith('sku-5', 'unit', 2);
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0].products[0].unitsAdded === 0
+      );
     });
 
     it('is a no-op when the message id is unknown', async () => {
@@ -1115,9 +1019,10 @@ describe('YaloChatWindow', () => {
           unitName: 'unit',
         })
       );
-      const addToCart = vi
-        .spyOn(el.yaloMessageRepository, 'addToCart')
-        .mockResolvedValue(new Ok(undefined));
+      const updateCart = vi.spyOn(
+        el.yaloMessageRepository,
+        'updateCartProduct'
+      );
 
       dispatchFromList(el, 'yalo-chat-product-quantity-change', {
         messageId: 99999,
@@ -1127,10 +1032,13 @@ describe('YaloChatWindow', () => {
       });
 
       await new Promise((resolve) => setTimeout(resolve, 30));
-      expect(addToCart).not.toHaveBeenCalled();
+      expect(updateCart).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        unitsAdded: 0,
+      });
     });
 
-    it('does not send a cart command when replacing the message fails', async () => {
+    it('logs an error and keeps the original quantity when replacing the message fails', async () => {
       const seeded = await seedProductMessage(
         new Product({
           sku: 'sku-7',
@@ -1144,7 +1052,6 @@ describe('YaloChatWindow', () => {
         el.chatMessageRepository,
         'replaceChatMessage'
       ).mockResolvedValue(new Err(new Error('replace fail')));
-      const addToCart = vi.spyOn(el.yaloMessageRepository, 'addToCart');
 
       dispatchFromList(el, 'yalo-chat-product-quantity-change', {
         messageId: seeded.id,
@@ -1158,10 +1065,141 @@ describe('YaloChatWindow', () => {
           (c) => c[0] === 'Unable to update product quantity'
         )
       );
-      expect(addToCart).not.toHaveBeenCalled();
       expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
         unitsAdded: 0,
       });
+    });
+  });
+
+  describe('product add-to-cart confirmation', () => {
+    const seedProductMessage = async (
+      product: Product
+    ): Promise<{ id: number }> => {
+      const message = ChatMessage.product({
+        role: 'AGENT',
+        timestamp: new Date(),
+        products: [product],
+      });
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(message)
+      );
+      dispatchFromFooter(el, 'yalo-chat-send-text-message', message);
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0]?.products?.[0]?.sku === product.sku
+      );
+      const id = getMessageList(el).chatMessages[0].id;
+      if (id === undefined) {
+        throw new Error('expected seeded message to have an id');
+      }
+      return { id };
+    };
+
+    it('persists inCart=true on the product and sends updateCartProduct', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-cart',
+          name: 'Soda',
+          price: 1,
+          unitName: 'unit',
+          unitsAdded: 2,
+        })
+      );
+      const updateCart = vi
+        .spyOn(el.yaloMessageRepository, 'updateCartProduct')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-cart',
+      });
+
+      await vi.waitUntil(() => updateCart.mock.calls.length > 0);
+      expect(updateCart).toHaveBeenCalledWith('sku-cart', 2, undefined);
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        sku: 'sku-cart',
+        inCart: true,
+      });
+    });
+
+    it('forwards subunitsAdded when greater than zero', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-sub',
+          name: 'Six-pack',
+          price: 5,
+          unitName: 'unit',
+          subunitName: 'bottle',
+          subunits: 6,
+          unitsAdded: 1,
+          subunitsAdded: 4,
+        })
+      );
+      const updateCart = vi
+        .spyOn(el.yaloMessageRepository, 'updateCartProduct')
+        .mockResolvedValue(new Ok(undefined));
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-sub',
+      });
+
+      await vi.waitUntil(() => updateCart.mock.calls.length > 0);
+      expect(updateCart).toHaveBeenCalledWith('sku-sub', 1, 4);
+    });
+
+    it('does nothing when the product is already in the cart', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-dup',
+          name: 'Item',
+          price: 1,
+          unitName: 'unit',
+          inCart: true,
+        })
+      );
+      const updateCart = vi.spyOn(
+        el.yaloMessageRepository,
+        'updateCartProduct'
+      );
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-dup',
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      expect(updateCart).not.toHaveBeenCalled();
+    });
+
+    it('routes updateCartProduct through a registered command when present', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-cmd',
+          name: 'Item',
+          price: 1,
+          unitName: 'unit',
+          unitsAdded: 3,
+        })
+      );
+      const callback = vi.fn();
+      el.commands.set('updateCartProduct', callback);
+      const updateCart = vi.spyOn(
+        el.yaloMessageRepository,
+        'updateCartProduct'
+      );
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-cmd',
+      });
+
+      await vi.waitUntil(() => callback.mock.calls.length > 0);
+      expect(callback).toHaveBeenCalledWith({
+        sku: 'sku-cmd',
+        units: 3,
+        subunits: undefined,
+      });
+      expect(updateCart).not.toHaveBeenCalled();
     });
   });
 });

@@ -17,6 +17,7 @@ export class ChatHeader extends LitElement {
       --yalo-chat-header-background: #f1f5fc;
       --yalo-chat-header-color: #010101;
       --yalo-chat-close-btn-color: #010101;
+      --yalo-chat-header-icon-font-size: 1.5rem;
     }
 
     .chat-header {
@@ -70,7 +71,7 @@ export class ChatHeader extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1.5rem;
+      font-size: var(--yalo-chat-header-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
   `;

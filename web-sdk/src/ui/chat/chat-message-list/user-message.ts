@@ -22,6 +22,7 @@ export class UserMessage extends LitElement {
     :host {
       --yalo-chat-user-message-error-color: #a01600;
       --yalo-chat-user-message-error-text-color: #461a1a;
+      --yalo-chat-user-message-icon-font-size: 1.25rem;
       --yalo-chat-bubble-padding: 0.5rem 0.75rem;
       display: flex;
       justify-content: flex-end;
@@ -53,7 +54,7 @@ export class UserMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1.25rem;
+      font-size: var(--yalo-chat-user-message-icon-font-size);
       font-family: 'Material Symbols Outlined';
       font-variation-settings: 'FILL' 1;
     }

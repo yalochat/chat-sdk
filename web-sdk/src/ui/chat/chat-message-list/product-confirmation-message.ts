@@ -33,6 +33,7 @@ export class ProductConfirmationMessage extends LitElement {
       --yalo-chat-product-confirmation-button-font-size: 0.875rem;
       --yalo-chat-product-confirmation-footer-color: #444444;
       --yalo-chat-product-confirmation-footer-font-size: 0.875rem;
+      --yalo-chat-product-confirmation-icon-font-size: 1rem;
       display: block;
       width: 100%;
     }
@@ -84,7 +85,7 @@ export class ProductConfirmationMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: 1rem;
+      font-size: var(--yalo-chat-product-confirmation-icon-font-size);
       font-family: 'Material Symbols Outlined';
     }
 

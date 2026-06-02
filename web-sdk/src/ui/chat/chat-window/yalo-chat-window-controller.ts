@@ -318,6 +318,80 @@ export default class YaloChatWindowController implements ReactiveController {
     }
   }
 
+  async markProductAddedToCart(e: CustomEvent) {
+    const { messageId, sku } = e.detail as {
+      messageId: number;
+      sku: string;
+    };
+
+    const messageIndex = this.chatMessages.findIndex((m) => m.id === messageId);
+    if (messageIndex === -1) {
+      return;
+    }
+    const message = this.chatMessages[messageIndex];
+    const productIndex = message.products.findIndex((p) => p.sku === sku);
+    if (productIndex === -1) {
+      return;
+    }
+    const product = message.products[productIndex];
+    if (product.inCart) {
+      return;
+    }
+
+    const updatedProducts = [...message.products];
+    updatedProducts[productIndex] = new Product({ ...product, inCart: true });
+    const updatedMessage = new ChatMessage({
+      ...message,
+      products: updatedProducts,
+    });
+
+    const result =
+      await this.host.chatMessageRepository.replaceChatMessage(updatedMessage);
+    if (!result.ok) {
+      this.host.logger.error('Unable to persist cart state', {
+        error: result.error,
+      });
+      return;
+    }
+
+    this.chatMessages = [...this.chatMessages];
+    this.chatMessages[messageIndex] = updatedMessage;
+    this.host.requestUpdate();
+
+    const subunits =
+      product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
+    const updateCartProduct = this.host.commands.get('updateCartProduct');
+    if (updateCartProduct) {
+      this.host.logger.debug('Executing updateCartProduct command', {
+        sku: product.sku,
+        units: product.unitsAdded,
+        subunits,
+      });
+      updateCartProduct({
+        sku: product.sku,
+        units: product.unitsAdded,
+        subunits,
+      });
+      return;
+    }
+
+    this.host.logger.debug('Sending updateCartProduct to repository', {
+      sku: product.sku,
+      units: product.unitsAdded,
+      subunits,
+    });
+    const sendResult = await this.host.yaloMessageRepository.updateCartProduct(
+      product.sku,
+      product.unitsAdded,
+      subunits
+    );
+    if (!sendResult.ok) {
+      this.host.logger.error('Unable to send updateCartProduct', {
+        error: sendResult.error,
+      });
+    }
+  }
+
   async markProductConfirmationClicked(e: CustomEvent) {
     const message = e.detail as ChatMessage;
     if (message.id === undefined) {
@@ -351,6 +425,26 @@ export default class YaloChatWindowController implements ReactiveController {
     }
     const subunits =
       product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
+    const updateCartProduct = this.host.commands.get('updateCartProduct');
+    if (updateCartProduct) {
+      this.host.logger.debug('Executing updateCartProduct command', {
+        sku: product.sku,
+        units: product.unitsAdded,
+        subunits,
+      });
+      updateCartProduct({
+        sku: product.sku,
+        units: product.unitsAdded,
+        subunits,
+      });
+      return;
+    }
+
+    this.host.logger.debug('Sending updateCartProduct to repository', {
+      sku: product.sku,
+      units: product.unitsAdded,
+      subunits,
+    });
     const sendResult = await this.host.yaloMessageRepository.updateCartProduct(
       product.sku,
       product.unitsAdded,
@@ -424,52 +518,6 @@ export default class YaloChatWindowController implements ReactiveController {
     this.chatMessages = [...this.chatMessages];
     this.chatMessages[messageIndex] = updatedMessage;
     this.host.requestUpdate();
-
-    const previousValue =
-      unitType === 'unit' ? product.unitsAdded : product.subunitsAdded;
-    const newValue = Math.max(value, 0);
-    const delta = newValue - previousValue;
-
-    if (delta > 0) {
-      const addToCart = this.host.commands.get('addToCart');
-      if (addToCart) {
-        this.host.logger.debug('Executing addToCart command', {
-          sku,
-          quantity: delta,
-          unitType,
-        });
-        addToCart({ sku, quantity: delta, unitType });
-      } else {
-        this.host.logger.debug('Sending addToCart to repository', {
-          sku,
-          quantity: delta,
-          unitType,
-        });
-        await this.host.yaloMessageRepository.addToCart(sku, unitType, delta);
-      }
-    } else if (delta < 0) {
-      const quantity = Math.abs(delta);
-      const removeFromCart = this.host.commands.get('removeFromCart');
-      if (removeFromCart) {
-        this.host.logger.debug('Executing removeFromCart command', {
-          sku,
-          quantity,
-          unitType,
-        });
-        removeFromCart({ sku, quantity, unitType });
-      } else {
-        this.host.logger.debug('Sending removeFromCart to repository', {
-          sku,
-          quantity,
-          unitType,
-        });
-        await this.host.yaloMessageRepository.removeFromCart(
-          sku,
-          unitType,
-          quantity
-        );
-      }
-    }
   }
 
   async fetchNextPage() {
