@@ -68,10 +68,17 @@ export default class YaloChatWindowController implements ReactiveController {
     this.host.addController(this);
   }
 
+  private _handleNonPersistentPageHide = () => {
+    this.host.chatMessageRepository.dispose();
+    this.host.yaloMessageRepository.unsubscribeMessages();
+    indexedDB.deleteDatabase(this._dbName);
+  };
+
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
     if (this.host.config.persistent === false) {
       await this._deleteDb();
+      window.addEventListener('pagehide', this._handleNonPersistentPageHide);
     }
     const db = await this._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(db);
@@ -577,6 +584,7 @@ export default class YaloChatWindowController implements ReactiveController {
 
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
+    window.removeEventListener('pagehide', this._handleNonPersistentPageHide);
     this.host.yaloMessageRepository.unsubscribeMessages();
     this.host.chatMessageRepository.dispose();
   }
