@@ -202,7 +202,7 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
     pom {
-        name.set("Yalo Chat SDK for Android")
+        name.set("Yalo Chat Android SDK")
         description.set("Jetpack Compose chat SDK for Yalo, powered by Kotlin Multiplatform")
         url.set("https://github.com/yalochat/chat-sdk")
         licenses {

@@ -8,7 +8,7 @@ This document explains how to cut a release for the Android SDK (Maven Central) 
 
 **Consumer dependency:**
 ```kotlin
-implementation("com.yalo.chat:android-chat-sdk:0.0.1")
+implementation("com.yalo.chat:yalo-chat-android-sdk:0.0.1")
 ```
 
 ### How a release works
@@ -52,7 +52,7 @@ Or in `Package.swift`:
 ```swift
 .package(url: "https://github.com/yalochat/chat-sdk", from: "0.0.1"),
 // then in your target:
-.product(name: "YaloChatSDK", package: "chat-sdk"),
+.product(name: "YaloChatIosSDK", package: "chat-sdk"),
 ```
 
 The package manifest lives at `ios-sdk/Package.swift` — consumers point Xcode at the GitHub repo URL and Xcode discovers it automatically.

@@ -3,26 +3,26 @@
 
 import PackageDescription
 
-// YaloChatSDK — complete iOS chat SDK for Yalo.
+// YaloChatIosSDK — complete iOS chat SDK for Yalo.
 // Consumers add this package via File > Add Package Dependencies in Xcode.
 //
 // The SDK has two layers:
-//   YaloChatSDK  — Swift/SwiftUI UI layer (this source target)
-//   ChatSdk      — KMP business logic (pre-compiled XCFramework)
+//   YaloChatIosSDK — Swift/SwiftUI UI layer (this source target)
+//   ChatSdk        — KMP business logic (pre-compiled XCFramework)
 let package = Package(
-    name: "YaloChatSDK",
+    name: "YaloChatIosSDK",
     platforms: [
         .iOS(.v15),
     ],
     products: [
         .library(
-            name: "YaloChatSDK",
-            targets: ["YaloChatSDK"]
+            name: "YaloChatIosSDK",
+            targets: ["YaloChatIosSDK"]
         ),
     ],
     targets: [
         .target(
-            name: "YaloChatSDK",
+            name: "YaloChatIosSDK",
             dependencies: ["ChatSdk"],
             path: "Sources/YaloChatSDK",
             resources: [
