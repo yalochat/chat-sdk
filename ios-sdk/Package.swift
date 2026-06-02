@@ -11,6 +11,7 @@ import PackageDescription
 //   ChatSdk        — KMP business logic (pre-compiled XCFramework)
 let package = Package(
     name: "YaloChatIosSDK",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v15),
     ],
