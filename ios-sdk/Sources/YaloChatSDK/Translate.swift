@@ -3,9 +3,14 @@
 import Foundation
 
 // Single source for all SDK localized string keys.
-// To swap the localization backend, change string(_:) only.
+// Bundle.module is the SPM-generated resource bundle; the main bundle is used
+// when the sources are compiled directly into an Xcode app target (e.g. demo app).
 private func string(_ key: String) -> String {
+    #if SWIFT_PACKAGE
+    NSLocalizedString(key, bundle: .module, comment: "")
+    #else
     NSLocalizedString(key, comment: "")
+    #endif
 }
 
 enum Translate {
