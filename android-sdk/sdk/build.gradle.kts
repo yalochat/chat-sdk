@@ -145,7 +145,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
         consumerProguardFiles("consumer-proguard-rules.pro")
         val useFakeRepo = localProps.getProperty("yalo.useFakeRepository", "false")
             .trim().toBooleanStrictOrNull() ?: false
