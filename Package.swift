@@ -4,7 +4,8 @@
 import PackageDescription
 
 // YaloChatIosSDK — complete iOS chat SDK for Yalo.
-// Consumers add this package via File > Add Package Dependencies in Xcode.
+// Consumers add this package via File > Add Package Dependencies in Xcode
+// using the repo URL: https://github.com/yalochat/chat-sdk
 //
 // The SDK has two layers:
 //   YaloChatIosSDK — Swift/SwiftUI UI layer (this source target)
@@ -25,14 +26,14 @@ let package = Package(
         .target(
             name: "YaloChatIosSDK",
             dependencies: ["ChatSdk"],
-            path: "Sources/YaloChatSDK",
+            path: "ios-sdk/Sources/YaloChatSDK",
             resources: [
                 .process("Resources"),
             ]
         ),
         .binaryTarget(
             name: "ChatSdk",
-            url: "https://github.com/yalochat/chat-sdk/releases/download/ios-sdk/v0.0.1/ChatSdk.xcframework.zip",
+            url: "https://github.com/yalochat/chat-sdk/releases/download/v0.0.1/ChatSdk.xcframework.zip",
             checksum: "PLACEHOLDER_UPDATED_BY_RELEASE_WORKFLOW"
         ),
     ]

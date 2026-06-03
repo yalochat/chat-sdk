@@ -3,9 +3,14 @@
 name: Release iOS SDK
 
 on:
-  push:
-    tags:
-      - 'ios-sdk/v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.0.1)'
+        required: true
+
+permissions:
+  contents: write
 
 jobs:
   release:
@@ -23,9 +28,23 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#ios-sdk/v}" >> $GITHUB_OUTPUT
+      - name: Validate version input
+        run: |
+          VERSION="${{ inputs.version }}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: version must be X.Y.Z format (got: $VERSION)"
+            exit 1
+          fi
+
+      - name: Guard against duplicate release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          if gh api "/repos/${{ github.repository }}/git/refs/tags/v${VERSION}" &>/dev/null; then
+            echo "ERROR: tag v${VERSION} already exists — delete the tag and release before re-running"
+            exit 1
+          fi
 
       - name: Build XCFramework
         run: cd android-sdk && ./gradlew :sdk:assembleChatSdkReleaseXCFramework
@@ -40,31 +59,37 @@ jobs:
           echo "CHECKSUM=$CHECKSUM" >> $GITHUB_OUTPUT
           cp ChatSdk.xcframework.zip "$GITHUB_WORKSPACE/ChatSdk.xcframework.zip"
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "iOS SDK v${{ steps.version.outputs.VERSION }}"
-          generate_release_notes: true
-          files: ChatSdk.xcframework.zip
-
-      - name: Update Package.swift checksum
+      - name: Commit Package.swift and create tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.version.outputs.VERSION }}"
+          VERSION="${{ inputs.version }}"
           CHECKSUM="${{ steps.zip.outputs.CHECKSUM }}"
-          DOWNLOAD_URL="https://github.com/yalochat/chat-sdk/releases/download/ios-sdk/v${VERSION}/ChatSdk.xcframework.zip"
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${VERSION}/ChatSdk.xcframework.zip"
 
+          # Use # as sed delimiter — safe because GitHub URLs and hex checksums never contain #
           sed -i '' \
-            -e "s|url: \"https://github.com/yalochat/chat-sdk/releases/download/ios-sdk/v[^\"]*\"|url: \"${DOWNLOAD_URL}\"|" \
-            -e "s|checksum: \"[^\"]*\"|checksum: \"${CHECKSUM}\"|" \
-            ios-sdk/Package.swift
+            -e "s#url: \"https://github.com/[^\"]*\"#url: \"${DOWNLOAD_URL}\"#" \
+            -e "s#checksum: \"[^\"]*\"#checksum: \"${CHECKSUM}\"#" \
+            Package.swift
 
-          FILE_SHA=$(gh api /repos/yalochat/chat-sdk/contents/ios-sdk/Package.swift --jq '.sha')
-          CONTENT=$(base64 -i ios-sdk/Package.swift | tr -d '\n')
-          gh api -X PUT /repos/yalochat/chat-sdk/contents/ios-sdk/Package.swift \
+          FILE_SHA=$(gh api "/repos/${{ github.repository }}/contents/Package.swift" --jq '.sha')
+          CONTENT=$(base64 < Package.swift | tr -d '\n')
+          COMMIT_SHA=$(gh api -X PUT "/repos/${{ github.repository }}/contents/Package.swift" \
             -f message="chore(ios): update Package.swift checksum for v${VERSION}" \
             -f content="${CONTENT}" \
             -f sha="${FILE_SHA}" \
-            -f branch="main"
+            -f branch="main" \
+            --jq '.commit.sha')
+
+          gh api -X POST "/repos/${{ github.repository }}/git/refs" \
+            -f ref="refs/tags/v${VERSION}" \
+            -f sha="${COMMIT_SHA}"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ inputs.version }}" ChatSdk.xcframework.zip \
+            --title "iOS SDK v${{ inputs.version }}" \
+            --generate-notes

@@ -46,7 +46,7 @@ The version is derived from the tag: `android-sdk/v0.0.2` → `0.0.2`. The defau
 
 **Consumer integration:**
 
-In Xcode: **File → Add Package Dependencies…** → enter the GitHub repo URL.
+In Xcode: **File → Add Package Dependencies…** → enter `https://github.com/yalochat/chat-sdk`.
 
 Or in `Package.swift`:
 ```swift
@@ -55,25 +55,25 @@ Or in `Package.swift`:
 .product(name: "YaloChatIosSDK", package: "chat-sdk"),
 ```
 
-The package manifest lives at `ios-sdk/Package.swift` — consumers point Xcode at the GitHub repo URL and Xcode discovers it automatically.
+The package manifest lives at the repo root (`Package.swift`). SPM discovers it automatically when consumers add the repo URL.
 
 ### How a release works
 
-Pushing a tag of the form `ios-sdk/v<semver>` triggers the [`release-ios.yml`](.github/workflows/release-ios.yml) workflow, which:
+Triggered manually via **GitHub Actions → Release iOS SDK → Run workflow** (not by a tag push). The [`release-ios.yml`](.github/workflows/release-ios.yml) workflow:
 
 1. Builds the XCFramework via `./gradlew :sdk:assembleChatSdkReleaseXCFramework`
 2. Zips the output and computes its checksum
-3. Creates a GitHub Release and uploads `ChatSdk.xcframework.zip`
-4. Updates `ios-sdk/Package.swift` in `main` with the release URL and real checksum via the GitHub API
+3. Commits the updated `Package.swift` (with real URL + checksum) to `main` via the GitHub API
+4. Creates a `v<semver>` tag on that commit so the tagged commit already contains the correct checksum
+5. Creates a GitHub Release and uploads `ChatSdk.xcframework.zip`
 
 ### Cutting a release
 
-```bash
-git tag ios-sdk/v0.0.1
-git push origin ios-sdk/v0.0.1
-```
+Go to **GitHub → Actions → Release iOS SDK → Run workflow**, enter the version (e.g. `0.0.1`), and click **Run workflow**. Everything else is automated.
 
-CI handles everything: builds the XCFramework, creates the GitHub Release, and commits the real checksum back to `ios-sdk/Package.swift` in `main` automatically.
+### Why workflow_dispatch instead of a tag push?
+
+SPM resolves `Package.swift` from the tagged commit. If the tag is pushed before the checksum is known, the tagged commit contains a stale/placeholder checksum and SPM dependency resolution fails for consumers. The `workflow_dispatch` trigger lets CI compute the real checksum, commit it, and then create the tag — guaranteeing the tagged commit is always valid.
 
 ### Local XCFramework build (for development)
 

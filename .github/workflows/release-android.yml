@@ -7,6 +7,9 @@ on:
     tags:
       - 'android-sdk/v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
