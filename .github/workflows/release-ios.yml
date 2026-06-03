@@ -62,7 +62,7 @@ jobs:
             ios-sdk/Package.swift
 
           FILE_SHA=$(gh api /repos/yalochat/chat-sdk/contents/ios-sdk/Package.swift --jq '.sha')
-          CONTENT=$(base64 ios-sdk/Package.swift | tr -d '\n')
+          CONTENT=$(base64 -i ios-sdk/Package.swift | tr -d '\n')
           gh api -X PUT /repos/yalochat/chat-sdk/contents/ios-sdk/Package.swift \
             -f message="chore(ios): update Package.swift checksum for v${VERSION}" \
             -f content="${CONTENT}" \
