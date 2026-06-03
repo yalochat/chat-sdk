@@ -47,3 +47,24 @@ jobs:
           name: "iOS SDK v${{ steps.version.outputs.VERSION }}"
           generate_release_notes: true
           files: ChatSdk.xcframework.zip
+
+      - name: Update Package.swift checksum
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          CHECKSUM="${{ steps.zip.outputs.CHECKSUM }}"
+          DOWNLOAD_URL="https://github.com/yalochat/chat-sdk/releases/download/ios-sdk/v${VERSION}/ChatSdk.xcframework.zip"
+
+          sed -i '' \
+            -e "s|url: \"https://github.com/yalochat/chat-sdk/releases/download/ios-sdk/v[^\"]*\"|url: \"${DOWNLOAD_URL}\"|" \
+            -e "s|checksum: \"[^\"]*\"|checksum: \"${CHECKSUM}\"|" \
+            ios-sdk/Package.swift
+
+          FILE_SHA=$(gh api /repos/yalochat/chat-sdk/contents/ios-sdk/Package.swift --jq '.sha')
+          CONTENT=$(base64 ios-sdk/Package.swift | tr -d '\n')
+          gh api -X PUT /repos/yalochat/chat-sdk/contents/ios-sdk/Package.swift \
+            -f message="chore(ios): update Package.swift checksum for v${VERSION}" \
+            -f content="${CONTENT}" \
+            -f sha="${FILE_SHA}" \
+            -f branch="main"

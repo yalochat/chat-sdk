@@ -63,28 +63,17 @@ Pushing a tag of the form `ios-sdk/v<semver>` triggers the [`release-ios.yml`](.
 
 1. Builds the XCFramework via `./gradlew :sdk:assembleChatSdkReleaseXCFramework`
 2. Zips the output and computes its checksum
-3. Updates `Package.swift` in `main` with the release URL and checksum
-4. Force-moves the tag to the updated commit
-5. Creates a GitHub Release and uploads `ChatSdk.xcframework.zip`
+3. Creates a GitHub Release and uploads `ChatSdk.xcframework.zip`
+4. Updates `ios-sdk/Package.swift` in `main` with the release URL and real checksum via the GitHub API
 
 ### Cutting a release
 
-1. Build the XCFramework locally and compute the checksum:
-   ```bash
-   cd android-sdk
-   ./gradlew :sdk:assembleChatSdkReleaseXCFramework
-   cd sdk/build/XCFrameworks/release
-   zip -r ChatSdk.xcframework.zip ChatSdk.xcframework
-   swift package compute-checksum ChatSdk.xcframework.zip
-   ```
+```bash
+git tag ios-sdk/v0.0.1
+git push origin ios-sdk/v0.0.1
+```
 
-2. Update `ios-sdk/Package.swift` with the release URL and computed checksum, then commit and push to `main`.
-
-3. Push the tag — CI builds the XCFramework, uploads it to GitHub Releases, and creates the release:
-   ```bash
-   git tag ios-sdk/v0.0.1
-   git push origin ios-sdk/v0.0.1
-   ```
+CI handles everything: builds the XCFramework, creates the GitHub Release, and commits the real checksum back to `ios-sdk/Package.swift` in `main` automatically.
 
 ### Local XCFramework build (for development)
 
