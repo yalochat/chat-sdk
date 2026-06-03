@@ -326,7 +326,6 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   async markProductAddedToCart(e: CustomEvent) {
-    console.log('test');
     const { messageId, sku } = e.detail as {
       messageId: number;
       sku: string;
