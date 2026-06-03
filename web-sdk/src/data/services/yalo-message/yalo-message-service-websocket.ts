@@ -22,6 +22,7 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   private _reconnectAttempt = 0;
   private _reconnectTimeout?: ReturnType<typeof setTimeout>;
   private _running = false;
+  private _pendingFrames: string[] = [];
 
   constructor(baseUrl: string, tokenRepository: TokenRepository) {
     this._wsUrl = `wss://${baseUrl}/websocket/v1/connect/webchat`;
@@ -38,6 +39,7 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
     this._running = false;
     this._callback = undefined;
     this._reconnectAttempt = 0;
+    this._pendingFrames = [];
     if (this._reconnectTimeout) {
       clearTimeout(this._reconnectTimeout);
       this._reconnectTimeout = undefined;
@@ -49,15 +51,36 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   }
 
   async sendMessage(message: SdkMessage): Promise<Result<void>> {
-    if (this._socket?.readyState !== WebSocket.OPEN) {
+    if (!this._running) {
       return new Err(new Error('WebSocket is not connected'));
     }
+    let frame: string;
     try {
-      const frame = JSON.stringify(SdkMessage.toJSON(message));
+      frame = JSON.stringify(SdkMessage.toJSON(message));
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+    if (this._socket?.readyState !== WebSocket.OPEN) {
+      this._pendingFrames.push(frame);
+      return new Ok(undefined);
+    }
+    try {
       this._socket.send(frame);
       return new Ok(undefined);
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
+  private _flushPending(): void {
+    const pending = this._pendingFrames;
+    this._pendingFrames = [];
+    for (const frame of pending) {
+      try {
+        this._socket?.send(frame);
+      } catch {
+        // The caller already received Ok at enqueue time.
+      }
     }
   }
 
@@ -77,6 +100,7 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
 
     socket.addEventListener('open', () => {
       this._reconnectAttempt = 0;
+      this._flushPending();
     });
 
     socket.addEventListener('message', (event: MessageEvent) => {

@@ -177,18 +177,41 @@ describe('YaloMessageServiceWebSocket', () => {
       });
     });
 
-    it('returns Err when the socket is not yet open', async () => {
+    it('buffers the frame and flushes on open when the socket is still connecting', async () => {
       const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
 
       const result = await service.sendMessage(makeTextMessage('one'));
 
-      expect(result).toMatchObject({
-        ok: false,
-        error: { message: 'WebSocket is not connected' },
-      });
+      expect(result.ok).toBe(true);
       expect(sockets[0].send).not.toHaveBeenCalled();
+
+      open(sockets[0]);
+
+      expect(sockets[0].send).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(sockets[0].send.mock.calls[0][0])).toMatchObject({
+        correlationId: 'cid-one',
+        textMessageRequest: { content: { text: 'one' } },
+      });
+    });
+
+    it('flushes buffered frames in the order they were enqueued', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+
+      await service.sendMessage(makeTextMessage('first'));
+      await service.sendMessage(makeTextMessage('second'));
+      open(sockets[0]);
+
+      expect(sockets[0].send).toHaveBeenCalledTimes(2);
+      expect(JSON.parse(sockets[0].send.mock.calls[0][0])).toMatchObject({
+        correlationId: 'cid-first',
+      });
+      expect(JSON.parse(sockets[0].send.mock.calls[1][0])).toMatchObject({
+        correlationId: 'cid-second',
+      });
     });
 
     it('returns Err when called before subscribe and does not open a socket', async () => {
@@ -204,7 +227,7 @@ describe('YaloMessageServiceWebSocket', () => {
       expect(sockets).toHaveLength(0);
     });
 
-    it('returns Err after the socket closes until reconnect succeeds', async () => {
+    it('buffers frames sent after a close and flushes them once reconnect opens', async () => {
       const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
@@ -213,9 +236,14 @@ describe('YaloMessageServiceWebSocket', () => {
 
       const result = await service.sendMessage(makeTextMessage('after-close'));
 
-      expect(result).toMatchObject({
-        ok: false,
-        error: { message: 'WebSocket is not connected' },
+      expect(result.ok).toBe(true);
+
+      await vi.advanceTimersByTimeAsync(1000);
+      open(sockets[1]);
+
+      expect(sockets[1].send).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(sockets[1].send.mock.calls[0][0])).toMatchObject({
+        correlationId: 'cid-after-close',
       });
     });
 
@@ -328,6 +356,21 @@ describe('YaloMessageServiceWebSocket', () => {
 
       await vi.advanceTimersByTimeAsync(60000);
       expect(sockets).toHaveLength(1);
+    });
+
+    it('drops buffered frames so they are not sent on a later resubscribe', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+
+      await service.sendMessage(makeTextMessage('dropped'));
+      service.unsubscribe();
+
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[1]);
+
+      expect(sockets[1].send).not.toHaveBeenCalled();
     });
   });
 });
