@@ -31,14 +31,11 @@ Releasing is fully automated. Pushing a tag of the form `android-sdk/v<semver>` 
 
 ### Cutting a release
 
-```bash
-git tag android-sdk/v0.0.1
-git push origin android-sdk/v0.0.1
-```
+Go to **GitHub → Actions → Release Android SDK → Run workflow**, enter the version (e.g. `0.0.1`), and click **Run workflow**. CI runs tests, publishes to Maven Central, creates the `android-sdk/v0.0.1` tag, and creates a GitHub Release.
 
 ### Versioning
 
-The version is derived from the tag: `android-sdk/v0.0.2` → `0.0.2`. The default in `gradle.properties` (`VERSION_NAME=0.0.1`) is used for local builds and overridden by CI via `ORG_GRADLE_PROJECT_VERSION_NAME`.
+The version comes from the workflow input. The default in `gradle.properties` (`VERSION_NAME=0.0.1`) is used for local builds and overridden by CI via `ORG_GRADLE_PROJECT_VERSION_NAME`.
 
 ---
 
