@@ -326,6 +326,7 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   async markProductAddedToCart(e: CustomEvent) {
+    console.log('test');
     const { messageId, sku } = e.detail as {
       messageId: number;
       sku: string;
@@ -341,9 +342,6 @@ export default class YaloChatWindowController implements ReactiveController {
       return;
     }
     const product = message.products[productIndex];
-    if (product.inCart) {
-      return;
-    }
 
     const updatedProducts = [...message.products];
     updatedProducts[productIndex] = new Product({ ...product, inCart: true });
