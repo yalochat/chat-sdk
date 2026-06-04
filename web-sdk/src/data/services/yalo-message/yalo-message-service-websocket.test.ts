@@ -3,6 +3,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Err, Ok, type Result } from '@domain/common/result';
 import {
+  ConnectionAck,
+  ConnectionAckType,
   MessageRole,
   MessageStatus,
   PollMessageItem,
@@ -48,11 +50,13 @@ const message = (s: MockSocket, data: string) =>
 const ack = (s: MockSocket) =>
   message(
     s,
-    JSON.stringify({
-      type: 'connection_ack',
-      connection_id: 'conn-1',
-      timestamp: '2026-01-01T00:00:00Z',
-    })
+    JSON.stringify(
+      ConnectionAck.toJSON({
+        type: ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK,
+        connectionId: 'conn-1',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+      })
+    )
   );
 const errored = (s: MockSocket) => s.dispatchEvent(new Event('error'));
 
@@ -124,6 +128,7 @@ describe('YaloMessageServiceWebSocket', () => {
       service.subscribe(callback);
       await flush();
       open(sockets[0]);
+      ack(sockets[0]);
 
       const frame = JSON.stringify(
         PollMessageItem.toJSON({
@@ -152,6 +157,28 @@ describe('YaloMessageServiceWebSocket', () => {
       await flush();
       open(sockets[0]);
       message(sockets[0], 'not-json');
+
+      expect(callback).not.toHaveBeenCalled();
+    });
+
+    it('drops PollMessageItem frames that arrive before the connection ack', async () => {
+      const callback = vi.fn();
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+
+      service.subscribe(callback);
+      await flush();
+      open(sockets[0]);
+
+      const frame = JSON.stringify(
+        PollMessageItem.toJSON({
+          id: 'msg-early',
+          userId: 'user-1',
+          status: 'delivered',
+          date: new Date('2026-01-01T00:00:00Z'),
+          message: makeTextMessage('early'),
+        })
+      );
+      message(sockets[0], frame);
 
       expect(callback).not.toHaveBeenCalled();
     });

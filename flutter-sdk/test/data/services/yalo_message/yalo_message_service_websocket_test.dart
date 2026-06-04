@@ -95,6 +95,14 @@ const _incomingFrame = '''
 }
 ''';
 
+const _ackFrame = '''
+{
+  "type": "CONNECTION_ACK_TYPE_CONNECTION_ACK",
+  "connectionId": "conn-1",
+  "timestamp": "2026-03-26T16:51:30Z"
+}
+''';
+
 void main() {
   group('YaloMessageServiceWebSocket', () {
     late MockYaloMessageAuthService auth;
@@ -159,6 +167,7 @@ void main() {
       service.messages().listen(received.add);
       await Future.delayed(Duration.zero);
 
+      channels.single.emit(_ackFrame);
       channels.single.emit(_incomingFrame);
       await Future.delayed(Duration.zero);
 
@@ -167,6 +176,22 @@ void main() {
         received.single.message.textMessageRequest.content.text,
         equals('Hello from server'),
       );
+    });
+
+    test('drops PollMessageItem frames that arrive before the connection ack',
+        () async {
+      when(
+        () => auth.auth(),
+      ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+
+      final received = <PollMessageItem>[];
+      service.messages().listen(received.add);
+      await Future.delayed(Duration.zero);
+
+      channels.single.emit(_incomingFrame);
+      await Future.delayed(Duration.zero);
+
+      expect(received, isEmpty);
     });
 
     test('ignores malformed frames without crashing', () async {
@@ -178,6 +203,7 @@ void main() {
       service.messages().listen(received.add);
       await Future.delayed(Duration.zero);
 
+      channels.single.emit(_ackFrame);
       channels.single.emit('not json');
       channels.single.emit('"a string, not an object"');
       channels.single.emit(_incomingFrame);
@@ -186,23 +212,7 @@ void main() {
       expect(received, hasLength(1));
     });
 
-    test('sendSdkMessage returns Error when the connection is not open',
-        () async {
-      final completer = Completer<Result<TokenEntry>>();
-      when(() => auth.auth()).thenAnswer((_) => completer.future);
-
-      service.messages().listen((_) {});
-      final result = await service.sendSdkMessage(_textMessage('queued'));
-
-      expect(result, isA<Error<Unit>>());
-      expect(
-        (result as Error<Unit>).error.toString(),
-        contains('WebSocket is not connected'),
-      );
-      expect(channels, isEmpty);
-    });
-
-    test('sendSdkMessage writes directly when connection is open', () async {
+    test('buffers frames until the connection ack arrives', () async {
       when(
         () => auth.auth(),
       ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
@@ -210,17 +220,67 @@ void main() {
       service.messages().listen((_) {});
       await Future.delayed(Duration.zero);
 
-      final result = await service.sendSdkMessage(_textMessage('hi'));
+      final beforeAck = await service.sendSdkMessage(_textMessage('one'));
+      expect(beforeAck, isA<Ok<Unit>>());
+      expect(channels.single.sent, isEmpty);
 
-      expect(result, isA<Ok<Unit>>());
-      expect(channels.single.sent, hasLength(1));
-      final body =
-          jsonDecode(channels.single.sent.single as String)
+      channels.single.emit(_ackFrame);
+      await Future.delayed(Duration.zero);
+
+      final afterAck = await service.sendSdkMessage(_textMessage('two'));
+      expect(afterAck, isA<Ok<Unit>>());
+      expect(channels.single.sent, hasLength(2));
+      final firstBody =
+          jsonDecode(channels.single.sent[0] as String)
+              as Map<String, dynamic>;
+      final secondBody =
+          jsonDecode(channels.single.sent[1] as String)
               as Map<String, dynamic>;
       expect(
-        body['textMessageRequest']['content']['text'],
-        equals('hi'),
+        firstBody['textMessageRequest']['content']['text'],
+        equals('one'),
       );
+      expect(
+        secondBody['textMessageRequest']['content']['text'],
+        equals('two'),
+      );
+    });
+
+    test('buffers frames again after a close and flushes them on the next ack',
+        () {
+      fakeAsync((async) {
+        when(
+          () => auth.auth(),
+        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+
+        service.messages().listen((_) {});
+        async.flushMicrotasks();
+        channels.single.emit(_ackFrame);
+        async.flushMicrotasks();
+
+        channels.single.closeStream();
+        async.flushMicrotasks();
+
+        service.sendSdkMessage(_textMessage('after-close'));
+        async.flushMicrotasks();
+
+        async.elapse(const Duration(seconds: 1));
+        async.flushMicrotasks();
+        expect(channels, hasLength(2));
+        expect(channels.last.sent, isEmpty);
+
+        channels.last.emit(_ackFrame);
+        async.flushMicrotasks();
+
+        expect(channels.last.sent, hasLength(1));
+        final body =
+            jsonDecode(channels.last.sent.single as String)
+                as Map<String, dynamic>;
+        expect(
+          body['textMessageRequest']['content']['text'],
+          equals('after-close'),
+        );
+      });
     });
 
     test(

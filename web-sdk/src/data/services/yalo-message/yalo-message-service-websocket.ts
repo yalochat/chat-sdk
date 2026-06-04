@@ -2,6 +2,8 @@
 
 import { Err, Ok, type Result } from '@domain/common/result';
 import {
+  ConnectionAck,
+  ConnectionAckType,
   PollMessageItem,
   SdkMessage,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
@@ -14,12 +16,6 @@ import type {
 const INITIAL_BACKOFF_MS = 1000;
 const MAX_BACKOFF_MS = 30000;
 const ACK_TIMEOUT_MS = 10000;
-
-type ConnectionAck = {
-  type: string;
-  connection_id: string;
-  timestamp: string;
-};
 
 export class YaloMessageServiceWebSocket implements YaloMessageService {
   private readonly _wsUrl: string;
@@ -128,24 +124,28 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
     });
 
     socket.addEventListener('message', (event: MessageEvent) => {
-      if (typeof event.data !== 'string') return;
+      if (typeof event.data !== 'string') {
+        return;
+      }
       let parsed: unknown;
       try {
         parsed = JSON.parse(event.data);
       } catch {
         return;
       }
-      if (
-        typeof parsed === 'object' &&
-        parsed !== null &&
-        (parsed as ConnectionAck).type === 'connection_ack'
-      ) {
-        this._connectionAcked = true;
-        this._clearAckTimeout();
-        this._flushPending();
+      if (typeof parsed !== 'object' || parsed === null) {
         return;
       }
       try {
+        if (!this._connectionAcked) {
+          const ack = ConnectionAck.fromJSON(parsed);
+          if (ack.type === ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK) {
+            this._connectionAcked = true;
+            this._clearAckTimeout();
+            this._flushPending();
+          }
+          return;
+        }
         const item = PollMessageItem.fromJSON(parsed);
         this._callback?.(item);
       } catch {
