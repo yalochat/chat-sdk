@@ -13,11 +13,11 @@ implementation("com.yalo.chat:yalo-chat-android-sdk:0.0.1")
 
 ### How a release works
 
-Releasing is fully automated. Pushing a tag of the form `android-sdk/v<semver>` triggers the [`release-android.yml`](.github/workflows/release-android.yml) workflow, which:
+Triggered manually via **GitHub Actions → Release Android SDK → Run workflow**. The [`release-android.yml`](.github/workflows/release-android.yml) workflow:
 
 1. Runs `:sdk:testDebugUnitTest`
 2. Publishes the AAR to Maven Central via `com.vanniktech.maven.publish`
-3. Creates a GitHub Release
+3. Creates the `android-sdk/v<semver>` tag and a GitHub Release
 
 ### Required GitHub Actions secrets
 

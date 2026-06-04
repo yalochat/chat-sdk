@@ -34,7 +34,7 @@ let package = Package(
         .binaryTarget(
             name: "ChatSdk",
             url: "https://github.com/yalochat/chat-sdk/releases/download/v0.0.1/ChatSdk.xcframework.zip",
-            checksum: "PLACEHOLDER_UPDATED_BY_RELEASE_WORKFLOW"
+            checksum: "0000000000000000000000000000000000000000000000000000000000000000"
         ),
     ]
 )
