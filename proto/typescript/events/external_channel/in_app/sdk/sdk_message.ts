@@ -363,6 +363,90 @@ export function sdkCommandToJSON(object: SdkCommand): string {
   }
 }
 
+/** ConnectionAckType discriminates the variants of a ConnectionAck frame. */
+export const ConnectionAckType = {
+  CONNECTION_ACK_TYPE_UNSPECIFIED: 0,
+  CONNECTION_ACK_TYPE_CONNECTION_ACK: 1,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type ConnectionAckType = typeof ConnectionAckType[keyof typeof ConnectionAckType];
+
+export namespace ConnectionAckType {
+  export type CONNECTION_ACK_TYPE_UNSPECIFIED = typeof ConnectionAckType.CONNECTION_ACK_TYPE_UNSPECIFIED;
+  export type CONNECTION_ACK_TYPE_CONNECTION_ACK = typeof ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK;
+  export type UNRECOGNIZED = typeof ConnectionAckType.UNRECOGNIZED;
+}
+
+export function connectionAckTypeFromJSON(object: any): ConnectionAckType {
+  switch (object) {
+    case 0:
+    case "CONNECTION_ACK_TYPE_UNSPECIFIED":
+      return ConnectionAckType.CONNECTION_ACK_TYPE_UNSPECIFIED;
+    case 1:
+    case "CONNECTION_ACK_TYPE_CONNECTION_ACK":
+      return ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ConnectionAckType.UNRECOGNIZED;
+  }
+}
+
+export function connectionAckTypeToJSON(object: ConnectionAckType): string {
+  switch (object) {
+    case ConnectionAckType.CONNECTION_ACK_TYPE_UNSPECIFIED:
+      return "CONNECTION_ACK_TYPE_UNSPECIFIED";
+    case ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK:
+      return "CONNECTION_ACK_TYPE_CONNECTION_ACK";
+    case ConnectionAckType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/** SdkMessageAckType discriminates the variants of an SdkMessageAck frame. */
+export const SdkMessageAckType = {
+  SDK_MESSAGE_ACK_TYPE_UNSPECIFIED: 0,
+  SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK: 1,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type SdkMessageAckType = typeof SdkMessageAckType[keyof typeof SdkMessageAckType];
+
+export namespace SdkMessageAckType {
+  export type SDK_MESSAGE_ACK_TYPE_UNSPECIFIED = typeof SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_UNSPECIFIED;
+  export type SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK = typeof SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK;
+  export type UNRECOGNIZED = typeof SdkMessageAckType.UNRECOGNIZED;
+}
+
+export function sdkMessageAckTypeFromJSON(object: any): SdkMessageAckType {
+  switch (object) {
+    case 0:
+    case "SDK_MESSAGE_ACK_TYPE_UNSPECIFIED":
+      return SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_UNSPECIFIED;
+    case 1:
+    case "SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK":
+      return SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return SdkMessageAckType.UNRECOGNIZED;
+  }
+}
+
+export function sdkMessageAckTypeToJSON(object: SdkMessageAckType): string {
+  switch (object) {
+    case SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_UNSPECIFIED:
+      return "SDK_MESSAGE_ACK_TYPE_UNSPECIFIED";
+    case SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK:
+      return "SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK";
+    case SdkMessageAckType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /**
  * SdkMessage is the top-level wrapper sent over the bidirectional stream.
  * Exactly one payload field is set per message; the oneof lets the Go runtime
@@ -870,6 +954,30 @@ export interface AuthResponse {
   expiresIn: number;
   refreshToken: string;
   clientId: string;
+}
+
+/**
+ * ConnectionAck is the first frame the server sends after accepting the
+ * WebSocket upgrade. Clients must wait for it before flushing any buffered
+ * SdkMessage frames and may use connection_id to correlate server-side logs.
+ */
+export interface ConnectionAck {
+  /** Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK. */
+  type: ConnectionAckType;
+  connectionId: string;
+  timestamp: Date | undefined;
+}
+
+/**
+ * SdkMessageAck is sent by the server to acknowledge receipt of a client
+ * SdkMessage frame. correlation_id matches the SdkMessage.correlation_id
+ * of the acknowledged frame.
+ */
+export interface SdkMessageAck {
+  /** Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK. */
+  type: SdkMessageAckType;
+  correlationId: string;
+  timestamp: Date | undefined;
 }
 
 /**
@@ -6328,6 +6436,198 @@ export const AuthResponse: MessageFns<AuthResponse> = {
     message.expiresIn = object.expiresIn ?? 0;
     message.refreshToken = object.refreshToken ?? "";
     message.clientId = object.clientId ?? "";
+    return message;
+  },
+};
+
+function createBaseConnectionAck(): ConnectionAck {
+  return { type: 0, connectionId: "", timestamp: undefined };
+}
+
+export const ConnectionAck: MessageFns<ConnectionAck> = {
+  encode(message: ConnectionAck, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
+    }
+    if (message.connectionId !== "") {
+      writer.uint32(18).string(message.connectionId);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ConnectionAck {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseConnectionAck();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.type = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.connectionId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ConnectionAck {
+    return {
+      type: isSet(object.type) ? connectionAckTypeFromJSON(object.type) : 0,
+      connectionId: isSet(object.connectionId)
+        ? globalThis.String(object.connectionId)
+        : isSet(object.connection_id)
+        ? globalThis.String(object.connection_id)
+        : "",
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: ConnectionAck): unknown {
+    const obj: any = {};
+    if (message.type !== 0) {
+      obj.type = connectionAckTypeToJSON(message.type);
+    }
+    if (message.connectionId !== "") {
+      obj.connectionId = message.connectionId;
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ConnectionAck>, I>>(base?: I): ConnectionAck {
+    return ConnectionAck.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ConnectionAck>, I>>(object: I): ConnectionAck {
+    const message = createBaseConnectionAck();
+    message.type = object.type ?? 0;
+    message.connectionId = object.connectionId ?? "";
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseSdkMessageAck(): SdkMessageAck {
+  return { type: 0, correlationId: "", timestamp: undefined };
+}
+
+export const SdkMessageAck: MessageFns<SdkMessageAck> = {
+  encode(message: SdkMessageAck, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.type !== 0) {
+      writer.uint32(8).int32(message.type);
+    }
+    if (message.correlationId !== "") {
+      writer.uint32(18).string(message.correlationId);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SdkMessageAck {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseSdkMessageAck();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.type = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.correlationId = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): SdkMessageAck {
+    return {
+      type: isSet(object.type) ? sdkMessageAckTypeFromJSON(object.type) : 0,
+      correlationId: isSet(object.correlationId)
+        ? globalThis.String(object.correlationId)
+        : isSet(object.correlation_id)
+        ? globalThis.String(object.correlation_id)
+        : "",
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: SdkMessageAck): unknown {
+    const obj: any = {};
+    if (message.type !== 0) {
+      obj.type = sdkMessageAckTypeToJSON(message.type);
+    }
+    if (message.correlationId !== "") {
+      obj.correlationId = message.correlationId;
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SdkMessageAck>, I>>(base?: I): SdkMessageAck {
+    return SdkMessageAck.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SdkMessageAck>, I>>(object: I): SdkMessageAck {
+    const message = createBaseSdkMessageAck();
+    message.type = object.type ?? 0;
+    message.correlationId = object.correlationId ?? "";
+    message.timestamp = object.timestamp ?? undefined;
     return message;
   },
 };

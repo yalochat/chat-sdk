@@ -118,6 +118,34 @@ final $typed_data.Uint8List sdkCommandDescriptor = $convert.base64Decode(
     'lTREtfQ09NTUFORF9BRERfUFJPTU9USU9OEAUSIwofU0RLX0NPTU1BTkRfVVBEQVRFX0NBUlRf'
     'UFJPRFVDVBAG');
 
+@$core.Deprecated('Use connectionAckTypeDescriptor instead')
+const ConnectionAckType$json = {
+  '1': 'ConnectionAckType',
+  '2': [
+    {'1': 'CONNECTION_ACK_TYPE_UNSPECIFIED', '2': 0},
+    {'1': 'CONNECTION_ACK_TYPE_CONNECTION_ACK', '2': 1},
+  ],
+};
+
+/// Descriptor for `ConnectionAckType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List connectionAckTypeDescriptor = $convert.base64Decode(
+    'ChFDb25uZWN0aW9uQWNrVHlwZRIjCh9DT05ORUNUSU9OX0FDS19UWVBFX1VOU1BFQ0lGSUVEEA'
+    'ASJgoiQ09OTkVDVElPTl9BQ0tfVFlQRV9DT05ORUNUSU9OX0FDSxAB');
+
+@$core.Deprecated('Use sdkMessageAckTypeDescriptor instead')
+const SdkMessageAckType$json = {
+  '1': 'SdkMessageAckType',
+  '2': [
+    {'1': 'SDK_MESSAGE_ACK_TYPE_UNSPECIFIED', '2': 0},
+    {'1': 'SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK', '2': 1},
+  ],
+};
+
+/// Descriptor for `SdkMessageAckType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List sdkMessageAckTypeDescriptor = $convert.base64Decode(
+    'ChFTZGtNZXNzYWdlQWNrVHlwZRIkCiBTREtfTUVTU0FHRV9BQ0tfVFlQRV9VTlNQRUNJRklFRB'
+    'AAEiQKIFNES19NRVNTQUdFX0FDS19UWVBFX01FU1NBR0VfQUNLEAE=');
+
 @$core.Deprecated('Use sdkMessageDescriptor instead')
 const SdkMessage$json = {
   '1': 'SdkMessage',
@@ -1864,6 +1892,68 @@ final $typed_data.Uint8List authResponseDescriptor = $convert.base64Decode(
     'tlbl90eXBlGAIgASgJUgl0b2tlblR5cGUSHQoKZXhwaXJlc19pbhgDIAEoA1IJZXhwaXJlc0lu'
     'EiMKDXJlZnJlc2hfdG9rZW4YBCABKAlSDHJlZnJlc2hUb2tlbhIbCgljbGllbnRfaWQYBSABKA'
     'lSCGNsaWVudElk');
+
+@$core.Deprecated('Use connectionAckDescriptor instead')
+const ConnectionAck$json = {
+  '1': 'ConnectionAck',
+  '2': [
+    {
+      '1': 'type',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ConnectionAckType',
+      '10': 'type'
+    },
+    {'1': 'connection_id', '3': 2, '4': 1, '5': 9, '10': 'connectionId'},
+    {
+      '1': 'timestamp',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `ConnectionAck`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List connectionAckDescriptor = $convert.base64Decode(
+    'Cg1Db25uZWN0aW9uQWNrEkoKBHR5cGUYASABKA4yNi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
+    '5fYXBwLnNkay52Mi5Db25uZWN0aW9uQWNrVHlwZVIEdHlwZRIjCg1jb25uZWN0aW9uX2lkGAIg'
+    'ASgJUgxjb25uZWN0aW9uSWQSOAoJdGltZXN0YW1wGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLl'
+    'RpbWVzdGFtcFIJdGltZXN0YW1w');
+
+@$core.Deprecated('Use sdkMessageAckDescriptor instead')
+const SdkMessageAck$json = {
+  '1': 'SdkMessageAck',
+  '2': [
+    {
+      '1': 'type',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType',
+      '10': 'type'
+    },
+    {'1': 'correlation_id', '3': 2, '4': 1, '5': 9, '10': 'correlationId'},
+    {
+      '1': 'timestamp',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `SdkMessageAck`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List sdkMessageAckDescriptor = $convert.base64Decode(
+    'Cg1TZGtNZXNzYWdlQWNrEkoKBHR5cGUYASABKA4yNi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
+    '5fYXBwLnNkay52Mi5TZGtNZXNzYWdlQWNrVHlwZVIEdHlwZRIlCg5jb3JyZWxhdGlvbl9pZBgC'
+    'IAEoCVINY29ycmVsYXRpb25JZBI4Cgl0aW1lc3RhbXAYAyABKAsyGi5nb29nbGUucHJvdG9idW'
+    'YuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
 
 @$core.Deprecated('Use pollMessageItemDescriptor instead')
 const PollMessageItem$json = {

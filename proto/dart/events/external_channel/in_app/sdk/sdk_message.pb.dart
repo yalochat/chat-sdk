@@ -4645,6 +4645,180 @@ class AuthResponse extends $pb.GeneratedMessage {
   void clearClientId() => $_clearField(5);
 }
 
+/// ConnectionAck is the first frame the server sends after accepting the
+/// WebSocket upgrade. Clients must wait for it before flushing any buffered
+/// SdkMessage frames and may use connection_id to correlate server-side logs.
+class ConnectionAck extends $pb.GeneratedMessage {
+  factory ConnectionAck({
+    ConnectionAckType? type,
+    $core.String? connectionId,
+    $0.Timestamp? timestamp,
+  }) {
+    final result = create();
+    if (type != null) result.type = type;
+    if (connectionId != null) result.connectionId = connectionId;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  ConnectionAck._();
+
+  factory ConnectionAck.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ConnectionAck.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ConnectionAck',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aE<ConnectionAckType>(1, _omitFieldNames ? '' : 'type',
+        enumValues: ConnectionAckType.values)
+    ..aOS(2, _omitFieldNames ? '' : 'connectionId')
+    ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ConnectionAck clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ConnectionAck copyWith(void Function(ConnectionAck) updates) =>
+      super.copyWith((message) => updates(message as ConnectionAck))
+          as ConnectionAck;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ConnectionAck create() => ConnectionAck._();
+  @$core.override
+  ConnectionAck createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ConnectionAck getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ConnectionAck>(create);
+  static ConnectionAck? _defaultInstance;
+
+  /// Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+  @$pb.TagNumber(1)
+  ConnectionAckType get type => $_getN(0);
+  @$pb.TagNumber(1)
+  set type(ConnectionAckType value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearType() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get connectionId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set connectionId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasConnectionId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearConnectionId() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $0.Timestamp get timestamp => $_getN(2);
+  @$pb.TagNumber(3)
+  set timestamp($0.Timestamp value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTimestamp() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTimestamp() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $0.Timestamp ensureTimestamp() => $_ensure(2);
+}
+
+/// SdkMessageAck is sent by the server to acknowledge receipt of a client
+/// SdkMessage frame. correlation_id matches the SdkMessage.correlation_id
+/// of the acknowledged frame.
+class SdkMessageAck extends $pb.GeneratedMessage {
+  factory SdkMessageAck({
+    SdkMessageAckType? type,
+    $core.String? correlationId,
+    $0.Timestamp? timestamp,
+  }) {
+    final result = create();
+    if (type != null) result.type = type;
+    if (correlationId != null) result.correlationId = correlationId;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  SdkMessageAck._();
+
+  factory SdkMessageAck.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SdkMessageAck.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SdkMessageAck',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aE<SdkMessageAckType>(1, _omitFieldNames ? '' : 'type',
+        enumValues: SdkMessageAckType.values)
+    ..aOS(2, _omitFieldNames ? '' : 'correlationId')
+    ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SdkMessageAck clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SdkMessageAck copyWith(void Function(SdkMessageAck) updates) =>
+      super.copyWith((message) => updates(message as SdkMessageAck))
+          as SdkMessageAck;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SdkMessageAck create() => SdkMessageAck._();
+  @$core.override
+  SdkMessageAck createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SdkMessageAck getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SdkMessageAck>(create);
+  static SdkMessageAck? _defaultInstance;
+
+  /// Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+  @$pb.TagNumber(1)
+  SdkMessageAckType get type => $_getN(0);
+  @$pb.TagNumber(1)
+  set type(SdkMessageAckType value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearType() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get correlationId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set correlationId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasCorrelationId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCorrelationId() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $0.Timestamp get timestamp => $_getN(2);
+  @$pb.TagNumber(3)
+  set timestamp($0.Timestamp value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTimestamp() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTimestamp() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $0.Timestamp ensureTimestamp() => $_ensure(2);
+}
+
 /// PollMessageItem represents a single message entry returned by the message
 /// poll endpoint. The message field reuses SdkMessage so all payload types
 /// (text, image, voice, etc.) are supported without duplication.

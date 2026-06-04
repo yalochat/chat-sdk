@@ -552,6 +552,42 @@ message AuthResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Connection control  (server -> client)
+// ---------------------------------------------------------------------------
+
+// ConnectionAckType discriminates the variants of a ConnectionAck frame.
+enum ConnectionAckType {
+  CONNECTION_ACK_TYPE_UNSPECIFIED = 0;
+  CONNECTION_ACK_TYPE_CONNECTION_ACK = 1;
+}
+
+// SdkMessageAckType discriminates the variants of an SdkMessageAck frame.
+enum SdkMessageAckType {
+  SDK_MESSAGE_ACK_TYPE_UNSPECIFIED = 0;
+  SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK = 1;
+}
+
+// ConnectionAck is the first frame the server sends after accepting the
+// WebSocket upgrade. Clients must wait for it before flushing any buffered
+// SdkMessage frames and may use connection_id to correlate server-side logs.
+message ConnectionAck {
+  // Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+  ConnectionAckType type = 1;
+  string connection_id = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// SdkMessageAck is sent by the server to acknowledge receipt of a client
+// SdkMessage frame. correlation_id matches the SdkMessage.correlation_id
+// of the acknowledged frame.
+message SdkMessageAck {
+  // Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+  SdkMessageAckType type = 1;
+  string correlation_id = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// ---------------------------------------------------------------------------
 // Message poll  (REST: server -> client)
 // ---------------------------------------------------------------------------
 

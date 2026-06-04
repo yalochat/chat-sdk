@@ -702,6 +702,194 @@ public final class SdkMessageOuterClass {
     // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v2.SdkCommand)
   }
 
+  /**
+   * <pre>
+   * ConnectionAckType discriminates the variants of a ConnectionAck frame.
+   * </pre>
+   *
+   * Protobuf enum {@code yalo.external_channel.in_app.sdk.v2.ConnectionAckType}
+   */
+  public enum ConnectionAckType
+      implements com.google.protobuf.Internal.EnumLite {
+    /**
+     * <code>CONNECTION_ACK_TYPE_UNSPECIFIED = 0;</code>
+     */
+    CONNECTION_ACK_TYPE_UNSPECIFIED(0),
+    /**
+     * <code>CONNECTION_ACK_TYPE_CONNECTION_ACK = 1;</code>
+     */
+    CONNECTION_ACK_TYPE_CONNECTION_ACK(1),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>CONNECTION_ACK_TYPE_UNSPECIFIED = 0;</code>
+     */
+    public static final int CONNECTION_ACK_TYPE_UNSPECIFIED_VALUE = 0;
+    /**
+     * <code>CONNECTION_ACK_TYPE_CONNECTION_ACK = 1;</code>
+     */
+    public static final int CONNECTION_ACK_TYPE_CONNECTION_ACK_VALUE = 1;
+
+
+    @java.lang.Override
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The number of the enum to look for.
+     * @return The enum associated with the given number.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static ConnectionAckType valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static ConnectionAckType forNumber(int value) {
+      switch (value) {
+        case 0: return CONNECTION_ACK_TYPE_UNSPECIFIED;
+        case 1: return CONNECTION_ACK_TYPE_CONNECTION_ACK;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<ConnectionAckType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        ConnectionAckType> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<ConnectionAckType>() {
+            @java.lang.Override
+            public ConnectionAckType findValueByNumber(int number) {
+              return ConnectionAckType.forNumber(number);
+            }
+          };
+
+    public static com.google.protobuf.Internal.EnumVerifier 
+        internalGetVerifier() {
+      return ConnectionAckTypeVerifier.INSTANCE;
+    }
+
+    private static final class ConnectionAckTypeVerifier implements 
+         com.google.protobuf.Internal.EnumVerifier { 
+            static final com.google.protobuf.Internal.EnumVerifier
+                INSTANCE = new ConnectionAckTypeVerifier();
+            @java.lang.Override
+            public boolean isInRange(int number) {
+              return ConnectionAckType.forNumber(number) != null;
+            }
+          };
+
+    private final int value;
+
+    private ConnectionAckType(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v2.ConnectionAckType)
+  }
+
+  /**
+   * <pre>
+   * SdkMessageAckType discriminates the variants of an SdkMessageAck frame.
+   * </pre>
+   *
+   * Protobuf enum {@code yalo.external_channel.in_app.sdk.v2.SdkMessageAckType}
+   */
+  public enum SdkMessageAckType
+      implements com.google.protobuf.Internal.EnumLite {
+    /**
+     * <code>SDK_MESSAGE_ACK_TYPE_UNSPECIFIED = 0;</code>
+     */
+    SDK_MESSAGE_ACK_TYPE_UNSPECIFIED(0),
+    /**
+     * <code>SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK = 1;</code>
+     */
+    SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK(1),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>SDK_MESSAGE_ACK_TYPE_UNSPECIFIED = 0;</code>
+     */
+    public static final int SDK_MESSAGE_ACK_TYPE_UNSPECIFIED_VALUE = 0;
+    /**
+     * <code>SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK = 1;</code>
+     */
+    public static final int SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK_VALUE = 1;
+
+
+    @java.lang.Override
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The number of the enum to look for.
+     * @return The enum associated with the given number.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static SdkMessageAckType valueOf(int value) {
+      return forNumber(value);
+    }
+
+    public static SdkMessageAckType forNumber(int value) {
+      switch (value) {
+        case 0: return SDK_MESSAGE_ACK_TYPE_UNSPECIFIED;
+        case 1: return SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<SdkMessageAckType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        SdkMessageAckType> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<SdkMessageAckType>() {
+            @java.lang.Override
+            public SdkMessageAckType findValueByNumber(int number) {
+              return SdkMessageAckType.forNumber(number);
+            }
+          };
+
+    public static com.google.protobuf.Internal.EnumVerifier 
+        internalGetVerifier() {
+      return SdkMessageAckTypeVerifier.INSTANCE;
+    }
+
+    private static final class SdkMessageAckTypeVerifier implements 
+         com.google.protobuf.Internal.EnumVerifier { 
+            static final com.google.protobuf.Internal.EnumVerifier
+                INSTANCE = new SdkMessageAckTypeVerifier();
+            @java.lang.Override
+            public boolean isInRange(int number) {
+              return SdkMessageAckType.forNumber(number) != null;
+            }
+          };
+
+    private final int value;
+
+    private SdkMessageAckType(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v2.SdkMessageAckType)
+  }
+
   public interface SdkMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.SdkMessage)
       com.google.protobuf.MessageLiteOrBuilder {
@@ -31798,6 +31986,1140 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<AuthResponse> PARSER;
 
     public static com.google.protobuf.Parser<AuthResponse> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface ConnectionAckOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.ConnectionAck)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    int getTypeValue();
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     * @return The type.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType getType();
+
+    /**
+     * <code>string connection_id = 2;</code>
+     * @return The connectionId.
+     */
+    java.lang.String getConnectionId();
+    /**
+     * <code>string connection_id = 2;</code>
+     * @return The bytes for connectionId.
+     */
+    com.google.protobuf.ByteString
+        getConnectionIdBytes();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+  }
+  /**
+   * <pre>
+   * ConnectionAck is the first frame the server sends after accepting the
+   * WebSocket upgrade. Clients must wait for it before flushing any buffered
+   * SdkMessage frames and may use connection_id to correlate server-side logs.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.ConnectionAck}
+   */
+  public  static final class ConnectionAck extends
+      com.google.protobuf.GeneratedMessageLite<
+          ConnectionAck, ConnectionAck.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.ConnectionAck)
+      ConnectionAckOrBuilder {
+    private ConnectionAck() {
+      connectionId_ = "";
+    }
+    private int bitField0_;
+    public static final int TYPE_FIELD_NUMBER = 1;
+    private int type_;
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    @java.lang.Override
+    public int getTypeValue() {
+      return type_;
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     * @return The type.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType getType() {
+      yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType result = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType.forNumber(type_);
+      return result == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType.UNRECOGNIZED : result;
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     * @param value The enum numeric value on the wire for type to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setTypeValue(int value) {
+        type_ = value;
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     * @param value The type to set.
+     */
+    private void setType(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType value) {
+      type_ = value.getNumber();
+
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+     */
+    private void clearType() {
+
+      type_ = 0;
+    }
+
+    public static final int CONNECTION_ID_FIELD_NUMBER = 2;
+    private java.lang.String connectionId_;
+    /**
+     * <code>string connection_id = 2;</code>
+     * @return The connectionId.
+     */
+    @java.lang.Override
+    public java.lang.String getConnectionId() {
+      return connectionId_;
+    }
+    /**
+     * <code>string connection_id = 2;</code>
+     * @return The bytes for connectionId.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getConnectionIdBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(connectionId_);
+    }
+    /**
+     * <code>string connection_id = 2;</code>
+     * @param value The connectionId to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setConnectionId(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      connectionId_ = value;
+    }
+    /**
+     * <code>string connection_id = 2;</code>
+     */
+    private void clearConnectionId() {
+
+      connectionId_ = getDefaultInstance().getConnectionId();
+    }
+    /**
+     * <code>string connection_id = 2;</code>
+     * @param value The bytes for connectionId to set.
+     */
+    private void setConnectionIdBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      connectionId_ = value.toStringUtf8();
+
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 3;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * ConnectionAck is the first frame the server sends after accepting the
+     * WebSocket upgrade. Clients must wait for it before flushing any buffered
+     * SdkMessage frames and may use connection_id to correlate server-side logs.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.ConnectionAck}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.ConnectionAck)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <pre>
+       * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+       * @return The enum numeric value on the wire for type.
+       */
+      @java.lang.Override
+      public int getTypeValue() {
+        return instance.getTypeValue();
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+       * @param value The type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTypeValue(int value) {
+        copyOnWrite();
+        instance.setTypeValue(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+       * @return The type.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType getType() {
+        return instance.getType();
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+       * @param value The enum numeric value on the wire for type to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setType(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAckType value) {
+        copyOnWrite();
+        instance.setType(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.ConnectionAckType type = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearType() {
+        copyOnWrite();
+        instance.clearType();
+        return this;
+      }
+
+      /**
+       * <code>string connection_id = 2;</code>
+       * @return The connectionId.
+       */
+      @java.lang.Override
+      public java.lang.String getConnectionId() {
+        return instance.getConnectionId();
+      }
+      /**
+       * <code>string connection_id = 2;</code>
+       * @return The bytes for connectionId.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getConnectionIdBytes() {
+        return instance.getConnectionIdBytes();
+      }
+      /**
+       * <code>string connection_id = 2;</code>
+       * @param value The connectionId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setConnectionId(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setConnectionId(value);
+        return this;
+      }
+      /**
+       * <code>string connection_id = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearConnectionId() {
+        copyOnWrite();
+        instance.clearConnectionId();
+        return this;
+      }
+      /**
+       * <code>string connection_id = 2;</code>
+       * @param value The bytes for connectionId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setConnectionIdBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setConnectionIdBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.ConnectionAck)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "type_",
+              "connectionId_",
+              "timestamp_",
+            };
+            java.lang.String info =
+                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\f\u0002\u0208" +
+                "\u0003\u1009\u0000";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.ConnectionAck)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck DEFAULT_INSTANCE;
+    static {
+      ConnectionAck defaultInstance = new ConnectionAck();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        ConnectionAck.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ConnectionAck getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<ConnectionAck> PARSER;
+
+    public static com.google.protobuf.Parser<ConnectionAck> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface SdkMessageAckOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.SdkMessageAck)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    int getTypeValue();
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     * @return The type.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType getType();
+
+    /**
+     * <code>string correlation_id = 2;</code>
+     * @return The correlationId.
+     */
+    java.lang.String getCorrelationId();
+    /**
+     * <code>string correlation_id = 2;</code>
+     * @return The bytes for correlationId.
+     */
+    com.google.protobuf.ByteString
+        getCorrelationIdBytes();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+  }
+  /**
+   * <pre>
+   * SdkMessageAck is sent by the server to acknowledge receipt of a client
+   * SdkMessage frame. correlation_id matches the SdkMessage.correlation_id
+   * of the acknowledged frame.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.SdkMessageAck}
+   */
+  public  static final class SdkMessageAck extends
+      com.google.protobuf.GeneratedMessageLite<
+          SdkMessageAck, SdkMessageAck.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.SdkMessageAck)
+      SdkMessageAckOrBuilder {
+    private SdkMessageAck() {
+      correlationId_ = "";
+    }
+    private int bitField0_;
+    public static final int TYPE_FIELD_NUMBER = 1;
+    private int type_;
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     * @return The enum numeric value on the wire for type.
+     */
+    @java.lang.Override
+    public int getTypeValue() {
+      return type_;
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     * @return The type.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType getType() {
+      yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType result = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType.forNumber(type_);
+      return result == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType.UNRECOGNIZED : result;
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     * @param value The enum numeric value on the wire for type to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setTypeValue(int value) {
+        type_ = value;
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     * @param value The type to set.
+     */
+    private void setType(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType value) {
+      type_ = value.getNumber();
+
+    }
+    /**
+     * <pre>
+     * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+     */
+    private void clearType() {
+
+      type_ = 0;
+    }
+
+    public static final int CORRELATION_ID_FIELD_NUMBER = 2;
+    private java.lang.String correlationId_;
+    /**
+     * <code>string correlation_id = 2;</code>
+     * @return The correlationId.
+     */
+    @java.lang.Override
+    public java.lang.String getCorrelationId() {
+      return correlationId_;
+    }
+    /**
+     * <code>string correlation_id = 2;</code>
+     * @return The bytes for correlationId.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getCorrelationIdBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(correlationId_);
+    }
+    /**
+     * <code>string correlation_id = 2;</code>
+     * @param value The correlationId to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setCorrelationId(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+
+      correlationId_ = value;
+    }
+    /**
+     * <code>string correlation_id = 2;</code>
+     */
+    private void clearCorrelationId() {
+
+      correlationId_ = getDefaultInstance().getCorrelationId();
+    }
+    /**
+     * <code>string correlation_id = 2;</code>
+     * @param value The bytes for correlationId to set.
+     */
+    private void setCorrelationIdBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      correlationId_ = value.toStringUtf8();
+
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 3;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * SdkMessageAck is sent by the server to acknowledge receipt of a client
+     * SdkMessage frame. correlation_id matches the SdkMessage.correlation_id
+     * of the acknowledged frame.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.SdkMessageAck}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.SdkMessageAck)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <pre>
+       * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+       * @return The enum numeric value on the wire for type.
+       */
+      @java.lang.Override
+      public int getTypeValue() {
+        return instance.getTypeValue();
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+       * @param value The type to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTypeValue(int value) {
+        copyOnWrite();
+        instance.setTypeValue(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+       * @return The type.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType getType() {
+        return instance.getType();
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+       * @param value The enum numeric value on the wire for type to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setType(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAckType value) {
+        copyOnWrite();
+        instance.setType(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.SdkMessageAckType type = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearType() {
+        copyOnWrite();
+        instance.clearType();
+        return this;
+      }
+
+      /**
+       * <code>string correlation_id = 2;</code>
+       * @return The correlationId.
+       */
+      @java.lang.Override
+      public java.lang.String getCorrelationId() {
+        return instance.getCorrelationId();
+      }
+      /**
+       * <code>string correlation_id = 2;</code>
+       * @return The bytes for correlationId.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getCorrelationIdBytes() {
+        return instance.getCorrelationIdBytes();
+      }
+      /**
+       * <code>string correlation_id = 2;</code>
+       * @param value The correlationId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCorrelationId(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setCorrelationId(value);
+        return this;
+      }
+      /**
+       * <code>string correlation_id = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCorrelationId() {
+        copyOnWrite();
+        instance.clearCorrelationId();
+        return this;
+      }
+      /**
+       * <code>string correlation_id = 2;</code>
+       * @param value The bytes for correlationId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCorrelationIdBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setCorrelationIdBytes(value);
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.SdkMessageAck)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "type_",
+              "correlationId_",
+              "timestamp_",
+            };
+            java.lang.String info =
+                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\f\u0002\u0208" +
+                "\u0003\u1009\u0000";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.SdkMessageAck)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck DEFAULT_INSTANCE;
+    static {
+      SdkMessageAck defaultInstance = new SdkMessageAck();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        SdkMessageAck.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageAck getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<SdkMessageAck> PARSER;
+
+    public static com.google.protobuf.Parser<SdkMessageAck> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
