@@ -89,7 +89,7 @@ class ChatScreen extends StatelessWidget {
 | `showAttachmentButton` | `bool` | No | Whether the attachment button is shown in the input. Defaults to `true`. |
 | `onShopPressed` | `VoidCallback?` | No | Called when the shop icon is tapped. |
 | `onCartPressed` | `VoidCallback?` | No | Called when the cart icon is tapped. |
-| `openContext` | `String?` | No | Describes where the chat is being opened from. It can be a structured value such as an SKU like `"123"`, or natural language like `"product page of product 123"`. |
+| `openContext` | `Map<String, dynamic>?` | No | Describes where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{'source': 'product-page', 'sku': '123'}`. The map is serialized as JSON before being sent. |
 
 ### Logging
 

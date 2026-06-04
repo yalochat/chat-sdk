@@ -110,16 +110,17 @@ describe('YaloChatClient', () => {
     });
 
     it('forwards the configured openContext to the chat window', async () => {
+      const openContext = { source: 'product-page', sku: '123' };
       const client = new YaloChatClient({
         ...baseConfig,
-        openContext: 'product-page',
+        openContext,
       });
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       client.open();
-      expect(getChatWindow().openContext).toBe('product-page');
+      expect(getChatWindow().openContext).toEqual(openContext);
     });
 
     it('leaves openContext undefined when not configured', async () => {

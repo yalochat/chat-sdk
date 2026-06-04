@@ -1564,7 +1564,9 @@ describe('YaloChatWindow guidance card on first open', () => {
   });
 
   const createWith = async (
-    config: Partial<typeof baseConfig> & { openContext?: string } = {}
+    config: Partial<typeof baseConfig> & {
+      openContext?: Record<string, unknown>;
+    } = {}
   ): Promise<YaloChatWindow> => {
     const window = document.createElement('yalo-chat-window') as YaloChatWindow;
     window.config = { ...baseConfig, ...config };
@@ -1574,7 +1576,9 @@ describe('YaloChatWindow guidance card on first open', () => {
   };
 
   it('requests guidance cards on first open when there are no messages', async () => {
-    const window = await createWith({ openContext: 'product-page' });
+    const window = await createWith({
+      openContext: { source: 'product-page', sku: '123' },
+    });
     const requestSpy = vi
       .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
       .mockResolvedValue(new Ok(undefined));
@@ -1583,12 +1587,15 @@ describe('YaloChatWindow guidance card on first open', () => {
     await window.updateComplete;
 
     await vi.waitUntil(() => requestSpy.mock.calls.length > 0);
-    expect(requestSpy).toHaveBeenCalledWith('chat-target', 'product-page');
+    expect(requestSpy).toHaveBeenCalledWith(
+      'chat-target',
+      JSON.stringify({ source: 'product-page', sku: '123' })
+    );
   });
 
   it('uses openContext set on the element when config.openContext is missing', async () => {
     const window = await createWith();
-    window.openContext = 'home-page';
+    window.openContext = { source: 'home-page' };
     const requestSpy = vi
       .spyOn(window.yaloMessageRepository, 'requestGuidanceCard')
       .mockResolvedValue(new Ok(undefined));
@@ -1597,7 +1604,10 @@ describe('YaloChatWindow guidance card on first open', () => {
     await window.updateComplete;
 
     await vi.waitUntil(() => requestSpy.mock.calls.length > 0);
-    expect(requestSpy).toHaveBeenCalledWith('chat-target', 'home-page');
+    expect(requestSpy).toHaveBeenCalledWith(
+      'chat-target',
+      JSON.stringify({ source: 'home-page' })
+    );
   });
 
   it('does not request guidance cards when there is at least one stored message', async () => {

@@ -142,7 +142,7 @@ export default class YaloChatWindowController implements ReactiveController {
     const context = this.host.openContext ?? this.host.config.openContext;
     const result = await this.host.yaloMessageRepository.requestGuidanceCard(
       this.host.config.target,
-      context
+      context ? JSON.stringify(context) : undefined
     );
     if (!result.ok) {
       this.host.logger.error('Unable to request guidance cards', {

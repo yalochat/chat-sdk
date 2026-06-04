@@ -50,7 +50,7 @@ void main() {
       VoidCallback? onShopPressed,
       VoidCallback? onCartPressed,
       ChatTheme theme = const ChatTheme(),
-      String? openContext,
+      Map<String, dynamic>? openContext,
     }) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -190,10 +190,19 @@ void main() {
       });
 
       testWidgets('should expose the provided opening context', (tester) async {
-        await pumpChat(tester, openContext: 'product page of product 123');
+        await pumpChat(
+          tester,
+          openContext: const <String, dynamic>{
+            'source': 'product-page',
+            'sku': '123',
+          },
+        );
 
         final Chat chat = tester.widget<Chat>(find.byType(Chat));
-        expect(chat.openContext, equals('product page of product 123'));
+        expect(
+          chat.openContext,
+          equals(<String, dynamic>{'source': 'product-page', 'sku': '123'}),
+        );
 
         await disposeChat(tester);
       });

@@ -18,7 +18,7 @@ class Chat extends StatelessWidget {
   final VoidCallback? onShopPressed;
   final VoidCallback? onCartPressed;
   final ChatTheme theme;
-  final String? openContext;
+  final Map<String, dynamic>? openContext;
 
   const Chat({
     super.key,
