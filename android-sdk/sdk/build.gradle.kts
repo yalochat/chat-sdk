@@ -195,8 +195,6 @@ dependencies {
 }
 
 mavenPublishing {
-    // Publish the Android AAR only — iOS XCFramework is published separately via GitHub Releases.
-    // GROUP, POM_ARTIFACT_ID, and VERSION_NAME are read from gradle.properties automatically.
     configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = false))
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()

@@ -54,7 +54,9 @@ jobs:
           fi
 
       - name: Gitleaks Scan
-        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:v8.30.0 detect --source="/code" -v
+        run: |
+          brew install gitleaks
+          gitleaks detect --source="${{ github.workspace }}" -v
 
       - name: Build XCFramework
         run: cd android-sdk && ./gradlew :sdk:assembleChatSdkReleaseXCFramework
