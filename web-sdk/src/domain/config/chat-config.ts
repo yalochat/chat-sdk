@@ -23,7 +23,7 @@ export interface YaloChatClientConfig {
   icons?: SdkIcons;
   audioWaveformColor?: string;
   userId?: string;
-  openContext?: string;
+  openContext?: Record<string, unknown>;
   hideCloseButton?: boolean;
   hideHeader?: boolean;
   persistent?: boolean;
