@@ -28,6 +28,13 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Assert running on main
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "ERROR: releases must be dispatched from main (got ${{ github.ref }})"
+            exit 1
+          fi
+
       - name: Validate version input
         run: |
           VERSION="${{ inputs.version }}"
@@ -45,6 +52,9 @@ jobs:
             echo "ERROR: tag v${VERSION} already exists — delete the tag and release before re-running"
             exit 1
           fi
+
+      - name: Gitleaks Scan
+        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:v8.30.0 detect --source="/code" -v
 
       - name: Build XCFramework
         run: cd android-sdk && ./gradlew :sdk:assembleChatSdkReleaseXCFramework
@@ -90,6 +100,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ inputs.version }}" ChatSdk.xcframework.zip \
+          gh release create "v${{ inputs.version }}" "$GITHUB_WORKSPACE/ChatSdk.xcframework.zip" \
             --title "iOS SDK v${{ inputs.version }}" \
             --generate-notes

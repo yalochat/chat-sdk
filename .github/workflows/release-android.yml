@@ -19,6 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Assert running on main
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "ERROR: releases must be dispatched from main (got ${{ github.ref }})"
+            exit 1
+          fi
+
       - name: Validate version input
         run: |
           VERSION="${{ inputs.version }}"

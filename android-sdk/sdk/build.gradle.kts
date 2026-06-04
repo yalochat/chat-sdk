@@ -86,7 +86,6 @@ kotlin {
             implementation(libs.security.crypto)
 
             // Markdown — Compose-native CommonMark renderer for agent messages.
-            // Mirrors flutter_markdown_plus used by the Flutter SDK's AssistantMessage widget.
             implementation(libs.markdown.renderer)
             implementation(libs.markdown.renderer.m3)
         }

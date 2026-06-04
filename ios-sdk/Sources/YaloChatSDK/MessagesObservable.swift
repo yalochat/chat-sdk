@@ -29,7 +29,7 @@ class MessagesObservable: ObservableObject {
     // In-memory expand state for product list/carousel — never stored in DB.
     @Published var expandedMessageIds: Set<Int64> = []
 
-    private static let log = Logger(subsystem: "com.yalo.chat.demo", category: "MessagesObservable")
+    private static let log = Logger(subsystem: "com.yalo.chat.sdk", category: "MessagesObservable")
     private static let awaitResponseTimeoutNs: UInt64 = 60_000_000_000
 
     // Tracks the wiId of the QuickReply message that populated the current chip row.

@@ -72,6 +72,10 @@ Go to **GitHub → Actions → Release iOS SDK → Run workflow**, enter the ver
 
 SPM resolves `Package.swift` from the tagged commit. If the tag is pushed before the checksum is known, the tagged commit contains a stale/placeholder checksum and SPM dependency resolution fails for consumers. The `workflow_dispatch` trigger lets CI compute the real checksum, commit it, and then create the tag — guaranteeing the tagged commit is always valid.
 
+### Note on Package.swift before the first release
+
+The `Package.swift` in `main` contains a placeholder checksum until the first iOS release is cut. Adding the package from `main` HEAD will fail SPM resolution — this is expected. Once the first `workflow_dispatch` release runs, CI replaces the placeholder with the real checksum on the exact tagged commit, and the package becomes consumable.
+
 ### Local XCFramework build (for development)
 
 ```bash

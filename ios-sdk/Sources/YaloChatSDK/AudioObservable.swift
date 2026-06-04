@@ -11,7 +11,7 @@ class AudioObservable: NSObject, ObservableObject {
     @Published var recordingAmplitudes: [Double] = Array(repeating: -30.0, count: 48)
     @Published var playingMessageId: Int64? = nil
 
-    private static let log = Logger(subsystem: "com.yalo.chat.demo", category: "AudioObservable")
+    private static let log = Logger(subsystem: "com.yalo.chat.sdk", category: "AudioObservable")
 
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
