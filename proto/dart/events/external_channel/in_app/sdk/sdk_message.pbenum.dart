@@ -177,6 +177,50 @@ class SdkCommand extends $pb.ProtobufEnum {
   const SdkCommand._(super.value, super.name);
 }
 
+/// ConnectionAckType discriminates the variants of a ConnectionAck frame.
+class ConnectionAckType extends $pb.ProtobufEnum {
+  static const ConnectionAckType CONNECTION_ACK_TYPE_UNSPECIFIED =
+      ConnectionAckType._(
+          0, _omitEnumNames ? '' : 'CONNECTION_ACK_TYPE_UNSPECIFIED');
+  static const ConnectionAckType CONNECTION_ACK_TYPE_CONNECTION_ACK =
+      ConnectionAckType._(
+          1, _omitEnumNames ? '' : 'CONNECTION_ACK_TYPE_CONNECTION_ACK');
+
+  static const $core.List<ConnectionAckType> values = <ConnectionAckType>[
+    CONNECTION_ACK_TYPE_UNSPECIFIED,
+    CONNECTION_ACK_TYPE_CONNECTION_ACK,
+  ];
+
+  static final $core.List<ConnectionAckType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 1);
+  static ConnectionAckType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const ConnectionAckType._(super.value, super.name);
+}
+
+/// SdkMessageAckType discriminates the variants of an SdkMessageAck frame.
+class SdkMessageAckType extends $pb.ProtobufEnum {
+  static const SdkMessageAckType SDK_MESSAGE_ACK_TYPE_UNSPECIFIED =
+      SdkMessageAckType._(
+          0, _omitEnumNames ? '' : 'SDK_MESSAGE_ACK_TYPE_UNSPECIFIED');
+  static const SdkMessageAckType SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK =
+      SdkMessageAckType._(
+          1, _omitEnumNames ? '' : 'SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK');
+
+  static const $core.List<SdkMessageAckType> values = <SdkMessageAckType>[
+    SDK_MESSAGE_ACK_TYPE_UNSPECIFIED,
+    SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK,
+  ];
+
+  static final $core.List<SdkMessageAckType?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 1);
+  static SdkMessageAckType? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const SdkMessageAckType._(super.value, super.name);
+}
+
 /// Orientation controls how the product list is rendered in the client UI.
 class ProductMessageRequest_Orientation extends $pb.ProtobufEnum {
   static const ProductMessageRequest_Orientation ORIENTATION_UNSPECIFIED =
