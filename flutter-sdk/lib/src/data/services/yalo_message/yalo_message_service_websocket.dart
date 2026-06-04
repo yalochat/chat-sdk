@@ -16,6 +16,7 @@ typedef WebSocketChannelFactory = WebSocketChannel Function(Uri uri);
 class YaloMessageServiceWebSocket {
   static const Duration _initialBackoff = Duration(seconds: 1);
   static const Duration _maxBackoff = Duration(seconds: 30);
+  static const Duration _ackTimeout = Duration(seconds: 10);
 
   final String _wsUrl;
   final YaloMessageAuthService _authService;
@@ -26,8 +27,11 @@ class YaloMessageServiceWebSocket {
   StreamSubscription<dynamic>? _subscription;
   StreamController<PollMessageItem>? _controller;
   Timer? _reconnectTimer;
+  Timer? _ackTimer;
   int _reconnectAttempt = 0;
   bool _running = false;
+  bool _connectionAcked = false;
+  final List<String> _pendingFrames = [];
 
   YaloMessageServiceWebSocket({
     required String baseUrl,
@@ -49,12 +53,21 @@ class YaloMessageServiceWebSocket {
   }
 
   Future<Result<Unit>> sendSdkMessage(SdkMessage message) async {
-    final channel = _channel;
-    if (channel == null) {
+    if (!_running) {
       return Result.error(Exception('WebSocket is not connected'));
     }
+    final String frame;
     try {
-      final frame = jsonEncode(message.toProto3Json());
+      frame = jsonEncode(message.toProto3Json());
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+    final channel = _channel;
+    if (!_connectionAcked || channel == null) {
+      _pendingFrames.add(frame);
+      return Result.ok(Unit());
+    }
+    try {
       channel.sink.add(frame);
       return Result.ok(Unit());
     } on Exception catch (e) {
@@ -65,8 +78,11 @@ class YaloMessageServiceWebSocket {
   void dispose() {
     _running = false;
     _reconnectAttempt = 0;
+    _connectionAcked = false;
+    _pendingFrames.clear();
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+    _clearAckTimer();
     _subscription?.cancel();
     _subscription = null;
     _channel?.sink.close();
@@ -75,8 +91,31 @@ class YaloMessageServiceWebSocket {
     _controller = null;
   }
 
+  void _clearAckTimer() {
+    _ackTimer?.cancel();
+    _ackTimer = null;
+  }
+
+  void _flushPending() {
+    final channel = _channel;
+    if (channel == null) {
+      return;
+    }
+    final pending = List<String>.from(_pendingFrames);
+    _pendingFrames.clear();
+    for (final frame in pending) {
+      try {
+        channel.sink.add(frame);
+      } on Exception {
+        // The caller already received Ok at enqueue time.
+      }
+    }
+  }
+
   Future<void> _connect() async {
-    if (!_running || _channel != null) return;
+    if (!_running || _channel != null) {
+      return;
+    }
 
     final authResult = await _authService.auth();
     if (authResult case Error()) {
@@ -84,7 +123,9 @@ class YaloMessageServiceWebSocket {
       _scheduleReconnect();
       return;
     }
-    if (!_running) return;
+    if (!_running) {
+      return;
+    }
     final entry = (authResult as Ok<TokenEntry>).result;
 
     final WebSocketChannel channel;
@@ -101,6 +142,10 @@ class YaloMessageServiceWebSocket {
 
     _channel = channel;
     _reconnectAttempt = 0;
+    _ackTimer = Timer(_ackTimeout, () {
+      _ackTimer = null;
+      channel.sink.close();
+    });
 
     _subscription = channel.stream.listen(
       _onFrame,
@@ -111,10 +156,30 @@ class YaloMessageServiceWebSocket {
   }
 
   void _onFrame(dynamic data) {
-    if (data is! String) return;
+    if (data is! String) {
+      return;
+    }
+    final Map<String, dynamic> json;
     try {
-      final json = jsonDecode(data);
-      if (json is! Map<String, dynamic>) return;
+      final decoded = jsonDecode(data);
+      if (decoded is! Map<String, dynamic>) {
+        return;
+      }
+      json = decoded;
+    } on FormatException {
+      return;
+    }
+    try {
+      if (!_connectionAcked) {
+        final ack = ConnectionAck.create()
+          ..mergeFromProto3Json(json, ignoreUnknownFields: true);
+        if (ack.type == ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK) {
+          _connectionAcked = true;
+          _clearAckTimer();
+          _flushPending();
+        }
+        return;
+      }
       final item = PollMessageItem.create()..mergeFromProto3Json(json);
       _controller?.add(item);
     } on Exception catch (e) {
@@ -135,11 +200,17 @@ class YaloMessageServiceWebSocket {
     _subscription?.cancel();
     _subscription = null;
     _channel = null;
-    if (_running) _scheduleReconnect();
+    _connectionAcked = false;
+    _clearAckTimer();
+    if (_running) {
+      _scheduleReconnect();
+    }
   }
 
   void _scheduleReconnect() {
-    if (!_running || _reconnectTimer != null) return;
+    if (!_running || _reconnectTimer != null) {
+      return;
+    }
     final ms = (_initialBackoff.inMilliseconds * (1 << _reconnectAttempt))
         .clamp(_initialBackoff.inMilliseconds, _maxBackoff.inMilliseconds);
     _reconnectAttempt++;
