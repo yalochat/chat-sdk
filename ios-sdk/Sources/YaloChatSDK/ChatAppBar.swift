@@ -32,7 +32,7 @@ struct ChatAppBar: View {
                     .foregroundColor(theme.actionIconColor)
 
                 if isTyping {
-                    Text(Translate.writingMessage)
+                    Text(typingStatusText.isEmpty ? Translate.writingMessage : typingStatusText)
                         .font(theme.messageFooterFont)
                         .foregroundColor(theme.messageFooterColor)
                         .transition(.opacity.combined(with: .move(edge: .top)))

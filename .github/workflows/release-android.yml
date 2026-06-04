@@ -46,7 +46,7 @@ jobs:
           fi
 
       - name: Gitleaks Scan
-        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:v8.30.0 detect --source="/code" -v
+        run: docker run --rm -v "${{ github.workspace }}:/code" zricethezav/gitleaks:v8.30.0 detect --source="/code" -v
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4

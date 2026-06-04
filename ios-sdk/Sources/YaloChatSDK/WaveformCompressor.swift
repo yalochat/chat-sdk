@@ -5,8 +5,6 @@
 // pairwise merged so the older half of the recording lives in the first half of the
 // buffer and the stride for new samples doubles. Memory stays O(binCount) regardless
 // of recording length, and snapshot() always spans the entire recording uniformly.
-//
-// Mirrors Flutter WaveformCompressor introduced in PR #146.
 final class WaveformCompressor {
 
     let binCount: Int
