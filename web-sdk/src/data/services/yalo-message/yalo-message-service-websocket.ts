@@ -13,6 +13,13 @@ import type {
 
 const INITIAL_BACKOFF_MS = 1000;
 const MAX_BACKOFF_MS = 30000;
+const ACK_TIMEOUT_MS = 10000;
+
+type ConnectionAck = {
+  type: string;
+  connection_id: string;
+  timestamp: string;
+};
 
 export class YaloMessageServiceWebSocket implements YaloMessageService {
   private readonly _wsUrl: string;
@@ -21,7 +28,10 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   private _callback?: MessageCallback;
   private _reconnectAttempt = 0;
   private _reconnectTimeout?: ReturnType<typeof setTimeout>;
+  private _ackTimeout?: ReturnType<typeof setTimeout>;
   private _running = false;
+  private _pendingFrames: string[] = [];
+  private _connectionAcked = false;
 
   constructor(baseUrl: string, tokenRepository: TokenRepository) {
     this._wsUrl = `wss://${baseUrl}/websocket/v1/connect/webchat`;
@@ -38,10 +48,13 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
     this._running = false;
     this._callback = undefined;
     this._reconnectAttempt = 0;
+    this._pendingFrames = [];
+    this._connectionAcked = false;
     if (this._reconnectTimeout) {
       clearTimeout(this._reconnectTimeout);
       this._reconnectTimeout = undefined;
     }
+    this._clearAckTimeout();
     if (this._socket) {
       this._socket.close();
       this._socket = undefined;
@@ -49,15 +62,46 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
   }
 
   async sendMessage(message: SdkMessage): Promise<Result<void>> {
-    if (this._socket?.readyState !== WebSocket.OPEN) {
+    if (!this._running) {
       return new Err(new Error('WebSocket is not connected'));
     }
+    let frame: string;
     try {
-      const frame = JSON.stringify(SdkMessage.toJSON(message));
+      frame = JSON.stringify(SdkMessage.toJSON(message));
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+    if (
+      !this._connectionAcked ||
+      this._socket?.readyState !== WebSocket.OPEN
+    ) {
+      this._pendingFrames.push(frame);
+      return new Ok(undefined);
+    }
+    try {
       this._socket.send(frame);
       return new Ok(undefined);
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
+  private _clearAckTimeout(): void {
+    if (this._ackTimeout) {
+      clearTimeout(this._ackTimeout);
+      this._ackTimeout = undefined;
+    }
+  }
+
+  private _flushPending(): void {
+    const pending = this._pendingFrames;
+    this._pendingFrames = [];
+    for (const frame of pending) {
+      try {
+        this._socket?.send(frame);
+      } catch {
+        // The caller already received Ok at enqueue time.
+      }
     }
   }
 
@@ -77,12 +121,32 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
 
     socket.addEventListener('open', () => {
       this._reconnectAttempt = 0;
+      this._ackTimeout = setTimeout(() => {
+        this._ackTimeout = undefined;
+        socket.close();
+      }, ACK_TIMEOUT_MS);
     });
 
     socket.addEventListener('message', (event: MessageEvent) => {
       if (typeof event.data !== 'string') return;
+      let parsed: unknown;
       try {
-        const item = PollMessageItem.fromJSON(JSON.parse(event.data));
+        parsed = JSON.parse(event.data);
+      } catch {
+        return;
+      }
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        (parsed as ConnectionAck).type === 'connection_ack'
+      ) {
+        this._connectionAcked = true;
+        this._clearAckTimeout();
+        this._flushPending();
+        return;
+      }
+      try {
+        const item = PollMessageItem.fromJSON(parsed);
         this._callback?.(item);
       } catch {
         // ignore malformed frames
@@ -97,6 +161,8 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
       if (this._socket === socket) {
         this._socket = undefined;
       }
+      this._connectionAcked = false;
+      this._clearAckTimeout();
       if (this._running) {
         this._scheduleReconnect();
       }

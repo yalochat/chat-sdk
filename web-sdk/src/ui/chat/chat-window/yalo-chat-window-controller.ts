@@ -341,9 +341,6 @@ export default class YaloChatWindowController implements ReactiveController {
       return;
     }
     const product = message.products[productIndex];
-    if (product.inCart) {
-      return;
-    }
 
     const updatedProducts = [...message.products];
     updatedProducts[productIndex] = new Product({ ...product, inCart: true });

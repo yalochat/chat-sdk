@@ -21,7 +21,5 @@ client.init();
 |---------|---------------|-----------------|
 | `updateCartProduct` | User confirms a product in a product message via "Add to cart" | `{ sku: string, units: number, subunits?: number }` |
 | `clearCart` | Cart is cleared | `unknown` |
-| `guidanceCard` | Guidance cards are requested | `unknown` |
-| `addPromotion` | A promotion is applied | `unknown` |
 
 If a command has no registered callback, the SDK sends the action through the remote API as usual.

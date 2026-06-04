@@ -4,8 +4,6 @@
 export const ChatCommands = [
   'updateCartProduct',
   'clearCart',
-  'guidanceCard',
-  'addPromotion',
 ] as const;
 
 export type ChatCommand = (typeof ChatCommands)[number];

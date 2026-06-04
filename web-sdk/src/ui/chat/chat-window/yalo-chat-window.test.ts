@@ -1147,28 +1147,28 @@ describe('YaloChatWindow', () => {
       expect(updateCart).toHaveBeenCalledWith('sku-sub', 1, 4);
     });
 
-    it('does nothing when the product is already in the cart', async () => {
+    it('sends updateCartProduct with the latest quantities when the product is already in the cart', async () => {
       const seeded = await seedProductMessage(
         new Product({
-          sku: 'sku-dup',
+          sku: 'sku-update',
           name: 'Item',
           price: 1,
           unitName: 'unit',
+          unitsAdded: 5,
           inCart: true,
         })
       );
-      const updateCart = vi.spyOn(
-        el.yaloMessageRepository,
-        'updateCartProduct'
-      );
+      const updateCart = vi
+        .spyOn(el.yaloMessageRepository, 'updateCartProduct')
+        .mockResolvedValue(new Ok(undefined));
 
       dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
         messageId: seeded.id,
-        sku: 'sku-dup',
+        sku: 'sku-update',
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 30));
-      expect(updateCart).not.toHaveBeenCalled();
+      await vi.waitUntil(() => updateCart.mock.calls.length > 0);
+      expect(updateCart).toHaveBeenCalledWith('sku-update', 5, undefined);
     });
 
     it('routes updateCartProduct through a registered command when present', async () => {

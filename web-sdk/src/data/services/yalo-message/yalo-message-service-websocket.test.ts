@@ -45,6 +45,15 @@ const closed = (s: MockSocket) => {
 };
 const message = (s: MockSocket, data: string) =>
   s.dispatchEvent(new MessageEvent('message', { data }));
+const ack = (s: MockSocket) =>
+  message(
+    s,
+    JSON.stringify({
+      type: 'connection_ack',
+      connection_id: 'conn-1',
+      timestamp: '2026-01-01T00:00:00Z',
+    })
+  );
 const errored = (s: MockSocket) => s.dispatchEvent(new Event('error'));
 
 const makeTokenRepository = (
@@ -161,11 +170,12 @@ describe('YaloMessageServiceWebSocket', () => {
   });
 
   describe('sendMessage', () => {
-    it('sends the frame as SdkMessage JSON when the socket is open', async () => {
+    it('sends the frame as SdkMessage JSON once the socket is acked', async () => {
       const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
       open(sockets[0]);
+      ack(sockets[0]);
 
       const result = await service.sendMessage(makeTextMessage('hi'));
 
@@ -177,18 +187,29 @@ describe('YaloMessageServiceWebSocket', () => {
       });
     });
 
-    it('returns Err when the socket is not yet open', async () => {
+    it('buffers frames until connection_ack arrives, even after open', async () => {
       const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
 
-      const result = await service.sendMessage(makeTextMessage('one'));
-
-      expect(result).toMatchObject({
-        ok: false,
-        error: { message: 'WebSocket is not connected' },
-      });
+      const beforeOpen = await service.sendMessage(makeTextMessage('one'));
+      expect(beforeOpen.ok).toBe(true);
       expect(sockets[0].send).not.toHaveBeenCalled();
+
+      open(sockets[0]);
+      const afterOpen = await service.sendMessage(makeTextMessage('two'));
+      expect(afterOpen.ok).toBe(true);
+      expect(sockets[0].send).not.toHaveBeenCalled();
+
+      ack(sockets[0]);
+
+      expect(sockets[0].send).toHaveBeenCalledTimes(2);
+      expect(JSON.parse(sockets[0].send.mock.calls[0][0])).toMatchObject({
+        correlationId: 'cid-one',
+      });
+      expect(JSON.parse(sockets[0].send.mock.calls[1][0])).toMatchObject({
+        correlationId: 'cid-two',
+      });
     });
 
     it('returns Err when called before subscribe and does not open a socket', async () => {
@@ -204,19 +225,44 @@ describe('YaloMessageServiceWebSocket', () => {
       expect(sockets).toHaveLength(0);
     });
 
-    it('returns Err after the socket closes until reconnect succeeds', async () => {
+    it('buffers frames sent after a close and flushes them once a new ack arrives', async () => {
       const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
       await flush();
       open(sockets[0]);
+      ack(sockets[0]);
       closed(sockets[0]);
 
       const result = await service.sendMessage(makeTextMessage('after-close'));
 
-      expect(result).toMatchObject({
-        ok: false,
-        error: { message: 'WebSocket is not connected' },
+      expect(result.ok).toBe(true);
+
+      await vi.advanceTimersByTimeAsync(1000);
+      open(sockets[1]);
+      expect(sockets[1].send).not.toHaveBeenCalled();
+
+      ack(sockets[1]);
+
+      expect(sockets[1].send).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(sockets[1].send.mock.calls[0][0])).toMatchObject({
+        correlationId: 'cid-after-close',
       });
+    });
+
+    it('buffers again after a close even if the previous connection was acked', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[0]);
+      ack(sockets[0]);
+      closed(sockets[0]);
+
+      await vi.advanceTimersByTimeAsync(1000);
+      open(sockets[1]);
+
+      const result = await service.sendMessage(makeTextMessage('mid-reconnect'));
+      expect(result.ok).toBe(true);
+      expect(sockets[1].send).not.toHaveBeenCalled();
     });
 
     it('returns Err when the socket send throws', async () => {
@@ -224,6 +270,7 @@ describe('YaloMessageServiceWebSocket', () => {
       service.subscribe(() => {});
       await flush();
       open(sockets[0]);
+      ack(sockets[0]);
       sockets[0].send.mockImplementation(() => {
         throw new Error('socket failed');
       });
@@ -288,6 +335,30 @@ describe('YaloMessageServiceWebSocket', () => {
       expect(sockets).toHaveLength(4);
     });
 
+    it('closes the socket if connection_ack does not arrive within 10s', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[0]);
+
+      await vi.advanceTimersByTimeAsync(10000);
+      expect(sockets[0].close).toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(sockets).toHaveLength(2);
+    });
+
+    it('does not close the socket after ack even if 10s pass without traffic', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[0]);
+      ack(sockets[0]);
+
+      await vi.advanceTimersByTimeAsync(60000);
+      expect(sockets[0].close).not.toHaveBeenCalled();
+    });
+
     it('closes the socket and reconnects when an error event fires', async () => {
       const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
       service.subscribe(() => {});
@@ -328,6 +399,22 @@ describe('YaloMessageServiceWebSocket', () => {
 
       await vi.advanceTimersByTimeAsync(60000);
       expect(sockets).toHaveLength(1);
+    });
+
+    it('drops buffered frames so they are not sent on a later resubscribe', async () => {
+      const service = new YaloMessageServiceWebSocket(baseUrl, makeTokenRepository());
+      service.subscribe(() => {});
+      await flush();
+
+      await service.sendMessage(makeTextMessage('dropped'));
+      service.unsubscribe();
+
+      service.subscribe(() => {});
+      await flush();
+      open(sockets[1]);
+      ack(sockets[1]);
+
+      expect(sockets[1].send).not.toHaveBeenCalled();
     });
   });
 });
