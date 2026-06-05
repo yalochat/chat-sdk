@@ -16,6 +16,7 @@ coil = "3.0.4"
 protobuf = "4.29.3"
 markdownRenderer = "0.35.0"
 securityCrypto = "1.0.0"
+mavenPublish = "0.30.0"
 
 [libraries]
 # Compose
@@ -96,3 +97,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }

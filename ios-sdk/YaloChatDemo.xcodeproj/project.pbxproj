@@ -7,36 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		05EC6220E4CB1538B732F344 /* ProductCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15C5E70CA427D78455A0813 /* ProductCarouselView.swift */; };
-		1CA7117B4899F43F28A9826F /* ChatAppBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6D254CEAF7AAB2C559BD85 /* ChatAppBar.swift */; };
-		1CD34D3B315B77B79DFD37F1 /* YaloChatAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED2567261F6D10227B02251 /* YaloChatAction.swift */; };
-		1F144E784B4B0E906FE68740 /* ChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23407D6589CAA8A5F7913634 /* ChatInput.swift */; };
+		03BD27A9B880A5ED1B3B8D47 /* MessageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0D4C38630B5CDB44648C78 /* MessageItem.swift */; };
+		06BA29B9FC5AB5DA355BB7DE /* ImagePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04DFBB851EF8CC324D482ED /* ImagePreview.swift */; };
+		0ECC89F0FCA39980AD797658 /* WaveformRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 404DA52BB2112C2B25254AC0 /* WaveformRecorder.swift */; };
+		12A046C364D872C37DCC772D /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B258A2F9D09EF68CEA6CB3B1 /* Translate.swift */; };
+		144E65C8529596B09357C2E3 /* ChatAppBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730791BCDB3C60759FC6F4E3 /* ChatAppBar.swift */; };
+		172A03DD0DD10B41ED290931 /* QuickRepliesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFA6AABBA12C8066F2B54AC /* QuickRepliesView.swift */; };
+		19A4CD0A650CB62CB7C7F9C3 /* MessagesObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677B4FCD5D68506420EBC94B /* MessagesObservable.swift */; };
 		293282042EBD6BFA90E3A048 /* ChatSdk.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */; };
-		298C9277BFCC3894687B6572 /* ProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EF71DFCB68275F5614937DD /* ProductCard.swift */; };
-		322A00049C2FC71AD22F25E1 /* MessagesObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F820AEACBF2AB583B73D583F /* MessagesObservable.swift */; };
+		2D488B215D6E7DF9FAD0CE79 /* ProductQuantityStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE969F812F0A2B09CEA56DC /* ProductQuantityStepper.swift */; };
+		35FB90571EDFEFA6F837F06F /* YaloChatAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B713EB3D1D36ED870C55E75 /* YaloChatAction.swift */; };
 		3B6D0B8DF56C3C234BB333F7 /* ChatSdk.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		4C742AB16C89C1739033D236 /* ProductListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D263572F6DC2DB3526C49426 /* ProductListView.swift */; };
-		545EDBDC5656A750127042E0 /* ProductQuantityStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */; };
-		625D030BDCB26FCD405CFBB4 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = D296B566EFA4B056BA35A4A6 /* Localizable.strings */; };
+		3E1F5CBA1DF06A1B5733E710 /* ProductCarouselView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDECED77C9E166F5297C7E80 /* ProductCarouselView.swift */; };
+		4FDB5D93511C2792BDF015E3 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01A921C52842FE4C5C3BC552 /* TypingIndicatorView.swift */; };
+		59D89E925DC6EC00E77589FB /* SdkConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2681420D5BC94197A98EA702 /* SdkConstants.swift */; };
 		674DB9AB8BB94548B4659911 /* YaloChatDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3502AF3994D977BB2687443 /* YaloChatDemoApp.swift */; };
-		68B260F91753D81C4891F80D /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF775B29AF50036FBF2DD96 /* MessageList.swift */; };
-		6A5D09AC87B0785523563B0F /* SdkConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C757899DC8794D1DFE3C7144 /* SdkConstants.swift */; };
-		6F5A5B00189F413AC54EB39E /* YaloChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C966BE803A724D942922CAA /* YaloChat.swift */; };
-		7DBD15E184CA198AD1FCA13C /* QuickRepliesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */; };
-		839B1BF06817BB1B18B8356C /* MessageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D563B68F202040D37D6212 /* MessageItem.swift */; };
-		9B7142C90276ACA1A29F7761 /* TypingIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 516A6316910A5E159F0FC395 /* TypingIndicatorView.swift */; };
-		A81CB6A93AB6D6DADE6559DD /* ChatTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4128F8CE7D0D35F336D2DAC2 /* ChatTheme.swift */; };
-		AA69F96977B9913EF39272DD /* ImageObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 192FC4739922F8D122901DB5 /* ImageObservable.swift */; };
-		BA83046D4CADCBD0AD893604 /* WaveformCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */; };
-		D26FBEBB44B22F7370ED0CFF /* ImagePreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3435CA5533A84581B92E052 /* ImagePreview.swift */; };
-		DB694895E876B249D9AAD277 /* Translate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7DC3F41FCAE080E7CE8975 /* Translate.swift */; };
-		E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */; };
+		759F394B9FC69817F2A7C17C /* ImageObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBBF60E3887C337661B0115B /* ImageObservable.swift */; };
+		8764E92C1E265CE33BED3384 /* YaloChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80B110C89B2C36422DDABD7C /* YaloChat.swift */; };
+		8CA7CF8FC5CC7D542448568E /* MessageList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D02E98C8CA295A355AE7338 /* MessageList.swift */; };
+		A143F98F88E6540225578D2C /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06EADA08DF18002924F2B81 /* ChatView.swift */; };
+		A453B2751B385DCD128C5BD1 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8956C3862F5CC749255C00 /* WaveformView.swift */; };
+		A5235223E96DB448D491C975 /* ChatTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2BF0A766692A06D47518F55 /* ChatTheme.swift */; };
+		BDB6C195BF3C44BEF548EBDB /* ProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335B4552055362B449EB8F96 /* ProductCard.swift */; };
+		BE3E4BFF6543AD2AFB39C6B9 /* ProductListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF21E1C6441222A0316E391B /* ProductListView.swift */; };
+		CE9CA60BE82B357DAE645C92 /* ChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1211F9817F6823EB4D738630 /* ChatInput.swift */; };
+		D721BF9FF7E3101C8EBDF0B0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 51C7D3A5C39502B52A3F8EEA /* Localizable.strings */; };
+		E1F12A234E358D2AA8EA087E /* AudioObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB20C1BCC9F5B165E03622E /* AudioObservable.swift */; };
 		E65E5168702C7E1DFC950C7C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6524E179EB88397E204954 /* ContentView.swift */; };
+		E8639B9BEE59212868264CF6 /* WaveformCompressor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FFB259F8AA48FBEF6D6FED /* WaveformCompressor.swift */; };
 		E87B26E53C6C69473298A5A5 /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE541740117006132C1A380 /* Credentials.swift */; };
 		E93401D6E82F2C157FF4EC0A /* Credentials.swift.example in Resources */ = {isa = PBXBuildFile; fileRef = 8FCF82F16CCFF7E3A3D06DB5 /* Credentials.swift.example */; };
-		EFC453D69C9FCE945A1CE6B7 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43FDB5E608E371946FE0DFC6 /* ChatView.swift */; };
-		F0D47773279173F7C3093CA2 /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AE3EAFF0C8C544F642946C /* WaveformView.swift */; };
-		F3A87F41CBA199E01A739311 /* AudioObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF05C7967323A2B01F9565F3 /* AudioObservable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,38 +54,38 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		05D563B68F202040D37D6212 /* MessageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageItem.swift; sourceTree = "<group>"; };
-		0EF71DFCB68275F5614937DD /* ProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCard.swift; sourceTree = "<group>"; };
-		192FC4739922F8D122901DB5 /* ImageObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageObservable.swift; sourceTree = "<group>"; };
-		204E00CE5F4010F34FAC52DD /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
-		23407D6589CAA8A5F7913634 /* ChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInput.swift; sourceTree = "<group>"; };
-		2ED2567261F6D10227B02251 /* YaloChatAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChatAction.swift; sourceTree = "<group>"; };
+		01A921C52842FE4C5C3BC552 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorView.swift; sourceTree = "<group>"; };
+		0DB20C1BCC9F5B165E03622E /* AudioObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioObservable.swift; sourceTree = "<group>"; };
+		1211F9817F6823EB4D738630 /* ChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatInput.swift; sourceTree = "<group>"; };
+		1BFC1ABE56D56D061B8DCD79 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		2681420D5BC94197A98EA702 /* SdkConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SdkConstants.swift; sourceTree = "<group>"; };
+		2D02E98C8CA295A355AE7338 /* MessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageList.swift; sourceTree = "<group>"; };
+		2D8956C3862F5CC749255C00 /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
+		335B4552055362B449EB8F96 /* ProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCard.swift; sourceTree = "<group>"; };
 		34E80F747F4EC2822662317B /* YaloChatDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = YaloChatDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		4128F8CE7D0D35F336D2DAC2 /* ChatTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTheme.swift; sourceTree = "<group>"; };
-		43FDB5E608E371946FE0DFC6 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		404DA52BB2112C2B25254AC0 /* WaveformRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformRecorder.swift; sourceTree = "<group>"; };
 		49B107D91D1AC4FB50301691 /* ChatSdk.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = ChatSdk.xcframework; path = "../android-sdk/sdk/build/XCFrameworks/release/ChatSdk.xcframework"; sourceTree = "<group>"; };
-		4D6D254CEAF7AAB2C559BD85 /* ChatAppBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppBar.swift; sourceTree = "<group>"; };
-		516A6316910A5E159F0FC395 /* TypingIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypingIndicatorView.swift; sourceTree = "<group>"; };
-		6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformRecorder.swift; sourceTree = "<group>"; };
-		6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformCompressor.swift; sourceTree = "<group>"; };
-		6C966BE803A724D942922CAA /* YaloChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChat.swift; sourceTree = "<group>"; };
-		75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductQuantityStepper.swift; sourceTree = "<group>"; };
-		76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRepliesView.swift; sourceTree = "<group>"; };
+		5BE969F812F0A2B09CEA56DC /* ProductQuantityStepper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductQuantityStepper.swift; sourceTree = "<group>"; };
+		677B4FCD5D68506420EBC94B /* MessagesObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesObservable.swift; sourceTree = "<group>"; };
+		6B713EB3D1D36ED870C55E75 /* YaloChatAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChatAction.swift; sourceTree = "<group>"; };
+		730791BCDB3C60759FC6F4E3 /* ChatAppBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatAppBar.swift; sourceTree = "<group>"; };
+		80B110C89B2C36422DDABD7C /* YaloChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChat.swift; sourceTree = "<group>"; };
 		83913A0C24BC4B8FD220EB07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8FCF82F16CCFF7E3A3D06DB5 /* Credentials.swift.example */ = {isa = PBXFileReference; path = Credentials.swift.example; sourceTree = "<group>"; };
-		A15C5E70CA427D78455A0813 /* ProductCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCarouselView.swift; sourceTree = "<group>"; };
 		A3502AF3994D977BB2687443 /* YaloChatDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YaloChatDemoApp.swift; sourceTree = "<group>"; };
-		B4AE3EAFF0C8C544F642946C /* WaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformView.swift; sourceTree = "<group>"; };
-		B6D12EA3158328A83F178A91 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B06EADA08DF18002924F2B81 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		B258A2F9D09EF68CEA6CB3B1 /* Translate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translate.swift; sourceTree = "<group>"; };
+		B2BF0A766692A06D47518F55 /* ChatTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTheme.swift; sourceTree = "<group>"; };
 		BA6524E179EB88397E204954 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		BF05C7967323A2B01F9565F3 /* AudioObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioObservable.swift; sourceTree = "<group>"; };
-		C757899DC8794D1DFE3C7144 /* SdkConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SdkConstants.swift; sourceTree = "<group>"; };
-		CDF775B29AF50036FBF2DD96 /* MessageList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageList.swift; sourceTree = "<group>"; };
-		D263572F6DC2DB3526C49426 /* ProductListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListView.swift; sourceTree = "<group>"; };
-		D3435CA5533A84581B92E052 /* ImagePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreview.swift; sourceTree = "<group>"; };
-		DD7DC3F41FCAE080E7CE8975 /* Translate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Translate.swift; sourceTree = "<group>"; };
+		BB0D4C38630B5CDB44648C78 /* MessageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageItem.swift; sourceTree = "<group>"; };
+		C8FFB259F8AA48FBEF6D6FED /* WaveformCompressor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformCompressor.swift; sourceTree = "<group>"; };
+		DAFA6AABBA12C8066F2B54AC /* QuickRepliesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickRepliesView.swift; sourceTree = "<group>"; };
+		DBBF60E3887C337661B0115B /* ImageObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageObservable.swift; sourceTree = "<group>"; };
+		DC0A1255422BCFAD40A30E22 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EAE541740117006132C1A380 /* Credentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
-		F820AEACBF2AB583B73D583F /* MessagesObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesObservable.swift; sourceTree = "<group>"; };
+		EF21E1C6441222A0316E391B /* ProductListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductListView.swift; sourceTree = "<group>"; };
+		F04DFBB851EF8CC324D482ED /* ImagePreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreview.swift; sourceTree = "<group>"; };
+		FDECED77C9E166F5297C7E80 /* ProductCarouselView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCarouselView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,9 +100,41 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0174F1EE87581FDE99704C89 /* YaloChatSDK */ = {
+			isa = PBXGroup;
+			children = (
+				0DB20C1BCC9F5B165E03622E /* AudioObservable.swift */,
+				730791BCDB3C60759FC6F4E3 /* ChatAppBar.swift */,
+				1211F9817F6823EB4D738630 /* ChatInput.swift */,
+				B2BF0A766692A06D47518F55 /* ChatTheme.swift */,
+				B06EADA08DF18002924F2B81 /* ChatView.swift */,
+				DBBF60E3887C337661B0115B /* ImageObservable.swift */,
+				F04DFBB851EF8CC324D482ED /* ImagePreview.swift */,
+				BB0D4C38630B5CDB44648C78 /* MessageItem.swift */,
+				2D02E98C8CA295A355AE7338 /* MessageList.swift */,
+				677B4FCD5D68506420EBC94B /* MessagesObservable.swift */,
+				335B4552055362B449EB8F96 /* ProductCard.swift */,
+				FDECED77C9E166F5297C7E80 /* ProductCarouselView.swift */,
+				EF21E1C6441222A0316E391B /* ProductListView.swift */,
+				5BE969F812F0A2B09CEA56DC /* ProductQuantityStepper.swift */,
+				DAFA6AABBA12C8066F2B54AC /* QuickRepliesView.swift */,
+				2681420D5BC94197A98EA702 /* SdkConstants.swift */,
+				B258A2F9D09EF68CEA6CB3B1 /* Translate.swift */,
+				01A921C52842FE4C5C3BC552 /* TypingIndicatorView.swift */,
+				C8FFB259F8AA48FBEF6D6FED /* WaveformCompressor.swift */,
+				404DA52BB2112C2B25254AC0 /* WaveformRecorder.swift */,
+				2D8956C3862F5CC749255C00 /* WaveformView.swift */,
+				80B110C89B2C36422DDABD7C /* YaloChat.swift */,
+				6B713EB3D1D36ED870C55E75 /* YaloChatAction.swift */,
+				DC54A7A87B49EC0961FC450E /* Resources */,
+			);
+			path = YaloChatSDK;
+			sourceTree = "<group>";
+		};
 		244AB61E08D7C520123CEA59 = {
 			isa = PBXGroup;
 			children = (
+				DFDE723A4393CDD0016CC854 /* Sources */,
 				EFF4F2C90E18DCE164B40765 /* YaloChatDemo */,
 				8F1B1DACD2BE547DFDAF6DD5 /* Frameworks */,
 				BB141FD797CC0DB0BB4D8E87 /* Products */,
@@ -125,38 +157,30 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		DC54A7A87B49EC0961FC450E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				51C7D3A5C39502B52A3F8EEA /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DFDE723A4393CDD0016CC854 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				0174F1EE87581FDE99704C89 /* YaloChatSDK */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
 		EFF4F2C90E18DCE164B40765 /* YaloChatDemo */ = {
 			isa = PBXGroup;
 			children = (
-				BF05C7967323A2B01F9565F3 /* AudioObservable.swift */,
-				4D6D254CEAF7AAB2C559BD85 /* ChatAppBar.swift */,
-				23407D6589CAA8A5F7913634 /* ChatInput.swift */,
-				4128F8CE7D0D35F336D2DAC2 /* ChatTheme.swift */,
-				43FDB5E608E371946FE0DFC6 /* ChatView.swift */,
 				BA6524E179EB88397E204954 /* ContentView.swift */,
 				EAE541740117006132C1A380 /* Credentials.swift */,
 				8FCF82F16CCFF7E3A3D06DB5 /* Credentials.swift.example */,
-				192FC4739922F8D122901DB5 /* ImageObservable.swift */,
-				D3435CA5533A84581B92E052 /* ImagePreview.swift */,
 				83913A0C24BC4B8FD220EB07 /* Info.plist */,
-				05D563B68F202040D37D6212 /* MessageItem.swift */,
-				CDF775B29AF50036FBF2DD96 /* MessageList.swift */,
-				F820AEACBF2AB583B73D583F /* MessagesObservable.swift */,
-				0EF71DFCB68275F5614937DD /* ProductCard.swift */,
-				A15C5E70CA427D78455A0813 /* ProductCarouselView.swift */,
-				D263572F6DC2DB3526C49426 /* ProductListView.swift */,
-				75F7447D495754EA6F9EF3ED /* ProductQuantityStepper.swift */,
-				76EFDDD9FA2A601F6106103B /* QuickRepliesView.swift */,
-				C757899DC8794D1DFE3C7144 /* SdkConstants.swift */,
-				DD7DC3F41FCAE080E7CE8975 /* Translate.swift */,
-				516A6316910A5E159F0FC395 /* TypingIndicatorView.swift */,
-				6319A5946D3DB796E50DC84F /* WaveformCompressor.swift */,
-				6050C732AE9CA9075FBE4A23 /* WaveformRecorder.swift */,
-				B4AE3EAFF0C8C544F642946C /* WaveformView.swift */,
-				6C966BE803A724D942922CAA /* YaloChat.swift */,
-				2ED2567261F6D10227B02251 /* YaloChatAction.swift */,
 				A3502AF3994D977BB2687443 /* YaloChatDemoApp.swift */,
-				D296B566EFA4B056BA35A4A6 /* Localizable.strings */,
 			);
 			path = YaloChatDemo;
 			sourceTree = "<group>";
@@ -225,7 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E93401D6E82F2C157FF4EC0A /* Credentials.swift.example in Resources */,
-				625D030BDCB26FCD405CFBB4 /* Localizable.strings in Resources */,
+				D721BF9FF7E3101C8EBDF0B0 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,31 +260,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F3A87F41CBA199E01A739311 /* AudioObservable.swift in Sources */,
-				1CA7117B4899F43F28A9826F /* ChatAppBar.swift in Sources */,
-				1F144E784B4B0E906FE68740 /* ChatInput.swift in Sources */,
-				A81CB6A93AB6D6DADE6559DD /* ChatTheme.swift in Sources */,
-				EFC453D69C9FCE945A1CE6B7 /* ChatView.swift in Sources */,
+				E1F12A234E358D2AA8EA087E /* AudioObservable.swift in Sources */,
+				144E65C8529596B09357C2E3 /* ChatAppBar.swift in Sources */,
+				CE9CA60BE82B357DAE645C92 /* ChatInput.swift in Sources */,
+				A5235223E96DB448D491C975 /* ChatTheme.swift in Sources */,
+				A143F98F88E6540225578D2C /* ChatView.swift in Sources */,
 				E65E5168702C7E1DFC950C7C /* ContentView.swift in Sources */,
 				E87B26E53C6C69473298A5A5 /* Credentials.swift in Sources */,
-				AA69F96977B9913EF39272DD /* ImageObservable.swift in Sources */,
-				D26FBEBB44B22F7370ED0CFF /* ImagePreview.swift in Sources */,
-				839B1BF06817BB1B18B8356C /* MessageItem.swift in Sources */,
-				68B260F91753D81C4891F80D /* MessageList.swift in Sources */,
-				322A00049C2FC71AD22F25E1 /* MessagesObservable.swift in Sources */,
-				298C9277BFCC3894687B6572 /* ProductCard.swift in Sources */,
-				05EC6220E4CB1538B732F344 /* ProductCarouselView.swift in Sources */,
-				4C742AB16C89C1739033D236 /* ProductListView.swift in Sources */,
-				545EDBDC5656A750127042E0 /* ProductQuantityStepper.swift in Sources */,
-				7DBD15E184CA198AD1FCA13C /* QuickRepliesView.swift in Sources */,
-				6A5D09AC87B0785523563B0F /* SdkConstants.swift in Sources */,
-				DB694895E876B249D9AAD277 /* Translate.swift in Sources */,
-				9B7142C90276ACA1A29F7761 /* TypingIndicatorView.swift in Sources */,
-				BA83046D4CADCBD0AD893604 /* WaveformCompressor.swift in Sources */,
-				E2F2085FD79C697C9C902DC8 /* WaveformRecorder.swift in Sources */,
-				F0D47773279173F7C3093CA2 /* WaveformView.swift in Sources */,
-				6F5A5B00189F413AC54EB39E /* YaloChat.swift in Sources */,
-				1CD34D3B315B77B79DFD37F1 /* YaloChatAction.swift in Sources */,
+				759F394B9FC69817F2A7C17C /* ImageObservable.swift in Sources */,
+				06BA29B9FC5AB5DA355BB7DE /* ImagePreview.swift in Sources */,
+				03BD27A9B880A5ED1B3B8D47 /* MessageItem.swift in Sources */,
+				8CA7CF8FC5CC7D542448568E /* MessageList.swift in Sources */,
+				19A4CD0A650CB62CB7C7F9C3 /* MessagesObservable.swift in Sources */,
+				BDB6C195BF3C44BEF548EBDB /* ProductCard.swift in Sources */,
+				3E1F5CBA1DF06A1B5733E710 /* ProductCarouselView.swift in Sources */,
+				BE3E4BFF6543AD2AFB39C6B9 /* ProductListView.swift in Sources */,
+				2D488B215D6E7DF9FAD0CE79 /* ProductQuantityStepper.swift in Sources */,
+				172A03DD0DD10B41ED290931 /* QuickRepliesView.swift in Sources */,
+				59D89E925DC6EC00E77589FB /* SdkConstants.swift in Sources */,
+				12A046C364D872C37DCC772D /* Translate.swift in Sources */,
+				4FDB5D93511C2792BDF015E3 /* TypingIndicatorView.swift in Sources */,
+				E8639B9BEE59212868264CF6 /* WaveformCompressor.swift in Sources */,
+				0ECC89F0FCA39980AD797658 /* WaveformRecorder.swift in Sources */,
+				A453B2751B385DCD128C5BD1 /* WaveformView.swift in Sources */,
+				8764E92C1E265CE33BED3384 /* YaloChat.swift in Sources */,
+				35FB90571EDFEFA6F837F06F /* YaloChatAction.swift in Sources */,
 				674DB9AB8BB94548B4659911 /* YaloChatDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -268,11 +292,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		D296B566EFA4B056BA35A4A6 /* Localizable.strings */ = {
+		51C7D3A5C39502B52A3F8EEA /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				B6D12EA3158328A83F178A91 /* en */,
-				204E00CE5F4010F34FAC52DD /* es */,
+				DC0A1255422BCFAD40A30E22 /* en */,
+				1BFC1ABE56D56D061B8DCD79 /* es */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

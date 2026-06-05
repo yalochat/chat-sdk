@@ -13,6 +13,7 @@ targets:
     deploymentTarget: "15.0"
     sources:
       - path: YaloChatDemo
+      - path: Sources/YaloChatSDK
     settings:
       base:
         SWIFT_VERSION: 5.9

@@ -2,6 +2,8 @@ import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.vanniktech.maven.publish.SonatypeHost
 
 val localProps = Properties().also { props ->
     val file = rootProject.file("local.properties")
@@ -15,6 +17,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.sqldelight)
+    alias(libs.plugins.mavenPublish)
 }
 
 kotlin {
@@ -83,7 +86,6 @@ kotlin {
             implementation(libs.security.crypto)
 
             // Markdown — Compose-native CommonMark renderer for agent messages.
-            // Mirrors flutter_markdown_plus used by the Flutter SDK's AssistantMessage widget.
             implementation(libs.markdown.renderer)
             implementation(libs.markdown.renderer.m3)
         }
@@ -142,7 +144,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 23
         consumerProguardFiles("consumer-proguard-rules.pro")
         val useFakeRepo = localProps.getProperty("yalo.useFakeRepository", "false")
             .trim().toBooleanStrictOrNull() ?: false
@@ -190,4 +192,33 @@ composeCompiler {
 dependencies {
     add("androidMainImplementation", platform(libs.compose.bom))
     debugImplementation(libs.compose.ui.tooling)
+}
+
+mavenPublishing {
+    configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = false))
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+    pom {
+        name.set("Yalo Chat Android SDK")
+        description.set("Jetpack Compose chat SDK for Yalo, powered by Kotlin Multiplatform")
+        url.set("https://github.com/yalochat/chat-sdk")
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("yalo")
+                name.set("Yalo Engineering")
+                url.set("https://yalo.com")
+            }
+        }
+        scm {
+            url.set("https://github.com/yalochat/chat-sdk")
+            connection.set("scm:git:git://github.com/yalochat/chat-sdk.git")
+            developerConnection.set("scm:git:ssh://git@github.com/yalochat/chat-sdk.git")
+        }
+    }
 }

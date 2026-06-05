@@ -1,0 +1,107 @@
+# Copyright (c) Yalochat, Inc. All rights reserved.
+
+name: Release iOS SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.0.1)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Assert running on main
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "ERROR: releases must be dispatched from main (got ${{ github.ref }})"
+            exit 1
+          fi
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Validate version input
+        run: |
+          VERSION="${{ inputs.version }}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: version must be X.Y.Z format (got: $VERSION)"
+            exit 1
+          fi
+
+      - name: Guard against duplicate release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          if gh api "/repos/${{ github.repository }}/git/refs/tags/v${VERSION}" &>/dev/null; then
+            echo "ERROR: tag v${VERSION} already exists — delete the tag and release before re-running"
+            exit 1
+          fi
+
+      - name: Gitleaks Scan
+        run: |
+          brew install gitleaks
+          gitleaks detect --source="${{ github.workspace }}" -v
+
+      - name: Build XCFramework
+        run: cd android-sdk && ./gradlew :sdk:assembleChatSdkReleaseXCFramework
+
+      - name: Zip XCFramework
+        id: zip
+        run: |
+          XCFW_DIR="android-sdk/sdk/build/XCFrameworks/release"
+          cd "$XCFW_DIR"
+          zip -r ChatSdk.xcframework.zip ChatSdk.xcframework
+          CHECKSUM=$(swift package compute-checksum ChatSdk.xcframework.zip)
+          echo "CHECKSUM=$CHECKSUM" >> $GITHUB_OUTPUT
+          cp ChatSdk.xcframework.zip "$GITHUB_WORKSPACE/ChatSdk.xcframework.zip"
+
+      - name: Commit Package.swift and create tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          CHECKSUM="${{ steps.zip.outputs.CHECKSUM }}"
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/v${VERSION}/ChatSdk.xcframework.zip"
+
+          # Use # as sed delimiter — safe because GitHub URLs and hex checksums never contain #
+          sed -i '' \
+            -e "s#url: \"https://github.com/[^\"]*\"#url: \"${DOWNLOAD_URL}\"#" \
+            -e "s#checksum: \"[^\"]*\"#checksum: \"${CHECKSUM}\"#" \
+            Package.swift
+
+          FILE_SHA=$(gh api "/repos/${{ github.repository }}/contents/Package.swift" --jq '.sha')
+          CONTENT=$(base64 < Package.swift | tr -d '\n')
+          COMMIT_SHA=$(gh api -X PUT "/repos/${{ github.repository }}/contents/Package.swift" \
+            -f message="chore(ios): update Package.swift checksum for v${VERSION}" \
+            -f content="${CONTENT}" \
+            -f sha="${FILE_SHA}" \
+            -f branch="main" \
+            --jq '.commit.sha')
+
+          gh api -X POST "/repos/${{ github.repository }}/git/refs" \
+            -f ref="refs/tags/v${VERSION}" \
+            -f sha="${COMMIT_SHA}"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ inputs.version }}" "$GITHUB_WORKSPACE/ChatSdk.xcframework.zip" \
+            --title "iOS SDK v${{ inputs.version }}" \
+            --generate-notes

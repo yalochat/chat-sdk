@@ -1,0 +1,85 @@
+# Copyright (c) Yalochat, Inc. All rights reserved.
+
+name: Release Android SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.0.1)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assert running on main
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "ERROR: releases must be dispatched from main (got ${{ github.ref }})"
+            exit 1
+          fi
+
+      - name: Validate version input
+        run: |
+          VERSION="${{ inputs.version }}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: version must be X.Y.Z format (got: $VERSION)"
+            exit 1
+          fi
+
+      - name: Guard against duplicate release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          ENCODED_REF="android-sdk%2Fv${VERSION}"
+          if gh api "/repos/${{ github.repository }}/git/refs/tags/${ENCODED_REF}" &>/dev/null; then
+            echo "ERROR: tag android-sdk/v${VERSION} already exists — delete the tag and release before re-running"
+            exit 1
+          fi
+
+      - name: Gitleaks Scan
+        run: docker run --rm -v "${{ github.workspace }}:/code" zricethezav/gitleaks:v8.30.0 detect --source="/code" -v
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Run unit tests
+        working-directory: ./android-sdk
+        run: ./gradlew :sdk:testDebugUnitTest
+
+      - name: Publish to Maven Central
+        working-directory: ./android-sdk
+        # publishMavenPublication targets only the Android AAR — skips iOS klib
+        # publications that the KMP plugin registers but can't build on Linux.
+        run: ./gradlew :sdk:publishMavenPublicationToMavenCentralRepository
+        env:
+          ORG_GRADLE_PROJECT_VERSION_NAME: ${{ inputs.version }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+      - name: Create tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          gh api -X POST "/repos/${{ github.repository }}/git/refs" \
+            -f ref="refs/tags/android-sdk/v${VERSION}" \
+            -f sha="${GITHUB_SHA}"
+          gh release create "android-sdk/v${VERSION}" \
+            --title "Android SDK v${VERSION}" \
+            --generate-notes
