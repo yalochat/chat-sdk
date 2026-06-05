@@ -21,18 +21,6 @@ import '@ui/chat/waveform-painter/waveform-painter';
 @localized()
 export class ChatFooter extends LitElement {
   static styles = css`
-    :host {
-      --yalo-chat-input-border: 1px solid #e8e8e8;
-      --yalo-chat-input-border-radius: 25.5px;
-      --yalo-chat-input-font-size: 1rem;
-      --yalo-chat-input-placeholder-color: #757575;
-      --yalo-chat-send-btn-background: #2207f1;
-      --yalo-chat-send-btn-color: white;
-      --yalo-chat-attachment-button-color: #7c8086;
-      --yalo-chat-action-button-size: 2.5rem;
-      --yalo-chat-footer-icon-font-size: 1.5rem;
-    }
-
     .chat-form {
       display: flex;
       padding: 8px;
@@ -41,16 +29,16 @@ export class ChatFooter extends LitElement {
 
     .chat-input-box {
       flex-grow: 1;
-      border: var(--yalo-chat-input-border);
-      border-radius: var(--yalo-chat-input-border-radius);
-      padding: var(--yalo-chat-column-item-space);
+      border: var(--yalo-chat-input-border, 1px solid #e8e8e8);
+      border-radius: var(--yalo-chat-input-border-radius, 25.5px);
+      padding: var(--yalo-chat-column-item-space, 8px);
     }
 
     .chat-input {
       display: flex;
       align-items: center;
       line-height: 1.6rem;
-      font-size: var(--yalo-chat-input-font-size);
+      font-size: var(--yalo-chat-input-font-size, 1rem);
       max-height: calc(1.5em * 3);
       box-sizing: border-box;
       outline: none;
@@ -72,7 +60,7 @@ export class ChatFooter extends LitElement {
       inset: 0;
       display: flex;
       align-items: center;
-      color: var(--yalo-chat-input-placeholder-color);
+      color: var(--yalo-chat-input-placeholder-color, #757575);
       pointer-events: none;
     }
 
@@ -80,11 +68,11 @@ export class ChatFooter extends LitElement {
       appearance: none;
       border: none;
       outline: none;
-      background: var(--yalo-chat-send-btn-background);
-      color: var(--yalo-chat-send-btn-color);
+      background: var(--yalo-chat-send-btn-background, #2207f1);
+      color: var(--yalo-chat-send-btn-color, white);
       border-radius: 50%;
-      width: var(--yalo-chat-action-button-size);
-      height: var(--yalo-chat-action-button-size);
+      width: var(--yalo-chat-action-button-size, 2.5rem);
+      height: var(--yalo-chat-action-button-size, 2.5rem);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -111,7 +99,7 @@ export class ChatFooter extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-footer-icon-font-size);
+      font-size: var(--yalo-chat-footer-icon-font-size, 1.5rem);
       font-family: 'Material Symbols Outlined';
     }
 
@@ -130,7 +118,7 @@ export class ChatFooter extends LitElement {
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
-      color: var(--yalo-chat-attachment-button-color);
+      color: var(--yalo-chat-attachment-button-color, #7c8086);
       border-radius: 50%;
       width: 2rem;
       height: 2rem;

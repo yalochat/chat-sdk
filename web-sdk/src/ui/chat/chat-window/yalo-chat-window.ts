@@ -35,16 +35,9 @@ import { setLocale } from '@i18n/index';
 export class YaloChatWindow extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-background: #ffffff;
-      --yalo-chat-corner-radius: 12px;
-      --yalo-chat-font: sans-serif;
-      --yalo-chat-column-item-space: 8px;
-      --yalo-chat-row-item-space: 8px;
-      --yalo-chat-width: auto;
-      --yalo-chat-height: auto;
       display: none;
-      width: var(--yalo-chat-width);
-      height: var(--yalo-chat-height);
+      width: var(--yalo-chat-width, auto);
+      height: var(--yalo-chat-height, auto);
     }
 
     :host([open]) {
@@ -54,9 +47,9 @@ export class YaloChatWindow extends LitElement {
     .chat-window {
       width: 100%;
       height: 100%;
-      background: var(--yalo-chat-background);
-      border-radius: var(--yalo-chat-corner-radius);
-      font-family: var(--yalo-chat-font);
+      background: var(--yalo-chat-background, #ffffff);
+      border-radius: var(--yalo-chat-corner-radius, 12px);
+      font-family: var(--yalo-chat-font, sans-serif);
       display: flex;
       flex-direction: column;
       overflow: hidden;

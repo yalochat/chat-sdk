@@ -21,28 +21,13 @@ export type ProductCardCartState = 'not-added' | 'in-cart' | 'modified';
 export class ProductCard extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-product-title-color: #111111;
-      --yalo-chat-product-subunits-color: #7c8086;
-      --yalo-chat-product-image-radius: 0.125em;
-      --yalo-chat-product-gap: 0.5rem;
-      --yalo-chat-product-title-size: 1rem;
-      --yalo-chat-product-subunits-size: 0.875rem;
-      --yalo-chat-product-card-button-background: #111111;
-      --yalo-chat-product-card-button-color: #ffffff;
-      --yalo-chat-product-card-button-background-clicked: #0b996d;
-      --yalo-chat-product-card-button-color-clicked: #ffffff;
-      --yalo-chat-product-card-button-border: none;
-      --yalo-chat-product-card-button-border-radius: 0.5rem;
-      --yalo-chat-product-card-button-padding: 0.5rem;
-      --yalo-chat-product-card-button-font-size: 0.875rem;
-      --yalo-chat-product-card-button-icon-font-size: 1rem;
       display: block;
       width: 100%;
     }
 
     .card {
       display: flex;
-      gap: var(--yalo-chat-product-gap);
+      gap: var(--yalo-chat-product-gap, 0.5rem);
     }
 
     .card.horizontal {
@@ -55,7 +40,7 @@ export class ProductCard extends LitElement {
     }
 
     .image-wrap {
-      border-radius: var(--yalo-chat-product-image-radius);
+      border-radius: var(--yalo-chat-product-image-radius, 0.125em);
       overflow: hidden;
       background: #f1f3f6;
       flex-shrink: 0;
@@ -96,15 +81,15 @@ export class ProductCard extends LitElement {
     }
 
     .title {
-      font-size: var(--yalo-chat-product-title-size);
+      font-size: var(--yalo-chat-product-title-size, 1rem);
       font-weight: 600;
-      color: var(--yalo-chat-product-title-color);
+      color: var(--yalo-chat-product-title-color, #111111);
       word-break: break-word;
     }
 
     .subunits {
-      font-size: var(--yalo-chat-product-subunits-size);
-      color: var(--yalo-chat-product-subunits-color);
+      font-size: var(--yalo-chat-product-subunits-size, 0.875rem);
+      color: var(--yalo-chat-product-subunits-color, #7c8086);
     }
 
     .quantities {
@@ -120,23 +105,23 @@ export class ProductCard extends LitElement {
       justify-content: center;
       gap: 0.25rem;
       margin-top: 0.5rem;
-      padding: var(--yalo-chat-product-card-button-padding);
-      border: var(--yalo-chat-product-card-button-border);
-      border-radius: var(--yalo-chat-product-card-button-border-radius);
-      background: var(--yalo-chat-product-card-button-background);
-      color: var(--yalo-chat-product-card-button-color);
-      font-size: var(--yalo-chat-product-card-button-font-size);
+      padding: var(--yalo-chat-product-card-button-padding, 0.5rem);
+      border: var(--yalo-chat-product-card-button-border, none);
+      border-radius: var(--yalo-chat-product-card-button-border-radius, 0.5rem);
+      background: var(--yalo-chat-product-card-button-background, #111111);
+      color: var(--yalo-chat-product-card-button-color, #ffffff);
+      font-size: var(--yalo-chat-product-card-button-font-size, 0.875rem);
       cursor: pointer;
       word-break: break-word;
     }
 
     .cart-button.in-cart {
-      background: var(--yalo-chat-product-card-button-background-clicked);
-      color: var(--yalo-chat-product-card-button-color-clicked);
+      background: var(--yalo-chat-product-card-button-background-clicked, #0b996d);
+      color: var(--yalo-chat-product-card-button-color-clicked, #ffffff);
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-product-card-button-icon-font-size);
+      font-size: var(--yalo-chat-product-card-button-icon-font-size, 1rem);
       font-family: 'Material Symbols Outlined';
     }
   `;

@@ -13,21 +13,14 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 @customElement('yalo-chat-header')
 export class ChatHeader extends LitElement {
   static styles = css`
-    :host {
-      --yalo-chat-header-background: #f1f5fc;
-      --yalo-chat-header-color: #010101;
-      --yalo-chat-close-btn-color: #010101;
-      --yalo-chat-header-icon-font-size: 1.5rem;
-    }
-
     .chat-header {
       display: flex;
       gap: 1rem;
       align-items: center;
       justify-content: space-between;
       padding: 12px 16px;
-      background: var(--yalo-chat-header-background);
-      color: var(--yalo-chat-header-color);
+      background: var(--yalo-chat-header-background, #f1f5fc);
+      color: var(--yalo-chat-header-color, #010101);
     }
 
     .chat-header-title-group {
@@ -55,7 +48,7 @@ export class ChatHeader extends LitElement {
     .chat-close-btn {
       background: none;
       border: none;
-      color: var(--yalo-chat-close-btn-color);
+      color: var(--yalo-chat-close-btn-color, #010101);
       cursor: pointer;
       padding: 4px;
       display: flex;
@@ -71,7 +64,7 @@ export class ChatHeader extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-header-icon-font-size);
+      font-size: var(--yalo-chat-header-icon-font-size, 1.5rem);
       font-family: 'Material Symbols Outlined';
     }
   `;

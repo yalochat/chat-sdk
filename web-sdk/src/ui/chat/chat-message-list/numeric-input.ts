@@ -8,30 +8,23 @@ import NumericInputController from './numeric-input-controller';
 export class NumericInput extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-numeric-icon-color: #334155;
-      --yalo-chat-numeric-text-color: #111111;
-      --yalo-chat-numeric-border-color: #dde4ec;
-      --yalo-chat-numeric-radius: 0.5rem;
-      --yalo-chat-numeric-padding: 0.25rem;
-      --yalo-chat-numeric-gap: 0.5rem;
-      --yalo-chat-numeric-font-size: 0.875rem;
       display: block;
     }
 
     .field {
       display: flex;
       align-items: center;
-      gap: var(--yalo-chat-numeric-gap);
-      border: 1px solid var(--yalo-chat-numeric-border-color);
-      border-radius: var(--yalo-chat-numeric-radius);
-      padding: var(--yalo-chat-numeric-padding);
+      gap: var(--yalo-chat-numeric-gap, 0.5rem);
+      border: 1px solid var(--yalo-chat-numeric-border-color, #dde4ec);
+      border-radius: var(--yalo-chat-numeric-radius, 0.5rem);
+      padding: var(--yalo-chat-numeric-padding, 0.25rem);
     }
 
     button {
       background: none;
       border: none;
       cursor: pointer;
-      color: var(--yalo-chat-numeric-icon-color);
+      color: var(--yalo-chat-numeric-icon-color, #334155);
       font-size: 1.25rem;
       line-height: 1;
       width: 1.75rem;
@@ -47,7 +40,7 @@ export class NumericInput extends LitElement {
     }
 
     button:disabled {
-      color: var(--yalo-chat-numeric-border-color);
+      color: var(--yalo-chat-numeric-border-color, #dde4ec);
       cursor: not-allowed;
       background: none;
     }
@@ -59,8 +52,8 @@ export class NumericInput extends LitElement {
       outline: none;
       background: transparent;
       text-align: center;
-      color: var(--yalo-chat-numeric-text-color);
-      font-size: var(--yalo-chat-numeric-font-size);
+      color: var(--yalo-chat-numeric-text-color, #111111);
+      font-size: var(--yalo-chat-numeric-font-size, 0.875rem);
       font-family: inherit;
     }
   `;
