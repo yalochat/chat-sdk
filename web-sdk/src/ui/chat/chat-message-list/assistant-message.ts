@@ -20,18 +20,6 @@ import './voice-message';
 export class AssistantMessage extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-link-button-color: #2207f1;
-      --yalo-chat-message-header-font-weight: bold;
-      --yalo-chat-message-footer-color: #7c8086;
-      --yalo-chat-message-footer-font-size: 0.75em;
-      --yalo-chat-buttons-border-color: #9db1c8;
-      --yalo-chat-buttons-gap: 0.5rem;
-      --yalo-chat-buttons-padding: 0.5rem;
-      --yalo-chat-buttons-border-radius: 0.5rem;
-      --yalo-chat-buttons-background: transparent;
-      --yalo-chat-buttons-color: #111111;
-      --yalo-chat-buttons-font-size: 0.875rem;
-      --yalo-chat-assistant-message-icon-font-size: 1rem;
       display: flow;
       justify-content: flex-start;
       margin: 0.25rem 0.5rem;
@@ -44,7 +32,7 @@ export class AssistantMessage extends LitElement {
     }
 
     a {
-      color: var(--yalo-chat-link-button-color);
+      color: var(--yalo-chat-link-button-color, #2207f1);
     }
 
     .voice-bubble {
@@ -69,14 +57,14 @@ export class AssistantMessage extends LitElement {
     }
 
     .header {
-      font-weight: var(--yalo-chat-message-header-font-weight);
+      font-weight: var(--yalo-chat-message-header-font-weight, bold);
       margin-bottom: 0.25rem;
       word-break: break-word;
     }
 
     .footer {
-      color: var(--yalo-chat-message-footer-color);
-      font-size: var(--yalo-chat-message-footer-font-size);
+      color: var(--yalo-chat-message-footer-color, #7c8086);
+      font-size: var(--yalo-chat-message-footer-font-size, 0.75em);
       margin-top: 0.25rem;
       word-break: break-word;
     }
@@ -84,18 +72,18 @@ export class AssistantMessage extends LitElement {
     .buttons {
       display: flex;
       flex-direction: column;
-      gap: var(--yalo-chat-buttons-gap);
+      gap: var(--yalo-chat-buttons-gap, 0.5rem);
       margin-top: 0.5rem;
     }
 
     .buttons button,
     .buttons a {
-      padding: var(--yalo-chat-buttons-padding);
-      border: 1px solid var(--yalo-chat-buttons-border-color);
-      border-radius: var(--yalo-chat-buttons-border-radius);
-      background: var(--yalo-chat-buttons-background);
-      color: var(--yalo-chat-buttons-color);
-      font-size: var(--yalo-chat-buttons-font-size);
+      padding: var(--yalo-chat-buttons-padding, 0.5rem);
+      border: 1px solid var(--yalo-chat-buttons-border-color, #9db1c8);
+      border-radius: var(--yalo-chat-buttons-border-radius, 0.5rem);
+      background: var(--yalo-chat-buttons-background, transparent);
+      color: var(--yalo-chat-buttons-color, #111111);
+      font-size: var(--yalo-chat-buttons-font-size, 0.875rem);
       cursor: pointer;
       word-break: break-word;
     }
@@ -117,7 +105,7 @@ export class AssistantMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-assistant-message-icon-font-size);
+      font-size: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
       font-family: 'Material Symbols Outlined';
     }
 

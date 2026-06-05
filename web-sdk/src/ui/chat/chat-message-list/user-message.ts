@@ -20,10 +20,6 @@ import './attachment-message';
 export class UserMessage extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-user-message-error-color: #a01600;
-      --yalo-chat-user-message-error-text-color: #461a1a;
-      --yalo-chat-user-message-icon-font-size: 1.25rem;
-      --yalo-chat-bubble-padding: 0.5rem 0.75rem;
       display: flex;
       justify-content: flex-end;
       margin: 0.25rem 0.5rem;
@@ -46,7 +42,7 @@ export class UserMessage extends LitElement {
 
     .error-icon {
       flex-shrink: 0;
-      color: var(--yalo-chat-user-message-error-color);
+      color: var(--yalo-chat-user-message-error-color, #a01600);
       font-size: 1.25rem;
       display: flex;
       align-items: center;
@@ -54,14 +50,14 @@ export class UserMessage extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-user-message-icon-font-size);
+      font-size: var(--yalo-chat-user-message-icon-font-size, 1.25rem);
       font-family: 'Material Symbols Outlined';
       font-variation-settings: 'FILL' 1;
     }
 
     .error-label {
       font-size: 0.75rem;
-      color: var(--yalo-chat-user-message-error-text-color);
+      color: var(--yalo-chat-user-message-error-text-color, #461a1a);
       margin-top: 0.25rem;
       align-self: flex-end;
     }
@@ -73,7 +69,7 @@ export class UserMessage extends LitElement {
 
     .bubble {
       max-width: 80%;
-      padding: var(--yalo-chat-bubble-padding);
+      padding: var(--yalo-chat-bubble-padding, 0.5rem 0.75rem);
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
       background: var(--yalo-chat-user-message-background, #f9fafc);
@@ -88,7 +84,7 @@ export class UserMessage extends LitElement {
 
     .voice-bubble {
       width: 60%;
-      padding: var(--yalo-chat-bubble-padding);
+      padding: var(--yalo-chat-bubble-padding, 0.5rem 0.75rem);
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
       background: var(--yalo-chat-user-message-background, #f9fafc);

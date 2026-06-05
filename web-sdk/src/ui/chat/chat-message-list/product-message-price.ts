@@ -11,14 +11,6 @@ import { customElement, property } from 'lit/decorators.js';
 export class ProductMessagePrice extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-product-price-background: #eef2f7;
-      --yalo-chat-product-price-color: #111111;
-      --yalo-chat-product-price-strike-color: #7c8086;
-      --yalo-chat-product-price-per-subunit-color: #7c8086;
-      --yalo-chat-product-price-padding: 0.3125em;
-      --yalo-chat-product-price-radius: 2.0625em;
-      --yalo-chat-product-price-gap: 0.5em;
-      --yalo-chat-product-price-font-size: 0.875rem;
       display: block;
       overflow-x: auto;
     }
@@ -26,30 +18,30 @@ export class ProductMessagePrice extends LitElement {
     .row {
       display: flex;
       align-items: center;
-      gap: var(--yalo-chat-product-price-gap);
-      font-size: var(--yalo-chat-product-price-font-size);
+      gap: var(--yalo-chat-product-price-gap, 0.5em);
+      font-size: var(--yalo-chat-product-price-font-size, 0.875rem);
     }
 
     .pill {
       display: inline-flex;
       align-items: center;
       gap: 0.25em;
-      padding: var(--yalo-chat-product-price-padding)
-        calc(var(--yalo-chat-product-price-padding) * 2);
-      background: var(--yalo-chat-product-price-background);
-      color: var(--yalo-chat-product-price-color);
-      border-radius: var(--yalo-chat-product-price-radius);
+      padding: var(--yalo-chat-product-price-padding, 0.3125em)
+        calc(var(--yalo-chat-product-price-padding, 0.3125em) * 2);
+      background: var(--yalo-chat-product-price-background, #eef2f7);
+      color: var(--yalo-chat-product-price-color, #111111);
+      border-radius: var(--yalo-chat-product-price-radius, 2.0625em);
       font-weight: 600;
     }
 
     .strike {
-      color: var(--yalo-chat-product-price-strike-color);
+      color: var(--yalo-chat-product-price-strike-color, #7c8086);
       text-decoration: line-through;
       font-weight: 400;
     }
 
     .per-subunit {
-      color: var(--yalo-chat-product-price-per-subunit-color);
+      color: var(--yalo-chat-product-price-per-subunit-color, #7c8086);
     }
   `;
 

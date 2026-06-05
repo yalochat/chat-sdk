@@ -15,18 +15,12 @@ const COLLAPSED_MAX_ITEMS = 3;
 export class ProductMessage extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-product-message-card-background: #ffffff;
-      --yalo-chat-product-message-card-border-color: #dde4ec;
-      --yalo-chat-product-message-card-radius: 1rem;
-      --yalo-chat-product-message-card-padding: 1rem;
-      --yalo-chat-product-message-gap: 1rem;
-      --yalo-chat-product-message-expand-color: #2207f1;
       display: block;
     }
 
     .list {
       display: flex;
-      gap: var(--yalo-chat-product-message-gap);
+      gap: var(--yalo-chat-product-message-gap, 1rem);
     }
 
     .list.vertical {
@@ -41,10 +35,10 @@ export class ProductMessage extends LitElement {
     }
 
     .item {
-      background: var(--yalo-chat-product-message-card-background);
-      border: 1px solid var(--yalo-chat-product-message-card-border-color);
-      border-radius: var(--yalo-chat-product-message-card-radius);
-      padding: var(--yalo-chat-product-message-card-padding);
+      background: var(--yalo-chat-product-message-card-background, #ffffff);
+      border: 1px solid var(--yalo-chat-product-message-card-border-color, #dde4ec);
+      border-radius: var(--yalo-chat-product-message-card-radius, 1rem);
+      padding: var(--yalo-chat-product-message-card-padding, 1rem);
       box-sizing: border-box;
     }
 
@@ -63,7 +57,7 @@ export class ProductMessage extends LitElement {
       border: none;
       padding: 0.5rem;
       cursor: pointer;
-      color: var(--yalo-chat-product-message-expand-color);
+      color: var(--yalo-chat-product-message-expand-color, #2207f1);
       font-size: 0.875rem;
       font-weight: 600;
     }

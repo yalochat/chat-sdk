@@ -14,17 +14,10 @@ import { WaveformPainterController } from './waveform-painter-controller';
 @localized()
 export class WaveformPainter extends LitElement {
   static styles = css`
-    :host {
-      --yalo-chat-waveform-color: #2207f1;
-      --yalo-chat-waveform-close-button-color: #7c8086;
-      --yalo-chat-waveform-timer-color: #7c8086;
-      --yalo-chat-waveform-icon-font-size: 1.5em;
-    }
-
     .waveform-recorder {
       display: flex;
       flex-direction: row;
-      gap: var(--yalo-chat-row-item-space);
+      gap: var(--yalo-chat-row-item-space, 8px);
     }
 
     .waveform-canvas {
@@ -38,7 +31,7 @@ export class WaveformPainter extends LitElement {
       border: none;
       outline: none;
       background: none;
-      color: var(--yalo-chat-waveform-close-button-color);
+      color: var(--yalo-chat-waveform-close-button-color, #7c8086);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -48,12 +41,12 @@ export class WaveformPainter extends LitElement {
     }
 
     .material-symbols-outlined {
-      font-size: var(--yalo-chat-waveform-icon-font-size);
+      font-size: var(--yalo-chat-waveform-icon-font-size, 1.5em);
       font-family: 'Material Symbols Outlined';
     }
 
     .recording-time {
-      color: var(--yalo-chat-waveform-timer-color);
+      color: var(--yalo-chat-waveform-timer-color, #7c8086);
       display: flex;
       align-items: center;
       margin-left: 0.5rem;

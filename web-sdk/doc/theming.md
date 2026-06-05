@@ -36,30 +36,6 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 }
 ```
 
-#### Width and height
-
-`--yalo-chat-width` and `--yalo-chat-height` must be set on the `yalo-chat-window` element itself (or as an inline `style` on it). Setting them on `:root` or on a wrapping element has no effect: the component declares its own defaults in `:host`, and `:host` wins over inherited custom properties.
-
-Fixed size:
-
-```css
-yalo-chat-window {
-  --yalo-chat-width: 500px;
-  --yalo-chat-height: 720px;
-}
-```
-
-Fill the parent container (the embedding pattern, for full-page or panel embeds):
-
-```css
-yalo-chat-window {
-  --yalo-chat-width: 100%;
-  --yalo-chat-height: 100%;
-}
-```
-
-Both accept any CSS length (`px`, `rem`, `%`, `vw`, `vh`, etc.). The defaults are `auto`, which collapses the window to its content.
-
 ### Spacing
 
 ```css

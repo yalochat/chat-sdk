@@ -17,9 +17,6 @@ import './chat-quick-replies';
 export default class ChatMessageList extends LitElement {
   static styles = css`
     :host {
-      --yalo-chat-user-message-background: #f9fafc;
-      --yalo-chat-spinner-color: #2207f1;
-      --yalo-chat-dot-color: #2207f1;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -55,7 +52,7 @@ export default class ChatMessageList extends LitElement {
       padding: 0.5rem 0.75rem;
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
-      background: var(--yalo-chat-user-message-background);
+      background: var(--yalo-chat-user-message-background, #f9fafc);
       word-break: break-word;
     }
 
@@ -69,7 +66,7 @@ export default class ChatMessageList extends LitElement {
     .spinner {
       width: 48px;
       height: 48px;
-      border: 5px solid var(--yalo-chat-spinner-color);
+      border: 5px solid var(--yalo-chat-spinner-color, #2207f1);
       border-bottom-color: transparent;
       border-radius: 50%;
       display: inline-block;
@@ -97,7 +94,7 @@ export default class ChatMessageList extends LitElement {
       --_g: no-repeat
         radial-gradient(
           circle closest-side,
-          var(--yalo-chat-dot-color) 90%,
+          var(--yalo-chat-dot-color, #2207f1) 90%,
           #0000
         );
       background:
