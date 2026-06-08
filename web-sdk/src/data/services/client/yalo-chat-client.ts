@@ -2,10 +2,7 @@
 
 import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
 import '@ui/chat/chat-window/yalo-chat-window';
-import {
-  defaultIcons,
-  type YaloChatClientConfig,
-} from '@domain/config/chat-config';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type {
   ChatCommand,
   ChatCommandCallback,
@@ -25,13 +22,7 @@ export default class YaloChatClient {
   private _onClose?: () => void;
 
   constructor(config: YaloChatClientConfig) {
-    this.config = {
-      icons: {
-        ...defaultIcons,
-        ...config.icons,
-      },
-      ...config,
-    };
+    this.config = config;
   }
 
   init(options?: YaloChatClientInitOptions): void {

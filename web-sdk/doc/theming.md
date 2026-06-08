@@ -2,6 +2,30 @@
 
 The Webchat SDK exposes CSS custom properties (variables) that let you customize the look and feel of the chat widget without modifying its internals. Set these variables on the `:root` selector or on a parent element wrapping the chat widget.
 
+## Table of contents
+
+- [Usage](#usage)
+- [Variables reference](#variables-reference)
+  - [Window](#window)
+  - [Icons](#icons)
+  - [Spacing](#spacing)
+  - [Header](#header)
+  - [Text input](#text-input)
+  - [Buttons](#buttons)
+  - [Messages](#messages)
+  - [Loading and typing indicators](#loading-and-typing-indicators)
+  - [Voice and audio](#voice-and-audio)
+  - [Attachments](#attachments)
+  - [Assistant messages](#assistant-messages)
+  - [Message buttons](#message-buttons)
+  - [Quick replies](#quick-replies)
+  - [Product messages](#product-messages)
+  - [Product cards](#product-cards)
+  - [Product pricing](#product-pricing)
+  - [Product confirmation](#product-confirmation)
+  - [Numeric input](#numeric-input)
+- [Full theming example](#full-theming-example)
+
 ## Usage
 
 Override any variable in your own stylesheet:
@@ -33,6 +57,50 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
   /* Font family used across the entire chat widget.
      Set this to match your site typography. */
   --yalo-chat-font: sans-serif;
+}
+```
+
+### Icons
+
+The widget renders icons as font ligatures. By default it uses Material Symbols Outlined (loaded by the host page) and each icon name maps to a ligature in that font. Override the variables below to point at a different font, or to swap individual glyphs to other ligatures in the same font.
+
+```css
+:root {
+  /* Font family used to render every icon in the widget.
+     Replace it to switch to a different icon font
+     (e.g. Tabler Icons, Phosphor). */
+  --yalo-chat-icon-font-family: 'Material Symbols Outlined';
+
+  /* Glyph rendered in the chat header close button. */
+  --yalo-chat-icon-close: 'close';
+
+  /* Glyph rendered in the send action button. */
+  --yalo-chat-icon-send: 'send';
+
+  /* Glyph rendered in the microphone action button. */
+  --yalo-chat-icon-mic: 'mic';
+
+  /* Glyph rendered in the attachment button next to the input. */
+  --yalo-chat-icon-attachment: 'add';
+
+  /* Glyph rendered on the play control of voice messages. */
+  --yalo-chat-icon-play: 'play_arrow';
+
+  /* Glyph rendered on the pause control of voice messages. */
+  --yalo-chat-icon-pause: 'pause';
+
+  /* Glyph rendered next to the file name on attachment messages. */
+  --yalo-chat-icon-document: 'description';
+
+  /* Glyph rendered inside assistant link buttons. */
+  --yalo-chat-icon-arrow-forward: 'arrow_forward';
+
+  /* Glyph rendered next to messages that failed to send. */
+  --yalo-chat-icon-error: 'error';
+
+  /* Glyph rendered after adding a product to the cart
+     or confirming a product confirmation card. */
+  --yalo-chat-icon-check: 'check';
 }
 ```
 

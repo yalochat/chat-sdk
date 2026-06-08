@@ -1,15 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import {
-  type YaloChatClientConfig,
-  yaloChatClientConfigContext,
-} from '@domain/config/chat-config-context';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { consume } from '@lit/context';
 import { localized, msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { keyed } from 'lit/directives/keyed.js';
 import { ChatFooterController } from './chat-footer-controller';
 import { AudioRecordingController } from './audio-recording-controller';
@@ -98,9 +93,24 @@ export class ChatFooter extends LitElement {
       }
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-footer-icon-font-size, 1.5rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='send']::before {
+      content: var(--yalo-chat-icon-send, 'send');
+    }
+    .yalo-icon[data-icon='mic']::before {
+      content: var(--yalo-chat-icon-mic, 'mic');
+    }
+    .yalo-icon[data-icon='attachment']::before {
+      content: var(--yalo-chat-icon-attachment, 'add');
     }
 
     .chat-input-container {
@@ -136,9 +146,6 @@ export class ChatFooter extends LitElement {
 
   @consume({ context: loggerContext })
   logger!: Logger;
-
-  @consume({ context: yaloChatClientConfigContext })
-  config!: YaloChatClientConfig;
 
   @query('.chat-input')
   input!: HTMLElement;
@@ -270,7 +277,11 @@ export class ChatFooter extends LitElement {
                         </div>`}
                   </div>
                   <label for="file-picker">
-                    ${unsafeHTML(this.config.icons?.attachment)}
+                    <span
+                      class="yalo-icon"
+                      data-icon="attachment"
+                      aria-hidden="true"
+                    ></span>
                   </label>
                   <input
                     id="file-picker"
@@ -289,13 +300,13 @@ export class ChatFooter extends LitElement {
             >
               ${keyed(
                 shouldShowSend ? 'send' : 'mic',
-                html`<span class="icon-wrapper"
-                  >${unsafeHTML(
-                    shouldShowSend
-                      ? this.config.icons?.send
-                      : this.config.icons?.mic
-                  )}</span
-                >`
+                html`<span class="icon-wrapper">
+                  <span
+                    class="yalo-icon"
+                    data-icon=${shouldShowSend ? 'send' : 'mic'}
+                    aria-hidden="true"
+                  ></span>
+                </span>`
               )}
             </button>
           </div>

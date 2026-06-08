@@ -8,7 +8,6 @@ import { consume } from '@lit/context';
 import { msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('yalo-chat-header')
 export class ChatHeader extends LitElement {
@@ -63,9 +62,18 @@ export class ChatHeader extends LitElement {
       background: color-mix(in srgb, currentColor 15%, transparent);
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-header-icon-font-size, 1.5rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='close']::before {
+      content: var(--yalo-chat-icon-close, 'close');
     }
   `;
 
@@ -98,7 +106,7 @@ export class ChatHeader extends LitElement {
               aria-label="${msg(`Close Chat`)}"
               @click=${this._handleClose}
             >
-              ${unsafeHTML(this.config.icons?.close)}
+              <span class="yalo-icon" data-icon="close" aria-hidden="true"></span>
             </button>`}
       </header>
     `;

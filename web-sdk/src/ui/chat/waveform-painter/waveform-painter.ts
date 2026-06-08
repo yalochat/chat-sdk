@@ -7,7 +7,6 @@ import { localized } from '@lit/localize';
 import { loggerContext, type Logger } from '@log/logger-context';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { WaveformPainterController } from './waveform-painter-controller';
 
 @customElement('yalo-chat-waveform-recorder')
@@ -40,9 +39,18 @@ export class WaveformPainter extends LitElement {
       padding: 0;
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-waveform-icon-font-size, 1.5em);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='close']::before {
+      content: var(--yalo-chat-icon-close, 'close');
     }
 
     .recording-time {
@@ -86,7 +94,7 @@ export class WaveformPainter extends LitElement {
               @click=${() =>
                 this.dispatchEvent(new Event('yalo-chat-stop-voice-message'))}
             >
-              ${unsafeHTML(this.config.icons?.close)}
+              <span class="yalo-icon" data-icon="close" aria-hidden="true"></span>
             </button>`
           : nothing}
       </div>
