@@ -7,8 +7,6 @@ import { consume } from '@lit/context';
 import { localized, msg } from '@lit/localize';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { defaultIcons } from '@domain/config/chat-config';
 import ProductCardController from './product-card-controller';
 import './numeric-input';
 import './product-message-price';
@@ -120,9 +118,18 @@ export class ProductCard extends LitElement {
       color: var(--yalo-chat-product-card-button-color-clicked, #ffffff);
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-product-card-button-icon-font-size, 1rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='check']::before {
+      content: var(--yalo-chat-icon-check, 'check');
     }
   `;
 
@@ -258,11 +265,13 @@ export class ProductCard extends LitElement {
             @click=${this._onCartButtonClick}
           >
             ${this._effectiveCartState === 'in-cart'
-              ? html`<span class="icon"
-                  >${unsafeHTML(
-                    this.config?.icons?.check ?? defaultIcons.check
-                  )}</span
-                >`
+              ? html`<span class="icon">
+                  <span
+                    class="yalo-icon"
+                    data-icon="check"
+                    aria-hidden="true"
+                  ></span>
+                </span>`
               : nothing}
             ${this._cartButtonLabel()}
           </button>

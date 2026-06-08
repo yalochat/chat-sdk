@@ -4,10 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { ContextProvider } from '@lit/context';
-import {
-  defaultIcons,
-  type YaloChatClientConfig,
-} from '@domain/config/chat-config';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import { loggerContext, type Logger } from '@log/logger-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
@@ -19,7 +16,6 @@ const config: YaloChatClientConfig = {
   organizationId: 'org-1',
   channelName: 'Test',
   target: 'target',
-  icons: defaultIcons,
 };
 
 const noopLogger: Logger = {
@@ -62,6 +58,11 @@ const getFilePicker = (footer: ChatFooter): HTMLInputElement =>
 
 const getActionButton = (footer: ChatFooter): HTMLButtonElement =>
   footer.shadowRoot!.querySelector('.chat-action-button') as HTMLButtonElement;
+
+const getActionButtonIcon = (footer: ChatFooter): string | null =>
+  getActionButton(footer)
+    .querySelector('.yalo-icon')
+    ?.getAttribute('data-icon') ?? null;
 
 const getWaveformRecorder = (footer: ChatFooter): Element | null =>
   footer.shadowRoot!.querySelector('yalo-chat-waveform-recorder');
@@ -251,7 +252,7 @@ describe('ChatFooter', () => {
     it('renders the mic icon when the input is empty and not recording', async () => {
       const footer = await renderFooter();
 
-      expect(getActionButton(footer).textContent).toContain('mic');
+      expect(getActionButtonIcon(footer)).toBe('mic');
     });
 
     it('renders the send icon when the input has content', async () => {
@@ -265,7 +266,7 @@ describe('ChatFooter', () => {
       );
       await footer.updateComplete;
 
-      expect(getActionButton(footer).textContent).toContain('send');
+      expect(getActionButtonIcon(footer)).toBe('send');
     });
   });
 
@@ -318,7 +319,7 @@ describe('ChatFooter', () => {
       await startRecordingViaUI(footer);
 
       expect(getWaveformRecorder(footer)).not.toBeNull();
-      expect(getActionButton(footer).textContent).toContain('send');
+      expect(getActionButtonIcon(footer)).toBe('send');
     });
 
     it('dispatches yalo-chat-send-voice-message when the action button is clicked while recording', async () => {
@@ -372,7 +373,7 @@ describe('ChatFooter', () => {
 
       expect(sent).toBe(false);
       expect(getWaveformRecorder(footer)).toBeNull();
-      expect(getActionButton(footer).textContent).toContain('mic');
+      expect(getActionButtonIcon(footer)).toBe('mic');
     });
 
     it('stays idle when microphone access is denied', async () => {
@@ -382,7 +383,7 @@ describe('ChatFooter', () => {
       await startRecordingViaUI(footer);
 
       expect(getWaveformRecorder(footer)).toBeNull();
-      expect(getActionButton(footer).textContent).toContain('mic');
+      expect(getActionButtonIcon(footer)).toBe('mic');
     });
 
     it('updates the elapsed time on the waveform-recorder as time passes', async () => {

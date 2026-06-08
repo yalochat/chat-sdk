@@ -1,12 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
-import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import AssistantMessageController from './assistant-message-controller';
 import { renderMarkdown } from './render-markdown';
 import './attachment-message';
@@ -104,9 +100,18 @@ export class AssistantMessage extends LitElement {
       font-size: 1rem;
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='arrow-forward']::before {
+      content: var(--yalo-chat-icon-arrow-forward, 'arrow_forward');
     }
 
     .buttons button:hover,
@@ -116,9 +121,6 @@ export class AssistantMessage extends LitElement {
   `;
 
   private _controller = new AssistantMessageController(this);
-
-  @consume({ context: yaloChatClientConfigContext })
-  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -197,7 +199,11 @@ export class AssistantMessage extends LitElement {
                   >
                     ${button.text}
                     <span class="arrow">
-                      ${unsafeHTML(this.config.icons?.arrowForward)}
+                      <span
+                        class="yalo-icon"
+                        data-icon="arrow-forward"
+                        aria-hidden="true"
+                      ></span>
                     </span>
                   </a>`
                 : html`<button

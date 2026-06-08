@@ -5,10 +5,7 @@ import { html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { ContextProvider } from '@lit/context';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
-import {
-  defaultIcons,
-  type YaloChatClientConfig,
-} from '@domain/config/chat-config';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { loggerContext, type Logger } from '@log/logger-context';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { Product } from '@domain/models/product/product';
@@ -20,7 +17,6 @@ const config: YaloChatClientConfig = {
   organizationId: 'org-1',
   channelName: 'Test',
   target: 'target',
-  icons: defaultIcons,
 };
 
 const noopLogger: Logger = {
@@ -1531,6 +1527,11 @@ describe('ChatMessageList', () => {
     const getPlayButton = (voice: LitElement): HTMLButtonElement =>
       voice.shadowRoot!.querySelector('.play-button') as HTMLButtonElement;
 
+    const getPlayButtonIcon = (voice: LitElement): string | null =>
+      getPlayButton(voice)
+        .querySelector('.yalo-icon')
+        ?.getAttribute('data-icon') ?? null;
+
     const voiceFromRemote = (
       overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}
     ) =>
@@ -1548,7 +1549,7 @@ describe('ChatMessageList', () => {
       const list = await renderList([voiceFromRemote()]);
       const voice = await getVoiceMessage(list);
 
-      expect(getPlayButton(voice).textContent).toContain('play_arrow');
+      expect(getPlayButtonIcon(voice)).toBe('play');
     });
 
     it('starts playback and swaps to the pause icon when the play button is clicked', async () => {
@@ -1560,7 +1561,7 @@ describe('ChatMessageList', () => {
 
       expect(audioInstances).toHaveLength(1);
       expect(audioInstances[0].play).toHaveBeenCalledOnce();
-      expect(getPlayButton(voice).textContent).toContain('pause');
+      expect(getPlayButtonIcon(voice)).toBe('pause');
     });
 
     it('pauses playback and swaps back to the play icon when clicked again', async () => {
@@ -1573,7 +1574,7 @@ describe('ChatMessageList', () => {
       await voice.updateComplete;
 
       expect(audioInstances[0].pause).toHaveBeenCalledOnce();
-      expect(getPlayButton(voice).textContent).toContain('play_arrow');
+      expect(getPlayButtonIcon(voice)).toBe('play');
     });
 
     it('reuses the same audio across play/pause cycles', async () => {
@@ -1600,7 +1601,7 @@ describe('ChatMessageList', () => {
       audioInstances[0].dispatchEvent(new Event('ended'));
       await voice.updateComplete;
 
-      expect(getPlayButton(voice).textContent).toContain('play_arrow');
+      expect(getPlayButtonIcon(voice)).toBe('play');
     });
 
     it('uses a blob URL as the audio source when the message has a blob', async () => {

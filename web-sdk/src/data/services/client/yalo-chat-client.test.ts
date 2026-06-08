@@ -51,14 +51,14 @@ describe('YaloChatClient', () => {
     it('sets config on the chat window element', async () => {
       const client = new YaloChatClient({
         ...baseConfig,
-        icons: { send: '<i>custom</i>' },
+        channelName: 'Custom Channel',
       });
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       expect(getChatWindow().config.channelId).toBe(baseConfig.channelId);
-      expect(getChatWindow().config.icons?.send).toBe('<i>custom</i>');
+      expect(getChatWindow().config.channelName).toBe('Custom Channel');
     });
 
     it('warns when target element is not found', async () => {

@@ -1,12 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
-import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement('yalo-chat-attachment-message')
 export class AttachmentMessage extends LitElement {
@@ -34,14 +30,20 @@ export class AttachmentMessage extends LitElement {
       user-select: none;
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-attachment-message-icon-font-size, 1.5rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='document']::before {
+      content: var(--yalo-chat-icon-document, 'description');
     }
   `;
-
-  @consume({ context: yaloChatClientConfigContext })
-  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -59,7 +61,7 @@ export class AttachmentMessage extends LitElement {
     return html`
       <div class="attachment">
         <span class="attachment-icon">
-          ${unsafeHTML(this.config.icons?.document)}
+          <span class="yalo-icon" data-icon="document" aria-hidden="true"></span>
         </span>
         <span class="attachment-name">${this._getDisplayName()}</span>
       </div>

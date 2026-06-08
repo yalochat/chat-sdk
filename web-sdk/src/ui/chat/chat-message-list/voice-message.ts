@@ -1,12 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
-import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import '@ui/chat/waveform-painter/waveform-painter';
 
 @customElement('yalo-chat-voice-message')
@@ -36,18 +32,27 @@ export class VoiceMessage extends LitElement {
       flex-shrink: 0;
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-voice-message-icon-font-size, 1.5rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='play']::before {
+      content: var(--yalo-chat-icon-play, 'play_arrow');
+    }
+    .yalo-icon[data-icon='pause']::before {
+      content: var(--yalo-chat-icon-pause, 'pause');
     }
 
     yalo-chat-waveform-recorder {
       flex-grow: 1;
     }
   `;
-
-  @consume({ context: yaloChatClientConfigContext })
-  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -93,9 +98,11 @@ export class VoiceMessage extends LitElement {
           type="button"
           @click=${() => this._togglePlayback()}
         >
-          ${unsafeHTML(
-            this._playing ? this.config.icons?.pause : this.config.icons?.play
-          )}
+          <span
+            class="yalo-icon"
+            data-icon=${this._playing ? 'pause' : 'play'}
+            aria-hidden="true"
+          ></span>
         </button>
         <yalo-chat-waveform-recorder
           .amplitudes=${this.message.amplitudes ?? []}

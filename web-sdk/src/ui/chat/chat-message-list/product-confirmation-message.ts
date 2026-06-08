@@ -1,12 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
-import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
-import { consume } from '@lit/context';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import ProductConfirmationMessageController from './product-confirmation-message-controller';
 
 @customElement('yalo-chat-product-confirmation-message')
@@ -83,9 +79,18 @@ export class ProductConfirmationMessage extends LitElement {
       cursor: default;
     }
 
-    .material-symbols-outlined {
+    .yalo-icon {
       font-size: var(--yalo-chat-product-confirmation-icon-font-size, 1rem);
-      font-family: 'Material Symbols Outlined';
+      font-family: var(
+        --yalo-chat-icon-font-family,
+        'Material Symbols Outlined'
+      );
+      line-height: 1;
+      font-feature-settings: 'liga';
+    }
+
+    .yalo-icon[data-icon='check']::before {
+      content: var(--yalo-chat-icon-check, 'check');
     }
 
     .footer {
@@ -105,9 +110,6 @@ export class ProductConfirmationMessage extends LitElement {
   `;
 
   private _controller = new ProductConfirmationMessageController(this);
-
-  @consume({ context: yaloChatClientConfigContext })
-  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -138,9 +140,13 @@ export class ProductConfirmationMessage extends LitElement {
           @click=${this._onButtonClick}
         >
           ${clicked
-            ? html`<span class="icon"
-                >${unsafeHTML(this.config.icons?.check)}</span
-              >`
+            ? html`<span class="icon">
+                <span
+                  class="yalo-icon"
+                  data-icon="check"
+                  aria-hidden="true"
+                ></span>
+              </span>`
             : nothing}
           ${button.text}
         </button>

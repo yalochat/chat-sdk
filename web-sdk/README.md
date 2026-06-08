@@ -10,7 +10,6 @@ Yalo Webchat SDK lets you embed a chat widget into any website with a single scr
   - [Floating popup pattern](#floating-popup-pattern)
   - [Open via queue (`window.yaloOpen`)](#open-via-queue-windowyaloopen)
 - [Configuration](#configuration)
-  - [Custom icons](#custom-icons)
 - [Theming](#theming)
 - [Methods](#methods)
 
@@ -25,7 +24,7 @@ The SDK uses [Material Symbols Outlined](https://fonts.google.com/icons) for its
 />
 ```
 
-If you provide custom icons for every icon key via the `icons` config option, this stylesheet is not needed.
+You can swap the icon font or any individual glyph through CSS variables. See the [Theming API](doc/theming.md#icons) for the full list.
 
 ## Quick start
 
@@ -163,32 +162,12 @@ The target element referenced by `config.target` must exist in the DOM at the ti
 | `target`             | `string`   | Yes      | ID of the HTML element the chat renders inside |
 | `image`              | `string`   | No       | URL for the channel avatar image              |
 | `locale`             | `string`   | No       | Locale for the chat UI (e.g. `"es"`, `"en"`)  |
-| `icons`              | `SdkIcons` | No       | Custom icon overrides (see below)             |
 | `audioWaveformColor` | `string`   | No       | Color for the audio waveform visualization    |
 | `userId`             | `string`   | No       | Your own user identifier. When provided, the chat session is linked to your user. |
 | `openContext`        | `object`   | No       | Context describing where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{ source: 'product-page', sku: '123' }`. The object is serialized as JSON before being sent. Fixed for the lifetime of the chat instance. |
 | `hideCloseButton`    | `boolean`  | No       | When `true`, the close button is not rendered in the chat header. Useful when the chat is embedded full-screen or hosted in a surface that already provides its own close affordance. |
 | `hideHeader`         | `boolean`  | No       | When `true`, the chat header is not rendered. Use this when the surrounding page already shows the channel name and avatar, or when embedding the chat in a layout that supplies its own header. |
 | `persistent`         | `boolean`  | No       | When `true` (default), the conversation is kept across sessions in the browser's local database. When `false`, the local database is cleared before the chat is initialized and again when the page is closed, so no conversation data is left behind between sessions. |
-
-### Custom icons
-
-The SDK uses Material Symbols Outlined by default (loaded via the Google Fonts stylesheet above). You can override any or all icons by passing an `icons` object with raw SVG strings:
-
-```js
-var client = new YaloChatSdk.YaloChatClient({
-  channelId: 'your-channel-id',
-  organizationId: 'your-organization-id',
-  channelName: 'Support',
-  target: 'yalo-chat',
-  icons: {
-    close: '<svg>...</svg>',
-    send: '<svg>...</svg>',
-  },
-});
-```
-
-Available icon keys: `close`, `send`, `mic`, `attachment`, `play`, `pause`, `document`, `arrowForward`, `error`, `check`.
 
 ## Theming
 
