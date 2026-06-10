@@ -49,6 +49,7 @@ export class UserMessage extends LitElement {
         --yalo-chat-icon-font-family,
         'Material Symbols Outlined'
       );
+      font-weight: var(--yalo-chat-icon-font-weight, normal);
       font-variation-settings: 'FILL' 1;
       line-height: 1;
       font-feature-settings: 'liga';
