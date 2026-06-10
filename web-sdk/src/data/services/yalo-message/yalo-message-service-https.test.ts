@@ -40,10 +40,12 @@ const makeToken = (userId: string) => {
 
 const okTokenRepository = (token: string): TokenRepository => ({
   getToken: vi.fn().mockResolvedValue(new Ok(token)),
+  clearSession: vi.fn().mockResolvedValue(new Ok(true)),
 });
 
 const failingTokenRepository = (): TokenRepository => ({
   getToken: vi.fn().mockResolvedValue(new Err(new Error('auth failed'))),
+  clearSession: vi.fn().mockResolvedValue(new Ok(true)),
 });
 
 const baseConfig = {

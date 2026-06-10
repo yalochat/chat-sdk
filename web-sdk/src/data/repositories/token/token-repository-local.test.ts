@@ -6,7 +6,8 @@ import type { YaloMessageAuthService } from '@data/services/yalo-message/yalo-me
 import { TokenRepositoryLocal } from './token-repository-local';
 
 const DB_NAME = 'YaloChatMessages';
-const DB_VERSION = 2;
+const DB_VERSION = 1;
+const SESSION_ID = 'org-1-channel-1-user-1';
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -64,7 +65,7 @@ describe('TokenRepositoryLocal', () => {
   describe('getToken', () => {
     it('fetches a token when store is empty', async () => {
       const authService = makeAuthService();
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       const result = await repo.getToken();
 
@@ -75,7 +76,7 @@ describe('TokenRepositoryLocal', () => {
 
     it('returns cached token when still valid', async () => {
       const authService = makeAuthService();
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       await repo.getToken();
       const result = await repo.getToken();
@@ -86,13 +87,13 @@ describe('TokenRepositoryLocal', () => {
     });
 
     it('persists token to IndexedDB', async () => {
-      const repo = new TokenRepositoryLocal(db, makeAuthService());
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, makeAuthService());
 
       await repo.getToken();
 
       // A second repo instance with a fresh auth service reads the cached token
       const freshAuthService = makeAuthService();
-      const repo2 = new TokenRepositoryLocal(db, freshAuthService);
+      const repo2 = new TokenRepositoryLocal(db, SESSION_ID, freshAuthService);
       const result = await repo2.getToken();
 
       expect(result.ok).toBe(true);
@@ -106,7 +107,7 @@ describe('TokenRepositoryLocal', () => {
           new Ok(makeAuthResponse({ accessToken: 'refreshed-token' }))
         ),
       });
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       await repo.getToken();
       vi.advanceTimersByTime(3601 * 1000);
@@ -125,7 +126,7 @@ describe('TokenRepositoryLocal', () => {
           new Ok(makeAuthResponse({ accessToken: 'refreshed-token', refreshToken: 'new-refresh' }))
         ),
       });
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       await repo.getToken();
       vi.advanceTimersByTime(3601 * 1000);
@@ -133,7 +134,7 @@ describe('TokenRepositoryLocal', () => {
 
       // Verify updated token is persisted by reading with a new instance
       const freshAuthService = makeAuthService();
-      const result = await new TokenRepositoryLocal(db, freshAuthService).getToken();
+      const result = await new TokenRepositoryLocal(db, SESSION_ID, freshAuthService).getToken();
 
       expect(result.ok).toBe(true);
       if (result.ok) expect(result.value).toBe('refreshed-token');
@@ -145,7 +146,7 @@ describe('TokenRepositoryLocal', () => {
         refreshToken: vi.fn().mockResolvedValue(new Err(new Error('Refresh failed: 403'))),
         fetchToken: vi.fn().mockResolvedValue(new Ok(makeAuthResponse({ accessToken: 'fresh-token' }))),
       });
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       await repo.getToken();
       vi.advanceTimersByTime(3601 * 1000);
@@ -162,7 +163,7 @@ describe('TokenRepositoryLocal', () => {
       const authService = makeAuthService({
         refreshToken: vi.fn().mockResolvedValue(new Err(new Error('Refresh failed: 403'))),
       });
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       await repo.getToken();
       vi.advanceTimersByTime(3601 * 1000);
@@ -177,7 +178,7 @@ describe('TokenRepositoryLocal', () => {
           .fn()
           .mockResolvedValue(new Err(new Error('Auth failed: 401'))),
       });
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
       const result = await repo.getToken();
 
@@ -189,12 +190,64 @@ describe('TokenRepositoryLocal', () => {
 
     it('returns Err when the underlying IndexedDB connection is closed', async () => {
       const authService = makeAuthService();
-      const repo = new TokenRepositoryLocal(db, authService);
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
       db.close();
 
       const result = await repo.getToken();
 
       expect(result).toMatchObject({ ok: false });
+    });
+  });
+
+  describe('session isolation', () => {
+    it('does not share tokens across sessions', async () => {
+      const mineAuth = makeAuthService({
+        fetchToken: vi
+          .fn()
+          .mockResolvedValue(new Ok(makeAuthResponse({ accessToken: 'mine' }))),
+      });
+      const theirsAuth = makeAuthService({
+        fetchToken: vi
+          .fn()
+          .mockResolvedValue(new Ok(makeAuthResponse({ accessToken: 'theirs' }))),
+      });
+      const mine = new TokenRepositoryLocal(db, SESSION_ID, mineAuth);
+      const theirs = new TokenRepositoryLocal(db, 'other-session', theirsAuth);
+
+      const mineResult = await mine.getToken();
+      const theirsResult = await theirs.getToken();
+
+      expect(mineResult).toMatchObject({ ok: true, value: 'mine' });
+      expect(theirsResult).toMatchObject({ ok: true, value: 'theirs' });
+      expect(mineAuth.fetchToken).toHaveBeenCalledOnce();
+      expect(theirsAuth.fetchToken).toHaveBeenCalledOnce();
+    });
+
+    it('clearSession returns Err when the database is closed', async () => {
+      const repo = new TokenRepositoryLocal(db, SESSION_ID, makeAuthService());
+      db.close();
+      const result = await repo.clearSession();
+      expect(result).toMatchObject({ ok: false });
+    });
+
+    it('clearSession only removes the configured session token', async () => {
+      const mine = new TokenRepositoryLocal(db, SESSION_ID, makeAuthService());
+      const theirsAuth = makeAuthService();
+      const theirs = new TokenRepositoryLocal(db, 'other-session', theirsAuth);
+      await mine.getToken();
+      await theirs.getToken();
+
+      await mine.clearSession();
+
+      const freshTheirsAuth = makeAuthService();
+      const freshTheirs = new TokenRepositoryLocal(
+        db,
+        'other-session',
+        freshTheirsAuth
+      );
+      await freshTheirs.getToken();
+
+      expect(freshTheirsAuth.fetchToken).not.toHaveBeenCalled();
     });
   });
 });

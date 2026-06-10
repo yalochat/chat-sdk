@@ -7,7 +7,8 @@ import { ChatMessageRepositoryLocal } from './chat-message-repository-local';
 import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
 
 const DB_NAME = 'YaloChatMessages';
-const DB_VERSION = 2;
+const DB_VERSION = 1;
+const SESSION_ID = 'org-1-channel-1-user-1';
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -49,7 +50,7 @@ describe('ChatMessageRepositoryLocal', () => {
 
   beforeEach(async () => {
     db = await openDb();
-    repo = new ChatMessageRepositoryLocal(db);
+    repo = new ChatMessageRepositoryLocal(db, SESSION_ID);
   });
 
   afterEach(async () => {
@@ -199,26 +200,27 @@ describe('ChatMessageRepositoryLocal', () => {
       );
     });
 
-    it('returns messages in descending timestamp order', async () => {
-      await repo.insertChatMessage(
+    it('returns messages newest-inserted first regardless of timestamp', async () => {
+      const a = await repo.insertChatMessage(
         makeMessage({ timestamp: new Date('2024-01-01T09:00:00Z') })
       );
-      await repo.insertChatMessage(
+      const b = await repo.insertChatMessage(
         makeMessage({ timestamp: new Date('2024-01-01T11:00:00Z') })
       );
-      await repo.insertChatMessage(
+      const c = await repo.insertChatMessage(
         makeMessage({ timestamp: new Date('2024-01-01T10:00:00Z') })
       );
 
       const result = await repo.getChatMessagePageDesc(null, 10);
-      const messages = (result as Ok<{ data: ChatMessage[] }>).value.data;
+      const ids = (result as Ok<{ data: ChatMessage[] }>).value.data.map(
+        (m) => m.id
+      );
 
-      expect(messages[0].timestamp.getTime()).toBeGreaterThanOrEqual(
-        messages[1].timestamp.getTime()
-      );
-      expect(messages[1].timestamp.getTime()).toBeGreaterThanOrEqual(
-        messages[2].timestamp.getTime()
-      );
+      expect(ids).toEqual([
+        (c as Ok<ChatMessage>).value.id,
+        (b as Ok<ChatMessage>).value.id,
+        (a as Ok<ChatMessage>).value.id,
+      ]);
     });
 
     it('respects pageSize', async () => {
@@ -296,6 +298,53 @@ describe('ChatMessageRepositoryLocal', () => {
     it('returns Err when the database is closed', async () => {
       db.close();
       const result = await repo.getChatMessagePageDesc(null, 10);
+      expect(result).toBeInstanceOf(Err);
+    });
+  });
+
+  describe('session isolation', () => {
+    it('only returns messages for the configured session', async () => {
+      const other = new ChatMessageRepositoryLocal(db, 'org-2-channel-2-user-2');
+      await repo.insertChatMessage(makeMessage({ content: 'mine' }));
+      await other.insertChatMessage(makeMessage({ content: 'theirs' }));
+
+      const result = await repo.getChatMessagePageDesc(null, 10);
+      const messages = (result as Ok<{ data: ChatMessage[] }>).value.data;
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0].content).toBe('mine');
+    });
+
+    it('treats the same wiId as distinct across sessions', async () => {
+      const other = new ChatMessageRepositoryLocal(db, 'org-2-channel-2-user-2');
+      const first = await repo.insertChatMessage(
+        makeMessage({ wiId: 'wi-1', content: 'mine' })
+      );
+      const second = await other.insertChatMessage(
+        makeMessage({ wiId: 'wi-1', content: 'theirs' })
+      );
+
+      const firstId = (first as Ok<ChatMessage>).value.id;
+      const secondId = (second as Ok<ChatMessage>).value.id;
+      expect(secondId).not.toBe(firstId);
+    });
+
+    it('clearSession removes only the configured session messages', async () => {
+      const other = new ChatMessageRepositoryLocal(db, 'org-2-channel-2-user-2');
+      await repo.insertChatMessage(makeMessage({ content: 'mine' }));
+      await other.insertChatMessage(makeMessage({ content: 'theirs' }));
+
+      await repo.clearSession();
+
+      const mine = await repo.getChatMessagePageDesc(null, 10);
+      const theirs = await other.getChatMessagePageDesc(null, 10);
+      expect((mine as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(0);
+      expect((theirs as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(1);
+    });
+
+    it('clearSession returns Err when the database is closed', async () => {
+      db.close();
+      const result = await repo.clearSession();
       expect(result).toBeInstanceOf(Err);
     });
   });

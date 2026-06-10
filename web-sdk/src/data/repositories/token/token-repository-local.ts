@@ -4,8 +4,6 @@ import { Err, Ok, type Result } from '@domain/common/result';
 import type { YaloMessageAuthService } from '@data/services/yalo-message/yalo-message-auth-service';
 import type { TokenRepository } from './token-repository';
 
-const TOKEN_KEY = 'token';
-
 interface StoredToken {
   accessToken: string;
   refreshToken: string;
@@ -23,10 +21,16 @@ export class TokenRepositoryLocal implements TokenRepository {
 
   private readonly _db: IDBDatabase;
   private readonly _authService: YaloMessageAuthService;
+  private readonly _key: string;
 
-  constructor(db: IDBDatabase, authService: YaloMessageAuthService) {
+  constructor(
+    db: IDBDatabase,
+    sessionId: string,
+    authService: YaloMessageAuthService
+  ) {
     this._db = db;
     this._authService = authService;
+    this._key = `token:${sessionId}`;
   }
 
   async getToken(): Promise<Result<string>> {
@@ -63,11 +67,20 @@ export class TokenRepositoryLocal implements TokenRepository {
     }
   }
 
+  async clearSession(): Promise<Result<boolean>> {
+    try {
+      await this._clear();
+      return new Ok(true);
+    } catch (e) {
+      return new Err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
   private _read(): Promise<StoredToken | null> {
     return new Promise((resolve, reject) => {
       const tx = this._db.transaction(TokenRepositoryLocal._STORE_NAME, 'readonly');
       const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
-      const request = store.get(TOKEN_KEY);
+      const request = store.get(this._key);
       request.onsuccess = () => resolve((request.result as StoredToken) ?? null);
       request.onerror = () => reject(request.error);
     });
@@ -82,7 +95,7 @@ export class TokenRepositoryLocal implements TokenRepository {
         refreshToken: data.refreshToken,
         expiresAt: Date.now() + data.expiresIn * 1000,
       };
-      const request = store.put(record, TOKEN_KEY);
+      const request = store.put(record, this._key);
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
@@ -92,7 +105,7 @@ export class TokenRepositoryLocal implements TokenRepository {
     return new Promise((resolve, reject) => {
       const tx = this._db.transaction(TokenRepositoryLocal._STORE_NAME, 'readwrite');
       const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
-      const request = store.delete(TOKEN_KEY);
+      const request = store.delete(this._key);
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
