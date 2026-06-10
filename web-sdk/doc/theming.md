@@ -71,6 +71,11 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
      (e.g. Tabler Icons, Phosphor). */
   --yalo-chat-icon-font-family: 'Material Symbols Outlined';
 
+  /* Font weight applied to every icon in the widget.
+     With variable icon fonts (e.g. Material Symbols) this maps to
+     the weight axis, letting you render thinner or bolder glyphs. */
+  --yalo-chat-icon-font-weight: normal;
+
   /* Glyph rendered in the chat header close button. */
   --yalo-chat-icon-close: 'close';
 

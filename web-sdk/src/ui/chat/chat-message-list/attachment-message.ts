@@ -36,6 +36,7 @@ export class AttachmentMessage extends LitElement {
         --yalo-chat-icon-font-family,
         'Material Symbols Outlined'
       );
+      font-weight: var(--yalo-chat-icon-font-weight, normal);
       line-height: 1;
       font-feature-settings: 'liga';
     }
