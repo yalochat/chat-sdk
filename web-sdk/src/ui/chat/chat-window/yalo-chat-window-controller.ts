@@ -32,16 +32,20 @@ export default class YaloChatWindowController implements ReactiveController {
   private _guidanceCardRequested = false;
   private _messagesLoaded = false;
 
-  private readonly _DB_VERSION = 2;
+  private static readonly _DB_NAME = 'YaloChatMessages';
+  private static readonly _DB_VERSION = 1;
 
-  private get _dbName(): string {
+  private get _sessionId(): string {
     const { organizationId, channelId, userId } = this.host.config;
-    return `YaloChatMessages-${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
+    return `${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
   }
 
   private _openDb(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this._dbName, this._DB_VERSION);
+      const request = indexedDB.open(
+        YaloChatWindowController._DB_NAME,
+        YaloChatWindowController._DB_VERSION
+      );
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
@@ -54,40 +58,45 @@ export default class YaloChatWindowController implements ReactiveController {
     });
   }
 
-  private _deleteDb(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(this._dbName);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-      request.onblocked = () => resolve();
-    });
-  }
-
   constructor(host: YaloChatWindow) {
     this.host = host;
     this.host.addController(this);
   }
 
   private _handleNonPersistentPageHide = () => {
-    this.host.chatMessageRepository.dispose();
+    const messageRepo = this.host.chatMessageRepository;
+    const tokenRepo = this._tokenRepository;
     this.host.yaloMessageRepository.unsubscribeMessages();
-    indexedDB.deleteDatabase(this._dbName);
+    Promise.all([messageRepo.clearSession(), tokenRepo?.clearSession()]).finally(
+      () => messageRepo.dispose()
+    );
   };
+
+  private _tokenRepository?: TokenRepositoryLocal;
 
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
-    if (this.host.config.persistent === false) {
-      await this._deleteDb();
-      window.addEventListener('pagehide', this._handleNonPersistentPageHide);
-    }
+    const sessionId = this._sessionId;
     const db = await this._openDb();
-    this.host.chatMessageRepository = new ChatMessageRepositoryLocal(db);
+    this.host.chatMessageRepository = new ChatMessageRepositoryLocal(
+      db,
+      sessionId
+    );
 
     const authService = new YaloMessageAuthServiceRemote(
       import.meta.env.VITE_YALO_API_BASE_URL,
       this.host.config
     );
-    const tokenRepository = new TokenRepositoryLocal(db, authService);
+    const tokenRepository = new TokenRepositoryLocal(db, sessionId, authService);
+    this._tokenRepository = tokenRepository;
+
+    if (this.host.config.persistent === false) {
+      await Promise.all([
+        this.host.chatMessageRepository.clearSession(),
+        tokenRepository.clearSession(),
+      ]);
+      window.addEventListener('pagehide', this._handleNonPersistentPageHide);
+    }
     const mediaService = new YaloMediaServiceRemote(
       import.meta.env.VITE_YALO_API_BASE_URL,
       tokenRepository

@@ -82,7 +82,7 @@ const getSendButton = (el: YaloChatWindow): HTMLButtonElement =>
     '.chat-action-button'
   ) as unknown as HTMLButtonElement;
 
-const DB_NAME = `YaloChatMessages-${baseConfig.organizationId}-${baseConfig.channelId}-anonymous`;
+const DB_NAME = 'YaloChatMessages';
 
 const clearDb = (): Promise<void> =>
   new Promise((resolve, reject) => {
@@ -1217,65 +1217,11 @@ describe('YaloChatWindow persistent flag', () => {
     await clearDb();
   });
 
-  it('does not delete the local database when persistent is not set', async () => {
-    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
-    el.config = baseConfig;
-    document.body.appendChild(el);
-    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
-
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it('does not delete the local database when persistent is true', async () => {
-    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
-    el.config = { ...baseConfig, persistent: true };
-    document.body.appendChild(el);
-    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
-
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it('deletes the local database before opening when persistent is false', async () => {
+  it('never deletes the shared database, even when persistent is false', async () => {
     const el = document.createElement('yalo-chat-window') as YaloChatWindow;
     el.config = { ...baseConfig, persistent: false };
     document.body.appendChild(el);
     await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
-
-    expect(deleteSpy).toHaveBeenCalledWith(DB_NAME);
-  });
-
-  it('deletes the local database on pagehide when persistent is false', async () => {
-    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
-    el.config = { ...baseConfig, persistent: false };
-    document.body.appendChild(el);
-    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
-    deleteSpy.mockClear();
-
-    window.dispatchEvent(new PageTransitionEvent('pagehide'));
-
-    expect(deleteSpy).toHaveBeenCalledWith(DB_NAME);
-  });
-
-  it('does not delete the local database on pagehide when persistent is true', async () => {
-    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
-    el.config = { ...baseConfig, persistent: true };
-    document.body.appendChild(el);
-    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
-    deleteSpy.mockClear();
-
-    window.dispatchEvent(new PageTransitionEvent('pagehide'));
-
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it('does not delete the local database on pagehide after the element is disconnected', async () => {
-    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
-    el.config = { ...baseConfig, persistent: false };
-    document.body.appendChild(el);
-    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
-    el.remove();
-    deleteSpy.mockClear();
-
     window.dispatchEvent(new PageTransitionEvent('pagehide'));
 
     expect(deleteSpy).not.toHaveBeenCalled();
@@ -1301,6 +1247,37 @@ describe('YaloChatWindow persistent flag', () => {
     await vi.waitUntil(() => fresh.yaloMessageRepository !== undefined);
 
     expect(getMessageList(fresh).chatMessages).toHaveLength(0);
+  });
+
+  it('keeps messages from other sessions intact when this session is non-persistent', async () => {
+    const otherConfig = { ...baseConfig, channelId: 'other-channel' };
+
+    const other = document.createElement('yalo-chat-window') as YaloChatWindow;
+    other.config = otherConfig;
+    document.body.appendChild(other);
+    await vi.waitUntil(() => other.yaloMessageRepository !== undefined);
+    await other.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+        content: 'theirs',
+      })
+    );
+    other.remove();
+
+    const mine = document.createElement('yalo-chat-window') as YaloChatWindow;
+    mine.config = { ...baseConfig, persistent: false };
+    document.body.appendChild(mine);
+    await vi.waitUntil(() => mine.yaloMessageRepository !== undefined);
+
+    const reopened = document.createElement(
+      'yalo-chat-window'
+    ) as YaloChatWindow;
+    reopened.config = otherConfig;
+    document.body.appendChild(reopened);
+    await vi.waitUntil(() => reopened.yaloMessageRepository !== undefined);
+
+    expect(getMessageList(reopened).chatMessages).toHaveLength(1);
   });
 });
 

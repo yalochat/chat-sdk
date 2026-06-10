@@ -7,6 +7,7 @@ import type { TokenRepository } from '@data/repositories/token/token-repository'
 
 const makeTokenRepository = (token = 'test-token'): TokenRepository => ({
   getToken: vi.fn().mockResolvedValue(new Ok(token)),
+  clearSession: vi.fn().mockResolvedValue(new Ok(true)),
 });
 
 const makeUploadResponse = () => ({
@@ -111,6 +112,7 @@ describe('YaloMediaServiceRemote', () => {
         getToken: vi
           .fn()
           .mockResolvedValue(new Err(new Error('auth failed'))),
+        clearSession: vi.fn().mockResolvedValue(new Ok(true)),
       };
 
       const service = new YaloMediaServiceRemote(

@@ -64,6 +64,7 @@ const makeTokenRepository = (
   result: Result<string> = new Ok('jwt.token.value')
 ): TokenRepository => ({
   getToken: vi.fn().mockResolvedValue(result),
+  clearSession: vi.fn().mockResolvedValue(new Ok(true)),
 });
 
 const makeTextMessage = (text: string): SdkMessage => ({
