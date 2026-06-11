@@ -12,7 +12,8 @@
     "localize-extract": "lit-localize extract",
     "localize": "lit-localize build",
     "coverage": "vitest run --coverage",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && bun run build:sri",
+    "build:sri": "./scripts/generate-sri.sh",
     "preview": "vite preview"
   },
   "dependencies": {
