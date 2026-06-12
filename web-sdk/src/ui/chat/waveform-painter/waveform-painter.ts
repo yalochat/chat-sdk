@@ -21,6 +21,7 @@ export class WaveformPainter extends LitElement {
 
     .waveform-canvas {
       width: 90%;
+      max-width: var(--yalo-chat-waveform-max-width, 12rem);
       height: 1.6em;
     }
 
@@ -58,7 +59,7 @@ export class WaveformPainter extends LitElement {
       color: var(--yalo-chat-waveform-timer-color, #7c8086);
       display: flex;
       align-items: center;
-      margin-left: 0.5rem;
+      margin-left: auto;
     }
   `;
   @consume({ context: loggerContext })

@@ -11,12 +11,14 @@ import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import './chat-footer';
 import type { ChatFooter } from './chat-footer';
 
-const config: YaloChatClientConfig = {
+const baseConfig: YaloChatClientConfig = {
   channelId: 'ch-1',
   organizationId: 'org-1',
   channelName: 'Test',
   target: 'target',
 };
+
+let activeConfig: YaloChatClientConfig = baseConfig;
 
 const noopLogger: Logger = {
   debug: () => {},
@@ -29,7 +31,7 @@ const noopLogger: Logger = {
 class TestFooterContextProvider extends LitElement {
   _configProvider = new ContextProvider(this, {
     context: yaloChatClientConfigContext,
-    initialValue: config,
+    initialValue: activeConfig,
   });
   _loggerProvider = new ContextProvider(this, {
     context: loggerContext,
@@ -41,7 +43,10 @@ class TestFooterContextProvider extends LitElement {
   }
 }
 
-const renderFooter = async (): Promise<ChatFooter> => {
+const renderFooter = async (
+  configOverrides: Partial<YaloChatClientConfig> = {}
+): Promise<ChatFooter> => {
+  activeConfig = { ...baseConfig, ...configOverrides };
   const wrapper = document.createElement(
     'test-footer-context-provider'
   ) as TestFooterContextProvider;
@@ -152,6 +157,7 @@ describe('ChatFooter', () => {
 
   afterEach(() => {
     document.body.innerHTML = '';
+    activeConfig = baseConfig;
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -403,6 +409,55 @@ describe('ChatFooter', () => {
       } finally {
         vi.useRealTimers();
       }
+    });
+  });
+
+  describe('hideAttachmentButton', () => {
+    it('renders the attachment file picker by default', async () => {
+      const footer = await renderFooter();
+
+      expect(getFilePicker(footer)).not.toBeNull();
+    });
+
+    it('does not render the attachment file picker when hideAttachmentButton is true', async () => {
+      const footer = await renderFooter({ hideAttachmentButton: true });
+
+      expect(footer.shadowRoot!.querySelector('#file-picker')).toBeNull();
+      expect(
+        footer.shadowRoot!.querySelector('label[for="file-picker"]')
+      ).toBeNull();
+    });
+
+    it('still sends text messages when hideAttachmentButton is true', async () => {
+      const footer = await renderFooter({ hideAttachmentButton: true });
+      const input = footer.shadowRoot!.querySelector(
+        '.chat-input'
+      ) as HTMLElement;
+      input.textContent = 'Hello';
+      input.dispatchEvent(
+        new Event('input', { bubbles: true, composed: true })
+      );
+      await footer.updateComplete;
+
+      expect(getActionButtonIcon(footer)).toBe('send');
+    });
+  });
+
+  describe('hideVoiceButton', () => {
+    it('shows the send icon on the action button when there is no text and hideVoiceButton is true', async () => {
+      const footer = await renderFooter({ hideVoiceButton: true });
+
+      expect(getActionButton(footer)).not.toBeNull();
+      expect(getActionButtonIcon(footer)).toBe('send');
+    });
+
+    it('does not enter recording mode when the action button is clicked with no text and hideVoiceButton is true', async () => {
+      const footer = await renderFooter({ hideVoiceButton: true });
+
+      await startRecordingViaUI(footer);
+
+      expect(getWaveformRecorder(footer)).toBeNull();
+      expect(getActionButtonIcon(footer)).toBe('send');
     });
   });
 });

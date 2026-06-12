@@ -117,7 +117,7 @@ export class AssistantMessage extends LitElement {
 
     .buttons button:hover,
     .buttons a:hover {
-      background-color: #dde4ec;
+      background-color: var(--yalo-chat-buttons-hover-background, #dde4ec);
     }
   `;
 
