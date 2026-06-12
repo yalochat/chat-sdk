@@ -12,5 +12,7 @@ export interface YaloChatClientConfig {
   openContext?: Record<string, unknown>;
   hideCloseButton?: boolean;
   hideHeader?: boolean;
+  hideAttachmentButton?: boolean;
+  hideVoiceButton?: boolean;
   persistent?: boolean;
 }

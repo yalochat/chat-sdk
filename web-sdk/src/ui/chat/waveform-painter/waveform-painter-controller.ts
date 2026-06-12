@@ -28,6 +28,8 @@ export class WaveformPainterController implements ReactiveController {
     ctx.fillStyle = strokeColor;
 
     const barWidth = this.host.canvas.width / this.host.amplitudes.length;
+    const barRectWidth = barWidth * 0.7;
+    const cornerRadius = barRectWidth / 2;
     for (let i = 0; i < this.host.amplitudes.length; i++) {
       const amplitude = this.host.amplitudes[i];
       const height = Math.max(
@@ -40,9 +42,9 @@ export class WaveformPainterController implements ReactiveController {
       ctx.roundRect(
         i * barWidth,
         this.host.canvas.height / 2 - height,
-        barWidth * 0.8,
+        barRectWidth,
         height * 2,
-        [50]
+        cornerRadius
       );
       ctx.fill();
     }

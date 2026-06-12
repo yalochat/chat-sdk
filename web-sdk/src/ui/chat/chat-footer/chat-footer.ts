@@ -9,6 +9,10 @@ import { keyed } from 'lit/directives/keyed.js';
 import { ChatFooterController } from './chat-footer-controller';
 import { AudioRecordingController } from './audio-recording-controller';
 import { loggerContext, type Logger } from '@log/logger-context';
+import {
+  yaloChatClientConfigContext,
+  type YaloChatClientConfig,
+} from '@domain/config/chat-config-context';
 
 import '@ui/chat/waveform-painter/waveform-painter';
 
@@ -148,6 +152,9 @@ export class ChatFooter extends LitElement {
   @consume({ context: loggerContext })
   logger!: Logger;
 
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
+
   @query('.chat-input')
   input!: HTMLElement;
 
@@ -164,7 +171,9 @@ export class ChatFooter extends LitElement {
     }
     if (this.hasText) {
       this._chatFootercontroller.sendTextMessage(e);
-    } else {
+      return;
+    }
+    if (!this.config?.hideVoiceButton) {
       this._audioController.startRecording();
     }
   }
@@ -239,6 +248,9 @@ export class ChatFooter extends LitElement {
   render() {
     const shouldShowSend =
       this.hasText || this._audioController.status === 'recording';
+    const hideAttachmentButton = this.config?.hideAttachmentButton === true;
+    const hideVoiceButton = this.config?.hideVoiceButton === true;
+    const actionIcon = shouldShowSend || hideVoiceButton ? 'send' : 'mic';
     return html`
       <footer class="chat-footer">
         <form
@@ -277,20 +289,22 @@ export class ChatFooter extends LitElement {
                           ${msg('Write a message...')}
                         </div>`}
                   </div>
-                  <label for="file-picker">
-                    <span
-                      class="yalo-icon"
-                      data-icon="attachment"
-                      aria-hidden="true"
-                    ></span>
-                  </label>
-                  <input
-                    id="file-picker"
-                    type="file"
-                    class="attachment-button"
-                    accept="image/*"
-                    @change=${(e: Event) => this._handleFilePicked(e)}
-                  />
+                  ${hideAttachmentButton
+                    ? nothing
+                    : html`<label for="file-picker">
+                          <span
+                            class="yalo-icon"
+                            data-icon="attachment"
+                            aria-hidden="true"
+                          ></span>
+                        </label>
+                        <input
+                          id="file-picker"
+                          type="file"
+                          class="attachment-button"
+                          accept="image/*"
+                          @change=${(e: Event) => this._handleFilePicked(e)}
+                        />`}
                 </div>`}
           </div>
           <div class="action-button-container">
@@ -300,11 +314,11 @@ export class ChatFooter extends LitElement {
               @click=${(e: Event) => this._handleActionClick(e)}
             >
               ${keyed(
-                shouldShowSend ? 'send' : 'mic',
+                actionIcon,
                 html`<span class="icon-wrapper">
                   <span
                     class="yalo-icon"
-                    data-icon=${shouldShowSend ? 'send' : 'mic'}
+                    data-icon=${actionIcon}
                     aria-hidden="true"
                   ></span>
                 </span>`

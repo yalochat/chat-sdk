@@ -87,7 +87,7 @@ export class UserMessage extends LitElement {
     }
 
     .voice-bubble {
-      width: 60%;
+      width: var(--yalo-chat-waveform-max-width, 12rem);
       padding: var(--yalo-chat-bubble-padding, 0.5rem 0.75rem);
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;

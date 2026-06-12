@@ -50,7 +50,10 @@ export default class ChatQuickReplies extends LitElement {
     }
 
     button:hover {
-      background-color: #dde4ec;
+      background-color: var(
+        --yalo-chat-quick-replies-chip-hover-background,
+        #dde4ec
+      );
     }
   `;
 

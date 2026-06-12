@@ -36,7 +36,10 @@ export class NumericInput extends LitElement {
     }
 
     button:hover {
-      background-color: rgba(34, 7, 241, 0.08);
+      background-color: var(
+        --yalo-chat-numeric-button-hover-background,
+        rgba(34, 7, 241, 0.08)
+      );
     }
 
     button:disabled {

@@ -140,6 +140,11 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Font size of the Material Symbols icons rendered inside the header
      (close button). */
   --yalo-chat-header-icon-font-size: 1.5rem;
+
+  /* Border radius of the chat header bar. Accepts any CSS border-radius
+     shorthand, so you can round just the top corners with values like
+     `12px 12px 0 0`. */
+  --yalo-chat-header-border-radius: 0;
 }
 ```
 
@@ -255,6 +260,11 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Font size of the Material Symbols icons rendered on the waveform
      recorder overlay (cancel button). */
   --yalo-chat-waveform-icon-font-size: 1.5em;
+
+  /* Maximum rendered width of the waveform canvas. Caps how wide the bars
+     can stretch on large screens; the canvas remains right-aligned within
+     the recorder row. */
+  --yalo-chat-waveform-max-width: 12rem;
 }
 ```
 
@@ -313,6 +323,9 @@ Buttons attached to assistant messages, rendered below the body.
   /* Background color for each button. */
   --yalo-chat-buttons-background: transparent;
 
+  /* Background color for each button on hover. */
+  --yalo-chat-buttons-hover-background: #dde4ec;
+
   /* Text color for each button. */
   --yalo-chat-buttons-color: #111111;
 
@@ -347,6 +360,9 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 
   /* Background color for each chip. */
   --yalo-chat-quick-replies-chip-background: transparent;
+
+  /* Background color for each chip on hover. */
+  --yalo-chat-quick-replies-chip-hover-background: #dde4ec;
 
   /* Text color for each chip. */
   --yalo-chat-quick-replies-chip-color: #111111;
@@ -540,6 +556,9 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 :root {
   /* Color of the increment/decrement button icons. */
   --yalo-chat-numeric-icon-color: #334155;
+
+  /* Background color of the increment/decrement buttons on hover. */
+  --yalo-chat-numeric-button-hover-background: rgba(34, 7, 241, 0.08);
 
   /* Text color for the numeric input value. */
   --yalo-chat-numeric-text-color: #111111;
