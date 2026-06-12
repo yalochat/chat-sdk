@@ -20,6 +20,7 @@ export class ChatHeader extends LitElement {
       padding: 12px 16px;
       background: var(--yalo-chat-header-background, #f1f5fc);
       color: var(--yalo-chat-header-color, #010101);
+      border-radius: var(--yalo-chat-header-border-radius, 0);
     }
 
     .chat-header-title-group {

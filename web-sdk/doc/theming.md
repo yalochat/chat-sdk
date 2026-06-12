@@ -140,6 +140,11 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Font size of the Material Symbols icons rendered inside the header
      (close button). */
   --yalo-chat-header-icon-font-size: 1.5rem;
+
+  /* Border radius of the chat header bar. Accepts any CSS border-radius
+     shorthand, so you can round just the top corners with values like
+     `12px 12px 0 0`. */
+  --yalo-chat-header-border-radius: 0;
 }
 ```
 
