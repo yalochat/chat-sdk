@@ -7,6 +7,8 @@ Yalo Webchat SDK lets you embed a chat widget into any website with a single scr
 - [Prerequisites](#prerequisites)
 - [Quick start](#quick-start)
   - [Script URL](#script-url)
+    - [Subresource Integrity](#subresource-integrity)
+    - [Content Security Policy](#content-security-policy)
   - [Floating popup pattern](#floating-popup-pattern)
   - [Open via queue (`window.yaloOpen`)](#open-via-queue-windowyaloopen)
 - [Configuration](#configuration)
@@ -79,6 +81,38 @@ The example above uses `/latest/sdk.js`, which always serves the most recent rel
 ```
 
 Replace `v1.0.0` with the version you want to lock to. Available versions are listed on the [GitHub releases page](https://github.com/yalochat/chat-sdk/releases).
+
+#### Subresource Integrity
+
+For pinned versions you can opt into [Subresource Integrity (SRI)](https://developer.mozilla.org/docs/Web/Security/Subresource_Integrity) so the browser refuses to execute the bundle if its bytes do not match the published hash:
+
+```html
+<script
+  src="https://chat-sdk.yalochat.com/v1.0.0/sdk.js"
+  integrity="sha384-REPLACE_WITH_PUBLISHED_HASH"
+  crossorigin="anonymous"
+></script>
+```
+
+The integrity value for each release is published alongside the bundle at `https://chat-sdk.yalochat.com/v{version}/sdk.js.sri`. Fetch it once and paste the contents into the `integrity` attribute.
+
+SRI is not supported on `/latest/sdk.js` because that URL points to a moving target. Pin to a specific version if you need integrity checks.
+
+#### Content Security Policy
+
+If your host page sets a [Content Security Policy](https://developer.mozilla.org/docs/Web/HTTP/Headers/Content-Security-Policy), it must allow the origins the SDK loads from and connects to. A minimal policy that covers the script bundle, the Material Symbols font, the chat backend, and inline media playback looks like this:
+
+```
+Content-Security-Policy:
+  script-src  'self' https://chat-sdk.yalochat.com;
+  style-src   'self' https://fonts.googleapis.com;
+  font-src    'self' https://fonts.gstatic.com;
+  img-src     'self' blob: https://storage.googleapis.com;
+  media-src   'self' blob:;
+  connect-src 'self' https://api2-ww-us-001.yalochat.com wss://api2-ww-us-001.yalochat.com;
+```
+
+The SDK opens a WebSocket connection for live messages and uses `https://` for the auth and media APIs, so `connect-src` must include both schemes against the same host. The `blob:` entries are required because image, audio, and video messages are rendered from object URLs created in the browser.
 
 ### Floating popup pattern
 
