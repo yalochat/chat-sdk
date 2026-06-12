@@ -15,4 +15,5 @@ export interface YaloChatClientConfig {
   hideAttachmentButton?: boolean;
   hideVoiceButton?: boolean;
   persistent?: boolean;
+  differentSessionPerContext?: boolean;
 }
