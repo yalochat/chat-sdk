@@ -5,6 +5,10 @@ import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { PageInfo } from '@domain/common/page';
+import {
+  computeEffectiveAuthUserId,
+  computeSessionId,
+} from '@common/session';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
@@ -34,11 +38,6 @@ export default class YaloChatWindowController implements ReactiveController {
 
   private static readonly _DB_NAME = 'YaloChatMessages';
   private static readonly _DB_VERSION = 1;
-
-  private get _sessionId(): string {
-    const { organizationId, channelId, userId } = this.host.config;
-    return `${organizationId}-${channelId}-${userId ?? 'anonymous'}`;
-  }
 
   private _openDb(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -76,7 +75,7 @@ export default class YaloChatWindowController implements ReactiveController {
 
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
-    const sessionId = this._sessionId;
+    const sessionId = computeSessionId(this.host.config);
     const db = await this._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(
       db,
@@ -85,7 +84,10 @@ export default class YaloChatWindowController implements ReactiveController {
 
     const authService = new YaloMessageAuthServiceRemote(
       import.meta.env.VITE_YALO_API_BASE_URL,
-      this.host.config
+      {
+        ...this.host.config,
+        userId: computeEffectiveAuthUserId(this.host.config),
+      }
     );
     const tokenRepository = new TokenRepositoryLocal(db, sessionId, authService);
     this._tokenRepository = tokenRepository;
