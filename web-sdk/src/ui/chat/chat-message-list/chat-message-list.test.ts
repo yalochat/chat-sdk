@@ -711,34 +711,61 @@ describe('ChatMessageList', () => {
       expect(assistant.shadowRoot!.querySelector('.buttons')).toBeNull();
     });
 
-    it('dispatches yalo-chat-send-text-message with the clicked inline postback button text', async () => {
-      const list = await renderList([
-        new ChatMessage({
-          id: 75,
-          role: 'AGENT',
-          type: 'text',
-          timestamp,
-          content: 'Pick one',
-          buttons: [{ text: 'Cancel', type: 'postback' }],
-        }),
-      ]);
+    it('removes the quick replies after one is selected, leaving only the user message text', async () => {
+      const agent = new ChatMessage({
+        id: 75,
+        role: 'AGENT',
+        type: 'text',
+        timestamp,
+        content: 'Pick one',
+        buttons: [
+          { text: 'Yes', type: 'reply' },
+          { text: 'No', type: 'reply' },
+        ],
+      });
+      const list = await renderList([agent]);
+
+      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies')!;
+      await (quickReplies as LitElement).updateComplete;
+      const chips = quickReplies.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+        '.chips button'
+      );
+      expect([...chips].map((c) => c.textContent?.trim())).toEqual(['Yes', 'No']);
 
       const listener = vi.fn();
       list.addEventListener('yalo-chat-send-text-message', listener);
-
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
-      const buttons = assistant.shadowRoot!.querySelectorAll<HTMLButtonElement>(
-        '.buttons button'
-      );
-      buttons[0].click();
+      chips[0].click();
 
       expect(listener).toHaveBeenCalledOnce();
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
         role: 'USER',
         type: 'text',
-        content: 'Cancel',
+        content: 'Yes',
       });
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 76,
+          role: 'USER',
+          timestamp,
+          content: 'Yes',
+        }),
+        agent,
+      ];
+      await list.updateComplete;
+      await (quickReplies as LitElement).updateComplete;
+
+      expect(
+        quickReplies.shadowRoot!.querySelectorAll('.chips button')
+      ).toHaveLength(0);
+      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      await (assistant as LitElement).updateComplete;
+      expect(
+        assistant.shadowRoot!.querySelectorAll('.buttons button')
+      ).toHaveLength(0);
+      const user = list.shadowRoot!.querySelector('yalo-chat-user-message')!;
+      await (user as LitElement).updateComplete;
+      expect(user.shadowRoot!.textContent).toContain('Yes');
     });
   });
 
