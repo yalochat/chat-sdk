@@ -1663,3 +1663,96 @@ describe('YaloChatWindow guidance card on first open', () => {
     );
   });
 });
+
+describe('YaloChatWindow cross-tab sync', () => {
+  let el: YaloChatWindow;
+
+  beforeEach(async () => {
+    el = await createElement();
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('picks up messages written to storage by another tab when the document becomes visible', async () => {
+    const inserted = await el.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'USER',
+        timestamp: new Date(),
+        content: 'from another tab',
+      })
+    );
+    expect(inserted.ok).toBe(true);
+    expect(getMessageList(el).chatMessages).toHaveLength(0);
+
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0]?.content === 'from another tab'
+    );
+  });
+
+  it('reflects status changes made to messages in storage on the next sync', async () => {
+    const inserted = await el.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'USER',
+        timestamp: new Date(),
+        content: 'pending',
+        status: 'IN_PROGRESS',
+      })
+    );
+    expect(inserted.ok).toBe(true);
+    const stored = (inserted as { value: ChatMessage }).value;
+
+    document.dispatchEvent(new Event('visibilitychange'));
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0]?.status === 'IN_PROGRESS'
+    );
+
+    await el.chatMessageRepository.replaceChatMessage(
+      new ChatMessage({ ...stored, status: 'DELIVERED' })
+    );
+
+    document.dispatchEvent(new Event('visibilitychange'));
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0]?.status === 'DELIVERED'
+    );
+    expect(getMessageList(el).chatMessages).toHaveLength(1);
+  });
+
+  it('does not sync while the document is hidden', async () => {
+    const visibilitySpy = vi
+      .spyOn(document, 'visibilityState', 'get')
+      .mockReturnValue('hidden');
+
+    await el.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'USER',
+        timestamp: new Date(),
+        content: 'should not appear',
+      })
+    );
+
+    document.dispatchEvent(new Event('visibilitychange'));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(getMessageList(el).chatMessages).toHaveLength(0);
+
+    visibilitySpy.mockRestore();
+  });
+
+  it('stops syncing after the element is removed from the DOM', async () => {
+    const pageSpy = vi.spyOn(
+      el.chatMessageRepository,
+      'getChatMessagePageDesc'
+    );
+
+    el.remove();
+    document.dispatchEvent(new Event('visibilitychange'));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(pageSpy).not.toHaveBeenCalled();
+  });
+});
