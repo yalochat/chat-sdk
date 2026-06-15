@@ -184,8 +184,6 @@ export default class ChatMessageList extends LitElement {
           (chatMessage) => chatMessage.id,
           (chatMessage) => {
             const isUser = chatMessage.role === 'USER';
-            const hideQuickReplies =
-              showsQuickReplies && chatMessage.id === latestMessage.id;
             return html`
               <li
                 class="chat-message ${isUser
@@ -196,7 +194,6 @@ export default class ChatMessageList extends LitElement {
                   ? html`<yalo-chat-user-message .message=${chatMessage}></yalo-chat-user-message>`
                   : html`<yalo-chat-assistant-message
                       .message=${chatMessage}
-                      .hideQuickReplies=${hideQuickReplies}
                     ></yalo-chat-assistant-message>`}
               </li>
             `;
