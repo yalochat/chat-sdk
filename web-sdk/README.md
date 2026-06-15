@@ -205,6 +205,7 @@ The target element referenced by `config.target` must exist in the DOM at the ti
 | `hideVoiceButton`    | `boolean`  | No       | When `true`, the microphone affordance is removed: the action button always shows the send icon and only sends text. Users cannot record or send voice messages. |
 | `persistent`         | `boolean`  | No       | When `true` (default), the conversation is kept across sessions in the browser's local database. When `false`, the local database is cleared before the chat is initialized and again when the page is closed, so no conversation data is left behind between sessions. |
 | `differentSessionPerContext` | `boolean` | No  | When `true`, the chat is partitioned by `openContext`: two tabs opened with the same `openContext` share a conversation, while different `openContext` values start a fresh conversation. When `false` or unset (default), `openContext` has no effect on session identity. |
+| `logLevel`           | `"debug" \| "info" \| "warn" \| "error"` | No | Controls how verbose the chat is in the browser console. Defaults to `"warn"`, which keeps the console quiet outside of warnings and errors. Raise to `"debug"` or `"info"` when investigating integration issues. |
 
 ## Theming
 

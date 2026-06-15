@@ -1,5 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import type { LogLevel } from '@log/logger';
+
 export interface YaloChatClientConfig {
   channelId: string;
   organizationId: string;
@@ -16,4 +18,5 @@ export interface YaloChatClientConfig {
   hideVoiceButton?: boolean;
   persistent?: boolean;
   differentSessionPerContext?: boolean;
+  logLevel?: LogLevel;
 }

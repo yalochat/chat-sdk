@@ -106,6 +106,9 @@ export default class YaloChatWindowController implements ReactiveController {
 
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
+    if (this.host.config.logLevel) {
+      this.host.logger.currentLevel = this.host.config.logLevel;
+    }
     const sessionId = computeSessionId(this.host.config);
     const db = await this._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(

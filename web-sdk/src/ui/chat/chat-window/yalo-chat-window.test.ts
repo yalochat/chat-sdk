@@ -1664,6 +1664,31 @@ describe('YaloChatWindow guidance card on first open', () => {
   });
 });
 
+describe('YaloChatWindow logLevel config', () => {
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    await clearDb();
+  });
+
+  it('keeps the logger at warn when no logLevel is provided', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = baseConfig;
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(el.logger.currentLevel).toBe('warn');
+  });
+
+  it('applies the logLevel from config when provided', async () => {
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, logLevel: 'debug' };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(el.logger.currentLevel).toBe('debug');
+  });
+});
+
 describe('YaloChatWindow cross-tab sync', () => {
   let el: YaloChatWindow;
 
