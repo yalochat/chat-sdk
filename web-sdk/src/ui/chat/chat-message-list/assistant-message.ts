@@ -126,9 +126,6 @@ export class AssistantMessage extends LitElement {
   @property({ attribute: false })
   message!: ChatMessage;
 
-  @property({ type: Boolean })
-  hideQuickReplies: boolean = false;
-
   render() {
     let body;
     switch (this.message.type) {
@@ -177,9 +174,9 @@ export class AssistantMessage extends LitElement {
         body = html`<p>${renderMarkdown(this.message.content)}</p>`;
     }
 
-    const buttons = this.hideQuickReplies
-      ? this.message.buttons.filter((button) => button.type !== 'reply')
-      : this.message.buttons;
+    const buttons = this.message.buttons.filter(
+      (button) => button.type !== 'reply'
+    );
 
     return html`
       ${this.message.header
