@@ -71,10 +71,44 @@ export default class YaloChatWindowController implements ReactiveController {
     );
   };
 
+  private _handleVisibilityChange = () => {
+    if (document.visibilityState !== 'visible') {
+      return;
+    }
+    if (!this._messagesLoaded) {
+      return;
+    }
+    this._syncFromStorage();
+  };
+
+  private async _syncFromStorage(): Promise<void> {
+    const result = await this.host.chatMessageRepository.getChatMessagePageDesc(
+      null,
+      this._messagePageSize
+    );
+    if (!result.ok) {
+      this.host.logger.error('Unable to sync messages from storage', {
+        error: result.error,
+      });
+      return;
+    }
+    const freshPage = result.value.data;
+    const freshIds = new Set(freshPage.map((m) => m.id));
+    const older = this.chatMessages.filter((m) => !freshIds.has(m.id));
+    this.chatMessages = [...freshPage, ...older];
+    this.host.logger.debug('Synced messages from storage', {
+      count: this.chatMessages.length,
+    });
+    this.host.requestUpdate();
+  }
+
   private _tokenRepository?: TokenRepositoryLocal;
 
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
+    if (this.host.config.logLevel) {
+      this.host.logger.currentLevel = this.host.config.logLevel;
+    }
     const sessionId = computeSessionId(this.host.config);
     const db = await this._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(
@@ -99,6 +133,7 @@ export default class YaloChatWindowController implements ReactiveController {
       ]);
       window.addEventListener('pagehide', this._handleNonPersistentPageHide);
     }
+    document.addEventListener('visibilitychange', this._handleVisibilityChange);
     const mediaService = new YaloMediaServiceRemote(
       import.meta.env.VITE_YALO_API_BASE_URL,
       tokenRepository
@@ -593,6 +628,10 @@ export default class YaloChatWindowController implements ReactiveController {
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
     window.removeEventListener('pagehide', this._handleNonPersistentPageHide);
+    document.removeEventListener(
+      'visibilitychange',
+      this._handleVisibilityChange
+    );
     this.host.yaloMessageRepository.unsubscribeMessages();
     this.host.chatMessageRepository.dispose();
   }

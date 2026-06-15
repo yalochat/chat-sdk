@@ -5,6 +5,7 @@ import { installYaloOpenQueue } from './queue-open';
 export { default as YaloChatClient } from './data/services/client/yalo-chat-client';
 export type { YaloChatClientInitOptions } from './data/services/client/yalo-chat-client';
 export type { YaloChatClientConfig } from './domain/config/chat-config';
+export type { LogLevel } from './log/logger';
 export {
   ChatCommands,
   type ChatCommand,
