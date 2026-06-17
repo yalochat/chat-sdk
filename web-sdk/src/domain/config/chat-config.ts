@@ -2,7 +2,7 @@
 
 import type { LogLevel } from '@log/logger';
 
-export const SESSION_MODES = ['default', 'differentSessionPerContext'] as const;
+export const SESSION_MODES = ['perUserId', 'perContext'] as const;
 export type SessionMode = (typeof SESSION_MODES)[number];
 
 export interface YaloChatClientConfig {

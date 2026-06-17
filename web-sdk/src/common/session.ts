@@ -7,7 +7,7 @@ function computeOpenContextHash(
   config: YaloChatClientConfig
 ): string | undefined {
   const { openContext, sessionMode } = config;
-  if (sessionMode !== 'differentSessionPerContext' || openContext === undefined) {
+  if (sessionMode !== 'perContext' || openContext === undefined) {
     return undefined;
   }
   return xxhash32(JSON.stringify(openContext));

@@ -15,30 +15,30 @@ const baseConfig: YaloChatClientConfig = {
 };
 
 describe('computeSessionId', () => {
-  it('returns the same sessionId for two configs with the same openContext when sessionMode is differentSessionPerContext', () => {
+  it('returns the same sessionId for two configs with the same openContext when sessionMode is perContext', () => {
     const a = computeSessionId({
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       openContext: { source: 'product-page', sku: '123' },
     });
     const b = computeSessionId({
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       openContext: { source: 'product-page', sku: '123' },
     });
 
     expect(a).toBe(b);
   });
 
-  it('returns different sessionIds when openContext differs and sessionMode is differentSessionPerContext', () => {
+  it('returns different sessionIds when openContext differs and sessionMode is perContext', () => {
     const a = computeSessionId({
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       openContext: { source: 'product-page', sku: '123' },
     });
     const b = computeSessionId({
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       openContext: { source: 'product-page', sku: '456' },
     });
 
@@ -55,11 +55,11 @@ describe('computeSessionId', () => {
     expect(withContext).toBe(withoutContext);
   });
 
-  it('ignores openContext when sessionMode is default', () => {
+  it('ignores openContext when sessionMode is perUserId', () => {
     expect(
       computeSessionId({
         ...baseConfig,
-        sessionMode: 'default',
+        sessionMode: 'perUserId',
         openContext: { sku: '123' },
       })
     ).toBe('org-1-ch-1-anonymous');
@@ -75,11 +75,11 @@ describe('computeSessionId', () => {
     );
   });
 
-  it('appends the openContext hash to the userId-keyed base when both are provided and sessionMode is differentSessionPerContext', () => {
+  it('appends the openContext hash to the userId-keyed base when both are provided and sessionMode is perContext', () => {
     expect(
       computeSessionId({
         ...baseConfig,
-        sessionMode: 'differentSessionPerContext',
+        sessionMode: 'perContext',
         userId: 'user-9',
         openContext: { sku: '123' },
       })
@@ -89,13 +89,13 @@ describe('computeSessionId', () => {
   it('does not collapse two different users to the same sessionId when their openContext is identical', () => {
     const a = computeSessionId({
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       userId: 'user-9',
       openContext: { sku: '123' },
     });
     const b = computeSessionId({
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       userId: 'user-10',
       openContext: { sku: '123' },
     });
@@ -109,7 +109,7 @@ describe('computeEffectiveAuthUserId', () => {
     expect(
       computeEffectiveAuthUserId({
         ...baseConfig,
-        sessionMode: 'differentSessionPerContext',
+        sessionMode: 'perContext',
         openContext: { sku: 'A' },
       })
     ).toBeUndefined();
@@ -131,11 +131,11 @@ describe('computeEffectiveAuthUserId', () => {
     ).toBe('u1');
   });
 
-  it('appends the openContext hash to the userId when both are provided and sessionMode is differentSessionPerContext', () => {
+  it('appends the openContext hash to the userId when both are provided and sessionMode is perContext', () => {
     expect(
       computeEffectiveAuthUserId({
         ...baseConfig,
-        sessionMode: 'differentSessionPerContext',
+        sessionMode: 'perContext',
         userId: 'u1',
         openContext: { sku: 'A' },
       })
@@ -145,7 +145,7 @@ describe('computeEffectiveAuthUserId', () => {
   it('returns the same effective userId for two identical openContexts', () => {
     const config: YaloChatClientConfig = {
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       userId: 'u1',
     };
     const a = computeEffectiveAuthUserId({
@@ -163,7 +163,7 @@ describe('computeEffectiveAuthUserId', () => {
   it('returns different effective userIds when openContext differs', () => {
     const config: YaloChatClientConfig = {
       ...baseConfig,
-      sessionMode: 'differentSessionPerContext',
+      sessionMode: 'perContext',
       userId: 'u1',
     };
     const a = computeEffectiveAuthUserId({
