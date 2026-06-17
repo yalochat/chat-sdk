@@ -5,6 +5,7 @@ import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { PageInfo } from '@domain/common/page';
+import type { SdkMessageAck } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import {
   computeEffectiveAuthUserId,
   computeSessionId,
@@ -32,9 +33,11 @@ export default class YaloChatWindowController implements ReactiveController {
 
   private readonly _messagePageSize = 500;
   private readonly _writingTimeoutMs = 30000;
+  private readonly _messageAckTimeoutMs = 10000;
   private _writingTimeout?: ReturnType<typeof setTimeout>;
   private _guidanceCardRequested = false;
   private _messagesLoaded = false;
+  private _pendingAckTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private static readonly _DB_NAME = 'YaloChatMessages';
   private static readonly _DB_VERSION = 1;
@@ -215,6 +218,8 @@ export default class YaloChatWindowController implements ReactiveController {
           error: yaloResult.error,
         });
         await this._markMessageAsError(localResult.value);
+      } else {
+        this._trackPendingAck(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert message locally', {
@@ -251,6 +256,8 @@ export default class YaloChatWindowController implements ReactiveController {
           error: yaloResult.error,
         });
         await this._markMessageAsError(localResult.value);
+      } else {
+        this._trackPendingAck(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert voice message locally', {
@@ -289,6 +296,8 @@ export default class YaloChatWindowController implements ReactiveController {
           error: yaloResult.error,
         });
         await this._markMessageAsError(localResult.value);
+      } else {
+        this._trackPendingAck(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert attachment message locally', {
@@ -325,6 +334,8 @@ export default class YaloChatWindowController implements ReactiveController {
           error: yaloResult.error,
         });
         await this._markMessageAsError(localResult.value);
+      } else {
+        this._trackPendingAck(localResult.value);
       }
     } else {
       this.host.logger.error('Unable to insert image message locally', {
@@ -368,6 +379,8 @@ export default class YaloChatWindowController implements ReactiveController {
         error: yaloResult.error,
       });
       await this._markMessageAsError(retrying);
+    } else {
+      this._trackPendingAck(retrying);
     }
   }
 
@@ -507,21 +520,68 @@ export default class YaloChatWindowController implements ReactiveController {
     }
   }
 
-  private async _markMessageAsError(message: ChatMessage): Promise<void> {
-    const errored = new ChatMessage({ ...message, status: 'ERROR' });
+  private async _setMessageStatus(
+    message: ChatMessage,
+    status: ChatMessage['status']
+  ): Promise<void> {
+    const updated = new ChatMessage({ ...message, status });
     const result =
-      await this.host.chatMessageRepository.replaceChatMessage(errored);
+      await this.host.chatMessageRepository.replaceChatMessage(updated);
     if (!result.ok) {
-      this.host.logger.error('Unable to persist error status locally', {
+      this.host.logger.error('Unable to persist message status locally', {
         error: result.error,
+        status,
       });
       return;
     }
-    const index = this.chatMessages.findIndex((m) => m.id === errored.id);
+    const index = this.chatMessages.findIndex((m) => m.id === updated.id);
     if (index === -1) return;
     this.chatMessages = [...this.chatMessages];
-    this.chatMessages[index] = errored;
+    this.chatMessages[index] = updated;
     this.host.requestUpdate();
+  }
+
+  private _markMessageAsError(message: ChatMessage): Promise<void> {
+    return this._setMessageStatus(message, 'ERROR');
+  }
+
+  private _trackPendingAck(message: ChatMessage): void {
+    if (message.id === undefined) {
+      return;
+    }
+    const correlationId = String(message.id);
+    const existing = this._pendingAckTimers.get(correlationId);
+    if (existing) {
+      clearTimeout(existing);
+    }
+    const timer = setTimeout(() => {
+      this._pendingAckTimers.delete(correlationId);
+      const current = this.chatMessages.find((m) => m.id === message.id);
+      if (!current || current.status === 'ERROR') {
+        return;
+      }
+      this.host.logger.error('Message ack timed out', { correlationId });
+      void this._markMessageAsError(current);
+    }, this._messageAckTimeoutMs);
+    this._pendingAckTimers.set(correlationId, timer);
+  }
+
+  private async _handleMessageAck(ack: SdkMessageAck): Promise<void> {
+    const correlationId = ack.correlationId;
+    const timer = this._pendingAckTimers.get(correlationId);
+    if (timer) {
+      clearTimeout(timer);
+      this._pendingAckTimers.delete(correlationId);
+    }
+    const messageId = Number(correlationId);
+    if (Number.isNaN(messageId)) {
+      return;
+    }
+    const message = this.chatMessages.find((m) => m.id === messageId);
+    if (!message || message.status !== 'ERROR') {
+      return;
+    }
+    await this._setMessageStatus(message, 'IN_PROGRESS');
   }
 
   async updateProductQuantity(e: CustomEvent) {
@@ -593,7 +653,12 @@ export default class YaloChatWindowController implements ReactiveController {
     }
   }
 
-  onMessageReceived = async (chatMessages: ChatMessage[]) => {
+  onMessageReceived = async (event: ChatMessage[] | SdkMessageAck) => {
+    if (!Array.isArray(event)) {
+      await this._handleMessageAck(event);
+      return;
+    }
+    const chatMessages = event;
     clearTimeout(this._writingTimeout);
     this.isWriting = false;
     this.host.logger.debug(`Received ${chatMessages.length} messages`);
@@ -627,6 +692,10 @@ export default class YaloChatWindowController implements ReactiveController {
 
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
+    for (const timer of this._pendingAckTimers.values()) {
+      clearTimeout(timer);
+    }
+    this._pendingAckTimers.clear();
     window.removeEventListener('pagehide', this._handleNonPersistentPageHide);
     document.removeEventListener(
       'visibilitychange',

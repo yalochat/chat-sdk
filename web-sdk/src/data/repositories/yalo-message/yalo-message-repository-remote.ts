@@ -2,7 +2,10 @@
 
 import { Err, Ok, type Result } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type { PollMessageItem } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type {
+  PollMessageItem,
+  SdkMessageAck,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
 import type { YaloMessageService } from '@data/services/yalo-message/yalo-message-service';
 import type {
@@ -110,8 +113,12 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   subscribeToMessages(callback: PollCallback): void {
-    this._service.subscribe((item: PollMessageItem) => {
-      const message = pollMessageItemToChatMessage(item);
+    this._service.subscribe((event: PollMessageItem | SdkMessageAck) => {
+      if ('correlationId' in event) {
+        callback(event);
+        return;
+      }
+      const message = pollMessageItemToChatMessage(event);
       if (message) {
         this._emit(message, callback);
       }

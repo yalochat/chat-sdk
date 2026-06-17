@@ -2,8 +2,9 @@
 
 import type { Result } from '@domain/common/result';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { SdkMessageAck } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
-export type PollCallback = (messages: ChatMessage[]) => void;
+export type PollCallback = (event: ChatMessage[] | SdkMessageAck) => void;
 
 export abstract class YaloMessageRepository {
   // Inserts a chat message to the inbound messages API
@@ -29,8 +30,9 @@ export abstract class YaloMessageRepository {
     context?: string
   ): Promise<Result<void>>;
 
-  // Polls messages based on timestamp every X seconds and notifies
-  // via callback
+  // Subscribes to server events. The callback receives a ChatMessage[] for
+  // incoming poll messages and an SdkMessageAck for delivery confirmations
+  // of previously-sent client messages (matched by correlation_id).
   abstract subscribeToMessages(callback: PollCallback): void;
 
   // Unsubscribe from the message stream
