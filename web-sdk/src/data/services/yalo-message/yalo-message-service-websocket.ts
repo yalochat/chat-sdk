@@ -6,6 +6,8 @@ import {
   ConnectionAckType,
   PollMessageItem,
   SdkMessage,
+  SdkMessageAck,
+  SdkMessageAckType,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type { TokenRepository } from '@data/repositories/token/token-repository';
 import type {
@@ -144,6 +146,11 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
             this._clearAckTimeout();
             this._flushPending();
           }
+          return;
+        }
+        const messageAck = SdkMessageAck.fromJSON(parsed);
+        if (messageAck.type === SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK) {
+          this._callback?.(messageAck);
           return;
         }
         const item = PollMessageItem.fromJSON(parsed);

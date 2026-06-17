@@ -10,6 +10,10 @@ import { Err, Ok } from '@domain/common/result';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import type { PollCallback } from '@data/repositories/yalo-message/yalo-message-repository';
+import {
+  SdkMessageAckType,
+  type SdkMessageAck,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -534,7 +538,7 @@ describe('YaloChatWindow', () => {
 
       await vi.waitUntil(() =>
         errorSpy.mock.calls.some(
-          (c) => c[0] === 'Unable to persist error status locally'
+          (c) => c[0] === 'Unable to persist message status locally'
         )
       );
       expect(getMessageList(el).chatMessages[0]).toMatchObject({
@@ -1451,6 +1455,134 @@ describe('YaloChatWindow incoming messages', () => {
     unsubscribeSpy.mockClear();
     el.remove();
     expect(unsubscribeSpy).toHaveBeenCalled();
+  });
+});
+
+describe('YaloChatWindow message ack', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    ).mockReturnValue();
+    el = await createElement();
+    vi.useFakeTimers();
+  });
+
+  afterEach(async () => {
+    vi.useRealTimers();
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  const sendUserMessage = async (content: string): Promise<number> => {
+    dispatchFromFooter(
+      el,
+      'yalo-chat-send-text-message',
+      ChatMessage.text({
+        role: 'USER',
+        timestamp: new Date(),
+        content,
+      })
+    );
+    await vi.waitFor(() => {
+      const id = getMessageList(el).chatMessages[0]?.id;
+      if (id === undefined) {
+        throw new Error('Message not inserted yet');
+      }
+      return id;
+    });
+    return getMessageList(el).chatMessages[0].id as number;
+  };
+
+  const ackFor = (correlationId: string): SdkMessageAck => ({
+    type: SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK,
+    correlationId,
+    timestamp: new Date('2026-01-01T00:00:00Z'),
+  });
+
+  it('marks the message as ERROR when no ack arrives within 10s', async () => {
+    vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+      new Ok(
+        ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: 'no ack',
+        })
+      )
+    );
+
+    const id = await sendUserMessage('no ack');
+
+    await vi.advanceTimersByTimeAsync(10000);
+    await vi.waitFor(
+      () => getMessageList(el).chatMessages.find((m) => m.id === id)?.status === 'ERROR'
+    );
+  });
+
+  it('does not mark the message as ERROR when the ack arrives in time', async () => {
+    vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+      new Ok(
+        ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: 'on time',
+        })
+      )
+    );
+
+    const id = await sendUserMessage('on time');
+
+    subscribeCallback!(ackFor(String(id)));
+
+    await vi.advanceTimersByTimeAsync(15000);
+    expect(
+      getMessageList(el).chatMessages.find((m) => m.id === id)?.status
+    ).not.toBe('ERROR');
+  });
+
+  it('reverts a message from ERROR to IN_PROGRESS when a late ack arrives', async () => {
+    vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+      new Ok(
+        ChatMessage.text({
+          role: 'USER',
+          timestamp: new Date(),
+          content: 'late ack',
+        })
+      )
+    );
+
+    const id = await sendUserMessage('late ack');
+
+    await vi.advanceTimersByTimeAsync(10000);
+    await vi.waitFor(
+      () => getMessageList(el).chatMessages.find((m) => m.id === id)?.status === 'ERROR'
+    );
+
+    subscribeCallback!(ackFor(String(id)));
+
+    await vi.waitFor(
+      () => getMessageList(el).chatMessages.find((m) => m.id === id)?.status === 'IN_PROGRESS'
+    );
+  });
+
+  it('ignores acks whose correlation id has no matching local message', async () => {
+    subscribeCallback!(ackFor('999999'));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(getMessageList(el).chatMessages).toHaveLength(0);
   });
 });
 
