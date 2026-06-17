@@ -6,8 +6,8 @@ import { xxhash32 } from '@common/hash';
 function computeOpenContextHash(
   config: YaloChatClientConfig
 ): string | undefined {
-  const { openContext, differentSessionPerContext } = config;
-  if (differentSessionPerContext !== true || openContext === undefined) {
+  const { openContext, sessionMode } = config;
+  if (sessionMode !== 'differentSessionPerContext' || openContext === undefined) {
     return undefined;
   }
   return xxhash32(JSON.stringify(openContext));
