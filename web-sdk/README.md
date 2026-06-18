@@ -184,6 +184,22 @@ If you can't guarantee the order in which the SDK script and your configuration 
 
 After the SDK loads, `window.yaloOpen.push(config)` keeps working and opens a new chat window for each pushed configuration. Each pushed configuration creates and opens an independent `YaloChatClient` instance.
 
+Each pushed configuration also accepts the `onOpen` and `onClose` callbacks that `client.init(options)` supports. Add them alongside the configuration properties and the SDK forwards them to `init`:
+
+```html
+<script>
+  window.yaloOpen = window.yaloOpen || [];
+  window.yaloOpen.push({
+    channelId: 'your-channel-id',
+    organizationId: 'your-organization-id',
+    channelName: 'Support',
+    target: 'yalo-chat',
+    onOpen: () => console.log('chat opened'),
+    onClose: () => console.log('chat closed'),
+  });
+</script>
+```
+
 The target element referenced by `config.target` must exist in the DOM at the time the configuration is processed. Place the script after the target element or wrap the push in your own `DOMContentLoaded` handler if needed.
 
 ## Configuration

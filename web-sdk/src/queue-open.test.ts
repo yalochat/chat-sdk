@@ -78,6 +78,25 @@ describe('installYaloOpenQueue', () => {
     expect(getChatWindow().open).toBe(true);
   });
 
+  it('runs onOpen from a prefilled config when the chat opens', async () => {
+    const onOpen = vi.fn();
+    window.yaloOpen = [{ ...baseConfig, onOpen }];
+    installYaloOpenQueue();
+    await waitForChatWindow();
+    expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs onClose from a pushed config when the chat closes', async () => {
+    const onClose = vi.fn();
+    installYaloOpenQueue();
+    (
+      window.yaloOpen as { push: (c: typeof baseConfig & { onClose: () => void }) => void }
+    ).push({ ...baseConfig, onClose });
+    await waitForChatWindow();
+    getChatWindow().dispatchEvent(new CustomEvent('yalo-chat-close'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores a non-array existing window.yaloOpen value', () => {
     (window as unknown as { yaloOpen: unknown }).yaloOpen =
       'not-an-array' as unknown;
