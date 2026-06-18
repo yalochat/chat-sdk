@@ -32,7 +32,12 @@ export function computeEffectiveAuthUserId(
 ): string | undefined {
   const { userId } = config;
   if (config.sessionMode === 'ephemeral') {
-    if (userId === undefined || ephemeralToken === undefined) {
+    // Anonymous: let the backend mint a fresh identity on each auth.
+    if (userId === undefined) {
+      return undefined;
+    }
+    // Defensive: no token to append, so keep the user id as-is.
+    if (ephemeralToken === undefined) {
       return userId;
     }
     return `${userId}-${ephemeralToken}`;
