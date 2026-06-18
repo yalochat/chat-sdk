@@ -1208,7 +1208,7 @@ describe('YaloChatWindow', () => {
   });
 });
 
-describe('YaloChatWindow persistent flag', () => {
+describe('YaloChatWindow ephemeral session mode', () => {
   let deleteSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
@@ -1221,9 +1221,9 @@ describe('YaloChatWindow persistent flag', () => {
     await clearDb();
   });
 
-  it('never deletes the shared database, even when persistent is false', async () => {
+  it('never deletes the shared database, even in ephemeral mode', async () => {
     const el = document.createElement('yalo-chat-window') as YaloChatWindow;
-    el.config = { ...baseConfig, persistent: false };
+    el.config = { ...baseConfig, sessionMode: 'ephemeral' };
     document.body.appendChild(el);
     await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
     window.dispatchEvent(new PageTransitionEvent('pagehide'));
@@ -1231,7 +1231,7 @@ describe('YaloChatWindow persistent flag', () => {
     expect(deleteSpy).not.toHaveBeenCalled();
   });
 
-  it('starts with an empty conversation when persistent is false even if the database has prior messages', async () => {
+  it('starts with an empty conversation in ephemeral mode even if the database has prior messages', async () => {
     const seeded = document.createElement('yalo-chat-window') as YaloChatWindow;
     seeded.config = baseConfig;
     document.body.appendChild(seeded);
@@ -1246,14 +1246,14 @@ describe('YaloChatWindow persistent flag', () => {
     seeded.remove();
 
     const fresh = document.createElement('yalo-chat-window') as YaloChatWindow;
-    fresh.config = { ...baseConfig, persistent: false };
+    fresh.config = { ...baseConfig, sessionMode: 'ephemeral' };
     document.body.appendChild(fresh);
     await vi.waitUntil(() => fresh.yaloMessageRepository !== undefined);
 
     expect(getMessageList(fresh).chatMessages).toHaveLength(0);
   });
 
-  it('keeps messages from other sessions intact when this session is non-persistent', async () => {
+  it('keeps messages from other sessions intact when this session is ephemeral', async () => {
     const otherConfig = { ...baseConfig, channelId: 'other-channel' };
 
     const other = document.createElement('yalo-chat-window') as YaloChatWindow;
@@ -1270,7 +1270,7 @@ describe('YaloChatWindow persistent flag', () => {
     other.remove();
 
     const mine = document.createElement('yalo-chat-window') as YaloChatWindow;
-    mine.config = { ...baseConfig, persistent: false };
+    mine.config = { ...baseConfig, sessionMode: 'ephemeral' };
     document.body.appendChild(mine);
     await vi.waitUntil(() => mine.yaloMessageRepository !== undefined);
 

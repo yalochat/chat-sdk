@@ -65,7 +65,7 @@ export default class YaloChatWindowController implements ReactiveController {
     this.host.addController(this);
   }
 
-  private _handleNonPersistentPageHide = () => {
+  private _handleEphemeralPageHide = () => {
     const messageRepo = this.host.chatMessageRepository;
     const tokenRepo = this._tokenRepository;
     this.host.yaloMessageRepository.unsubscribeMessages();
@@ -112,7 +112,11 @@ export default class YaloChatWindowController implements ReactiveController {
     if (this.host.config.logLevel) {
       this.host.logger.currentLevel = this.host.config.logLevel;
     }
-    const sessionId = computeSessionId(this.host.config);
+    const ephemeralToken =
+      this.host.config.sessionMode === 'ephemeral'
+        ? crypto.randomUUID()
+        : undefined;
+    const sessionId = computeSessionId(this.host.config, ephemeralToken);
     const db = await this._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(
       db,
@@ -123,18 +127,18 @@ export default class YaloChatWindowController implements ReactiveController {
       import.meta.env.VITE_YALO_API_BASE_URL,
       {
         ...this.host.config,
-        userId: computeEffectiveAuthUserId(this.host.config),
+        userId: computeEffectiveAuthUserId(this.host.config, ephemeralToken),
       }
     );
     const tokenRepository = new TokenRepositoryLocal(db, sessionId, authService);
     this._tokenRepository = tokenRepository;
 
-    if (this.host.config.persistent === false) {
+    if (this.host.config.sessionMode === 'ephemeral') {
       await Promise.all([
         this.host.chatMessageRepository.clearSession(),
         tokenRepository.clearSession(),
       ]);
-      window.addEventListener('pagehide', this._handleNonPersistentPageHide);
+      window.addEventListener('pagehide', this._handleEphemeralPageHide);
     }
     document.addEventListener('visibilitychange', this._handleVisibilityChange);
     const mediaService = new YaloMediaServiceRemote(
@@ -696,7 +700,7 @@ export default class YaloChatWindowController implements ReactiveController {
       clearTimeout(timer);
     }
     this._pendingAckTimers.clear();
-    window.removeEventListener('pagehide', this._handleNonPersistentPageHide);
+    window.removeEventListener('pagehide', this._handleEphemeralPageHide);
     document.removeEventListener(
       'visibilitychange',
       this._handleVisibilityChange
