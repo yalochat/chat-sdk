@@ -2,7 +2,7 @@
 
 import type { LogLevel } from '@log/logger';
 
-export const SESSION_MODES = ['perUserId', 'perContext'] as const;
+export const SESSION_MODES = ['shared', 'perContext', 'ephemeral'] as const;
 export type SessionMode = (typeof SESSION_MODES)[number];
 
 export interface YaloChatClientConfig {
@@ -19,7 +19,6 @@ export interface YaloChatClientConfig {
   hideHeader?: boolean;
   hideAttachmentButton?: boolean;
   hideVoiceButton?: boolean;
-  persistent?: boolean;
   sessionMode?: SessionMode;
   logLevel?: LogLevel;
 }

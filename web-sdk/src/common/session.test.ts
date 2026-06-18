@@ -55,11 +55,11 @@ describe('computeSessionId', () => {
     expect(withContext).toBe(withoutContext);
   });
 
-  it('ignores openContext when sessionMode is perUserId', () => {
+  it('ignores openContext when sessionMode is shared', () => {
     expect(
       computeSessionId({
         ...baseConfig,
-        sessionMode: 'perUserId',
+        sessionMode: 'shared',
         openContext: { sku: '123' },
       })
     ).toBe('org-1-ch-1-anonymous');
@@ -101,6 +101,37 @@ describe('computeSessionId', () => {
     });
 
     expect(a).not.toBe(b);
+  });
+
+  it('appends the ephemeral token to the anonymous base when sessionMode is ephemeral', () => {
+    expect(
+      computeSessionId(
+        { ...baseConfig, sessionMode: 'ephemeral' },
+        'token-abc'
+      )
+    ).toBe('org-1-ch-1-anonymous-token-abc');
+  });
+
+  it('appends the ephemeral token to the userId base when sessionMode is ephemeral', () => {
+    expect(
+      computeSessionId(
+        { ...baseConfig, sessionMode: 'ephemeral', userId: 'user-9' },
+        'token-abc'
+      )
+    ).toBe('org-1-ch-1-user-9-token-abc');
+  });
+
+  it('ignores openContext when sessionMode is ephemeral', () => {
+    expect(
+      computeSessionId(
+        {
+          ...baseConfig,
+          sessionMode: 'ephemeral',
+          openContext: { sku: '123' },
+        },
+        'token-abc'
+      )
+    ).toBe('org-1-ch-1-anonymous-token-abc');
   });
 });
 
@@ -176,5 +207,23 @@ describe('computeEffectiveAuthUserId', () => {
     });
 
     expect(a).not.toBe(b);
+  });
+
+  it('appends the ephemeral token to the userId when sessionMode is ephemeral', () => {
+    expect(
+      computeEffectiveAuthUserId(
+        { ...baseConfig, sessionMode: 'ephemeral', userId: 'u1' },
+        'token-abc'
+      )
+    ).toBe('u1-token-abc');
+  });
+
+  it('returns undefined for an anonymous ephemeral session so the backend mints a fresh identity', () => {
+    expect(
+      computeEffectiveAuthUserId(
+        { ...baseConfig, sessionMode: 'ephemeral' },
+        'token-abc'
+      )
+    ).toBeUndefined();
   });
 });
