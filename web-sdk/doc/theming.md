@@ -134,8 +134,16 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Text color for the channel name and status text in the header. */
   --yalo-chat-header-color: #010101;
 
+  /* Display of the chat header bar. Set to `none` to hide the header.
+     This is the CSS equivalent of the `hideHeader` config property. */
+  --yalo-chat-header-display: flex;
+
   /* Color of the close button icon in the header. */
   --yalo-chat-close-btn-color: #010101;
+
+  /* Display of the close button in the header. Set to `none` to hide it.
+     This is the CSS equivalent of the `hideCloseButton` config property. */
+  --yalo-chat-close-btn-display: flex;
 
   /* Font size of the Material Symbols icons rendered inside the header
      (close button). */

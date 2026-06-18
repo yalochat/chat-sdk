@@ -13,7 +13,7 @@ import { customElement, property } from 'lit/decorators.js';
 export class ChatHeader extends LitElement {
   static styles = css`
     .chat-header {
-      display: flex;
+      display: var(--yalo-chat-header-display, flex);
       gap: 1rem;
       align-items: center;
       justify-content: space-between;
@@ -51,7 +51,7 @@ export class ChatHeader extends LitElement {
       color: var(--yalo-chat-close-btn-color, #010101);
       cursor: pointer;
       padding: 4px;
-      display: flex;
+      display: var(--yalo-chat-close-btn-display, flex);
       align-items: center;
       justify-content: center;
       border-radius: 4px;
