@@ -17,9 +17,7 @@ client.init();
 
 ## Available commands
 
-| Command | Triggered when | Callback payload |
-|---------|---------------|-----------------|
-| `updateCartProduct` | User confirms a product in a product message via "Add to cart" | `{ sku: string, units: number, subunits?: number }` |
-| `clearCart` | Cart is cleared | `unknown` |
+- **`updateCartProduct`**: Triggered when the user confirms a product in a product message via "Add to cart". Callback payload: `{ sku: string, units: number, subunits?: number }`.
+- **`clearCart`**: Triggered when the cart is cleared. Callback payload: `unknown`.
 
 If a command has no registered callback, the SDK sends the action through the remote API as usual.

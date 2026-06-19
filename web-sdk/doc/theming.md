@@ -47,6 +47,15 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 
 ```css
 :root {
+  /* Width of the chat window. Defaults to `auto`, so the chat fills the
+     container element referenced by `target`. Set an explicit size (for
+     example on `yalo-chat-window`) when you want the chat to size itself
+     instead of its container, such as in a floating popup. */
+  --yalo-chat-width: auto;
+
+  /* Height of the chat window. Behaves like `--yalo-chat-width`. */
+  --yalo-chat-height: auto;
+
   /* Background color of the main chat window body. */
   --yalo-chat-background: #ffffff;
 
