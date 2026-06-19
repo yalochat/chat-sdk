@@ -72,24 +72,30 @@ class ChatScreen extends StatelessWidget {
 
 ### YaloChatClient options
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `name` | `String` | Yes | The chat name displayed in the header. |
-| `channelId` | `String` | Yes | Your Yalo channel ID. |
-| `organizationId` | `String` | Yes | Your Yalo organization ID. |
-| `userId` | `String?` | No | Your own user identifier. When provided, the chat session is linked to your user. |
+Required:
+
+- **`name`** (`String`): The chat name displayed in the header.
+- **`channelId`** (`String`): Your Yalo channel ID.
+- **`organizationId`** (`String`): Your Yalo organization ID.
+
+Optional:
+
+- **`userId`** (`String?`): Your own user identifier. When provided, the chat session is linked to your user.
 
 ### Chat widget options
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `client` | `YaloChatClient` | Yes | The configured chat client. |
-| `theme` | `ChatTheme` | No | Visual customization for the chat UI. |
-| `appBar` | `PreferredSizeWidget?` | No | Custom app bar. Falls back to the default `ChatAppBar`. |
-| `showAttachmentButton` | `bool` | No | Whether the attachment button is shown in the input. Defaults to `true`. |
-| `onShopPressed` | `VoidCallback?` | No | Called when the shop icon is tapped. |
-| `onCartPressed` | `VoidCallback?` | No | Called when the cart icon is tapped. |
-| `openContext` | `Map<String, dynamic>?` | No | Describes where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{'source': 'product-page', 'sku': '123'}`. The map is serialized as JSON before being sent. |
+Required:
+
+- **`client`** (`YaloChatClient`): The configured chat client.
+
+Optional:
+
+- **`theme`** (`ChatTheme`): Visual customization for the chat UI.
+- **`appBar`** (`PreferredSizeWidget?`): Custom app bar. Falls back to the default `ChatAppBar`.
+- **`showAttachmentButton`** (`bool`): Whether the attachment button is shown in the input. Defaults to `true`.
+- **`onShopPressed`** (`VoidCallback?`): Called when the shop icon is tapped.
+- **`onCartPressed`** (`VoidCallback?`): Called when the cart icon is tapped.
+- **`openContext`** (`Map<String, dynamic>?`): Describes where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{'source': 'product-page', 'sku': '123'}`. Fixed for the lifetime of the chat instance.
 
 ### Logging
 

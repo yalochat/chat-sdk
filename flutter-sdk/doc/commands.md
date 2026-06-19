@@ -28,12 +28,10 @@ client.registerCommand(ChatCommand.removeFromCart, (payload) {
 
 ## Available commands
 
-| Command | Triggered when | Callback payload |
-|---------|---------------|-----------------|
-| `ChatCommand.addToCart` | User increases a product quantity | `{ 'sku': String, 'quantity': double }` |
-| `ChatCommand.removeFromCart` | User decreases a product quantity | `{ 'sku': String, 'quantity': double? }` |
-| `ChatCommand.clearCart` | Cart is cleared | `null` |
-| `ChatCommand.guidanceCard` | Guidance cards are requested | `null` |
-| `ChatCommand.addPromotion` | A promotion is applied | `{ 'promotionId': String }` |
+- **`ChatCommand.addToCart`**: Triggered when the user increases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double }`.
+- **`ChatCommand.removeFromCart`**: Triggered when the user decreases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double? }`.
+- **`ChatCommand.clearCart`**: Triggered when the cart is cleared. Callback payload: `null`.
+- **`ChatCommand.guidanceCard`**: Triggered when guidance cards are requested. Callback payload: `null`.
+- **`ChatCommand.addPromotion`**: Triggered when a promotion is applied. Callback payload: `{ 'promotionId': String }`.
 
 If a command has no registered callback, the SDK sends the action through the remote API as usual.

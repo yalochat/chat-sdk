@@ -112,7 +112,7 @@ Content-Security-Policy:
   connect-src 'self' https://api2-ww-us-001.yalochat.com wss://api2-ww-us-001.yalochat.com;
 ```
 
-The SDK opens a WebSocket connection for live messages and uses `https://` for the auth and media APIs, so `connect-src` must include both schemes against the same host. The `blob:` entries are required because image, audio, and video messages are rendered from object URLs created in the browser.
+The SDK keeps a live connection over both `https://` and `wss://` against the same host, so `connect-src` must include both schemes. The `blob:` entries are required so the chat can display image, audio, and video messages.
 
 ### Floating popup pattern
 
@@ -148,10 +148,19 @@ If you want a classic FAB-and-popup, wrap the chat container and a toggle button
     channelName: 'Support',
     target: 'yalo-chat',
   });
-  client.init();
+
+  var isOpen = false;
+  client.init({
+    onOpen: () => {
+      isOpen = true;
+    },
+    onClose: () => {
+      isOpen = false;
+    },
+  });
 
   document.getElementById('chat-fab').addEventListener('click', () => {
-    if (client.chatWindowEl?.open) {
+    if (isOpen) {
       client.close();
     } else {
       client.open();
@@ -204,23 +213,29 @@ The target element referenced by `config.target` must exist in the DOM at the ti
 
 ## Configuration
 
-| Property             | Type       | Required | Description                                   |
-|----------------------|------------|----------|-----------------------------------------------|
-| `channelId`          | `string`   | Yes      | Your channel identifier                       |
-| `organizationId`     | `string`   | Yes      | Your organization identifier                  |
-| `channelName`        | `string`   | Yes      | Name displayed in the chat header             |
-| `target`             | `string`   | Yes      | ID of the HTML element the chat renders inside |
-| `image`              | `string`   | No       | URL for the channel avatar image              |
-| `locale`             | `string`   | No       | Locale for the chat UI (e.g. `"es"`, `"en"`)  |
-| `audioWaveformColor` | `string`   | No       | Color for the audio waveform visualization    |
-| `userId`             | `string`   | No       | Your own user identifier. When provided, the chat session is linked to your user. |
-| `openContext`        | `object`   | No       | Context describing where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{ source: 'product-page', sku: '123' }`. The object is serialized as JSON before being sent. Fixed for the lifetime of the chat instance. |
-| `hideCloseButton`    | `boolean`  | No       | When `true`, the close button is not rendered in the chat header. Useful when the chat is embedded full-screen or hosted in a surface that already provides its own close affordance. You can also hide it from CSS with the `--yalo-chat-close-btn-display: none` variable. |
-| `hideHeader`         | `boolean`  | No       | When `true`, the chat header is not rendered. Use this when the surrounding page already shows the channel name and avatar, or when embedding the chat in a layout that supplies its own header. You can also hide it from CSS with the `--yalo-chat-header-display: none` variable. |
-| `hideAttachmentButton` | `boolean` | No      | When `true`, the file attachment button is not rendered in the footer. Users cannot send images or files from the chat. |
-| `hideVoiceButton`    | `boolean`  | No       | When `true`, the microphone affordance is removed: the action button always shows the send icon and only sends text. Users cannot record or send voice messages. |
-| `sessionMode` | `"shared" \| "perContext" \| "ephemeral"` | No  | Controls how the chat session is partitioned and persisted. With `"shared"` (default) or unset, the conversation is kept across sessions in the browser's local database and `openContext` has no effect on session identity. With `"perContext"`, the conversation is also persisted but partitioned by `openContext`: two tabs opened with the same `openContext` share a conversation, while different `openContext` values start a fresh conversation. With `"ephemeral"`, the local database is cleared before the chat is initialized and again when the page is closed, so no conversation data is left behind between sessions. |
-| `logLevel`           | `"debug" \| "info" \| "warn" \| "error"` | No | Controls how verbose the chat is in the browser console. Defaults to `"warn"`, which keeps the console quiet outside of warnings and errors. Raise to `"debug"` or `"info"` when investigating integration issues. |
+Required properties:
+
+- **`channelId`** (`string`): Your channel identifier.
+- **`organizationId`** (`string`): Your organization identifier.
+- **`channelName`** (`string`): Name displayed in the chat header.
+- **`target`** (`string`): ID of the HTML element the chat renders inside.
+
+Optional properties:
+
+- **`image`** (`string`): URL for the channel avatar image.
+- **`locale`** (`string`): Locale for the chat UI (e.g. `"es"`, `"en"`).
+- **`audioWaveformColor`** (`string`): Color for the audio waveform visualization.
+- **`userId`** (`string`): Your own user identifier. When provided, the chat session is linked to your user.
+- **`openContext`** (`object`): Context describing where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{ source: 'product-page', sku: '123' }`. Fixed for the lifetime of the chat instance.
+- **`hideCloseButton`** (`boolean`): When `true`, the close button is not rendered in the chat header. Useful when the chat is embedded full-screen or hosted in a surface that already provides its own close affordance. You can also hide it from CSS with the `--yalo-chat-close-btn-display: none` variable.
+- **`hideHeader`** (`boolean`): When `true`, the chat header is not rendered. Use this when the surrounding page already shows the channel name and avatar, or when embedding the chat in a layout that supplies its own header. You can also hide it from CSS with the `--yalo-chat-header-display: none` variable.
+- **`hideAttachmentButton`** (`boolean`): When `true`, the file attachment button is not rendered in the footer. Users cannot send images or files from the chat.
+- **`hideVoiceButton`** (`boolean`): When `true`, the microphone affordance is removed: the action button always shows the send icon and only sends text. Users cannot record or send voice messages.
+- **`sessionMode`** (`"shared" | "perContext" | "ephemeral"`): Controls how the conversation is scoped and whether it is remembered between visits.
+  - `"shared"` (default): the conversation is remembered across visits on the same browser, and `openContext` does not affect which conversation is shown.
+  - `"perContext"`: the conversation is remembered but scoped by `openContext`. Two tabs opened with the same `openContext` share a conversation, while different `openContext` values start a fresh conversation.
+  - `"ephemeral"`: the conversation is not remembered. It starts fresh each time and nothing is left behind once the page is closed.
+- **`logLevel`** (`"debug" | "info" | "warn" | "error"`): Controls how verbose the chat is in the browser console. Defaults to `"warn"`, which keeps the console quiet outside of warnings and errors. Raise to `"debug"` or `"info"` when investigating integration issues.
 
 ## Theming
 
@@ -228,10 +243,8 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 
 ## Methods
 
-| Method | Description |
-|--------|-------------|
-| `client.init(options?)` | Initializes the chat widget and attaches it inside the target element. The chat starts hidden. `options.onOpen` runs every time the chat opens, `options.onClose` runs every time it closes (whether the user pressed the close button or your code called `close()`). |
-| `client.open()` | Shows the chat window. Uses the `openContext` from the config. |
-| `client.close()` | Hides the chat window. |
-| `client.registerCommand(command, callback)` | Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)) |
-| `client.dispose()` | Removes the chat widget from the page and releases its resources (closes the message stream and clears pending timers). Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal. |
+- **`client.init(options?)`**: Initializes the chat widget and attaches it inside the target element. The chat starts hidden. `options.onOpen` runs every time the chat opens, `options.onClose` runs every time it closes (whether the user pressed the close button or your code called `close()`).
+- **`client.open()`**: Shows the chat window. Uses the `openContext` from the config.
+- **`client.close()`**: Hides the chat window.
+- **`client.registerCommand(command, callback)`**: Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)).
+- **`client.dispose()`**: Removes the chat widget from the page and releases its resources. Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal.
