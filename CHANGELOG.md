@@ -1,23 +1,40 @@
 # Changelog
 
-## [0.4.0](https://github.com/yalochat/chat-sdk/tree/0.4.0) (2026-06-15)
+## [0.5.0](https://github.com/yalochat/chat-sdk/tree/0.5.0) (2026-06-18)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.3.0...0.4.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.4.0...0.5.0)
 
 **Merged pull requests:**
 
+- feat: Adds ephemeral mode to web-sdk [\#211](https://github.com/yalochat/chat-sdk/pull/211) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix: Add onOpen and onClose callbacks to yaloOpen pattern [\#210](https://github.com/yalochat/chat-sdk/pull/210) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Add css variables to manage header and close btn display [\#209](https://github.com/yalochat/chat-sdk/pull/209) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Change differentsessionpercontext flag to enum [\#208](https://github.com/yalochat/chat-sdk/pull/208) ([rodrigocusto](https://github.com/rodrigocusto))
+- feat: Add message ACKS web-sdk [\#207](https://github.com/yalochat/chat-sdk/pull/207) ([rodrigocusto](https://github.com/rodrigocusto))
+
+## [web-sdk/bindings/go/v0.4.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v0.4.0) (2026-06-15)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v0.4.0...web-sdk/bindings/go/v0.4.0)
+
+## [web-sdk/v0.4.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v0.4.0) (2026-06-15)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v0.3.0...web-sdk/v0.4.0)
+
+**Merged pull requests:**
+
+- Release web-sdk 0.4.0 [\#206](https://github.com/yalochat/chat-sdk/pull/206) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Sync across tabs and log level config [\#205](https://github.com/yalochat/chat-sdk/pull/205) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Embedded chips now hide previous replies sent [\#204](https://github.com/yalochat/chat-sdk/pull/204) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Multi-session hash [\#203](https://github.com/yalochat/chat-sdk/pull/203) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Add new theme variables and config options [\#202](https://github.com/yalochat/chat-sdk/pull/202) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [web-sdk/bindings/go/v0.3.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v0.3.0) (2026-06-12)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v0.3.0...web-sdk/bindings/go/v0.3.0)
-
 ## [web-sdk/v0.3.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v0.3.0) (2026-06-12)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v0.2.0...web-sdk/v0.3.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.3.0...web-sdk/v0.3.0)
+
+## [web-sdk/bindings/go/v0.3.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v0.3.0) (2026-06-12)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v0.2.0...web-sdk/bindings/go/v0.3.0)
 
 **Merged pull requests:**
 
@@ -29,15 +46,15 @@
 
 ## [web-sdk/v0.2.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v0.2.0) (2026-06-06)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.2.0...web-sdk/v0.2.0)
-
-## [web-sdk/bindings/go/v0.2.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v0.2.0) (2026-06-06)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.0.1...web-sdk/bindings/go/v0.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.0.1...web-sdk/v0.2.0)
 
 ## [android-sdk/v0.0.1](https://github.com/yalochat/chat-sdk/tree/android-sdk/v0.0.1) (2026-06-06)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.3.0...android-sdk/v0.0.1)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.2.0...android-sdk/v0.0.1)
+
+## [web-sdk/bindings/go/v0.2.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v0.2.0) (2026-06-06)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.3.0...web-sdk/bindings/go/v0.2.0)
 
 **Merged pull requests:**
 
@@ -138,33 +155,33 @@
 
 ## [proto/bindings/go/v2.1.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v2.1.0) (2026-05-28)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.3.0...proto/bindings/go/v2.1.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.3.0...proto/bindings/go/v2.1.0)
 
 **Merged pull requests:**
 
 - Release proto 2.1.0 [\#171](https://github.com/yalochat/chat-sdk/pull/171) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Update products quantities in a single command [\#169](https://github.com/yalochat/chat-sdk/pull/169) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [web-sdk/bindings/go/v1.3.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v1.3.0) (2026-05-27)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.3.0...web-sdk/bindings/go/v1.3.0)
-
 ## [web-sdk/v1.3.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v1.3.0) (2026-05-27)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.2.0...web-sdk/v1.3.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.3.0...web-sdk/v1.3.0)
+
+## [web-sdk/bindings/go/v1.3.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v1.3.0) (2026-05-27)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.2.0...web-sdk/bindings/go/v1.3.0)
 
 **Merged pull requests:**
 
 - Release web-sdk 1.3.0 [\#168](https://github.com/yalochat/chat-sdk/pull/168) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Web-sdk send guidance card [\#167](https://github.com/yalochat/chat-sdk/pull/167) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [web-sdk/v1.2.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v1.2.0) (2026-05-27)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.2.0...web-sdk/v1.2.0)
-
 ## [web-sdk/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v1.2.0) (2026-05-27)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.1.0...web-sdk/bindings/go/v1.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.2.0...web-sdk/bindings/go/v1.2.0)
+
+## [web-sdk/v1.2.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v1.2.0) (2026-05-27)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.1.0...web-sdk/v1.2.0)
 
 **Closed issues:**
 
@@ -179,13 +196,13 @@
 - feat:  header timeout web sdk [\#162](https://github.com/yalochat/chat-sdk/pull/162) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(kmp/ios\): FDE-176 — Proto 2.0 inline buttons, stepper optimistic updates, image/video captions [\#153](https://github.com/yalochat/chat-sdk/pull/153) ([pato-viccini](https://github.com/pato-viccini))
 
-## [web-sdk/bindings/go/v1.1.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v1.1.0) (2026-05-20)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.1.0...web-sdk/bindings/go/v1.1.0)
-
 ## [web-sdk/v1.1.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v1.1.0) (2026-05-20)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.0.0...web-sdk/v1.1.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.1.0...web-sdk/v1.1.0)
+
+## [web-sdk/bindings/go/v1.1.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v1.1.0) (2026-05-20)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.0.0...web-sdk/bindings/go/v1.1.0)
 
 **Merged pull requests:**
 
@@ -201,13 +218,13 @@
 - fix: Updates web-sdk doc [\#150](https://github.com/yalochat/chat-sdk/pull/150) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(kmp/ios\): M9 — SDK polish \(useFakeData, userId, Keychain/SharedPreferences persistence, pagination, retry, lifecycle\) [\#148](https://github.com/yalochat/chat-sdk/pull/148) ([pato-viccini](https://github.com/pato-viccini))
 
-## [web-sdk/v1.0.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v1.0.0) (2026-05-14)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v1.0.0...web-sdk/v1.0.0)
-
 ## [web-sdk/bindings/go/v1.0.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/bindings/go/v1.0.0) (2026-05-14)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v2.0.1...web-sdk/bindings/go/v1.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/v1.0.0...web-sdk/bindings/go/v1.0.0)
+
+## [web-sdk/v1.0.0](https://github.com/yalochat/chat-sdk/tree/web-sdk/v1.0.0) (2026-05-14)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.0.1...web-sdk/v1.0.0)
 
 **Merged pull requests:**
 
@@ -227,13 +244,13 @@
 - feat\(ios/android\): M7 — ChatTheme + Markdown in agent messages + Flutter parity \(FDE-150\) [\#135](https://github.com/yalochat/chat-sdk/pull/135) ([pato-viccini](https://github.com/pato-viccini))
 - feat\(android\): M12 — ChatCommand callbacks for cart operations [\#125](https://github.com/yalochat/chat-sdk/pull/125) ([pato-viccini](https://github.com/pato-viccini))
 
-## [proto/bindings/go/v2.0.1](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v2.0.1) (2026-05-06)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.0.1...proto/bindings/go/v2.0.1)
-
 ## [proto/v2.0.1](https://github.com/yalochat/chat-sdk/tree/proto/v2.0.1) (2026-05-06)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.0.0...proto/v2.0.1)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v2.0.1...proto/v2.0.1)
+
+## [proto/bindings/go/v2.0.1](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v2.0.1) (2026-05-06)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.0.0...proto/bindings/go/v2.0.1)
 
 **Merged pull requests:**
 
@@ -247,7 +264,7 @@
 
 ## [proto/bindings/go/v2.0.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v2.0.0) (2026-05-05)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.7.0...proto/bindings/go/v2.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.7.0...proto/bindings/go/v2.0.0)
 
 **Merged pull requests:**
 
@@ -259,13 +276,13 @@
 - feat: Added web socket service \(flutter\) [\#126](https://github.com/yalochat/chat-sdk/pull/126) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(ios\): M6 — Quick Replies, Products, Typing Indicator, App Lifecycle, Error UI \(FDE-139\) [\#118](https://github.com/yalochat/chat-sdk/pull/118) ([pato-viccini](https://github.com/pato-viccini))
 
-## [proto/v1.7.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.7.0) (2026-04-29)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.7.0...proto/v1.7.0)
-
 ## [proto/bindings/go/v1.7.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.7.0) (2026-04-29)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.6.0...proto/bindings/go/v1.7.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.7.0...proto/bindings/go/v1.7.0)
+
+## [proto/v1.7.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.7.0) (2026-04-29)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.6.0...proto/v1.7.0)
 
 **Merged pull requests:**
 
@@ -315,7 +332,7 @@
 
 ## [proto/bindings/go/v1.5.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.5.0) (2026-04-13)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.4.0...proto/bindings/go/v1.5.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.4.0...proto/bindings/go/v1.5.0)
 
 **Merged pull requests:**
 
@@ -325,13 +342,13 @@
 - feat\(android-sdk\): KMP restructuring — pre-work for iOS SDK \(FDE-106, M0\) [\#86](https://github.com/yalochat/chat-sdk/pull/86) ([pato-viccini](https://github.com/pato-viccini))
 - fix: Fixes scroll issues in webchat [\#85](https://github.com/yalochat/chat-sdk/pull/85) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [proto/bindings/go/v1.4.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.4.0) (2026-04-09)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.4.0...proto/bindings/go/v1.4.0)
-
 ## [proto/v1.4.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.4.0) (2026-04-09)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.3.0...proto/v1.4.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.4.0...proto/v1.4.0)
+
+## [proto/bindings/go/v1.4.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.4.0) (2026-04-09)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.3.0...proto/bindings/go/v1.4.0)
 
 **Merged pull requests:**
 
@@ -345,7 +362,7 @@
 
 ## [proto/v1.3.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.3.0) (2026-04-01)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.2.0...proto/v1.3.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.2.0...proto/v1.3.0)
 
 **Merged pull requests:**
 
@@ -357,13 +374,13 @@
 - feat: Refactor repositories in favor of protobuf schemas [\#74](https://github.com/yalochat/chat-sdk/pull/74) ([rodrigocusto](https://github.com/rodrigocusto))
 - fix: Fix message status in the proto [\#73](https://github.com/yalochat/chat-sdk/pull/73) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [proto/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.2.0) (2026-03-25)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.2.0...proto/bindings/go/v1.2.0)
-
 ## [proto/v1.2.0](https://github.com/yalochat/chat-sdk/tree/proto/v1.2.0) (2026-03-25)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.1.0...proto/v1.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/bindings/go/v1.2.0...proto/v1.2.0)
+
+## [proto/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/proto/bindings/go/v1.2.0) (2026-03-25)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v1.1.0...proto/bindings/go/v1.2.0)
 
 **Merged pull requests:**
 
