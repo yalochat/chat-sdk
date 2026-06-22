@@ -6,6 +6,7 @@ import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_messag
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/message.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/quick_replies.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/typing_indicator.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
@@ -54,43 +55,57 @@ class _MessageListState extends State<MessageList> {
         return Container(
           color: chatThemeCubit.chatTheme.backgroundColor,
           padding: EdgeInsets.only(bottom: SdkConstants.messageListPadding),
-          child: ListView.builder(
-            key: Key('chat_messages'),
-            reverse: true,
-            scrollCacheExtent: ScrollCacheExtent.pixels(
-              SdkConstants.chatCacheExtent,
-            ),
-            itemCount: length + typingOffset + paginationOffset,
-            controller: _scrollController,
-            itemBuilder: (context, index) {
-              if (isAwaitingResponse && index == 0) {
-                return const TypingIndicator();
-              }
-              final int messageIndex = index - typingOffset;
-              if (messageIndex == length) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    key: const Key('loading_spinner'),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  key: Key('chat_messages'),
+                  reverse: true,
+                  scrollCacheExtent: ScrollCacheExtent.pixels(
+                    SdkConstants.chatCacheExtent,
                   ),
-                );
-              }
-              return Container(
-                margin: EdgeInsets.only(top: SdkConstants.messageListMargin),
-                child: BlocSelector<MessagesBloc, MessagesState, ChatMessage>(
-                  selector: (state) => state.messages[messageIndex],
-                  builder: (context, message) {
-                    assert(
-                      message.id != null,
-                      'Message id must not be null in order to render',
-                    );
-                    return Message(
-                      key: ValueKey('message-item-${message.id}'),
-                      messageToRender: message,
+                  itemCount: length + typingOffset + paginationOffset,
+                  controller: _scrollController,
+                  itemBuilder: (context, index) {
+                    if (isAwaitingResponse && index == 0) {
+                      return const TypingIndicator();
+                    }
+                    final int messageIndex = index - typingOffset;
+                    if (messageIndex == length) {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          key: const Key('loading_spinner'),
+                        ),
+                      );
+                    }
+                    return Container(
+                      margin: EdgeInsets.only(
+                        top: SdkConstants.messageListMargin,
+                      ),
+                      child:
+                          BlocSelector<
+                            MessagesBloc,
+                            MessagesState,
+                            ChatMessage
+                          >(
+                            selector: (state) => state.messages[messageIndex],
+                            builder: (context, message) {
+                              assert(
+                                message.id != null,
+                                'Message id must not be null in order to render',
+                              );
+                              return Message(
+                                key: ValueKey('message-item-${message.id}'),
+                                messageToRender: message,
+                              );
+                            },
+                          ),
                     );
                   },
                 ),
-              );
-            },
+              ),
+              const QuickReplies(),
+            ],
           ),
         );
       },

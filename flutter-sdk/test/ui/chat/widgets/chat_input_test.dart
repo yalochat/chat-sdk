@@ -17,7 +17,6 @@ import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_event.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/view_models/messages/messages_state.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/chat_input.dart';
-import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/chat_input/quick_reply.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:clock/clock.dart';
@@ -58,7 +57,9 @@ void main() {
       audioStreamController = StreamController();
       imageStreamController = StreamController();
       blocs = [
-        Provider<YaloSdkLocalizations>(create: (context) => YaloSdkLocalizationsEn()),
+        Provider<YaloSdkLocalizations>(
+          create: (context) => YaloSdkLocalizationsEn(),
+        ),
         BlocProvider<ChatThemeCubit>(create: (context) => chatThemeCubit),
         BlocProvider<MessagesBloc>(create: (context) => messagesBloc),
         BlocProvider<AudioBloc>(create: (context) => audioBloc),
@@ -519,133 +520,6 @@ void main() {
         },
       );
     });
-
-    group('QuickReply', () {
-      testWidgets(
-        'should show QuickReply widgets above ChatInput when quickReplies are received',
-        (tester) async {
-          whenListen(
-            messagesBloc,
-            Stream<MessagesState>.fromIterable([
-              MessagesState(),
-              MessagesState(quickReplies: ['Yes', 'No']),
-            ]),
-            initialState: MessagesState(),
-          );
-          when(() => audioBloc.state).thenReturn(AudioState());
-          when(() => imageBloc.state).thenReturn(ImageState());
-
-          await tester.pumpWidget(
-            TestWidget(
-              hintText: 'test',
-              showAttachmentButton: true,
-              blocs: blocs,
-            ),
-          );
-          await tester.pump();
-
-          expect(find.byType(QuickReply), findsNWidgets(2));
-          expect(find.text('Yes'), findsOneWidget);
-          expect(find.text('No'), findsOneWidget);
-        },
-      );
-
-      testWidgets(
-        'should dispatch ChatSendTextMessage with reply text when a quick reply is tapped',
-        (tester) async {
-          whenListen(
-            messagesBloc,
-            Stream<MessagesState>.fromIterable([
-              MessagesState(),
-              MessagesState(quickReplies: ['Confirm']),
-            ]),
-            initialState: MessagesState(),
-          );
-          when(() => audioBloc.state).thenReturn(AudioState());
-          when(() => imageBloc.state).thenReturn(ImageState());
-
-          await tester.pumpWidget(
-            TestWidget(
-              hintText: 'test',
-              showAttachmentButton: true,
-              blocs: blocs,
-            ),
-          );
-          await tester.pump();
-
-          await tester.tap(find.text('Confirm'));
-          await tester.pump();
-
-          verify(
-            () => messagesBloc.add(ChatSendTextMessage(text: 'Confirm')),
-          ).called(1);
-        },
-      );
-
-      testWidgets(
-        'should dispatch ChatClearQuickReplies when a quick reply is tapped',
-        (tester) async {
-          whenListen(
-            messagesBloc,
-            Stream<MessagesState>.fromIterable([
-              MessagesState(),
-              MessagesState(quickReplies: ['Confirm']),
-            ]),
-            initialState: MessagesState(),
-          );
-          when(() => audioBloc.state).thenReturn(AudioState());
-          when(() => imageBloc.state).thenReturn(ImageState());
-
-          await tester.pumpWidget(
-            TestWidget(
-              hintText: 'test',
-              showAttachmentButton: true,
-              blocs: blocs,
-            ),
-          );
-          await tester.pump();
-
-          await tester.tap(find.text('Confirm'));
-          await tester.pump();
-
-          verify(() => messagesBloc.add(ChatClearQuickReplies())).called(1);
-        },
-      );
-
-      testWidgets(
-        'should remove QuickReply overlay when quickReplies becomes empty',
-        (tester) async {
-          final messagesStreamController = StreamController<MessagesState>();
-          addTearDown(messagesStreamController.close);
-
-          whenListen(
-            messagesBloc,
-            messagesStreamController.stream,
-            initialState: MessagesState(),
-          );
-          when(() => audioBloc.state).thenReturn(AudioState());
-          when(() => imageBloc.state).thenReturn(ImageState());
-
-          await tester.pumpWidget(
-            TestWidget(
-              hintText: 'test',
-              showAttachmentButton: true,
-              blocs: blocs,
-            ),
-          );
-
-          messagesStreamController.add(MessagesState(quickReplies: ['Yes']));
-          await tester.pump();
-          expect(find.byType(QuickReply), findsOneWidget);
-
-          messagesStreamController.add(MessagesState(quickReplies: []));
-          await tester.pump();
-          await tester.pump();
-          expect(find.byType(QuickReply), findsNothing);
-        },
-      );
-
-    });
   });
 }
 
@@ -672,9 +546,7 @@ class TestWidget extends StatelessWidget {
             child: Column(
               children: [
                 Expanded(child: Container()),
-                ChatInput(
-                  showAttachmentButton: showAttachmentButton,
-                ),
+                ChatInput(showAttachmentButton: showAttachmentButton),
               ],
             ),
           ),

@@ -133,6 +133,18 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     _stopAwaitingResponse(emit);
   }
 
+  // Extracts the quick reply labels offered by a message, or an empty list when
+  // the message is not an assistant message or carries no reply buttons.
+  List<String> _quickRepliesFrom(ChatMessage message) {
+    if (message.role != MessageRole.assistant) {
+      return const [];
+    }
+    return message.buttons
+        .where((b) => b.type == ButtonType.reply)
+        .map((b) => b.text)
+        .toList();
+  }
+
   // Event that handles the pagination of messages
   Future<void> _handleFetchMessages(
     ChatLoadMessages event,
@@ -157,12 +169,24 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
         .getChatMessagePageDesc(cursor, state.pageInfo.pageSize);
     switch (newMessages) {
       case Ok<Page<ChatMessage>>():
+        // FIXME: Create a new way to add messages preventing big copies
+        final List<ChatMessage> messages = [
+          ...state.messages,
+          ...newMessages.result.data,
+        ];
+        // On the first load, surface the quick replies offered by the most
+        // recent message so they survive closing and reopening the chat.
+        // Pagination loads older messages, so it leaves the replies untouched.
+        final List<String> quickReplies =
+            event.direction == PageDirection.initial && messages.isNotEmpty
+            ? _quickRepliesFrom(messages.first)
+            : state.quickReplies;
         emit(
           state.copyWith(
             chatStatus: ChatStatus.success,
-            // FIXME: Create a new way to add messages preventing big copies
-            messages: [...state.messages, ...newMessages.result.data],
+            messages: messages,
             isLoading: false,
+            quickReplies: quickReplies,
             pageInfo: newMessages.result.pageInfo.copyWith(
               prevCursor: state.pageInfo.cursor,
             ),
@@ -207,25 +231,27 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     Emitter<MessagesState> emit,
   ) async {
     log.info('Subscribing to yalo message, messages stream');
-    final yaloMessages = _yaloMessageRepository.messages().asyncMap<ChatMessage>(
-      (message) async {
-        if (message.type == MessageType.chatStatus) {
-          return message;
-        }
-        assert(
-          message.role == MessageRole.assistant,
-          'Subscription must only receive assistant messages',
-        );
-        log.info('Inserting incoming chat message to db');
-        final result = await _chatMessageRepository.insertChatMessage(message);
-        switch (result) {
-          case Ok<ChatMessage>():
-            return result.result;
-          case Error<ChatMessage>():
-            throw result.error;
-        }
-      },
-    );
+    final yaloMessages = _yaloMessageRepository
+        .messages()
+        .asyncMap<ChatMessage>((message) async {
+          if (message.type == MessageType.chatStatus) {
+            return message;
+          }
+          assert(
+            message.role == MessageRole.assistant,
+            'Subscription must only receive assistant messages',
+          );
+          log.info('Inserting incoming chat message to db');
+          final result = await _chatMessageRepository.insertChatMessage(
+            message,
+          );
+          switch (result) {
+            case Ok<ChatMessage>():
+              return result.result;
+            case Error<ChatMessage>():
+              throw result.error;
+          }
+        });
 
     await emit.forEach(
       yaloMessages,
@@ -238,15 +264,13 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           );
         }
         log.fine('Inserted message received with id ${chatMessage.id}');
-        final replyLabels = chatMessage.buttons
-            .where((b) => b.type == ButtonType.reply)
-            .map((b) => b.text)
-            .toList();
         _awaitResponseTimer?.cancel();
         _awaitResponseTimer = null;
+        // Quick replies always reflect the latest message, so an assistant
+        // message without reply buttons clears any previously shown ones.
         return state.copyWith(
           messages: [chatMessage, ...state.messages],
-          quickReplies: replyLabels.isEmpty ? null : replyLabels,
+          quickReplies: _quickRepliesFrom(chatMessage),
           isAwaitingResponse: false,
         );
       },
@@ -296,6 +320,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
             messages: [result.result, ...state.messages],
             userMessage: '',
             isAwaitingResponse: true,
+            quickReplies: const [],
           ),
         );
         final sendResult = await _yaloMessageRepository.sendMessage(
@@ -350,6 +375,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           state.copyWith(
             messages: [result.result, ...state.messages],
             isAwaitingResponse: true,
+            quickReplies: const [],
           ),
         );
         final sendResult = await _yaloMessageRepository.sendMessage(
@@ -410,6 +436,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
             messages: [result.result, ...state.messages],
             userMessage: '',
             isAwaitingResponse: true,
+            quickReplies: const [],
           ),
         );
         // free space from temporal space
@@ -515,9 +542,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     final List<ChatMessage> newMessages = [...state.messages];
     newMessages[index] = retrying;
     _scheduleAwaitTimeout();
-    emit(
-      state.copyWith(messages: newMessages, isAwaitingResponse: true),
-    );
+    emit(state.copyWith(messages: newMessages, isAwaitingResponse: true));
 
     final persistResult = await _chatMessageRepository.replaceChatMessage(
       retrying,

@@ -169,24 +169,19 @@ void main() {
       testWidgets(
         'should render the typing indicator when isAwaitingResponse is true',
         (tester) async {
-          when(() => chatBloc.state).thenReturn(
-            MessagesState(isAwaitingResponse: true, messages: []),
-          );
+          when(
+            () => chatBloc.state,
+          ).thenReturn(MessagesState(isAwaitingResponse: true, messages: []));
           await tester.pumpWidget(TestWidget(blocs: blocs));
 
-          expect(
-            find.byKey(const Key('typing_indicator')),
-            findsOneWidget,
-          );
+          expect(find.byKey(const Key('typing_indicator')), findsOneWidget);
         },
       );
 
       testWidgets(
         'should not render the typing indicator when isAwaitingResponse is false',
         (tester) async {
-          when(
-            () => chatBloc.state,
-          ).thenReturn(MessagesState(messages: []));
+          when(() => chatBloc.state).thenReturn(MessagesState(messages: []));
           await tester.pumpWidget(TestWidget(blocs: blocs));
 
           expect(find.byKey(const Key('typing_indicator')), findsNothing);
@@ -277,9 +272,7 @@ void main() {
           await tester.tap(find.byKey(const Key('user_message_retry')));
           await tester.pumpAndSettle();
 
-          verify(
-            () => chatBloc.add(ChatRetryMessage(messageId: 42)),
-          ).called(1);
+          verify(() => chatBloc.add(ChatRetryMessage(messageId: 42))).called(1);
         },
       );
 
@@ -303,10 +296,7 @@ void main() {
 
           await tester.pumpWidget(TestWidget(blocs: blocs));
 
-          expect(
-            find.byKey(const Key('user_message_retry')),
-            findsNothing,
-          );
+          expect(find.byKey(const Key('user_message_retry')), findsNothing);
         },
       );
 
@@ -1425,33 +1415,32 @@ void main() {
         expect(find.byType(OutlinedButton), findsNothing);
       });
 
-      testWidgets(
-        'omits header and footer when set to empty string',
-        (tester) async {
-          when(() => chatBloc.state).thenReturn(
-            MessagesState(
-              messages: [
-                ChatMessage.text(
-                  id: 23,
-                  role: MessageRole.assistant,
-                  timestamp: clock.now(),
-                  content: 'body',
-                  header: '',
-                  footer: '',
-                ),
-              ],
-            ),
-          );
-          when(() => imageBloc.state).thenReturn(ImageState());
-          when(() => audioBloc.state).thenReturn(AudioState());
+      testWidgets('omits header and footer when set to empty string', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 23,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content: 'body',
+                header: '',
+                footer: '',
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
 
-          await tester.pumpWidget(TestWidget(blocs: blocs));
+        await tester.pumpWidget(TestWidget(blocs: blocs));
 
-          // Markdown wraps body in a Text; header/footer should not produce
-          // additional Text widgets, leaving only the body.
-          expect(find.byType(OutlinedButton), findsNothing);
-        },
-      );
+        // Markdown wraps body in a Text; header/footer should not produce
+        // additional Text widgets, leaving only the body.
+        expect(find.byType(OutlinedButton), findsNothing);
+      });
 
       testWidgets(
         'renders a postback button and dispatches the button text on tap',
@@ -1488,110 +1477,152 @@ void main() {
         },
       );
 
+      testWidgets('renders a link button and launches its URL on tap', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 25,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content: 'Open',
+                buttons: const [
+                  Button(
+                    text: 'Visit',
+                    type: ButtonType.link,
+                    url: 'https://example.com/cta',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.text('Visit'), findsOneWidget);
+        expect(find.byType(OutlinedButton), findsOneWidget);
+
+        await tester.tap(find.text('Visit'));
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockUrlLauncher.launchUrl('https://example.com/cta', any()),
+        ).called(1);
+      });
+
+      testWidgets('reply-typed buttons are not rendered inside the bubble', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 26,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content: 'Pick',
+                buttons: const [
+                  Button(text: 'Reply chip', type: ButtonType.reply),
+                  Button(text: 'Postback', type: ButtonType.postback),
+                ],
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.text('Reply chip'), findsNothing);
+        expect(find.text('Postback'), findsOneWidget);
+        expect(find.byType(OutlinedButton), findsOneWidget);
+      });
+
+      testWidgets('renders one OutlinedButton per non-reply button', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [
+              ChatMessage.text(
+                id: 27,
+                role: MessageRole.assistant,
+                timestamp: clock.now(),
+                content: 'Pick',
+                buttons: const [
+                  Button(text: 'Reply', type: ButtonType.reply),
+                  Button(text: 'Postback A', type: ButtonType.postback),
+                  Button(text: 'Postback B', type: ButtonType.postback),
+                  Button(
+                    text: 'Link',
+                    type: ButtonType.link,
+                    url: 'https://example.com',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+        when(() => imageBloc.state).thenReturn(ImageState());
+        when(() => audioBloc.state).thenReturn(AudioState());
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.byType(OutlinedButton), findsNWidgets(3));
+      });
+    });
+
+    group('quick replies', () {
+      testWidgets('renders a quick reply chip per reply in state', (
+        tester,
+      ) async {
+        when(
+          () => chatBloc.state,
+        ).thenReturn(MessagesState(quickReplies: ['Yes', 'No']));
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.byKey(const Key('quick_replies')), findsOneWidget);
+        expect(find.text('Yes'), findsOneWidget);
+        expect(find.text('No'), findsOneWidget);
+      });
+
       testWidgets(
-        'renders a link button and launches its URL on tap',
+        'does not render the quick replies container when there are none',
         (tester) async {
-          when(() => chatBloc.state).thenReturn(
-            MessagesState(
-              messages: [
-                ChatMessage.text(
-                  id: 25,
-                  role: MessageRole.assistant,
-                  timestamp: clock.now(),
-                  content: 'Open',
-                  buttons: const [
-                    Button(
-                      text: 'Visit',
-                      type: ButtonType.link,
-                      url: 'https://example.com/cta',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-          when(() => imageBloc.state).thenReturn(ImageState());
-          when(() => audioBloc.state).thenReturn(AudioState());
+          when(() => chatBloc.state).thenReturn(MessagesState());
 
           await tester.pumpWidget(TestWidget(blocs: blocs));
 
-          expect(find.text('Visit'), findsOneWidget);
-          expect(find.byType(OutlinedButton), findsOneWidget);
+          expect(find.byKey(const Key('quick_replies')), findsNothing);
+        },
+      );
 
-          await tester.tap(find.text('Visit'));
-          await tester.pumpAndSettle();
+      testWidgets(
+        'sends the reply as a message and clears the replies when tapped',
+        (tester) async {
+          when(
+            () => chatBloc.state,
+          ).thenReturn(MessagesState(quickReplies: ['Confirm']));
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+
+          await tester.tap(find.text('Confirm'));
+          await tester.pump();
 
           verify(
-            () => mockUrlLauncher.launchUrl('https://example.com/cta', any()),
+            () => chatBloc.add(ChatSendTextMessage(text: 'Confirm')),
           ).called(1);
-        },
-      );
-
-      testWidgets(
-        'reply-typed buttons are not rendered inside the bubble',
-        (tester) async {
-          when(() => chatBloc.state).thenReturn(
-            MessagesState(
-              messages: [
-                ChatMessage.text(
-                  id: 26,
-                  role: MessageRole.assistant,
-                  timestamp: clock.now(),
-                  content: 'Pick',
-                  buttons: const [
-                    Button(text: 'Reply chip', type: ButtonType.reply),
-                    Button(text: 'Postback', type: ButtonType.postback),
-                  ],
-                ),
-              ],
-            ),
-          );
-          when(() => imageBloc.state).thenReturn(ImageState());
-          when(() => audioBloc.state).thenReturn(AudioState());
-
-          await tester.pumpWidget(TestWidget(blocs: blocs));
-
-          expect(find.text('Reply chip'), findsNothing);
-          expect(find.text('Postback'), findsOneWidget);
-          expect(find.byType(OutlinedButton), findsOneWidget);
-        },
-      );
-
-      testWidgets(
-        'renders one OutlinedButton per non-reply button',
-        (tester) async {
-          when(() => chatBloc.state).thenReturn(
-            MessagesState(
-              messages: [
-                ChatMessage.text(
-                  id: 27,
-                  role: MessageRole.assistant,
-                  timestamp: clock.now(),
-                  content: 'Pick',
-                  buttons: const [
-                    Button(text: 'Reply', type: ButtonType.reply),
-                    Button(text: 'Postback A', type: ButtonType.postback),
-                    Button(text: 'Postback B', type: ButtonType.postback),
-                    Button(
-                      text: 'Link',
-                      type: ButtonType.link,
-                      url: 'https://example.com',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-          when(() => imageBloc.state).thenReturn(ImageState());
-          when(() => audioBloc.state).thenReturn(AudioState());
-
-          await tester.pumpWidget(TestWidget(blocs: blocs));
-
-          expect(find.byType(OutlinedButton), findsNWidgets(3));
+          verify(() => chatBloc.add(ChatClearQuickReplies())).called(1);
         },
       );
     });
-
   });
 }
 
