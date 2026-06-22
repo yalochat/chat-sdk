@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cross_file/cross_file.dart';
@@ -34,6 +35,10 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
   final ChatMessageRepository _chatMessageRepository;
   final ImageRepository _imageRepository;
   final YaloMessageRepository _yaloMessageRepository;
+  // Optional context provided when the chat is opened. Forwarded to the
+  // backend with the guidance card request so it can be tailored to where the
+  // chat was launched from.
+  final Map<String, dynamic>? _openContext;
   final Logger log = Logger('ChatViewModel');
   Timer? _awaitResponseTimer;
   // Ensures the guidance card is requested at most once per chat session, even
@@ -45,12 +50,14 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     required ChatMessageRepository chatMessageRepository,
     required ImageRepository imageRepository,
     required YaloMessageRepository yaloMessageRepository,
+    Map<String, dynamic>? openContext,
     int pageSize = SdkConstants.defaultPageSize,
     Clock? clock,
   }) : blocClock = clock ?? Clock(),
        _chatMessageRepository = chatMessageRepository,
        _imageRepository = imageRepository,
        _yaloMessageRepository = yaloMessageRepository,
+       _openContext = openContext,
        super(
          MessagesState(
            isConnected: false,
@@ -179,8 +186,11 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
   // Asks the backend for the guidance card. Failures are logged but do not
   // surface to the user, the chat simply stays empty.
   Future<void> _requestGuidanceCard() async {
+    final String? context = _openContext != null
+        ? jsonEncode(_openContext)
+        : null;
     final Result<Unit> result = await _yaloMessageRepository
-        .requestGuidanceCard();
+        .requestGuidanceCard(context: context);
     switch (result) {
       case Ok<Unit>():
         log.info('Guidance card requested');

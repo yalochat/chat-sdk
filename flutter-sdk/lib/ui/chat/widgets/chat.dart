@@ -36,7 +36,7 @@ class Chat extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: repositoryProviders(context, client),
       child: MultiBlocProvider(
-        providers: chatProviders(theme, client.name),
+        providers: chatProviders(theme, client.name, openContext: openContext),
         child: BlocBuilder<ChatThemeCubit, ChatTheme>(
           builder: (context, chatTheme) {
             return Scaffold(

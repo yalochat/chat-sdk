@@ -116,7 +116,11 @@ List<SingleChildWidget> repositoryProviders(
   ];
 }
 
-List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
+List<SingleChildWidget> chatProviders(
+  ChatTheme theme,
+  String name, {
+  Map<String, dynamic>? openContext,
+}) {
   return [
     BlocProvider<MessagesBloc>(
       create: (context) =>
@@ -125,6 +129,7 @@ List<SingleChildWidget> chatProviders(ChatTheme theme, String name) {
               chatMessageRepository: context.read<ChatMessageRepository>(),
               imageRepository: context.read<ImageRepository>(),
               yaloMessageRepository: context.read<YaloMessageRepository>(),
+              openContext: openContext,
             )
             ..add(ChatLoadMessages(direction: PageDirection.initial))
             ..add(ChatSubscribeToMessages()),
