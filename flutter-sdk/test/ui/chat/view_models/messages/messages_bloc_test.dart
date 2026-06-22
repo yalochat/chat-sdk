@@ -1122,6 +1122,116 @@ void main() {
       );
 
       blocTest<MessagesBloc, MessagesState>(
+        'should request the guidance card when the initial page is empty',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.getChatMessagePageDesc(
+              null,
+              SdkConstants.defaultPageSize,
+            ),
+          ).thenAnswer(
+            (_) async => Result.ok(
+              Page<ChatMessage>(
+                data: const [],
+                pageInfo: PageInfo(pageSize: SdkConstants.defaultPageSize),
+              ),
+            ),
+          );
+          when(
+            () => yaloMessageRepository.requestGuidanceCard(),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+          bloc.add(ChatLoadMessages(direction: PageDirection.initial));
+        },
+        verify: (_) {
+          verify(
+            () => yaloMessageRepository.requestGuidanceCard(),
+          ).called(1);
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should forward the open context as a json string with the guidance card request',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          openContext: const {'source': 'product-page', 'sku': '123'},
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.getChatMessagePageDesc(
+              null,
+              SdkConstants.defaultPageSize,
+            ),
+          ).thenAnswer(
+            (_) async => Result.ok(
+              Page<ChatMessage>(
+                data: const [],
+                pageInfo: PageInfo(pageSize: SdkConstants.defaultPageSize),
+              ),
+            ),
+          );
+          when(
+            () => yaloMessageRepository.requestGuidanceCard(
+              context: any(named: 'context'),
+            ),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+          bloc.add(ChatLoadMessages(direction: PageDirection.initial));
+        },
+        verify: (_) {
+          verify(
+            () => yaloMessageRepository.requestGuidanceCard(
+              context: '{"source":"product-page","sku":"123"}',
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should not request the guidance card when the initial page has messages',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.getChatMessagePageDesc(
+              null,
+              SdkConstants.defaultPageSize,
+            ),
+          ).thenAnswer(
+            (_) async => Result.ok(
+              Page<ChatMessage>(
+                data: [
+                  ChatMessage(
+                    id: 1,
+                    role: MessageRole.assistant,
+                    type: MessageType.text,
+                    content: 'Welcome back',
+                    timestamp: fixedClock.now(),
+                  ),
+                ],
+                pageInfo: PageInfo(pageSize: SdkConstants.defaultPageSize),
+              ),
+            ),
+          );
+          bloc.add(ChatLoadMessages(direction: PageDirection.initial));
+        },
+        verify: (_) {
+          verifyNever(() => yaloMessageRepository.requestGuidanceCard());
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
         'fetch next page of messages until there are no more pages from repository and set them up correctly',
         build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,

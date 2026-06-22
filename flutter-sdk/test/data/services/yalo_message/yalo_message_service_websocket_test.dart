@@ -380,5 +380,58 @@ void main() {
         expect(channels, hasLength(1));
       });
     });
+
+    test('pause closes the socket without reconnecting', () {
+      fakeAsync((async) {
+        when(
+          () => auth.auth(),
+        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+
+        service.messages().listen((_) {});
+        async.flushMicrotasks();
+        final firstChannel = channels.first;
+
+        service.pause();
+        async.elapse(const Duration(seconds: 5));
+        async.flushMicrotasks();
+
+        expect(firstChannel.sinkClosed, isTrue);
+        expect(channels, hasLength(1));
+      });
+    });
+
+    test('resume reconnects after a pause', () {
+      fakeAsync((async) {
+        when(
+          () => auth.auth(),
+        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+
+        service.messages().listen((_) {});
+        async.flushMicrotasks();
+        expect(channels, hasLength(1));
+
+        service.pause();
+        service.resume();
+        async.flushMicrotasks();
+
+        expect(channels, hasLength(2));
+      });
+    });
+
+    test('resume is a no-op when not paused', () {
+      fakeAsync((async) {
+        when(
+          () => auth.auth(),
+        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+
+        service.messages().listen((_) {});
+        async.flushMicrotasks();
+
+        service.resume();
+        async.flushMicrotasks();
+
+        expect(channels, hasLength(1));
+      });
+    });
   });
 }

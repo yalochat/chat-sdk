@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
@@ -9,16 +10,21 @@ import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_m
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
-import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
 
-class YaloMessageServiceRemote implements YaloMessageService {
+class YaloMessageServiceHttps implements YaloMessageService {
   final String _baseUrl;
   final String _channelId;
   final YaloMessageAuthService _authService;
   final Client _httpClient;
-  final Logger log = Logger('YaloMessagerepositoryremote');
+  final Logger log = Logger('YaloMessageServiceHttps');
 
-  YaloMessageServiceRemote({
+  final int pollingRate = 1;
+  final int pollingRateWindow = 5;
+  bool polling = false;
+  bool _paused = false;
+  StreamController<PollMessageItem>? _controller;
+
+  YaloMessageServiceHttps({
     required String baseUrl,
     required String channelId,
     required YaloMessageAuthService authService,
@@ -27,6 +33,71 @@ class YaloMessageServiceRemote implements YaloMessageService {
        _channelId = channelId,
        _authService = authService,
        _httpClient = httpClient ?? Client();
+
+  @override
+  Stream<PollMessageItem> messages() {
+    final controller =
+        _controller ??= StreamController<PollMessageItem>.broadcast();
+    if (!polling) {
+      _startPolling();
+    }
+    return controller.stream;
+  }
+
+  // Polls the adapter on a fixed cadence and forwards every fetched item to the
+  // stream. Fetch failures are surfaced as stream errors so the repository can
+  // react (e.g. clear the chat status).
+  Future<void> _startPolling() async {
+    polling = true;
+    while (polling) {
+      final int timestamp =
+          DateTime.now().millisecondsSinceEpoch ~/ 1000 - pollingRateWindow;
+      final Result<List<PollMessageItem>> result = await fetchMessages(
+        timestamp,
+      );
+      switch (result) {
+        case Ok():
+          final sorted = result.result.toList()
+            ..sort(
+              (a, b) => a.date.toDateTime().compareTo(b.date.toDateTime()),
+            );
+          for (final item in sorted) {
+            _controller?.add(item);
+          }
+          break;
+        case Error():
+          log.severe('Unable to fetch messages since $timestamp', result.error);
+          _controller?.addError(result.error);
+          break;
+      }
+      await Future.delayed(Duration(seconds: pollingRate));
+    }
+  }
+
+  @override
+  void pause() {
+    log.info('Polling paused');
+    _paused = true;
+    polling = false;
+  }
+
+  @override
+  void resume() {
+    if (!_paused) {
+      return;
+    }
+    log.info('Polling resumed');
+    _paused = false;
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    polling = false;
+    _paused = false;
+    _controller?.close();
+    _controller = null;
+  }
 
   @override
   Future<Result<Unit>> sendSdkMessage(SdkMessage request) async {
@@ -71,7 +142,6 @@ class YaloMessageServiceRemote implements YaloMessageService {
     }
   }
 
-  @override
   Future<Result<List<PollMessageItem>>> fetchMessages(int since) async {
     final authResult = await _authService.auth();
     if (authResult case Error(:final error)) {
@@ -108,67 +178,5 @@ class YaloMessageServiceRemote implements YaloMessageService {
     } on Exception catch (e) {
       return Result.error(e);
     }
-  }
-
-  @override
-  Future<Result<Unit>> addToCart(String sku, double quantity) async {
-    final DateTime timestamp = DateTime.now();
-    final SdkMessage request = SdkMessage(
-      correlationId: 'add-to-cart-$sku-${timestamp.millisecondsSinceEpoch}',
-      timestamp: Timestamp.fromDateTime(timestamp),
-      addToCartRequest: AddToCartRequest(
-        sku: sku,
-        quantity: quantity,
-        timestamp: Timestamp.fromDateTime(timestamp),
-      ),
-    );
-    return sendSdkMessage(request);
-  }
-
-  @override
-  Future<Result<Unit>> removeFromCart(String sku, {double? quantity}) async {
-    final DateTime timestamp = DateTime.now();
-    final RemoveFromCartRequest removeRequest = RemoveFromCartRequest(
-      sku: sku,
-      timestamp: Timestamp.fromDateTime(timestamp),
-    );
-    if (quantity != null) {
-      removeRequest.quantity = quantity;
-    }
-    final SdkMessage request = SdkMessage(
-      correlationId:
-          'remove-from-cart-$sku-${timestamp.millisecondsSinceEpoch}',
-      timestamp: Timestamp.fromDateTime(timestamp),
-      removeFromCartRequest: removeRequest,
-    );
-    return sendSdkMessage(request);
-  }
-
-  @override
-  Future<Result<Unit>> clearCart() async {
-    final DateTime timestamp = DateTime.now();
-    final SdkMessage request = SdkMessage(
-      correlationId: 'clear-cart-${timestamp.millisecondsSinceEpoch}',
-      timestamp: Timestamp.fromDateTime(timestamp),
-      clearCartRequest: ClearCartRequest(
-        timestamp: Timestamp.fromDateTime(timestamp),
-      ),
-    );
-    return sendSdkMessage(request);
-  }
-
-  @override
-  Future<Result<Unit>> addPromotion(String promotionId) async {
-    final DateTime timestamp = DateTime.now();
-    final SdkMessage request = SdkMessage(
-      correlationId:
-          'add-promotion-$promotionId-${timestamp.millisecondsSinceEpoch}',
-      timestamp: Timestamp.fromDateTime(timestamp),
-      addPromotionRequest: AddPromotionRequest(
-        promotionId: promotionId,
-        timestamp: Timestamp.fromDateTime(timestamp),
-      ),
-    );
-    return sendSdkMessage(request);
   }
 }

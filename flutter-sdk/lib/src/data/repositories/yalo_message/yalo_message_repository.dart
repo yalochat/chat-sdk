@@ -26,6 +26,9 @@ abstract class YaloMessageRepository {
   // Applies a promotion to the active cart.
   Future<Result<Unit>> addPromotion(String promotionId);
 
+  // Requests the guidance card shown when the chat has no messages yet.
+  Future<Result<Unit>> requestGuidanceCard({String? context});
+
   // Pauses polling (e.g. app backgrounded)
   void pause();
 

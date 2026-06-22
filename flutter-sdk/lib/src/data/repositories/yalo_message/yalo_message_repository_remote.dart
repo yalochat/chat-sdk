@@ -7,21 +7,20 @@ import 'package:cross_file/cross_file.dart';
 import 'package:ecache/ecache.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/sdk_message_mapper.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
+import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
+    as proto;
 import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
 
 final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   final StreamController<ChatMessage> _messagesStreamController =
-      StreamController();
-  bool polling = false;
-  bool _paused = false;
-  final int pollingRate = 1;
-  final int pollingRateWindow = 5;
+      StreamController<ChatMessage>.broadcast();
   final cache = SimpleCache<String, bool>(capacity: 500);
   // Safety net: if the backend leaves the chat status non-empty and goes
   // silent (no further messages of any kind), drop the header after this delay.
@@ -33,6 +32,9 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   final YaloMediaService mediaService;
   final Future<Directory> Function() _directory;
   final Logger log = Logger('YaloMessageRepositoryRemote');
+
+  StreamSubscription<proto.PollMessageItem>? _subscription;
+  bool _paused = false;
 
   YaloMessageRepositoryRemote({
     required this.yaloChatClient,
@@ -63,83 +65,44 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
-  Future<void> _startPolling() async {
-    polling = true;
-    while (polling) {
-      final timestamp =
-          DateTime.now().millisecondsSinceEpoch ~/ 1000 - pollingRateWindow;
-      final newMessagesResult = await messageService.fetchMessages(timestamp);
-      switch (newMessagesResult) {
-        case Ok():
-          final sorted = newMessagesResult.result.toList()
-            ..sort(
-              (a, b) => a.date.toDateTime().compareTo(b.date.toDateTime()),
-            );
-          final translated = await Future.wait(
-            sorted.map(
-              (item) => pollMessageItemToChatMessage(
-                item,
-                mediaService: mediaService,
-                directory: _directory,
-              ),
-            ),
-          );
-          final messages = translated.whereType<ChatMessage>();
-          if (messages.isNotEmpty) {
-            _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
-            for (final message in messages) {
-              if (message.wiId == null ||
-                  cache.get(message.wiId!) != null) {
-                continue;
-              }
-              cache.set(message.wiId!, true);
-              _emit(message);
-            }
-          }
-          break;
-        case Error():
-          log.severe(
-            'Unable to fetch messages since $timestamp',
-            newMessagesResult.error,
-          );
-          _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
-          break;
-      }
-      await Future.delayed(Duration(seconds: pollingRate));
-    }
-  }
-
-  @override
-  void pause() {
-    log.info('Polling paused');
-    _paused = true;
-    polling = false;
-    _chatStatusTimer?.cancel();
-    _chatStatusTimer = null;
-  }
-
-  @override
-  void resume() {
-    if (!_paused) {
-      return;
-    }
-    log.info('Polling resumed');
-    _paused = false;
-    _startPolling();
-  }
-
-  @override
-  void dispose() {
-    polling = false;
-    _paused = false;
-    _chatStatusTimer?.cancel();
-    _chatStatusTimer = null;
-  }
-
   @override
   Stream<ChatMessage> messages() {
-    _startPolling();
-    return _messagesStreamController.stream.asBroadcastStream();
+    _subscribe();
+    return _messagesStreamController.stream;
+  }
+
+  void _subscribe() {
+    if (_subscription != null || _paused) {
+      return;
+    }
+    _subscription = messageService.messages().listen(
+      _onItem,
+      onError: (Object error) {
+        log.severe('Message stream error', error);
+        _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
+      },
+    );
+  }
+
+  Future<void> _onItem(proto.PollMessageItem item) async {
+    final ChatMessage? message = await pollMessageItemToChatMessage(
+      item,
+      mediaService: mediaService,
+      directory: _directory,
+    );
+    if (message == null) {
+      return;
+    }
+    if (message.type == MessageType.chatStatus) {
+      _emit(message);
+      return;
+    }
+    if (message.wiId == null || cache.get(message.wiId!) != null) {
+      return;
+    }
+    cache.set(message.wiId!, true);
+    _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
+    _emit(message);
   }
 
   @override
@@ -154,7 +117,6 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       switch (uploadResult) {
         case Ok(:final result):
           mediaId = result.id;
-          log.fine("Media uploaded successfully with URL: '${result.signedUrl}'");
         case Error(:final error):
           log.severe('Unable to upload media', error);
           return Result.error(error);
@@ -165,11 +127,9 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       chatMessage,
       mediaId: mediaId,
     );
-
     if (requestToSend == null) {
       return Result.error(FormatException('Message type is yet not supported'));
     }
-
     return messageService.sendSdkMessage(requestToSend);
   }
 
@@ -181,7 +141,17 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       callback({'sku': sku, 'quantity': quantity});
       return Result.ok(Unit());
     }
-    return messageService.addToCart(sku, quantity);
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage request = proto.SdkMessage(
+      correlationId: 'add-to-cart-$sku-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      addToCartRequest: proto.AddToCartRequest(
+        sku: sku,
+        quantity: quantity,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return messageService.sendSdkMessage(request);
   }
 
   @override
@@ -192,7 +162,22 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       callback({'sku': sku, 'quantity': quantity});
       return Result.ok(Unit());
     }
-    return messageService.removeFromCart(sku, quantity: quantity);
+    final DateTime timestamp = DateTime.now();
+    final proto.RemoveFromCartRequest removeRequest =
+        proto.RemoveFromCartRequest(
+          sku: sku,
+          timestamp: Timestamp.fromDateTime(timestamp),
+        );
+    if (quantity != null) {
+      removeRequest.quantity = quantity;
+    }
+    final proto.SdkMessage request = proto.SdkMessage(
+      correlationId:
+          'remove-from-cart-$sku-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      removeFromCartRequest: removeRequest,
+    );
+    return messageService.sendSdkMessage(request);
   }
 
   @override
@@ -203,7 +188,15 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       callback(null);
       return Result.ok(Unit());
     }
-    return messageService.clearCart();
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage request = proto.SdkMessage(
+      correlationId: 'clear-cart-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      clearCartRequest: proto.ClearCartRequest(
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return messageService.sendSdkMessage(request);
   }
 
   @override
@@ -214,6 +207,71 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       callback({'promotionId': promotionId});
       return Result.ok(Unit());
     }
-    return messageService.addPromotion(promotionId);
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage request = proto.SdkMessage(
+      correlationId:
+          'add-promotion-$promotionId-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      addPromotionRequest: proto.AddPromotionRequest(
+        promotionId: promotionId,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return messageService.sendSdkMessage(request);
+  }
+
+  @override
+  Future<Result<Unit>> requestGuidanceCard({String? context}) async {
+    final ChatCommandCallback? callback =
+        yaloChatClient.commands[ChatCommand.guidanceCard];
+    if (callback != null) {
+      callback(context != null ? {'context': context} : null);
+      return Result.ok(Unit());
+    }
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage request = proto.SdkMessage(
+      correlationId: 'guidance-card-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      guidanceCardRequest: proto.GuidanceCardRequest(
+        timestamp: Timestamp.fromDateTime(timestamp),
+        context: context,
+      ),
+    );
+    return messageService.sendSdkMessage(request);
+  }
+
+  @override
+  void pause() {
+    log.info('Subscription paused');
+    _paused = true;
+    _subscription?.cancel();
+    _subscription = null;
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
+    messageService.pause();
+  }
+
+  @override
+  void resume() {
+    if (!_paused) {
+      return;
+    }
+    log.info('Subscription resumed');
+    _paused = false;
+    messageService.resume();
+    _subscribe();
+  }
+
+  @override
+  void dispose() {
+    _paused = false;
+    _subscription?.cancel();
+    _subscription = null;
+    _chatStatusTimer?.cancel();
+    _chatStatusTimer = null;
+    messageService.dispose();
+    if (!_messagesStreamController.isClosed) {
+      _messagesStreamController.close();
+    }
   }
 }
