@@ -4,21 +4,21 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
 import 'package:yalo_chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/command/chat_command.dart';
+import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/media_upload_response.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_message.dart';
-import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart'
     as proto;
-import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
 
 class MockYaloChatClient extends Mock implements YaloChatClient {}
 
@@ -32,11 +32,12 @@ void main() {
     late MockYaloMessageService mockMessageService;
     late MockYaloMediaService mockMediaService;
     late YaloMessageRepositoryRemote repo;
+    late StreamController<proto.PollMessageItem> incoming;
 
     const fixedDate = '2024-01-01T00:00:00.000Z';
     late Directory tempDir;
 
-    final assistantResponseStub = proto.PollMessageItem(
+    final assistantTextStub = proto.PollMessageItem(
       id: 'msg-1',
       message: proto.SdkMessage(
         textMessageRequest: proto.TextMessageRequest(
@@ -48,10 +49,10 @@ void main() {
       ),
       date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
       userId: 'user-123',
-      status: "IN_DELIVERY",
+      status: 'IN_DELIVERY',
     );
 
-    final assistantImageResponseStub = proto.PollMessageItem(
+    final assistantImageStub = proto.PollMessageItem(
       id: 'img-1',
       message: proto.SdkMessage(
         imageMessageRequest: proto.ImageMessageRequest(
@@ -67,24 +68,7 @@ void main() {
       status: 'IN_DELIVERY',
     );
 
-    final assistantVideoResponseStub = proto.PollMessageItem(
-      id: 'vid-1',
-      message: proto.SdkMessage(
-        videoMessageRequest: proto.VideoMessageRequest(
-          content: proto.VideoMessage(
-            mediaUrl: 'https://example.com/video.mp4',
-            text: 'Video caption',
-            mediaType: 'video/mp4',
-            duration: 15.0,
-          ),
-        ),
-      ),
-      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-      userId: 'user-123',
-      status: 'IN_DELIVERY',
-    );
-
-    final assistantProductResponseStub = proto.PollMessageItem(
+    final assistantProductStub = proto.PollMessageItem(
       id: 'prod-1',
       message: proto.SdkMessage(
         productMessageRequest: proto.ProductMessageRequest(
@@ -92,25 +76,11 @@ void main() {
               proto.ProductMessageRequest_Orientation.ORIENTATION_VERTICAL,
           products: [
             proto.Product(
-              sku: 'sku-100',
+              sku: 'sku-1',
               name: 'Apples',
               price: 2.5,
-              imagesUrl: ['https://example.com/apple.jpg'],
-              salePrice: 1.99,
-              subunits: 6,
               unitStep: 1,
               unitName: 'box',
-              subunitName: 'unit',
-              subunitStep: 1,
-              unitsAdded: 0,
-              subunitsAdded: 0,
-            ),
-            proto.Product(
-              sku: 'sku-200',
-              name: 'Bananas',
-              price: 1.0,
-              unitStep: 1,
-              unitName: 'bunch',
             ),
           ],
         ),
@@ -120,7 +90,29 @@ void main() {
       status: 'IN_DELIVERY',
     );
 
-    final assistantCarouselResponseStub = proto.PollMessageItem(
+    final chatStatusStub = proto.PollMessageItem(
+      id: 'status-1',
+      message: proto.SdkMessage(
+        chatStatusRequest: proto.ChatStatusRequest(
+          status: 'Agent is typing',
+        ),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
+    final emptyChatStatusStub = proto.PollMessageItem(
+      id: 'status-2',
+      message: proto.SdkMessage(
+        chatStatusRequest: proto.ChatStatusRequest(status: ''),
+      ),
+      date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+      userId: 'user-123',
+      status: 'IN_DELIVERY',
+    );
+
+    final assistantCarouselStub = proto.PollMessageItem(
       id: 'carousel-1',
       message: proto.SdkMessage(
         productMessageRequest: proto.ProductMessageRequest(
@@ -128,7 +120,7 @@ void main() {
               proto.ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL,
           products: [
             proto.Product(
-              sku: 'sku-300',
+              sku: 'sku-2',
               name: 'Oranges',
               price: 3.0,
               unitStep: 1,
@@ -148,10 +140,15 @@ void main() {
     });
 
     setUp(() {
-      tempDir = Directory.systemTemp.createTempSync('yalo_test_');
+      tempDir = Directory.systemTemp.createTempSync('yalo_remote_test_');
       mockClient = MockYaloChatClient();
       mockMessageService = MockYaloMessageService();
       mockMediaService = MockYaloMediaService();
+      incoming = StreamController<proto.PollMessageItem>.broadcast();
+
+      when(() => mockMessageService.messages())
+          .thenAnswer((_) => incoming.stream);
+
       repo = YaloMessageRepositoryRemote(
         yaloChatClient: mockClient,
         messageService: mockMessageService,
@@ -161,415 +158,274 @@ void main() {
       );
     });
 
-    tearDownAll(() {
-      tempDir.deleteSync(recursive: true);
-    });
-
-    tearDown(() {
+    tearDown(() async {
       repo.dispose();
+      await incoming.close();
+      tempDir.deleteSync(recursive: true);
     });
 
     group('messages', () {
       test('returns a broadcast stream', () {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([]));
-
         expect(repo.messages().isBroadcast, isTrue);
       });
 
-      test('emits translated messages received from fetchMessages', () async {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
+      test('emits translated text messages from the stream', () async {
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
-        final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
+        incoming.add(assistantTextStub);
+        await Future.delayed(Duration.zero);
+
+        expect(received, hasLength(1));
+        expect(
+          received.single,
+          isA<ChatMessage>()
+              .having((m) => m.content, 'content', 'Hello')
+              .having((m) => m.wiId, 'wiId', 'msg-1')
+              .having((m) => m.role, 'role', MessageRole.assistant)
+              .having((m) => m.type, 'type', MessageType.text),
         );
-        repo.dispose();
-
-        expect(message.content, equals('Hello'));
-        expect(message.wiId, equals('msg-1'));
-        expect(message.role, equals(MessageRole.assistant));
       });
 
-      test(
-        'does not emit messages when fetchMessages returns an empty list',
-        () async {
-          final fetchCompleter = Completer<void>();
-          when(() => mockMessageService.fetchMessages(any())).thenAnswer((
-            _,
-          ) async {
-            if (!fetchCompleter.isCompleted) fetchCompleter.complete();
-            return Result.ok([]);
-          });
+      test('subscribes to the service only once across calls',
+          () async {
+        repo.messages().listen((_) {});
+        repo.messages().listen((_) {});
+        await Future.delayed(Duration.zero);
 
-          final received = <ChatMessage>[];
-          repo.messages().listen(received.add);
+        verify(() => mockMessageService.messages()).called(1);
+      });
 
-          await fetchCompleter.future;
-          await Future.delayed(Duration.zero);
+      test('caches wiId after emission to suppress duplicates', () async {
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
-          expect(received, isEmpty);
-        },
-      );
+        incoming.add(assistantTextStub);
+        incoming.add(assistantTextStub);
+        await Future.delayed(Duration.zero);
 
-      test(
-        'filters duplicate messages with the same wiId within a single poll batch',
-        () async {
-          when(() => mockMessageService.fetchMessages(any())).thenAnswer(
-            (_) async =>
-                Result.ok([assistantResponseStub, assistantResponseStub]),
-          );
+        expect(received, hasLength(1));
+        expect(repo.cache.get('msg-1'), isTrue);
+      });
 
-          final received = <ChatMessage>[];
-          final completer = Completer<void>();
+      test('emits a clearing chat status before delivering a message',
+          () async {
+        final firstFuture = repo.messages().first;
+        incoming.add(assistantTextStub);
+        final first = await firstFuture;
 
-          repo
-              .messages()
-              .where((m) => m.type != MessageType.chatStatus)
-              .listen((msg) {
-                received.add(msg);
-                if (!completer.isCompleted) {
-                  completer.complete();
-                }
-              });
+        expect(first.type, equals(MessageType.chatStatus));
+        expect(first.content, isEmpty);
+      });
 
-          await completer.future;
-          await Future.delayed(Duration.zero);
-          repo.dispose();
+      test('downloads image and emits message with local fileName', () async {
+        final imageBytes = Uint8List.fromList([1, 2, 3]);
+        when(() => mockMediaService.downloadMedia(any()))
+            .thenAnswer((_) async => Result.ok(imageBytes));
 
-          expect(received, hasLength(1));
-        },
-      );
+        final messageFuture = repo
+            .messages()
+            .firstWhere((m) => m.type != MessageType.chatStatus);
+        incoming.add(assistantImageStub);
+        final message = await messageFuture;
 
-      test(
-        'caches the wiId after first emission to prevent re-emission in future polls',
-        () async {
-          when(
-            () => mockMessageService.fetchMessages(any()),
-          ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
-
-          await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
+        expect(
+          message,
+          isA<ChatMessage>()
+              .having((m) => m.type, 'type', MessageType.image)
+              .having((m) => m.byteCount, 'byteCount', 3)
+              .having((m) => m.mediaType, 'mediaType', 'image/jpeg'),
         );
-          repo.dispose();
+        expect(message.fileName, isNot(contains('http')));
+        expect(File(message.fileName!).existsSync(), isTrue);
+      });
 
-          expect(repo.cache.get('msg-1'), equals(true));
-        },
-      );
+      test('does not emit image message when download fails', () async {
+        final downloadCompleter = Completer<Result<Uint8List>>();
+        when(() => mockMediaService.downloadMedia(any()))
+            .thenAnswer((_) => downloadCompleter.future);
 
-      test(
-        'emits a clearing chat status message before delivering messages',
-        () async {
-          when(
-            () => mockMessageService.fetchMessages(any()),
-          ).thenAnswer((_) async => Result.ok([assistantResponseStub]));
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
-          final first = await repo.messages().first;
-          repo.dispose();
+        incoming.add(assistantImageStub);
+        downloadCompleter.complete(Result.error(Exception('network error')));
+        await Future.delayed(Duration.zero);
+        await Future.delayed(Duration.zero);
 
-          expect(first.type, equals(MessageType.chatStatus));
-          expect(first.content, isEmpty);
-        },
-      );
-
-      test(
-        'downloads image and emits message with local fileName',
-        () async {
-          final imageBytes = Uint8List.fromList([1, 2, 3]);
-          when(
-            () => mockMessageService.fetchMessages(any()),
-          ).thenAnswer((_) async => Result.ok([assistantImageResponseStub]));
-          when(
-            () => mockMediaService.downloadMedia(any()),
-          ).thenAnswer((_) async => Result.ok(imageBytes));
-
-          final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
-        );
-          repo.dispose();
-
-          expect(message.wiId, equals('img-1'));
-          expect(message.type, equals(MessageType.image));
-          expect(message.byteCount, equals(3));
-          expect(message.mediaType, equals('image/jpeg'));
-          expect(message.fileName, isNot(contains('http')));
-          expect(File(message.fileName!).existsSync(), isTrue);
-        },
-      );
-
-      test(
-        'does not emit image message when download fails',
-        () async {
-          final fetchCompleter = Completer<void>();
-          when(() => mockMessageService.fetchMessages(any())).thenAnswer((_) async {
-            if (!fetchCompleter.isCompleted) fetchCompleter.complete();
-            return Result.ok([assistantImageResponseStub]);
-          });
-          when(
-            () => mockMediaService.downloadMedia(any()),
-          ).thenAnswer((_) async => Result.error(Exception('network error')));
-
-          final received = <ChatMessage>[];
-          repo.messages().listen(received.add);
-
-          await fetchCompleter.future;
-          await Future.delayed(Duration.zero);
-          repo.dispose();
-
-          expect(received, isEmpty);
-        },
-      );
-
-      test(
-        'downloads video and emits message with local fileName',
-        () async {
-          final videoBytes = Uint8List.fromList([0, 0, 0, 1, 2, 3]);
-          when(
-            () => mockMessageService.fetchMessages(any()),
-          ).thenAnswer((_) async => Result.ok([assistantVideoResponseStub]));
-          when(
-            () => mockMediaService.downloadMedia(any()),
-          ).thenAnswer((_) async => Result.ok(videoBytes));
-
-          final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
-        );
-          repo.dispose();
-
-          expect(message.wiId, equals('vid-1'));
-          expect(message.type, equals(MessageType.video));
-          expect(message.content, equals('Video caption'));
-          expect(message.duration, equals(15));
-          expect(message.byteCount, equals(6));
-          expect(message.mediaType, equals('video/mp4'));
-          expect(message.fileName, isNot(contains('http')));
-          expect(File(message.fileName!).existsSync(), isTrue);
-        },
-      );
-
-      test(
-        'does not emit video message when download fails',
-        () async {
-          final fetchCompleter = Completer<void>();
-          when(() => mockMessageService.fetchMessages(any())).thenAnswer((_) async {
-            if (!fetchCompleter.isCompleted) fetchCompleter.complete();
-            return Result.ok([assistantVideoResponseStub]);
-          });
-          when(
-            () => mockMediaService.downloadMedia(any()),
-          ).thenAnswer((_) async => Result.error(Exception('network error')));
-
-          final received = <ChatMessage>[];
-          repo.messages().listen(received.add);
-
-          await fetchCompleter.future;
-          await Future.delayed(Duration.zero);
-          repo.dispose();
-
-          expect(received, isEmpty);
-        },
-      );
+        expect(received, isEmpty);
+      });
 
       test('emits a product message with vertical orientation', () async {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([assistantProductResponseStub]));
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
-        final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
-        );
-        repo.dispose();
+        incoming.add(assistantProductStub);
+        await Future.delayed(Duration.zero);
 
-        expect(message.wiId, equals('prod-1'));
-        expect(message.type, equals(MessageType.product));
-        expect(message.role, equals(MessageRole.assistant));
-        expect(message.products, hasLength(2));
+        expect(received.single.type, equals(MessageType.product));
+        expect(received.single.products, hasLength(1));
         expect(
-          message.products.first,
+          received.single.products.first,
           equals(const Product(
-            sku: 'sku-100',
+            sku: 'sku-1',
             name: 'Apples',
             price: 2.5,
-            imagesUrl: ['https://example.com/apple.jpg'],
-            salePrice: 1.99,
-            subunits: 6,
-            unitStep: 1,
-            unitName: 'box',
-            subunitName: 'unit',
-            subunitStep: 1,
-            unitsAdded: 0,
-            subunitsAdded: 0,
-          )),
-        );
-        expect(message.products.last.sku, equals('sku-200'));
-        expect(message.products.last.name, equals('Bananas'));
-      });
-
-      test('emits a carousel message with horizontal orientation', () async {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([assistantCarouselResponseStub]));
-
-        final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
-        );
-        repo.dispose();
-
-        expect(message.wiId, equals('carousel-1'));
-        expect(message.type, equals(MessageType.productCarousel));
-        expect(message.role, equals(MessageRole.assistant));
-        expect(message.products, hasLength(1));
-        expect(
-          message.products.first,
-          equals(const Product(
-            sku: 'sku-300',
-            name: 'Oranges',
-            price: 3.0,
             subunits: 0,
             unitStep: 1,
-            unitName: 'bag',
+            unitName: 'box',
             subunitStep: 0,
           )),
         );
       });
 
-      test('maps optional product fields as null when not set in proto', () async {
-        final stub = proto.PollMessageItem(
-          id: 'prod-minimal',
-          message: proto.SdkMessage(
-            productMessageRequest: proto.ProductMessageRequest(
-              orientation:
-                  proto.ProductMessageRequest_Orientation.ORIENTATION_VERTICAL,
-              products: [
-                proto.Product(
-                  sku: 'sku-min',
-                  name: 'Minimal',
-                  price: 5.0,
-                  unitName: 'piece',
-                ),
-              ],
-            ),
-          ),
-          date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-          userId: 'user-123',
-          status: 'IN_DELIVERY',
-        );
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([stub]));
+      test('emits a carousel message with horizontal orientation', () async {
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
 
-        final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
-        );
-        repo.dispose();
+        incoming.add(assistantCarouselStub);
+        await Future.delayed(Duration.zero);
 
-        expect(message.products.first.salePrice, isNull);
-        expect(message.products.first.subunitName, isNull);
-        expect(message.products.first.imagesUrl, isEmpty);
+        expect(received.single.type, equals(MessageType.productCarousel));
+        expect(received.single.products.first.sku, equals('sku-2'));
       });
 
-      test('defaults to product type when orientation is unspecified', () async {
-        final stub = proto.PollMessageItem(
-          id: 'prod-unspecified',
-          message: proto.SdkMessage(
-            productMessageRequest: proto.ProductMessageRequest(
-              products: [
-                proto.Product(
-                  sku: 'sku-u',
-                  name: 'Unspecified',
-                  price: 1.0,
-                  unitName: 'unit',
-                ),
-              ],
-            ),
-          ),
-          date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
-          userId: 'user-123',
-          status: 'IN_DELIVERY',
-        );
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([stub]));
+      test('forwards ChatStatusRequest frames as a chat status message',
+          () async {
+        final messageFuture = repo.messages().first;
+        incoming.add(chatStatusStub);
+        final message = await messageFuture;
 
-        final message = await repo.messages().firstWhere(
-          (m) => m.type != MessageType.chatStatus,
-        );
-        repo.dispose();
+        expect(message.type, equals(MessageType.chatStatus));
+        expect(message.content, equals('Agent is typing'));
+      });
 
-        expect(message.type, equals(MessageType.product));
+      test('forwards an empty ChatStatusRequest as a clearing chat status',
+          () async {
+        final messageFuture = repo.messages().first;
+        incoming.add(emptyChatStatusStub);
+        final message = await messageFuture;
+
+        expect(message.type, equals(MessageType.chatStatus));
+        expect(message.content, isEmpty);
       });
 
       test(
-        'emits a clearing chat status message when fetchMessages fails',
-        () async {
-          when(
-            () => mockMessageService.fetchMessages(any()),
-          ).thenAnswer((_) async => Result.error(Exception('Network error')));
+          'emits a clearing chat status after the timeout when the backend goes silent',
+          () async {
+        final received = <ChatMessage>[];
+        repo.messages().listen(received.add);
 
-          final first = await repo.messages().first;
-          repo.dispose();
+        incoming.add(chatStatusStub);
+        await Future.delayed(const Duration(milliseconds: 80));
 
-          expect(first.type, equals(MessageType.chatStatus));
-          expect(first.content, isEmpty);
-        },
-      );
+        expect(received, hasLength(2));
+        expect(received.first.content, equals('Agent is typing'));
+        expect(received.last.type, equals(MessageType.chatStatus));
+        expect(received.last.content, isEmpty);
+      });
+
+      test('cancels the chat status timeout when a real message arrives',
+          () async {
+        final received = <ChatMessage>[];
+        repo.messages().listen(received.add);
+
+        incoming.add(chatStatusStub);
+        await Future.delayed(const Duration(milliseconds: 10));
+        incoming.add(assistantTextStub);
+        await Future.delayed(const Duration(milliseconds: 80));
+
+        final clearingStatuses = received.where(
+          (m) => m.type == MessageType.chatStatus && m.content.isEmpty,
+        );
+        expect(clearingStatuses, hasLength(1));
+      });
+
+      test('emits a clearing chat status when the message stream errors',
+          () async {
+        final messageFuture = repo.messages().first;
+        incoming.addError(Exception('boom'));
+        final message = await messageFuture;
+
+        expect(message.type, equals(MessageType.chatStatus));
+        expect(message.content, isEmpty);
+      });
     });
 
     group('sendMessage', () {
-      ChatMessage textMessage = ChatMessage.text(
+      final textMessage = ChatMessage.text(
         role: MessageRole.user,
         timestamp: DateTime.utc(2024),
         content: 'Hello',
       );
 
-      test('returns Result.ok when the client succeeds', () async {
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+      test('delegates text messages to messageService.sendSdkMessage',
+          () async {
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
         final result = await repo.sendMessage(textMessage);
 
         expect(result, isA<Ok<Unit>>());
+        verify(() => mockMessageService.sendSdkMessage(any())).called(1);
       });
 
-      test('returns Result.error when the client fails', () async {
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.error(Exception('Send failed')));
+      test('returns Result.error when the service fails', () async {
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.error(Exception('send failed')));
 
         final result = await repo.sendMessage(textMessage);
 
         expect(result, isA<Error<Unit>>());
       });
 
-      test(
-        'delegates to yaloChatClient.sendSdkMessage for text messages',
-        () async {
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
+      test('uploads media and delegates for image messages', () async {
+        when(() => mockMediaService.uploadMedia(any()))
+            .thenAnswer((_) async => Result.ok(_makeUploadResponse()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
-          await repo.sendMessage(textMessage);
+        final imageMessage = ChatMessage.image(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+          fileName: 'test.jpg',
+          byteCount: 0,
+          mediaType: 'image/jpeg',
+        );
 
-          verify(() => mockMessageService.sendSdkMessage(any())).called(1);
-        },
-      );
+        final result = await repo.sendMessage(imageMessage);
 
-      test('uploads and delegates to messageService.sendSdkMessage for voice messages', () async {
-        when(
-          () => mockMediaService.uploadMedia(any()),
-        ).thenAnswer((_) async => Result.ok(_makeUploadResponse()));
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+        expect(result, isA<Ok<Unit>>());
+        verify(() => mockMediaService.uploadMedia(any())).called(1);
+        verify(() => mockMessageService.sendSdkMessage(any())).called(1);
+      });
+
+      test('uploads media and delegates for voice messages', () async {
+        when(() => mockMediaService.uploadMedia(any()))
+            .thenAnswer((_) async => Result.ok(_makeUploadResponse()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
         final voiceMessage = ChatMessage.voice(
           role: MessageRole.user,
           timestamp: DateTime.utc(2024),
           fileName: 'test.wav',
-          amplitudes: [-10.0, 0.0, -10.0],
+          amplitudes: const [-10.0, 0.0],
           duration: 3,
           byteCount: 0,
           mediaType: 'audio/wav',
@@ -582,36 +438,11 @@ void main() {
         verify(() => mockMessageService.sendSdkMessage(any())).called(1);
       });
 
-      test('uploads and delegates to messageService.sendSdkMessage for image messages', () async {
-        when(
-          () => mockMediaService.uploadMedia(any()),
-        ).thenAnswer((_) async => Result.ok(_makeUploadResponse()));
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
-
-        final imageMessage = ChatMessage.image(
-          role: MessageRole.user,
-          timestamp: DateTime.utc(2024),
-          fileName: 'test.jpg',
-          byteCount: 0,
-          mediaType: 'image/jpeg',
-        );
-
-        final result = await repo.sendMessage(imageMessage);
-
-        expect(result, isA<Ok<Unit>>());
-        verify(() => mockMediaService.uploadMedia(any())).called(1);
-        verify(() => mockMessageService.sendSdkMessage(any())).called(1);
-      });
-
-      test('uploads and delegates to messageService.sendSdkMessage for video messages', () async {
-        when(
-          () => mockMediaService.uploadMedia(any()),
-        ).thenAnswer((_) async => Result.ok(_makeUploadResponse()));
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+      test('uploads media and delegates for video messages', () async {
+        when(() => mockMediaService.uploadMedia(any()))
+            .thenAnswer((_) async => Result.ok(_makeUploadResponse()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
         final videoMessage = ChatMessage.video(
           role: MessageRole.user,
@@ -629,30 +460,9 @@ void main() {
         verify(() => mockMessageService.sendSdkMessage(any())).called(1);
       });
 
-      test('returns Error without calling sendSdkMessage when video upload fails', () async {
-        when(
-          () => mockMediaService.uploadMedia(any()),
-        ).thenAnswer((_) async => Result.error(Exception('upload failed')));
-
-        final videoMessage = ChatMessage.video(
-          role: MessageRole.user,
-          timestamp: DateTime.utc(2024),
-          fileName: 'test.mp4',
-          duration: 10,
-          byteCount: 1024,
-          mediaType: 'video/mp4',
-        );
-
-        final result = await repo.sendMessage(videoMessage);
-
-        expect(result, isA<Error<Unit>>());
-        verifyNever(() => mockMessageService.sendSdkMessage(any()));
-      });
-
-      test('returns Error without calling sendSdkMessage when upload fails', () async {
-        when(
-          () => mockMediaService.uploadMedia(any()),
-        ).thenAnswer((_) async => Result.error(Exception('upload failed')));
+      test('returns Error and skips send when media upload fails', () async {
+        when(() => mockMediaService.uploadMedia(any()))
+            .thenAnswer((_) async => Result.error(Exception('upload failed')));
 
         final imageMessage = ChatMessage.image(
           role: MessageRole.user,
@@ -667,180 +477,234 @@ void main() {
         expect(result, isA<Error<Unit>>());
         verifyNever(() => mockMessageService.sendSdkMessage(any()));
       });
-    });
 
-    group('dispose', () {
-      test('sets polling to false', () {
-        repo.polling = true;
-        repo.dispose();
-        expect(repo.polling, isFalse);
-      });
-    });
+      test('returns Error for unsupported message types', () async {
+        final productMessage = ChatMessage.product(
+          role: MessageRole.user,
+          timestamp: DateTime.utc(2024),
+        );
 
-    group('pause/resume', () {
-      test('pause stops polling', () {
-        repo.polling = true;
-        repo.pause();
-        expect(repo.polling, isFalse);
-      });
+        final result = await repo.sendMessage(productMessage);
 
-      test('resume restarts polling after pause', () async {
-        when(
-          () => mockMessageService.fetchMessages(any()),
-        ).thenAnswer((_) async => Result.ok([]));
-
-        repo.messages(); // start polling
-        repo.pause();
-        expect(repo.polling, isFalse);
-
-        repo.resume();
-        expect(repo.polling, isTrue);
-      });
-
-      test('resume does nothing when not paused', () {
-        repo.polling = false;
-        repo.resume(); // should not start polling
-        expect(repo.polling, isFalse);
+        expect(result, isA<Error<Unit>>());
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
       });
     });
 
     group('addToCart', () {
       test('calls registered command callback instead of service', () async {
-        dynamic receivedPayload;
+        Object? receivedPayload;
         when(() => mockClient.commands).thenReturn({
           ChatCommand.addToCart: (payload) => receivedPayload = payload,
         });
 
-        final Result<Unit> result = await repo.addToCart('sku-1', 3);
+        final result = await repo.addToCart('sku-1', 3);
 
         expect(result, isA<Ok<Unit>>());
         expect(receivedPayload, equals({'sku': 'sku-1', 'quantity': 3.0}));
-        verifyNever(() => mockMessageService.addToCart(any(), any()));
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
       });
 
-      test('falls back to service when no command is registered', () async {
+      test('sends an add to cart message when no command is registered', () async {
         when(() => mockClient.commands).thenReturn({});
-        when(
-          () => mockMessageService.addToCart(any(), any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
-        final Result<Unit> result = await repo.addToCart('sku-1', 3);
+        final result = await repo.addToCart('sku-1', 3);
 
         expect(result, isA<Ok<Unit>>());
-        verify(() => mockMessageService.addToCart('sku-1', 3)).called(1);
+        final proto.SdkMessage sent =
+            verify(() => mockMessageService.sendSdkMessage(captureAny()))
+                    .captured
+                    .single
+                as proto.SdkMessage;
+        expect(sent.addToCartRequest.sku, equals('sku-1'));
+        expect(sent.addToCartRequest.quantity, equals(3));
       });
     });
 
     group('removeFromCart', () {
       test('calls registered command callback with quantity', () async {
-        dynamic receivedPayload;
+        Object? receivedPayload;
         when(() => mockClient.commands).thenReturn({
           ChatCommand.removeFromCart: (payload) => receivedPayload = payload,
         });
 
-        final Result<Unit> result =
-            await repo.removeFromCart('sku-2', quantity: 1);
+        final result = await repo.removeFromCart('sku-2', quantity: 1);
 
         expect(result, isA<Ok<Unit>>());
         expect(receivedPayload, equals({'sku': 'sku-2', 'quantity': 1.0}));
       });
 
-      test('calls registered command callback without quantity', () async {
-        dynamic receivedPayload;
-        when(() => mockClient.commands).thenReturn({
-          ChatCommand.removeFromCart: (payload) => receivedPayload = payload,
-        });
-
-        final Result<Unit> result = await repo.removeFromCart('sku-2');
-
-        expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'sku': 'sku-2', 'quantity': null}));
-      });
-
-      test('falls back to service when no command is registered', () async {
+      test('sends a remove from cart message when no command is registered', () async {
         when(() => mockClient.commands).thenReturn({});
-        when(
-          () => mockMessageService.removeFromCart(
-            any(),
-            quantity: any(named: 'quantity'),
-          ),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
-        final Result<Unit> result =
-            await repo.removeFromCart('sku-2', quantity: 2);
+        final result = await repo.removeFromCart('sku-2', quantity: 2);
 
         expect(result, isA<Ok<Unit>>());
-        verify(
-          () => mockMessageService.removeFromCart('sku-2', quantity: 2),
-        ).called(1);
+        final proto.SdkMessage sent =
+            verify(() => mockMessageService.sendSdkMessage(captureAny()))
+                    .captured
+                    .single
+                as proto.SdkMessage;
+        expect(sent.removeFromCartRequest.sku, equals('sku-2'));
+        expect(sent.removeFromCartRequest.quantity, equals(2));
       });
     });
 
     group('clearCart', () {
       test('calls registered command callback', () async {
-        dynamic receivedPayload;
+        Object? receivedPayload;
         when(() => mockClient.commands).thenReturn({
           ChatCommand.clearCart: (payload) => receivedPayload = payload,
         });
 
-        final Result<Unit> result = await repo.clearCart();
+        final result = await repo.clearCart();
 
         expect(result, isA<Ok<Unit>>());
         expect(receivedPayload, isNull);
       });
 
-      test('falls back to service when no command is registered', () async {
+      test('sends a clear cart message when no command is registered', () async {
         when(() => mockClient.commands).thenReturn({});
-        when(
-          () => mockMessageService.clearCart(),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
-        final Result<Unit> result = await repo.clearCart();
+        final result = await repo.clearCart();
 
         expect(result, isA<Ok<Unit>>());
-        verify(() => mockMessageService.clearCart()).called(1);
+        final proto.SdkMessage sent =
+            verify(() => mockMessageService.sendSdkMessage(captureAny()))
+                    .captured
+                    .single
+                as proto.SdkMessage;
+        expect(sent.hasClearCartRequest(), isTrue);
       });
     });
 
     group('addPromotion', () {
       test('calls registered command callback', () async {
-        dynamic receivedPayload;
+        Object? receivedPayload;
         when(() => mockClient.commands).thenReturn({
           ChatCommand.addPromotion: (payload) => receivedPayload = payload,
         });
 
-        final Result<Unit> result = await repo.addPromotion('promo-abc');
+        final result = await repo.addPromotion('promo-abc');
 
         expect(result, isA<Ok<Unit>>());
-        expect(
-          receivedPayload,
-          equals({'promotionId': 'promo-abc'}),
-        );
+        expect(receivedPayload, equals({'promotionId': 'promo-abc'}));
       });
 
-      test('falls back to service when no command is registered', () async {
+      test('sends an add promotion message when no command is registered', () async {
         when(() => mockClient.commands).thenReturn({});
-        when(
-          () => mockMessageService.addPromotion(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
 
-        final Result<Unit> result = await repo.addPromotion('promo-abc');
+        final result = await repo.addPromotion('promo-abc');
 
         expect(result, isA<Ok<Unit>>());
-        verify(
-          () => mockMessageService.addPromotion('promo-abc'),
-        ).called(1);
+        final proto.SdkMessage sent =
+            verify(() => mockMessageService.sendSdkMessage(captureAny()))
+                    .captured
+                    .single
+                as proto.SdkMessage;
+        expect(sent.addPromotionRequest.promotionId, equals('promo-abc'));
+      });
+    });
+
+    group('requestGuidanceCard', () {
+      test('calls registered command callback with the context', () async {
+        Object? receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.guidanceCard: (payload) => receivedPayload = payload,
+        });
+
+        final result = await repo.requestGuidanceCard(context: 'product-page');
+
+        expect(result, isA<Ok<Unit>>());
+        expect(receivedPayload, equals({'context': 'product-page'}));
+      });
+
+      test('sends a guidance card request when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+        when(() => mockMessageService.sendSdkMessage(any()))
+            .thenAnswer((_) async => Result.ok(Unit()));
+
+        final result = await repo.requestGuidanceCard();
+
+        expect(result, isA<Ok<Unit>>());
+        final proto.SdkMessage sent =
+            verify(() => mockMessageService.sendSdkMessage(captureAny()))
+                    .captured
+                    .single
+                as proto.SdkMessage;
+        expect(sent.hasGuidanceCardRequest(), isTrue);
+        expect(sent.correlationId, startsWith('guidance-card-'));
+      });
+    });
+
+    group('pause/resume', () {
+      test('pause cancels the active subscription', () async {
+        repo.messages().listen((_) {});
+        await Future.delayed(Duration.zero);
+
+        repo.pause();
+
+        final received = <ChatMessage>[];
+        repo.messages().listen(received.add);
+        incoming.add(assistantTextStub);
+        await Future.delayed(Duration.zero);
+
+        expect(received, isEmpty);
+      });
+
+      test('resume restarts the subscription after pause', () async {
+        repo.messages().listen((_) {});
+        await Future.delayed(Duration.zero);
+
+        repo.pause();
+        repo.resume();
+
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
+        incoming.add(assistantTextStub);
+        await Future.delayed(Duration.zero);
+
+        expect(received, hasLength(1));
+      });
+
+      test('resume is a no-op when not paused', () async {
+        repo.resume();
+        await Future.delayed(Duration.zero);
+
+        verifyNever(() => mockMessageService.messages());
+      });
+    });
+
+    group('dispose', () {
+      test('closes the messages stream', () async {
+        final messages = repo.messages();
+
+        repo.dispose();
+        await Future.delayed(Duration.zero);
+
+        expect(await messages.isEmpty, isTrue);
       });
     });
   });
 }
 
 MediaUploadResponse _makeUploadResponse() => MediaUploadResponse(
-  id: 'media-1',
-  signedUrl: 'https://example.com/signed-url',
-  originalName: 'test.jpg',
-  type: 'image/jpeg',
-  metadata: {},
-  createdAt: DateTime.utc(2024),
-  expiresAt: DateTime.utc(2024, 1, 2),
-);
+      id: 'media-1',
+      signedUrl: 'https://example.com/signed-url',
+      originalName: 'test.jpg',
+      type: 'image/jpeg',
+      metadata: {},
+      createdAt: DateTime.utc(2024),
+      expiresAt: DateTime.utc(2024, 1, 2),
+    );

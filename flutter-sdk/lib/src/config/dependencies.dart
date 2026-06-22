@@ -8,11 +8,10 @@ import 'package:yalo_chat_flutter_sdk/src/data/repositories/chat_message/chat_me
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/image/image_repository_local.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
-import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_websocket.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository_remote.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_media/yalo_media_service_remote.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
-import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service_remote.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service_websocket.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service_remote.dart';
@@ -75,12 +74,14 @@ List<SingleChildWidget> repositoryProviders(
         userId: yaloClient.userId,
       ),
     ),
+    // Transport protocol for chat messages. Swap this single create for
+    // YaloMessageServiceHttps (passing channelId) to use HTTPS polling instead.
     Provider<YaloMessageService>(
-      create: (context) => YaloMessageServiceRemote(
+      create: (context) => YaloMessageServiceWebSocket(
         baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
-        channelId: yaloClient.channelId,
         authService: context.read<YaloMessageAuthService>(),
       ),
+      dispose: (_, service) => service.dispose(),
     ),
     Provider<YaloMediaService>(
       create: (context) => YaloMediaServiceRemote(
@@ -88,17 +89,9 @@ List<SingleChildWidget> repositoryProviders(
         authService: context.read<YaloMessageAuthService>(),
       ),
     ),
-    Provider<YaloMessageServiceWebSocket>(
-      create: (context) => YaloMessageServiceWebSocket(
-        baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
-        authService: context.read<YaloMessageAuthService>(),
-      ),
-      dispose: (_, service) => service.dispose(),
-    ),
     RepositoryProvider<YaloMessageRepository>(
-      create: (context) => YaloMessageRepositoryWebSocket(
+      create: (context) => YaloMessageRepositoryRemote(
         yaloChatClient: yaloClient,
-        websocketService: context.read<YaloMessageServiceWebSocket>(),
         messageService: context.read<YaloMessageService>(),
         mediaService: context.read<YaloMediaService>(),
       ),

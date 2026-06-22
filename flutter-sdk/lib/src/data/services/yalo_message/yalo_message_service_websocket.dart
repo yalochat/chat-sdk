@@ -7,13 +7,14 @@ import 'package:logging/logging.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
+import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message/yalo_message_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/token_entry.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/services/yalo_message_auth/yalo_message_auth_service.dart';
 import 'package:yalo_chat_flutter_sdk/src/domain/models/events/external_channel/in_app/sdk/sdk_message.pb.dart';
 
 typedef WebSocketChannelFactory = WebSocketChannel Function(Uri uri);
 
-class YaloMessageServiceWebSocket {
+class YaloMessageServiceWebSocket implements YaloMessageService {
   static const Duration _initialBackoff = Duration(seconds: 1);
   static const Duration _maxBackoff = Duration(seconds: 30);
   static const Duration _ackTimeout = Duration(seconds: 10);
@@ -30,6 +31,7 @@ class YaloMessageServiceWebSocket {
   Timer? _ackTimer;
   int _reconnectAttempt = 0;
   bool _running = false;
+  bool _paused = false;
   bool _connectionAcked = false;
   final List<String> _pendingFrames = [];
 
@@ -42,6 +44,7 @@ class YaloMessageServiceWebSocket {
        _channelFactory =
            channelFactory ?? ((uri) => IOWebSocketChannel.connect(uri));
 
+  @override
   Stream<PollMessageItem> messages() {
     final controller =
         _controller ??= StreamController<PollMessageItem>.broadcast();
@@ -52,6 +55,37 @@ class YaloMessageServiceWebSocket {
     return controller.stream;
   }
 
+  @override
+  void pause() {
+    if (!_running) {
+      return;
+    }
+    log.info('Connection paused');
+    _running = false;
+    _paused = true;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    _clearAckTimer();
+    _subscription?.cancel();
+    _subscription = null;
+    _channel?.sink.close();
+    _channel = null;
+    _connectionAcked = false;
+  }
+
+  @override
+  void resume() {
+    if (!_paused || _controller == null) {
+      return;
+    }
+    log.info('Connection resumed');
+    _paused = false;
+    _running = true;
+    _reconnectAttempt = 0;
+    _connect();
+  }
+
+  @override
   Future<Result<Unit>> sendSdkMessage(SdkMessage message) async {
     if (!_running) {
       return Result.error(Exception('WebSocket is not connected'));
@@ -75,8 +109,10 @@ class YaloMessageServiceWebSocket {
     }
   }
 
+  @override
   void dispose() {
     _running = false;
+    _paused = false;
     _reconnectAttempt = 0;
     _connectionAcked = false;
     _pendingFrames.clear();

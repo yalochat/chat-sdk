@@ -36,6 +36,9 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
   final YaloMessageRepository _yaloMessageRepository;
   final Logger log = Logger('ChatViewModel');
   Timer? _awaitResponseTimer;
+  // Ensures the guidance card is requested at most once per chat session, even
+  // if the initial page is reloaded.
+  bool _guidanceCardRequested = false;
 
   MessagesBloc({
     String name = '',
@@ -158,10 +161,31 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
             ),
           ),
         );
+        // On open, when the local database has no messages, ask the backend for
+        // the guidance card to greet the user.
+        if (event.direction == PageDirection.initial &&
+            state.messages.isEmpty &&
+            !_guidanceCardRequested) {
+          _guidanceCardRequested = true;
+          await _requestGuidanceCard();
+        }
         break;
       case Error<Page<ChatMessage>>():
         emit(state.copyWith(chatStatus: ChatStatus.failure, isLoading: false));
         break;
+    }
+  }
+
+  // Asks the backend for the guidance card. Failures are logged but do not
+  // surface to the user, the chat simply stays empty.
+  Future<void> _requestGuidanceCard() async {
+    final Result<Unit> result = await _yaloMessageRepository
+        .requestGuidanceCard();
+    switch (result) {
+      case Ok<Unit>():
+        log.info('Guidance card requested');
+      case Error<Unit>():
+        log.severe('Unable to request guidance card', result.error);
     }
   }
 
