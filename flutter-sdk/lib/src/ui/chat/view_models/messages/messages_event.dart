@@ -69,11 +69,22 @@ final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
 
 // Clear quick replies from GUI
 final class ChatClearQuickReplies extends MessagesEvent with EquatableMixin {
-
- ChatClearQuickReplies();
+  ChatClearQuickReplies();
 
   @override
   List<Object?> get props => [];
+}
+
+// Emitted when the user confirms a product confirmation card. Marks the card
+// as confirmed and forwards the product units to the active cart.
+final class ChatConfirmProductConfirmation extends MessagesEvent
+    with EquatableMixin {
+  final int messageId;
+
+  ChatConfirmProductConfirmation({required this.messageId});
+
+  @override
+  List<Object?> get props => [messageId];
 }
 
 // Event to send a text message

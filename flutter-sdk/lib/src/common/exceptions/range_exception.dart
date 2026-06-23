@@ -6,5 +6,7 @@ class RangeException implements Exception {
   final int? maxValue;
   final String message;
 
-  RangeException(String message, this.wrongValue, [this.minValue, this.maxValue]) : message = '$message received $wrongValue, maxValue: $maxValue, minValue $minValue';
+  RangeException(String message, this.wrongValue, [this.minValue, this.maxValue])
+    : message =
+          '$message received $wrongValue, maxValue: $maxValue, minValue $minValue';
 }

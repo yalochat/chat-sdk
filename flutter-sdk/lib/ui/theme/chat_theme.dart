@@ -45,6 +45,11 @@ class ChatTheme {
   final Color messageFooterColor;
   // Color of the three dots shown while the SDK waits for an assistant reply.
   final Color typingIndicatorDotColor;
+  // Product confirmation card colors.
+  final Color productConfirmationButtonColor;
+  final Color productConfirmationButtonForegroundColor;
+  final Color productConfirmationButtonConfirmedColor;
+  final Color productConfirmationButtonConfirmedForegroundColor;
 
   final TextStyle quickReplyStyle;
   final TextStyle modalHeaderStyle;
@@ -81,6 +86,8 @@ class ChatTheme {
   final IconData addIcon;
   final IconData removeIcon;
   final IconData ctaArrowForwardIcon;
+  // Icon shown on a product confirmation button once it has been confirmed.
+  final IconData productConfirmationConfirmedIcon;
 
   const ChatTheme({
     // Colors
@@ -125,6 +132,14 @@ class ChatTheme {
         SdkColors.buttonsMessageButtonForegroundColorLight,
     this.messageFooterColor = SdkColors.messageFooterColorLight,
     this.typingIndicatorDotColor = SdkColors.messageControlIconColorLight,
+    this.productConfirmationButtonColor =
+        SdkColors.productConfirmationButtonColorLight,
+    this.productConfirmationButtonForegroundColor =
+        SdkColors.productConfirmationButtonForegroundColorLight,
+    this.productConfirmationButtonConfirmedColor =
+        SdkColors.productConfirmationButtonConfirmedColorLight,
+    this.productConfirmationButtonConfirmedForegroundColor =
+        SdkColors.productConfirmationButtonConfirmedForegroundColorLight,
 
     // Text Styles
     this.quickReplyStyle = const TextStyle(
@@ -201,6 +216,7 @@ class ChatTheme {
     this.addIcon = Icons.add,
     this.removeIcon = Icons.remove,
     this.ctaArrowForwardIcon = Icons.arrow_forward,
+    this.productConfirmationConfirmedIcon = Icons.check,
   });
 
   ChatTheme copyWith({
@@ -241,6 +257,10 @@ class ChatTheme {
     Color? buttonsMessageButtonForegroundColor,
     Color? messageFooterColor,
     Color? typingIndicatorDotColor,
+    Color? productConfirmationButtonColor,
+    Color? productConfirmationButtonForegroundColor,
+    Color? productConfirmationButtonConfirmedColor,
+    Color? productConfirmationButtonConfirmedForegroundColor,
     TextStyle? quickReplyStyle,
     TextStyle? modalHeaderStyle,
     TextStyle? userMessageTextStyle,
@@ -275,6 +295,7 @@ class ChatTheme {
     IconData? addIcon,
     IconData? removeIcon,
     IconData? ctaArrowForwardIcon,
+    IconData? productConfirmationConfirmedIcon,
   }) {
     return ChatTheme(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -317,7 +338,8 @@ class ChatTheme {
       pickerButtonBorderColor:
           pickerButtonBorderColor ?? this.pickerButtonBorderColor,
       quickReplyColor: quickReplyColor ?? this.quickReplyColor,
-      quickReplyBorderColor: quickReplyBorderColor ?? this.quickReplyBorderColor,
+      quickReplyBorderColor:
+          quickReplyBorderColor ?? this.quickReplyBorderColor,
       ctaButtonColor: ctaButtonColor ?? this.ctaButtonColor,
       ctaButtonBorderColor: ctaButtonBorderColor ?? this.ctaButtonBorderColor,
       ctaButtonForegroundColor:
@@ -333,6 +355,17 @@ class ChatTheme {
       messageFooterColor: messageFooterColor ?? this.messageFooterColor,
       typingIndicatorDotColor:
           typingIndicatorDotColor ?? this.typingIndicatorDotColor,
+      productConfirmationButtonColor:
+          productConfirmationButtonColor ?? this.productConfirmationButtonColor,
+      productConfirmationButtonForegroundColor:
+          productConfirmationButtonForegroundColor ??
+          this.productConfirmationButtonForegroundColor,
+      productConfirmationButtonConfirmedColor:
+          productConfirmationButtonConfirmedColor ??
+          this.productConfirmationButtonConfirmedColor,
+      productConfirmationButtonConfirmedForegroundColor:
+          productConfirmationButtonConfirmedForegroundColor ??
+          this.productConfirmationButtonConfirmedForegroundColor,
       quickReplyStyle: quickReplyStyle ?? this.quickReplyStyle,
       modalHeaderStyle: modalHeaderStyle ?? this.modalHeaderStyle,
       userMessageTextStyle: userMessageTextStyle ?? this.userMessageTextStyle,
@@ -370,6 +403,9 @@ class ChatTheme {
       addIcon: addIcon ?? this.addIcon,
       removeIcon: removeIcon ?? this.removeIcon,
       ctaArrowForwardIcon: ctaArrowForwardIcon ?? this.ctaArrowForwardIcon,
+      productConfirmationConfirmedIcon:
+          productConfirmationConfirmedIcon ??
+          this.productConfirmationConfirmedIcon,
     );
   }
 

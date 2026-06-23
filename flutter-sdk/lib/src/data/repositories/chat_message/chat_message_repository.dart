@@ -18,7 +18,6 @@ abstract class ChatMessageRepository {
   // Inserts a chat message to the data source.
   Future<Result<ChatMessage>> insertChatMessage(ChatMessage message);
 
-
   // Updates a chat message in storage
   Future<Result<bool>> replaceChatMessage(ChatMessage message);
 

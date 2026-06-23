@@ -12,11 +12,7 @@ class ImageData extends Equatable {
   ImageData({required this.path, Uint8List? bytes, required this.mimeType})
     : bytes = bytes ?? Uint8List.fromList([]);
 
-  ImageData copyWith({
-    String? path,
-    Uint8List? bytes,
-    String? mimeType,
-  }) {
+  ImageData copyWith({String? path, Uint8List? bytes, String? mimeType}) {
     return ImageData(
       path: path ?? this.path,
       bytes: bytes ?? this.bytes,

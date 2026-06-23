@@ -84,6 +84,13 @@ ChatTheme.fromThemeData(
 - **`buttonsMessageButtonBorderColor`** (`Color`): Border color of message buttons.
 - **`buttonsMessageButtonForegroundColor`** (`Color`): Text color of message buttons.
 
+### Product confirmation cards
+
+- **`productConfirmationButtonColor`** (`Color`): Background color of the confirm button before it is tapped.
+- **`productConfirmationButtonForegroundColor`** (`Color`): Text color of the confirm button before it is tapped.
+- **`productConfirmationButtonConfirmedColor`** (`Color`): Background color of the confirm button once confirmed.
+- **`productConfirmationButtonConfirmedForegroundColor`** (`Color`): Text and check icon color of the confirm button once confirmed.
+
 ### Voice and audio
 
 - **`waveColor`** (`Color`): Color of the audio waveform bars.
@@ -152,6 +159,7 @@ All icon properties accept an `IconData` value. The SDK uses Material Icons by d
 - **`addIcon`** (default `Icons.add`): Icon for the quantity increment button.
 - **`removeIcon`** (default `Icons.remove`): Icon for the quantity decrement button.
 - **`ctaArrowForwardIcon`** (default `Icons.arrow_forward`): Icon for the CTA forward arrow.
+- **`productConfirmationConfirmedIcon`** (default `Icons.check`): Icon shown on a product confirmation button once it has been confirmed.
 
 ## Full theming example
 

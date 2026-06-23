@@ -28,7 +28,7 @@ class WaveformRecorder extends StatelessWidget {
         return BlocSelector<AudioBloc, AudioState, AudioData>(
           selector: (state) => state.audioData,
           builder: (context, audioData) {
-            final minutes = audioData.duration  ~/ 1000 ~/ 60;
+            final minutes = audioData.duration ~/ 1000 ~/ 60;
             final seconds =
                 (audioData.duration - (minutes * 1000 * 60)) ~/ 1000;
             final minutesFormatted = minutes.toString().padLeft(2, '0');
@@ -42,7 +42,10 @@ class WaveformRecorder extends StatelessWidget {
                 SizedBox(width: SdkConstants.rowItemSpace),
                 Expanded(
                   child: CustomPaint(
-                    painter: WaveformPainter(audioData.amplitudes, chatTheme.waveColor),
+                    painter: WaveformPainter(
+                      audioData.amplitudes,
+                      chatTheme.waveColor,
+                    ),
                     child: SizedBox(
                       width: double.infinity,
                       height: SdkConstants.preferredWaveRecorderHeight,
@@ -50,7 +53,10 @@ class WaveformRecorder extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(chatTheme.cancelRecordingIcon, color: chatTheme.cancelRecordingIconColor),
+                  icon: Icon(
+                    chatTheme.cancelRecordingIcon,
+                    color: chatTheme.cancelRecordingIconColor,
+                  ),
                   onPressed: () => _handleOnCancel(chatBloc),
                 ),
               ],

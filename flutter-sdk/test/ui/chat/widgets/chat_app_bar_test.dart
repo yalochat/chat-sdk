@@ -25,9 +25,7 @@ void main() {
     setUp(() {
       final imageFile = File('images/test-image.png');
       chatThemeCubit = ChatThemeCubit(
-        chatTheme: ChatTheme(
-          chatIconImage: FileImage(imageFile),
-        ),
+        chatTheme: ChatTheme(chatIconImage: FileImage(imageFile)),
       );
       messagesBloc = MockChatBloc();
     });
@@ -55,13 +53,9 @@ void main() {
               child: TestWidget(onShopPressed: () {}, onCartPressed: () {}),
             ),
           );
-          final shopIconFinder = find.byIcon(
-            chatThemeCubit.state.shopIcon,
-          );
+          final shopIconFinder = find.byIcon(chatThemeCubit.state.shopIcon);
 
-          final cartIconFinder = find.byIcon(
-            chatThemeCubit.state.cartIcon,
-          );
+          final cartIconFinder = find.byIcon(chatThemeCubit.state.cartIcon);
 
           final titleTextFinder = find.text('Test');
           final subtitleFinder = find.text('status');

@@ -21,6 +21,7 @@ enum MessageType {
   video('video'),
   product('product'),
   productCarousel('productCarousel'),
+  productConfirmation('productConfirmation'),
   promotion('promotion'),
   chatStatus('chatStatus'),
 
@@ -35,7 +36,10 @@ enum MessageStatus {
   read('READ'),
   error('ERROR'),
   sent('SENT'),
-  inProgress('IN_PROGRESS');
+  inProgress('IN_PROGRESS'),
+  // Set once the user has acted on a product confirmation card so the
+  // confirmed state survives reopening the chat.
+  clicked('CLICKED');
 
   final String status;
   const MessageStatus(this.status);
@@ -237,6 +241,31 @@ class ChatMessage extends Equatable {
        header = null,
        footer = null,
        buttons = const [];
+
+  // A confirmation card for a product action (e.g. "Added to cart"). It shows
+  // a [header] title, a [content] body, a primary [button] that confirms the
+  // action, and a [footer] text link. The [product] carries the sku and the
+  // units/subunits forwarded to the cart when the user confirms.
+  ChatMessage.productConfirmation({
+    this.id,
+    this.wiId,
+    required this.role,
+    required this.timestamp,
+    this.status = MessageStatus.inProgress,
+    this.content = '',
+    this.header,
+    this.footer,
+    required Product product,
+    required Button button,
+  }) : type = MessageType.productConfirmation,
+       products = [product],
+       buttons = [button],
+       fileName = null,
+       amplitudes = null,
+       duration = null,
+       byteCount = null,
+       mediaType = null,
+       expand = false;
 
   // Creates a copy of a chat message
   ChatMessage copyWith({

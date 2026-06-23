@@ -108,9 +108,7 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
           .toList();
       final bool isCarousel =
           item.message.productMessageRequest.orientation ==
-          proto_enum
-              .ProductMessageRequest_Orientation
-              .ORIENTATION_HORIZONTAL;
+          proto_enum.ProductMessageRequest_Orientation.ORIENTATION_HORIZONTAL;
       if (isCarousel) {
         return ChatMessage.carousel(
           role: MessageRole.assistant,
@@ -123,6 +121,25 @@ Future<ChatMessage?> pollMessageItemToChatMessage(
         role: MessageRole.assistant,
         timestamp: item.date.toDateTime(),
         products: products,
+        wiId: item.id,
+      );
+    case proto.SdkMessage_Payload.productConfirmationMessageRequest:
+      final request = item.message.productConfirmationMessageRequest;
+      return ChatMessage.productConfirmation(
+        role: MessageRole.assistant,
+        timestamp: item.date.toDateTime(),
+        header: request.header,
+        content: request.body,
+        footer: request.footer,
+        button: _toDomainButton(request.button),
+        product: Product(
+          sku: request.sku,
+          name: '',
+          price: 0,
+          unitName: '',
+          unitsAdded: request.units,
+          subunitsAdded: request.subunits,
+        ),
         wiId: item.id,
       );
     case _:
@@ -140,6 +157,9 @@ proto.SdkMessage? chatMessageToSdkMessage(
     MessageStatus.error => proto.MessageStatus.MESSAGE_STATUS_ERROR,
     MessageStatus.sent => proto.MessageStatus.MESSAGE_STATUS_SENT,
     MessageStatus.inProgress => proto.MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+    // The proto schema has no dedicated "clicked" status; confirmations are
+    // never sent upstream, so map it to in progress to keep the switch total.
+    MessageStatus.clicked => proto.MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
   };
   final timestamp = DateTime.now();
 
@@ -222,6 +242,7 @@ proto.SdkMessage? chatMessageToSdkMessage(
     ),
     MessageType.product => null,
     MessageType.productCarousel => null,
+    MessageType.productConfirmation => null,
     MessageType.promotion => null,
     MessageType.chatStatus => null,
     MessageType.unknown => null,
@@ -237,11 +258,7 @@ Button _toDomainButton(proto.Button b) {
   } else {
     type = ButtonType.reply;
   }
-  return Button(
-    text: b.text,
-    type: type,
-    url: b.hasUrl() ? b.url : null,
-  );
+  return Button(text: b.text, type: type, url: b.hasUrl() ? b.url : null);
 }
 
 proto.Button _toProtoButton(Button b) {

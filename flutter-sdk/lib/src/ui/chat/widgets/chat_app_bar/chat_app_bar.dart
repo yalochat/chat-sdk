@@ -23,33 +23,49 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           title: Row(
             children: [
               if (chatTheme.chatIconImage != null)
-              Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(SdkConstants.chatImageBorderRadius),
-                  child: Image(
-                    width: SdkConstants.imageIconSize,
-                    height: SdkConstants.imageIconSize,
-                    image: chatTheme.chatIconImage!,
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      SdkConstants.chatImageBorderRadius,
+                    ),
+                    child: Image(
+                      width: SdkConstants.imageIconSize,
+                      height: SdkConstants.imageIconSize,
+                      image: chatTheme.chatIconImage!,
+                    ),
                   ),
                 ),
-              ),
               SizedBox(width: SdkConstants.rowItemSpace),
               Expanded(
-                child: BlocSelector<MessagesBloc, MessagesState, (String, String)>(
-                  selector: (state) => (state.chatTitle, state.chatStatusText),
-                  builder: (context, state) {
-                    return ChatTitle(title: state.$1, status: state.$2);
-                  },
-                ),
+                child:
+                    BlocSelector<MessagesBloc, MessagesState, (String, String)>(
+                      selector: (state) =>
+                          (state.chatTitle, state.chatStatusText),
+                      builder: (context, state) {
+                        return ChatTitle(title: state.$1, status: state.$2);
+                      },
+                    ),
               ),
             ],
           ),
           actions: [
             if (onShopPressed != null)
-            IconButton(icon: Icon(chatTheme.shopIcon, color: chatTheme.actionIconColor), onPressed: onShopPressed),
+              IconButton(
+                icon: Icon(
+                  chatTheme.shopIcon,
+                  color: chatTheme.actionIconColor,
+                ),
+                onPressed: onShopPressed,
+              ),
 
             if (onCartPressed != null)
-            IconButton(icon: Icon(chatTheme.cartIcon, color: chatTheme.actionIconColor), onPressed: onCartPressed),
+              IconButton(
+                icon: Icon(
+                  chatTheme.cartIcon,
+                  color: chatTheme.actionIconColor,
+                ),
+                onPressed: onCartPressed,
+              ),
           ],
         );
       },

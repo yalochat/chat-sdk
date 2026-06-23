@@ -30,7 +30,7 @@ final class AudioState extends Equatable {
     this.isUserRecordingAudio = false,
     this.playingMessage,
     this.audioStatus = AudioStatus.initial,
-  }): audioData = audioData ?? AudioData();
+  }) : audioData = audioData ?? AudioData();
 
   AudioState copyWith({
     AudioData? audioData,

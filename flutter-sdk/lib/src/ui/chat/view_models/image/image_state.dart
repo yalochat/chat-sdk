@@ -10,7 +10,11 @@ final class ImageState extends Equatable {
   final ImageData? hiddenImagePick;
   final ImageStatus imageStatus;
 
-  const ImageState({this.pickedImage, this.hiddenImagePick, this.imageStatus = ImageStatus.initial});
+  const ImageState({
+    this.pickedImage,
+    this.hiddenImagePick,
+    this.imageStatus = ImageStatus.initial,
+  });
 
   ImageState copyWith({
     ImageData? Function()? pickedImage,
@@ -19,7 +23,9 @@ final class ImageState extends Equatable {
   }) {
     return ImageState(
       pickedImage: pickedImage != null ? pickedImage() : this.pickedImage,
-      hiddenImagePick: hiddenImagePick != null ? hiddenImagePick() : this.hiddenImagePick,
+      hiddenImagePick: hiddenImagePick != null
+          ? hiddenImagePick()
+          : this.hiddenImagePick,
       imageStatus: imageStatus ?? this.imageStatus,
     );
   }

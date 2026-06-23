@@ -32,9 +32,7 @@ class MessageButton extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             backgroundColor: chatTheme.buttonsMessageButtonColor,
             foregroundColor: chatTheme.buttonsMessageButtonForegroundColor,
-            side: BorderSide(
-              color: chatTheme.buttonsMessageButtonBorderColor,
-            ),
+            side: BorderSide(color: chatTheme.buttonsMessageButtonBorderColor),
             shape: RoundedRectangleBorder(borderRadius: radius),
           ),
           onPressed: () => context.read<MessagesBloc>().add(

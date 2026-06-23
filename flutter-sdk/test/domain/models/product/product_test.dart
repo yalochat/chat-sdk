@@ -11,7 +11,6 @@ void main() {
         name: 'Test Product',
         price: 10.0,
         unitName: 'box',
-
       );
 
       expect(product.sku, equals('SKU123'));

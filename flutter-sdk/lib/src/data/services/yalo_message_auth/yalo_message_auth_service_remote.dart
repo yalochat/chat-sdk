@@ -127,10 +127,7 @@ class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
       final response = await _httpClient.post(
         Uri.parse('https://$_baseUrl/v1/channels/oauth/token'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {
-          'grant_type': 'refresh_token',
-          'refresh_token': refreshToken,
-        },
+        body: {'grant_type': 'refresh_token', 'refresh_token': refreshToken},
       );
 
       if (response.statusCode != 200) {

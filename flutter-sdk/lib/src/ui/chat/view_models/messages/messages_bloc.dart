@@ -76,6 +76,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     on<ChatClearMessages>(_handleClearMessages);
     on<ChatRetryMessage>(_handleRetryMessage);
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
+    on<ChatConfirmProductConfirmation>(_handleConfirmProductConfirmation);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
     on<ChatClearQuickReplies>(_handleClearQuickReplies);
     on<ChatAwaitResponseTimedOut>(_handleAwaitResponseTimedOut);
@@ -664,6 +665,57 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
         log.info('Unable to update message', updateResult.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedToUpdateMessage));
     }
+  }
+
+  // Marks a product confirmation card as confirmed and forwards the product's
+  // units to the active cart. No-op if the card was already confirmed.
+  Future<void> _handleConfirmProductConfirmation(
+    ChatConfirmProductConfirmation event,
+    Emitter<MessagesState> emit,
+  ) async {
+    final int index = state.messages.indexWhere(
+      (message) => message.id == event.messageId,
+    );
+    if (index == -1) {
+      log.warning('No confirmation message with id ${event.messageId} found');
+      return;
+    }
+    final ChatMessage message = state.messages[index];
+    if (message.status == MessageStatus.clicked) {
+      log.info('Confirmation ${event.messageId} already confirmed');
+      return;
+    }
+    if (message.products.isEmpty) {
+      log.warning('Confirmation ${event.messageId} has no product to confirm');
+      return;
+    }
+
+    final ChatMessage confirmed = message.copyWith(
+      status: MessageStatus.clicked,
+    );
+    final List<ChatMessage> newMessages = [...state.messages];
+    newMessages[index] = confirmed;
+    emit(state.copyWith(messages: newMessages));
+
+    final persistResult = await _chatMessageRepository.replaceChatMessage(
+      confirmed,
+    );
+    switch (persistResult) {
+      case Ok():
+        log.info('Persisted confirmation for message ${event.messageId}');
+      case Error():
+        log.severe(
+          'Unable to persist confirmation for message ${event.messageId}',
+          persistResult.error,
+        );
+    }
+
+    final Product product = confirmed.products.first;
+    await _yaloMessageRepository.updateCartProduct(
+      product.sku,
+      product.unitsAdded,
+      product.subunitsAdded,
+    );
   }
 
   // Handles toggle expand for messages

@@ -29,7 +29,7 @@ void main() {
               role: MessageRole.user,
               type: MessageType.text,
               content: 'teeeest',
-              timestamp: clock.now()
+              timestamp: clock.now(),
             ),
           ],
           isConnected: true,
@@ -41,7 +41,7 @@ void main() {
               role: MessageRole.user,
               type: MessageType.text,
               content: 'teeeest',
-              timestamp: clock.now()
+              timestamp: clock.now(),
             ),
           ],
           isConnected: true,
@@ -60,7 +60,7 @@ void main() {
               role: MessageRole.user,
               type: MessageType.text,
               content: 'teeeest',
-              timestamp: clock.now()
+              timestamp: clock.now(),
             ),
           ],
           isConnected: true,

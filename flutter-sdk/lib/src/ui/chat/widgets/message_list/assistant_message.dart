@@ -5,6 +5,7 @@ import 'package:yalo_chat_flutter_sdk/src/domain/models/chat_message/chat_messag
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/assistant_product_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/image_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/message_button.dart';
+import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/product_confirmation_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/chat/widgets/message_list/video_message.dart';
 import 'package:yalo_chat_flutter_sdk/src/ui/theme/view_models/theme_cubit.dart';
 import 'package:yalo_chat_flutter_sdk/ui/theme/constants.dart';
@@ -23,6 +24,12 @@ class AssistantMessage extends StatelessWidget {
       message.role == MessageRole.assistant,
       'AssistantMessages can only render messages with role assistant',
     );
+    // Product confirmation cards own their full layout (header, body, button
+    // and footer), so they render as a standalone card instead of the standard
+    // assistant bubble.
+    if (message.type == MessageType.productConfirmation) {
+      return ProductConfirmationMessage(message: message);
+    }
     final chatTheme = context.watch<ChatThemeCubit>().chatTheme;
     final hasHeader = message.header != null && message.header!.isNotEmpty;
     final hasFooter = message.footer != null && message.footer!.isNotEmpty;

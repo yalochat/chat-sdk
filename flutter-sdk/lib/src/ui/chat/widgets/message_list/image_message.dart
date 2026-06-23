@@ -30,7 +30,9 @@ class ImageMessage extends StatelessWidget {
       children: [
         Flexible(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(SdkConstants.messageBorderRadius),
+            borderRadius: BorderRadius.circular(
+              SdkConstants.messageBorderRadius,
+            ),
             child: FittedBox(
               fit: BoxFit.cover,
               child: Image.file(File(message.fileName!)),
@@ -39,10 +41,7 @@ class ImageMessage extends StatelessWidget {
         ),
         SizedBox(height: SdkConstants.columnItemSpace),
         if (message.content.isNotEmpty)
-          SelectableText(
-            message.content,
-            style: textStyle,
-          ),
+          SelectableText(message.content, style: textStyle),
       ],
     );
   }

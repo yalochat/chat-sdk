@@ -120,7 +120,6 @@ void main() {
         expect(copied.pageInfo, equals(newPageInfo));
         expect(copied.data, equals(originalData));
       });
-
     });
   });
 }

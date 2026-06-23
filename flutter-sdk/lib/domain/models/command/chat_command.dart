@@ -4,6 +4,7 @@
 enum ChatCommand {
   addToCart,
   removeFromCart,
+  updateCartProduct,
   clearCart,
   guidanceCard,
   addPromotion,

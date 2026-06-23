@@ -36,8 +36,8 @@ class YaloMessageServiceHttps implements YaloMessageService {
 
   @override
   Stream<PollMessageItem> messages() {
-    final controller =
-        _controller ??= StreamController<PollMessageItem>.broadcast();
+    final controller = _controller ??=
+        StreamController<PollMessageItem>.broadcast();
     if (!polling) {
       _startPolling();
     }

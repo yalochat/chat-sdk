@@ -70,8 +70,9 @@ class _VideoMessageState extends State<VideoMessage> {
       children: [
         Flexible(
           child: ClipRRect(
-            borderRadius:
-                BorderRadius.circular(SdkConstants.messageBorderRadius),
+            borderRadius: BorderRadius.circular(
+              SdkConstants.messageBorderRadius,
+            ),
             child: _initialized
                 ? GestureDetector(
                     onTap: _togglePlayPause,
@@ -99,10 +100,7 @@ class _VideoMessageState extends State<VideoMessage> {
         ),
         SizedBox(height: SdkConstants.columnItemSpace),
         if (widget.message.content.isNotEmpty)
-          SelectableText(
-            widget.message.content,
-            style: textStyle,
-          ),
+          SelectableText(widget.message.content, style: textStyle),
       ],
     );
   }

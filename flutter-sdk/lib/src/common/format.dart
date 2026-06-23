@@ -12,7 +12,9 @@ extension Formatter on BuildContext {
     Locale locale = Localizations.localeOf(this);
     if (_currencyFormatter == null ||
         _currencyFormatter!.locale != locale.toString()) {
-      _currencyFormatter = NumberFormat.simpleCurrency(locale: locale.toString());
+      _currencyFormatter = NumberFormat.simpleCurrency(
+        locale: locale.toString(),
+      );
     }
     return _currencyFormatter!.format(val);
   }

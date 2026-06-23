@@ -246,8 +246,7 @@ void main() {
           ),
         ).captured;
 
-        final body =
-            jsonDecode(captured[0] as String) as Map<String, dynamic>;
+        final body = jsonDecode(captured[0] as String) as Map<String, dynamic>;
         expect(body['user_type'], equals('anonymous'));
         expect(body.containsKey('user_id'), isFalse);
       });
@@ -317,49 +316,46 @@ void main() {
         );
       });
 
-      test(
-        'POSTs to $refreshUrl with form-encoded body on refresh',
-        () async {
-          // Seed an expired cache.
-          when(
-            () => mockClient.post(
-              Uri.parse(authUrl),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            ),
-          ).thenAnswer((_) async => Response(expiredAuthResponseBody(), 200));
-          await service.auth();
+      test('POSTs to $refreshUrl with form-encoded body on refresh', () async {
+        // Seed an expired cache.
+        when(
+          () => mockClient.post(
+            Uri.parse(authUrl),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response(expiredAuthResponseBody(), 200));
+        await service.auth();
 
-          // Intercept the refresh call.
-          when(
-            () => mockClient.post(
-              Uri.parse(refreshUrl),
-              headers: any(named: 'headers'),
-              body: any(named: 'body'),
-            ),
-          ).thenAnswer((_) async => Response(authResponseBody(), 200));
+        // Intercept the refresh call.
+        when(
+          () => mockClient.post(
+            Uri.parse(refreshUrl),
+            headers: any(named: 'headers'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async => Response(authResponseBody(), 200));
 
-          await service.auth();
+        await service.auth();
 
-          final captured = verify(
-            () => mockClient.post(
-              Uri.parse(refreshUrl),
-              headers: captureAny(named: 'headers'),
-              body: captureAny(named: 'body'),
-            ),
-          ).captured;
+        final captured = verify(
+          () => mockClient.post(
+            Uri.parse(refreshUrl),
+            headers: captureAny(named: 'headers'),
+            body: captureAny(named: 'body'),
+          ),
+        ).captured;
 
-          final headers = captured[0] as Map<String, String>;
-          final body = captured[1] as Map<String, String>;
+        final headers = captured[0] as Map<String, String>;
+        final body = captured[1] as Map<String, String>;
 
-          expect(
-            headers['Content-Type'],
-            equals('application/x-www-form-urlencoded'),
-          );
-          expect(body['grant_type'], equals('refresh_token'));
-          expect(body['refresh_token'], equals(refreshToken));
-        },
-      );
+        expect(
+          headers['Content-Type'],
+          equals('application/x-www-form-urlencoded'),
+        );
+        expect(body['grant_type'], equals('refresh_token'));
+        expect(body['refresh_token'], equals(refreshToken));
+      });
 
       test(
         'clears cache and returns Error when refresh returns non-200',

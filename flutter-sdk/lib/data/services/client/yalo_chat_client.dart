@@ -22,9 +22,6 @@ class YaloChatClient {
   Map<ChatCommand, ChatCommandCallback> get commands =>
       Map.unmodifiable(_commands);
 
-  void registerCommand(
-    ChatCommand command,
-    ChatCommandCallback callback,
-  ) =>
+  void registerCommand(ChatCommand command, ChatCommandCallback callback) =>
       _commands[command] = callback;
 }

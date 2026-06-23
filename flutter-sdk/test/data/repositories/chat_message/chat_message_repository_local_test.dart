@@ -74,12 +74,7 @@ void main() {
           role: MessageRole.user,
           timestamp: clock.now(),
           products: [
-            Product(
-              sku: '123',
-              name: '123',
-              price: 30.0,
-              unitName: 'box',
-            ),
+            Product(sku: '123', name: '123', price: 30.0, unitName: 'box'),
           ],
         );
 
@@ -87,12 +82,7 @@ void main() {
           role: MessageRole.user,
           timestamp: clock.now(),
           products: [
-            Product(
-              sku: '123',
-              name: '123',
-              price: 30.0,
-              unitName: 'box',
-            ),
+            Product(sku: '123', name: '123', price: 30.0, unitName: 'box'),
           ],
         );
 
@@ -260,12 +250,7 @@ void main() {
         role: MessageRole.assistant,
         timestamp: clock.now(),
         products: [
-          Product(
-            sku: '123',
-            name: '123',
-            price: 30.0,
-            unitName: 'box',
-          ),
+          Product(sku: '123', name: '123', price: 30.0, unitName: 'box'),
         ],
       );
       var result = await chatRepository.insertChatMessage(message);
@@ -275,12 +260,7 @@ void main() {
 
       ChatMessage newMessage = okRes.result.copyWith(
         products: [
-          Product(
-            sku: '123',
-            name: 'Test',
-            price: 300,
-            unitName: 'box',
-          ),
+          Product(sku: '123', name: 'Test', price: 300, unitName: 'box'),
         ],
       );
 
@@ -303,14 +283,7 @@ void main() {
       expect(products.length, equals(1));
       expect(
         products[0],
-        equals(
-          Product(
-            sku: '123',
-            name: 'Test',
-            price: 300,
-            unitName: 'box',
-          ),
-        ),
+        equals(Product(sku: '123', name: 'Test', price: 300, unitName: 'box')),
       );
     }, tags: ['integration']);
 
@@ -323,12 +296,7 @@ void main() {
           amplitudes: [3.0],
           duration: 1,
           products: [
-            Product(
-              sku: '123',
-              name: '123',
-              price: 30.0,
-              unitName: 'box',
-            ),
+            Product(sku: '123', name: '123', price: 30.0, unitName: 'box'),
           ],
           type: MessageType.text,
         );
@@ -339,12 +307,7 @@ void main() {
 
         ChatMessage newMessage = okRes.result.copyWith(
           products: [
-            Product(
-              sku: '123',
-              name: 'Test',
-              price: 300,
-              unitName: 'box',
-            ),
+            Product(sku: '123', name: 'Test', price: 300, unitName: 'box'),
           ],
         );
 
@@ -368,12 +331,7 @@ void main() {
         expect(
           products[0],
           equals(
-            Product(
-              sku: '123',
-              name: 'Test',
-              price: 300,
-              unitName: 'box',
-            ),
+            Product(sku: '123', name: 'Test', price: 300, unitName: 'box'),
           ),
         );
       },
@@ -444,12 +402,7 @@ void main() {
           role: MessageRole.user,
           timestamp: clock.now(),
           products: [
-            Product(
-              sku: '123',
-              name: '123',
-              price: 30.0,
-              unitName: 'box',
-            ),
+            Product(sku: '123', name: '123', price: 30.0, unitName: 'box'),
           ],
         );
 

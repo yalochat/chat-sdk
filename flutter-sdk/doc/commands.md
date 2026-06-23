@@ -30,6 +30,7 @@ client.registerCommand(ChatCommand.removeFromCart, (payload) {
 
 - **`ChatCommand.addToCart`**: Triggered when the user increases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double }`.
 - **`ChatCommand.removeFromCart`**: Triggered when the user decreases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double? }`.
+- **`ChatCommand.updateCartProduct`**: Triggered when the user confirms a product confirmation card. Sets the absolute units and subunits for the product. Callback payload: `{ 'sku': String, 'units': double, 'subunits': double }`.
 - **`ChatCommand.clearCart`**: Triggered when the cart is cleared. Callback payload: `null`.
 - **`ChatCommand.guidanceCard`**: Triggered when guidance cards are requested. Callback payload: `null`.
 - **`ChatCommand.addPromotion`**: Triggered when a promotion is applied. Callback payload: `{ 'promotionId': String }`.
