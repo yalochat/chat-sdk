@@ -12,6 +12,10 @@ abstract final class SdkConstants {
   static const double messagePadding = 16;
   static const double quickReplyPadding = 8;
   static const double quickReplyHeight = 48;
+  // Duration of the expand animation when the quick replies container appears.
+  static const Duration quickReplyAnimationDuration = Duration(
+    milliseconds: 300,
+  );
   static const double appBarPreferredSize = 64;
 
   static const double maxChatInputSize = 120;

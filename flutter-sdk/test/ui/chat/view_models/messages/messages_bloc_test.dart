@@ -814,6 +814,40 @@ void main() {
       );
 
       blocTest<MessagesBloc, MessagesState>(
+        'should clear quick replies when the user sends a text message',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(quickReplies: ['Yes', 'No']),
+        act: (bloc) {
+          final inserted = ChatMessage(
+            id: 1,
+            role: MessageRole.user,
+            type: MessageType.text,
+            content: 'Something else',
+            timestamp: fixedClock.now(),
+          );
+          when(
+            () => chatMessageRepository.insertChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(inserted));
+          when(
+            () => yaloMessageRepository.sendMessage(any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+          bloc.add(ChatSendTextMessage(text: 'Something else'));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.quickReplies,
+            'quickReplies',
+            isEmpty,
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
         'should mark a text message as error when sending to yalo fails',
         build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
@@ -1118,6 +1152,119 @@ void main() {
                 equals(ChatStatus.success),
               )
               .having((state) => state.isLoading, 'loading', equals(false)),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should surface quick replies from the latest message on initial load',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.getChatMessagePageDesc(
+              null,
+              SdkConstants.defaultPageSize,
+            ),
+          ).thenAnswer(
+            (_) async => Result.ok(
+              Page<ChatMessage>(
+                data: [
+                  ChatMessage(
+                    id: 2,
+                    role: MessageRole.assistant,
+                    type: MessageType.text,
+                    content: 'How can I help?',
+                    buttons: const [
+                      Button(text: 'Track order', type: ButtonType.reply),
+                      Button(text: 'Talk to agent', type: ButtonType.reply),
+                    ],
+                    timestamp: fixedClock.now(),
+                  ),
+                  ChatMessage(
+                    id: 1,
+                    role: MessageRole.user,
+                    type: MessageType.text,
+                    content: 'Hi',
+                    timestamp: fixedClock.now(),
+                  ),
+                ],
+                pageInfo: PageInfo(pageSize: SdkConstants.defaultPageSize),
+              ),
+            ),
+          );
+          bloc.add(ChatLoadMessages(direction: PageDirection.initial));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.isLoading,
+            'is loading',
+            equals(true),
+          ),
+          isA<MessagesState>().having(
+            (state) => state.quickReplies,
+            'quickReplies',
+            equals(['Track order', 'Talk to agent']),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should leave quick replies empty on initial load when the latest message is from the user',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.getChatMessagePageDesc(
+              null,
+              SdkConstants.defaultPageSize,
+            ),
+          ).thenAnswer(
+            (_) async => Result.ok(
+              Page<ChatMessage>(
+                data: [
+                  ChatMessage(
+                    id: 2,
+                    role: MessageRole.user,
+                    type: MessageType.text,
+                    content: 'Track order',
+                    timestamp: fixedClock.now(),
+                  ),
+                  ChatMessage(
+                    id: 1,
+                    role: MessageRole.assistant,
+                    type: MessageType.text,
+                    content: 'How can I help?',
+                    buttons: const [
+                      Button(text: 'Track order', type: ButtonType.reply),
+                    ],
+                    timestamp: fixedClock.now(),
+                  ),
+                ],
+                pageInfo: PageInfo(pageSize: SdkConstants.defaultPageSize),
+              ),
+            ),
+          );
+          bloc.add(ChatLoadMessages(direction: PageDirection.initial));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.isLoading,
+            'is loading',
+            equals(true),
+          ),
+          isA<MessagesState>().having(
+            (state) => state.quickReplies,
+            'quickReplies',
+            isEmpty,
+          ),
         ],
       );
 
@@ -1540,6 +1687,41 @@ void main() {
                 url: 'https://example.com',
               ),
             ],
+            timestamp: fixedClock.now(),
+          );
+          when(
+            () => yaloMessageRepository.messages(),
+          ).thenAnswer((_) => fakeStream.stream.asBroadcastStream());
+          when(
+            () => chatMessageRepository.insertChatMessage(chatMessageStub),
+          ).thenAnswer((_) async => Result.ok(chatMessageStub.copyWith(id: 1)));
+          bloc.add(ChatSubscribeToMessages());
+
+          fakeStream.sink.add(chatMessageStub);
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (s) => s.quickReplies,
+            'quickReplies',
+            isEmpty,
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should clear previously shown quick replies when a new assistant message without reply buttons arrives',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(quickReplies: ['Yes', 'No']),
+        act: (bloc) {
+          final chatMessageStub = ChatMessage(
+            role: MessageRole.assistant,
+            type: MessageType.text,
+            content: 'Anything else?',
             timestamp: fixedClock.now(),
           );
           when(
