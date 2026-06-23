@@ -162,10 +162,12 @@ void main() {
       });
     });
 
-    testWidgets('should create a service with default parameters', (tester) async {
+    testWidgets('should create a service with default parameters', (
+      tester,
+    ) async {
       final service = AudioServiceFile();
       expect(service, isA<AudioServiceFile>());
       service.dispose();
-    }, tags:['integration']);
+    }, tags: ['integration']);
   });
 }

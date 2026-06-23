@@ -52,7 +52,9 @@ class AssistantProductMessage extends StatelessWidget {
               : size.height * 0.5;
           maxWidth = constraints.maxWidth;
         } else {
-          maxWidth = orientation == Orientation.portrait ? constraints.maxWidth * 0.6 : constraints.maxWidth * 0.3;
+          maxWidth = orientation == Orientation.portrait
+              ? constraints.maxWidth * 0.6
+              : constraints.maxWidth * 0.3;
           maxHeight = double.infinity;
         }
         final children = [
@@ -115,9 +117,7 @@ class AssistantProductMessage extends StatelessWidget {
               ),
         ];
         return (direction == Axis.vertical)
-            ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: children)
+            ? Column(mainAxisSize: MainAxisSize.min, children: children)
             : SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(children: children),

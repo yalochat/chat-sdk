@@ -138,9 +138,7 @@ void main() {
       expect(channels, hasLength(1));
       expect(
         channels.single.uri.toString(),
-        equals(
-          'wss://api.example.com/websocket/v1/connect/inapp?token=abc',
-        ),
+        equals('wss://api.example.com/websocket/v1/connect/inapp?token=abc'),
       );
     });
 
@@ -152,10 +150,7 @@ void main() {
       service.messages().listen((_) {});
       await Future.delayed(Duration.zero);
 
-      expect(
-        channels.single.uri.queryParameters['token'],
-        equals('a b/c?d=1'),
-      );
+      expect(channels.single.uri.queryParameters['token'], equals('a b/c?d=1'));
     });
 
     test('emits decoded PollMessageItem for incoming text frames', () async {
@@ -178,21 +173,23 @@ void main() {
       );
     });
 
-    test('drops PollMessageItem frames that arrive before the connection ack',
-        () async {
-      when(
-        () => auth.auth(),
-      ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+    test(
+      'drops PollMessageItem frames that arrive before the connection ack',
+      () async {
+        when(
+          () => auth.auth(),
+        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
 
-      final received = <PollMessageItem>[];
-      service.messages().listen(received.add);
-      await Future.delayed(Duration.zero);
+        final received = <PollMessageItem>[];
+        service.messages().listen(received.add);
+        await Future.delayed(Duration.zero);
 
-      channels.single.emit(_incomingFrame);
-      await Future.delayed(Duration.zero);
+        channels.single.emit(_incomingFrame);
+        await Future.delayed(Duration.zero);
 
-      expect(received, isEmpty);
-    });
+        expect(received, isEmpty);
+      },
+    );
 
     test('ignores malformed frames without crashing', () async {
       when(
@@ -231,57 +228,54 @@ void main() {
       expect(afterAck, isA<Ok<Unit>>());
       expect(channels.single.sent, hasLength(2));
       final firstBody =
-          jsonDecode(channels.single.sent[0] as String)
-              as Map<String, dynamic>;
+          jsonDecode(channels.single.sent[0] as String) as Map<String, dynamic>;
       final secondBody =
-          jsonDecode(channels.single.sent[1] as String)
-              as Map<String, dynamic>;
-      expect(
-        firstBody['textMessageRequest']['content']['text'],
-        equals('one'),
-      );
+          jsonDecode(channels.single.sent[1] as String) as Map<String, dynamic>;
+      expect(firstBody['textMessageRequest']['content']['text'], equals('one'));
       expect(
         secondBody['textMessageRequest']['content']['text'],
         equals('two'),
       );
     });
 
-    test('buffers frames again after a close and flushes them on the next ack',
-        () {
-      fakeAsync((async) {
-        when(
-          () => auth.auth(),
-        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+    test(
+      'buffers frames again after a close and flushes them on the next ack',
+      () {
+        fakeAsync((async) {
+          when(
+            () => auth.auth(),
+          ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
 
-        service.messages().listen((_) {});
-        async.flushMicrotasks();
-        channels.single.emit(_ackFrame);
-        async.flushMicrotasks();
+          service.messages().listen((_) {});
+          async.flushMicrotasks();
+          channels.single.emit(_ackFrame);
+          async.flushMicrotasks();
 
-        channels.single.closeStream();
-        async.flushMicrotasks();
+          channels.single.closeStream();
+          async.flushMicrotasks();
 
-        service.sendSdkMessage(_textMessage('after-close'));
-        async.flushMicrotasks();
+          service.sendSdkMessage(_textMessage('after-close'));
+          async.flushMicrotasks();
 
-        async.elapse(const Duration(seconds: 1));
-        async.flushMicrotasks();
-        expect(channels, hasLength(2));
-        expect(channels.last.sent, isEmpty);
+          async.elapse(const Duration(seconds: 1));
+          async.flushMicrotasks();
+          expect(channels, hasLength(2));
+          expect(channels.last.sent, isEmpty);
 
-        channels.last.emit(_ackFrame);
-        async.flushMicrotasks();
+          channels.last.emit(_ackFrame);
+          async.flushMicrotasks();
 
-        expect(channels.last.sent, hasLength(1));
-        final body =
-            jsonDecode(channels.last.sent.single as String)
-                as Map<String, dynamic>;
-        expect(
-          body['textMessageRequest']['content']['text'],
-          equals('after-close'),
-        );
-      });
-    });
+          expect(channels.last.sent, hasLength(1));
+          final body =
+              jsonDecode(channels.last.sent.single as String)
+                  as Map<String, dynamic>;
+          expect(
+            body['textMessageRequest']['content']['text'],
+            equals('after-close'),
+          );
+        });
+      },
+    );
 
     test(
       'sendSdkMessage returns Error when called before any listener subscribes',
@@ -298,34 +292,36 @@ void main() {
       },
     );
 
-    test('reconnects with exponential backoff after the socket closes',
-        () async {
-      fakeAsync((async) {
-        when(
-          () => auth.auth(),
-        ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
+    test(
+      'reconnects with exponential backoff after the socket closes',
+      () async {
+        fakeAsync((async) {
+          when(
+            () => auth.auth(),
+          ).thenAnswer((_) async => Result.ok(_tokenEntry('abc')));
 
-        service.messages().listen((_) {});
-        async.flushMicrotasks();
-        expect(channels, hasLength(1));
+          service.messages().listen((_) {});
+          async.flushMicrotasks();
+          expect(channels, hasLength(1));
 
-        channels.first.closeStream();
-        async.flushMicrotasks();
+          channels.first.closeStream();
+          async.flushMicrotasks();
 
-        async.elapse(const Duration(milliseconds: 999));
-        expect(channels, hasLength(1));
+          async.elapse(const Duration(milliseconds: 999));
+          expect(channels, hasLength(1));
 
-        async.elapse(const Duration(milliseconds: 2));
-        async.flushMicrotasks();
-        expect(channels, hasLength(2));
+          async.elapse(const Duration(milliseconds: 2));
+          async.flushMicrotasks();
+          expect(channels, hasLength(2));
 
-        channels.last.closeStream();
-        async.flushMicrotasks();
-        async.elapse(const Duration(seconds: 2));
-        async.flushMicrotasks();
-        expect(channels, hasLength(3));
-      });
-    });
+          channels.last.closeStream();
+          async.flushMicrotasks();
+          async.elapse(const Duration(seconds: 2));
+          async.flushMicrotasks();
+          expect(channels, hasLength(3));
+        });
+      },
+    );
 
     test('schedules a reconnect when auth fails', () {
       fakeAsync((async) {

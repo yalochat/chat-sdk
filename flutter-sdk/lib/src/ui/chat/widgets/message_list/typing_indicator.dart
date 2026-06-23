@@ -100,10 +100,7 @@ class _AnimatedDot extends StatelessWidget {
             child: Container(
               width: TypingIndicator.dotSize,
               height: TypingIndicator.dotSize,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
           ),
         );

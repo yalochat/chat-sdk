@@ -42,4 +42,13 @@ abstract final class SdkColors {
     0xFF111111,
   );
   static const Color messageFooterColorLight = Color(0xFF7C8086);
+  static const Color productConfirmationButtonColorLight = Color(0xFF111111);
+  static const Color productConfirmationButtonForegroundColorLight = Color(
+    0xFFFFFFFF,
+  );
+  static const Color productConfirmationButtonConfirmedColorLight = Color(
+    0xFF0B996D,
+  );
+  static const Color productConfirmationButtonConfirmedForegroundColorLight =
+      Color(0xFFFFFFFF);
 }

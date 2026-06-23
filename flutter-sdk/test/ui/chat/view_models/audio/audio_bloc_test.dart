@@ -415,9 +415,7 @@ void main() {
               Duration(milliseconds: AudioBloc.recordTickMs),
             ),
           ).thenAnswer((_) => amplitudeStream);
-          when(
-            () => waveformCompressor.snapshot(),
-          ).thenReturn([-3.0, -160.0]);
+          when(() => waveformCompressor.snapshot()).thenReturn([-3.0, -160.0]);
           bloc.add(AudioAmplitudeSubscribe());
         },
         expect: () => [

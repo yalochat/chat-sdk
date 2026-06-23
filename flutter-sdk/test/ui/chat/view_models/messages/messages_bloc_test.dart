@@ -511,8 +511,7 @@ void main() {
             () => chatMessageRepository.insertChatMessage(any()),
           ).thenAnswer((_) async => Result.error(Exception('test error')));
           final Future<MessagesState> failureEmitted = bloc.stream.firstWhere(
-            (MessagesState s) =>
-                s.chatStatus == ChatStatus.failedMessageSent,
+            (MessagesState s) => s.chatStatus == ChatStatus.failedMessageSent,
           );
           bloc.add(
             ChatSendVoiceMessage(
@@ -1296,9 +1295,7 @@ void main() {
           bloc.add(ChatLoadMessages(direction: PageDirection.initial));
         },
         verify: (_) {
-          verify(
-            () => yaloMessageRepository.requestGuidanceCard(),
-          ).called(1);
+          verify(() => yaloMessageRepository.requestGuidanceCard()).called(1);
         },
       );
 
@@ -1803,9 +1800,7 @@ void main() {
               content: 'Writing a message..',
             ),
           );
-          fakeStream.sink.add(
-            ChatMessage.chatStatus(timestamp: clock.now()),
-          );
+          fakeStream.sink.add(ChatMessage.chatStatus(timestamp: clock.now()));
         },
         expect: () => [
           isA<MessagesState>()
@@ -2439,6 +2434,95 @@ void main() {
       );
     });
 
+    group('confirm product confirmation', () {
+      ChatMessage confirmationSeed({
+        MessageStatus status = MessageStatus.inProgress,
+      }) {
+        return ChatMessage.productConfirmation(
+          id: 7,
+          role: MessageRole.assistant,
+          timestamp: clock.now(),
+          status: status,
+          header: 'Added to cart',
+          content: 'You have 3 bags',
+          footer: 'Continue shopping',
+          button: const Button(text: 'Done', type: ButtonType.postback),
+          product: const Product(
+            sku: 'sku-9',
+            name: '',
+            price: 0,
+            unitName: '',
+            unitsAdded: 3,
+            subunitsAdded: 2,
+          ),
+        );
+      }
+
+      blocTest<MessagesBloc, MessagesState>(
+        'marks the confirmation as clicked, persists it and updates the cart',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: clock,
+        ),
+        seed: () => MessagesState(messages: [confirmationSeed()]),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.replaceChatMessage(any()),
+          ).thenAnswer((_) async => Result.ok(true));
+          when(
+            () => yaloMessageRepository.updateCartProduct(any(), any(), any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          bloc.add(ChatConfirmProductConfirmation(messageId: 7));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (s) => s.messages.first.status,
+            'status',
+            MessageStatus.clicked,
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => yaloMessageRepository.updateCartProduct('sku-9', 3, 2),
+          ).called(1);
+          verify(
+            () => chatMessageRepository.replaceChatMessage(
+              any(
+                that: isA<ChatMessage>().having(
+                  (m) => m.status,
+                  'status',
+                  MessageStatus.clicked,
+                ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'does nothing when the confirmation was already confirmed',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: clock,
+        ),
+        seed: () => MessagesState(
+          messages: [confirmationSeed(status: MessageStatus.clicked)],
+        ),
+        act: (bloc) => bloc.add(ChatConfirmProductConfirmation(messageId: 7)),
+        expect: () => [],
+        verify: (_) {
+          verifyNever(
+            () => yaloMessageRepository.updateCartProduct(any(), any(), any()),
+          );
+        },
+      );
+    });
+
     group('toggle message expand', () {
       blocTest<MessagesBloc, MessagesState>(
         'should correctly toggle expanded to true and false in a existing message',
@@ -2550,21 +2634,13 @@ void main() {
         act: (bloc) => bloc.add(ChatClearQuickReplies()),
         expect: () => [
           isA<MessagesState>()
-              .having(
-                (state) => state.quickReplies,
-                'quickReplies',
-                equals([]),
-              )
+              .having((state) => state.quickReplies, 'quickReplies', equals([]))
               .having(
                 (state) => state.userMessage,
                 'userMessage',
                 equals('some input'),
               )
-              .having(
-                (state) => state.isConnected,
-                'isConnected',
-                equals(true),
-              )
+              .having((state) => state.isConnected, 'isConnected', equals(true))
               .having(
                 (state) => state.messages.length,
                 'messages length',
@@ -2617,11 +2693,7 @@ void main() {
           verify(
             () => yaloMessageRepository.sendMessage(
               any(
-                that: isA<ChatMessage>().having(
-                  (m) => m.id,
-                  'id',
-                  equals(1),
-                ),
+                that: isA<ChatMessage>().having((m) => m.id, 'id', equals(1)),
               ),
             ),
           ).called(1);
@@ -2983,48 +3055,43 @@ void main() {
         ],
       );
 
-      test(
-        'should clear isAwaitingResponse after the 1 minute timeout',
-        () {
-          fakeAsync((async) {
-            final clock = Clock.fixed(DateTime.now());
-            when(
-              () => chatMessageRepository.insertChatMessage(any()),
-            ).thenAnswer(
-              (_) async => Result.ok(
-                ChatMessage(
-                  id: 1,
-                  role: MessageRole.user,
-                  type: MessageType.text,
-                  content: 'Test message',
-                  timestamp: clock.now(),
-                ),
+      test('should clear isAwaitingResponse after the 1 minute timeout', () {
+        fakeAsync((async) {
+          final clock = Clock.fixed(DateTime.now());
+          when(() => chatMessageRepository.insertChatMessage(any())).thenAnswer(
+            (_) async => Result.ok(
+              ChatMessage(
+                id: 1,
+                role: MessageRole.user,
+                type: MessageType.text,
+                content: 'Test message',
+                timestamp: clock.now(),
               ),
-            );
-            final timeoutBloc = MessagesBloc(
-              chatMessageRepository: chatMessageRepository,
-              imageRepository: imageRepository,
-              yaloMessageRepository: yaloMessageRepository,
-              clock: clock,
-            );
-            addTearDown(timeoutBloc.close);
+            ),
+          );
+          final timeoutBloc = MessagesBloc(
+            chatMessageRepository: chatMessageRepository,
+            imageRepository: imageRepository,
+            yaloMessageRepository: yaloMessageRepository,
+            clock: clock,
+          );
+          addTearDown(timeoutBloc.close);
 
-            timeoutBloc.add(ChatSendTextMessage(text: 'Test message'));
-            async.flushMicrotasks();
-            expect(timeoutBloc.state.isAwaitingResponse, isTrue);
+          timeoutBloc.add(ChatSendTextMessage(text: 'Test message'));
+          async.flushMicrotasks();
+          expect(timeoutBloc.state.isAwaitingResponse, isTrue);
 
-            // Just under one minute - still waiting.
-            async.elapse(const Duration(seconds: 59));
-            async.flushMicrotasks();
-            expect(timeoutBloc.state.isAwaitingResponse, isTrue);
+          // Just under one minute - still waiting.
+          async.elapse(const Duration(seconds: 59));
+          async.flushMicrotasks();
+          expect(timeoutBloc.state.isAwaitingResponse, isTrue);
 
-            // Crossing the 1 minute mark fires the timeout.
-            async.elapse(const Duration(seconds: 1));
-            async.flushMicrotasks();
-            expect(timeoutBloc.state.isAwaitingResponse, isFalse);
-          });
-        },
-      );
+          // Crossing the 1 minute mark fires the timeout.
+          async.elapse(const Duration(seconds: 1));
+          async.flushMicrotasks();
+          expect(timeoutBloc.state.isAwaitingResponse, isFalse);
+        });
+      });
     });
 
     group('lifecycle', () {

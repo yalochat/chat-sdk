@@ -20,6 +20,13 @@ abstract class YaloMessageRepository {
   // If [quantity] is null, the entire SKU line is removed.
   Future<Result<Unit>> removeFromCart(String sku, {double? quantity});
 
+  // Sets the absolute units and subunits of a product in the active cart.
+  Future<Result<Unit>> updateCartProduct(
+    String sku,
+    double units,
+    double subunits,
+  );
+
   // Empties the active cart entirely.
   Future<Result<Unit>> clearCart();
 

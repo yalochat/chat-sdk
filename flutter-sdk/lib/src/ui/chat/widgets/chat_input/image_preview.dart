@@ -46,7 +46,10 @@ class ImagePreview extends StatelessWidget {
           ),
 
           IconButton(
-            icon: Icon(chatTheme.state.trashIcon, color: chatTheme.state.trashIconColor),
+            icon: Icon(
+              chatTheme.state.trashIcon,
+              color: chatTheme.state.trashIconColor,
+            ),
             iconSize: SdkConstants.imagePreviewIconSize,
             onPressed: () {
               imageBloc.add(ImageCancelPick());

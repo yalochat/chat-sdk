@@ -90,6 +90,6 @@ class MessagesState extends Equatable {
     chatStatus,
     chatStatusText,
     pageInfo,
-    quickReplies
+    quickReplies,
   ];
 }

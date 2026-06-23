@@ -46,8 +46,8 @@ class YaloMessageServiceWebSocket implements YaloMessageService {
 
   @override
   Stream<PollMessageItem> messages() {
-    final controller =
-        _controller ??= StreamController<PollMessageItem>.broadcast();
+    final controller = _controller ??=
+        StreamController<PollMessageItem>.broadcast();
     if (!_running) {
       _running = true;
       _connect();

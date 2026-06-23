@@ -16,11 +16,11 @@ final class AudioRepositoryLocal implements AudioRepository {
 
   AudioRepositoryLocal(
     AudioService audioService,
-    Future<Directory> Function() directory,
-    [Uuid? uuid]
-  ) : _audioService = audioService,
-      _directory = directory,
-      _uuid = uuid ?? Uuid();
+    Future<Directory> Function() directory, [
+    Uuid? uuid,
+  ]) : _audioService = audioService,
+       _directory = directory,
+       _uuid = uuid ?? Uuid();
 
   @override
   Future<Result<String>> recordAudio() async {

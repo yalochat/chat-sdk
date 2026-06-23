@@ -1623,6 +1623,98 @@ void main() {
         },
       );
     });
+
+    group('product confirmation', () {
+      ChatMessage confirmation({
+        MessageStatus status = MessageStatus.delivered,
+      }) {
+        return ChatMessage.productConfirmation(
+          id: 90,
+          role: MessageRole.assistant,
+          timestamp: clock.now(),
+          status: status,
+          header: 'Added to cart',
+          content: 'You have 3 bags',
+          footer: 'Continue shopping',
+          button: const Button(text: 'Done', type: ButtonType.postback),
+          product: const Product(
+            sku: 'sku-9',
+            name: '',
+            price: 0,
+            unitName: '',
+            unitsAdded: 3,
+          ),
+        );
+      }
+
+      testWidgets('renders header, content, button and footer', (tester) async {
+        when(
+          () => chatBloc.state,
+        ).thenReturn(MessagesState(messages: [confirmation()]));
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.text('Added to cart'), findsOneWidget);
+        expect(find.text('You have 3 bags'), findsOneWidget);
+        expect(find.text('Done'), findsOneWidget);
+        expect(find.text('Continue shopping'), findsOneWidget);
+      });
+
+      testWidgets('confirms and shows the confirmed state when tapped', (
+        tester,
+      ) async {
+        when(
+          () => chatBloc.state,
+        ).thenReturn(MessagesState(messages: [confirmation()]));
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+        await tester.tap(find.byKey(const Key('product_confirmation_button')));
+        await tester.pump();
+
+        verify(
+          () => chatBloc.add(ChatConfirmProductConfirmation(messageId: 90)),
+        ).called(1);
+        expect(find.byIcon(Icons.check), findsOneWidget);
+        final button = tester.widget<FilledButton>(
+          find.byKey(const Key('product_confirmation_button')),
+        );
+        expect(button.onPressed, isNull);
+      });
+
+      testWidgets('renders as already confirmed when status is clicked', (
+        tester,
+      ) async {
+        when(() => chatBloc.state).thenReturn(
+          MessagesState(
+            messages: [confirmation(status: MessageStatus.clicked)],
+          ),
+        );
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.byIcon(Icons.check), findsOneWidget);
+        final button = tester.widget<FilledButton>(
+          find.byKey(const Key('product_confirmation_button')),
+        );
+        expect(button.onPressed, isNull);
+      });
+
+      testWidgets('sends the footer text as a message when tapped', (
+        tester,
+      ) async {
+        when(
+          () => chatBloc.state,
+        ).thenReturn(MessagesState(messages: [confirmation()]));
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+        await tester.tap(find.byKey(const Key('product_confirmation_footer')));
+        await tester.pump();
+
+        verify(
+          () => chatBloc.add(ChatSendTextMessage(text: 'Continue shopping')),
+        ).called(1);
+      });
+    });
   });
 }
 

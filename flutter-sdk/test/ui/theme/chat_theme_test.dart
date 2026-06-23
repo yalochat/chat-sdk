@@ -1,6 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-
 import 'package:yalo_chat_flutter_sdk/ui/theme/chat_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,7 +40,10 @@ void main() {
       expect(updatedTheme.backgroundColor, Colors.red);
       expect(updatedTheme.sendButtonIcon, Icons.send);
       expect(updatedTheme.userMessageColor, originalTheme.userMessageColor);
-      expect(updatedTheme.userMessageTextStyle, originalTheme.userMessageTextStyle);
+      expect(
+        updatedTheme.userMessageTextStyle,
+        originalTheme.userMessageTextStyle,
+      );
     });
 
     test('copyWith with null values should keep original values', () {
@@ -63,8 +65,14 @@ void main() {
 
       expect(chatTheme.backgroundColor, materialTheme.colorScheme.surface);
       expect(chatTheme.sendButtonColor, materialTheme.colorScheme.primary);
-      expect(chatTheme.sendButtonForegroundColor, materialTheme.colorScheme.onPrimary);
-      expect(chatTheme.userMessageColor, materialTheme.colorScheme.surfaceContainerHighest);
+      expect(
+        chatTheme.sendButtonForegroundColor,
+        materialTheme.colorScheme.onPrimary,
+      );
+      expect(
+        chatTheme.userMessageColor,
+        materialTheme.colorScheme.surfaceContainerHighest,
+      );
     });
 
     test('fromThemeData with base theme should override specific values', () {

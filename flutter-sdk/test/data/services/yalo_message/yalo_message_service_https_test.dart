@@ -346,10 +346,9 @@ void main() {
         ]''';
 
       void stubAuth() {
-        when(
-          () => mockAuthService.auth(),
-        ).thenAnswer(
-          (_) async => Result.ok(_makeTokenEntry(_makeJwtToken(userId), userId)),
+        when(() => mockAuthService.auth()).thenAnswer(
+          (_) async =>
+              Result.ok(_makeTokenEntry(_makeJwtToken(userId), userId)),
         );
       }
 
@@ -386,19 +385,15 @@ void main() {
           () => mockClient.get(any(), headers: any(named: 'headers')),
         ).thenAnswer((_) async => Response('', 500));
 
-        await expectLater(
-          service.messages(),
-          emitsError(isA<Exception>()),
-        );
+        await expectLater(service.messages(), emitsError(isA<Exception>()));
       });
     });
 
     group('pause/resume', () {
       void stubEmptyPoll() {
-        when(
-          () => mockAuthService.auth(),
-        ).thenAnswer(
-          (_) async => Result.ok(_makeTokenEntry(_makeJwtToken(userId), userId)),
+        when(() => mockAuthService.auth()).thenAnswer(
+          (_) async =>
+              Result.ok(_makeTokenEntry(_makeJwtToken(userId), userId)),
         );
         when(
           () => mockClient.get(any(), headers: any(named: 'headers')),

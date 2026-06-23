@@ -181,6 +181,33 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   @override
+  Future<Result<Unit>> updateCartProduct(
+    String sku,
+    double units,
+    double subunits,
+  ) async {
+    final ChatCommandCallback? callback =
+        yaloChatClient.commands[ChatCommand.updateCartProduct];
+    if (callback != null) {
+      callback({'sku': sku, 'units': units, 'subunits': subunits});
+      return Result.ok(Unit());
+    }
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage request = proto.SdkMessage(
+      correlationId:
+          'update-cart-product-$sku-${timestamp.millisecondsSinceEpoch}',
+      timestamp: Timestamp.fromDateTime(timestamp),
+      updateCartProductRequest: proto.UpdateCartProductRequest(
+        sku: sku,
+        units: units,
+        subunits: subunits,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    return messageService.sendSdkMessage(request);
+  }
+
+  @override
   Future<Result<Unit>> clearCart() async {
     final ChatCommandCallback? callback =
         yaloChatClient.commands[ChatCommand.clearCart];

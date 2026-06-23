@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('ImageEvent', () {
     group(ImagePickFromCamera, () {
-
       test('should support equality comparison', () {
         final event1 = ImagePickFromCamera();
         final event2 = ImagePickFromCamera();
@@ -15,7 +14,6 @@ void main() {
     });
 
     group(ImagePickFromGallery, () {
-
       test('should support equality comparison', () {
         final event1 = ImagePickFromGallery();
         final event2 = ImagePickFromGallery();
@@ -24,7 +22,6 @@ void main() {
     });
 
     group(ImageCancelPick, () {
-
       test('should support equality comparison', () {
         final event1 = ImageCancelPick();
         final event2 = ImageCancelPick();
@@ -33,7 +30,6 @@ void main() {
     });
 
     group(ImageHidePreview, () {
-
       test('should support equality comparison', () {
         final event1 = ImageHidePreview();
         final event2 = ImageHidePreview();

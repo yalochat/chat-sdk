@@ -62,9 +62,7 @@ List<SingleChildWidget> repositoryProviders(
     ),
 
     Provider<CameraService>(create: (_) => CameraServiceFile()),
-    Provider<FlutterSecureStorage>(
-      create: (_) => const FlutterSecureStorage(),
-    ),
+    Provider<FlutterSecureStorage>(create: (_) => const FlutterSecureStorage()),
     Provider<YaloMessageAuthService>(
       create: (context) => YaloMessageAuthServiceRemote(
         baseUrl: const String.fromEnvironment('YALO_SDK_CHAT_URL'),
