@@ -925,6 +925,31 @@ describe('ChatMessageList', () => {
       ]);
     });
 
+    it('does not render quick replies for a product confirmation call to action', async () => {
+      const list = await renderList([
+        ChatMessage.productConfirmation({
+          id: 250,
+          role: 'AGENT',
+          timestamp,
+          content: 'You have 3 bags',
+          header: 'Added to cart',
+          footer: 'Tap to undo',
+          button: { text: 'Continue' },
+          product: new Product({
+            sku: 'SKU-1',
+            name: '',
+            price: 0,
+            unitName: '',
+          }),
+        }),
+      ]);
+
+      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies');
+      await (quickReplies as LitElement).updateComplete;
+      const container = quickReplies!.shadowRoot!.querySelector('.container');
+      expect(container?.classList.contains('open')).toBe(false);
+    });
+
     it('keeps the emerging section closed when there are no reply buttons in the latest message', async () => {
       const list = await renderList([
         ChatMessage.text({

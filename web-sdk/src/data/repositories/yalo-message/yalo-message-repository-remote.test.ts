@@ -880,7 +880,7 @@ describe('YaloMessageRepositoryRemote', () => {
         header: 'Added to cart',
         content: 'You have 3 bags',
         footer: 'Tap to undo',
-        buttons: [{ text: 'Continue', type: 'reply' }],
+        buttons: [{ text: 'Continue' }],
         products: [
           {
             sku: 'SKU-1',
@@ -892,6 +892,9 @@ describe('YaloMessageRepositoryRemote', () => {
           },
         ],
       });
+
+      const message = callback.mock.calls[0][0][0] as ChatMessage;
+      expect(message.buttons[0].type).toBeUndefined();
     });
 
     it('omits subunits on the confirmed product when not provided', () => {

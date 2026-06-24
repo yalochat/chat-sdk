@@ -239,7 +239,9 @@ export function pollMessageItemToChatMessage(
       content: req.body,
       header: req.header,
       footer: req.footer,
-      button: toMessageButton(req.button!),
+      // Confirmation cards send a CTA button without a meaningful type. Leave
+      // the type undefined so it is not picked up as a quick reply.
+      button: { text: req.button!.text, url: req.button!.url },
       product: new Product({
         sku: req.sku,
         name: '',
