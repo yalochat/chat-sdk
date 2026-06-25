@@ -10,7 +10,7 @@ export type MessageButtonType = (typeof MessageButtonTypes)[number];
 
 export type MessageButton = {
   readonly text: string;
-  readonly type: MessageButtonType;
+  readonly type?: MessageButtonType;
   readonly url?: string;
 };
 
