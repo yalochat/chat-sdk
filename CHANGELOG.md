@@ -1,11 +1,14 @@
 # Changelog
 
-## [1.0.0](https://github.com/yalochat/chat-sdk/tree/1.0.0) (2026-06-23)
+## [1.0.1](https://github.com/yalochat/chat-sdk/tree/1.0.1) (2026-06-25)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.5.0...1.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/web-sdk/bindings/go/v0.5.0...1.0.1)
 
 **Merged pull requests:**
 
+- feat: Add get cart request to .proto [\#219](https://github.com/yalochat/chat-sdk/pull/219) ([rodrigocusto](https://github.com/rodrigocusto))
+- fix: Product confirmation message no longer renders a quick reply. [\#218](https://github.com/yalochat/chat-sdk/pull/218) ([rodrigocusto](https://github.com/rodrigocusto))
+- Release web-sdk 1.0.0 [\#217](https://github.com/yalochat/chat-sdk/pull/217) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat: Added product confirmation [\#216](https://github.com/yalochat/chat-sdk/pull/216) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Add quick replies on their own container [\#215](https://github.com/yalochat/chat-sdk/pull/215) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat: Add guidance card command request [\#214](https://github.com/yalochat/chat-sdk/pull/214) ([rodrigocusto](https://github.com/rodrigocusto))
