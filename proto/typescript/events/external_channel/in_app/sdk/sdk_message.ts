@@ -479,8 +479,10 @@ export interface SdkMessage {
   addPromotionRequest?: AddPromotionRequest | undefined;
   addPromotionResponse?: AddPromotionResponse | undefined;
   updateCartProductRequest?: UpdateCartProductRequest | undefined;
-  updateCartProductResponse?:
-    | UpdateCartProductResponse
+  updateCartProductResponse?: UpdateCartProductResponse | undefined;
+  getCartRequest?: GetCartRequest | undefined;
+  getCartResponse?:
+    | GetCartResponse
     | undefined;
   /** Channel → client */
   promotionMessageRequest?: PromotionMessageRequest | undefined;
@@ -702,6 +704,79 @@ export interface UpdateCartProductRequest {
 export interface UpdateCartProductResponse {
   status: ResponseStatus;
   timestamp: Date | undefined;
+}
+
+/**
+ * PageInfo carries cursor-based pagination metadata for a page of results.
+ * All cursor and count fields are optional so a source may expose only the
+ * subset it can compute (e.g. cursors without a known total). Cursors are
+ * opaque string tokens: numeric channels stringify their offset, token-based
+ * channels send the token verbatim, and the client passes them back unchanged.
+ */
+export interface PageInfo {
+  /** Total number of items across all pages, when known. */
+  total?:
+    | number
+    | undefined;
+  /** Total number of pages across the full result set, when known. */
+  totalPages?:
+    | number
+    | undefined;
+  /** Current page index, when the source paginates by page number. */
+  page?:
+    | number
+    | undefined;
+  /** Cursor that produced the current page. */
+  cursor?:
+    | string
+    | undefined;
+  /**
+   * Cursor to pass in the next request to fetch the following page.
+   * Absent when the current page is the last one.
+   */
+  nextCursor?:
+    | string
+    | undefined;
+  /** Cursor to pass to fetch the previous page. Absent on the first page. */
+  prevCursor?:
+    | string
+    | undefined;
+  /** Number of items requested per page. */
+  pageSize: number;
+}
+
+/**
+ * GetCartRequest asks the channel to return the products in the active cart,
+ * one page at a time. Omit cursor to fetch the first page.
+ */
+export interface GetCartRequest {
+  timestamp:
+    | Date
+    | undefined;
+  /** Cursor identifying the page to fetch. Omit to fetch the first page. */
+  cursor?:
+    | string
+    | undefined;
+  /**
+   * Maximum number of products to return in the page. When omitted the
+   * channel applies its own default page size.
+   */
+  pageSize?: number | undefined;
+}
+
+/** GetCartResponse returns a single page of products from the active cart. */
+export interface GetCartResponse {
+  status: ResponseStatus;
+  timestamp:
+    | Date
+    | undefined;
+  /** Products contained in this page of the cart. */
+  products: Product[];
+  /**
+   * Cursor-based pagination metadata describing this page and how to fetch
+   * adjacent ones.
+   */
+  pageInfo: PageInfo | undefined;
 }
 
 /** GuidanceCardRequest asks the channel to return the current guidance cards. */
@@ -1024,6 +1099,8 @@ function createBaseSdkMessage(): SdkMessage {
     addPromotionResponse: undefined,
     updateCartProductRequest: undefined,
     updateCartProductResponse: undefined,
+    getCartRequest: undefined,
+    getCartResponse: undefined,
     promotionMessageRequest: undefined,
     promotionMessageResponse: undefined,
     productMessageRequest: undefined,
@@ -1100,6 +1177,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.updateCartProductResponse !== undefined) {
       UpdateCartProductResponse.encode(message.updateCartProductResponse, writer.uint32(378).fork()).join();
+    }
+    if (message.getCartRequest !== undefined) {
+      GetCartRequest.encode(message.getCartRequest, writer.uint32(402).fork()).join();
+    }
+    if (message.getCartResponse !== undefined) {
+      GetCartResponse.encode(message.getCartResponse, writer.uint32(410).fork()).join();
     }
     if (message.promotionMessageRequest !== undefined) {
       PromotionMessageRequest.encode(message.promotionMessageRequest, writer.uint32(242).fork()).join();
@@ -1309,6 +1392,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.updateCartProductResponse = UpdateCartProductResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 50: {
+          if (tag !== 402) {
+            break;
+          }
+
+          message.getCartRequest = GetCartRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 51: {
+          if (tag !== 410) {
+            break;
+          }
+
+          message.getCartResponse = GetCartResponse.decode(reader, reader.uint32());
+          continue;
+        }
         case 30: {
           if (tag !== 242) {
             break;
@@ -1515,6 +1614,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.update_cart_product_response)
         ? UpdateCartProductResponse.fromJSON(object.update_cart_product_response)
         : undefined,
+      getCartRequest: isSet(object.getCartRequest)
+        ? GetCartRequest.fromJSON(object.getCartRequest)
+        : isSet(object.get_cart_request)
+        ? GetCartRequest.fromJSON(object.get_cart_request)
+        : undefined,
+      getCartResponse: isSet(object.getCartResponse)
+        ? GetCartResponse.fromJSON(object.getCartResponse)
+        : isSet(object.get_cart_response)
+        ? GetCartResponse.fromJSON(object.get_cart_response)
+        : undefined,
       promotionMessageRequest: isSet(object.promotionMessageRequest)
         ? PromotionMessageRequest.fromJSON(object.promotionMessageRequest)
         : isSet(object.promotion_message_request)
@@ -1640,6 +1749,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     if (message.updateCartProductResponse !== undefined) {
       obj.updateCartProductResponse = UpdateCartProductResponse.toJSON(message.updateCartProductResponse);
     }
+    if (message.getCartRequest !== undefined) {
+      obj.getCartRequest = GetCartRequest.toJSON(message.getCartRequest);
+    }
+    if (message.getCartResponse !== undefined) {
+      obj.getCartResponse = GetCartResponse.toJSON(message.getCartResponse);
+    }
     if (message.promotionMessageRequest !== undefined) {
       obj.promotionMessageRequest = PromotionMessageRequest.toJSON(message.promotionMessageRequest);
     }
@@ -1751,6 +1866,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       (object.updateCartProductResponse !== undefined && object.updateCartProductResponse !== null)
         ? UpdateCartProductResponse.fromPartial(object.updateCartProductResponse)
         : undefined;
+    message.getCartRequest = (object.getCartRequest !== undefined && object.getCartRequest !== null)
+      ? GetCartRequest.fromPartial(object.getCartRequest)
+      : undefined;
+    message.getCartResponse = (object.getCartResponse !== undefined && object.getCartResponse !== null)
+      ? GetCartResponse.fromPartial(object.getCartResponse)
+      : undefined;
     message.promotionMessageRequest =
       (object.promotionMessageRequest !== undefined && object.promotionMessageRequest !== null)
         ? PromotionMessageRequest.fromPartial(object.promotionMessageRequest)
@@ -4256,6 +4377,396 @@ export const UpdateCartProductResponse: MessageFns<UpdateCartProductResponse> = 
     const message = createBaseUpdateCartProductResponse();
     message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBasePageInfo(): PageInfo {
+  return {
+    total: undefined,
+    totalPages: undefined,
+    page: undefined,
+    cursor: undefined,
+    nextCursor: undefined,
+    prevCursor: undefined,
+    pageSize: 0,
+  };
+}
+
+export const PageInfo: MessageFns<PageInfo> = {
+  encode(message: PageInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== undefined) {
+      writer.uint32(8).int32(message.total);
+    }
+    if (message.totalPages !== undefined) {
+      writer.uint32(16).int32(message.totalPages);
+    }
+    if (message.page !== undefined) {
+      writer.uint32(24).int32(message.page);
+    }
+    if (message.cursor !== undefined) {
+      writer.uint32(34).string(message.cursor);
+    }
+    if (message.nextCursor !== undefined) {
+      writer.uint32(42).string(message.nextCursor);
+    }
+    if (message.prevCursor !== undefined) {
+      writer.uint32(50).string(message.prevCursor);
+    }
+    if (message.pageSize !== 0) {
+      writer.uint32(56).int32(message.pageSize);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PageInfo {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBasePageInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.total = reader.int32();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.totalPages = reader.int32();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.page = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.cursor = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.nextCursor = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.prevCursor = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.pageSize = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PageInfo {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : undefined,
+      totalPages: isSet(object.totalPages)
+        ? globalThis.Number(object.totalPages)
+        : isSet(object.total_pages)
+        ? globalThis.Number(object.total_pages)
+        : undefined,
+      page: isSet(object.page) ? globalThis.Number(object.page) : undefined,
+      cursor: isSet(object.cursor) ? globalThis.String(object.cursor) : undefined,
+      nextCursor: isSet(object.nextCursor)
+        ? globalThis.String(object.nextCursor)
+        : isSet(object.next_cursor)
+        ? globalThis.String(object.next_cursor)
+        : undefined,
+      prevCursor: isSet(object.prevCursor)
+        ? globalThis.String(object.prevCursor)
+        : isSet(object.prev_cursor)
+        ? globalThis.String(object.prev_cursor)
+        : undefined,
+      pageSize: isSet(object.pageSize)
+        ? globalThis.Number(object.pageSize)
+        : isSet(object.page_size)
+        ? globalThis.Number(object.page_size)
+        : 0,
+    };
+  },
+
+  toJSON(message: PageInfo): unknown {
+    const obj: any = {};
+    if (message.total !== undefined) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.totalPages !== undefined) {
+      obj.totalPages = Math.round(message.totalPages);
+    }
+    if (message.page !== undefined) {
+      obj.page = Math.round(message.page);
+    }
+    if (message.cursor !== undefined) {
+      obj.cursor = message.cursor;
+    }
+    if (message.nextCursor !== undefined) {
+      obj.nextCursor = message.nextCursor;
+    }
+    if (message.prevCursor !== undefined) {
+      obj.prevCursor = message.prevCursor;
+    }
+    if (message.pageSize !== 0) {
+      obj.pageSize = Math.round(message.pageSize);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<PageInfo>, I>>(base?: I): PageInfo {
+    return PageInfo.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<PageInfo>, I>>(object: I): PageInfo {
+    const message = createBasePageInfo();
+    message.total = object.total ?? undefined;
+    message.totalPages = object.totalPages ?? undefined;
+    message.page = object.page ?? undefined;
+    message.cursor = object.cursor ?? undefined;
+    message.nextCursor = object.nextCursor ?? undefined;
+    message.prevCursor = object.prevCursor ?? undefined;
+    message.pageSize = object.pageSize ?? 0;
+    return message;
+  },
+};
+
+function createBaseGetCartRequest(): GetCartRequest {
+  return { timestamp: undefined, cursor: undefined, pageSize: undefined };
+}
+
+export const GetCartRequest: MessageFns<GetCartRequest> = {
+  encode(message: GetCartRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
+    }
+    if (message.cursor !== undefined) {
+      writer.uint32(18).string(message.cursor);
+    }
+    if (message.pageSize !== undefined) {
+      writer.uint32(24).int32(message.pageSize);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCartRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetCartRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.cursor = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.pageSize = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetCartRequest {
+    return {
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      cursor: isSet(object.cursor) ? globalThis.String(object.cursor) : undefined,
+      pageSize: isSet(object.pageSize)
+        ? globalThis.Number(object.pageSize)
+        : isSet(object.page_size)
+        ? globalThis.Number(object.page_size)
+        : undefined,
+    };
+  },
+
+  toJSON(message: GetCartRequest): unknown {
+    const obj: any = {};
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.cursor !== undefined) {
+      obj.cursor = message.cursor;
+    }
+    if (message.pageSize !== undefined) {
+      obj.pageSize = Math.round(message.pageSize);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetCartRequest>, I>>(base?: I): GetCartRequest {
+    return GetCartRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetCartRequest>, I>>(object: I): GetCartRequest {
+    const message = createBaseGetCartRequest();
+    message.timestamp = object.timestamp ?? undefined;
+    message.cursor = object.cursor ?? undefined;
+    message.pageSize = object.pageSize ?? undefined;
+    return message;
+  },
+};
+
+function createBaseGetCartResponse(): GetCartResponse {
+  return { status: 0, timestamp: undefined, products: [], pageInfo: undefined };
+}
+
+export const GetCartResponse: MessageFns<GetCartResponse> = {
+  encode(message: GetCartResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    for (const v of message.products) {
+      Product.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.pageInfo !== undefined) {
+      PageInfo.encode(message.pageInfo, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCartResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetCartResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.products.push(Product.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.pageInfo = PageInfo.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetCartResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+      products: globalThis.Array.isArray(object?.products) ? object.products.map((e: any) => Product.fromJSON(e)) : [],
+      pageInfo: isSet(object.pageInfo)
+        ? PageInfo.fromJSON(object.pageInfo)
+        : isSet(object.page_info)
+        ? PageInfo.fromJSON(object.page_info)
+        : undefined,
+    };
+  },
+
+  toJSON(message: GetCartResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    if (message.products?.length) {
+      obj.products = message.products.map((e) => Product.toJSON(e));
+    }
+    if (message.pageInfo !== undefined) {
+      obj.pageInfo = PageInfo.toJSON(message.pageInfo);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetCartResponse>, I>>(base?: I): GetCartResponse {
+    return GetCartResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetCartResponse>, I>>(object: I): GetCartResponse {
+    const message = createBaseGetCartResponse();
+    message.status = object.status ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    message.products = object.products?.map((e) => Product.fromPartial(e)) || [];
+    message.pageInfo = (object.pageInfo !== undefined && object.pageInfo !== null)
+      ? PageInfo.fromPartial(object.pageInfo)
+      : undefined;
     return message;
   },
 };

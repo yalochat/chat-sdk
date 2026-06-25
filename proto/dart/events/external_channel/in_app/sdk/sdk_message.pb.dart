@@ -54,6 +54,8 @@ enum SdkMessage_Payload {
   updateCartProductResponse,
   productConfirmationMessageRequest,
   productConfirmationMessageResponse,
+  getCartRequest,
+  getCartResponse,
   notSet
 }
 
@@ -94,6 +96,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     UpdateCartProductResponse? updateCartProductResponse,
     ProductConfirmationMessageRequest? productConfirmationMessageRequest,
     ProductConfirmationMessageResponse? productConfirmationMessageResponse,
+    GetCartRequest? getCartRequest,
+    GetCartResponse? getCartResponse,
   }) {
     final result = create();
     if (correlationId != null) result.correlationId = correlationId;
@@ -155,6 +159,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     if (productConfirmationMessageResponse != null)
       result.productConfirmationMessageResponse =
           productConfirmationMessageResponse;
+    if (getCartRequest != null) result.getCartRequest = getCartRequest;
+    if (getCartResponse != null) result.getCartResponse = getCartResponse;
     return result;
   }
 
@@ -199,6 +205,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     47: SdkMessage_Payload.updateCartProductResponse,
     48: SdkMessage_Payload.productConfirmationMessageRequest,
     49: SdkMessage_Payload.productConfirmationMessageResponse,
+    50: SdkMessage_Payload.getCartRequest,
+    51: SdkMessage_Payload.getCartResponse,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -236,7 +244,9 @@ class SdkMessage extends $pb.GeneratedMessage {
       46,
       47,
       48,
-      49
+      49,
+      50,
+      51
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -318,6 +328,10 @@ class SdkMessage extends $pb.GeneratedMessage {
     ..aOM<ProductConfirmationMessageResponse>(
         49, _omitFieldNames ? '' : 'productConfirmationMessageResponse',
         subBuilder: ProductConfirmationMessageResponse.create)
+    ..aOM<GetCartRequest>(50, _omitFieldNames ? '' : 'getCartRequest',
+        subBuilder: GetCartRequest.create)
+    ..aOM<GetCartResponse>(51, _omitFieldNames ? '' : 'getCartResponse',
+        subBuilder: GetCartResponse.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -368,6 +382,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(47)
   @$pb.TagNumber(48)
   @$pb.TagNumber(49)
+  @$pb.TagNumber(50)
+  @$pb.TagNumber(51)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -400,6 +416,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(47)
   @$pb.TagNumber(48)
   @$pb.TagNumber(49)
+  @$pb.TagNumber(50)
+  @$pb.TagNumber(51)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -776,6 +794,28 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(49)
   ProductConfirmationMessageResponse
       ensureProductConfirmationMessageResponse() => $_ensure(31);
+
+  @$pb.TagNumber(50)
+  GetCartRequest get getCartRequest => $_getN(32);
+  @$pb.TagNumber(50)
+  set getCartRequest(GetCartRequest value) => $_setField(50, value);
+  @$pb.TagNumber(50)
+  $core.bool hasGetCartRequest() => $_has(32);
+  @$pb.TagNumber(50)
+  void clearGetCartRequest() => $_clearField(50);
+  @$pb.TagNumber(50)
+  GetCartRequest ensureGetCartRequest() => $_ensure(32);
+
+  @$pb.TagNumber(51)
+  GetCartResponse get getCartResponse => $_getN(33);
+  @$pb.TagNumber(51)
+  set getCartResponse(GetCartResponse value) => $_setField(51, value);
+  @$pb.TagNumber(51)
+  $core.bool hasGetCartResponse() => $_has(33);
+  @$pb.TagNumber(51)
+  void clearGetCartResponse() => $_clearField(51);
+  @$pb.TagNumber(51)
+  GetCartResponse ensureGetCartResponse() => $_ensure(33);
 }
 
 /// Button represents a single tappable option attached to a message.
@@ -2821,6 +2861,329 @@ class UpdateCartProductResponse extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(2);
   @$pb.TagNumber(2)
   $0.Timestamp ensureTimestamp() => $_ensure(1);
+}
+
+/// PageInfo carries cursor-based pagination metadata for a page of results.
+/// All cursor and count fields are optional so a source may expose only the
+/// subset it can compute (e.g. cursors without a known total). Cursors are
+/// opaque string tokens: numeric channels stringify their offset, token-based
+/// channels send the token verbatim, and the client passes them back unchanged.
+class PageInfo extends $pb.GeneratedMessage {
+  factory PageInfo({
+    $core.int? total,
+    $core.int? totalPages,
+    $core.int? page,
+    $core.String? cursor,
+    $core.String? nextCursor,
+    $core.String? prevCursor,
+    $core.int? pageSize,
+  }) {
+    final result = create();
+    if (total != null) result.total = total;
+    if (totalPages != null) result.totalPages = totalPages;
+    if (page != null) result.page = page;
+    if (cursor != null) result.cursor = cursor;
+    if (nextCursor != null) result.nextCursor = nextCursor;
+    if (prevCursor != null) result.prevCursor = prevCursor;
+    if (pageSize != null) result.pageSize = pageSize;
+    return result;
+  }
+
+  PageInfo._();
+
+  factory PageInfo.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory PageInfo.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'PageInfo',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'total')
+    ..aI(2, _omitFieldNames ? '' : 'totalPages')
+    ..aI(3, _omitFieldNames ? '' : 'page')
+    ..aOS(4, _omitFieldNames ? '' : 'cursor')
+    ..aOS(5, _omitFieldNames ? '' : 'nextCursor')
+    ..aOS(6, _omitFieldNames ? '' : 'prevCursor')
+    ..aI(7, _omitFieldNames ? '' : 'pageSize')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PageInfo clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PageInfo copyWith(void Function(PageInfo) updates) =>
+      super.copyWith((message) => updates(message as PageInfo)) as PageInfo;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PageInfo create() => PageInfo._();
+  @$core.override
+  PageInfo createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static PageInfo getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PageInfo>(create);
+  static PageInfo? _defaultInstance;
+
+  /// Total number of items across all pages, when known.
+  @$pb.TagNumber(1)
+  $core.int get total => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set total($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTotal() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTotal() => $_clearField(1);
+
+  /// Total number of pages across the full result set, when known.
+  @$pb.TagNumber(2)
+  $core.int get totalPages => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set totalPages($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTotalPages() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTotalPages() => $_clearField(2);
+
+  /// Current page index, when the source paginates by page number.
+  @$pb.TagNumber(3)
+  $core.int get page => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set page($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasPage() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPage() => $_clearField(3);
+
+  /// Cursor that produced the current page.
+  @$pb.TagNumber(4)
+  $core.String get cursor => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set cursor($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasCursor() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCursor() => $_clearField(4);
+
+  /// Cursor to pass in the next request to fetch the following page.
+  /// Absent when the current page is the last one.
+  @$pb.TagNumber(5)
+  $core.String get nextCursor => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set nextCursor($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasNextCursor() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearNextCursor() => $_clearField(5);
+
+  /// Cursor to pass to fetch the previous page. Absent on the first page.
+  @$pb.TagNumber(6)
+  $core.String get prevCursor => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set prevCursor($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasPrevCursor() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearPrevCursor() => $_clearField(6);
+
+  /// Number of items requested per page.
+  @$pb.TagNumber(7)
+  $core.int get pageSize => $_getIZ(6);
+  @$pb.TagNumber(7)
+  set pageSize($core.int value) => $_setSignedInt32(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasPageSize() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearPageSize() => $_clearField(7);
+}
+
+/// GetCartRequest asks the channel to return the products in the active cart,
+/// one page at a time. Omit cursor to fetch the first page.
+class GetCartRequest extends $pb.GeneratedMessage {
+  factory GetCartRequest({
+    $0.Timestamp? timestamp,
+    $core.String? cursor,
+    $core.int? pageSize,
+  }) {
+    final result = create();
+    if (timestamp != null) result.timestamp = timestamp;
+    if (cursor != null) result.cursor = cursor;
+    if (pageSize != null) result.pageSize = pageSize;
+    return result;
+  }
+
+  GetCartRequest._();
+
+  factory GetCartRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetCartRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetCartRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..aOS(2, _omitFieldNames ? '' : 'cursor')
+    ..aI(3, _omitFieldNames ? '' : 'pageSize')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetCartRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetCartRequest copyWith(void Function(GetCartRequest) updates) =>
+      super.copyWith((message) => updates(message as GetCartRequest))
+          as GetCartRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetCartRequest create() => GetCartRequest._();
+  @$core.override
+  GetCartRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetCartRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetCartRequest>(create);
+  static GetCartRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $0.Timestamp get timestamp => $_getN(0);
+  @$pb.TagNumber(1)
+  set timestamp($0.Timestamp value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTimestamp() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTimestamp() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $0.Timestamp ensureTimestamp() => $_ensure(0);
+
+  /// Cursor identifying the page to fetch. Omit to fetch the first page.
+  @$pb.TagNumber(2)
+  $core.String get cursor => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set cursor($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasCursor() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCursor() => $_clearField(2);
+
+  /// Maximum number of products to return in the page. When omitted the
+  /// channel applies its own default page size.
+  @$pb.TagNumber(3)
+  $core.int get pageSize => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set pageSize($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasPageSize() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPageSize() => $_clearField(3);
+}
+
+/// GetCartResponse returns a single page of products from the active cart.
+class GetCartResponse extends $pb.GeneratedMessage {
+  factory GetCartResponse({
+    ResponseStatus? status,
+    $0.Timestamp? timestamp,
+    $core.Iterable<Product>? products,
+    PageInfo? pageInfo,
+  }) {
+    final result = create();
+    if (status != null) result.status = status;
+    if (timestamp != null) result.timestamp = timestamp;
+    if (products != null) result.products.addAll(products);
+    if (pageInfo != null) result.pageInfo = pageInfo;
+    return result;
+  }
+
+  GetCartResponse._();
+
+  factory GetCartResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetCartResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetCartResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: create)
+    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
+        enumValues: ResponseStatus.values)
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.create)
+    ..pPM<Product>(3, _omitFieldNames ? '' : 'products',
+        subBuilder: Product.create)
+    ..aOM<PageInfo>(4, _omitFieldNames ? '' : 'pageInfo',
+        subBuilder: PageInfo.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetCartResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetCartResponse copyWith(void Function(GetCartResponse) updates) =>
+      super.copyWith((message) => updates(message as GetCartResponse))
+          as GetCartResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetCartResponse create() => GetCartResponse._();
+  @$core.override
+  GetCartResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetCartResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetCartResponse>(create);
+  static GetCartResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ResponseStatus get status => $_getN(0);
+  @$pb.TagNumber(1)
+  set status(ResponseStatus value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
+
+  /// Products contained in this page of the cart.
+  @$pb.TagNumber(3)
+  $pb.PbList<Product> get products => $_getList(2);
+
+  /// Cursor-based pagination metadata describing this page and how to fetch
+  /// adjacent ones.
+  @$pb.TagNumber(4)
+  PageInfo get pageInfo => $_getN(3);
+  @$pb.TagNumber(4)
+  set pageInfo(PageInfo value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasPageInfo() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPageInfo() => $_clearField(4);
+  @$pb.TagNumber(4)
+  PageInfo ensurePageInfo() => $_ensure(3);
 }
 
 /// GuidanceCardRequest asks the channel to return the current guidance cards.
