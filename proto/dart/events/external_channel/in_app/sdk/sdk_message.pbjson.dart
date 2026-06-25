@@ -322,6 +322,24 @@ const SdkMessage$json = {
       '10': 'updateCartProductResponse'
     },
     {
+      '1': 'get_cart_request',
+      '3': 50,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.GetCartRequest',
+      '9': 0,
+      '10': 'getCartRequest'
+    },
+    {
+      '1': 'get_cart_response',
+      '3': 51,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.GetCartResponse',
+      '9': 0,
+      '10': 'getCartResponse'
+    },
+    {
       '1': 'promotion_message_request',
       '3': 30,
       '4': 1,
@@ -478,34 +496,37 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'ay52Mi5VcGRhdGVDYXJ0UHJvZHVjdFJlcXVlc3RIAFIYdXBkYXRlQ2FydFByb2R1Y3RSZXF1ZX'
     'N0EoEBChx1cGRhdGVfY2FydF9wcm9kdWN0X3Jlc3BvbnNlGC8gASgLMj4ueWFsby5leHRlcm5h'
     'bF9jaGFubmVsLmluX2FwcC5zZGsudjIuVXBkYXRlQ2FydFByb2R1Y3RSZXNwb25zZUgAUhl1cG'
-    'RhdGVDYXJ0UHJvZHVjdFJlc3BvbnNlEnoKGXByb21vdGlvbl9tZXNzYWdlX3JlcXVlc3QYHiAB'
-    'KAsyPC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9tb3Rpb25NZXNzYW'
-    'dlUmVxdWVzdEgAUhdwcm9tb3Rpb25NZXNzYWdlUmVxdWVzdBJ9Chpwcm9tb3Rpb25fbWVzc2Fn'
-    'ZV9yZXNwb25zZRgfIAEoCzI9LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLl'
-    'Byb21vdGlvbk1lc3NhZ2VSZXNwb25zZUgAUhhwcm9tb3Rpb25NZXNzYWdlUmVzcG9uc2USdAoX'
-    'cHJvZHVjdF9tZXNzYWdlX3JlcXVlc3QYICABKAsyOi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
-    '5fYXBwLnNkay52Mi5Qcm9kdWN0TWVzc2FnZVJlcXVlc3RIAFIVcHJvZHVjdE1lc3NhZ2VSZXF1'
-    'ZXN0EncKGHByb2R1Y3RfbWVzc2FnZV9yZXNwb25zZRghIAEoCzI7LnlhbG8uZXh0ZXJuYWxfY2'
-    'hhbm5lbC5pbl9hcHAuc2RrLnYyLlByb2R1Y3RNZXNzYWdlUmVzcG9uc2VIAFIWcHJvZHVjdE1l'
-    'c3NhZ2VSZXNwb25zZRJoChNjaGF0X3N0YXR1c19yZXF1ZXN0GCIgASgLMjYueWFsby5leHRlcm'
-    '5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ2hhdFN0YXR1c1JlcXVlc3RIAFIRY2hhdFN0YXR1'
-    'c1JlcXVlc3QSawoUY2hhdF9zdGF0dXNfcmVzcG9uc2UYIyABKAsyNy55YWxvLmV4dGVybmFsX2'
-    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5DaGF0U3RhdHVzUmVzcG9uc2VIAFISY2hhdFN0YXR1c1Jl'
-    'c3BvbnNlEnEKFmN1c3RvbV9jb21tYW5kX3JlcXVlc3QYJCABKAsyOS55YWxvLmV4dGVybmFsX2'
-    'NoYW5uZWwuaW5fYXBwLnNkay52Mi5DdXN0b21Db21tYW5kUmVxdWVzdEgAUhRjdXN0b21Db21t'
-    'YW5kUmVxdWVzdBJ0ChdjdXN0b21fY29tbWFuZF9yZXNwb25zZRglIAEoCzI6LnlhbG8uZXh0ZX'
-    'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkN1c3RvbUNvbW1hbmRSZXNwb25zZUgAUhVjdXN0'
-    'b21Db21tYW5kUmVzcG9uc2USmQEKJHByb2R1Y3RfY29uZmlybWF0aW9uX21lc3NhZ2VfcmVxdW'
-    'VzdBgwIAEoCzJGLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlByb2R1Y3RD'
-    'b25maXJtYXRpb25NZXNzYWdlUmVxdWVzdEgAUiFwcm9kdWN0Q29uZmlybWF0aW9uTWVzc2FnZV'
-    'JlcXVlc3QSnAEKJXByb2R1Y3RfY29uZmlybWF0aW9uX21lc3NhZ2VfcmVzcG9uc2UYMSABKAsy'
-    'Ry55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9kdWN0Q29uZmlybWF0aW'
-    '9uTWVzc2FnZVJlc3BvbnNlSABSInByb2R1Y3RDb25maXJtYXRpb25NZXNzYWdlUmVzcG9uc2US'
-    'awoUZ2V0X2NvbW1hbmRzX3JlcXVlc3QYLCABKAsyNy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW'
-    '5fYXBwLnNkay52Mi5HZXRDb21tYW5kc1JlcXVlc3RIAFISZ2V0Q29tbWFuZHNSZXF1ZXN0Em4K'
-    'FWdldF9jb21tYW5kc19yZXNwb25zZRgtIAEoCzI4LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl'
-    '9hcHAuc2RrLnYyLkdldENvbW1hbmRzUmVzcG9uc2VIAFITZ2V0Q29tbWFuZHNSZXNwb25zZUIJ'
-    'CgdwYXlsb2Fk');
+    'RhdGVDYXJ0UHJvZHVjdFJlc3BvbnNlEl8KEGdldF9jYXJ0X3JlcXVlc3QYMiABKAsyMy55YWxv'
+    'LmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HZXRDYXJ0UmVxdWVzdEgAUg5nZXRDYX'
+    'J0UmVxdWVzdBJiChFnZXRfY2FydF9yZXNwb25zZRgzIAEoCzI0LnlhbG8uZXh0ZXJuYWxfY2hh'
+    'bm5lbC5pbl9hcHAuc2RrLnYyLkdldENhcnRSZXNwb25zZUgAUg9nZXRDYXJ0UmVzcG9uc2USeg'
+    'oZcHJvbW90aW9uX21lc3NhZ2VfcmVxdWVzdBgeIAEoCzI8LnlhbG8uZXh0ZXJuYWxfY2hhbm5l'
+    'bC5pbl9hcHAuc2RrLnYyLlByb21vdGlvbk1lc3NhZ2VSZXF1ZXN0SABSF3Byb21vdGlvbk1lc3'
+    'NhZ2VSZXF1ZXN0En0KGnByb21vdGlvbl9tZXNzYWdlX3Jlc3BvbnNlGB8gASgLMj0ueWFsby5l'
+    'eHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuUHJvbW90aW9uTWVzc2FnZVJlc3BvbnNlSA'
+    'BSGHByb21vdGlvbk1lc3NhZ2VSZXNwb25zZRJ0Chdwcm9kdWN0X21lc3NhZ2VfcmVxdWVzdBgg'
+    'IAEoCzI6LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlByb2R1Y3RNZXNzYW'
+    'dlUmVxdWVzdEgAUhVwcm9kdWN0TWVzc2FnZVJlcXVlc3QSdwoYcHJvZHVjdF9tZXNzYWdlX3Jl'
+    'c3BvbnNlGCEgASgLMjsueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuUHJvZH'
+    'VjdE1lc3NhZ2VSZXNwb25zZUgAUhZwcm9kdWN0TWVzc2FnZVJlc3BvbnNlEmgKE2NoYXRfc3Rh'
+    'dHVzX3JlcXVlc3QYIiABKAsyNi55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi'
+    '5DaGF0U3RhdHVzUmVxdWVzdEgAUhFjaGF0U3RhdHVzUmVxdWVzdBJrChRjaGF0X3N0YXR1c19y'
+    'ZXNwb25zZRgjIAEoCzI3LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkNoYX'
+    'RTdGF0dXNSZXNwb25zZUgAUhJjaGF0U3RhdHVzUmVzcG9uc2UScQoWY3VzdG9tX2NvbW1hbmRf'
+    'cmVxdWVzdBgkIAEoCzI5LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkN1c3'
+    'RvbUNvbW1hbmRSZXF1ZXN0SABSFGN1c3RvbUNvbW1hbmRSZXF1ZXN0EnQKF2N1c3RvbV9jb21t'
+    'YW5kX3Jlc3BvbnNlGCUgASgLMjoueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudj'
+    'IuQ3VzdG9tQ29tbWFuZFJlc3BvbnNlSABSFWN1c3RvbUNvbW1hbmRSZXNwb25zZRKZAQokcHJv'
+    'ZHVjdF9jb25maXJtYXRpb25fbWVzc2FnZV9yZXF1ZXN0GDAgASgLMkYueWFsby5leHRlcm5hbF'
+    '9jaGFubmVsLmluX2FwcC5zZGsudjIuUHJvZHVjdENvbmZpcm1hdGlvbk1lc3NhZ2VSZXF1ZXN0'
+    'SABSIXByb2R1Y3RDb25maXJtYXRpb25NZXNzYWdlUmVxdWVzdBKcAQolcHJvZHVjdF9jb25maX'
+    'JtYXRpb25fbWVzc2FnZV9yZXNwb25zZRgxIAEoCzJHLnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5p'
+    'bl9hcHAuc2RrLnYyLlByb2R1Y3RDb25maXJtYXRpb25NZXNzYWdlUmVzcG9uc2VIAFIicHJvZH'
+    'VjdENvbmZpcm1hdGlvbk1lc3NhZ2VSZXNwb25zZRJrChRnZXRfY29tbWFuZHNfcmVxdWVzdBgs'
+    'IAEoCzI3LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkdldENvbW1hbmRzUm'
+    'VxdWVzdEgAUhJnZXRDb21tYW5kc1JlcXVlc3QSbgoVZ2V0X2NvbW1hbmRzX3Jlc3BvbnNlGC0g'
+    'ASgLMjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuR2V0Q29tbWFuZHNSZX'
+    'Nwb25zZUgAUhNnZXRDb21tYW5kc1Jlc3BvbnNlQgkKB3BheWxvYWQ=');
 
 @$core.Deprecated('Use buttonDescriptor instead')
 const Button$json = {
@@ -1283,6 +1304,144 @@ final $typed_data.Uint8List updateCartProductResponseDescriptor = $convert.base6
     'ChlVcGRhdGVDYXJ0UHJvZHVjdFJlc3BvbnNlEksKBnN0YXR1cxgBIAEoDjIzLnlhbG8uZXh0ZX'
     'JuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLlJlc3BvbnNlU3RhdHVzUgZzdGF0dXMSOAoJdGlt'
     'ZXN0YW1wGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcFIJdGltZXN0YW1w');
+
+@$core.Deprecated('Use pageInfoDescriptor instead')
+const PageInfo$json = {
+  '1': 'PageInfo',
+  '2': [
+    {'1': 'total', '3': 1, '4': 1, '5': 5, '9': 0, '10': 'total', '17': true},
+    {
+      '1': 'total_pages',
+      '3': 2,
+      '4': 1,
+      '5': 5,
+      '9': 1,
+      '10': 'totalPages',
+      '17': true
+    },
+    {'1': 'page', '3': 3, '4': 1, '5': 5, '9': 2, '10': 'page', '17': true},
+    {'1': 'cursor', '3': 4, '4': 1, '5': 9, '9': 3, '10': 'cursor', '17': true},
+    {
+      '1': 'next_cursor',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '9': 4,
+      '10': 'nextCursor',
+      '17': true
+    },
+    {
+      '1': 'prev_cursor',
+      '3': 6,
+      '4': 1,
+      '5': 9,
+      '9': 5,
+      '10': 'prevCursor',
+      '17': true
+    },
+    {'1': 'page_size', '3': 7, '4': 1, '5': 5, '10': 'pageSize'},
+  ],
+  '8': [
+    {'1': '_total'},
+    {'1': '_total_pages'},
+    {'1': '_page'},
+    {'1': '_cursor'},
+    {'1': '_next_cursor'},
+    {'1': '_prev_cursor'},
+  ],
+};
+
+/// Descriptor for `PageInfo`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pageInfoDescriptor = $convert.base64Decode(
+    'CghQYWdlSW5mbxIZCgV0b3RhbBgBIAEoBUgAUgV0b3RhbIgBARIkCgt0b3RhbF9wYWdlcxgCIA'
+    'EoBUgBUgp0b3RhbFBhZ2VziAEBEhcKBHBhZ2UYAyABKAVIAlIEcGFnZYgBARIbCgZjdXJzb3IY'
+    'BCABKAlIA1IGY3Vyc29yiAEBEiQKC25leHRfY3Vyc29yGAUgASgJSARSCm5leHRDdXJzb3KIAQ'
+    'ESJAoLcHJldl9jdXJzb3IYBiABKAlIBVIKcHJldkN1cnNvcogBARIbCglwYWdlX3NpemUYByAB'
+    'KAVSCHBhZ2VTaXplQggKBl90b3RhbEIOCgxfdG90YWxfcGFnZXNCBwoFX3BhZ2VCCQoHX2N1cn'
+    'NvckIOCgxfbmV4dF9jdXJzb3JCDgoMX3ByZXZfY3Vyc29y');
+
+@$core.Deprecated('Use getCartRequestDescriptor instead')
+const GetCartRequest$json = {
+  '1': 'GetCartRequest',
+  '2': [
+    {
+      '1': 'timestamp',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {'1': 'cursor', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'cursor', '17': true},
+    {
+      '1': 'page_size',
+      '3': 3,
+      '4': 1,
+      '5': 5,
+      '9': 1,
+      '10': 'pageSize',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_cursor'},
+    {'1': '_page_size'},
+  ],
+};
+
+/// Descriptor for `GetCartRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getCartRequestDescriptor = $convert.base64Decode(
+    'Cg5HZXRDYXJ0UmVxdWVzdBI4Cgl0aW1lc3RhbXAYASABKAsyGi5nb29nbGUucHJvdG9idWYuVG'
+    'ltZXN0YW1wUgl0aW1lc3RhbXASGwoGY3Vyc29yGAIgASgJSABSBmN1cnNvcogBARIgCglwYWdl'
+    'X3NpemUYAyABKAVIAVIIcGFnZVNpemWIAQFCCQoHX2N1cnNvckIMCgpfcGFnZV9zaXpl');
+
+@$core.Deprecated('Use getCartResponseDescriptor instead')
+const GetCartResponse$json = {
+  '1': 'GetCartResponse',
+  '2': [
+    {
+      '1': 'status',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+    {
+      '1': 'products',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.Product',
+      '10': 'products'
+    },
+    {
+      '1': 'page_info',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.PageInfo',
+      '10': 'pageInfo'
+    },
+  ],
+};
+
+/// Descriptor for `GetCartResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getCartResponseDescriptor = $convert.base64Decode(
+    'Cg9HZXRDYXJ0UmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm5hbF9jaGFubm'
+    'VsLmluX2FwcC5zZGsudjIuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3RhbXAYAiAB'
+    'KAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXASSAoIcHJvZHVjdHMYAy'
+    'ADKAsyLC55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5Qcm9kdWN0Ughwcm9k'
+    'dWN0cxJKCglwYWdlX2luZm8YBCABKAsyLS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLn'
+    'Nkay52Mi5QYWdlSW5mb1IIcGFnZUluZm8=');
 
 @$core.Deprecated('Use guidanceCardRequestDescriptor instead')
 const GuidanceCardRequest$json = {

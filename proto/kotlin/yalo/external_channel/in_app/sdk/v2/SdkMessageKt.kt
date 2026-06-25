@@ -544,6 +544,54 @@ public object SdkMessageKt {
     }
 
     /**
+     * `.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;`
+     */
+    public var getCartRequest: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest
+      @kotlin.jvm.JvmName("getGetCartRequest")
+        get() = _builder.getCartRequest
+      @kotlin.jvm.JvmName("setGetCartRequest")
+        set(value) {
+        _builder.getCartRequest = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;`
+     */
+    public fun clearGetCartRequest() {
+      _builder.clearGetCartRequest()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;`
+     * @return Whether the getCartRequest field is set.
+     */
+    public fun hasGetCartRequest(): kotlin.Boolean {
+      return _builder.hasGetCartRequest()
+    }
+
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;`
+     */
+    public var getCartResponse: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse
+      @kotlin.jvm.JvmName("getGetCartResponse")
+        get() = _builder.getCartResponse
+      @kotlin.jvm.JvmName("setGetCartResponse")
+        set(value) {
+        _builder.getCartResponse = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;`
+     */
+    public fun clearGetCartResponse() {
+      _builder.clearGetCartResponse()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;`
+     * @return Whether the getCartResponse field is set.
+     */
+    public fun hasGetCartResponse(): kotlin.Boolean {
+      return _builder.hasGetCartResponse()
+    }
+
+    /**
      * ```
      * Channel → client
      * ```
@@ -922,6 +970,12 @@ public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOr
 
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.updateCartProductResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse?
   get() = if (hasUpdateCartProductResponse()) getUpdateCartProductResponse() else null
+
+public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.getCartRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest?
+  get() = if (hasGetCartRequest()) getGetCartRequest() else null
+
+public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.getCartResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse?
+  get() = if (hasGetCartResponse()) getGetCartResponse() else null
 
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.promotionMessageRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PromotionMessageRequest?
   get() = if (hasPromotionMessageRequest()) getPromotionMessageRequest() else null

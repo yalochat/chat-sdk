@@ -40,6 +40,8 @@ message SdkMessage {
     AddPromotionResponse     add_promotion_response      = 29;
     UpdateCartProductRequest  update_cart_product_request  = 46;
     UpdateCartProductResponse update_cart_product_response = 47;
+    GetCartRequest           get_cart_request            = 50;
+    GetCartResponse          get_cart_response           = 51;
 
     // Channel → client
     PromotionMessageRequest  promotion_message_request   = 30;
@@ -321,6 +323,51 @@ message UpdateCartProductRequest {
 message UpdateCartProductResponse {
   ResponseStatus status = 1;
   google.protobuf.Timestamp timestamp = 2;
+}
+
+// PageInfo carries cursor-based pagination metadata for a page of results.
+// All cursor and count fields are optional so a source may expose only the
+// subset it can compute (e.g. cursors without a known total). Cursors are
+// opaque string tokens: numeric channels stringify their offset, token-based
+// channels send the token verbatim, and the client passes them back unchanged.
+message PageInfo {
+  // Total number of items across all pages, when known.
+  optional int32 total = 1;
+  // Total number of pages across the full result set, when known.
+  optional int32 total_pages = 2;
+  // Current page index, when the source paginates by page number.
+  optional int32 page = 3;
+  // Cursor that produced the current page.
+  optional string cursor = 4;
+  // Cursor to pass in the next request to fetch the following page.
+  // Absent when the current page is the last one.
+  optional string next_cursor = 5;
+  // Cursor to pass to fetch the previous page. Absent on the first page.
+  optional string prev_cursor = 6;
+  // Number of items requested per page.
+  int32 page_size = 7;
+}
+
+// GetCartRequest asks the channel to return the products in the active cart,
+// one page at a time. Omit cursor to fetch the first page.
+message GetCartRequest {
+  google.protobuf.Timestamp timestamp = 1;
+  // Cursor identifying the page to fetch. Omit to fetch the first page.
+  optional string cursor = 2;
+  // Maximum number of products to return in the page. When omitted the
+  // channel applies its own default page size.
+  optional int32 page_size = 3;
+}
+
+// GetCartResponse returns a single page of products from the active cart.
+message GetCartResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  // Products contained in this page of the cart.
+  repeated Product products = 3;
+  // Cursor-based pagination metadata describing this page and how to fetch
+  // adjacent ones.
+  PageInfo page_info = 4;
 }
 
 // ---------------------------------------------------------------------------
