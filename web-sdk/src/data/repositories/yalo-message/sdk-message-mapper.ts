@@ -15,7 +15,6 @@ import {
   type Product as ProtoProduct,
   type SdkMessage,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
-import type { CustomCommandInvocation } from '@domain/models/command/custom-command';
 import { Product } from '@domain/models/product/product';
 
 export function chatMessageToSdkMessage(
@@ -255,20 +254,6 @@ export function pollMessageItemToChatMessage(
   }
 
   return null;
-}
-
-export function pollMessageItemToCustomCommand(
-  item: PollMessageItem
-): CustomCommandInvocation | null {
-  const request = item.message?.customCommandRequest;
-  if (!request) {
-    return null;
-  }
-  return {
-    commandId: request.commandId,
-    payload: request.payload,
-    correlationId: item.message?.correlationId ?? '',
-  };
 }
 
 function toMessageButtons(

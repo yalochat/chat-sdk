@@ -5,9 +5,7 @@ import type {
   ChatCommand,
   ChatCommandCallback,
 } from '@domain/models/command/chat-command';
-import type {
-  CustomCommandHandler,
-} from '@domain/models/command/custom-command';
+import type { CustomCommandHandler } from '@domain/models/command/channel-command';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -91,7 +89,7 @@ export class YaloChatWindow extends LitElement {
   commands = new Map<ChatCommand, ChatCommandCallback>();
 
   @property({ attribute: false })
-  customCommands = new Map<string, CustomCommandHandler>();
+  channelCommands = new Map<string, CustomCommandHandler>();
 
   private _chatWindowController = new YaloChatWindowController(this);
 

@@ -213,7 +213,7 @@ describe('YaloChatClient', () => {
   });
 
   describe('onCommand', () => {
-    it('stores the handler and passes it to the chat window after init', async () => {
+    it('stores the handler by command id and passes it to the chat window after init', async () => {
       const client = new YaloChatClient(baseConfig);
       const handler = vi.fn();
       client.onCommand('refreshCatalog', handler);
@@ -221,7 +221,7 @@ describe('YaloChatClient', () => {
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      expect(getChatWindow().customCommands.get('refreshCatalog')).toBe(
+      expect(getChatWindow().channelCommands.get('refreshCatalog')).toBe(
         handler
       );
     });
@@ -234,12 +234,12 @@ describe('YaloChatClient', () => {
       );
       const handler = vi.fn();
       client.onCommand('refreshCatalog', handler);
-      expect(getChatWindow().customCommands.get('refreshCatalog')).toBe(
+      expect(getChatWindow().channelCommands.get('refreshCatalog')).toBe(
         handler
       );
     });
 
-    it('overwrites a previously registered command handler', async () => {
+    it('overwrites a handler registered under the same command id', async () => {
       const client = new YaloChatClient(baseConfig);
       const first = vi.fn();
       const second = vi.fn();
@@ -249,7 +249,9 @@ describe('YaloChatClient', () => {
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      expect(getChatWindow().customCommands.get('refreshCatalog')).toBe(second);
+      expect(getChatWindow().channelCommands.get('refreshCatalog')).toBe(
+        second
+      );
     });
   });
 

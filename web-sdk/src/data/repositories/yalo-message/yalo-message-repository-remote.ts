@@ -2,7 +2,7 @@
 
 import { Err, Ok, type Result } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type { CustomCommandStatus } from '@domain/models/command/custom-command';
+import type { CommandResponseStatus } from '@domain/models/command/channel-command';
 import {
   ResponseStatus,
   type PollMessageItem,
@@ -17,7 +17,6 @@ import type {
 import {
   chatMessageToSdkMessage,
   pollMessageItemToChatMessage,
-  pollMessageItemToCustomCommand,
 } from './sdk-message-mapper';
 
 const DEFAULT_CHAT_STATUS_TIMEOUT_MS = 15000;
@@ -117,7 +116,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   async sendCustomCommandResponse(
     correlationId: string,
-    status: CustomCommandStatus,
+    status: CommandResponseStatus,
     payload: string
   ): Promise<Result<void>> {
     const timestamp = new Date();
@@ -141,9 +140,8 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         callback(event);
         return;
       }
-      const customCommand = pollMessageItemToCustomCommand(event);
-      if (customCommand) {
-        callback(customCommand);
+      if (event.message?.customCommandRequest) {
+        callback(event.message);
         return;
       }
       const message = pollMessageItemToChatMessage(event);

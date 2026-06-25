@@ -12,6 +12,7 @@ import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yal
 import type { PollCallback } from '@data/repositories/yalo-message/yalo-message-repository';
 import {
   SdkMessageAckType,
+  type SdkMessage,
   type SdkMessageAck,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
@@ -1614,38 +1615,41 @@ describe('YaloChatWindow custom commands', () => {
     await clearDb();
   });
 
-  const invocation = (overrides = {}) => ({
-    commandId: 'refreshCatalog',
-    payload: '{"region":"mx"}',
-    correlationId: 'corr-1',
-    ...overrides,
+  const customCommandMessage = (
+    request = {},
+    correlationId = 'corr-1'
+  ): SdkMessage => ({
+    correlationId,
+    timestamp: new Date(),
+    customCommandRequest: {
+      commandId: 'refreshCatalog',
+      payload: '{"region":"mx"}',
+      timestamp: undefined,
+      ...request,
+    },
   });
 
-  it('runs a registered handler and sends a success response with its payload', async () => {
+  it('finds the handler by command id and sends a success response with its result', async () => {
     const sendSpy = vi
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
     const handler = vi.fn().mockResolvedValue('{"done":true}');
-    el.customCommands = new Map([['refreshCatalog', handler]]);
+    el.channelCommands = new Map([['refreshCatalog', handler]]);
 
-    subscribeCallback!(invocation());
+    subscribeCallback!(customCommandMessage());
 
     await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
     expect(handler).toHaveBeenCalledWith('{"region":"mx"}');
-    expect(sendSpy).toHaveBeenCalledWith(
-      'corr-1',
-      'success',
-      '{"done":true}'
-    );
+    expect(sendSpy).toHaveBeenCalledWith('corr-1', 'success', '{"done":true}');
   });
 
   it('sends an empty payload when the handler returns nothing', async () => {
     const sendSpy = vi
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
-    el.customCommands = new Map([['refreshCatalog', vi.fn()]]);
+    el.channelCommands = new Map([['refreshCatalog', vi.fn()]]);
 
-    subscribeCallback!(invocation());
+    subscribeCallback!(customCommandMessage());
 
     await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
     expect(sendSpy).toHaveBeenCalledWith('corr-1', 'success', '');
@@ -1656,27 +1660,26 @@ describe('YaloChatWindow custom commands', () => {
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
     const handler = vi.fn().mockRejectedValue(new Error('boom'));
-    el.customCommands = new Map([['refreshCatalog', handler]]);
+    el.channelCommands = new Map([['refreshCatalog', handler]]);
 
-    subscribeCallback!(invocation());
+    subscribeCallback!(customCommandMessage());
 
     await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
     expect(sendSpy).toHaveBeenCalledWith('corr-1', 'error', '');
   });
 
-  it('logs a warning and sends no response for an unregistered command', async () => {
+  it('logs a warning and sends no response when no handler is registered for the command id', async () => {
     const sendSpy = vi
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
     const warnSpy = vi.spyOn(el.logger, 'warn').mockReturnValue();
 
-    subscribeCallback!(invocation({ commandId: 'unknown' }));
+    subscribeCallback!(customCommandMessage({ commandId: 'unknown' }));
 
     await vi.waitUntil(() => warnSpy.mock.calls.length > 0);
-    expect(warnSpy).toHaveBeenCalledWith(
-      'Received unregistered custom command',
-      { commandId: 'unknown' }
-    );
+    expect(warnSpy).toHaveBeenCalledWith('Received unregistered command', {
+      commandId: 'unknown',
+    });
     expect(sendSpy).not.toHaveBeenCalled();
   });
 });

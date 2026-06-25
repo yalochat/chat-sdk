@@ -512,7 +512,7 @@ describe('YaloMessageRepositoryRemote', () => {
       });
     });
 
-    it('forwards a customCommandRequest frame as a CustomCommandInvocation', () => {
+    it('forwards a customCommandRequest frame as the raw SdkMessage', () => {
       const { service, emit } = okService();
       const repo = new YaloMessageRepositoryRemote(service, okMedia());
       const callback = vi.fn();
@@ -535,9 +535,11 @@ describe('YaloMessageRepositoryRemote', () => {
 
       expect(callback).toHaveBeenCalledOnce();
       expect(callback.mock.calls[0][0]).toMatchObject({
-        commandId: 'refreshCatalog',
-        payload: '{"region":"mx"}',
         correlationId: 'corr-9',
+        customCommandRequest: {
+          commandId: 'refreshCatalog',
+          payload: '{"region":"mx"}',
+        },
       });
     });
 

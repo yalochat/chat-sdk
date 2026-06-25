@@ -2,14 +2,16 @@
 
 import type { Result } from '@domain/common/result';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { CommandResponseStatus } from '@domain/models/command/channel-command';
 import type {
-  CustomCommandInvocation,
-  CustomCommandStatus,
-} from '@domain/models/command/custom-command';
-import type { SdkMessageAck } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+  SdkMessage,
+  SdkMessageAck,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
+// An SdkMessage carries a channel-to-client command request (its oneof request
+// field plus the correlation id needed to reply).
 export type PollCallback = (
-  event: ChatMessage[] | SdkMessageAck | CustomCommandInvocation
+  event: ChatMessage[] | SdkMessageAck | SdkMessage
 ) => void;
 
 export abstract class YaloMessageRepository {
@@ -40,12 +42,12 @@ export abstract class YaloMessageRepository {
   // must match the one received on the request so the channel can correlate it.
   abstract sendCustomCommandResponse(
     correlationId: string,
-    status: CustomCommandStatus,
+    status: CommandResponseStatus,
     payload: string
   ): Promise<Result<void>>;
 
-  // The callback also receives a CustomCommandInvocation for channel-to-client
-  // custom command requests.
+  // The callback also receives an SdkMessage for channel-to-client command
+  // requests (e.g. a custom command).
 
   // Subscribes to server events. The callback receives a ChatMessage[] for
   // incoming poll messages and an SdkMessageAck for delivery confirmations

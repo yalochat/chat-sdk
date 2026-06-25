@@ -4,9 +4,12 @@ import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
-import type { CustomCommandInvocation } from '@domain/models/command/custom-command';
 import type { PageInfo } from '@domain/common/page';
-import type { SdkMessageAck } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type {
+  CustomCommandRequest,
+  SdkMessage,
+  SdkMessageAck,
+} from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import {
   computeEffectiveAuthUserId,
   computeSessionId,
@@ -659,60 +662,74 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   onMessageReceived = async (
-    event: ChatMessage[] | SdkMessageAck | CustomCommandInvocation
+    event: ChatMessage[] | SdkMessageAck | SdkMessage
   ) => {
     if (Array.isArray(event)) {
       await this._handleChatMessages(event);
       return;
     }
-    if ('commandId' in event) {
-      await this._handleCustomCommand(event);
+    if ('type' in event) {
+      await this._handleMessageAck(event);
       return;
     }
-    await this._handleMessageAck(event);
+    await this._handleChannelCommand(event);
   };
 
+  private async _handleChannelCommand(message: SdkMessage): Promise<void> {
+    if (message.customCommandRequest) {
+      await this._handleCustomCommand(
+        message.correlationId,
+        message.customCommandRequest
+      );
+      return;
+    }
+    this.host.logger.warn('Received unsupported channel command', {
+      correlationId: message.correlationId,
+    });
+  }
+
   private async _handleCustomCommand(
-    invocation: CustomCommandInvocation
+    correlationId: string,
+    request: CustomCommandRequest
   ): Promise<void> {
-    const handler = this.host.customCommands.get(invocation.commandId);
+    const handler = this.host.channelCommands.get(request.commandId);
     if (!handler) {
-      this.host.logger.warn('Received unregistered custom command', {
-        commandId: invocation.commandId,
+      this.host.logger.warn('Received unregistered command', {
+        commandId: request.commandId,
       });
       return;
     }
 
     let payload: string;
     try {
-      payload = (await handler(invocation.payload)) ?? '';
+      payload = (await handler(request.payload)) ?? '';
     } catch (error) {
-      this.host.logger.error('Custom command handler threw', {
+      this.host.logger.error('Command handler threw', {
         error,
-        commandId: invocation.commandId,
+        commandId: request.commandId,
       });
-      await this._sendCustomCommandResponse(invocation, 'error', '');
+      await this._sendCustomCommandResponse(correlationId, 'error', '');
       return;
     }
 
-    await this._sendCustomCommandResponse(invocation, 'success', payload);
+    await this._sendCustomCommandResponse(correlationId, 'success', payload);
   }
 
   private async _sendCustomCommandResponse(
-    invocation: CustomCommandInvocation,
+    correlationId: string,
     status: 'success' | 'error',
     payload: string
   ): Promise<void> {
     const result =
       await this.host.yaloMessageRepository.sendCustomCommandResponse(
-        invocation.correlationId,
+        correlationId,
         status,
         payload
       );
     if (!result.ok) {
       this.host.logger.error('Unable to send custom command response', {
         error: result.error,
-        commandId: invocation.commandId,
+        correlationId,
       });
     }
   }
