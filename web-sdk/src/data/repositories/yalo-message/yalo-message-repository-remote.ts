@@ -2,9 +2,11 @@
 
 import { Err, Ok, type Result } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
-import type {
-  PollMessageItem,
-  SdkMessageAck,
+import type { CommandResponseStatus } from '@domain/models/command/channel-command';
+import {
+  ResponseStatus,
+  type PollMessageItem,
+  type SdkMessageAck,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
 import type { YaloMessageService } from '@data/services/yalo-message/yalo-message-service';
@@ -112,10 +114,34 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     });
   }
 
+  async sendCustomCommandResponse(
+    correlationId: string,
+    status: CommandResponseStatus,
+    payload: string
+  ): Promise<Result<void>> {
+    const timestamp = new Date();
+    return this._service.sendMessage({
+      correlationId,
+      customCommandResponse: {
+        status:
+          status === 'success'
+            ? ResponseStatus.RESPONSE_STATUS_SUCCESS
+            : ResponseStatus.RESPONSE_STATUS_ERROR,
+        payload,
+        timestamp,
+      },
+      timestamp,
+    });
+  }
+
   subscribeToMessages(callback: PollCallback): void {
     this._service.subscribe((event: PollMessageItem | SdkMessageAck) => {
       if ('correlationId' in event) {
         callback(event);
+        return;
+      }
+      if (event.message?.customCommandRequest) {
+        callback(event.message);
         return;
       }
       const message = pollMessageItemToChatMessage(event);

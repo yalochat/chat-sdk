@@ -8,6 +8,7 @@ import {
   MessageRole,
   MessageStatus,
   ProductMessageRequest_Orientation,
+  ResponseStatus,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type {
   MessageCallback,
@@ -425,6 +426,60 @@ describe('YaloMessageRepositoryRemote', () => {
     });
   });
 
+  describe('sendCustomCommandResponse', () => {
+    it('sends a success customCommandResponse echoing the correlation id', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      const result = await repo.sendCustomCommandResponse(
+        'corr-1',
+        'success',
+        '{"ok":true}'
+      );
+
+      expect(result.ok).toBe(true);
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent).toMatchObject({
+        correlationId: 'corr-1',
+        customCommandResponse: {
+          status: ResponseStatus.RESPONSE_STATUS_SUCCESS,
+          payload: '{"ok":true}',
+        },
+      });
+      expect(sent.customCommandResponse.timestamp).toBeInstanceOf(Date);
+    });
+
+    it('maps an error status to RESPONSE_STATUS_ERROR', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.sendCustomCommandResponse('corr-2', 'error', '');
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent.customCommandResponse.status).toBe(
+        ResponseStatus.RESPONSE_STATUS_ERROR
+      );
+    });
+
+    it('propagates send failures', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        failingService(new Error('socket closed')),
+        okMedia()
+      );
+
+      const result = await repo.sendCustomCommandResponse(
+        'corr-3',
+        'success',
+        ''
+      );
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) expect(result.error.message).toBe('socket closed');
+    });
+  });
+
   describe('subscribeToMessages', () => {
     it('subscribes to the service exactly once', () => {
       const { service } = okService();
@@ -454,6 +509,37 @@ describe('YaloMessageRepositoryRemote', () => {
         content: 'Hi there',
         wiId: 'msg-1',
         timestamp: date,
+      });
+    });
+
+    it('forwards a customCommandRequest frame as the raw SdkMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'cmd-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: 'corr-9',
+          timestamp: new Date(),
+          customCommandRequest: {
+            commandId: 'refreshCatalog',
+            payload: '{"region":"mx"}',
+            timestamp: undefined,
+          },
+        },
+      });
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback.mock.calls[0][0]).toMatchObject({
+        correlationId: 'corr-9',
+        customCommandRequest: {
+          commandId: 'refreshCatalog',
+          payload: '{"region":"mx"}',
+        },
       });
     });
 
