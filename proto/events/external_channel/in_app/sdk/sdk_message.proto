@@ -325,21 +325,11 @@ message UpdateCartProductResponse {
   google.protobuf.Timestamp timestamp = 2;
 }
 
-// Cursor identifies a position in a paginated result set. Channels differ in
-// how they represent cursors: some use a numeric offset or page index, others
-// use an opaque string token. The oneof lets a single field carry either form
-// without the client having to know which a given channel uses. An unset
-// Cursor (no variant) means the position is absent (e.g. no next/prev page).
-message Cursor {
-  oneof value {
-    string string_cursor = 1;
-    int32 int_cursor = 2;
-  }
-}
-
 // PageInfo carries cursor-based pagination metadata for a page of results.
 // All cursor and count fields are optional so a source may expose only the
-// subset it can compute (e.g. cursors without a known total).
+// subset it can compute (e.g. cursors without a known total). Cursors are
+// opaque string tokens: numeric channels stringify their offset, token-based
+// channels send the token verbatim, and the client passes them back unchanged.
 message PageInfo {
   // Total number of items across all pages, when known.
   optional int32 total = 1;
@@ -348,12 +338,12 @@ message PageInfo {
   // Current page index, when the source paginates by page number.
   optional int32 page = 3;
   // Cursor that produced the current page.
-  Cursor cursor = 4;
+  optional string cursor = 4;
   // Cursor to pass in the next request to fetch the following page.
   // Absent when the current page is the last one.
-  Cursor next_cursor = 5;
+  optional string next_cursor = 5;
   // Cursor to pass to fetch the previous page. Absent on the first page.
-  Cursor prev_cursor = 6;
+  optional string prev_cursor = 6;
   // Number of items requested per page.
   int32 page_size = 7;
 }
@@ -363,7 +353,7 @@ message PageInfo {
 message GetCartRequest {
   google.protobuf.Timestamp timestamp = 1;
   // Cursor identifying the page to fetch. Omit to fetch the first page.
-  Cursor cursor = 2;
+  optional string cursor = 2;
   // Maximum number of products to return in the page. When omitted the
   // channel applies its own default page size.
   optional int32 page_size = 3;
