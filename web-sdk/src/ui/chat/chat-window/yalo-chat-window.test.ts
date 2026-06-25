@@ -1586,6 +1586,101 @@ describe('YaloChatWindow message ack', () => {
   });
 });
 
+describe('YaloChatWindow custom commands', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    ).mockReturnValue();
+    el = await createElement();
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  const invocation = (overrides = {}) => ({
+    commandId: 'refreshCatalog',
+    payload: '{"region":"mx"}',
+    correlationId: 'corr-1',
+    ...overrides,
+  });
+
+  it('runs a registered handler and sends a success response with its payload', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const handler = vi.fn().mockResolvedValue('{"done":true}');
+    el.customCommands = new Map([['refreshCatalog', handler]]);
+
+    subscribeCallback!(invocation());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(handler).toHaveBeenCalledWith('{"region":"mx"}');
+    expect(sendSpy).toHaveBeenCalledWith(
+      'corr-1',
+      'success',
+      '{"done":true}'
+    );
+  });
+
+  it('sends an empty payload when the handler returns nothing', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
+      .mockResolvedValue(new Ok(undefined));
+    el.customCommands = new Map([['refreshCatalog', vi.fn()]]);
+
+    subscribeCallback!(invocation());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(sendSpy).toHaveBeenCalledWith('corr-1', 'success', '');
+  });
+
+  it('sends an error response when the handler throws', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const handler = vi.fn().mockRejectedValue(new Error('boom'));
+    el.customCommands = new Map([['refreshCatalog', handler]]);
+
+    subscribeCallback!(invocation());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(sendSpy).toHaveBeenCalledWith('corr-1', 'error', '');
+  });
+
+  it('logs a warning and sends no response for an unregistered command', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const warnSpy = vi.spyOn(el.logger, 'warn').mockReturnValue();
+
+    subscribeCallback!(invocation({ commandId: 'unknown' }));
+
+    await vi.waitUntil(() => warnSpy.mock.calls.length > 0);
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Received unregistered custom command',
+      { commandId: 'unknown' }
+    );
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+});
+
 describe('YaloChatWindow pagination', () => {
   let el: YaloChatWindow;
   let pageSpy: ReturnType<typeof vi.spyOn>;

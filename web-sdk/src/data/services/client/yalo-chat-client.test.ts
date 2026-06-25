@@ -212,6 +212,47 @@ describe('YaloChatClient', () => {
     });
   });
 
+  describe('onCommand', () => {
+    it('stores the handler and passes it to the chat window after init', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const handler = vi.fn();
+      client.onCommand('refreshCatalog', handler);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      expect(getChatWindow().customCommands.get('refreshCatalog')).toBe(
+        handler
+      );
+    });
+
+    it('updates the chat window when registering after init', async () => {
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      const handler = vi.fn();
+      client.onCommand('refreshCatalog', handler);
+      expect(getChatWindow().customCommands.get('refreshCatalog')).toBe(
+        handler
+      );
+    });
+
+    it('overwrites a previously registered command handler', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const first = vi.fn();
+      const second = vi.fn();
+      client.onCommand('refreshCatalog', first);
+      client.onCommand('refreshCatalog', second);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      expect(getChatWindow().customCommands.get('refreshCatalog')).toBe(second);
+    });
+  });
+
   describe('close', async () => {
     it('sets open to false on the chat window', async () => {
       const client = new YaloChatClient(baseConfig);

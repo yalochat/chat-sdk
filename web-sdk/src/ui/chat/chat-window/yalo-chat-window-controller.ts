@@ -4,6 +4,7 @@ import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
+import type { CustomCommandInvocation } from '@domain/models/command/custom-command';
 import type { PageInfo } from '@domain/common/page';
 import type { SdkMessageAck } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import {
@@ -657,12 +658,68 @@ export default class YaloChatWindowController implements ReactiveController {
     }
   }
 
-  onMessageReceived = async (event: ChatMessage[] | SdkMessageAck) => {
-    if (!Array.isArray(event)) {
-      await this._handleMessageAck(event);
+  onMessageReceived = async (
+    event: ChatMessage[] | SdkMessageAck | CustomCommandInvocation
+  ) => {
+    if (Array.isArray(event)) {
+      await this._handleChatMessages(event);
       return;
     }
-    const chatMessages = event;
+    if ('commandId' in event) {
+      await this._handleCustomCommand(event);
+      return;
+    }
+    await this._handleMessageAck(event);
+  };
+
+  private async _handleCustomCommand(
+    invocation: CustomCommandInvocation
+  ): Promise<void> {
+    const handler = this.host.customCommands.get(invocation.commandId);
+    if (!handler) {
+      this.host.logger.warn('Received unregistered custom command', {
+        commandId: invocation.commandId,
+      });
+      return;
+    }
+
+    let payload: string;
+    try {
+      payload = (await handler(invocation.payload)) ?? '';
+    } catch (error) {
+      this.host.logger.error('Custom command handler threw', {
+        error,
+        commandId: invocation.commandId,
+      });
+      await this._sendCustomCommandResponse(invocation, 'error', '');
+      return;
+    }
+
+    await this._sendCustomCommandResponse(invocation, 'success', payload);
+  }
+
+  private async _sendCustomCommandResponse(
+    invocation: CustomCommandInvocation,
+    status: 'success' | 'error',
+    payload: string
+  ): Promise<void> {
+    const result =
+      await this.host.yaloMessageRepository.sendCustomCommandResponse(
+        invocation.correlationId,
+        status,
+        payload
+      );
+    if (!result.ok) {
+      this.host.logger.error('Unable to send custom command response', {
+        error: result.error,
+        commandId: invocation.commandId,
+      });
+    }
+  }
+
+  private async _handleChatMessages(
+    chatMessages: ChatMessage[]
+  ): Promise<void> {
     clearTimeout(this._writingTimeout);
     this.isWriting = false;
     this.host.logger.debug(`Received ${chatMessages.length} messages`);
@@ -692,7 +749,7 @@ export default class YaloChatWindowController implements ReactiveController {
       this.chatMessages = [...insertedMessages, ...this.chatMessages];
       this.host.requestUpdate();
     }
-  };
+  }
 
   hostDisconnected() {
     clearTimeout(this._writingTimeout);
