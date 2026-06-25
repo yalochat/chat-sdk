@@ -1140,6 +1140,28 @@ public final class SdkMessageOuterClass {
     yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse getUpdateCartProductResponse();
 
     /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     * @return Whether the getCartRequest field is set.
+     */
+    boolean hasGetCartRequest();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     * @return The getCartRequest.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest getGetCartRequest();
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     * @return Whether the getCartResponse field is set.
+     */
+    boolean hasGetCartResponse();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     * @return The getCartResponse.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse getGetCartResponse();
+
+    /**
      * <pre>
      * Channel → client
      * </pre>
@@ -1329,6 +1351,8 @@ public final class SdkMessageOuterClass {
       ADD_PROMOTION_RESPONSE(29),
       UPDATE_CART_PRODUCT_REQUEST(46),
       UPDATE_CART_PRODUCT_RESPONSE(47),
+      GET_CART_REQUEST(50),
+      GET_CART_RESPONSE(51),
       PROMOTION_MESSAGE_REQUEST(30),
       PROMOTION_MESSAGE_RESPONSE(31),
       PRODUCT_MESSAGE_REQUEST(32),
@@ -1374,6 +1398,8 @@ public final class SdkMessageOuterClass {
           case 29: return ADD_PROMOTION_RESPONSE;
           case 46: return UPDATE_CART_PRODUCT_REQUEST;
           case 47: return UPDATE_CART_PRODUCT_RESPONSE;
+          case 50: return GET_CART_REQUEST;
+          case 51: return GET_CART_RESPONSE;
           case 30: return PROMOTION_MESSAGE_REQUEST;
           case 31: return PROMOTION_MESSAGE_RESPONSE;
           case 32: return PRODUCT_MESSAGE_REQUEST;
@@ -2494,6 +2520,110 @@ public final class SdkMessageOuterClass {
      */
     private void clearUpdateCartProductResponse() {
       if (payloadCase_ == 47) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int GET_CART_REQUEST_FIELD_NUMBER = 50;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     */
+    @java.lang.Override
+    public boolean hasGetCartRequest() {
+      return payloadCase_ == 50;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest getGetCartRequest() {
+      if (payloadCase_ == 50) {
+         return (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setGetCartRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 50;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeGetCartRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 50 &&
+          payload_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.newBuilder((yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 50;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+     */
+    private void clearGetCartRequest() {
+      if (payloadCase_ == 50) {
+        payloadCase_ = 0;
+        payload_ = null;
+      }
+    }
+
+    public static final int GET_CART_RESPONSE_FIELD_NUMBER = 51;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     */
+    @java.lang.Override
+    public boolean hasGetCartResponse() {
+      return payloadCase_ == 51;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse getGetCartResponse() {
+      if (payloadCase_ == 51) {
+         return (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse) payload_;
+      }
+      return yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setGetCartResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse value) {
+      value.getClass();  // minimal bytecode null check
+      payload_ = value;
+      payloadCase_ = 51;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void mergeGetCartResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse value) {
+      value.getClass();  // minimal bytecode null check
+      if (payloadCase_ == 51 &&
+          payload_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.getDefaultInstance()) {
+        payload_ = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.newBuilder((yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse) payload_)
+            .mergeFrom(value).buildPartial();
+      } else {
+        payload_ = value;
+      }
+      payloadCase_ = 51;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+     */
+    private void clearGetCartResponse() {
+      if (payloadCase_ == 51) {
         payloadCase_ = 0;
         payload_ = null;
       }
@@ -4307,6 +4437,102 @@ public final class SdkMessageOuterClass {
       }
 
       /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+       */
+      @java.lang.Override
+      public boolean hasGetCartRequest() {
+        return instance.hasGetCartRequest();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest getGetCartRequest() {
+        return instance.getGetCartRequest();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+       */
+      public Builder setGetCartRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest value) {
+        copyOnWrite();
+        instance.setGetCartRequest(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+       */
+      public Builder setGetCartRequest(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.Builder builderForValue) {
+        copyOnWrite();
+        instance.setGetCartRequest(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+       */
+      public Builder mergeGetCartRequest(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest value) {
+        copyOnWrite();
+        instance.mergeGetCartRequest(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartRequest get_cart_request = 50;</code>
+       */
+      public Builder clearGetCartRequest() {
+        copyOnWrite();
+        instance.clearGetCartRequest();
+        return this;
+      }
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+       */
+      @java.lang.Override
+      public boolean hasGetCartResponse() {
+        return instance.hasGetCartResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse getGetCartResponse() {
+        return instance.getGetCartResponse();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+       */
+      public Builder setGetCartResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse value) {
+        copyOnWrite();
+        instance.setGetCartResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+       */
+      public Builder setGetCartResponse(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.Builder builderForValue) {
+        copyOnWrite();
+        instance.setGetCartResponse(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+       */
+      public Builder mergeGetCartResponse(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse value) {
+        copyOnWrite();
+        instance.mergeGetCartResponse(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.GetCartResponse get_cart_response = 51;</code>
+       */
+      public Builder clearGetCartResponse() {
+        copyOnWrite();
+        instance.clearGetCartResponse();
+        return this;
+      }
+
+      /**
        * <pre>
        * Channel → client
        * </pre>
@@ -4981,13 +5207,16 @@ public final class SdkMessageOuterClass {
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.UpdateCartProductResponse.class,
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageRequest.class,
               yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse.class,
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.class,
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.class,
             };
             java.lang.String info =
-                "\u0000 \u0001\u0001\u00011 \u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<\u0000" +
-                "\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000\u0016" +
-                "<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c<\u0000" +
-                "\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$<\u0000" +
-                "%<\u0000&<\u0000,<\u0000-<\u0000.<\u0000/<\u00000<\u00001<\u0000";
+                "\u0000\"\u0001\u0001\u00013\"\u0000\u0000\u0000\u0001\u0208\u0002\u1009\u0000\n<" +
+                "\u0000\f<\u0000\u000e<\u0000\u0010<\u0000\u0012<\u0000\u0014<\u0000\u0015<\u0000" +
+                "\u0016<\u0000\u0017<\u0000\u0018<\u0000\u0019<\u0000\u001a<\u0000\u001b<\u0000\u001c" +
+                "<\u0000\u001d<\u0000\u001e<\u0000\u001f<\u0000 <\u0000!<\u0000\"<\u0000#<\u0000$" +
+                "<\u0000%<\u0000&<\u0000,<\u0000-<\u0000.<\u0000/<\u00000<\u00001<\u00002<\u00003" +
+                "<\u0000";
             return newMessageInfo(DEFAULT_INSTANCE, info, objects);
         }
         case GET_DEFAULT_INSTANCE: {
@@ -19408,6 +19637,2780 @@ public final class SdkMessageOuterClass {
     private static volatile com.google.protobuf.Parser<UpdateCartProductResponse> PARSER;
 
     public static com.google.protobuf.Parser<UpdateCartProductResponse> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface PageInfoOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.PageInfo)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <pre>
+     * Total number of items across all pages, when known.
+     * </pre>
+     *
+     * <code>optional int32 total = 1;</code>
+     * @return Whether the total field is set.
+     */
+    boolean hasTotal();
+    /**
+     * <pre>
+     * Total number of items across all pages, when known.
+     * </pre>
+     *
+     * <code>optional int32 total = 1;</code>
+     * @return The total.
+     */
+    int getTotal();
+
+    /**
+     * <pre>
+     * Total number of pages across the full result set, when known.
+     * </pre>
+     *
+     * <code>optional int32 total_pages = 2;</code>
+     * @return Whether the totalPages field is set.
+     */
+    boolean hasTotalPages();
+    /**
+     * <pre>
+     * Total number of pages across the full result set, when known.
+     * </pre>
+     *
+     * <code>optional int32 total_pages = 2;</code>
+     * @return The totalPages.
+     */
+    int getTotalPages();
+
+    /**
+     * <pre>
+     * Current page index, when the source paginates by page number.
+     * </pre>
+     *
+     * <code>optional int32 page = 3;</code>
+     * @return Whether the page field is set.
+     */
+    boolean hasPage();
+    /**
+     * <pre>
+     * Current page index, when the source paginates by page number.
+     * </pre>
+     *
+     * <code>optional int32 page = 3;</code>
+     * @return The page.
+     */
+    int getPage();
+
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @return Whether the cursor field is set.
+     */
+    boolean hasCursor();
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @return The cursor.
+     */
+    java.lang.String getCursor();
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @return The bytes for cursor.
+     */
+    com.google.protobuf.ByteString
+        getCursorBytes();
+
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @return Whether the nextCursor field is set.
+     */
+    boolean hasNextCursor();
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @return The nextCursor.
+     */
+    java.lang.String getNextCursor();
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @return The bytes for nextCursor.
+     */
+    com.google.protobuf.ByteString
+        getNextCursorBytes();
+
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @return Whether the prevCursor field is set.
+     */
+    boolean hasPrevCursor();
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @return The prevCursor.
+     */
+    java.lang.String getPrevCursor();
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @return The bytes for prevCursor.
+     */
+    com.google.protobuf.ByteString
+        getPrevCursorBytes();
+
+    /**
+     * <pre>
+     * Number of items requested per page.
+     * </pre>
+     *
+     * <code>int32 page_size = 7;</code>
+     * @return The pageSize.
+     */
+    int getPageSize();
+  }
+  /**
+   * <pre>
+   * PageInfo carries cursor-based pagination metadata for a page of results.
+   * All cursor and count fields are optional so a source may expose only the
+   * subset it can compute (e.g. cursors without a known total). Cursors are
+   * opaque string tokens: numeric channels stringify their offset, token-based
+   * channels send the token verbatim, and the client passes them back unchanged.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.PageInfo}
+   */
+  public  static final class PageInfo extends
+      com.google.protobuf.GeneratedMessageLite<
+          PageInfo, PageInfo.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.PageInfo)
+      PageInfoOrBuilder {
+    private PageInfo() {
+      cursor_ = "";
+      nextCursor_ = "";
+      prevCursor_ = "";
+    }
+    private int bitField0_;
+    public static final int TOTAL_FIELD_NUMBER = 1;
+    private int total_;
+    /**
+     * <pre>
+     * Total number of items across all pages, when known.
+     * </pre>
+     *
+     * <code>optional int32 total = 1;</code>
+     * @return Whether the total field is set.
+     */
+    @java.lang.Override
+    public boolean hasTotal() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <pre>
+     * Total number of items across all pages, when known.
+     * </pre>
+     *
+     * <code>optional int32 total = 1;</code>
+     * @return The total.
+     */
+    @java.lang.Override
+    public int getTotal() {
+      return total_;
+    }
+    /**
+     * <pre>
+     * Total number of items across all pages, when known.
+     * </pre>
+     *
+     * <code>optional int32 total = 1;</code>
+     * @param value The total to set.
+     */
+    private void setTotal(int value) {
+      bitField0_ |= 0x00000001;
+      total_ = value;
+    }
+    /**
+     * <pre>
+     * Total number of items across all pages, when known.
+     * </pre>
+     *
+     * <code>optional int32 total = 1;</code>
+     */
+    private void clearTotal() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      total_ = 0;
+    }
+
+    public static final int TOTAL_PAGES_FIELD_NUMBER = 2;
+    private int totalPages_;
+    /**
+     * <pre>
+     * Total number of pages across the full result set, when known.
+     * </pre>
+     *
+     * <code>optional int32 total_pages = 2;</code>
+     * @return Whether the totalPages field is set.
+     */
+    @java.lang.Override
+    public boolean hasTotalPages() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     * <pre>
+     * Total number of pages across the full result set, when known.
+     * </pre>
+     *
+     * <code>optional int32 total_pages = 2;</code>
+     * @return The totalPages.
+     */
+    @java.lang.Override
+    public int getTotalPages() {
+      return totalPages_;
+    }
+    /**
+     * <pre>
+     * Total number of pages across the full result set, when known.
+     * </pre>
+     *
+     * <code>optional int32 total_pages = 2;</code>
+     * @param value The totalPages to set.
+     */
+    private void setTotalPages(int value) {
+      bitField0_ |= 0x00000002;
+      totalPages_ = value;
+    }
+    /**
+     * <pre>
+     * Total number of pages across the full result set, when known.
+     * </pre>
+     *
+     * <code>optional int32 total_pages = 2;</code>
+     */
+    private void clearTotalPages() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      totalPages_ = 0;
+    }
+
+    public static final int PAGE_FIELD_NUMBER = 3;
+    private int page_;
+    /**
+     * <pre>
+     * Current page index, when the source paginates by page number.
+     * </pre>
+     *
+     * <code>optional int32 page = 3;</code>
+     * @return Whether the page field is set.
+     */
+    @java.lang.Override
+    public boolean hasPage() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <pre>
+     * Current page index, when the source paginates by page number.
+     * </pre>
+     *
+     * <code>optional int32 page = 3;</code>
+     * @return The page.
+     */
+    @java.lang.Override
+    public int getPage() {
+      return page_;
+    }
+    /**
+     * <pre>
+     * Current page index, when the source paginates by page number.
+     * </pre>
+     *
+     * <code>optional int32 page = 3;</code>
+     * @param value The page to set.
+     */
+    private void setPage(int value) {
+      bitField0_ |= 0x00000004;
+      page_ = value;
+    }
+    /**
+     * <pre>
+     * Current page index, when the source paginates by page number.
+     * </pre>
+     *
+     * <code>optional int32 page = 3;</code>
+     */
+    private void clearPage() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      page_ = 0;
+    }
+
+    public static final int CURSOR_FIELD_NUMBER = 4;
+    private java.lang.String cursor_;
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @return Whether the cursor field is set.
+     */
+    @java.lang.Override
+    public boolean hasCursor() {
+      return ((bitField0_ & 0x00000008) != 0);
+    }
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @return The cursor.
+     */
+    @java.lang.Override
+    public java.lang.String getCursor() {
+      return cursor_;
+    }
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @return The bytes for cursor.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getCursorBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(cursor_);
+    }
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @param value The cursor to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setCursor(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000008;
+      cursor_ = value;
+    }
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     */
+    private void clearCursor() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      cursor_ = getDefaultInstance().getCursor();
+    }
+    /**
+     * <pre>
+     * Cursor that produced the current page.
+     * </pre>
+     *
+     * <code>optional string cursor = 4;</code>
+     * @param value The bytes for cursor to set.
+     */
+    private void setCursorBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      cursor_ = value.toStringUtf8();
+      bitField0_ |= 0x00000008;
+    }
+
+    public static final int NEXT_CURSOR_FIELD_NUMBER = 5;
+    private java.lang.String nextCursor_;
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @return Whether the nextCursor field is set.
+     */
+    @java.lang.Override
+    public boolean hasNextCursor() {
+      return ((bitField0_ & 0x00000010) != 0);
+    }
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @return The nextCursor.
+     */
+    @java.lang.Override
+    public java.lang.String getNextCursor() {
+      return nextCursor_;
+    }
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @return The bytes for nextCursor.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getNextCursorBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(nextCursor_);
+    }
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @param value The nextCursor to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setNextCursor(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000010;
+      nextCursor_ = value;
+    }
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     */
+    private void clearNextCursor() {
+      bitField0_ = (bitField0_ & ~0x00000010);
+      nextCursor_ = getDefaultInstance().getNextCursor();
+    }
+    /**
+     * <pre>
+     * Cursor to pass in the next request to fetch the following page.
+     * Absent when the current page is the last one.
+     * </pre>
+     *
+     * <code>optional string next_cursor = 5;</code>
+     * @param value The bytes for nextCursor to set.
+     */
+    private void setNextCursorBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      nextCursor_ = value.toStringUtf8();
+      bitField0_ |= 0x00000010;
+    }
+
+    public static final int PREV_CURSOR_FIELD_NUMBER = 6;
+    private java.lang.String prevCursor_;
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @return Whether the prevCursor field is set.
+     */
+    @java.lang.Override
+    public boolean hasPrevCursor() {
+      return ((bitField0_ & 0x00000020) != 0);
+    }
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @return The prevCursor.
+     */
+    @java.lang.Override
+    public java.lang.String getPrevCursor() {
+      return prevCursor_;
+    }
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @return The bytes for prevCursor.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getPrevCursorBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(prevCursor_);
+    }
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @param value The prevCursor to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setPrevCursor(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000020;
+      prevCursor_ = value;
+    }
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     */
+    private void clearPrevCursor() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      prevCursor_ = getDefaultInstance().getPrevCursor();
+    }
+    /**
+     * <pre>
+     * Cursor to pass to fetch the previous page. Absent on the first page.
+     * </pre>
+     *
+     * <code>optional string prev_cursor = 6;</code>
+     * @param value The bytes for prevCursor to set.
+     */
+    private void setPrevCursorBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      prevCursor_ = value.toStringUtf8();
+      bitField0_ |= 0x00000020;
+    }
+
+    public static final int PAGE_SIZE_FIELD_NUMBER = 7;
+    private int pageSize_;
+    /**
+     * <pre>
+     * Number of items requested per page.
+     * </pre>
+     *
+     * <code>int32 page_size = 7;</code>
+     * @return The pageSize.
+     */
+    @java.lang.Override
+    public int getPageSize() {
+      return pageSize_;
+    }
+    /**
+     * <pre>
+     * Number of items requested per page.
+     * </pre>
+     *
+     * <code>int32 page_size = 7;</code>
+     * @param value The pageSize to set.
+     */
+    private void setPageSize(int value) {
+      
+      pageSize_ = value;
+    }
+    /**
+     * <pre>
+     * Number of items requested per page.
+     * </pre>
+     *
+     * <code>int32 page_size = 7;</code>
+     */
+    private void clearPageSize() {
+
+      pageSize_ = 0;
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * PageInfo carries cursor-based pagination metadata for a page of results.
+     * All cursor and count fields are optional so a source may expose only the
+     * subset it can compute (e.g. cursors without a known total). Cursors are
+     * opaque string tokens: numeric channels stringify their offset, token-based
+     * channels send the token verbatim, and the client passes them back unchanged.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.PageInfo}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.PageInfo)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfoOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <pre>
+       * Total number of items across all pages, when known.
+       * </pre>
+       *
+       * <code>optional int32 total = 1;</code>
+       * @return Whether the total field is set.
+       */
+      @java.lang.Override
+      public boolean hasTotal() {
+        return instance.hasTotal();
+      }
+      /**
+       * <pre>
+       * Total number of items across all pages, when known.
+       * </pre>
+       *
+       * <code>optional int32 total = 1;</code>
+       * @return The total.
+       */
+      @java.lang.Override
+      public int getTotal() {
+        return instance.getTotal();
+      }
+      /**
+       * <pre>
+       * Total number of items across all pages, when known.
+       * </pre>
+       *
+       * <code>optional int32 total = 1;</code>
+       * @param value The total to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTotal(int value) {
+        copyOnWrite();
+        instance.setTotal(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Total number of items across all pages, when known.
+       * </pre>
+       *
+       * <code>optional int32 total = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTotal() {
+        copyOnWrite();
+        instance.clearTotal();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Total number of pages across the full result set, when known.
+       * </pre>
+       *
+       * <code>optional int32 total_pages = 2;</code>
+       * @return Whether the totalPages field is set.
+       */
+      @java.lang.Override
+      public boolean hasTotalPages() {
+        return instance.hasTotalPages();
+      }
+      /**
+       * <pre>
+       * Total number of pages across the full result set, when known.
+       * </pre>
+       *
+       * <code>optional int32 total_pages = 2;</code>
+       * @return The totalPages.
+       */
+      @java.lang.Override
+      public int getTotalPages() {
+        return instance.getTotalPages();
+      }
+      /**
+       * <pre>
+       * Total number of pages across the full result set, when known.
+       * </pre>
+       *
+       * <code>optional int32 total_pages = 2;</code>
+       * @param value The totalPages to set.
+       * @return This builder for chaining.
+       */
+      public Builder setTotalPages(int value) {
+        copyOnWrite();
+        instance.setTotalPages(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Total number of pages across the full result set, when known.
+       * </pre>
+       *
+       * <code>optional int32 total_pages = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearTotalPages() {
+        copyOnWrite();
+        instance.clearTotalPages();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Current page index, when the source paginates by page number.
+       * </pre>
+       *
+       * <code>optional int32 page = 3;</code>
+       * @return Whether the page field is set.
+       */
+      @java.lang.Override
+      public boolean hasPage() {
+        return instance.hasPage();
+      }
+      /**
+       * <pre>
+       * Current page index, when the source paginates by page number.
+       * </pre>
+       *
+       * <code>optional int32 page = 3;</code>
+       * @return The page.
+       */
+      @java.lang.Override
+      public int getPage() {
+        return instance.getPage();
+      }
+      /**
+       * <pre>
+       * Current page index, when the source paginates by page number.
+       * </pre>
+       *
+       * <code>optional int32 page = 3;</code>
+       * @param value The page to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPage(int value) {
+        copyOnWrite();
+        instance.setPage(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Current page index, when the source paginates by page number.
+       * </pre>
+       *
+       * <code>optional int32 page = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPage() {
+        copyOnWrite();
+        instance.clearPage();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Cursor that produced the current page.
+       * </pre>
+       *
+       * <code>optional string cursor = 4;</code>
+       * @return Whether the cursor field is set.
+       */
+      @java.lang.Override
+      public boolean hasCursor() {
+        return instance.hasCursor();
+      }
+      /**
+       * <pre>
+       * Cursor that produced the current page.
+       * </pre>
+       *
+       * <code>optional string cursor = 4;</code>
+       * @return The cursor.
+       */
+      @java.lang.Override
+      public java.lang.String getCursor() {
+        return instance.getCursor();
+      }
+      /**
+       * <pre>
+       * Cursor that produced the current page.
+       * </pre>
+       *
+       * <code>optional string cursor = 4;</code>
+       * @return The bytes for cursor.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getCursorBytes() {
+        return instance.getCursorBytes();
+      }
+      /**
+       * <pre>
+       * Cursor that produced the current page.
+       * </pre>
+       *
+       * <code>optional string cursor = 4;</code>
+       * @param value The cursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCursor(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setCursor(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor that produced the current page.
+       * </pre>
+       *
+       * <code>optional string cursor = 4;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCursor() {
+        copyOnWrite();
+        instance.clearCursor();
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor that produced the current page.
+       * </pre>
+       *
+       * <code>optional string cursor = 4;</code>
+       * @param value The bytes for cursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCursorBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setCursorBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Cursor to pass in the next request to fetch the following page.
+       * Absent when the current page is the last one.
+       * </pre>
+       *
+       * <code>optional string next_cursor = 5;</code>
+       * @return Whether the nextCursor field is set.
+       */
+      @java.lang.Override
+      public boolean hasNextCursor() {
+        return instance.hasNextCursor();
+      }
+      /**
+       * <pre>
+       * Cursor to pass in the next request to fetch the following page.
+       * Absent when the current page is the last one.
+       * </pre>
+       *
+       * <code>optional string next_cursor = 5;</code>
+       * @return The nextCursor.
+       */
+      @java.lang.Override
+      public java.lang.String getNextCursor() {
+        return instance.getNextCursor();
+      }
+      /**
+       * <pre>
+       * Cursor to pass in the next request to fetch the following page.
+       * Absent when the current page is the last one.
+       * </pre>
+       *
+       * <code>optional string next_cursor = 5;</code>
+       * @return The bytes for nextCursor.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getNextCursorBytes() {
+        return instance.getNextCursorBytes();
+      }
+      /**
+       * <pre>
+       * Cursor to pass in the next request to fetch the following page.
+       * Absent when the current page is the last one.
+       * </pre>
+       *
+       * <code>optional string next_cursor = 5;</code>
+       * @param value The nextCursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setNextCursor(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setNextCursor(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor to pass in the next request to fetch the following page.
+       * Absent when the current page is the last one.
+       * </pre>
+       *
+       * <code>optional string next_cursor = 5;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearNextCursor() {
+        copyOnWrite();
+        instance.clearNextCursor();
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor to pass in the next request to fetch the following page.
+       * Absent when the current page is the last one.
+       * </pre>
+       *
+       * <code>optional string next_cursor = 5;</code>
+       * @param value The bytes for nextCursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setNextCursorBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setNextCursorBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Cursor to pass to fetch the previous page. Absent on the first page.
+       * </pre>
+       *
+       * <code>optional string prev_cursor = 6;</code>
+       * @return Whether the prevCursor field is set.
+       */
+      @java.lang.Override
+      public boolean hasPrevCursor() {
+        return instance.hasPrevCursor();
+      }
+      /**
+       * <pre>
+       * Cursor to pass to fetch the previous page. Absent on the first page.
+       * </pre>
+       *
+       * <code>optional string prev_cursor = 6;</code>
+       * @return The prevCursor.
+       */
+      @java.lang.Override
+      public java.lang.String getPrevCursor() {
+        return instance.getPrevCursor();
+      }
+      /**
+       * <pre>
+       * Cursor to pass to fetch the previous page. Absent on the first page.
+       * </pre>
+       *
+       * <code>optional string prev_cursor = 6;</code>
+       * @return The bytes for prevCursor.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getPrevCursorBytes() {
+        return instance.getPrevCursorBytes();
+      }
+      /**
+       * <pre>
+       * Cursor to pass to fetch the previous page. Absent on the first page.
+       * </pre>
+       *
+       * <code>optional string prev_cursor = 6;</code>
+       * @param value The prevCursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPrevCursor(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setPrevCursor(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor to pass to fetch the previous page. Absent on the first page.
+       * </pre>
+       *
+       * <code>optional string prev_cursor = 6;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPrevCursor() {
+        copyOnWrite();
+        instance.clearPrevCursor();
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor to pass to fetch the previous page. Absent on the first page.
+       * </pre>
+       *
+       * <code>optional string prev_cursor = 6;</code>
+       * @param value The bytes for prevCursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPrevCursorBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setPrevCursorBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Number of items requested per page.
+       * </pre>
+       *
+       * <code>int32 page_size = 7;</code>
+       * @return The pageSize.
+       */
+      @java.lang.Override
+      public int getPageSize() {
+        return instance.getPageSize();
+      }
+      /**
+       * <pre>
+       * Number of items requested per page.
+       * </pre>
+       *
+       * <code>int32 page_size = 7;</code>
+       * @param value The pageSize to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPageSize(int value) {
+        copyOnWrite();
+        instance.setPageSize(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Number of items requested per page.
+       * </pre>
+       *
+       * <code>int32 page_size = 7;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPageSize() {
+        copyOnWrite();
+        instance.clearPageSize();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.PageInfo)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "total_",
+              "totalPages_",
+              "page_",
+              "cursor_",
+              "nextCursor_",
+              "prevCursor_",
+              "pageSize_",
+            };
+            java.lang.String info =
+                "\u0000\u0007\u0000\u0001\u0001\u0007\u0007\u0000\u0000\u0000\u0001\u1004\u0000\u0002" +
+                "\u1004\u0001\u0003\u1004\u0002\u0004\u1208\u0003\u0005\u1208\u0004\u0006\u1208\u0005" +
+                "\u0007\u0004";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.PageInfo)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo DEFAULT_INSTANCE;
+    static {
+      PageInfo defaultInstance = new PageInfo();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        PageInfo.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<PageInfo> PARSER;
+
+    public static com.google.protobuf.Parser<PageInfo> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface GetCartRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.GetCartRequest)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @return Whether the cursor field is set.
+     */
+    boolean hasCursor();
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @return The cursor.
+     */
+    java.lang.String getCursor();
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @return The bytes for cursor.
+     */
+    com.google.protobuf.ByteString
+        getCursorBytes();
+
+    /**
+     * <pre>
+     * Maximum number of products to return in the page. When omitted the
+     * channel applies its own default page size.
+     * </pre>
+     *
+     * <code>optional int32 page_size = 3;</code>
+     * @return Whether the pageSize field is set.
+     */
+    boolean hasPageSize();
+    /**
+     * <pre>
+     * Maximum number of products to return in the page. When omitted the
+     * channel applies its own default page size.
+     * </pre>
+     *
+     * <code>optional int32 page_size = 3;</code>
+     * @return The pageSize.
+     */
+    int getPageSize();
+  }
+  /**
+   * <pre>
+   * GetCartRequest asks the channel to return the products in the active cart,
+   * one page at a time. Omit cursor to fetch the first page.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.GetCartRequest}
+   */
+  public  static final class GetCartRequest extends
+      com.google.protobuf.GeneratedMessageLite<
+          GetCartRequest, GetCartRequest.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.GetCartRequest)
+      GetCartRequestOrBuilder {
+    private GetCartRequest() {
+      cursor_ = "";
+    }
+    private int bitField0_;
+    public static final int TIMESTAMP_FIELD_NUMBER = 1;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static final int CURSOR_FIELD_NUMBER = 2;
+    private java.lang.String cursor_;
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @return Whether the cursor field is set.
+     */
+    @java.lang.Override
+    public boolean hasCursor() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @return The cursor.
+     */
+    @java.lang.Override
+    public java.lang.String getCursor() {
+      return cursor_;
+    }
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @return The bytes for cursor.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getCursorBytes() {
+      return com.google.protobuf.ByteString.copyFromUtf8(cursor_);
+    }
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @param value The cursor to set.
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setCursor(
+        java.lang.String value) {
+      value.getClass();  // minimal bytecode null check
+      bitField0_ |= 0x00000002;
+      cursor_ = value;
+    }
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     */
+    private void clearCursor() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      cursor_ = getDefaultInstance().getCursor();
+    }
+    /**
+     * <pre>
+     * Cursor identifying the page to fetch. Omit to fetch the first page.
+     * </pre>
+     *
+     * <code>optional string cursor = 2;</code>
+     * @param value The bytes for cursor to set.
+     */
+    private void setCursorBytes(
+        com.google.protobuf.ByteString value) {
+      checkByteStringIsUtf8(value);
+      cursor_ = value.toStringUtf8();
+      bitField0_ |= 0x00000002;
+    }
+
+    public static final int PAGE_SIZE_FIELD_NUMBER = 3;
+    private int pageSize_;
+    /**
+     * <pre>
+     * Maximum number of products to return in the page. When omitted the
+     * channel applies its own default page size.
+     * </pre>
+     *
+     * <code>optional int32 page_size = 3;</code>
+     * @return Whether the pageSize field is set.
+     */
+    @java.lang.Override
+    public boolean hasPageSize() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     * <pre>
+     * Maximum number of products to return in the page. When omitted the
+     * channel applies its own default page size.
+     * </pre>
+     *
+     * <code>optional int32 page_size = 3;</code>
+     * @return The pageSize.
+     */
+    @java.lang.Override
+    public int getPageSize() {
+      return pageSize_;
+    }
+    /**
+     * <pre>
+     * Maximum number of products to return in the page. When omitted the
+     * channel applies its own default page size.
+     * </pre>
+     *
+     * <code>optional int32 page_size = 3;</code>
+     * @param value The pageSize to set.
+     */
+    private void setPageSize(int value) {
+      bitField0_ |= 0x00000004;
+      pageSize_ = value;
+    }
+    /**
+     * <pre>
+     * Maximum number of products to return in the page. When omitted the
+     * channel applies its own default page size.
+     * </pre>
+     *
+     * <code>optional int32 page_size = 3;</code>
+     */
+    private void clearPageSize() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      pageSize_ = 0;
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * GetCartRequest asks the channel to return the products in the active cart,
+     * one page at a time. Omit cursor to fetch the first page.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.GetCartRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.GetCartRequest)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequestOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 1;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Cursor identifying the page to fetch. Omit to fetch the first page.
+       * </pre>
+       *
+       * <code>optional string cursor = 2;</code>
+       * @return Whether the cursor field is set.
+       */
+      @java.lang.Override
+      public boolean hasCursor() {
+        return instance.hasCursor();
+      }
+      /**
+       * <pre>
+       * Cursor identifying the page to fetch. Omit to fetch the first page.
+       * </pre>
+       *
+       * <code>optional string cursor = 2;</code>
+       * @return The cursor.
+       */
+      @java.lang.Override
+      public java.lang.String getCursor() {
+        return instance.getCursor();
+      }
+      /**
+       * <pre>
+       * Cursor identifying the page to fetch. Omit to fetch the first page.
+       * </pre>
+       *
+       * <code>optional string cursor = 2;</code>
+       * @return The bytes for cursor.
+       */
+      @java.lang.Override
+      public com.google.protobuf.ByteString
+          getCursorBytes() {
+        return instance.getCursorBytes();
+      }
+      /**
+       * <pre>
+       * Cursor identifying the page to fetch. Omit to fetch the first page.
+       * </pre>
+       *
+       * <code>optional string cursor = 2;</code>
+       * @param value The cursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCursor(
+          java.lang.String value) {
+        copyOnWrite();
+        instance.setCursor(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor identifying the page to fetch. Omit to fetch the first page.
+       * </pre>
+       *
+       * <code>optional string cursor = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearCursor() {
+        copyOnWrite();
+        instance.clearCursor();
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor identifying the page to fetch. Omit to fetch the first page.
+       * </pre>
+       *
+       * <code>optional string cursor = 2;</code>
+       * @param value The bytes for cursor to set.
+       * @return This builder for chaining.
+       */
+      public Builder setCursorBytes(
+          com.google.protobuf.ByteString value) {
+        copyOnWrite();
+        instance.setCursorBytes(value);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Maximum number of products to return in the page. When omitted the
+       * channel applies its own default page size.
+       * </pre>
+       *
+       * <code>optional int32 page_size = 3;</code>
+       * @return Whether the pageSize field is set.
+       */
+      @java.lang.Override
+      public boolean hasPageSize() {
+        return instance.hasPageSize();
+      }
+      /**
+       * <pre>
+       * Maximum number of products to return in the page. When omitted the
+       * channel applies its own default page size.
+       * </pre>
+       *
+       * <code>optional int32 page_size = 3;</code>
+       * @return The pageSize.
+       */
+      @java.lang.Override
+      public int getPageSize() {
+        return instance.getPageSize();
+      }
+      /**
+       * <pre>
+       * Maximum number of products to return in the page. When omitted the
+       * channel applies its own default page size.
+       * </pre>
+       *
+       * <code>optional int32 page_size = 3;</code>
+       * @param value The pageSize to set.
+       * @return This builder for chaining.
+       */
+      public Builder setPageSize(int value) {
+        copyOnWrite();
+        instance.setPageSize(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Maximum number of products to return in the page. When omitted the
+       * channel applies its own default page size.
+       * </pre>
+       *
+       * <code>optional int32 page_size = 3;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearPageSize() {
+        copyOnWrite();
+        instance.clearPageSize();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.GetCartRequest)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "timestamp_",
+              "cursor_",
+              "pageSize_",
+            };
+            java.lang.String info =
+                "\u0000\u0003\u0000\u0001\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u1009\u0000\u0002" +
+                "\u1208\u0001\u0003\u1004\u0002";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.GetCartRequest)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest DEFAULT_INSTANCE;
+    static {
+      GetCartRequest defaultInstance = new GetCartRequest();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        GetCartRequest.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<GetCartRequest> PARSER;
+
+    public static com.google.protobuf.Parser<GetCartRequest> parser() {
+      return DEFAULT_INSTANCE.getParserForType();
+    }
+  }
+
+  public interface GetCartResponseOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.GetCartResponse)
+      com.google.protobuf.MessageLiteOrBuilder {
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The enum numeric value on the wire for status.
+     */
+    int getStatusValue();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The status.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    java.util.List<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> 
+        getProductsList();
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product getProducts(int index);
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    int getProductsCount();
+
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     * @return Whether the pageInfo field is set.
+     */
+    boolean hasPageInfo();
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     * @return The pageInfo.
+     */
+    yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo getPageInfo();
+  }
+  /**
+   * <pre>
+   * GetCartResponse returns a single page of products from the active cart.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.GetCartResponse}
+   */
+  public  static final class GetCartResponse extends
+      com.google.protobuf.GeneratedMessageLite<
+          GetCartResponse, GetCartResponse.Builder> implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.GetCartResponse)
+      GetCartResponseOrBuilder {
+    private GetCartResponse() {
+      products_ = emptyProtobufList();
+    }
+    private int bitField0_;
+    public static final int STATUS_FIELD_NUMBER = 1;
+    private int status_;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The enum numeric value on the wire for status.
+     */
+    @java.lang.Override
+    public int getStatusValue() {
+      return status_;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @return The status.
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus() {
+      yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus result = yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus.forNumber(status_);
+      return result == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @param value The enum numeric value on the wire for status to set.
+     * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+     */
+    private void setStatusValue(int value) {
+        status_ = value;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     * @param value The status to set.
+     */
+    private void setStatus(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus value) {
+      status_ = value.getNumber();
+
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+     */
+    private void clearStatus() {
+
+      status_ = 0;
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      timestamp_ = value;
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergeTimestamp(com.google.protobuf.Timestamp value) {
+      value.getClass();  // minimal bytecode null check
+      if (timestamp_ != null &&
+          timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+        timestamp_ =
+          com.google.protobuf.Timestamp.newBuilder(timestamp_).mergeFrom(value).buildPartial();
+      } else {
+        timestamp_ = value;
+      }
+      bitField0_ |= 0x00000001;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+     */
+    private void clearTimestamp() {
+      timestamp_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+    }
+
+    public static final int PRODUCTS_FIELD_NUMBER = 3;
+    private com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> products_;
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    @java.lang.Override
+    public java.util.List<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> getProductsList() {
+      return products_;
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    public java.util.List<? extends yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductOrBuilder> 
+        getProductsOrBuilderList() {
+      return products_;
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    @java.lang.Override
+    public int getProductsCount() {
+      return products_.size();
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product getProducts(int index) {
+      return products_.get(index);
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductOrBuilder getProductsOrBuilder(
+        int index) {
+      return products_.get(index);
+    }
+    private void ensureProductsIsMutable() {
+      com.google.protobuf.Internal.ProtobufList<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> tmp = products_;
+      if (!tmp.isModifiable()) {
+        products_ =
+            com.google.protobuf.GeneratedMessageLite.mutableCopy(tmp);
+       }
+    }
+
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setProducts(
+        int index, yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product value) {
+      value.getClass();  // minimal bytecode null check
+      ensureProductsIsMutable();
+      products_.set(index, value);
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addProducts(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product value) {
+      value.getClass();  // minimal bytecode null check
+      ensureProductsIsMutable();
+      products_.add(value);
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void addProducts(
+        int index, yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product value) {
+      value.getClass();  // minimal bytecode null check
+      ensureProductsIsMutable();
+      products_.add(index, value);
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    private void addAllProducts(
+        java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> values) {
+      ensureProductsIsMutable();
+      com.google.protobuf.AbstractMessageLite.addAll(
+          values, products_);
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    private void clearProducts() {
+      products_ = emptyProtobufList();
+    }
+    /**
+     * <pre>
+     * Products contained in this page of the cart.
+     * </pre>
+     *
+     * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+     */
+    private void removeProducts(int index) {
+      ensureProductsIsMutable();
+      products_.remove(index);
+    }
+
+    public static final int PAGE_INFO_FIELD_NUMBER = 4;
+    private yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo pageInfo_;
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     */
+    @java.lang.Override
+    public boolean hasPageInfo() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     */
+    @java.lang.Override
+    public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo getPageInfo() {
+      return pageInfo_ == null ? yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo.getDefaultInstance() : pageInfo_;
+    }
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     */
+    @java.lang.SuppressWarnings("ReturnValueIgnored")
+    private void setPageInfo(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo value) {
+      value.getClass();  // minimal bytecode null check
+      pageInfo_ = value;
+      bitField0_ |= 0x00000002;
+    }
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     */
+    @java.lang.SuppressWarnings({"ReferenceEquality", "ReturnValueIgnored"})
+    private void mergePageInfo(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo value) {
+      value.getClass();  // minimal bytecode null check
+      if (pageInfo_ != null &&
+          pageInfo_ != yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo.getDefaultInstance()) {
+        pageInfo_ =
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo.newBuilder(pageInfo_).mergeFrom(value).buildPartial();
+      } else {
+        pageInfo_ = value;
+      }
+      bitField0_ |= 0x00000002;
+    }
+    /**
+     * <pre>
+     * Cursor-based pagination metadata describing this page and how to fetch
+     * adjacent ones.
+     * </pre>
+     *
+     * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+     */
+    private void clearPageInfo() {
+      pageInfo_ = null;
+      bitField0_ = (bitField0_ & ~0x00000002);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, data, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return parseDelimitedFrom(DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input);
+    }
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessageLite.parseFrom(
+          DEFAULT_INSTANCE, input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() {
+      return (Builder) DEFAULT_INSTANCE.createBuilder();
+    }
+    public static Builder newBuilder(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse prototype) {
+      return DEFAULT_INSTANCE.createBuilder(prototype);
+    }
+
+    /**
+     * <pre>
+     * GetCartResponse returns a single page of products from the active cart.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.GetCartResponse}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessageLite.Builder<
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse, Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.GetCartResponse)
+        yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponseOrBuilder {
+      // Construct using yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.newBuilder()
+      private Builder() {
+        super(DEFAULT_INSTANCE);
+      }
+
+
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return The enum numeric value on the wire for status.
+       */
+      @java.lang.Override
+      public int getStatusValue() {
+        return instance.getStatusValue();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @param value The status to set.
+       * @return This builder for chaining.
+       */
+      public Builder setStatusValue(int value) {
+        copyOnWrite();
+        instance.setStatusValue(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return The status.
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus getStatus() {
+        return instance.getStatus();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @param value The enum numeric value on the wire for status to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setStatus(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ResponseStatus value) {
+        copyOnWrite();
+        instance.setStatus(value);
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.ResponseStatus status = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearStatus() {
+        copyOnWrite();
+        instance.clearStatus();
+        return this;
+      }
+
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public boolean hasTimestamp() {
+        return instance.hasTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      @java.lang.Override
+      public com.google.protobuf.Timestamp getTimestamp() {
+        return instance.getTimestamp();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.setTimestamp(value);
+        return this;
+        }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        copyOnWrite();
+        instance.setTimestamp(builderForValue.build());
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        copyOnWrite();
+        instance.mergeTimestamp(value);
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 2;</code>
+       */
+      public Builder clearTimestamp() {  copyOnWrite();
+        instance.clearTimestamp();
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      @java.lang.Override
+      public java.util.List<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> getProductsList() {
+        return java.util.Collections.unmodifiableList(
+            instance.getProductsList());
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      @java.lang.Override
+      public int getProductsCount() {
+        return instance.getProductsCount();
+      }/**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product getProducts(int index) {
+        return instance.getProducts(index);
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder setProducts(
+          int index, yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product value) {
+        copyOnWrite();
+        instance.setProducts(index, value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder setProducts(
+          int index, yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product.Builder builderForValue) {
+        copyOnWrite();
+        instance.setProducts(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder addProducts(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product value) {
+        copyOnWrite();
+        instance.addProducts(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder addProducts(
+          int index, yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product value) {
+        copyOnWrite();
+        instance.addProducts(index, value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder addProducts(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product.Builder builderForValue) {
+        copyOnWrite();
+        instance.addProducts(builderForValue.build());
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder addProducts(
+          int index, yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product.Builder builderForValue) {
+        copyOnWrite();
+        instance.addProducts(index,
+            builderForValue.build());
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder addAllProducts(
+          java.lang.Iterable<? extends yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product> values) {
+        copyOnWrite();
+        instance.addAllProducts(values);
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder clearProducts() {
+        copyOnWrite();
+        instance.clearProducts();
+        return this;
+      }
+      /**
+       * <pre>
+       * Products contained in this page of the cart.
+       * </pre>
+       *
+       * <code>repeated .yalo.external_channel.in_app.sdk.v2.Product products = 3;</code>
+       */
+      public Builder removeProducts(int index) {
+        copyOnWrite();
+        instance.removeProducts(index);
+        return this;
+      }
+
+      /**
+       * <pre>
+       * Cursor-based pagination metadata describing this page and how to fetch
+       * adjacent ones.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+       */
+      @java.lang.Override
+      public boolean hasPageInfo() {
+        return instance.hasPageInfo();
+      }
+      /**
+       * <pre>
+       * Cursor-based pagination metadata describing this page and how to fetch
+       * adjacent ones.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+       */
+      @java.lang.Override
+      public yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo getPageInfo() {
+        return instance.getPageInfo();
+      }
+      /**
+       * <pre>
+       * Cursor-based pagination metadata describing this page and how to fetch
+       * adjacent ones.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+       */
+      public Builder setPageInfo(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo value) {
+        copyOnWrite();
+        instance.setPageInfo(value);
+        return this;
+        }
+      /**
+       * <pre>
+       * Cursor-based pagination metadata describing this page and how to fetch
+       * adjacent ones.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+       */
+      public Builder setPageInfo(
+          yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo.Builder builderForValue) {
+        copyOnWrite();
+        instance.setPageInfo(builderForValue.build());
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor-based pagination metadata describing this page and how to fetch
+       * adjacent ones.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+       */
+      public Builder mergePageInfo(yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.PageInfo value) {
+        copyOnWrite();
+        instance.mergePageInfo(value);
+        return this;
+      }
+      /**
+       * <pre>
+       * Cursor-based pagination metadata describing this page and how to fetch
+       * adjacent ones.
+       * </pre>
+       *
+       * <code>.yalo.external_channel.in_app.sdk.v2.PageInfo page_info = 4;</code>
+       */
+      public Builder clearPageInfo() {  copyOnWrite();
+        instance.clearPageInfo();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.GetCartResponse)
+    }
+    @java.lang.Override
+    @java.lang.SuppressWarnings({"ThrowNull"})
+    protected final java.lang.Object dynamicMethod(
+        com.google.protobuf.GeneratedMessageLite.MethodToInvoke method,
+        java.lang.Object arg0, java.lang.Object arg1) {
+      switch (method) {
+        case NEW_MUTABLE_INSTANCE: {
+          return new yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse();
+        }
+        case NEW_BUILDER: {
+          return new Builder();
+        }
+        case BUILD_MESSAGE_INFO: {
+            java.lang.Object[] objects = new java.lang.Object[] {
+              "bitField0_",
+              "status_",
+              "timestamp_",
+              "products_",
+              yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.Product.class,
+              "pageInfo_",
+            };
+            java.lang.String info =
+                "\u0000\u0004\u0000\u0001\u0001\u0004\u0004\u0000\u0001\u0000\u0001\f\u0002\u1009" +
+                "\u0000\u0003\u001b\u0004\u1009\u0001";
+            return newMessageInfo(DEFAULT_INSTANCE, info, objects);
+        }
+        case GET_DEFAULT_INSTANCE: {
+          return DEFAULT_INSTANCE;
+        }
+        case GET_PARSER: {
+          com.google.protobuf.Parser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse> parser = PARSER;
+          if (parser == null) {
+            synchronized (yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse.class) {
+              parser = PARSER;
+              if (parser == null) {
+                parser =
+                    new DefaultInstanceBasedParser<yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse>(
+                        DEFAULT_INSTANCE);
+                PARSER = parser;
+              }
+            }
+          }
+          return parser;
+        }
+        case GET_MEMOIZED_IS_INITIALIZED: {
+          return (byte) 1;
+        }
+        // SET_MEMOIZED_IS_INITIALIZED is never called for this message.
+        // So it can do anything. Combine with default case for smaller codegen.
+        case SET_MEMOIZED_IS_INITIALIZED:
+      }
+      // Should never happen. Generates tight code to throw an exception.
+      throw null;
+    }
+
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.GetCartResponse)
+    private static final yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse DEFAULT_INSTANCE;
+    static {
+      GetCartResponse defaultInstance = new GetCartResponse();
+      // New instances are implicitly immutable so no need to make
+      // immutable.
+      DEFAULT_INSTANCE = defaultInstance;
+      com.google.protobuf.GeneratedMessageLite.registerDefaultInstance(
+        GetCartResponse.class, defaultInstance);
+    }
+
+    public static yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCartResponse getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static volatile com.google.protobuf.Parser<GetCartResponse> PARSER;
+
+    public static com.google.protobuf.Parser<GetCartResponse> parser() {
       return DEFAULT_INSTANCE.getParserForType();
     }
   }
