@@ -10,12 +10,12 @@ on:
       - 'web-sdk/v*.*.*'
     paths:
       - 'web-sdk/**'
-      - '.github/workflows/webchat-ci-cd.yml'
+      - '.github/workflows/web-ci-cd.yml'
 
   pull_request:
     paths:
       - 'web-sdk/**'
-      - '.github/workflows/webchat-ci-cd.yml'
+      - '.github/workflows/web-ci-cd.yml'
 
 env:
   BUN_VERSION: "1.3.10"
