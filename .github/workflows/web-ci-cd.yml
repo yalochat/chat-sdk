@@ -80,6 +80,7 @@ jobs:
           path: ./web-sdk/dist
           destination: ${{ secrets.GCS_BUCKET_STAGING }}
           parent: false
+          gzip: true
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -115,3 +116,4 @@ jobs:
           path: ./web-sdk/dist
           destination: ${{ secrets.GCS_BUCKET_PROD }}
           parent: false
+          gzip: true
