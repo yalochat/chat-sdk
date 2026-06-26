@@ -825,6 +825,134 @@ void main() {
         expect(await messages.isEmpty, isTrue);
       });
     });
+
+    group('custom commands', () {
+      proto.PollMessageItem customCommandItem({
+        String commandId = 'refreshCatalog',
+        String payload = '{"region":"mx"}',
+        String correlationId = 'corr-1',
+      }) => proto.PollMessageItem(
+        id: 'cmd-1',
+        message: proto.SdkMessage(
+          correlationId: correlationId,
+          customCommandRequest: proto.CustomCommandRequest(
+            commandId: commandId,
+            payload: payload,
+          ),
+        ),
+        date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+        userId: 'user-123',
+        status: 'IN_DELIVERY',
+      );
+
+      test('runs the handler found by command id and sends a success '
+          'response', () async {
+        String? receivedPayload;
+        when(() => mockClient.customCommands).thenReturn({
+          'refreshCatalog': (payload) {
+            receivedPayload = payload;
+            return '{"done":true}';
+          },
+        });
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        repo.messages().listen((_) {});
+        incoming.add(customCommandItem());
+        await pumpEventQueue();
+
+        expect(receivedPayload, '{"region":"mx"}');
+        final sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(sent.correlationId, 'corr-1');
+        expect(
+          sent.customCommandResponse.status,
+          proto.ResponseStatus.RESPONSE_STATUS_SUCCESS,
+        );
+        expect(sent.customCommandResponse.payload, '{"done":true}');
+      });
+
+      test('sends an empty payload when the handler returns null', () async {
+        when(
+          () => mockClient.customCommands,
+        ).thenReturn({'refreshCatalog': (_) => null});
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        repo.messages().listen((_) {});
+        incoming.add(customCommandItem());
+        await pumpEventQueue();
+
+        final sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(
+          sent.customCommandResponse.status,
+          proto.ResponseStatus.RESPONSE_STATUS_SUCCESS,
+        );
+        expect(sent.customCommandResponse.payload, isEmpty);
+      });
+
+      test('sends an error response when the handler throws', () async {
+        when(() => mockClient.customCommands).thenReturn({
+          'refreshCatalog': (_) => throw Exception('boom'),
+        });
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        repo.messages().listen((_) {});
+        incoming.add(customCommandItem());
+        await pumpEventQueue();
+
+        final sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(
+          sent.customCommandResponse.status,
+          proto.ResponseStatus.RESPONSE_STATUS_ERROR,
+        );
+        expect(sent.customCommandResponse.payload, isEmpty);
+      });
+
+      test('sends no response when no handler is registered for the id', () async {
+        when(() => mockClient.customCommands).thenReturn({});
+
+        repo.messages().listen((_) {});
+        incoming.add(customCommandItem(commandId: 'unknown'));
+        await pumpEventQueue();
+
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
+
+      test('does not emit a custom command request as a chat message', () async {
+        when(
+          () => mockClient.customCommands,
+        ).thenReturn({'refreshCatalog': (_) => null});
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        final received = <ChatMessage>[];
+        repo
+            .messages()
+            .where((m) => m.type != MessageType.chatStatus)
+            .listen(received.add);
+        incoming.add(customCommandItem());
+        await pumpEventQueue();
+
+        expect(received, isEmpty);
+      });
+    });
   });
 }
 

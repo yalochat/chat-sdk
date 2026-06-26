@@ -85,6 +85,10 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   Future<void> _onItem(proto.PollMessageItem item) async {
+    if (item.message.hasCustomCommandRequest()) {
+      await _handleCustomCommand(item.message);
+      return;
+    }
     final ChatMessage? message = await pollMessageItemToChatMessage(
       item,
       mediaService: mediaService,
@@ -103,6 +107,55 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     cache.set(message.wiId!, true);
     _emit(ChatMessage.chatStatus(timestamp: DateTime.now()));
     _emit(message);
+  }
+
+  // Looks up a handler registered by the consumer for the request's command id.
+  // If found, runs it and replies with the result; otherwise logs a warning and
+  // sends nothing.
+  Future<void> _handleCustomCommand(proto.SdkMessage message) async {
+    final proto.CustomCommandRequest request = message.customCommandRequest;
+    final CustomCommandCallback? handler =
+        yaloChatClient.customCommands[request.commandId];
+    if (handler == null) {
+      log.warning('Received unregistered command: ${request.commandId}');
+      return;
+    }
+    try {
+      final String payload = await handler(request.payload) ?? '';
+      await _sendCustomCommandResponse(
+        message.correlationId,
+        proto.ResponseStatus.RESPONSE_STATUS_SUCCESS,
+        payload,
+      );
+    } catch (error) {
+      log.severe('Custom command handler threw: ${request.commandId}', error);
+      await _sendCustomCommandResponse(
+        message.correlationId,
+        proto.ResponseStatus.RESPONSE_STATUS_ERROR,
+        '',
+      );
+    }
+  }
+
+  Future<void> _sendCustomCommandResponse(
+    String correlationId,
+    proto.ResponseStatus status,
+    String payload,
+  ) async {
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage response = proto.SdkMessage(
+      correlationId: correlationId,
+      timestamp: Timestamp.fromDateTime(timestamp),
+      customCommandResponse: proto.CustomCommandResponse(
+        status: status,
+        payload: payload,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    final Result<Unit> result = await messageService.sendSdkMessage(response);
+    if (result case Error(:final error)) {
+      log.severe('Unable to send custom command response', error);
+    }
   }
 
   @override
