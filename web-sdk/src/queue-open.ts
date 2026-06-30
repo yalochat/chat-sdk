@@ -4,8 +4,27 @@ import YaloChatClient, {
   type YaloChatClientInitOptions,
 } from '@data/services/client/yalo-chat-client';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import type {
+  ChatCommand,
+  ChatCommandCallback,
+} from '@domain/models/command/chat-command';
+import type {
+  CustomCommandHandler,
+  CustomCommandId,
+} from '@domain/models/command/channel-command';
 
-export type YaloOpenConfig = YaloChatClientConfig & YaloChatClientInitOptions;
+// Command registrations a consumer can declare inline in a yaloOpen config.
+// `registerCommands` maps a client -> channel command to its callback, and
+// `onCommand` maps a channel -> client custom command id to its handler. Both
+// are registered before the chat window opens.
+export interface YaloOpenCommandOptions {
+  registerCommands?: Partial<Record<ChatCommand, ChatCommandCallback>>;
+  onCommand?: Partial<Record<CustomCommandId, CustomCommandHandler>>;
+}
+
+export type YaloOpenConfig = YaloChatClientConfig &
+  YaloChatClientInitOptions &
+  YaloOpenCommandOptions;
 
 export interface YaloOpenQueue {
   push(config: YaloOpenConfig): void;
@@ -18,8 +37,23 @@ declare global {
 }
 
 function openClient(config: YaloOpenConfig): YaloChatClient {
-  const { onOpen, onClose, ...clientConfig } = config;
+  const { onOpen, onClose, registerCommands, onCommand, ...clientConfig } =
+    config;
   const client = new YaloChatClient(clientConfig);
+  if (registerCommands) {
+    for (const [command, callback] of Object.entries(registerCommands)) {
+      if (callback) {
+        client.registerCommand(command as ChatCommand, callback);
+      }
+    }
+  }
+  if (onCommand) {
+    for (const [commandId, handler] of Object.entries(onCommand)) {
+      if (handler) {
+        client.onCommand(commandId, handler);
+      }
+    }
+  }
   client.init({ onOpen, onClose });
   client.open();
   return client;

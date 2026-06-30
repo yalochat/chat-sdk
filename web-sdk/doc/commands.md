@@ -47,3 +47,28 @@ Notes:
 - The response status is `success` when the handler returns normally. If the handler throws or rejects, the SDK replies with an `error` status and an empty payload.
 - If the handler returns nothing, the response payload is an empty string.
 - When the channel sends a command id that has no registered handler, the SDK logs a warning and sends no response.
+
+## Registering through the queue
+
+If you open the chat through the `window.yaloOpen` queue instead of holding a `YaloChatClient` reference, declare the same callbacks inline in the configuration. Use `registerCommands` for client-to-channel commands and `onCommand` for custom commands. The SDK registers them before the chat window opens.
+
+```js
+window.yaloOpen = window.yaloOpen || [];
+window.yaloOpen.push({
+  channelId: 'your-channel-id',
+  organizationId: 'your-organization-id',
+  channelName: 'Support',
+  target: 'yalo-chat',
+  registerCommands: {
+    updateCartProduct: function (payload) {
+      // same callback as client.registerCommand('updateCartProduct', ...)
+    },
+  },
+  onCommand: {
+    refreshCatalog: function (payload) {
+      // same handler as client.onCommand('refreshCatalog', ...)
+      return JSON.stringify({ status: 'reloaded' });
+    },
+  },
+});
+```
