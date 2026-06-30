@@ -209,29 +209,7 @@ Each pushed configuration also accepts the `onOpen` and `onClose` callbacks that
 </script>
 ```
 
-Each pushed configuration also accepts command registrations so you don't need a direct reference to the `YaloChatClient` instance. Use `registerCommands` for client-to-channel commands and `onCommand` for channel-to-client custom commands. The SDK registers them before the chat window opens (see [Commands](doc/commands.md)):
-
-```html
-<script>
-  window.yaloOpen = window.yaloOpen || [];
-  window.yaloOpen.push({
-    channelId: 'your-channel-id',
-    organizationId: 'your-organization-id',
-    channelName: 'Support',
-    target: 'yalo-chat',
-    registerCommands: {
-      updateCartProduct: (payload) => console.log('cart updated', payload),
-      clearCart: () => console.log('cart cleared'),
-    },
-    onCommand: {
-      getCart: (payload) => JSON.stringify(buildCart(payload)),
-    },
-  });
-</script>
-```
-
-- **`registerCommands`** (`object`): Maps a client-to-channel command name to its callback. Same commands as `client.registerCommand(command, callback)`.
-- **`onCommand`** (`object`): Maps a channel-to-client custom command id to its handler. Same handlers as `client.onCommand(commandId, handler)`.
+Each pushed configuration also accepts `registerCommands` and `onCommand` so you can register commands without a direct `YaloChatClient` reference (see [Commands](doc/commands.md)).
 
 The target element referenced by `config.target` must exist in the DOM at the time the configuration is processed. Place the script after the target element or wrap the push in your own `DOMContentLoaded` handler if needed.
 
