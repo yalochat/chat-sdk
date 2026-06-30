@@ -67,5 +67,48 @@ void main() {
         );
       });
     });
+
+    group('onCommand', () {
+      test('registers a handler by command id', () {
+        String? receivedPayload;
+        client.onCommand('refreshCatalog', (payload) {
+          receivedPayload = payload;
+          return null;
+        });
+
+        expect(client.customCommands, hasLength(1));
+        expect(client.customCommands.containsKey('refreshCatalog'), isTrue);
+
+        client.customCommands['refreshCatalog']!('{"region":"mx"}');
+        expect(receivedPayload, equals('{"region":"mx"}'));
+      });
+
+      test('replaces the handler when registering the same command id', () {
+        client.onCommand('refreshCatalog', (_) => null);
+        client.onCommand('refreshCatalog', (_) => null);
+
+        expect(client.customCommands, hasLength(1));
+      });
+
+      test('registers multiple different command ids', () {
+        client.onCommand('refreshCatalog', (_) => null);
+        client.onCommand('getCart', (_) => null);
+
+        expect(client.customCommands, hasLength(2));
+        expect(
+          client.customCommands.keys,
+          containsAll(['refreshCatalog', 'getCart']),
+        );
+      });
+
+      test('customCommands getter returns an unmodifiable map', () {
+        client.onCommand('refreshCatalog', (_) => null);
+
+        expect(
+          () => client.customCommands['getCart'] = (_) => null,
+          throwsUnsupportedError,
+        );
+      });
+    });
   });
 }
