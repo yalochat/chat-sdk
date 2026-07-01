@@ -209,6 +209,8 @@ Each pushed configuration also accepts the `onOpen` and `onClose` callbacks that
 </script>
 ```
 
+Each pushed configuration also accepts `registerCommands` and `onCommand` so you can register commands without a direct `YaloChatClient` reference (see [Commands](doc/commands.md)).
+
 The target element referenced by `config.target` must exist in the DOM at the time the configuration is processed. Place the script after the target element or wrap the push in your own `DOMContentLoaded` handler if needed.
 
 ## Configuration

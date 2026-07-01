@@ -97,6 +97,48 @@ describe('installYaloOpenQueue', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('registers commands from registerCommands in the config', async () => {
+    const updateCallback = vi.fn();
+    const clearCallback = vi.fn();
+    window.yaloOpen = [
+      {
+        ...baseConfig,
+        registerCommands: {
+          updateCartProduct: updateCallback,
+          clearCart: clearCallback,
+        },
+      },
+    ];
+    installYaloOpenQueue();
+    await waitForChatWindow();
+    expect(getChatWindow().commands).toMatchObject(
+      new Map([
+        ['updateCartProduct', updateCallback],
+        ['clearCart', clearCallback],
+      ])
+    );
+  });
+
+  it('registers channel command handlers from onCommand in the config', async () => {
+    const getCart = vi.fn();
+    installYaloOpenQueue();
+    (
+      window.yaloOpen as {
+        push: (c: typeof baseConfig & { onCommand: Record<string, () => void> }) => void;
+      }
+    ).push({ ...baseConfig, onCommand: { getCart } });
+    await waitForChatWindow();
+    expect(getChatWindow().channelCommands.get('getCart')).toBe(getCart);
+  });
+
+  it('opens normally when no command options are provided', async () => {
+    window.yaloOpen = [baseConfig];
+    installYaloOpenQueue();
+    await waitForChatWindow();
+    expect(getChatWindow().commands.size).toBe(0);
+    expect(getChatWindow().channelCommands.size).toBe(0);
+  });
+
   it('ignores a non-array existing window.yaloOpen value', () => {
     (window as unknown as { yaloOpen: unknown }).yaloOpen =
       'not-an-array' as unknown;
