@@ -7,9 +7,15 @@ import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity'
 import type { PageInfo } from '@domain/common/page';
 import type {
   CustomCommandRequest,
+  GetCartRequest,
   SdkMessage,
   SdkMessageAck,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type {
+  CustomCommandHandler,
+  GetCartHandler,
+  GetCartResult,
+} from '@domain/models/command/channel-command';
 import {
   computeEffectiveAuthUserId,
   computeSessionId,
@@ -676,6 +682,13 @@ export default class YaloChatWindowController implements ReactiveController {
   };
 
   private async _handleChannelCommand(message: SdkMessage): Promise<void> {
+    if (message.getCartRequest) {
+      await this._handleGetCartCommand(
+        message.correlationId,
+        message.getCartRequest
+      );
+      return;
+    }
     if (message.customCommandRequest) {
       await this._handleCustomCommand(
         message.correlationId,
@@ -688,11 +701,62 @@ export default class YaloChatWindowController implements ReactiveController {
     });
   }
 
+  private async _handleGetCartCommand(
+    correlationId: string,
+    request: GetCartRequest
+  ): Promise<void> {
+    const handler = this.host.channelCommands.get('getCart') as
+      | GetCartHandler
+      | undefined;
+    if (!handler) {
+      this.host.logger.warn('Received unregistered command', {
+        commandId: 'getCart',
+      });
+      return;
+    }
+
+    let result: GetCartResult;
+    try {
+      result = await handler(request);
+    } catch (error) {
+      this.host.logger.error('Command handler threw', {
+        error,
+        commandId: 'getCart',
+      });
+      await this._sendGetCartResponse(correlationId, 'error');
+      return;
+    }
+
+    await this._sendGetCartResponse(correlationId, 'success', result);
+  }
+
+  private async _sendGetCartResponse(
+    correlationId: string,
+    status: 'success' | 'error',
+    result?: GetCartResult
+  ): Promise<void> {
+    const response =
+      await this.host.yaloMessageRepository.sendGetCartResponse(
+        correlationId,
+        status,
+        result?.products ?? [],
+        result?.pageInfo
+      );
+    if (!response.ok) {
+      this.host.logger.error('Unable to send get cart response', {
+        error: response.error,
+        correlationId,
+      });
+    }
+  }
+
   private async _handleCustomCommand(
     correlationId: string,
     request: CustomCommandRequest
   ): Promise<void> {
-    const handler = this.host.channelCommands.get(request.commandId);
+    const handler = this.host.channelCommands.get(request.commandId) as
+      | CustomCommandHandler
+      | undefined;
     if (!handler) {
       this.host.logger.warn('Received unregistered command', {
         commandId: request.commandId,

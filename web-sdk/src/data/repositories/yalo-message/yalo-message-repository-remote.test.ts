@@ -9,6 +9,8 @@ import {
   MessageStatus,
   ProductMessageRequest_Orientation,
   ResponseStatus,
+  type PageInfo,
+  type Product,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type {
   MessageCallback,
@@ -68,6 +70,25 @@ const makeMessage = (
     timestamp: new Date('2026-01-01T00:00:00Z'),
     ...overrides,
   });
+
+const protoProduct = (overrides: Partial<Product> = {}): Product => ({
+  sku: 'SKU-1',
+  name: 'Apples',
+  price: 5,
+  imagesUrl: ['https://cdn.example.com/a.png'],
+  subunits: 1,
+  unitStep: 1,
+  unitName: '{amount, plural, one {bag} other {bags}}',
+  subunitStep: 1,
+  unitsAdded: 0,
+  subunitsAdded: 0,
+  ...overrides,
+});
+
+const pageInfo = (overrides: Partial<PageInfo> = {}): PageInfo => ({
+  pageSize: 10,
+  ...overrides,
+});
 
 const textPollItem = (id: string, text: string, date?: Date) => ({
   id,
@@ -480,6 +501,63 @@ describe('YaloMessageRepositoryRemote', () => {
     });
   });
 
+  describe('sendGetCartResponse', () => {
+    it('sends a success getCartResponse echoing the correlation id', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const products = [protoProduct()];
+      const info = pageInfo({ nextCursor: 'next' });
+
+      const result = await repo.sendGetCartResponse(
+        'cart-1',
+        'success',
+        products,
+        info
+      );
+
+      expect(result.ok).toBe(true);
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent).toMatchObject({
+        correlationId: 'cart-1',
+        getCartResponse: {
+          status: ResponseStatus.RESPONSE_STATUS_SUCCESS,
+          products,
+          pageInfo: info,
+        },
+      });
+      expect(sent.getCartResponse.timestamp).toBeInstanceOf(Date);
+    });
+
+    it('maps an error status to RESPONSE_STATUS_ERROR with no products', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.sendGetCartResponse('cart-2', 'error', []);
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent.getCartResponse).toMatchObject({
+        status: ResponseStatus.RESPONSE_STATUS_ERROR,
+        products: [],
+      });
+    });
+
+    it('propagates send failures', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        failingService(new Error('socket closed')),
+        okMedia()
+      );
+
+      const result = await repo.sendGetCartResponse('cart-3', 'success', []);
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('socket closed');
+      }
+    });
+  });
+
   describe('subscribeToMessages', () => {
     it('subscribes to the service exactly once', () => {
       const { service } = okService();
@@ -539,6 +617,36 @@ describe('YaloMessageRepositoryRemote', () => {
         customCommandRequest: {
           commandId: 'refreshCatalog',
           payload: '{"region":"mx"}',
+        },
+      });
+    });
+
+    it('forwards a getCartRequest frame as the raw SdkMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'cart-cmd-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: 'corr-cart',
+          timestamp: new Date(),
+          getCartRequest: {
+            timestamp: undefined,
+            cursor: undefined,
+            pageSize: 10,
+          },
+        },
+      });
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback.mock.calls[0][0]).toMatchObject({
+        correlationId: 'corr-cart',
+        getCartRequest: {
+          pageSize: 10,
         },
       });
     });
