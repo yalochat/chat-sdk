@@ -9,6 +9,7 @@ import type {
   ChatCommandCallback,
 } from '@domain/models/command/chat-command';
 import type {
+  ChannelCommandHandlerMap,
   CustomCommandHandler,
   CustomCommandId,
 } from '@domain/models/command/channel-command';
@@ -19,7 +20,7 @@ import type {
 // are registered before the chat window opens.
 export interface YaloOpenCommandOptions {
   registerCommands?: Partial<Record<ChatCommand, ChatCommandCallback>>;
-  onCommand?: Partial<Record<CustomCommandId, CustomCommandHandler>>;
+  onCommand?: ChannelCommandHandlerMap;
 }
 
 export type YaloOpenConfig = YaloChatClientConfig &
@@ -50,7 +51,10 @@ function openClient(config: YaloOpenConfig): YaloChatClient {
   if (onCommand) {
     for (const [commandId, handler] of Object.entries(onCommand)) {
       if (handler) {
-        client.onCommand(commandId, handler);
+        client.onCommand(
+          commandId as CustomCommandId,
+          handler as CustomCommandHandler
+        );
       }
     }
   }

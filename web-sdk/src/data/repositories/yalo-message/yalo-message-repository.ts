@@ -4,6 +4,8 @@ import type { Result } from '@domain/common/result';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { CommandResponseStatus } from '@domain/models/command/channel-command';
 import type {
+  PageInfo,
+  Product,
   SdkMessage,
   SdkMessageAck,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
@@ -44,6 +46,16 @@ export abstract class YaloMessageRepository {
     correlationId: string,
     status: CommandResponseStatus,
     payload: string
+  ): Promise<Result<void>>;
+
+  // Replies to a GetCartRequest from the channel with the page of cart
+  // products the host returned. The correlationId must match the one received
+  // on the request so the channel can correlate it.
+  abstract sendGetCartResponse(
+    correlationId: string,
+    status: CommandResponseStatus,
+    products: Product[],
+    pageInfo?: PageInfo
   ): Promise<Result<void>>;
 
   // The callback also receives an SdkMessage for channel-to-client command

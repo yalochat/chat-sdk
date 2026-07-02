@@ -48,6 +48,32 @@ Notes:
 - If the handler returns nothing, the response payload is an empty string.
 - When the channel sends a command id that has no registered handler, the SDK logs a warning and sends no response.
 
+## Returning the cart
+
+`getCart` is a typed variant of a custom command. The channel asks your page for the products in its cart and the SDK replies with a typed cart response instead of a plain string. Register it with `onCommand` under the `getCart` id.
+
+```js
+client.onCommand('getCart', function (request) {
+  // request: { cursor?: string, pageSize?: number }
+  // Return the products in the current page of your cart.
+  return {
+    products: readCartProducts(request.cursor, request.pageSize),
+    // pageInfo is optional. Include it to support pagination.
+    pageInfo: { pageSize: 20, nextCursor: 'page-2' },
+  };
+});
+
+client.init();
+```
+
+Notes:
+
+- The handler receives the request with the page `cursor` and `pageSize` the channel asked for. Omit `pageInfo` in the response when your cart is not paginated.
+- Each product uses the same shape as the products the channel sends in product messages: `sku`, `name`, `price`, `imagesUrl`, `unitName`, and the quantity fields.
+- The handler can be synchronous or return a promise. The SDK waits for it to settle before replying.
+- The response status is `success` when the handler returns normally. If the handler throws or rejects, the SDK replies with an `error` status and an empty product list.
+- When the channel asks for the cart and no `getCart` handler is registered, the SDK logs a warning and sends no response.
+
 ## Registering through the queue
 
 If you open the chat through the `window.yaloOpen` queue instead of holding a `YaloChatClient` reference, declare the same callbacks inline in the configuration. Use `registerCommands` for client-to-channel commands and `onCommand` for custom commands. The SDK registers them before the chat window opens.
@@ -68,6 +94,10 @@ window.yaloOpen.push({
     refreshCatalog: function (payload) {
       // same handler as client.onCommand('refreshCatalog', ...)
       return JSON.stringify({ status: 'reloaded' });
+    },
+    getCart: function (request) {
+      // same handler as client.onCommand('getCart', ...)
+      return { products: readCartProducts(request.cursor, request.pageSize) };
     },
   },
 });

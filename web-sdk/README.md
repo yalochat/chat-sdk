@@ -249,5 +249,5 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 - **`client.open()`**: Shows the chat window. Uses the `openContext` from the config.
 - **`client.close()`**: Hides the chat window.
 - **`client.registerCommand(command, callback)`**: Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)).
-- **`client.onCommand(commandId, handler)`**: Registers a handler for a channel-to-client custom command. When the channel sends a custom command request with a matching id, the handler runs with the request payload and its return value is sent back as the response (see [Commands](doc/commands.md)).
+- **`client.onCommand(commandId, handler)`**: Registers a handler for a channel-to-client custom command. When the channel sends a custom command request with a matching id, the handler runs with the request payload and its return value is sent back as the response. The `getCart` id is a typed variant: its handler receives the cart request and returns the cart products (see [Commands](doc/commands.md)).
 - **`client.dispose()`**: Removes the chat widget from the page and releases its resources. Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal.

@@ -5,7 +5,9 @@ import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { CommandResponseStatus } from '@domain/models/command/channel-command';
 import {
   ResponseStatus,
+  type PageInfo,
   type PollMessageItem,
+  type Product,
   type SdkMessageAck,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type { YaloMediaService } from '@data/services/yalo-media/yalo-media-service';
@@ -134,13 +136,35 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     });
   }
 
+  async sendGetCartResponse(
+    correlationId: string,
+    status: CommandResponseStatus,
+    products: Product[],
+    pageInfo?: PageInfo
+  ): Promise<Result<void>> {
+    const timestamp = new Date();
+    return this._service.sendMessage({
+      correlationId,
+      getCartResponse: {
+        status:
+          status === 'success'
+            ? ResponseStatus.RESPONSE_STATUS_SUCCESS
+            : ResponseStatus.RESPONSE_STATUS_ERROR,
+        products,
+        pageInfo,
+        timestamp,
+      },
+      timestamp,
+    });
+  }
+
   subscribeToMessages(callback: PollCallback): void {
     this._service.subscribe((event: PollMessageItem | SdkMessageAck) => {
       if ('correlationId' in event) {
         callback(event);
         return;
       }
-      if (event.message?.customCommandRequest) {
+      if (event.message?.customCommandRequest || event.message?.getCartRequest) {
         callback(event.message);
         return;
       }
