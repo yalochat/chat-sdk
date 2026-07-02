@@ -217,6 +217,9 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
      Assistant message bubbles are transparent by default. */
   --yalo-chat-user-message-background: #f9fafc;
 
+  /* Text color inside message bubbles sent by the user. */
+  --yalo-chat-user-message-color: #181818;
+
   /* Color of the error icon shown on messages that failed to send. */
   --yalo-chat-user-message-error-color: #a01600;
 
@@ -253,12 +256,12 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
 
 ### Voice and audio
 
+The color of the waveform bars is not a CSS variable. Because the bars are
+drawn on a `<canvas>`, set it through the `audioWaveformColor` client config
+option instead (see the README configuration reference).
+
 ```css
 :root {
-  /* Color of the audio waveform bars shown while recording
-     or playing back a voice message. */
-  --yalo-chat-waveform-color: #2207f1;
-
   /* Color of the play/pause button on voice message bubbles. */
   --yalo-chat-play-button-color: #7c8086;
 
@@ -301,6 +304,9 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
 
 ```css
 :root {
+  /* Text color of the assistant message body and header. */
+  --yalo-chat-assistant-message-color: #181818;
+
   /* Color of links and link buttons inside assistant messages. */
   --yalo-chat-link-button-color: #2207f1;
 
@@ -474,8 +480,11 @@ Reply-type buttons attached to the latest agent message render as chips in an em
   /* Background color of the price pill. */
   --yalo-chat-product-price-background: #eef2f7;
 
-  /* Text color for the product price. */
+  /* Text color for the product price when it is not discounted. */
   --yalo-chat-product-price-color: #111111;
+
+  /* Text color for the discounted price shown when a product is on sale. */
+  --yalo-chat-product-price-sale-color: #d32f2f;
 
   /* Color of the struck-through original price. */
   --yalo-chat-product-price-strike-color: #7c8086;
