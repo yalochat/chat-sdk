@@ -77,6 +77,7 @@ export class UserMessage extends LitElement {
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
       background: var(--yalo-chat-user-message-background, #f9fafc);
+      color: var(--yalo-chat-user-message-color, #181818);
       word-break: break-word;
     }
 
@@ -92,6 +93,7 @@ export class UserMessage extends LitElement {
       border-radius: 1.125rem;
       border-bottom-right-radius: 0.25rem;
       background: var(--yalo-chat-user-message-background, #f9fafc);
+      color: var(--yalo-chat-user-message-color, #181818);
     }
 
     .image-bubble {

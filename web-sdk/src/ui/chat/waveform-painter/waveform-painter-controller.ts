@@ -24,7 +24,11 @@ export class WaveformPainterController implements ReactiveController {
     const ctx = this.canvasContext || this.host.canvas.getContext('2d');
     if (ctx === null) return;
 
-    const strokeColor = this.host.config.audioWaveformColor || '#2207f1';
+    const strokeColor = this.host.animated
+      ? this.host.config.recordingWaveformColor ||
+        this.host.config.audioWaveformColor ||
+        '#2207f1'
+      : this.host.config.audioWaveformColor || '#2207f1';
     ctx.fillStyle = strokeColor;
 
     const barWidth = this.host.canvas.width / this.host.amplitudes.length;
