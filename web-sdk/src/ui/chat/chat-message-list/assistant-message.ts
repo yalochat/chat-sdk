@@ -20,6 +20,7 @@ export class AssistantMessage extends LitElement {
       justify-content: flex-start;
       margin: 0.25rem 0.5rem;
       padding-left: 0.5rem;
+      color: var(--yalo-chat-assistant-message-color, #181818);
     }
 
     p {

@@ -13,6 +13,7 @@ export interface YaloChatClientConfig {
   image?: string;
   locale?: string;
   audioWaveformColor?: string;
+  recordingWaveformColor?: string;
   userId?: string;
   openContext?: Record<string, unknown>;
   hideCloseButton?: boolean;
