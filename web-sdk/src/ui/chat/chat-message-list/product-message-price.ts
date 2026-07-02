@@ -29,9 +29,16 @@ export class ProductMessagePrice extends LitElement {
       padding: var(--yalo-chat-product-price-padding, 0.3125em)
         calc(var(--yalo-chat-product-price-padding, 0.3125em) * 2);
       background: var(--yalo-chat-product-price-background, #eef2f7);
-      color: var(--yalo-chat-product-price-color, #111111);
       border-radius: var(--yalo-chat-product-price-radius, 2.0625em);
       font-weight: 600;
+    }
+
+    .main {
+      color: var(--yalo-chat-product-price-color, #111111);
+    }
+
+    .main.on-sale {
+      color: var(--yalo-chat-product-price-sale-color, #d32f2f);
     }
 
     .strike {
@@ -72,7 +79,9 @@ export class ProductMessagePrice extends LitElement {
     return html`
       <div class="row">
         <span class="pill">
-          <span class="main">${formatCurrency(main, options)}</span>
+          <span class="main ${hasSale ? 'on-sale' : ''}"
+            >${formatCurrency(main, options)}</span
+          >
           ${old !== undefined
             ? html`<span class="strike">${formatCurrency(old, options)}</span>`
             : nothing}

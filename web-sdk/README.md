@@ -226,7 +226,8 @@ Optional properties:
 
 - **`image`** (`string`): URL for the channel avatar image.
 - **`locale`** (`string`): Locale for the chat UI (e.g. `"es"`, `"en"`).
-- **`audioWaveformColor`** (`string`): Color for the audio waveform visualization.
+- **`audioWaveformColor`** (`string`): Color for the audio waveform bars rendered on sent voice messages. Also used as the fallback for the recording waveform when `recordingWaveformColor` is not set.
+- **`recordingWaveformColor`** (`string`): Color for the audio waveform bars shown in the footer while recording a voice message. Lets the live recorder use a different color from the sent voice message playback. Falls back to `audioWaveformColor` when not set.
 - **`userId`** (`string`): Your own user identifier. When provided, the chat session is linked to your user.
 - **`openContext`** (`object`): Context describing where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{ source: 'product-page', sku: '123' }`. Fixed for the lifetime of the chat instance.
 - **`hideCloseButton`** (`boolean`): When `true`, the close button is not rendered in the chat header. Useful when the chat is embedded full-screen or hosted in a surface that already provides its own close affordance. You can also hide it from CSS with the `--yalo-chat-close-btn-display: none` variable.
