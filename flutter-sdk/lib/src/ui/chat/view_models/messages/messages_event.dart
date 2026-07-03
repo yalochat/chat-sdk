@@ -57,6 +57,19 @@ final class ChatUpdateProductQuantity extends MessagesEvent
   List<Object?> get props => [messageId, productSku, unitType, quantity];
 }
 
+// Emitted when the user presses the add to cart button of a product card.
+// Marks the product as in the cart and sends its absolute units and subunits
+// as an update cart product request.
+final class ChatAddProductToCart extends MessagesEvent with EquatableMixin {
+  final int messageId;
+  final String productSku;
+
+  ChatAddProductToCart({required this.messageId, required this.productSku});
+
+  @override
+  List<Object?> get props => [messageId, productSku];
+}
+
 // Expands a toggeable message, like carousels or list products
 final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
   final int messageId;

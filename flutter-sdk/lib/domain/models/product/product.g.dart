@@ -21,6 +21,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
   subunitStep: (json['subunitStep'] as num?)?.toDouble() ?? 1,
   unitsAdded: (json['unitsAdded'] as num?)?.toDouble() ?? 0,
   subunitsAdded: (json['subunitsAdded'] as num?)?.toDouble() ?? 0,
+  inCart: json['inCart'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
@@ -36,4 +37,5 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
   'subunitStep': instance.subunitStep,
   'unitsAdded': instance.unitsAdded,
   'subunitsAdded': instance.subunitsAdded,
+  'inCart': instance.inCart,
 };

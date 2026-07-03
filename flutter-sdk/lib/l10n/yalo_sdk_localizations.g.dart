@@ -148,6 +148,24 @@ abstract class YaloSdkLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// Product card button to send the selected quantities to the cart
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart'**
+  String get addToCart;
+
+  /// Product card button label once the product is in the cart
+  ///
+  /// In en, this message translates to:
+  /// **'In the cart'**
+  String get inTheCart;
+
+  /// Product card button label when the quantities changed after the product was added to the cart
+  ///
+  /// In en, this message translates to:
+  /// **'Update the cart'**
+  String get updateTheCart;
 }
 
 class _YaloSdkLocalizationsDelegate

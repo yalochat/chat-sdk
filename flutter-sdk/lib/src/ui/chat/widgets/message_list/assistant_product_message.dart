@@ -29,7 +29,6 @@ class AssistantProductMessage extends StatelessWidget {
     final chatThemeCubit = context.watch<ChatThemeCubit>();
     final messagesBloc = context.read<MessagesBloc>();
 
-    final size = MediaQuery.sizeOf(context);
     final orientation = MediaQuery.orientationOf(context);
 
     assert(message.id != null, 'Message id must not be null');
@@ -44,18 +43,13 @@ class AssistantProductMessage extends StatelessWidget {
               );
         final maxItems = SdkConstants.collapsedListMaxItems;
 
-        double maxHeight = double.infinity;
         double maxWidth = double.infinity;
         if (direction == Axis.vertical) {
-          maxHeight = orientation == Orientation.portrait
-              ? size.height * 0.30
-              : size.height * 0.5;
           maxWidth = constraints.maxWidth;
         } else {
           maxWidth = orientation == Orientation.portrait
               ? constraints.maxWidth * 0.6
               : constraints.maxWidth * 0.3;
-          maxHeight = double.infinity;
         }
         final children = [
           for (int index = 0; index < itemCount; index++)
@@ -87,10 +81,7 @@ class AssistantProductMessage extends StatelessWidget {
                     ? EdgeInsets.only(top: SdkConstants.messageListMargin)
                     : EdgeInsets.only(right: SdkConstants.rowItemSpace),
                 child: Container(
-                  constraints: BoxConstraints(
-                    minWidth: maxWidth,
-                    maxHeight: maxHeight,
-                  ),
+                  constraints: BoxConstraints(minWidth: maxWidth),
                   width: (direction == Axis.vertical)
                       ? constraints.maxWidth
                       : maxWidth,

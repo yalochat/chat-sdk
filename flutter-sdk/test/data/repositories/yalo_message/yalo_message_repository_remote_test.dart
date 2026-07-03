@@ -560,77 +560,6 @@ void main() {
       });
     });
 
-    group('addToCart', () {
-      test('calls registered command callback instead of service', () async {
-        Object? receivedPayload;
-        when(() => mockClient.commands).thenReturn({
-          ChatCommand.addToCart: (payload) => receivedPayload = payload,
-        });
-
-        final result = await repo.addToCart('sku-1', 3);
-
-        expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'sku': 'sku-1', 'quantity': 3.0}));
-        verifyNever(() => mockMessageService.sendSdkMessage(any()));
-      });
-
-      test(
-        'sends an add to cart message when no command is registered',
-        () async {
-          when(() => mockClient.commands).thenReturn({});
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
-
-          final result = await repo.addToCart('sku-1', 3);
-
-          expect(result, isA<Ok<Unit>>());
-          final proto.SdkMessage sent =
-              verify(
-                    () => mockMessageService.sendSdkMessage(captureAny()),
-                  ).captured.single
-                  as proto.SdkMessage;
-          expect(sent.addToCartRequest.sku, equals('sku-1'));
-          expect(sent.addToCartRequest.quantity, equals(3));
-        },
-      );
-    });
-
-    group('removeFromCart', () {
-      test('calls registered command callback with quantity', () async {
-        Object? receivedPayload;
-        when(() => mockClient.commands).thenReturn({
-          ChatCommand.removeFromCart: (payload) => receivedPayload = payload,
-        });
-
-        final result = await repo.removeFromCart('sku-2', quantity: 1);
-
-        expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'sku': 'sku-2', 'quantity': 1.0}));
-      });
-
-      test(
-        'sends a remove from cart message when no command is registered',
-        () async {
-          when(() => mockClient.commands).thenReturn({});
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
-
-          final result = await repo.removeFromCart('sku-2', quantity: 2);
-
-          expect(result, isA<Ok<Unit>>());
-          final proto.SdkMessage sent =
-              verify(
-                    () => mockMessageService.sendSdkMessage(captureAny()),
-                  ).captured.single
-                  as proto.SdkMessage;
-          expect(sent.removeFromCartRequest.sku, equals('sku-2'));
-          expect(sent.removeFromCartRequest.quantity, equals(2));
-        },
-      );
-    });
-
     group('updateCartProduct', () {
       test('calls registered command callback instead of service', () async {
         Object? receivedPayload;
@@ -705,73 +634,70 @@ void main() {
       );
     });
 
-    group('addPromotion', () {
+    group('goToCart', () {
       test('calls registered command callback', () async {
+        bool called = false;
         Object? receivedPayload;
         when(() => mockClient.commands).thenReturn({
-          ChatCommand.addPromotion: (payload) => receivedPayload = payload,
+          ChatCommand.goToCart: (payload) {
+            called = true;
+            receivedPayload = payload;
+          },
         });
+
+        final result = await repo.goToCart();
+
+        expect(result, isA<Ok<Unit>>());
+        expect(called, isTrue);
+        expect(receivedPayload, isNull);
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
+
+      test('returns an error when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+
+        final result = await repo.goToCart();
+
+        expect(result, isA<Error<Unit>>());
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
+    });
+
+    group('addPromotion', () {
+      test('sends an add promotion message', () async {
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
         final result = await repo.addPromotion('promo-abc');
 
         expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'promotionId': 'promo-abc'}));
+        final proto.SdkMessage sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(sent.addPromotionRequest.promotionId, equals('promo-abc'));
       });
-
-      test(
-        'sends an add promotion message when no command is registered',
-        () async {
-          when(() => mockClient.commands).thenReturn({});
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
-
-          final result = await repo.addPromotion('promo-abc');
-
-          expect(result, isA<Ok<Unit>>());
-          final proto.SdkMessage sent =
-              verify(
-                    () => mockMessageService.sendSdkMessage(captureAny()),
-                  ).captured.single
-                  as proto.SdkMessage;
-          expect(sent.addPromotionRequest.promotionId, equals('promo-abc'));
-        },
-      );
     });
 
     group('requestGuidanceCard', () {
-      test('calls registered command callback with the context', () async {
-        Object? receivedPayload;
-        when(() => mockClient.commands).thenReturn({
-          ChatCommand.guidanceCard: (payload) => receivedPayload = payload,
-        });
+      test('sends a guidance card request', () async {
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
-        final result = await repo.requestGuidanceCard(context: 'product-page');
+        final result = await repo.requestGuidanceCard();
 
         expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'context': 'product-page'}));
+        final proto.SdkMessage sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(sent.hasGuidanceCardRequest(), isTrue);
+        expect(sent.correlationId, startsWith('guidance-card-'));
       });
-
-      test(
-        'sends a guidance card request when no command is registered',
-        () async {
-          when(() => mockClient.commands).thenReturn({});
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
-
-          final result = await repo.requestGuidanceCard();
-
-          expect(result, isA<Ok<Unit>>());
-          final proto.SdkMessage sent =
-              verify(
-                    () => mockMessageService.sendSdkMessage(captureAny()),
-                  ).captured.single
-                  as proto.SdkMessage;
-          expect(sent.hasGuidanceCardRequest(), isTrue);
-          expect(sent.correlationId, startsWith('guidance-card-'));
-        },
-      );
     });
 
     group('pause/resume', () {
@@ -848,7 +774,7 @@ void main() {
       test('runs the handler found by command id and sends a success '
           'response', () async {
         String? receivedPayload;
-        when(() => mockClient.customCommands).thenReturn({
+        when(() => mockClient.commands).thenReturn({
           'refreshCatalog': (payload) {
             receivedPayload = payload;
             return '{"done":true}';
@@ -878,7 +804,7 @@ void main() {
 
       test('sends an empty payload when the handler returns null', () async {
         when(
-          () => mockClient.customCommands,
+          () => mockClient.commands,
         ).thenReturn({'refreshCatalog': (_) => null});
         when(
           () => mockMessageService.sendSdkMessage(any()),
@@ -901,9 +827,9 @@ void main() {
       });
 
       test('sends an error response when the handler throws', () async {
-        when(() => mockClient.customCommands).thenReturn({
-          'refreshCatalog': (_) => throw Exception('boom'),
-        });
+        when(
+          () => mockClient.commands,
+        ).thenReturn({'refreshCatalog': (_) => throw Exception('boom')});
         when(
           () => mockMessageService.sendSdkMessage(any()),
         ).thenAnswer((_) async => Result.ok(Unit()));
@@ -924,34 +850,40 @@ void main() {
         expect(sent.customCommandResponse.payload, isEmpty);
       });
 
-      test('sends no response when no handler is registered for the id', () async {
-        when(() => mockClient.customCommands).thenReturn({});
+      test(
+        'sends no response when no handler is registered for the id',
+        () async {
+          when(() => mockClient.commands).thenReturn({});
 
-        repo.messages().listen((_) {});
-        incoming.add(customCommandItem(commandId: 'unknown'));
-        await pumpEventQueue();
+          repo.messages().listen((_) {});
+          incoming.add(customCommandItem(commandId: 'unknown'));
+          await pumpEventQueue();
 
-        verifyNever(() => mockMessageService.sendSdkMessage(any()));
-      });
+          verifyNever(() => mockMessageService.sendSdkMessage(any()));
+        },
+      );
 
-      test('does not emit a custom command request as a chat message', () async {
-        when(
-          () => mockClient.customCommands,
-        ).thenReturn({'refreshCatalog': (_) => null});
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+      test(
+        'does not emit a custom command request as a chat message',
+        () async {
+          when(
+            () => mockClient.commands,
+          ).thenReturn({'refreshCatalog': (_) => null});
+          when(
+            () => mockMessageService.sendSdkMessage(any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
 
-        final received = <ChatMessage>[];
-        repo
-            .messages()
-            .where((m) => m.type != MessageType.chatStatus)
-            .listen(received.add);
-        incoming.add(customCommandItem());
-        await pumpEventQueue();
+          final received = <ChatMessage>[];
+          repo
+              .messages()
+              .where((m) => m.type != MessageType.chatStatus)
+              .listen(received.add);
+          incoming.add(customCommandItem());
+          await pumpEventQueue();
 
-        expect(received, isEmpty);
-      });
+          expect(received, isEmpty);
+        },
+      );
     });
   });
 }

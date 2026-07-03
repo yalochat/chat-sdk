@@ -13,13 +13,6 @@ abstract class YaloMessageRepository {
   // Sends message to yalo's workflow interpreter adapter
   Future<Result<Unit>> sendMessage(ChatMessage chatMessage);
 
-  // Adds a product to the active cart.
-  Future<Result<Unit>> addToCart(String sku, double quantity);
-
-  // Removes a product from the active cart.
-  // If [quantity] is null, the entire SKU line is removed.
-  Future<Result<Unit>> removeFromCart(String sku, {double? quantity});
-
   // Sets the absolute units and subunits of a product in the active cart.
   Future<Result<Unit>> updateCartProduct(
     String sku,
@@ -32,6 +25,10 @@ abstract class YaloMessageRepository {
 
   // Applies a promotion to the active cart.
   Future<Result<Unit>> addPromotion(String promotionId);
+
+  // Asks the host app to navigate the user to its cart. Only runs the
+  // registered ChatCommand.goToCart callback; there is no remote fallback.
+  Future<Result<Unit>> goToCart();
 
   // Requests the guidance card shown when the chat has no messages yet.
   Future<Result<Unit>> requestGuidanceCard({String? context});

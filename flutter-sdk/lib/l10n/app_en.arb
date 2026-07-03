@@ -18,5 +18,17 @@
   "retry": "Retry",
   "@retry": {
     "description": "Action text shown after the not delivered label to retry sending the message"
+  },
+  "addToCart": "Add to cart",
+  "@addToCart": {
+    "description": "Product card button to send the selected quantities to the cart"
+  },
+  "inTheCart": "In the cart",
+  "@inTheCart": {
+    "description": "Product card button label once the product is in the cart"
+  },
+  "updateTheCart": "Update the cart",
+  "@updateTheCart": {
+    "description": "Product card button label when the quantities changed after the product was added to the cart"
   }
 }
