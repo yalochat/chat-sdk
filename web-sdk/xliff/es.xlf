@@ -18,6 +18,24 @@
   <source>Show more</source>
   <target>Mostrar más</target>
 </trans-unit>
+<trans-unit id="s317b6c4a03e34c5d">
+  <source>In the cart</source>
+</trans-unit>
+<trans-unit id="s20dfc2658b5ed207">
+  <source>Update the cart</source>
+</trans-unit>
+<trans-unit id="sf5d501d58546bff9">
+  <source>Add to cart</source>
+</trans-unit>
+<trans-unit id="s087b7417c598233e">
+  <source>Go to cart</source>
+</trans-unit>
+<trans-unit id="sc876da507d6d97c4">
+  <source>Not delivered.</source>
+</trans-unit>
+<trans-unit id="s2c8189544e3ea679">
+  <source>Retry</source>
+</trans-unit>
 </body>
 </file>
 </xliff>

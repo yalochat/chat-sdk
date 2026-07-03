@@ -1227,6 +1227,63 @@ describe('YaloChatWindow', () => {
       await vi.waitUntil(() => warnSpy.mock.calls.length > 0);
       expect(warnSpy).toHaveBeenCalledWith('No goToCart command registered');
     });
+
+    it('runs the registered goToCart command from the confirmed confirmation button', async () => {
+      const message = ChatMessage.productConfirmation({
+        role: 'AGENT',
+        timestamp: new Date(),
+        header: 'Added to cart',
+        content: 'You have 3 bags',
+        footer: 'Continue shopping',
+        button: { text: 'Done', type: 'reply' },
+        product: new Product({
+          sku: 'sku-1',
+          name: 'Bag',
+          price: 1,
+          unitName: 'unit',
+          unitsAdded: 3,
+        }),
+      });
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(message)
+      );
+      vi.spyOn(
+        el.yaloMessageRepository,
+        'updateCartProduct'
+      ).mockResolvedValue(new Ok(undefined));
+      dispatchFromFooter(el, 'yalo-chat-send-text-message', message);
+      await vi.waitUntil(() => getMessageList(el).chatMessages.length > 0);
+
+      const callback = vi.fn();
+      el.commands = new Map([['goToCart', callback]]);
+      await el.updateComplete;
+
+      const listEl = el.shadowRoot!.querySelector(
+        'yalo-chat-message-list'
+      ) as LitElement;
+      await listEl.updateComplete;
+      const assistant = listEl.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      ) as LitElement;
+      await assistant.updateComplete;
+      const card = assistant.shadowRoot!.querySelector(
+        'yalo-chat-product-confirmation-message'
+      ) as LitElement;
+      await card.updateComplete;
+
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+      expect(button.textContent).toContain('Done');
+
+      button.click();
+      await card.updateComplete;
+      expect(button.textContent).toContain('Go to cart');
+
+      button.click();
+      await vi.waitUntil(() => callback.mock.calls.length > 0);
+      expect(callback).toHaveBeenCalledWith(undefined);
+    });
   });
 });
 
