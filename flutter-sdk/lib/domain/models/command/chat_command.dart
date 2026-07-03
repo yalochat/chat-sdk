@@ -5,8 +5,6 @@
 // These ids are reserved: any other id registered through registerCommand
 // handles the matching channel -> client custom command request.
 abstract final class ChatCommand {
-  static const String addToCart = 'addToCart';
-  static const String removeFromCart = 'removeFromCart';
   static const String updateCartProduct = 'updateCartProduct';
   static const String clearCart = 'clearCart';
   static const String goToCart = 'goToCart';

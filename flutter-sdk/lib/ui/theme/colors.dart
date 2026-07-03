@@ -51,4 +51,10 @@ abstract final class SdkColors {
   );
   static const Color productConfirmationButtonConfirmedForegroundColorLight =
       Color(0xFFFFFFFF);
+  static const Color productCardButtonColorLight = Color(0xFF111111);
+  static const Color productCardButtonForegroundColorLight = Color(0xFFFFFFFF);
+  static const Color productCardButtonInCartColorLight = Color(0xFF0B996D);
+  static const Color productCardButtonInCartForegroundColorLight = Color(
+    0xFFFFFFFF,
+  );
 }

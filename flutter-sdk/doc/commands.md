@@ -15,14 +15,9 @@ final client = YaloChatClient(
   organizationId: 'your-organization-id',
 );
 
-client.registerCommand(ChatCommand.addToCart, (payload) {
-  // payload: { 'sku': String, 'quantity': double }
-  print('Adding ${payload['quantity']} of ${payload['sku']}');
-});
-
-client.registerCommand(ChatCommand.removeFromCart, (payload) {
-  // payload: { 'sku': String, 'quantity': double? }
-  print('Removing ${payload['quantity']} of ${payload['sku']}');
+client.registerCommand(ChatCommand.updateCartProduct, (payload) {
+  // payload: { 'sku': String, 'units': double, 'subunits': double }
+  print('Updating cart for ${payload['sku']} to ${payload['units']}');
 });
 ```
 
@@ -30,9 +25,7 @@ client.registerCommand(ChatCommand.removeFromCart, (payload) {
 
 Built-in commands run your callback instead of sending the action through the default remote API. Their callbacks receive a payload and return nothing.
 
-- **`ChatCommand.addToCart`**: Triggered when the user increases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double }`.
-- **`ChatCommand.removeFromCart`**: Triggered when the user decreases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double? }`.
-- **`ChatCommand.updateCartProduct`**: Triggered when the user confirms a product confirmation card. Sets the absolute units and subunits for the product. Callback payload: `{ 'sku': String, 'units': double, 'subunits': double }`.
+- **`ChatCommand.updateCartProduct`**: Triggered when the user sends a product to the cart, either from the add to cart button of a product card or by confirming a product confirmation card. Sets the absolute units and subunits for the product. Callback payload: `{ 'sku': String, 'units': double, 'subunits': double }`.
 - **`ChatCommand.clearCart`**: Triggered when the cart is cleared. Callback payload: `null`.
 - **`ChatCommand.goToCart`**: Triggered when the user asks to open the cart from the chat. Callback payload: `null`. Use it to navigate the user to your cart screen.
 

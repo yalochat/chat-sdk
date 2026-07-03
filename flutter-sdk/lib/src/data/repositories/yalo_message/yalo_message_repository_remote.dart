@@ -188,54 +188,6 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   @override
-  Future<Result<Unit>> addToCart(String sku, double quantity) async {
-    final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.addToCart] as ChatCommandCallback?;
-    if (callback != null) {
-      callback({'sku': sku, 'quantity': quantity});
-      return Result.ok(Unit());
-    }
-    final DateTime timestamp = DateTime.now();
-    final proto.SdkMessage request = proto.SdkMessage(
-      correlationId: 'add-to-cart-$sku-${timestamp.millisecondsSinceEpoch}',
-      timestamp: Timestamp.fromDateTime(timestamp),
-      addToCartRequest: proto.AddToCartRequest(
-        sku: sku,
-        quantity: quantity,
-        timestamp: Timestamp.fromDateTime(timestamp),
-      ),
-    );
-    return messageService.sendSdkMessage(request);
-  }
-
-  @override
-  Future<Result<Unit>> removeFromCart(String sku, {double? quantity}) async {
-    final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.removeFromCart]
-            as ChatCommandCallback?;
-    if (callback != null) {
-      callback({'sku': sku, 'quantity': quantity});
-      return Result.ok(Unit());
-    }
-    final DateTime timestamp = DateTime.now();
-    final proto.RemoveFromCartRequest removeRequest =
-        proto.RemoveFromCartRequest(
-          sku: sku,
-          timestamp: Timestamp.fromDateTime(timestamp),
-        );
-    if (quantity != null) {
-      removeRequest.quantity = quantity;
-    }
-    final proto.SdkMessage request = proto.SdkMessage(
-      correlationId:
-          'remove-from-cart-$sku-${timestamp.millisecondsSinceEpoch}',
-      timestamp: Timestamp.fromDateTime(timestamp),
-      removeFromCartRequest: removeRequest,
-    );
-    return messageService.sendSdkMessage(request);
-  }
-
-  @override
   Future<Result<Unit>> updateCartProduct(
     String sku,
     double units,

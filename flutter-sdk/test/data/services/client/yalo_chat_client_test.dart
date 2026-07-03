@@ -24,42 +24,48 @@ void main() {
       test('registers a callback for a command', () {
         dynamic receivedPayload;
         client.registerCommand(
-          ChatCommand.addToCart,
+          ChatCommand.updateCartProduct,
           (payload) => receivedPayload = payload,
         );
 
         expect(client.commands, hasLength(1));
-        expect(client.commands.containsKey(ChatCommand.addToCart), isTrue);
+        expect(
+          client.commands.containsKey(ChatCommand.updateCartProduct),
+          isTrue,
+        );
 
-        client.commands[ChatCommand.addToCart]!({'sku': '123', 'quantity': 2});
-        expect(receivedPayload, equals({'sku': '123', 'quantity': 2}));
+        client.commands[ChatCommand.updateCartProduct]!({
+          'sku': '123',
+          'units': 2,
+        });
+        expect(receivedPayload, equals({'sku': '123', 'units': 2}));
       });
 
       test('replaces callback when registering the same command', () {
-        client.registerCommand(ChatCommand.addToCart, (_) {});
-        client.registerCommand(ChatCommand.addToCart, (_) {});
+        client.registerCommand(ChatCommand.updateCartProduct, (_) {});
+        client.registerCommand(ChatCommand.updateCartProduct, (_) {});
 
         expect(client.commands, hasLength(1));
       });
 
       test('registers multiple different commands', () {
-        client.registerCommand(ChatCommand.addToCart, (_) {});
-        client.registerCommand(ChatCommand.removeFromCart, (_) {});
+        client.registerCommand(ChatCommand.updateCartProduct, (_) {});
         client.registerCommand(ChatCommand.clearCart, (_) {});
+        client.registerCommand(ChatCommand.goToCart, (_) {});
 
         expect(client.commands, hasLength(3));
         expect(
           client.commands.keys,
           containsAll([
-            ChatCommand.addToCart,
-            ChatCommand.removeFromCart,
+            ChatCommand.updateCartProduct,
             ChatCommand.clearCart,
+            ChatCommand.goToCart,
           ]),
         );
       });
 
       test('commands getter returns an unmodifiable map', () {
-        client.registerCommand(ChatCommand.addToCart, (_) {});
+        client.registerCommand(ChatCommand.updateCartProduct, (_) {});
 
         expect(
           () => client.commands[ChatCommand.clearCart] = (_) {},

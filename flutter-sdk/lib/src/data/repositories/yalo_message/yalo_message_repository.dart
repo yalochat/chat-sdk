@@ -13,13 +13,6 @@ abstract class YaloMessageRepository {
   // Sends message to yalo's workflow interpreter adapter
   Future<Result<Unit>> sendMessage(ChatMessage chatMessage);
 
-  // Adds a product to the active cart.
-  Future<Result<Unit>> addToCart(String sku, double quantity);
-
-  // Removes a product from the active cart.
-  // If [quantity] is null, the entire SKU line is removed.
-  Future<Result<Unit>> removeFromCart(String sku, {double? quantity});
-
   // Sets the absolute units and subunits of a product in the active cart.
   Future<Result<Unit>> updateCartProduct(
     String sku,

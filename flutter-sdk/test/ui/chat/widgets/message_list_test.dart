@@ -1715,6 +1715,66 @@ void main() {
         ).called(1);
       });
     });
+
+    group('product cart button', () {
+      ChatMessage productMessage({bool inCart = false}) {
+        return ChatMessage.product(
+          id: 91,
+          role: MessageRole.assistant,
+          timestamp: clock.now(),
+          products: [
+            Product(
+              sku: 'sku-1',
+              name: 'Water',
+              price: 10,
+              unitName: 'box',
+              unitsAdded: 2,
+              inCart: inCart,
+            ),
+          ],
+        );
+      }
+
+      testWidgets(
+        'adds the product to the cart and shows the in cart state when tapped',
+        (tester) async {
+          when(
+            () => chatBloc.state,
+          ).thenReturn(MessagesState(messages: [productMessage()]));
+
+          await tester.pumpWidget(TestWidget(blocs: blocs));
+          await tester.tap(find.byKey(const Key('product_cart_button')));
+          await tester.pump();
+
+          verify(
+            () => chatBloc.add(
+              ChatAddProductToCart(messageId: 91, productSku: 'sku-1'),
+            ),
+          ).called(1);
+          expect(find.byIcon(Icons.check), findsOneWidget);
+          final button = tester.widget<FilledButton>(
+            find.byKey(const Key('product_cart_button')),
+          );
+          expect(button.onPressed, isNull);
+        },
+      );
+
+      testWidgets('renders as in the cart when the product is in the cart', (
+        tester,
+      ) async {
+        when(
+          () => chatBloc.state,
+        ).thenReturn(MessagesState(messages: [productMessage(inCart: true)]));
+
+        await tester.pumpWidget(TestWidget(blocs: blocs));
+
+        expect(find.byIcon(Icons.check), findsOneWidget);
+        final button = tester.widget<FilledButton>(
+          find.byKey(const Key('product_cart_button')),
+        );
+        expect(button.onPressed, isNull);
+      });
+    });
   });
 }
 

@@ -76,6 +76,7 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     on<ChatClearMessages>(_handleClearMessages);
     on<ChatRetryMessage>(_handleRetryMessage);
     on<ChatUpdateProductQuantity>(_handleUpdateProductQuantity);
+    on<ChatAddProductToCart>(_handleAddProductToCart);
     on<ChatConfirmProductConfirmation>(_handleConfirmProductConfirmation);
     on<ChatToggleMessageExpand>(_handleToggleMessageExpand);
     on<ChatClearQuickReplies>(_handleClearQuickReplies);
@@ -608,11 +609,6 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
     );
     final product = messageToUpdate.products[productIndex];
 
-    final double previousValue = switch (event.unitType) {
-      UnitType.unit => product.unitsAdded,
-      UnitType.subunit => product.subunitsAdded,
-    };
-
     List<Product> newProducts = [...messageToUpdate.products];
 
     switch (event.unitType) {
@@ -645,25 +641,65 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           'Message updated successfully, result: ${updateResult.result}',
         );
         emit(state.copyWith(messages: newMessages));
-
-        final double newValue = max(event.quantity, 0);
-        final double delta = newValue - previousValue;
-        if (delta > 0) {
-          log.fine('Adding to cart: sku=${event.productSku}, quantity=$delta');
-          _yaloMessageRepository.addToCart(event.productSku, delta);
-        } else if (delta < 0) {
-          final double quantity = delta.abs();
-          log.fine(
-            'Removing from cart: sku=${event.productSku}, quantity=$quantity',
-          );
-          _yaloMessageRepository.removeFromCart(
-            event.productSku,
-            quantity: quantity,
-          );
-        }
       case Error():
         log.info('Unable to update message', updateResult.error);
         emit(state.copyWith(chatStatus: ChatStatus.failedToUpdateMessage));
+    }
+  }
+
+  // Marks a product as in the cart and forwards its absolute units and
+  // subunits to the active cart as an update cart product request.
+  Future<void> _handleAddProductToCart(
+    ChatAddProductToCart event,
+    Emitter<MessagesState> emit,
+  ) async {
+    final int messageIndex = state.messages.indexWhere(
+      (message) => message.id == event.messageId,
+    );
+    if (messageIndex == -1) {
+      log.warning('No message with id ${event.messageId} found');
+      return;
+    }
+    final ChatMessage message = state.messages[messageIndex];
+    final int productIndex = message.products.indexWhere(
+      (p) => p.sku == event.productSku,
+    );
+    if (productIndex == -1) {
+      log.warning(
+        'No product with sku ${event.productSku} found '
+        'in message ${event.messageId}',
+      );
+      return;
+    }
+    final Product product = message.products[productIndex].copyWith(
+      inCart: true,
+    );
+
+    final List<Product> newProducts = [...message.products];
+    newProducts[productIndex] = product;
+    final ChatMessage updatedMessage = message.copyWith(products: newProducts);
+    final List<ChatMessage> newMessages = [...state.messages];
+    newMessages[messageIndex] = updatedMessage;
+
+    final persistResult = await _chatMessageRepository.replaceChatMessage(
+      updatedMessage,
+    );
+    switch (persistResult) {
+      case Ok():
+        emit(state.copyWith(messages: newMessages));
+      case Error():
+        log.severe('Unable to persist cart state', persistResult.error);
+        emit(state.copyWith(chatStatus: ChatStatus.failedToUpdateMessage));
+        return;
+    }
+
+    final sendResult = await _yaloMessageRepository.updateCartProduct(
+      product.sku,
+      product.unitsAdded,
+      product.subunitsAdded,
+    );
+    if (sendResult case Error(:final error)) {
+      log.severe('Unable to send updateCartProduct', error);
     }
   }
 

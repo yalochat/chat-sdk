@@ -14,6 +14,7 @@ import '../../../../../ui/theme/constants.dart';
 import '../../../theme/view_models/theme_cubit.dart';
 import 'image_placeholder.dart';
 import 'numeric_text_field.dart';
+import 'product_cart_button.dart';
 import 'product_message_price.dart';
 
 class ProductHorizontalCard extends StatelessWidget {
@@ -159,6 +160,12 @@ class ProductHorizontalCard extends StatelessWidget {
                     );
                   },
                 ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: SdkConstants.columnItemSpace,
+                ),
+                child: ProductCartButton(message: message, product: product),
+              ),
             ],
           ),
         ),

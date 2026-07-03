@@ -53,6 +53,9 @@ class Product extends Equatable {
   // The subunits added by the user
   final double subunitsAdded;
 
+  // Whether the user already sent this product to the cart
+  final bool inCart;
+
   const Product({
     required this.sku,
     required this.name,
@@ -66,6 +69,7 @@ class Product extends Equatable {
     this.subunitStep = 1,
     this.unitsAdded = 0,
     this.subunitsAdded = 0,
+    this.inCart = false,
   });
 
   Product copyWith({
@@ -81,6 +85,7 @@ class Product extends Equatable {
     double? subunitStep,
     double? unitsAdded,
     double? subunitsAdded,
+    bool? inCart,
   }) {
     return Product(
       sku: sku ?? this.sku,
@@ -95,6 +100,7 @@ class Product extends Equatable {
       subunitStep: subunitStep ?? this.subunitStep,
       unitsAdded: unitsAdded ?? this.unitsAdded,
       subunitsAdded: subunitsAdded ?? this.subunitsAdded,
+      inCart: inCart ?? this.inCart,
     );
   }
 
@@ -117,5 +123,6 @@ class Product extends Equatable {
     subunitStep,
     unitsAdded,
     subunitsAdded,
+    inCart,
   ];
 }

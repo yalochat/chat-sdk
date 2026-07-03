@@ -18,5 +18,17 @@
   "retry": "Reintentar",
   "@retry": {
     "description": "Texto de acción mostrado luego de la etiqueta de no entregado para reintentar el envío"
+  },
+  "addToCart": "Agregar al carrito",
+  "@addToCart": {
+    "description": "Botón de la tarjeta de producto para enviar las cantidades seleccionadas al carrito"
+  },
+  "inTheCart": "En el carrito",
+  "@inTheCart": {
+    "description": "Etiqueta del botón de la tarjeta de producto cuando el producto ya está en el carrito"
+  },
+  "updateTheCart": "Actualizar el carrito",
+  "@updateTheCart": {
+    "description": "Etiqueta del botón de la tarjeta de producto cuando las cantidades cambiaron después de agregar el producto al carrito"
   }
 }

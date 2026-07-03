@@ -50,6 +50,11 @@ class ChatTheme {
   final Color productConfirmationButtonForegroundColor;
   final Color productConfirmationButtonConfirmedColor;
   final Color productConfirmationButtonConfirmedForegroundColor;
+  // Product card add to cart button colors.
+  final Color productCardButtonColor;
+  final Color productCardButtonForegroundColor;
+  final Color productCardButtonInCartColor;
+  final Color productCardButtonInCartForegroundColor;
 
   final TextStyle quickReplyStyle;
   final TextStyle modalHeaderStyle;
@@ -88,6 +93,8 @@ class ChatTheme {
   final IconData ctaArrowForwardIcon;
   // Icon shown on a product confirmation button once it has been confirmed.
   final IconData productConfirmationConfirmedIcon;
+  // Icon shown on a product card button once the product is in the cart.
+  final IconData productCardInCartIcon;
 
   const ChatTheme({
     // Colors
@@ -140,6 +147,13 @@ class ChatTheme {
         SdkColors.productConfirmationButtonConfirmedColorLight,
     this.productConfirmationButtonConfirmedForegroundColor =
         SdkColors.productConfirmationButtonConfirmedForegroundColorLight,
+    this.productCardButtonColor = SdkColors.productCardButtonColorLight,
+    this.productCardButtonForegroundColor =
+        SdkColors.productCardButtonForegroundColorLight,
+    this.productCardButtonInCartColor =
+        SdkColors.productCardButtonInCartColorLight,
+    this.productCardButtonInCartForegroundColor =
+        SdkColors.productCardButtonInCartForegroundColorLight,
 
     // Text Styles
     this.quickReplyStyle = const TextStyle(
@@ -217,6 +231,7 @@ class ChatTheme {
     this.removeIcon = Icons.remove,
     this.ctaArrowForwardIcon = Icons.arrow_forward,
     this.productConfirmationConfirmedIcon = Icons.check,
+    this.productCardInCartIcon = Icons.check,
   });
 
   ChatTheme copyWith({
@@ -261,6 +276,10 @@ class ChatTheme {
     Color? productConfirmationButtonForegroundColor,
     Color? productConfirmationButtonConfirmedColor,
     Color? productConfirmationButtonConfirmedForegroundColor,
+    Color? productCardButtonColor,
+    Color? productCardButtonForegroundColor,
+    Color? productCardButtonInCartColor,
+    Color? productCardButtonInCartForegroundColor,
     TextStyle? quickReplyStyle,
     TextStyle? modalHeaderStyle,
     TextStyle? userMessageTextStyle,
@@ -296,6 +315,7 @@ class ChatTheme {
     IconData? removeIcon,
     IconData? ctaArrowForwardIcon,
     IconData? productConfirmationConfirmedIcon,
+    IconData? productCardInCartIcon,
   }) {
     return ChatTheme(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -366,6 +386,16 @@ class ChatTheme {
       productConfirmationButtonConfirmedForegroundColor:
           productConfirmationButtonConfirmedForegroundColor ??
           this.productConfirmationButtonConfirmedForegroundColor,
+      productCardButtonColor:
+          productCardButtonColor ?? this.productCardButtonColor,
+      productCardButtonForegroundColor:
+          productCardButtonForegroundColor ??
+          this.productCardButtonForegroundColor,
+      productCardButtonInCartColor:
+          productCardButtonInCartColor ?? this.productCardButtonInCartColor,
+      productCardButtonInCartForegroundColor:
+          productCardButtonInCartForegroundColor ??
+          this.productCardButtonInCartForegroundColor,
       quickReplyStyle: quickReplyStyle ?? this.quickReplyStyle,
       modalHeaderStyle: modalHeaderStyle ?? this.modalHeaderStyle,
       userMessageTextStyle: userMessageTextStyle ?? this.userMessageTextStyle,
@@ -406,6 +436,8 @@ class ChatTheme {
       productConfirmationConfirmedIcon:
           productConfirmationConfirmedIcon ??
           this.productConfirmationConfirmedIcon,
+      productCardInCartIcon:
+          productCardInCartIcon ?? this.productCardInCartIcon,
     );
   }
 

@@ -31,4 +31,13 @@ class YaloSdkLocalizationsEs extends YaloSdkLocalizations {
 
   @override
   String get retry => 'Reintentar';
+
+  @override
+  String get addToCart => 'Agregar al carrito';
+
+  @override
+  String get inTheCart => 'En el carrito';
+
+  @override
+  String get updateTheCart => 'Actualizar el carrito';
 }
