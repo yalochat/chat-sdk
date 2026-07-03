@@ -8,8 +8,10 @@ import type {
   ChatCommandCallback,
 } from '@domain/models/command/chat-command';
 import type {
+  ChannelCommandHandler,
   CustomCommandHandler,
   CustomCommandId,
+  GetCartHandler,
 } from '@domain/models/command/channel-command';
 
 export interface YaloChatClientInitOptions {
@@ -22,7 +24,7 @@ export default class YaloChatClient {
   chatWindowEl: YaloChatWindow | null = null;
   private targetEl: HTMLElement | null = null;
   private _commands = new Map<ChatCommand, ChatCommandCallback>();
-  private _channelCommands = new Map<string, CustomCommandHandler>();
+  private _channelCommands = new Map<string, ChannelCommandHandler>();
   private _onOpen?: () => void;
   private _onClose?: () => void;
 
@@ -78,7 +80,9 @@ export default class YaloChatClient {
     }
   }
 
-  onCommand(commandId: CustomCommandId, handler: CustomCommandHandler): void {
+  onCommand(commandId: 'getCart', handler: GetCartHandler): void;
+  onCommand(commandId: CustomCommandId, handler: CustomCommandHandler): void;
+  onCommand(commandId: string, handler: ChannelCommandHandler): void {
     this._channelCommands.set(commandId, handler);
     if (this.chatWindowEl) {
       this.chatWindowEl.channelCommands = new Map(this._channelCommands);

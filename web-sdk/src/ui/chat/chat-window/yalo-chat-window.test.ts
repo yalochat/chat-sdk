@@ -1684,6 +1684,113 @@ describe('YaloChatWindow custom commands', () => {
   });
 });
 
+describe('YaloChatWindow get cart command', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    ).mockReturnValue();
+    el = await createElement();
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  const getCartMessage = (
+    request = {},
+    correlationId = 'cart-1'
+  ): SdkMessage => ({
+    correlationId,
+    timestamp: new Date(),
+    getCartRequest: {
+      timestamp: undefined,
+      cursor: undefined,
+      pageSize: 10,
+      ...request,
+    },
+  });
+
+  it('runs the getCart handler and sends its products back as a success response', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendGetCartResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const products = [{ sku: 'sku-1', name: 'Water' }];
+    const pageInfo = { pageSize: 10, nextCursor: 'next' };
+    const handler = vi.fn().mockResolvedValue({ products, pageInfo });
+    el.channelCommands = new Map([['getCart', handler]]);
+
+    subscribeCallback!(getCartMessage());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(handler).toHaveBeenCalledWith(
+      expect.objectContaining({ pageSize: 10 })
+    );
+    expect(sendSpy).toHaveBeenCalledWith(
+      'cart-1',
+      'success',
+      products,
+      pageInfo
+    );
+  });
+
+  it('sends an empty product page when the handler omits pagination metadata', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendGetCartResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const handler = vi.fn().mockResolvedValue({ products: [] });
+    el.channelCommands = new Map([['getCart', handler]]);
+
+    subscribeCallback!(getCartMessage());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(sendSpy).toHaveBeenCalledWith('cart-1', 'success', [], undefined);
+  });
+
+  it('sends an error response with no products when the handler throws', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendGetCartResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const handler = vi.fn().mockRejectedValue(new Error('boom'));
+    el.channelCommands = new Map([['getCart', handler]]);
+
+    subscribeCallback!(getCartMessage());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(sendSpy).toHaveBeenCalledWith('cart-1', 'error', [], undefined);
+  });
+
+  it('logs a warning and sends no response when no getCart handler is registered', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendGetCartResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const warnSpy = vi.spyOn(el.logger, 'warn').mockReturnValue();
+
+    subscribeCallback!(getCartMessage());
+
+    await vi.waitUntil(() => warnSpy.mock.calls.length > 0);
+    expect(warnSpy).toHaveBeenCalledWith('Received unregistered command', {
+      commandId: 'getCart',
+    });
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
+});
+
 describe('YaloChatWindow pagination', () => {
   let el: YaloChatWindow;
   let pageSpy: ReturnType<typeof vi.spyOn>;
