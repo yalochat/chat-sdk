@@ -11,6 +11,7 @@ import type {
   SdkMessage,
   SdkMessageAck,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type { ChatCommandCallback } from '@domain/models/command/chat-command';
 import type {
   CustomCommandHandler,
   GetCartHandler,
@@ -437,7 +438,9 @@ export default class YaloChatWindowController implements ReactiveController {
 
     const subunits =
       product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
-    const updateCartProduct = this.host.commands.get('updateCartProduct');
+    const updateCartProduct = this.host.commands.get('updateCartProduct') as
+      | ChatCommandCallback
+      | undefined;
     if (updateCartProduct) {
       this.host.logger.debug('Executing updateCartProduct command', {
         sku: product.sku,
@@ -467,6 +470,21 @@ export default class YaloChatWindowController implements ReactiveController {
         error: sendResult.error,
       });
     }
+  }
+
+  // Runs the host's registered goToCart command so it can navigate the user
+  // to its cart. There is no remote fallback: navigation only makes sense on
+  // the host side, so an unregistered command is a no-op with a warning.
+  goToCart() {
+    const goToCart = this.host.commands.get('goToCart') as
+      | ChatCommandCallback
+      | undefined;
+    if (!goToCart) {
+      this.host.logger.warn('No goToCart command registered');
+      return;
+    }
+    this.host.logger.debug('Executing goToCart command');
+    goToCart(undefined);
   }
 
   async markProductConfirmationClicked(e: CustomEvent) {
@@ -502,7 +520,9 @@ export default class YaloChatWindowController implements ReactiveController {
     }
     const subunits =
       product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
-    const updateCartProduct = this.host.commands.get('updateCartProduct');
+    const updateCartProduct = this.host.commands.get('updateCartProduct') as
+      | ChatCommandCallback
+      | undefined;
     if (updateCartProduct) {
       this.host.logger.debug('Executing updateCartProduct command', {
         sku: product.sku,
@@ -705,7 +725,7 @@ export default class YaloChatWindowController implements ReactiveController {
     correlationId: string,
     request: GetCartRequest
   ): Promise<void> {
-    const handler = this.host.channelCommands.get('getCart') as
+    const handler = this.host.commands.get('getCart') as
       | GetCartHandler
       | undefined;
     if (!handler) {
@@ -754,7 +774,7 @@ export default class YaloChatWindowController implements ReactiveController {
     correlationId: string,
     request: CustomCommandRequest
   ): Promise<void> {
-    const handler = this.host.channelCommands.get(request.commandId) as
+    const handler = this.host.commands.get(request.commandId) as
       | CustomCommandHandler
       | undefined;
     if (!handler) {

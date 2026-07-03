@@ -212,18 +212,16 @@ describe('YaloChatClient', () => {
     });
   });
 
-  describe('onCommand', () => {
+  describe('registerCommand with channel command ids', () => {
     it('stores the handler by command id and passes it to the chat window after init', async () => {
       const client = new YaloChatClient(baseConfig);
       const handler = vi.fn();
-      client.onCommand('refreshCatalog', handler);
+      client.registerCommand('refreshCatalog', handler);
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      expect(getChatWindow().channelCommands.get('refreshCatalog')).toBe(
-        handler
-      );
+      expect(getChatWindow().commands.get('refreshCatalog')).toBe(handler);
     });
 
     it('updates the chat window when registering after init', async () => {
@@ -233,25 +231,32 @@ describe('YaloChatClient', () => {
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       const handler = vi.fn();
-      client.onCommand('refreshCatalog', handler);
-      expect(getChatWindow().channelCommands.get('refreshCatalog')).toBe(
-        handler
-      );
+      client.registerCommand('refreshCatalog', handler);
+      expect(getChatWindow().commands.get('refreshCatalog')).toBe(handler);
     });
 
     it('overwrites a handler registered under the same command id', async () => {
       const client = new YaloChatClient(baseConfig);
       const first = vi.fn();
       const second = vi.fn();
-      client.onCommand('refreshCatalog', first);
-      client.onCommand('refreshCatalog', second);
+      client.registerCommand('refreshCatalog', first);
+      client.registerCommand('refreshCatalog', second);
       client.init();
       await vi.waitUntil(
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
-      expect(getChatWindow().channelCommands.get('refreshCatalog')).toBe(
-        second
+      expect(getChatWindow().commands.get('refreshCatalog')).toBe(second);
+    });
+
+    it('stores getCart in the same command map', async () => {
+      const client = new YaloChatClient(baseConfig);
+      const handler = vi.fn();
+      client.registerCommand('getCart', handler);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
       );
+      expect(getChatWindow().commands.get('getCart')).toBe(handler);
     });
   });
 

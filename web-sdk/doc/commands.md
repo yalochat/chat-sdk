@@ -1,6 +1,6 @@
 # Commands
 
-Commands let you handle client-to-channel actions locally instead of sending them through the default remote API. Use `registerCommand` to register a callback for a specific command. When that command is triggered by the chat UI, your callback runs instead of the built-in API call.
+Commands are actions the chat can invoke on your page. Use `registerCommand` to register a handler for a command id. When the chat triggers that command, your handler runs.
 
 You can register commands before or after calling `init()`.
 
@@ -15,21 +15,24 @@ client.registerCommand('updateCartProduct', function (payload) {
 client.init();
 ```
 
-## Available commands
+## Built-in commands
 
 - **`updateCartProduct`**: Triggered when the user confirms a product in a product message via "Add to cart". Callback payload: `{ sku: string, units: number, subunits?: number }`.
 - **`clearCart`**: Triggered when the cart is cleared. Callback payload: `unknown`.
+- **`goToCart`**: Triggered when the user asks to open the cart from the chat. The callback receives no payload and returns nothing. Use it to redirect the user to your cart page.
+- **`getCart`**: Triggered when the channel asks your page for the products in its cart. The handler receives the cart request and returns the cart products (see [Returning the cart](#returning-the-cart)).
 
-If a command has no registered callback, the SDK sends the action through the remote API as usual.
+If a built-in command has no registered handler, the SDK sends the action through the remote API as usual. There are two exceptions:
+
+- `goToCart`: navigation only makes sense in your page, so the SDK logs a warning and does nothing.
+- `getCart`: only your page knows the cart contents, so the SDK logs a warning and sends no response.
 
 ## Custom commands
 
-Custom commands go the other way: the channel asks your page to run something and waits for a reply. Use `onCommand` to register a handler under a command id of your choice. When the channel sends a custom command request whose `commandId` matches, the SDK runs your handler with the request payload, then sends the result back to the channel as the response.
-
-You can register custom commands before or after calling `init()`.
+Any other command id is a custom command: the channel asks your page to run something and waits for a reply. Register a handler under a command id of your choice. When the channel sends a custom command request whose `commandId` matches, the SDK runs your handler with the request payload, then sends the result back to the channel as the response.
 
 ```js
-client.onCommand('refreshCatalog', function (payload) {
+client.registerCommand('refreshCatalog', function (payload) {
   // payload: the request payload string the channel sent
   const { region } = JSON.parse(payload);
   reloadCatalogFor(region);
@@ -42,7 +45,7 @@ client.init();
 
 Notes:
 
-- You choose the command id. The channel triggers your handler by sending a custom command request with the same id.
+- You choose the command id. The channel triggers your handler by sending a custom command request with the same id. Built-in command ids are reserved, so pick a different id for your custom commands.
 - The handler can be synchronous or return a promise. The SDK waits for it to settle before replying.
 - The response status is `success` when the handler returns normally. If the handler throws or rejects, the SDK replies with an `error` status and an empty payload.
 - If the handler returns nothing, the response payload is an empty string.
@@ -50,10 +53,10 @@ Notes:
 
 ## Returning the cart
 
-`getCart` is a typed variant of a custom command. The channel asks your page for the products in its cart and the SDK replies with a typed cart response instead of a plain string. Register it with `onCommand` under the `getCart` id.
+`getCart` is a typed built-in command. The channel asks your page for the products in its cart and the SDK replies with a typed cart response instead of a plain string.
 
 ```js
-client.onCommand('getCart', function (request) {
+client.registerCommand('getCart', function (request) {
   // request: { cursor?: string, pageSize?: number }
   // Return the products in the current page of your cart.
   return {
@@ -115,7 +118,7 @@ Notes:
 
 ## Registering through the queue
 
-If you open the chat through the `window.yaloOpen` queue instead of holding a `YaloChatClient` reference, declare the same callbacks inline in the configuration. Use `registerCommands` for client-to-channel commands and `onCommand` for custom commands. The SDK registers them before the chat window opens.
+If you open the chat through the `window.yaloOpen` queue instead of holding a `YaloChatClient` reference, declare the same handlers inline in the configuration under `registerCommands`. The SDK registers them before the chat window opens.
 
 ```js
 window.yaloOpen = window.yaloOpen || [];
@@ -126,16 +129,14 @@ window.yaloOpen.push({
   target: 'yalo-chat',
   registerCommands: {
     updateCartProduct: function (payload) {
-      // same callback as client.registerCommand('updateCartProduct', ...)
+      // same handler as client.registerCommand('updateCartProduct', ...)
     },
-  },
-  onCommand: {
     refreshCatalog: function (payload) {
-      // same handler as client.onCommand('refreshCatalog', ...)
+      // same handler as client.registerCommand('refreshCatalog', ...)
       return JSON.stringify({ status: 'reloaded' });
     },
     getCart: function (request) {
-      // same handler as client.onCommand('getCart', ...)
+      // same handler as client.registerCommand('getCart', ...)
       // Return the products from your own cart. See the schema above.
       return { products: [] };
     },

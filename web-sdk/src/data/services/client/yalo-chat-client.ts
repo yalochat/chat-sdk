@@ -8,10 +8,10 @@ import type {
   ChatCommandCallback,
 } from '@domain/models/command/chat-command';
 import type {
-  ChannelCommandHandler,
   CustomCommandHandler,
   CustomCommandId,
   GetCartHandler,
+  RegisteredCommandHandler,
 } from '@domain/models/command/channel-command';
 
 export interface YaloChatClientInitOptions {
@@ -23,8 +23,7 @@ export default class YaloChatClient {
   private config: YaloChatClientConfig;
   chatWindowEl: YaloChatWindow | null = null;
   private targetEl: HTMLElement | null = null;
-  private _commands = new Map<ChatCommand, ChatCommandCallback>();
-  private _channelCommands = new Map<string, ChannelCommandHandler>();
+  private _commands = new Map<string, RegisteredCommandHandler>();
   private _onOpen?: () => void;
   private _onClose?: () => void;
 
@@ -41,7 +40,6 @@ export default class YaloChatClient {
     ) as YaloChatWindow;
     this.chatWindowEl.config = this.config;
     this.chatWindowEl.commands = new Map(this._commands);
-    this.chatWindowEl.channelCommands = new Map(this._channelCommands);
 
     this.targetEl = document.getElementById(this.config.target);
 
@@ -73,19 +71,20 @@ export default class YaloChatClient {
     this._onClose?.();
   }
 
-  registerCommand(command: ChatCommand, callback: ChatCommandCallback): void {
-    this._commands.set(command, callback);
+  // Registers a handler the chat can invoke on the host, keyed by command id.
+  // Client -> channel command ids (ChatCommands) run instead of the built-in
+  // remote call. Any other id answers the matching channel command request and
+  // its result is sent back to the channel as the response.
+  registerCommand(command: 'getCart', handler: GetCartHandler): void;
+  registerCommand(command: ChatCommand, callback: ChatCommandCallback): void;
+  registerCommand(
+    command: CustomCommandId,
+    handler: CustomCommandHandler
+  ): void;
+  registerCommand(command: string, handler: RegisteredCommandHandler): void {
+    this._commands.set(command, handler);
     if (this.chatWindowEl) {
       this.chatWindowEl.commands = new Map(this._commands);
-    }
-  }
-
-  onCommand(commandId: 'getCart', handler: GetCartHandler): void;
-  onCommand(commandId: CustomCommandId, handler: CustomCommandHandler): void;
-  onCommand(commandId: string, handler: ChannelCommandHandler): void {
-    this._channelCommands.set(commandId, handler);
-    if (this.chatWindowEl) {
-      this.chatWindowEl.channelCommands = new Map(this._channelCommands);
     }
   }
 

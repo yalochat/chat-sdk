@@ -119,16 +119,18 @@ describe('installYaloOpenQueue', () => {
     );
   });
 
-  it('registers channel command handlers from onCommand in the config', async () => {
+  it('registers channel command handlers from registerCommands in the config', async () => {
     const getCart = vi.fn();
     installYaloOpenQueue();
     (
       window.yaloOpen as {
-        push: (c: typeof baseConfig & { onCommand: Record<string, () => void> }) => void;
+        push: (
+          c: typeof baseConfig & { registerCommands: Record<string, () => void> }
+        ) => void;
       }
-    ).push({ ...baseConfig, onCommand: { getCart } });
+    ).push({ ...baseConfig, registerCommands: { getCart } });
     await waitForChatWindow();
-    expect(getChatWindow().channelCommands.get('getCart')).toBe(getCart);
+    expect(getChatWindow().commands.get('getCart')).toBe(getCart);
   });
 
   it('opens normally when no command options are provided', async () => {
@@ -136,7 +138,6 @@ describe('installYaloOpenQueue', () => {
     installYaloOpenQueue();
     await waitForChatWindow();
     expect(getChatWindow().commands.size).toBe(0);
-    expect(getChatWindow().channelCommands.size).toBe(0);
   });
 
   it('ignores a non-array existing window.yaloOpen value', () => {
