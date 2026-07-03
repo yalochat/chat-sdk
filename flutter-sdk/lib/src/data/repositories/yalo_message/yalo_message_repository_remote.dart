@@ -115,7 +115,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   Future<void> _handleCustomCommand(proto.SdkMessage message) async {
     final proto.CustomCommandRequest request = message.customCommandRequest;
     final CustomCommandCallback? handler =
-        yaloChatClient.customCommands[request.commandId];
+        yaloChatClient.commands[request.commandId] as CustomCommandCallback?;
     if (handler == null) {
       log.warning('Received unregistered command: ${request.commandId}');
       return;
@@ -189,7 +189,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   @override
   Future<Result<Unit>> addToCart(String sku, double quantity) async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.addToCart];
+        yaloChatClient.commands[ChatCommand.addToCart] as ChatCommandCallback?;
     if (callback != null) {
       callback({'sku': sku, 'quantity': quantity});
       return Result.ok(Unit());
@@ -210,7 +210,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   @override
   Future<Result<Unit>> removeFromCart(String sku, {double? quantity}) async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.removeFromCart];
+        yaloChatClient.commands[ChatCommand.removeFromCart]
+            as ChatCommandCallback?;
     if (callback != null) {
       callback({'sku': sku, 'quantity': quantity});
       return Result.ok(Unit());
@@ -240,7 +241,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     double subunits,
   ) async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.updateCartProduct];
+        yaloChatClient.commands[ChatCommand.updateCartProduct]
+            as ChatCommandCallback?;
     if (callback != null) {
       callback({'sku': sku, 'units': units, 'subunits': subunits});
       return Result.ok(Unit());
@@ -263,7 +265,7 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   @override
   Future<Result<Unit>> clearCart() async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.clearCart];
+        yaloChatClient.commands[ChatCommand.clearCart] as ChatCommandCallback?;
     if (callback != null) {
       callback(null);
       return Result.ok(Unit());
@@ -282,7 +284,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   @override
   Future<Result<Unit>> addPromotion(String promotionId) async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.addPromotion];
+        yaloChatClient.commands[ChatCommand.addPromotion]
+            as ChatCommandCallback?;
     if (callback != null) {
       callback({'promotionId': promotionId});
       return Result.ok(Unit());
@@ -303,7 +306,8 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   @override
   Future<Result<Unit>> requestGuidanceCard({String? context}) async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.guidanceCard];
+        yaloChatClient.commands[ChatCommand.guidanceCard]
+            as ChatCommandCallback?;
     if (callback != null) {
       callback(context != null ? {'context': context} : null);
       return Result.ok(Unit());

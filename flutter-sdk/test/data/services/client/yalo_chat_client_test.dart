@@ -68,45 +68,36 @@ void main() {
       });
     });
 
-    group('onCommand', () {
+    group('registerCommand with custom command ids', () {
       test('registers a handler by command id', () {
         String? receivedPayload;
-        client.onCommand('refreshCatalog', (payload) {
+        client.registerCommand('refreshCatalog', (payload) {
           receivedPayload = payload;
           return null;
         });
 
-        expect(client.customCommands, hasLength(1));
-        expect(client.customCommands.containsKey('refreshCatalog'), isTrue);
+        expect(client.commands, hasLength(1));
+        expect(client.commands.containsKey('refreshCatalog'), isTrue);
 
-        client.customCommands['refreshCatalog']!('{"region":"mx"}');
+        client.commands['refreshCatalog']!('{"region":"mx"}');
         expect(receivedPayload, equals('{"region":"mx"}'));
       });
 
       test('replaces the handler when registering the same command id', () {
-        client.onCommand('refreshCatalog', (_) => null);
-        client.onCommand('refreshCatalog', (_) => null);
+        client.registerCommand('refreshCatalog', (_) => null);
+        client.registerCommand('refreshCatalog', (_) => null);
 
-        expect(client.customCommands, hasLength(1));
+        expect(client.commands, hasLength(1));
       });
 
-      test('registers multiple different command ids', () {
-        client.onCommand('refreshCatalog', (_) => null);
-        client.onCommand('getCart', (_) => null);
+      test('stores custom ids alongside chat command ids in the same map', () {
+        client.registerCommand(ChatCommand.clearCart, (_) {});
+        client.registerCommand('refreshCatalog', (_) => null);
 
-        expect(client.customCommands, hasLength(2));
+        expect(client.commands, hasLength(2));
         expect(
-          client.customCommands.keys,
-          containsAll(['refreshCatalog', 'getCart']),
-        );
-      });
-
-      test('customCommands getter returns an unmodifiable map', () {
-        client.onCommand('refreshCatalog', (_) => null);
-
-        expect(
-          () => client.customCommands['getCart'] = (_) => null,
-          throwsUnsupportedError,
+          client.commands.keys,
+          containsAll([ChatCommand.clearCart, 'refreshCatalog']),
         );
       });
     });

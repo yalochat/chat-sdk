@@ -1,6 +1,6 @@
 # Commands
 
-Commands let you handle client-to-channel actions locally instead of sending them through the default remote API. Use `registerCommand` to register a callback for a specific command. When that command is triggered by the chat UI, your callback runs instead of the built-in API call.
+Commands are actions the chat can invoke on your app. Use `registerCommand` to register a handler for a command id. When the chat triggers that command, your handler runs.
 
 You can register commands before or after adding the `Chat` widget.
 
@@ -26,7 +26,9 @@ client.registerCommand(ChatCommand.removeFromCart, (payload) {
 });
 ```
 
-## Available commands
+## Built-in commands
+
+Built-in commands run your callback instead of sending the action through the default remote API. Their callbacks receive a payload and return nothing.
 
 - **`ChatCommand.addToCart`**: Triggered when the user increases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double }`.
 - **`ChatCommand.removeFromCart`**: Triggered when the user decreases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double? }`.
@@ -35,24 +37,14 @@ client.registerCommand(ChatCommand.removeFromCart, (payload) {
 - **`ChatCommand.guidanceCard`**: Triggered when guidance cards are requested. Callback payload: `null`.
 - **`ChatCommand.addPromotion`**: Triggered when a promotion is applied. Callback payload: `{ 'promotionId': String }`.
 
-If a command has no registered callback, the SDK sends the action through the remote API as usual.
+If a built-in command has no registered callback, the SDK sends the action through the remote API as usual.
 
 ## Custom commands
 
-Custom commands go the other way: the channel asks your app to run something and waits for a reply. Use `onCommand` to register a handler under a command id of your choice. When the channel sends a custom command request whose `commandId` matches, the SDK runs your handler with the request payload, then sends the result back to the channel as the response.
-
-You can register custom commands before or after adding the `Chat` widget.
+Any other command id is a custom command: the channel asks your app to run something and waits for a reply. Register a handler under a command id of your choice. When the channel sends a custom command request whose `commandId` matches, the SDK runs your handler with the request payload, then sends the result back to the channel as the response.
 
 ```dart
-import 'package:yalo_chat_flutter_sdk/yalo_sdk.dart';
-
-final client = YaloChatClient(
-  name: 'My Chat',
-  channelId: 'your-channel-id',
-  organizationId: 'your-organization-id',
-);
-
-client.onCommand('refreshCatalog', (payload) {
+client.registerCommand('refreshCatalog', (payload) {
   // payload: the request payload string the channel sent
   final region = jsonDecode(payload)['region'] as String;
   reloadCatalogFor(region);
@@ -63,7 +55,7 @@ client.onCommand('refreshCatalog', (payload) {
 
 Notes:
 
-- You choose the command id. The channel triggers your handler by sending a custom command request with the same id.
+- You choose the command id. The channel triggers your handler by sending a custom command request with the same id. Built-in command ids are reserved, so pick a different id for your custom commands.
 - The handler can be synchronous or return a `Future`. The SDK waits for it to settle before replying.
 - The response status is success when the handler returns normally. If the handler throws, the SDK replies with an error status and an empty payload.
 - If the handler returns `null`, the response payload is an empty string.

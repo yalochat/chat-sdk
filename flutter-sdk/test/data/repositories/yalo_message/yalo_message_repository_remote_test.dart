@@ -848,7 +848,7 @@ void main() {
       test('runs the handler found by command id and sends a success '
           'response', () async {
         String? receivedPayload;
-        when(() => mockClient.customCommands).thenReturn({
+        when(() => mockClient.commands).thenReturn({
           'refreshCatalog': (payload) {
             receivedPayload = payload;
             return '{"done":true}';
@@ -878,7 +878,7 @@ void main() {
 
       test('sends an empty payload when the handler returns null', () async {
         when(
-          () => mockClient.customCommands,
+          () => mockClient.commands,
         ).thenReturn({'refreshCatalog': (_) => null});
         when(
           () => mockMessageService.sendSdkMessage(any()),
@@ -901,9 +901,9 @@ void main() {
       });
 
       test('sends an error response when the handler throws', () async {
-        when(() => mockClient.customCommands).thenReturn({
-          'refreshCatalog': (_) => throw Exception('boom'),
-        });
+        when(
+          () => mockClient.commands,
+        ).thenReturn({'refreshCatalog': (_) => throw Exception('boom')});
         when(
           () => mockMessageService.sendSdkMessage(any()),
         ).thenAnswer((_) async => Result.ok(Unit()));
@@ -924,34 +924,40 @@ void main() {
         expect(sent.customCommandResponse.payload, isEmpty);
       });
 
-      test('sends no response when no handler is registered for the id', () async {
-        when(() => mockClient.customCommands).thenReturn({});
+      test(
+        'sends no response when no handler is registered for the id',
+        () async {
+          when(() => mockClient.commands).thenReturn({});
 
-        repo.messages().listen((_) {});
-        incoming.add(customCommandItem(commandId: 'unknown'));
-        await pumpEventQueue();
+          repo.messages().listen((_) {});
+          incoming.add(customCommandItem(commandId: 'unknown'));
+          await pumpEventQueue();
 
-        verifyNever(() => mockMessageService.sendSdkMessage(any()));
-      });
+          verifyNever(() => mockMessageService.sendSdkMessage(any()));
+        },
+      );
 
-      test('does not emit a custom command request as a chat message', () async {
-        when(
-          () => mockClient.customCommands,
-        ).thenReturn({'refreshCatalog': (_) => null});
-        when(
-          () => mockMessageService.sendSdkMessage(any()),
-        ).thenAnswer((_) async => Result.ok(Unit()));
+      test(
+        'does not emit a custom command request as a chat message',
+        () async {
+          when(
+            () => mockClient.commands,
+          ).thenReturn({'refreshCatalog': (_) => null});
+          when(
+            () => mockMessageService.sendSdkMessage(any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
 
-        final received = <ChatMessage>[];
-        repo
-            .messages()
-            .where((m) => m.type != MessageType.chatStatus)
-            .listen(received.add);
-        incoming.add(customCommandItem());
-        await pumpEventQueue();
+          final received = <ChatMessage>[];
+          repo
+              .messages()
+              .where((m) => m.type != MessageType.chatStatus)
+              .listen(received.add);
+          incoming.add(customCommandItem());
+          await pumpEventQueue();
 
-        expect(received, isEmpty);
-      });
+          expect(received, isEmpty);
+        },
+      );
     });
   });
 }
