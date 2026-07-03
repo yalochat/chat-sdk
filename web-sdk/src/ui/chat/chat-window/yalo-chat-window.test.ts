@@ -1207,6 +1207,27 @@ describe('YaloChatWindow', () => {
       expect(updateCart).not.toHaveBeenCalled();
     });
   });
+
+  describe('go to cart command', () => {
+    it('runs the registered goToCart command with no payload', async () => {
+      const callback = vi.fn();
+      el.commands.set('goToCart', callback);
+
+      dispatchFromList(el, 'yalo-chat-go-to-cart');
+
+      await vi.waitUntil(() => callback.mock.calls.length > 0);
+      expect(callback).toHaveBeenCalledWith(undefined);
+    });
+
+    it('logs a warning when no goToCart command is registered', async () => {
+      const warnSpy = vi.spyOn(el.logger, 'warn').mockReturnValue();
+
+      dispatchFromList(el, 'yalo-chat-go-to-cart');
+
+      await vi.waitUntil(() => warnSpy.mock.calls.length > 0);
+      expect(warnSpy).toHaveBeenCalledWith('No goToCart command registered');
+    });
+  });
 });
 
 describe('YaloChatWindow ephemeral session mode', () => {
@@ -1634,7 +1655,7 @@ describe('YaloChatWindow custom commands', () => {
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
     const handler = vi.fn().mockResolvedValue('{"done":true}');
-    el.channelCommands = new Map([['refreshCatalog', handler]]);
+    el.commands = new Map([['refreshCatalog', handler]]);
 
     subscribeCallback!(customCommandMessage());
 
@@ -1647,7 +1668,7 @@ describe('YaloChatWindow custom commands', () => {
     const sendSpy = vi
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
-    el.channelCommands = new Map([['refreshCatalog', vi.fn()]]);
+    el.commands = new Map([['refreshCatalog', vi.fn()]]);
 
     subscribeCallback!(customCommandMessage());
 
@@ -1660,7 +1681,7 @@ describe('YaloChatWindow custom commands', () => {
       .spyOn(el.yaloMessageRepository, 'sendCustomCommandResponse')
       .mockResolvedValue(new Ok(undefined));
     const handler = vi.fn().mockRejectedValue(new Error('boom'));
-    el.channelCommands = new Map([['refreshCatalog', handler]]);
+    el.commands = new Map([['refreshCatalog', handler]]);
 
     subscribeCallback!(customCommandMessage());
 
@@ -1733,7 +1754,7 @@ describe('YaloChatWindow get cart command', () => {
     const products = [{ sku: 'sku-1', name: 'Water' }];
     const pageInfo = { pageSize: 10, nextCursor: 'next' };
     const handler = vi.fn().mockResolvedValue({ products, pageInfo });
-    el.channelCommands = new Map([['getCart', handler]]);
+    el.commands = new Map([['getCart', handler]]);
 
     subscribeCallback!(getCartMessage());
 
@@ -1754,7 +1775,7 @@ describe('YaloChatWindow get cart command', () => {
       .spyOn(el.yaloMessageRepository, 'sendGetCartResponse')
       .mockResolvedValue(new Ok(undefined));
     const handler = vi.fn().mockResolvedValue({ products: [] });
-    el.channelCommands = new Map([['getCart', handler]]);
+    el.commands = new Map([['getCart', handler]]);
 
     subscribeCallback!(getCartMessage());
 
@@ -1767,7 +1788,7 @@ describe('YaloChatWindow get cart command', () => {
       .spyOn(el.yaloMessageRepository, 'sendGetCartResponse')
       .mockResolvedValue(new Ok(undefined));
     const handler = vi.fn().mockRejectedValue(new Error('boom'));
-    el.channelCommands = new Map([['getCart', handler]]);
+    el.commands = new Map([['getCart', handler]]);
 
     subscribeCallback!(getCartMessage());
 

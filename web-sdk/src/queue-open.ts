@@ -5,22 +5,17 @@ import YaloChatClient, {
 } from '@data/services/client/yalo-chat-client';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type {
-  ChatCommand,
-  ChatCommandCallback,
-} from '@domain/models/command/chat-command';
-import type {
-  ChannelCommandHandlerMap,
   CustomCommandHandler,
   CustomCommandId,
+  RegisteredCommandsMap,
 } from '@domain/models/command/channel-command';
 
 // Command registrations a consumer can declare inline in a yaloOpen config.
-// `registerCommands` maps a client -> channel command to its callback, and
-// `onCommand` maps a channel -> client custom command id to its handler. Both
-// are registered before the chat window opens.
+// `registerCommands` maps a command id to its handler, with the same semantics
+// as YaloChatClient.registerCommand. All entries are registered before the
+// chat window opens.
 export interface YaloOpenCommandOptions {
-  registerCommands?: Partial<Record<ChatCommand, ChatCommandCallback>>;
-  onCommand?: ChannelCommandHandlerMap;
+  registerCommands?: RegisteredCommandsMap;
 }
 
 export type YaloOpenConfig = YaloChatClientConfig &
@@ -38,21 +33,13 @@ declare global {
 }
 
 function openClient(config: YaloOpenConfig): YaloChatClient {
-  const { onOpen, onClose, registerCommands, onCommand, ...clientConfig } =
-    config;
+  const { onOpen, onClose, registerCommands, ...clientConfig } = config;
   const client = new YaloChatClient(clientConfig);
   if (registerCommands) {
-    for (const [command, callback] of Object.entries(registerCommands)) {
-      if (callback) {
-        client.registerCommand(command as ChatCommand, callback);
-      }
-    }
-  }
-  if (onCommand) {
-    for (const [commandId, handler] of Object.entries(onCommand)) {
+    for (const [command, handler] of Object.entries(registerCommands)) {
       if (handler) {
-        client.onCommand(
-          commandId as CustomCommandId,
+        client.registerCommand(
+          command as CustomCommandId,
           handler as CustomCommandHandler
         );
       }

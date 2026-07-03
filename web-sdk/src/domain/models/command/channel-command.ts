@@ -5,6 +5,9 @@ import type {
   PageInfo,
   Product,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
+import type {
+  ChatCommandCallback,
+} from '@domain/models/command/chat-command';
 
 // Command id the channel sends in a CustomCommandRequest. Any string is
 // accepted; the listed ids are surfaced as editor autocomplete hints. The
@@ -41,11 +44,22 @@ export type GetCartHandler = (
 // the typed `getCart` handler.
 export type ChannelCommandHandler = CustomCommandHandler | GetCartHandler;
 
-// Map of channel command ids to their handlers. `getCart` is typed as the
-// GetCartHandler; every other id is a string CustomCommandHandler.
-export interface ChannelCommandHandlerMap {
+// Any handler accepted by registerCommand: a client -> channel command
+// override (void callback) or a channel -> client command handler whose
+// result is sent back to the channel.
+export type RegisteredCommandHandler =
+  | ChatCommandCallback
+  | ChannelCommandHandler;
+
+// Map of command ids to handlers for inline registration (yaloOpen configs).
+// Client -> channel command ids take the void callback, `getCart` takes the
+// typed GetCartHandler and every other id is a string CustomCommandHandler.
+export interface RegisteredCommandsMap {
   getCart?: GetCartHandler;
-  [commandId: string]: ChannelCommandHandler | undefined;
+  updateCartProduct?: ChatCommandCallback;
+  clearCart?: ChatCommandCallback;
+  goToCart?: ChatCommandCallback;
+  [commandId: string]: RegisteredCommandHandler | undefined;
 }
 
 // Outcome reported back to the channel for a command request.

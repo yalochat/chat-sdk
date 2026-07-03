@@ -1,11 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
-import type {
-  ChatCommand,
-  ChatCommandCallback,
-} from '@domain/models/command/chat-command';
-import type { ChannelCommandHandler } from '@domain/models/command/channel-command';
+import type { RegisteredCommandHandler } from '@domain/models/command/channel-command';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -86,10 +82,7 @@ export class YaloChatWindow extends LitElement {
   yaloMediaService!: YaloMediaService;
 
   @property({ attribute: false })
-  commands = new Map<ChatCommand, ChatCommandCallback>();
-
-  @property({ attribute: false })
-  channelCommands = new Map<string, ChannelCommandHandler>();
+  commands = new Map<string, RegisteredCommandHandler>();
 
   private _chatWindowController = new YaloChatWindowController(this);
 
@@ -137,6 +130,7 @@ export class YaloChatWindow extends LitElement {
               this._chatWindowController.markProductAddedToCart(e)}
             @yalo-chat-product-confirmation-clicked=${(e: CustomEvent) =>
               this._chatWindowController.markProductConfirmationClicked(e)}
+            @yalo-chat-go-to-cart=${() => this._chatWindowController.goToCart()}
           >
           </yalo-chat-message-list>
         </main>

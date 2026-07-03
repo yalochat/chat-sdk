@@ -209,7 +209,7 @@ Each pushed configuration also accepts the `onOpen` and `onClose` callbacks that
 </script>
 ```
 
-Each pushed configuration also accepts `registerCommands` and `onCommand` so you can register commands without a direct `YaloChatClient` reference (see [Commands](doc/commands.md)).
+Each pushed configuration also accepts `registerCommands` so you can register commands without a direct `YaloChatClient` reference (see [Commands](doc/commands.md)).
 
 The target element referenced by `config.target` must exist in the DOM at the time the configuration is processed. Place the script after the target element or wrap the push in your own `DOMContentLoaded` handler if needed.
 
@@ -249,6 +249,5 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 - **`client.init(options?)`**: Initializes the chat widget and attaches it inside the target element. The chat starts hidden. `options.onOpen` runs every time the chat opens, `options.onClose` runs every time it closes (whether the user pressed the close button or your code called `close()`).
 - **`client.open()`**: Shows the chat window. Uses the `openContext` from the config.
 - **`client.close()`**: Hides the chat window.
-- **`client.registerCommand(command, callback)`**: Registers a callback for a client-to-channel command (see [Commands](doc/commands.md)).
-- **`client.onCommand(commandId, handler)`**: Registers a handler for a channel-to-client custom command. When the channel sends a custom command request with a matching id, the handler runs with the request payload and its return value is sent back as the response. The `getCart` id is a typed variant: its handler receives the cart request and returns the cart products (see [Commands](doc/commands.md)).
+- **`client.registerCommand(command, handler)`**: Registers a handler the chat can invoke on your page, keyed by command id. Built-in command ids run your callback instead of the built-in remote call. Any other id answers custom command requests from the channel: the handler runs with the request payload and its return value is sent back as the response (see [Commands](doc/commands.md)).
 - **`client.dispose()`**: Removes the chat widget from the page and releases its resources. Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal.
