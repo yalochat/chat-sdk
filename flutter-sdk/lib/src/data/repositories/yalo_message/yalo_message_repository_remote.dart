@@ -8,6 +8,7 @@ import 'package:ecache/ecache.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
+import 'package:yalo_chat_flutter_sdk/src/common/exceptions/state_exception.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/sdk_message_mapper.dart';
 import 'package:yalo_chat_flutter_sdk/src/data/repositories/yalo_message/yalo_message_repository.dart';
@@ -283,13 +284,6 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
 
   @override
   Future<Result<Unit>> addPromotion(String promotionId) async {
-    final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.addPromotion]
-            as ChatCommandCallback?;
-    if (callback != null) {
-      callback({'promotionId': promotionId});
-      return Result.ok(Unit());
-    }
     final DateTime timestamp = DateTime.now();
     final proto.SdkMessage request = proto.SdkMessage(
       correlationId:
@@ -304,14 +298,19 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
   }
 
   @override
-  Future<Result<Unit>> requestGuidanceCard({String? context}) async {
+  Future<Result<Unit>> goToCart() async {
     final ChatCommandCallback? callback =
-        yaloChatClient.commands[ChatCommand.guidanceCard]
-            as ChatCommandCallback?;
+        yaloChatClient.commands[ChatCommand.goToCart] as ChatCommandCallback?;
     if (callback != null) {
-      callback(context != null ? {'context': context} : null);
+      callback(null);
       return Result.ok(Unit());
     }
+    log.warning('No goToCart command registered');
+    return Result.error(StateException('No goToCart command registered'));
+  }
+
+  @override
+  Future<Result<Unit>> requestGuidanceCard({String? context}) async {
     final DateTime timestamp = DateTime.now();
     final proto.SdkMessage request = proto.SdkMessage(
       correlationId: 'guidance-card-${timestamp.millisecondsSinceEpoch}',

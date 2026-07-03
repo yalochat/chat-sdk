@@ -705,73 +705,70 @@ void main() {
       );
     });
 
-    group('addPromotion', () {
+    group('goToCart', () {
       test('calls registered command callback', () async {
+        bool called = false;
         Object? receivedPayload;
         when(() => mockClient.commands).thenReturn({
-          ChatCommand.addPromotion: (payload) => receivedPayload = payload,
+          ChatCommand.goToCart: (payload) {
+            called = true;
+            receivedPayload = payload;
+          },
         });
+
+        final result = await repo.goToCart();
+
+        expect(result, isA<Ok<Unit>>());
+        expect(called, isTrue);
+        expect(receivedPayload, isNull);
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
+
+      test('returns an error when no command is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+
+        final result = await repo.goToCart();
+
+        expect(result, isA<Error<Unit>>());
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
+    });
+
+    group('addPromotion', () {
+      test('sends an add promotion message', () async {
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
         final result = await repo.addPromotion('promo-abc');
 
         expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'promotionId': 'promo-abc'}));
+        final proto.SdkMessage sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(sent.addPromotionRequest.promotionId, equals('promo-abc'));
       });
-
-      test(
-        'sends an add promotion message when no command is registered',
-        () async {
-          when(() => mockClient.commands).thenReturn({});
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
-
-          final result = await repo.addPromotion('promo-abc');
-
-          expect(result, isA<Ok<Unit>>());
-          final proto.SdkMessage sent =
-              verify(
-                    () => mockMessageService.sendSdkMessage(captureAny()),
-                  ).captured.single
-                  as proto.SdkMessage;
-          expect(sent.addPromotionRequest.promotionId, equals('promo-abc'));
-        },
-      );
     });
 
     group('requestGuidanceCard', () {
-      test('calls registered command callback with the context', () async {
-        Object? receivedPayload;
-        when(() => mockClient.commands).thenReturn({
-          ChatCommand.guidanceCard: (payload) => receivedPayload = payload,
-        });
+      test('sends a guidance card request', () async {
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
 
-        final result = await repo.requestGuidanceCard(context: 'product-page');
+        final result = await repo.requestGuidanceCard();
 
         expect(result, isA<Ok<Unit>>());
-        expect(receivedPayload, equals({'context': 'product-page'}));
+        final proto.SdkMessage sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(sent.hasGuidanceCardRequest(), isTrue);
+        expect(sent.correlationId, startsWith('guidance-card-'));
       });
-
-      test(
-        'sends a guidance card request when no command is registered',
-        () async {
-          when(() => mockClient.commands).thenReturn({});
-          when(
-            () => mockMessageService.sendSdkMessage(any()),
-          ).thenAnswer((_) async => Result.ok(Unit()));
-
-          final result = await repo.requestGuidanceCard();
-
-          expect(result, isA<Ok<Unit>>());
-          final proto.SdkMessage sent =
-              verify(
-                    () => mockMessageService.sendSdkMessage(captureAny()),
-                  ).captured.single
-                  as proto.SdkMessage;
-          expect(sent.hasGuidanceCardRequest(), isTrue);
-          expect(sent.correlationId, startsWith('guidance-card-'));
-        },
-      );
     });
 
     group('pause/resume', () {

@@ -34,10 +34,9 @@ Built-in commands run your callback instead of sending the action through the de
 - **`ChatCommand.removeFromCart`**: Triggered when the user decreases a product quantity. Callback payload: `{ 'sku': String, 'quantity': double? }`.
 - **`ChatCommand.updateCartProduct`**: Triggered when the user confirms a product confirmation card. Sets the absolute units and subunits for the product. Callback payload: `{ 'sku': String, 'units': double, 'subunits': double }`.
 - **`ChatCommand.clearCart`**: Triggered when the cart is cleared. Callback payload: `null`.
-- **`ChatCommand.guidanceCard`**: Triggered when guidance cards are requested. Callback payload: `null`.
-- **`ChatCommand.addPromotion`**: Triggered when a promotion is applied. Callback payload: `{ 'promotionId': String }`.
+- **`ChatCommand.goToCart`**: Triggered when the user asks to open the cart from the chat. Callback payload: `null`. Use it to navigate the user to your cart screen.
 
-If a built-in command has no registered callback, the SDK sends the action through the remote API as usual.
+If a built-in command has no registered callback, the SDK sends the action through the remote API as usual. The exception is `ChatCommand.goToCart`: navigation only makes sense in your app, so when no callback is registered the SDK logs a warning and does nothing.
 
 ## Custom commands
 

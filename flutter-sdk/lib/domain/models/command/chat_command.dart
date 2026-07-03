@@ -9,8 +9,7 @@ abstract final class ChatCommand {
   static const String removeFromCart = 'removeFromCart';
   static const String updateCartProduct = 'updateCartProduct';
   static const String clearCart = 'clearCart';
-  static const String guidanceCard = 'guidanceCard';
-  static const String addPromotion = 'addPromotion';
+  static const String goToCart = 'goToCart';
 }
 
 typedef ChatCommandCallback = void Function(dynamic payload);

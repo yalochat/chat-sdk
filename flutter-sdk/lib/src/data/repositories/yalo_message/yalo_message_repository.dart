@@ -33,6 +33,10 @@ abstract class YaloMessageRepository {
   // Applies a promotion to the active cart.
   Future<Result<Unit>> addPromotion(String promotionId);
 
+  // Asks the host app to navigate the user to its cart. Only runs the
+  // registered ChatCommand.goToCart callback; there is no remote fallback.
+  Future<Result<Unit>> goToCart();
+
   // Requests the guidance card shown when the chat has no messages yet.
   Future<Result<Unit>> requestGuidanceCard({String? context});
 
