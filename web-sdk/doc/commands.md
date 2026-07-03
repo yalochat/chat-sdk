@@ -136,7 +136,8 @@ window.yaloOpen.push({
     },
     getCart: function (request) {
       // same handler as client.onCommand('getCart', ...)
-      return { products: readCartProducts(request.cursor, request.pageSize) };
+      // Return the products from your own cart. See the schema above.
+      return { products: [] };
     },
   },
 });
