@@ -6,6 +6,10 @@ import { customElement } from 'lit/decorators.js';
 import { ContextProvider } from '@lit/context';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import {
+  registeredCommandsContext,
+  type RegisteredCommands,
+} from '@domain/models/command/registered-commands-context';
 import { loggerContext, type Logger } from '@log/logger-context';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { Product } from '@domain/models/product/product';
@@ -37,11 +41,23 @@ class TestContextProvider extends LitElement {
     context: loggerContext,
     initialValue: noopLogger,
   });
+  _commandsProvider = new ContextProvider(this, {
+    context: registeredCommandsContext,
+    initialValue: new Map() as RegisteredCommands,
+  });
 
   render() {
     return html`<slot></slot>`;
   }
 }
+
+const registerGoToCart = (
+  list: ChatMessageList,
+  callback: () => void = () => {}
+): void => {
+  const wrapper = list.parentElement as TestContextProvider;
+  wrapper._commandsProvider.setValue(new Map([['goToCart', callback]]));
+};
 
 const renderList = async (messages: ChatMessage[]) => {
   const wrapper = document.createElement(
@@ -878,6 +894,66 @@ describe('ChatMessageList', () => {
         type: 'text',
         content: 'Continue shopping',
       });
+    });
+
+    it('keeps the message button text before the button is clicked when goToCart is registered', async () => {
+      const list = await renderList([confirmation()]);
+      registerGoToCart(list);
+      const card = await getCard(list);
+
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+      expect(button.textContent).toContain('Done');
+      expect(button.textContent).not.toContain('Go to cart');
+      expect(button.disabled).toBe(false);
+    });
+
+    it('turns the clicked button into an enabled Go to cart button when goToCart is registered', async () => {
+      const list = await renderList([confirmation({ status: 'CLICKED' })]);
+      registerGoToCart(list);
+      const card = await getCard(list);
+
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+      expect(button.textContent).toContain('Go to cart');
+      expect(button.disabled).toBe(false);
+      expect(button.classList.contains('clicked')).toBe(true);
+    });
+
+    it('shows Go to cart after the user confirms when goToCart is registered', async () => {
+      const list = await renderList([confirmation()]);
+      registerGoToCart(list);
+      const card = await getCard(list);
+
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+      button.click();
+      await card.updateComplete;
+
+      expect(button.textContent).toContain('Go to cart');
+      expect(button.disabled).toBe(false);
+    });
+
+    it('dispatches yalo-chat-go-to-cart instead of a confirmation click when Go to cart is clicked', async () => {
+      const list = await renderList([confirmation({ status: 'CLICKED' })]);
+      registerGoToCart(list);
+      const card = await getCard(list);
+
+      const goToCartListener = vi.fn();
+      const confirmationListener = vi.fn();
+      list.addEventListener('yalo-chat-go-to-cart', goToCartListener);
+      list.addEventListener(
+        'yalo-chat-product-confirmation-clicked',
+        confirmationListener
+      );
+
+      card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!.click();
+
+      expect(goToCartListener).toHaveBeenCalledOnce();
+      expect(confirmationListener).not.toHaveBeenCalled();
     });
 
     it('does not render the outer assistant-message header, footer, or buttons', async () => {

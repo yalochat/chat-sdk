@@ -1,6 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import {
+  registeredCommandsContext,
+  type RegisteredCommands,
+} from '@domain/models/command/registered-commands-context';
+import { consume } from '@lit/context';
+import { msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import ProductConfirmationMessageController from './product-confirmation-message-controller';
@@ -76,6 +82,9 @@ export class ProductConfirmationMessage extends LitElement {
         --yalo-chat-product-confirmation-button-color-clicked,
         #ffffff
       );
+    }
+
+    .button:disabled {
       cursor: default;
     }
 
@@ -115,12 +124,19 @@ export class ProductConfirmationMessage extends LitElement {
   @property({ attribute: false })
   message!: ChatMessage;
 
+  @consume({ context: registeredCommandsContext, subscribe: true })
+  commands?: RegisteredCommands;
+
   @state()
   private _clicked = false;
 
   private _onButtonClick = () => {
     this._clicked = true;
     this._controller.onButtonClick(this.message);
+  };
+
+  private _onGoToCartClick = () => {
+    this._controller.onGoToCartClick();
   };
 
   private _onFooterClick = () => {
@@ -130,6 +146,7 @@ export class ProductConfirmationMessage extends LitElement {
   render() {
     const button = this.message.buttons[0];
     const clicked = this._clicked || this.message.status === 'CLICKED';
+    const showsGoToCart = clicked && this._controller.hasGoToCartCommand();
     return html`
       <div class="card">
         <div class="title">${this.message.header}</div>
@@ -137,8 +154,8 @@ export class ProductConfirmationMessage extends LitElement {
         <button
           type="button"
           class="button ${clicked ? 'clicked' : ''}"
-          ?disabled=${clicked}
-          @click=${this._onButtonClick}
+          ?disabled=${clicked && !showsGoToCart}
+          @click=${showsGoToCart ? this._onGoToCartClick : this._onButtonClick}
         >
           ${clicked
             ? html`<span class="icon">
@@ -149,7 +166,7 @@ export class ProductConfirmationMessage extends LitElement {
                 ></span>
               </span>`
             : nothing}
-          ${button.text}
+          ${showsGoToCart ? msg('Go to cart') : button.text}
         </button>
         <button type="button" class="footer" @click=${this._onFooterClick}>
           ${this.message.footer}

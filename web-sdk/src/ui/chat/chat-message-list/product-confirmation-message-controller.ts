@@ -39,4 +39,17 @@ export default class ProductConfirmationMessageController
       })
     );
   }
+
+  hasGoToCartCommand(): boolean {
+    return this.host.commands?.has('goToCart') ?? false;
+  }
+
+  onGoToCartClick() {
+    this.host.dispatchEvent(
+      new CustomEvent('yalo-chat-go-to-cart', {
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
 }

@@ -2,6 +2,7 @@
 
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type { RegisteredCommandHandler } from '@domain/models/command/channel-command';
+import { registeredCommandsContext } from '@domain/models/command/registered-commands-context';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -82,6 +83,7 @@ export class YaloChatWindow extends LitElement {
   yaloMediaService!: YaloMediaService;
 
   @property({ attribute: false })
+  @provide({ context: registeredCommandsContext })
   commands = new Map<string, RegisteredCommandHandler>();
 
   private _chatWindowController = new YaloChatWindowController(this);

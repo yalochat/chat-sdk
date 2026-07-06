@@ -18,6 +18,30 @@
   <source>Show more</source>
   <target>显示更多</target>
 </trans-unit>
+<trans-unit id="s317b6c4a03e34c5d">
+  <source>In the cart</source>
+  <target>已在购物车中</target>
+</trans-unit>
+<trans-unit id="s20dfc2658b5ed207">
+  <source>Update the cart</source>
+  <target>更新购物车</target>
+</trans-unit>
+<trans-unit id="sf5d501d58546bff9">
+  <source>Add to cart</source>
+  <target>加入购物车</target>
+</trans-unit>
+<trans-unit id="s087b7417c598233e">
+  <source>Go to cart</source>
+  <target>前往购物车</target>
+</trans-unit>
+<trans-unit id="sc876da507d6d97c4">
+  <source>Not delivered.</source>
+  <target>未送达。</target>
+</trans-unit>
+<trans-unit id="s2c8189544e3ea679">
+  <source>Retry</source>
+  <target>重试</target>
+</trans-unit>
 </body>
 </file>
 </xliff>
