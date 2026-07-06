@@ -2,6 +2,7 @@
 
 import IntlMessageFormat from 'intl-messageformat';
 import type { ReactiveController } from 'lit';
+import type { AddToCart } from '@domain/models/chat-events/add-to-cart';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { ProductCard } from './product-card';
 import type { ProductUnitType } from '@domain/models/product/product';
@@ -40,17 +41,22 @@ export default class ProductCardController implements ReactiveController {
     this._emitQuantityChange('subunit', e.detail.value);
   };
 
-  onCartButtonClick = () => {
+  // Resolves once the cart update settles: the handler assigns `completed`
+  // to the detail while the event is dispatched. Resolves to false when no
+  // handler picked the event up.
+  onCartButtonClick = (): Promise<boolean> => {
+    const detail: AddToCart = {
+      messageId: this.host.messageId,
+      sku: this.host.product.sku,
+    };
     this.host.dispatchEvent(
       new CustomEvent('yalo-chat-product-add-to-cart', {
-        detail: {
-          messageId: this.host.messageId,
-          sku: this.host.product.sku,
-        },
+        detail,
         bubbles: true,
         composed: true,
       })
     );
+    return detail.completed ?? Promise.resolve(false);
   };
 
   private _emitQuantityChange(unitType: ProductUnitType, value: number) {

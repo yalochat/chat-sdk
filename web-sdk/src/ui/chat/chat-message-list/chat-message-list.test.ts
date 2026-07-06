@@ -59,6 +59,14 @@ const registerGoToCart = (
   wrapper._commandsProvider.setValue(new Map([['goToCart', callback]]));
 };
 
+// Flushes pending microtasks so async click handlers awaiting a completed
+// promise get to update the component state before assertions run.
+const settle = async (): Promise<void> => {
+  await new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
+};
+
 const renderList = async (messages: ChatMessage[]) => {
   const wrapper = document.createElement(
     'test-context-provider'
@@ -402,7 +410,8 @@ describe('ChatMessageList', () => {
         expect(button.disabled).toBe(true);
       });
 
-      it('transitions to "In the cart" with the check icon after the user clicks "Add to cart"', async () => {
+      it('grays the button out while the cart update is pending and shows "In the cart" once it completes', async () => {
+        let resolveCompleted!: (value: boolean) => void;
         const list = await renderList([
           ChatMessage.product({
             id: 82,
@@ -411,18 +420,84 @@ describe('ChatMessageList', () => {
             products: [buildProduct({ sku: 'a' })],
           }),
         ]);
+        list.addEventListener('yalo-chat-product-add-to-cart', (e) => {
+          (e as CustomEvent).detail.completed = new Promise<boolean>(
+            (resolve) => {
+              resolveCompleted = resolve;
+            }
+          );
+        });
 
         const button = await getCartButton(list);
         button.click();
         const card = await getProductCard(list);
         await card.updateComplete;
 
+        const loadingButton = card.shadowRoot!.querySelector<HTMLButtonElement>(
+          '.cart-button'
+        )!;
+        expect(loadingButton.textContent?.trim()).toBe('Add to cart');
+        expect(loadingButton.classList.contains('loading')).toBe(true);
+        expect(loadingButton.disabled).toBe(true);
+
+        list.chatMessages = [
+          ChatMessage.product({
+            id: 82,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a', inCart: true })],
+          }),
+        ];
+        resolveCompleted(true);
+        await settle();
+        await list.updateComplete;
+        const updatedCard = await getProductCard(list);
+        await updatedCard.updateComplete;
+
+        const refreshed =
+          updatedCard.shadowRoot!.querySelector<HTMLButtonElement>(
+            '.cart-button'
+          )!;
+        expect(refreshed.textContent?.trim()).toContain('In the cart');
+        expect(refreshed.classList.contains('in-cart')).toBe(true);
+        expect(refreshed.classList.contains('loading')).toBe(false);
+        expect(refreshed.querySelector('.icon')).not.toBeNull();
+      });
+
+      it('returns the button to "Add to cart" when the cart update fails', async () => {
+        let resolveCompleted!: (value: boolean) => void;
+        const list = await renderList([
+          ChatMessage.product({
+            id: 87,
+            role: 'AGENT',
+            timestamp,
+            products: [buildProduct({ sku: 'a' })],
+          }),
+        ]);
+        list.addEventListener('yalo-chat-product-add-to-cart', (e) => {
+          (e as CustomEvent).detail.completed = new Promise<boolean>(
+            (resolve) => {
+              resolveCompleted = resolve;
+            }
+          );
+        });
+
+        const button = await getCartButton(list);
+        button.click();
+        const card = await getProductCard(list);
+        await card.updateComplete;
+        expect(button.classList.contains('loading')).toBe(true);
+
+        resolveCompleted(false);
+        await settle();
+        await card.updateComplete;
+
         const refreshed = card.shadowRoot!.querySelector<HTMLButtonElement>(
           '.cart-button'
         )!;
-        expect(refreshed.textContent?.trim()).toContain('In the cart');
-        expect(refreshed.classList.contains('in-cart')).toBe(true);
-        expect(refreshed.querySelector('.icon')).not.toBeNull();
+        expect(refreshed.textContent?.trim()).toBe('Add to cart');
+        expect(refreshed.classList.contains('loading')).toBe(false);
+        expect(refreshed.disabled).toBe(false);
       });
 
       it('dispatches yalo-chat-product-add-to-cart with messageId and sku on click', async () => {
@@ -452,22 +527,16 @@ describe('ChatMessageList', () => {
             id: 84,
             role: 'AGENT',
             timestamp,
-            products: [buildProduct({ sku: 'a', unitsAdded: 1 })],
+            products: [buildProduct({ sku: 'a', unitsAdded: 1, inCart: true })],
           }),
         ]);
-
-        const card = await getProductCard(list);
-        const initialButton =
-          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
-        initialButton.click();
-        await card.updateComplete;
 
         list.chatMessages = [
           ChatMessage.product({
             id: 84,
             role: 'AGENT',
             timestamp,
-            products: [buildProduct({ sku: 'a', unitsAdded: 2 })],
+            products: [buildProduct({ sku: 'a', unitsAdded: 2, inCart: true })],
           }),
         ];
         await list.updateComplete;
@@ -542,12 +611,31 @@ describe('ChatMessageList', () => {
           card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
         expect(button.textContent?.trim()).toBe('Update the cart');
 
+        let resolveCompleted!: (value: boolean) => void;
+        list.addEventListener('yalo-chat-product-add-to-cart', (e) => {
+          (e as CustomEvent).detail.completed = new Promise<boolean>(
+            (resolve) => {
+              resolveCompleted = resolve;
+            }
+          );
+        });
+
         button.click();
+        await card.updateComplete;
+        const pendingButton =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
+        expect(pendingButton.textContent?.trim()).toBe('Update the cart');
+        expect(pendingButton.classList.contains('loading')).toBe(true);
+        expect(pendingButton.disabled).toBe(true);
+
+        resolveCompleted(true);
+        await settle();
         await card.updateComplete;
         const finalButton =
           card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
         expect(finalButton.textContent?.trim()).toContain('In the cart');
         expect(finalButton.classList.contains('in-cart')).toBe(true);
+        expect(finalButton.classList.contains('loading')).toBe(false);
       });
     });
 
@@ -831,8 +919,16 @@ describe('ChatMessageList', () => {
       );
     });
 
-    it('marks the button as clicked after the user taps it and disables it', async () => {
+    it('grays the button out while the confirmation is pending and marks it clicked once it completes', async () => {
+      let resolveCompleted!: (value: boolean) => void;
       const list = await renderList([confirmation()]);
+      list.addEventListener('yalo-chat-product-confirmation-clicked', (e) => {
+        (e as CustomEvent).detail.completed = new Promise<boolean>(
+          (resolve) => {
+            resolveCompleted = resolve;
+          }
+        );
+      });
       const card = await getCard(list);
 
       const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
@@ -843,8 +939,50 @@ describe('ChatMessageList', () => {
       button.click();
       await card.updateComplete;
 
-      expect(button.classList.contains('clicked')).toBe(true);
+      expect(button.classList.contains('loading')).toBe(true);
+      expect(button.classList.contains('clicked')).toBe(false);
       expect(button.disabled).toBe(true);
+
+      list.chatMessages = [confirmation({ status: 'CLICKED' })];
+      resolveCompleted(true);
+      await settle();
+      await list.updateComplete;
+      const updatedCard = await getCard(list);
+
+      const updatedButton = updatedCard.shadowRoot!.querySelector<
+        HTMLButtonElement
+      >('.button')!;
+      expect(updatedButton.classList.contains('clicked')).toBe(true);
+      expect(updatedButton.classList.contains('loading')).toBe(false);
+      expect(updatedButton.disabled).toBe(true);
+    });
+
+    it('re-enables the button when the confirmation fails', async () => {
+      let resolveCompleted!: (value: boolean) => void;
+      const list = await renderList([confirmation()]);
+      list.addEventListener('yalo-chat-product-confirmation-clicked', (e) => {
+        (e as CustomEvent).detail.completed = new Promise<boolean>(
+          (resolve) => {
+            resolveCompleted = resolve;
+          }
+        );
+      });
+      const card = await getCard(list);
+
+      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
+        '.button'
+      )!;
+      button.click();
+      await card.updateComplete;
+      expect(button.classList.contains('loading')).toBe(true);
+
+      resolveCompleted(false);
+      await settle();
+      await card.updateComplete;
+
+      expect(button.classList.contains('loading')).toBe(false);
+      expect(button.classList.contains('clicked')).toBe(false);
+      expect(button.disabled).toBe(false);
     });
 
     it('dispatches yalo-chat-product-confirmation-clicked with the message on button click', async () => {
@@ -860,8 +998,10 @@ describe('ChatMessageList', () => {
       expect(listener).toHaveBeenCalledOnce();
       const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
       expect(detail).toMatchObject({
-        id: 305,
-        type: 'productConfirmation',
+        message: {
+          id: 305,
+          type: 'productConfirmation',
+        },
       });
     });
 
@@ -922,9 +1062,17 @@ describe('ChatMessageList', () => {
       expect(button.classList.contains('clicked')).toBe(true);
     });
 
-    it('shows Go to cart after the user confirms when goToCart is registered', async () => {
+    it('shows Go to cart after the confirmation completes when goToCart is registered', async () => {
+      let resolveCompleted!: (value: boolean) => void;
       const list = await renderList([confirmation()]);
       registerGoToCart(list);
+      list.addEventListener('yalo-chat-product-confirmation-clicked', (e) => {
+        (e as CustomEvent).detail.completed = new Promise<boolean>(
+          (resolve) => {
+            resolveCompleted = resolve;
+          }
+        );
+      });
       const card = await getCard(list);
 
       const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
@@ -933,8 +1081,20 @@ describe('ChatMessageList', () => {
       button.click();
       await card.updateComplete;
 
-      expect(button.textContent).toContain('Go to cart');
-      expect(button.disabled).toBe(false);
+      expect(button.classList.contains('loading')).toBe(true);
+      expect(button.disabled).toBe(true);
+
+      list.chatMessages = [confirmation({ status: 'CLICKED' })];
+      resolveCompleted(true);
+      await settle();
+      await list.updateComplete;
+      const updatedCard = await getCard(list);
+
+      const updatedButton = updatedCard.shadowRoot!.querySelector<
+        HTMLButtonElement
+      >('.button')!;
+      expect(updatedButton.textContent).toContain('Go to cart');
+      expect(updatedButton.disabled).toBe(false);
     });
 
     it('dispatches yalo-chat-go-to-cart instead of a confirmation click when Go to cart is clicked', async () => {

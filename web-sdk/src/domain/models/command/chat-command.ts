@@ -9,4 +9,6 @@ export const ChatCommands = [
 
 export type ChatCommand = (typeof ChatCommands)[number];
 
-export type ChatCommandCallback = (payload: unknown) => void;
+// The callback can be synchronous or return a promise. The SDK waits for it
+// to settle before marking the triggering action as done.
+export type ChatCommandCallback = (payload: unknown) => void | Promise<void>;

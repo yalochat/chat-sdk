@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import type { ProductConfirmationClicked } from '@domain/models/chat-events/product-confirmation-clicked';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ReactiveController } from 'lit';
 import type { ProductConfirmationMessage } from './product-confirmation-message';
@@ -30,14 +31,19 @@ export default class ProductConfirmationMessageController
     );
   }
 
-  onButtonClick(message: ChatMessage) {
+  // Resolves once the confirmation settles: the handler assigns `completed`
+  // to the detail while the event is dispatched. Resolves to false when no
+  // handler picked the event up.
+  onButtonClick(message: ChatMessage): Promise<boolean> {
+    const detail: ProductConfirmationClicked = { message };
     this.host.dispatchEvent(
       new CustomEvent('yalo-chat-product-confirmation-clicked', {
-        detail: message,
+        detail,
         bubbles: true,
         composed: true,
       })
     );
+    return detail.completed ?? Promise.resolve(false);
   }
 
   hasGoToCartCommand(): boolean {

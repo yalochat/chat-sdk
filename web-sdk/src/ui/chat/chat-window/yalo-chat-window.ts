@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import type { AddToCart } from '@domain/models/chat-events/add-to-cart';
+import type { ProductConfirmationClicked } from '@domain/models/chat-events/product-confirmation-clicked';
 import type { RegisteredCommandHandler } from '@domain/models/command/channel-command';
 import { registeredCommandsContext } from '@domain/models/command/registered-commands-context';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
@@ -128,10 +130,16 @@ export class YaloChatWindow extends LitElement {
               this._chatWindowController.retryMessage(e)}
             @yalo-chat-product-quantity-change=${(e: CustomEvent) =>
               this._chatWindowController.updateProductQuantity(e)}
-            @yalo-chat-product-add-to-cart=${(e: CustomEvent) =>
-              this._chatWindowController.markProductAddedToCart(e)}
-            @yalo-chat-product-confirmation-clicked=${(e: CustomEvent) =>
-              this._chatWindowController.markProductConfirmationClicked(e)}
+            @yalo-chat-product-add-to-cart=${(e: CustomEvent<AddToCart>) => {
+              e.detail.completed =
+                this._chatWindowController.markProductAddedToCart(e);
+            }}
+            @yalo-chat-product-confirmation-clicked=${(
+              e: CustomEvent<ProductConfirmationClicked>
+            ) => {
+              e.detail.completed =
+                this._chatWindowController.markProductConfirmationClicked(e);
+            }}
             @yalo-chat-go-to-cart=${() => this._chatWindowController.goToCart()}
           >
           </yalo-chat-message-list>

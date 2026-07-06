@@ -1118,11 +1118,110 @@ describe('YaloChatWindow', () => {
         sku: 'sku-cart',
       });
 
-      await vi.waitUntil(() => updateCart.mock.calls.length > 0);
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0].products[0].inCart === true
+      );
       expect(updateCart).toHaveBeenCalledWith('sku-cart', 2, undefined);
       expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
         sku: 'sku-cart',
         inCart: true,
+      });
+    });
+
+    it('does not mark the product as in cart when sending updateCartProduct fails', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-fail',
+          name: 'Item',
+          price: 1,
+          unitName: 'unit',
+          unitsAdded: 2,
+        })
+      );
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      vi.spyOn(
+        el.yaloMessageRepository,
+        'updateCartProduct'
+      ).mockResolvedValue(new Err(new Error('send fail')));
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-fail',
+      });
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'Unable to send updateCartProduct'
+        )
+      );
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        sku: 'sku-fail',
+        inCart: false,
+      });
+    });
+
+    it('waits for an async updateCartProduct command before marking the product as in cart', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-async',
+          name: 'Item',
+          price: 1,
+          unitName: 'unit',
+          unitsAdded: 1,
+        })
+      );
+      let resolveCommand!: () => void;
+      const callback = vi.fn().mockReturnValue(
+        new Promise<void>((resolve) => {
+          resolveCommand = resolve;
+        })
+      );
+      el.commands.set('updateCartProduct', callback);
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-async',
+      });
+
+      await vi.waitUntil(() => callback.mock.calls.length > 0);
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        inCart: false,
+      });
+
+      resolveCommand();
+      await vi.waitUntil(
+        () => getMessageList(el).chatMessages[0].products[0].inCart === true
+      );
+    });
+
+    it('does not mark the product as in cart when the updateCartProduct command throws', async () => {
+      const seeded = await seedProductMessage(
+        new Product({
+          sku: 'sku-throw',
+          name: 'Item',
+          price: 1,
+          unitName: 'unit',
+          unitsAdded: 1,
+        })
+      );
+      const errorSpy = vi.spyOn(el.logger, 'error');
+      el.commands.set('updateCartProduct', () => {
+        throw new Error('command fail');
+      });
+
+      dispatchFromList(el, 'yalo-chat-product-add-to-cart', {
+        messageId: seeded.id,
+        sku: 'sku-throw',
+      });
+
+      await vi.waitUntil(() =>
+        errorSpy.mock.calls.some(
+          (c) => c[0] === 'updateCartProduct command failed'
+        )
+      );
+      expect(getMessageList(el).chatMessages[0].products[0]).toMatchObject({
+        sku: 'sku-throw',
+        inCart: false,
       });
     });
 
@@ -1277,8 +1376,7 @@ describe('YaloChatWindow', () => {
       expect(button.textContent).toContain('Done');
 
       button.click();
-      await card.updateComplete;
-      expect(button.textContent).toContain('Go to cart');
+      await vi.waitUntil(() => button.textContent?.includes('Go to cart'));
 
       button.click();
       await vi.waitUntil(() => callback.mock.calls.length > 0);

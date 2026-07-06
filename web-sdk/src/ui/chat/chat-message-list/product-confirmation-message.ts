@@ -88,6 +88,21 @@ export class ProductConfirmationMessage extends LitElement {
       cursor: default;
     }
 
+    .button.loading {
+      filter: grayscale(1);
+      animation: loading-pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loading-pulse {
+      0%,
+      100% {
+        opacity: 0.75;
+      }
+      50% {
+        opacity: 0.45;
+      }
+    }
+
     .yalo-icon {
       font-size: var(--yalo-chat-product-confirmation-icon-font-size, 1rem);
       font-family: var(
@@ -128,11 +143,15 @@ export class ProductConfirmationMessage extends LitElement {
   commands?: RegisteredCommands;
 
   @state()
-  private _clicked = false;
+  private _pending = false;
 
-  private _onButtonClick = () => {
-    this._clicked = true;
-    this._controller.onButtonClick(this.message);
+  private _onButtonClick = async () => {
+    this._pending = true;
+    try {
+      await this._controller.onButtonClick(this.message);
+    } finally {
+      this._pending = false;
+    }
   };
 
   private _onGoToCartClick = () => {
@@ -145,7 +164,8 @@ export class ProductConfirmationMessage extends LitElement {
 
   render() {
     const button = this.message.buttons[0];
-    const clicked = this._clicked || this.message.status === 'CLICKED';
+    const clicked = this.message.status === 'CLICKED';
+    const loading = this._pending && !clicked;
     const showsGoToCart = clicked && this._controller.hasGoToCartCommand();
     return html`
       <div class="card">
@@ -153,8 +173,8 @@ export class ProductConfirmationMessage extends LitElement {
         <div class="body">${this.message.content}</div>
         <button
           type="button"
-          class="button ${clicked ? 'clicked' : ''}"
-          ?disabled=${clicked && !showsGoToCart}
+          class="button ${clicked ? 'clicked' : ''} ${loading ? 'loading' : ''}"
+          ?disabled=${loading || (clicked && !showsGoToCart)}
           @click=${showsGoToCart ? this._onGoToCartClick : this._onButtonClick}
         >
           ${clicked
