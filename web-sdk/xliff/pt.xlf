@@ -20,21 +20,27 @@
 </trans-unit>
 <trans-unit id="s317b6c4a03e34c5d">
   <source>In the cart</source>
+  <target>No carrinho</target>
 </trans-unit>
 <trans-unit id="s20dfc2658b5ed207">
   <source>Update the cart</source>
+  <target>Atualizar o carrinho</target>
 </trans-unit>
 <trans-unit id="sf5d501d58546bff9">
   <source>Add to cart</source>
+  <target>Adicionar ao carrinho</target>
 </trans-unit>
 <trans-unit id="s087b7417c598233e">
   <source>Go to cart</source>
+  <target>Ir para o carrinho</target>
 </trans-unit>
 <trans-unit id="sc876da507d6d97c4">
   <source>Not delivered.</source>
+  <target>Não entregue.</target>
 </trans-unit>
 <trans-unit id="s2c8189544e3ea679">
   <source>Retry</source>
+  <target>Tentar novamente</target>
 </trans-unit>
 </body>
 </file>
