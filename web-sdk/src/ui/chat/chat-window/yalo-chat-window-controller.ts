@@ -3,7 +3,9 @@
 import type { ReactiveController } from 'lit';
 import type { YaloChatWindow } from './yalo-chat-window';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { AddToCart } from '@domain/models/chat-events/add-to-cart';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
+import type { ProductConfirmationClicked } from '@domain/models/chat-events/product-confirmation-clicked';
 import type { PageInfo } from '@domain/common/page';
 import type {
   CustomCommandRequest,
@@ -399,22 +401,64 @@ export default class YaloChatWindowController implements ReactiveController {
     }
   }
 
-  async markProductAddedToCart(e: CustomEvent) {
-    const { messageId, sku } = e.detail as {
-      messageId: number;
-      sku: string;
+  // Sends the cart update through the registered updateCartProduct command
+  // when present, waiting for it to settle, and through the repository
+  // otherwise. Returns whether the update went through.
+  private async _sendCartProductUpdate(product: Product): Promise<boolean> {
+    const subunits =
+      product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
+    const payload = {
+      sku: product.sku,
+      units: product.unitsAdded,
+      subunits,
     };
 
-    const messageIndex = this.chatMessages.findIndex((m) => m.id === messageId);
-    if (messageIndex === -1) {
-      return;
+    const updateCartProduct = this.host.commands.get('updateCartProduct') as
+      | ChatCommandCallback
+      | undefined;
+    if (updateCartProduct) {
+      this.host.logger.debug('Executing updateCartProduct command', payload);
+      try {
+        await updateCartProduct(payload);
+        return true;
+      } catch (error) {
+        this.host.logger.error('updateCartProduct command failed', { error });
+        return false;
+      }
     }
-    const message = this.chatMessages[messageIndex];
+
+    this.host.logger.debug('Sending updateCartProduct to repository', payload);
+    const sendResult = await this.host.yaloMessageRepository.updateCartProduct(
+      product.sku,
+      product.unitsAdded,
+      subunits
+    );
+    if (!sendResult.ok) {
+      this.host.logger.error('Unable to send updateCartProduct', {
+        error: sendResult.error,
+      });
+      return false;
+    }
+    return true;
+  }
+
+  async markProductAddedToCart(e: CustomEvent): Promise<boolean> {
+    const { messageId, sku } = e.detail as AddToCart;
+
+    const message = this.chatMessages.find((m) => m.id === messageId);
+    if (!message) {
+      return false;
+    }
     const productIndex = message.products.findIndex((p) => p.sku === sku);
     if (productIndex === -1) {
-      return;
+      return false;
     }
     const product = message.products[productIndex];
+
+    const sent = await this._sendCartProductUpdate(product);
+    if (!sent) {
+      return false;
+    }
 
     const updatedProducts = [...message.products];
     updatedProducts[productIndex] = new Product({ ...product, inCart: true });
@@ -429,47 +473,15 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.logger.error('Unable to persist cart state', {
         error: result.error,
       });
-      return;
     }
 
-    this.chatMessages = [...this.chatMessages];
-    this.chatMessages[messageIndex] = updatedMessage;
-    this.host.requestUpdate();
-
-    const subunits =
-      product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
-    const updateCartProduct = this.host.commands.get('updateCartProduct') as
-      | ChatCommandCallback
-      | undefined;
-    if (updateCartProduct) {
-      this.host.logger.debug('Executing updateCartProduct command', {
-        sku: product.sku,
-        units: product.unitsAdded,
-        subunits,
-      });
-      updateCartProduct({
-        sku: product.sku,
-        units: product.unitsAdded,
-        subunits,
-      });
-      return;
+    const messageIndex = this.chatMessages.findIndex((m) => m.id === messageId);
+    if (messageIndex !== -1) {
+      this.chatMessages = [...this.chatMessages];
+      this.chatMessages[messageIndex] = updatedMessage;
+      this.host.requestUpdate();
     }
-
-    this.host.logger.debug('Sending updateCartProduct to repository', {
-      sku: product.sku,
-      units: product.unitsAdded,
-      subunits,
-    });
-    const sendResult = await this.host.yaloMessageRepository.updateCartProduct(
-      product.sku,
-      product.unitsAdded,
-      subunits
-    );
-    if (!sendResult.ok) {
-      this.host.logger.error('Unable to send updateCartProduct', {
-        error: sendResult.error,
-      });
-    }
+    return true;
   }
 
   // Runs the host's registered goToCart command so it can navigate the user
@@ -487,13 +499,21 @@ export default class YaloChatWindowController implements ReactiveController {
     goToCart(undefined);
   }
 
-  async markProductConfirmationClicked(e: CustomEvent) {
-    const message = e.detail as ChatMessage;
+  async markProductConfirmationClicked(e: CustomEvent): Promise<boolean> {
+    const { message } = e.detail as ProductConfirmationClicked;
     if (message.id === undefined) {
-      return;
+      return false;
     }
     if (message.status === 'CLICKED') {
-      return;
+      return false;
+    }
+
+    const product = message.products[0];
+    if (product) {
+      const sent = await this._sendCartProductUpdate(product);
+      if (!sent) {
+        return false;
+      }
     }
 
     const clicked = new ChatMessage({ ...message, status: 'CLICKED' });
@@ -503,55 +523,15 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.logger.error('Unable to persist clicked status locally', {
         error: result.error,
       });
-      return;
     }
 
     const index = this.chatMessages.findIndex((m) => m.id === clicked.id);
-    if (index === -1) {
-      return;
+    if (index !== -1) {
+      this.chatMessages = [...this.chatMessages];
+      this.chatMessages[index] = clicked;
+      this.host.requestUpdate();
     }
-    this.chatMessages = [...this.chatMessages];
-    this.chatMessages[index] = clicked;
-    this.host.requestUpdate();
-
-    const product = clicked.products[0];
-    if (!product) {
-      return;
-    }
-    const subunits =
-      product.subunitsAdded > 0 ? product.subunitsAdded : undefined;
-    const updateCartProduct = this.host.commands.get('updateCartProduct') as
-      | ChatCommandCallback
-      | undefined;
-    if (updateCartProduct) {
-      this.host.logger.debug('Executing updateCartProduct command', {
-        sku: product.sku,
-        units: product.unitsAdded,
-        subunits,
-      });
-      updateCartProduct({
-        sku: product.sku,
-        units: product.unitsAdded,
-        subunits,
-      });
-      return;
-    }
-
-    this.host.logger.debug('Sending updateCartProduct to repository', {
-      sku: product.sku,
-      units: product.unitsAdded,
-      subunits,
-    });
-    const sendResult = await this.host.yaloMessageRepository.updateCartProduct(
-      product.sku,
-      product.unitsAdded,
-      subunits
-    );
-    if (!sendResult.ok) {
-      this.host.logger.error('Unable to send updateCartProduct', {
-        error: sendResult.error,
-      });
-    }
+    return true;
   }
 
   private async _setMessageStatus(

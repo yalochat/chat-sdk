@@ -118,6 +118,25 @@ export class ProductCard extends LitElement {
       color: var(--yalo-chat-product-card-button-color-clicked, #ffffff);
     }
 
+    .cart-button:disabled {
+      cursor: default;
+    }
+
+    .cart-button.loading {
+      filter: grayscale(1);
+      animation: loading-pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes loading-pulse {
+      0%,
+      100% {
+        opacity: 0.75;
+      }
+      50% {
+        opacity: 0.45;
+      }
+    }
+
     .yalo-icon {
       font-size: var(--yalo-chat-product-card-button-icon-font-size, 1rem);
       font-family: var(
@@ -154,6 +173,9 @@ export class ProductCard extends LitElement {
   @state()
   private _cartState?: ProductCardCartState;
 
+  @state()
+  private _pending = false;
+
   private get _effectiveCartState(): ProductCardCartState {
     if (this._cartState) {
       return this._cartState;
@@ -181,9 +203,16 @@ export class ProductCard extends LitElement {
     }
   }
 
-  private _onCartButtonClick = () => {
-    this._cartState = 'in-cart';
-    this._controller.onCartButtonClick();
+  private _onCartButtonClick = async () => {
+    this._pending = true;
+    try {
+      const completed = await this._controller.onCartButtonClick();
+      if (completed) {
+        this._cartState = undefined;
+      }
+    } finally {
+      this._pending = false;
+    }
   };
 
   private _cartButtonLabel(): string {
@@ -261,8 +290,10 @@ export class ProductCard extends LitElement {
             type="button"
             class="cart-button ${this._effectiveCartState === 'in-cart'
               ? 'in-cart'
+              : ''} ${this._pending && this._effectiveCartState !== 'in-cart'
+              ? 'loading'
               : ''}"
-            ?disabled=${this._effectiveCartState === 'in-cart'}
+            ?disabled=${this._pending || this._effectiveCartState === 'in-cart'}
             @click=${this._onCartButtonClick}
           >
             ${this._effectiveCartState === 'in-cart'
