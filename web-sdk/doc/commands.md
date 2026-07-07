@@ -17,9 +17,9 @@ client.init();
 
 ## Built-in commands
 
-- **`updateCartProduct`**: Triggered when the user confirms a product in a product message via "Add to cart". Callback payload: `{ sku: string, units: number, subunits?: number }`.
+- **`updateCartProduct`**: Triggered when the user confirms a product in a product message via "Add to cart", or through the confirm button in a product confirmation message. Callback payload: `{ sku: string, units: number, subunits?: number }`. The handler can be synchronous or return a promise. While it runs, the button that triggered it shows a loading state. If the handler throws or rejects, the product is not marked as added and the button becomes clickable again.
 - **`clearCart`**: Triggered when the cart is cleared. Callback payload: `unknown`.
-- **`goToCart`**: Triggered when the user asks to open the cart from the chat. The callback receives no payload and returns nothing. Use it to redirect the user to your cart page.
+- **`goToCart`**: Triggered when the user asks to open the cart from the chat. The callback receives no payload and returns nothing. Use it to redirect the user to your cart page. When this command is registered, the button in a product confirmation message changes to "Go to cart" after the user confirms it, and clicking it runs your handler.
 - **`getCart`**: Triggered when the channel asks your page for the products in its cart. The handler receives the cart request and returns the cart products (see [Returning the cart](#returning-the-cart)).
 
 If a built-in command has no registered handler, the SDK sends the action through the remote API as usual. There are two exceptions:
