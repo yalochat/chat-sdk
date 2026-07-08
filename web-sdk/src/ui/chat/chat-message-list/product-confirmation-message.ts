@@ -6,7 +6,6 @@ import {
   type RegisteredCommands,
 } from '@domain/models/command/registered-commands-context';
 import { consume } from '@lit/context';
-import { msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import ProductConfirmationMessageController from './product-confirmation-message-controller';
@@ -22,16 +21,10 @@ export class ProductConfirmationMessage extends LitElement {
     .card {
       display: flex;
       flex-direction: column;
+      width: fit-content;
+      max-width: 100%;
+      margin-right: auto;
       gap: var(--yalo-chat-product-confirmation-gap, 0.75rem);
-      padding: var(--yalo-chat-product-confirmation-padding, 1rem);
-      background: var(--yalo-chat-product-confirmation-background, #ffffff);
-      border: 1px solid
-        var(--yalo-chat-product-confirmation-border-color, #dde4ec);
-      border-radius: var(--yalo-chat-product-confirmation-border-radius, 1rem);
-      box-shadow: var(
-        --yalo-chat-product-confirmation-box-shadow,
-        0 4.396px 8px 0 rgba(0, 0, 0, 0.06)
-      );
       box-sizing: border-box;
     }
 
@@ -50,10 +43,10 @@ export class ProductConfirmationMessage extends LitElement {
     }
 
     .button {
+      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.25rem;
       padding: var(--yalo-chat-product-confirmation-button-padding, 0.5rem);
       border: var(--yalo-chat-product-confirmation-button-border, none);
       border-radius: var(
@@ -103,6 +96,20 @@ export class ProductConfirmationMessage extends LitElement {
       }
     }
 
+    .label {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .icon {
+      position: absolute;
+      right: 100%;
+      margin-right: 0.25rem;
+      display: inline-flex;
+      align-items: center;
+    }
+
     .yalo-icon {
       font-size: var(--yalo-chat-product-confirmation-icon-font-size, 1rem);
       font-family: var(
@@ -131,6 +138,18 @@ export class ProductConfirmationMessage extends LitElement {
       text-decoration: underline;
       cursor: pointer;
       word-break: break-word;
+      animation: footer-reveal 0.3s ease-out;
+    }
+
+    @keyframes footer-reveal {
+      from {
+        opacity: 0;
+        transform: translateY(-0.25rem);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   `;
 
@@ -158,15 +177,13 @@ export class ProductConfirmationMessage extends LitElement {
     this._controller.onGoToCartClick();
   };
 
-  private _onFooterClick = () => {
-    this._controller.onFooterClick(this.message.footer ?? '');
-  };
-
   render() {
     const button = this.message.buttons[0];
     const clicked = this.message.status === 'CLICKED';
     const loading = this._pending && !clicked;
-    const showsGoToCart = clicked && this._controller.hasGoToCartCommand();
+    const hasFooterText = (this.message.footer ?? '').trim().length > 0;
+    const showsFooter =
+      clicked && hasFooterText && this._controller.hasGoToCartCommand();
     return html`
       <div class="card">
         <div class="title">${this.message.header}</div>
@@ -174,23 +191,31 @@ export class ProductConfirmationMessage extends LitElement {
         <button
           type="button"
           class="button ${clicked ? 'clicked' : ''} ${loading ? 'loading' : ''}"
-          ?disabled=${loading || (clicked && !showsGoToCart)}
-          @click=${showsGoToCart ? this._onGoToCartClick : this._onButtonClick}
+          ?disabled=${loading || clicked}
+          @click=${this._onButtonClick}
         >
-          ${clicked
-            ? html`<span class="icon">
-                <span
-                  class="yalo-icon"
-                  data-icon="check"
-                  aria-hidden="true"
-                ></span>
-              </span>`
-            : nothing}
-          ${showsGoToCart ? msg('Go to cart') : button.text}
+          <span class="label">
+            ${clicked
+              ? html`<span class="icon">
+                  <span
+                    class="yalo-icon"
+                    data-icon="check"
+                    aria-hidden="true"
+                  ></span>
+                </span>`
+              : nothing}
+            ${button.text}
+          </span>
         </button>
-        <button type="button" class="footer" @click=${this._onFooterClick}>
-          ${this.message.footer}
-        </button>
+        ${showsFooter
+          ? html`<button
+              type="button"
+              class="footer"
+              @click=${this._onGoToCartClick}
+            >
+              ${this.message.footer}
+            </button>`
+          : nothing}
       </div>
     `;
   }

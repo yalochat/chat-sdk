@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ProductConfirmationClicked } from '@domain/models/chat-events/product-confirmation-clicked';
-import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ReactiveController } from 'lit';
 import type { ProductConfirmationMessage } from './product-confirmation-message';
 
@@ -16,20 +16,6 @@ export default class ProductConfirmationMessageController
   }
 
   hostConnected() {}
-
-  onFooterClick(text: string) {
-    this.host.dispatchEvent(
-      new CustomEvent('yalo-chat-send-text-message', {
-        detail: ChatMessage.text({
-          role: 'USER',
-          timestamp: new Date(),
-          content: text,
-        }),
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
 
   // Resolves once the confirmation settles: the handler assigns `completed`
   // to the detail while the event is dispatched. Resolves to false when no

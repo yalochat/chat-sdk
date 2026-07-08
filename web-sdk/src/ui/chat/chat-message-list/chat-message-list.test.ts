@@ -901,7 +901,7 @@ describe('ChatMessageList', () => {
       return card;
     };
 
-    it('renders header, body, button, and footer inside the confirmation card', async () => {
+    it('renders header, body, and button inside the confirmation card', async () => {
       const list = await renderList([confirmation()]);
       const card = await getCard(list);
 
@@ -914,9 +914,7 @@ describe('ChatMessageList', () => {
       expect(card.shadowRoot!.querySelector('.button')!.textContent).toContain(
         'Done'
       );
-      expect(card.shadowRoot!.querySelector('.footer')!.textContent).toContain(
-        'Continue shopping'
-      );
+      expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
     });
 
     it('grays the button out while the confirmation is pending and marks it clicked once it completes', async () => {
@@ -1018,26 +1016,8 @@ describe('ChatMessageList', () => {
       expect(button.disabled).toBe(true);
     });
 
-    it('dispatches yalo-chat-send-text-message with the footer text on footer click', async () => {
-      const list = await renderList([confirmation()]);
-      const card = await getCard(list);
-
-      const listener = vi.fn();
-      list.addEventListener('yalo-chat-send-text-message', listener);
-
-      card.shadowRoot!.querySelector<HTMLButtonElement>('.footer')!.click();
-
-      expect(listener).toHaveBeenCalledOnce();
-      const detail = (listener.mock.calls[0][0] as CustomEvent).detail;
-      expect(detail).toMatchObject({
-        role: 'USER',
-        type: 'text',
-        content: 'Continue shopping',
-      });
-    });
-
-    it('keeps the message button text before the button is clicked when goToCart is registered', async () => {
-      const list = await renderList([confirmation()]);
+    it('keeps the button text and never shows Go to cart once clicked', async () => {
+      const list = await renderList([confirmation({ status: 'CLICKED' })]);
       registerGoToCart(list);
       const card = await getCard(list);
 
@@ -1046,23 +1026,45 @@ describe('ChatMessageList', () => {
       )!;
       expect(button.textContent).toContain('Done');
       expect(button.textContent).not.toContain('Go to cart');
-      expect(button.disabled).toBe(false);
+      expect(button.disabled).toBe(true);
+      expect(button.classList.contains('clicked')).toBe(true);
     });
 
-    it('turns the clicked button into an enabled Go to cart button when goToCart is registered', async () => {
+    it('does not render the footer before the confirmation is clicked', async () => {
+      const list = await renderList([confirmation()]);
+      registerGoToCart(list);
+      const card = await getCard(list);
+
+      expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
+    });
+
+    it('does not render the footer when clicked without a goToCart command', async () => {
+      const list = await renderList([confirmation({ status: 'CLICKED' })]);
+      const card = await getCard(list);
+
+      expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
+    });
+
+    it('does not render the footer when it is empty even if goToCart is registered', async () => {
+      const list = await renderList([
+        confirmation({ status: 'CLICKED', footer: '   ' }),
+      ]);
+      registerGoToCart(list);
+      const card = await getCard(list);
+
+      expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
+    });
+
+    it('reveals the footer once the confirmation is clicked and goToCart is registered', async () => {
       const list = await renderList([confirmation({ status: 'CLICKED' })]);
       registerGoToCart(list);
       const card = await getCard(list);
 
-      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.button'
-      )!;
-      expect(button.textContent).toContain('Go to cart');
-      expect(button.disabled).toBe(false);
-      expect(button.classList.contains('clicked')).toBe(true);
+      const footer = card.shadowRoot!.querySelector('.footer');
+      expect(footer!.textContent).toContain('Continue shopping');
     });
 
-    it('shows Go to cart after the confirmation completes when goToCart is registered', async () => {
+    it('reveals the footer after the confirmation completes when goToCart is registered', async () => {
       let resolveCompleted!: (value: boolean) => void;
       const list = await renderList([confirmation()]);
       registerGoToCart(list);
@@ -1074,15 +1076,10 @@ describe('ChatMessageList', () => {
         );
       });
       const card = await getCard(list);
+      expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
 
-      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.button'
-      )!;
-      button.click();
+      card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!.click();
       await card.updateComplete;
-
-      expect(button.classList.contains('loading')).toBe(true);
-      expect(button.disabled).toBe(true);
 
       list.chatMessages = [confirmation({ status: 'CLICKED' })];
       resolveCompleted(true);
@@ -1090,30 +1087,31 @@ describe('ChatMessageList', () => {
       await list.updateComplete;
       const updatedCard = await getCard(list);
 
-      const updatedButton = updatedCard.shadowRoot!.querySelector<
-        HTMLButtonElement
-      >('.button')!;
-      expect(updatedButton.textContent).toContain('Go to cart');
-      expect(updatedButton.disabled).toBe(false);
+      expect(
+        updatedCard.shadowRoot!.querySelector('.footer')!.textContent
+      ).toContain('Continue shopping');
     });
 
-    it('dispatches yalo-chat-go-to-cart instead of a confirmation click when Go to cart is clicked', async () => {
+    it('dispatches yalo-chat-go-to-cart when the footer is clicked', async () => {
       const list = await renderList([confirmation({ status: 'CLICKED' })]);
       registerGoToCart(list);
       const card = await getCard(list);
 
       const goToCartListener = vi.fn();
       const confirmationListener = vi.fn();
+      const sendTextListener = vi.fn();
       list.addEventListener('yalo-chat-go-to-cart', goToCartListener);
       list.addEventListener(
         'yalo-chat-product-confirmation-clicked',
         confirmationListener
       );
+      list.addEventListener('yalo-chat-send-text-message', sendTextListener);
 
-      card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!.click();
+      card.shadowRoot!.querySelector<HTMLButtonElement>('.footer')!.click();
 
       expect(goToCartListener).toHaveBeenCalledOnce();
       expect(confirmationListener).not.toHaveBeenCalled();
+      expect(sendTextListener).not.toHaveBeenCalled();
     });
 
     it('does not render the outer assistant-message header, footer, or buttons', async () => {
