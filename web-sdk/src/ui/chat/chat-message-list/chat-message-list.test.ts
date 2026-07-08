@@ -71,7 +71,9 @@ const renderList = async (messages: ChatMessage[]) => {
   const wrapper = document.createElement(
     'test-context-provider'
   ) as TestContextProvider;
-  const list = document.createElement('yalo-chat-message-list') as ChatMessageList;
+  const list = document.createElement(
+    'yalo-chat-message-list'
+  ) as ChatMessageList;
   list.chatMessages = messages;
   wrapper.appendChild(list);
   document.body.appendChild(wrapper);
@@ -125,7 +127,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       expect(assistant).not.toBeNull();
       const p = assistant!.shadowRoot!.querySelector('p');
       expect(p!.textContent).toContain('Hello');
@@ -143,7 +147,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const bubble = assistant!.shadowRoot!.querySelector('.voice-bubble');
       expect(bubble!.querySelector('yalo-chat-voice-message')).not.toBeNull();
     });
@@ -158,7 +164,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const bubble = assistant!.shadowRoot!.querySelector('.image-bubble');
       expect(bubble!.querySelector('yalo-chat-image-message')).not.toBeNull();
     });
@@ -174,7 +182,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const bubble = assistant!.shadowRoot!.querySelector('.video-bubble');
       expect(bubble!.querySelector('yalo-chat-video-message')).not.toBeNull();
     });
@@ -189,9 +199,13 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const bubble = assistant!.shadowRoot!.querySelector('.attachment-bubble');
-      expect(bubble!.querySelector('yalo-chat-attachment-message')).not.toBeNull();
+      expect(
+        bubble!.querySelector('yalo-chat-attachment-message')
+      ).not.toBeNull();
     });
 
     it('renders product as a vertical product-message', async () => {
@@ -204,18 +218,22 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const productMsg = assistant!.shadowRoot!.querySelector(
         '.product-bubble yalo-chat-product-message'
       );
       expect(productMsg).not.toBeNull();
       expect(productMsg!.getAttribute('direction')).toBe('vertical');
-      const cards = productMsg!.shadowRoot!.querySelectorAll('yalo-chat-product-card');
+      const cards = productMsg!.shadowRoot!.querySelectorAll(
+        'yalo-chat-product-card'
+      );
       expect(cards).toHaveLength(2);
       cards.forEach((card) => {
-        expect(
-          (card as unknown as { layout: string }).layout
-        ).toBe('horizontal');
+        expect((card as unknown as { layout: string }).layout).toBe(
+          'horizontal'
+        );
       });
     });
 
@@ -229,18 +247,20 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const productMsg = assistant!.shadowRoot!.querySelector(
         '.product-bubble yalo-chat-product-message'
       );
       expect(productMsg).not.toBeNull();
       expect(productMsg!.getAttribute('direction')).toBe('horizontal');
-      const cards = productMsg!.shadowRoot!.querySelectorAll('yalo-chat-product-card');
+      const cards = productMsg!.shadowRoot!.querySelectorAll(
+        'yalo-chat-product-card'
+      );
       expect(cards).toHaveLength(2);
       cards.forEach((card) => {
-        expect(
-          (card as unknown as { layout: string }).layout
-        ).toBe('vertical');
+        expect((card as unknown as { layout: string }).layout).toBe('vertical');
       });
     });
 
@@ -255,7 +275,9 @@ describe('ChatMessageList', () => {
       ]);
 
       const card = await getProductCard(list);
-      const inputs = card.shadowRoot!.querySelectorAll('yalo-chat-numeric-input');
+      const inputs = card.shadowRoot!.querySelectorAll(
+        'yalo-chat-numeric-input'
+      );
       expect(inputs).toHaveLength(1);
     });
 
@@ -276,7 +298,9 @@ describe('ChatMessageList', () => {
       ]);
 
       const card = await getProductCard(list);
-      const inputs = card.shadowRoot!.querySelectorAll('yalo-chat-numeric-input');
+      const inputs = card.shadowRoot!.querySelectorAll(
+        'yalo-chat-numeric-input'
+      );
       expect(inputs).toHaveLength(2);
     });
 
@@ -303,7 +327,9 @@ describe('ChatMessageList', () => {
 
       const card = await getProductCard(list);
       const [unitInput, subunitInput] =
-        card.shadowRoot!.querySelectorAll<LitElement>('yalo-chat-numeric-input');
+        card.shadowRoot!.querySelectorAll<LitElement>(
+          'yalo-chat-numeric-input'
+        );
       await unitInput.updateComplete;
       await subunitInput.updateComplete;
 
@@ -343,12 +369,15 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       const productMsg = assistant.shadowRoot!.querySelector(
         'yalo-chat-product-message'
       )!;
-      const initialCards =
-        productMsg.shadowRoot!.querySelectorAll('yalo-chat-product-card');
+      const initialCards = productMsg.shadowRoot!.querySelectorAll(
+        'yalo-chat-product-card'
+      );
       const toggle = productMsg.shadowRoot!.querySelector(
         'button.expand'
       ) as HTMLButtonElement;
@@ -359,8 +388,9 @@ describe('ChatMessageList', () => {
       toggle.click();
       await (productMsg as LitElement).updateComplete;
 
-      const expandedCards =
-        productMsg.shadowRoot!.querySelectorAll('yalo-chat-product-card');
+      const expandedCards = productMsg.shadowRoot!.querySelectorAll(
+        'yalo-chat-product-card'
+      );
       const expandedToggle = productMsg.shadowRoot!.querySelector(
         'button.expand'
       ) as HTMLButtonElement;
@@ -433,9 +463,8 @@ describe('ChatMessageList', () => {
         const card = await getProductCard(list);
         await card.updateComplete;
 
-        const loadingButton = card.shadowRoot!.querySelector<HTMLButtonElement>(
-          '.cart-button'
-        )!;
+        const loadingButton =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
         expect(loadingButton.textContent?.trim()).toBe('Add to cart');
         expect(loadingButton.classList.contains('loading')).toBe(true);
         expect(loadingButton.disabled).toBe(true);
@@ -492,9 +521,8 @@ describe('ChatMessageList', () => {
         await settle();
         await card.updateComplete;
 
-        const refreshed = card.shadowRoot!.querySelector<HTMLButtonElement>(
-          '.cart-button'
-        )!;
+        const refreshed =
+          card.shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
         expect(refreshed.textContent?.trim()).toBe('Add to cart');
         expect(refreshed.classList.contains('loading')).toBe(false);
         expect(refreshed.disabled).toBe(false);
@@ -562,10 +590,13 @@ describe('ChatMessageList', () => {
           }),
         ]);
 
-        const initialButton = (await getProductCard(list)).shadowRoot!
-          .querySelector<HTMLButtonElement>('.cart-button')!;
+        const initialButton = (
+          await getProductCard(list)
+        ).shadowRoot!.querySelector<HTMLButtonElement>('.cart-button')!;
         initialButton.click();
-        await (await getProductCard(list)).updateComplete;
+        await (
+          await getProductCard(list)
+        ).updateComplete;
 
         list.chatMessages = [
           ChatMessage.product({
@@ -650,7 +681,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      );
       const p = assistant!.shadowRoot!.querySelector('p');
       expect(p!.textContent).toContain('fallback');
     });
@@ -667,7 +700,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       const header = assistant.shadowRoot!.querySelector('.header');
       expect(header!.textContent).toContain('Greetings');
     });
@@ -684,7 +719,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       const footer = assistant.shadowRoot!.querySelector('.footer');
       expect(footer!.textContent).toContain('Powered by Yalo');
     });
@@ -699,7 +736,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       expect(assistant.shadowRoot!.querySelector('.header')).toBeNull();
       expect(assistant.shadowRoot!.querySelector('.footer')).toBeNull();
     });
@@ -726,9 +765,10 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
-      const buttons =
-        assistant.shadowRoot!.querySelectorAll('.buttons button');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      const buttons = assistant.shadowRoot!.querySelectorAll('.buttons button');
       expect(buttons).toHaveLength(1);
       expect(buttons[0].textContent?.trim()).toBe('No');
     });
@@ -749,9 +789,10 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
-      const buttons =
-        assistant.shadowRoot!.querySelectorAll('.buttons button');
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      const buttons = assistant.shadowRoot!.querySelectorAll('.buttons button');
       expect(buttons).toHaveLength(1);
       expect(buttons[0].textContent?.trim()).toBe('No');
     });
@@ -764,13 +805,13 @@ describe('ChatMessageList', () => {
           type: 'text',
           timestamp,
           content: 'Visit our site',
-          buttons: [
-            { text: 'Open', type: 'link', url: 'https://example.com' },
-          ],
+          buttons: [{ text: 'Open', type: 'link', url: 'https://example.com' }],
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       const anchors =
         assistant.shadowRoot!.querySelectorAll<HTMLAnchorElement>('.buttons a');
       expect(anchors).toHaveLength(1);
@@ -794,7 +835,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       expect(assistant.shadowRoot!.querySelector('.buttons a')).toBeNull();
       expect(
         assistant.shadowRoot!.querySelector('.buttons button')!.textContent
@@ -811,7 +854,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       expect(assistant.shadowRoot!.querySelector('.buttons')).toBeNull();
     });
 
@@ -829,12 +874,18 @@ describe('ChatMessageList', () => {
       });
       const list = await renderList([agent]);
 
-      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies')!;
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      )!;
       await (quickReplies as LitElement).updateComplete;
-      const chips = quickReplies.shadowRoot!.querySelectorAll<HTMLButtonElement>(
-        '.chips button'
-      );
-      expect([...chips].map((c) => c.textContent?.trim())).toEqual(['Yes', 'No']);
+      const chips =
+        quickReplies.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+          '.chips button'
+        );
+      expect([...chips].map((c) => c.textContent?.trim())).toEqual([
+        'Yes',
+        'No',
+      ]);
 
       const listener = vi.fn();
       list.addEventListener('yalo-chat-send-text-message', listener);
@@ -862,7 +913,9 @@ describe('ChatMessageList', () => {
       expect(
         quickReplies.shadowRoot!.querySelectorAll('.chips button')
       ).toHaveLength(0);
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       await (assistant as LitElement).updateComplete;
       expect(
         assistant.shadowRoot!.querySelectorAll('.buttons button')
@@ -929,9 +982,8 @@ describe('ChatMessageList', () => {
       });
       const card = await getCard(list);
 
-      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.button'
-      )!;
+      const button =
+        card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!;
       expect(button.classList.contains('clicked')).toBe(false);
 
       button.click();
@@ -947,9 +999,8 @@ describe('ChatMessageList', () => {
       await list.updateComplete;
       const updatedCard = await getCard(list);
 
-      const updatedButton = updatedCard.shadowRoot!.querySelector<
-        HTMLButtonElement
-      >('.button')!;
+      const updatedButton =
+        updatedCard.shadowRoot!.querySelector<HTMLButtonElement>('.button')!;
       expect(updatedButton.classList.contains('clicked')).toBe(true);
       expect(updatedButton.classList.contains('loading')).toBe(false);
       expect(updatedButton.disabled).toBe(true);
@@ -967,9 +1018,8 @@ describe('ChatMessageList', () => {
       });
       const card = await getCard(list);
 
-      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.button'
-      )!;
+      const button =
+        card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!;
       button.click();
       await card.updateComplete;
       expect(button.classList.contains('loading')).toBe(true);
@@ -1004,13 +1054,10 @@ describe('ChatMessageList', () => {
     });
 
     it('renders the button as clicked when the message status is CLICKED', async () => {
-      const list = await renderList([
-        confirmation({ status: 'CLICKED' }),
-      ]);
+      const list = await renderList([confirmation({ status: 'CLICKED' })]);
       const card = await getCard(list);
-      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.button'
-      )!;
+      const button =
+        card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!;
 
       expect(button.classList.contains('clicked')).toBe(true);
       expect(button.disabled).toBe(true);
@@ -1021,9 +1068,8 @@ describe('ChatMessageList', () => {
       registerGoToCart(list);
       const card = await getCard(list);
 
-      const button = card.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.button'
-      )!;
+      const button =
+        card.shadowRoot!.querySelector<HTMLButtonElement>('.button')!;
       expect(button.textContent).toContain('Done');
       expect(button.textContent).not.toContain('Go to cart');
       expect(button.disabled).toBe(true);
@@ -1033,13 +1079,6 @@ describe('ChatMessageList', () => {
     it('does not render the footer before the confirmation is clicked', async () => {
       const list = await renderList([confirmation()]);
       registerGoToCart(list);
-      list.addEventListener('yalo-chat-product-confirmation-clicked', (e) => {
-        (e as CustomEvent).detail.completed = new Promise<boolean>(
-          (resolve) => {
-            resolveCompleted = resolve;
-          }
-        );
-      });
       const card = await getCard(list);
 
       expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
@@ -1151,7 +1190,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies');
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
       expect(quickReplies).not.toBeNull();
       await (quickReplies as LitElement).updateComplete;
 
@@ -1185,7 +1226,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies');
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
       await (quickReplies as LitElement).updateComplete;
       const container = quickReplies!.shadowRoot!.querySelector('.container');
       expect(container?.classList.contains('open')).toBe(false);
@@ -1201,7 +1244,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies');
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
       await (quickReplies as LitElement).updateComplete;
       const container = quickReplies!.shadowRoot!.querySelector('.container');
       expect(container?.classList.contains('open')).toBe(false);
@@ -1218,7 +1263,9 @@ describe('ChatMessageList', () => {
       });
       const list = await renderList([agent]);
 
-      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies');
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
       await (quickReplies as LitElement).updateComplete;
       expect(
         quickReplies!.shadowRoot!.querySelector('.container.open')
@@ -1267,7 +1314,9 @@ describe('ChatMessageList', () => {
       ];
       await list.updateComplete;
 
-      const assistant = list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
       await (assistant as LitElement).updateComplete;
       const replyButtons =
         assistant.shadowRoot!.querySelectorAll('.buttons button');
@@ -1291,11 +1340,14 @@ describe('ChatMessageList', () => {
       const listener = vi.fn();
       list.addEventListener('yalo-chat-send-text-message', listener);
 
-      const quickReplies = list.shadowRoot!.querySelector('yalo-chat-quick-replies');
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
       await (quickReplies as LitElement).updateComplete;
-      const chip = quickReplies!.shadowRoot!.querySelector<HTMLButtonElement>(
-        '.chips button'
-      )!;
+      const chip =
+        quickReplies!.shadowRoot!.querySelector<HTMLButtonElement>(
+          '.chips button'
+        )!;
       chip.click();
 
       expect(listener).toHaveBeenCalledOnce();
@@ -1368,7 +1420,9 @@ describe('ChatMessageList', () => {
 
       const user = list.shadowRoot!.querySelector('yalo-chat-user-message');
       const bubble = user!.shadowRoot!.querySelector('.bubble');
-      expect(bubble!.querySelector('yalo-chat-attachment-message')).not.toBeNull();
+      expect(
+        bubble!.querySelector('yalo-chat-attachment-message')
+      ).not.toBeNull();
     });
 
     it('falls back to text rendering for unknown type', async () => {
@@ -1485,8 +1539,9 @@ describe('ChatMessageList', () => {
       ]);
 
       const card = await getProductCard(list);
-      const inputs =
-        card.shadowRoot!.querySelectorAll<LitElement>('yalo-chat-numeric-input');
+      const inputs = card.shadowRoot!.querySelectorAll<LitElement>(
+        'yalo-chat-numeric-input'
+      );
       expect(inputs).toHaveLength(2);
 
       const unitInput = inputs[0].shadowRoot!.querySelector('input')!;
@@ -1506,10 +1561,10 @@ describe('ChatMessageList', () => {
       ]);
 
       const cardBefore = await getProductCard(list);
-      const inputBefore =
-        cardBefore.shadowRoot!.querySelector('yalo-chat-numeric-input') as LitElement;
-      const valueBefore =
-        inputBefore.shadowRoot!.querySelector('input')!.value;
+      const inputBefore = cardBefore.shadowRoot!.querySelector(
+        'yalo-chat-numeric-input'
+      ) as LitElement;
+      const valueBefore = inputBefore.shadowRoot!.querySelector('input')!.value;
       expect(valueBefore).toContain('1');
 
       // Simulate in-place update (same message id, different quantity)
@@ -1524,11 +1579,11 @@ describe('ChatMessageList', () => {
       await list.updateComplete;
 
       const cardAfter = await getProductCard(list);
-      const inputAfter =
-        cardAfter.shadowRoot!.querySelector('yalo-chat-numeric-input') as LitElement;
+      const inputAfter = cardAfter.shadowRoot!.querySelector(
+        'yalo-chat-numeric-input'
+      ) as LitElement;
       await inputAfter.updateComplete;
-      const valueAfter =
-        inputAfter.shadowRoot!.querySelector('input')!.value;
+      const valueAfter = inputAfter.shadowRoot!.querySelector('input')!.value;
       expect(valueAfter).toContain('5');
     });
 
@@ -1618,8 +1673,9 @@ describe('ChatMessageList', () => {
       list.addEventListener('yalo-chat-product-quantity-change', listener);
 
       const card = await getProductCard(list);
-      const input =
-        card.shadowRoot!.querySelector<LitElement>('yalo-chat-numeric-input')!;
+      const input = card.shadowRoot!.querySelector<LitElement>(
+        'yalo-chat-numeric-input'
+      )!;
       await input.updateComplete;
       const buttons =
         input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
@@ -1647,8 +1703,9 @@ describe('ChatMessageList', () => {
       list.addEventListener('yalo-chat-product-quantity-change', listener);
 
       const card = await getProductCard(list);
-      const input =
-        card.shadowRoot!.querySelector<LitElement>('yalo-chat-numeric-input')!;
+      const input = card.shadowRoot!.querySelector<LitElement>(
+        'yalo-chat-numeric-input'
+      )!;
       await input.updateComplete;
       const buttons =
         input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
@@ -1676,8 +1733,9 @@ describe('ChatMessageList', () => {
       list.addEventListener('yalo-chat-product-quantity-change', listener);
 
       const card = await getProductCard(list);
-      const input =
-        card.shadowRoot!.querySelector<LitElement>('yalo-chat-numeric-input')!;
+      const input = card.shadowRoot!.querySelector<LitElement>(
+        'yalo-chat-numeric-input'
+      )!;
       await input.updateComplete;
       const buttons =
         input.shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
@@ -1709,8 +1767,9 @@ describe('ChatMessageList', () => {
       list.addEventListener('yalo-chat-product-quantity-change', listener);
 
       const card = await getProductCard(list);
-      const inputs =
-        card.shadowRoot!.querySelectorAll<LitElement>('yalo-chat-numeric-input');
+      const inputs = card.shadowRoot!.querySelectorAll<LitElement>(
+        'yalo-chat-numeric-input'
+      );
       await inputs[1].updateComplete;
       const subunitButtons =
         inputs[1].shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
@@ -1746,8 +1805,9 @@ describe('ChatMessageList', () => {
       list.addEventListener('yalo-chat-product-quantity-change', listener);
 
       const card = await getProductCard(list);
-      const inputs =
-        card.shadowRoot!.querySelectorAll<LitElement>('yalo-chat-numeric-input');
+      const inputs = card.shadowRoot!.querySelectorAll<LitElement>(
+        'yalo-chat-numeric-input'
+      );
       await inputs[1].updateComplete;
       const subunitButtons =
         inputs[1].shadowRoot!.querySelectorAll<HTMLButtonElement>('button');
@@ -2002,8 +2062,9 @@ describe('ChatMessageList', () => {
         }),
       ]);
 
-      const assistants =
-        list.shadowRoot!.querySelectorAll('yalo-chat-assistant-message');
+      const assistants = list.shadowRoot!.querySelectorAll(
+        'yalo-chat-assistant-message'
+      );
       const users = list.shadowRoot!.querySelectorAll('yalo-chat-user-message');
       expect(assistants).toHaveLength(1);
       expect(users).toHaveLength(1);

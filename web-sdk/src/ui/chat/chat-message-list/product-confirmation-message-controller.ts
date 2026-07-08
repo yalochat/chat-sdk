@@ -5,9 +5,7 @@ import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { ReactiveController } from 'lit';
 import type { ProductConfirmationMessage } from './product-confirmation-message';
 
-export default class ProductConfirmationMessageController
-  implements ReactiveController
-{
+export default class ProductConfirmationMessageController implements ReactiveController {
   host: ProductConfirmationMessage;
 
   constructor(host: ProductConfirmationMessage) {

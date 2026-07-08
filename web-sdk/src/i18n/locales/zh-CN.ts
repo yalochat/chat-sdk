@@ -9,8 +9,7 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      's087b7417c598233e': `前往购物车`,
-'s20dfc2658b5ed207': `更新购物车`,
+      's20dfc2658b5ed207': `更新购物车`,
 's2c8189544e3ea679': `重试`,
 's317b6c4a03e34c5d': `已在购物车中`,
 's32bad8884f0b1be7': `关闭聊天`,
