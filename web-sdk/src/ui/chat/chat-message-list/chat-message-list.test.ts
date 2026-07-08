@@ -1033,6 +1033,13 @@ describe('ChatMessageList', () => {
     it('does not render the footer before the confirmation is clicked', async () => {
       const list = await renderList([confirmation()]);
       registerGoToCart(list);
+      list.addEventListener('yalo-chat-product-confirmation-clicked', (e) => {
+        (e as CustomEvent).detail.completed = new Promise<boolean>(
+          (resolve) => {
+            resolveCompleted = resolve;
+          }
+        );
+      });
       const card = await getCard(list);
 
       expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
