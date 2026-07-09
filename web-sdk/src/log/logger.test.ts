@@ -78,6 +78,18 @@ describe('Logger', () => {
       expect(consoleWarn).toHaveBeenCalledOnce();
       expect(consoleError).toHaveBeenCalledOnce();
     });
+
+    it('suppresses everything including error when currentLevel is silent', () => {
+      logger.currentLevel = 'silent';
+      logger.debug('msg');
+      logger.info('msg');
+      logger.warn('msg');
+      logger.error('msg');
+      expect(consoleDebug).not.toHaveBeenCalled();
+      expect(consoleInfo).not.toHaveBeenCalled();
+      expect(consoleWarn).not.toHaveBeenCalled();
+      expect(consoleError).not.toHaveBeenCalled();
+    });
   });
 
   describe('methods', () => {
