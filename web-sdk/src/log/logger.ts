@@ -1,14 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
+const LOG_LEVELS = ['debug', 'info', 'warn', 'error', 'silent'] as const;
 export type LogLevel = (typeof LOG_LEVELS)[number];
+
+type LoggableLevel = Exclude<LogLevel, 'silent'>;
 
 export default class Logger {
   private readonly _prefix = '[YaloChatSDK]';
 
   currentLevel: LogLevel = 'warn';
 
-  private _log(level: LogLevel, args: unknown[]) {
+  private _log(level: LoggableLevel, args: unknown[]) {
     if (LOG_LEVELS.indexOf(level) >= LOG_LEVELS.indexOf(this.currentLevel)) {
       console[level](this._prefix, ...args);
     }
