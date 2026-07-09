@@ -9,8 +9,7 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      's087b7417c598233e': `الذهاب إلى السلة`,
-'s20dfc2658b5ed207': `تحديث السلة`,
+      's20dfc2658b5ed207': `تحديث السلة`,
 's2c8189544e3ea679': `إعادة المحاولة`,
 's317b6c4a03e34c5d': `في السلة`,
 's32bad8884f0b1be7': `إغلاق المحادثة`,

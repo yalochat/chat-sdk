@@ -30,10 +30,6 @@
   <source>Add to cart</source>
   <target>加入购物车</target>
 </trans-unit>
-<trans-unit id="s087b7417c598233e">
-  <source>Go to cart</source>
-  <target>前往购物车</target>
-</trans-unit>
 <trans-unit id="sc876da507d6d97c4">
   <source>Not delivered.</source>
   <target>未送达。</target>

@@ -1327,7 +1327,7 @@ describe('YaloChatWindow', () => {
       expect(warnSpy).toHaveBeenCalledWith('No goToCart command registered');
     });
 
-    it('runs the registered goToCart command from the confirmed confirmation button', async () => {
+    it('runs the registered goToCart command from the confirmation footer', async () => {
       const message = ChatMessage.productConfirmation({
         role: 'AGENT',
         timestamp: new Date(),
@@ -1374,11 +1374,12 @@ describe('YaloChatWindow', () => {
         '.button'
       )!;
       expect(button.textContent).toContain('Done');
+      expect(card.shadowRoot!.querySelector('.footer')).toBeNull();
 
       button.click();
-      await vi.waitUntil(() => button.textContent?.includes('Go to cart'));
+      await vi.waitUntil(() => card.shadowRoot!.querySelector('.footer'));
 
-      button.click();
+      card.shadowRoot!.querySelector<HTMLButtonElement>('.footer')!.click();
       await vi.waitUntil(() => callback.mock.calls.length > 0);
       expect(callback).toHaveBeenCalledWith(undefined);
     });

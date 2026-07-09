@@ -9,8 +9,7 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      's087b7417c598233e': `Ir para o carrinho`,
-'s20dfc2658b5ed207': `Atualizar o carrinho`,
+      's20dfc2658b5ed207': `Atualizar o carrinho`,
 's2c8189544e3ea679': `Tentar novamente`,
 's317b6c4a03e34c5d': `No carrinho`,
 's32bad8884f0b1be7': `Fechar chat`,

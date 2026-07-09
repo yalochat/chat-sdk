@@ -510,22 +510,6 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 
 ```css
 :root {
-  /* Background color of the confirmation card. */
-  --yalo-chat-product-confirmation-background: #ffffff;
-
-  /* Border color of the confirmation card. */
-  --yalo-chat-product-confirmation-border-color: #dde4ec;
-
-  /* Border radius of the confirmation card. */
-  --yalo-chat-product-confirmation-border-radius: 1rem;
-
-  /* Drop shadow applied to the confirmation card. */
-  --yalo-chat-product-confirmation-box-shadow: 0 4.396px 8px 0
-    rgba(0, 0, 0, 0.06);
-
-  /* Padding inside the confirmation card. */
-  --yalo-chat-product-confirmation-padding: 1rem;
-
   /* Vertical gap between title, body, button, and footer. */
   --yalo-chat-product-confirmation-gap: 0.75rem;
 
