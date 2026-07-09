@@ -226,4 +226,28 @@ describe('computeEffectiveAuthUserId', () => {
       )
     ).toBeUndefined();
   });
+
+  it('treats a null userId as anonymous in an ephemeral session instead of appending the token to null', () => {
+    expect(
+      computeEffectiveAuthUserId(
+        {
+          ...baseConfig,
+          sessionMode: 'ephemeral',
+          userId: null as unknown as string,
+        },
+        'token-abc'
+      )
+    ).toBeUndefined();
+  });
+
+  it('treats a null userId as anonymous in a perContext session instead of appending the hash to null', () => {
+    expect(
+      computeEffectiveAuthUserId({
+        ...baseConfig,
+        sessionMode: 'perContext',
+        userId: null as unknown as string,
+        openContext: { sku: 'A' },
+      })
+    ).toBeUndefined();
+  });
 });

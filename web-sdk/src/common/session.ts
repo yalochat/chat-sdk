@@ -33,7 +33,7 @@ export function computeEffectiveAuthUserId(
   const { userId } = config;
   if (config.sessionMode === 'ephemeral') {
     // Anonymous: let the backend mint a fresh identity on each auth.
-    if (userId === undefined) {
+    if (userId == null) {
       return undefined;
     }
     // Defensive: no token to append, so keep the user id as-is.
@@ -42,8 +42,11 @@ export function computeEffectiveAuthUserId(
     }
     return `${userId}-${ephemeralToken}`;
   }
+  if (userId == null) {
+    return undefined;
+  }
   const hash = computeOpenContextHash(config);
-  if (userId === undefined || hash === undefined) {
+  if (hash === undefined) {
     return userId;
   }
   return `${userId}-${hash}`;
