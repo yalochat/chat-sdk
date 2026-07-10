@@ -35,13 +35,16 @@
       import { YaloChatClient } from '/src/chat.ts';
 
       const client = new YaloChatClient({
-        channelId: '41894cd0-846c-4ea6-9e33-0a5d0d68b36b', // Your channel id
-        organizationId: '1000000169', // Your organization id
+        channelId: '', // Your channel id
+        organizationId: '', // Your organization id
         channelName: 'Chat Demo', // Your channel name that will appear in the bot chat
         image: '/oris-icon.svg',
         target: 'yalo-chat',
         persistent: false,
         userId: 'rodrigo-custodio-test-1', // Optional: identify the user with your own ID
+        sessionMode: 'ephemeral',
+        openContext: { sku: 'test', description: 'test' },
+        userId: 'test', // Optional: identify the user with your own ID
       });
       const fab = document.getElementById('chat-fab');
       client.init({
