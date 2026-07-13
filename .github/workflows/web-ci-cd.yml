@@ -81,6 +81,13 @@ jobs:
           destination: ${{ secrets.GCS_BUCKET_STAGING }}
           parent: false
           gzip: true
+      - name: Invalidate CDN cache for latest/
+        continue-on-error: true
+        run: |
+          gcloud compute url-maps invalidate-cdn-cache "${{ secrets.CDN_URL_MAP_STAGING }}" \
+            --path="/latest/*" \
+            --project="${{ secrets.GCP_PROJECT_STAGING }}" \
+            --async
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -117,3 +124,10 @@ jobs:
           destination: ${{ secrets.GCS_BUCKET_PROD }}
           parent: false
           gzip: true
+      - name: Invalidate CDN cache for latest/
+        continue-on-error: true
+        run: |
+          gcloud compute url-maps invalidate-cdn-cache "${{ secrets.CDN_URL_MAP_PROD }}" \
+            --path="/latest/*" \
+            --project="${{ secrets.GCP_PROJECT_PROD }}" \
+            --async
