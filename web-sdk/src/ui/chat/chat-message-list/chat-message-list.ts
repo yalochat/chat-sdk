@@ -7,7 +7,10 @@ import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { loggerContext, type Logger } from '@log/logger-context';
-import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type {
+  ChatMessage,
+  MessageButton,
+} from '@domain/models/chat-message/chat-message';
 import ChatMessageListController from './chat-message-list-controller';
 import './user-message';
 import './assistant-message';
@@ -164,13 +167,19 @@ export default class ChatMessageList extends LitElement {
   }
 
   render() {
-    const latestMessage = this.chatMessages[0];
-    const showsQuickReplies =
-      latestMessage?.role === 'AGENT' &&
-      latestMessage.buttons.some((button) => button.type === 'reply');
-    const quickReplies = showsQuickReplies
-      ? latestMessage.buttons.filter((button) => button.type === 'reply')
-      : [];
+    let quickReplies: MessageButton[] = [];
+    for (const message of this.chatMessages) {
+      if (message.role === 'USER') {
+        break;
+      }
+      const replies = message.buttons.filter(
+        (button) => button.type === 'reply'
+      );
+      if (replies.length > 0) {
+        quickReplies = replies;
+        break;
+      }
+    }
 
     return html`
       <ul class="message-list">
