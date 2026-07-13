@@ -1325,6 +1325,82 @@ describe('ChatMessageList', () => {
       expect(links).toHaveLength(1);
     });
 
+    it('keeps quick replies visible when a newer agent message without replies arrives', async () => {
+      const agent = new ChatMessage({
+        id: 210,
+        role: 'AGENT',
+        type: 'text',
+        timestamp,
+        content: 'Pick one',
+        buttons: [
+          { text: 'Yes', type: 'reply' },
+          { text: 'No', type: 'reply' },
+        ],
+      });
+      const list = await renderList([agent]);
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 211,
+          role: 'AGENT',
+          timestamp,
+          content: 'Any time now',
+        }),
+        agent,
+      ];
+      await list.updateComplete;
+
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
+      await (quickReplies as LitElement).updateComplete;
+
+      const chips =
+        quickReplies!.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+          '.chips button'
+        );
+      expect([...chips].map((c) => c.textContent?.trim())).toEqual([
+        'Yes',
+        'No',
+      ]);
+    });
+
+    it('overrides quick replies with those of a newer agent message', async () => {
+      const agent = new ChatMessage({
+        id: 212,
+        role: 'AGENT',
+        type: 'text',
+        timestamp,
+        content: 'Pick one',
+        buttons: [{ text: 'Yes', type: 'reply' }],
+      });
+      const list = await renderList([agent]);
+
+      list.chatMessages = [
+        new ChatMessage({
+          id: 213,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'Pick again',
+          buttons: [{ text: 'Later', type: 'reply' }],
+        }),
+        agent,
+      ];
+      await list.updateComplete;
+
+      const quickReplies = list.shadowRoot!.querySelector(
+        'yalo-chat-quick-replies'
+      );
+      await (quickReplies as LitElement).updateComplete;
+
+      const chips =
+        quickReplies!.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+          '.chips button'
+        );
+      expect([...chips].map((c) => c.textContent?.trim())).toEqual(['Later']);
+    });
+
     it('dispatches yalo-chat-send-text-message when a quick reply chip is clicked', async () => {
       const list = await renderList([
         new ChatMessage({
