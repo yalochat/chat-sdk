@@ -13,7 +13,7 @@ enum PageDirection { initial, next }
 enum UnitType { unit, subunit }
 
 // Event that should be called to load messages in the chat
-final class ChatLoadMessages extends MessagesEvent with EquatableMixin {
+final class ChatLoadMessages extends MessagesEvent with Equatable {
   final PageDirection direction;
 
   const ChatLoadMessages({this.direction = PageDirection.initial});
@@ -22,13 +22,13 @@ final class ChatLoadMessages extends MessagesEvent with EquatableMixin {
 }
 
 // Event that is emitted to subscribe to yalo messages messages
-final class ChatSubscribeToMessages extends MessagesEvent with EquatableMixin {
+final class ChatSubscribeToMessages extends MessagesEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 // Event that is emitted to update the user message
-final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
+final class ChatUpdateUserMessage extends MessagesEvent with Equatable {
   // The value to set to the user message.
   final String value;
 
@@ -40,7 +40,7 @@ final class ChatUpdateUserMessage extends MessagesEvent with EquatableMixin {
 
 // Event to add a quantity to a product
 final class ChatUpdateProductQuantity extends MessagesEvent
-    with EquatableMixin {
+    with Equatable {
   final int messageId;
   final String productSku;
   final UnitType unitType;
@@ -60,7 +60,7 @@ final class ChatUpdateProductQuantity extends MessagesEvent
 // Emitted when the user presses the add to cart button of a product card.
 // Marks the product as in the cart and sends its absolute units and subunits
 // as an update cart product request.
-final class ChatAddProductToCart extends MessagesEvent with EquatableMixin {
+final class ChatAddProductToCart extends MessagesEvent with Equatable {
   final int messageId;
   final String productSku;
 
@@ -71,7 +71,7 @@ final class ChatAddProductToCart extends MessagesEvent with EquatableMixin {
 }
 
 // Expands a toggeable message, like carousels or list products
-final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
+final class ChatToggleMessageExpand extends MessagesEvent with Equatable {
   final int messageId;
 
   ChatToggleMessageExpand({required this.messageId});
@@ -81,7 +81,7 @@ final class ChatToggleMessageExpand extends MessagesEvent with EquatableMixin {
 }
 
 // Clear quick replies from GUI
-final class ChatClearQuickReplies extends MessagesEvent with EquatableMixin {
+final class ChatClearQuickReplies extends MessagesEvent with Equatable {
   ChatClearQuickReplies();
 
   @override
@@ -91,7 +91,7 @@ final class ChatClearQuickReplies extends MessagesEvent with EquatableMixin {
 // Emitted when the user confirms a product confirmation card. Marks the card
 // as confirmed and forwards the product units to the active cart.
 final class ChatConfirmProductConfirmation extends MessagesEvent
-    with EquatableMixin {
+    with Equatable {
   final int messageId;
 
   ChatConfirmProductConfirmation({required this.messageId});
@@ -101,7 +101,7 @@ final class ChatConfirmProductConfirmation extends MessagesEvent
 }
 
 // Event to send a text message
-final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
+final class ChatSendTextMessage extends MessagesEvent with Equatable {
   // text is an optional field to send text messages without a update event.
   // If text is defined it takes precedence over userMessage
   final String? text;
@@ -111,7 +111,7 @@ final class ChatSendTextMessage extends MessagesEvent with EquatableMixin {
 }
 
 // Event to send a voice message
-final class ChatSendVoiceMessage extends MessagesEvent with EquatableMixin {
+final class ChatSendVoiceMessage extends MessagesEvent with Equatable {
   final AudioData audioData;
   ChatSendVoiceMessage({required this.audioData});
   @override
@@ -119,7 +119,7 @@ final class ChatSendVoiceMessage extends MessagesEvent with EquatableMixin {
 }
 
 // Event to send a image message
-final class ChatSendImageMessage extends MessagesEvent with EquatableMixin {
+final class ChatSendImageMessage extends MessagesEvent with Equatable {
   final ImageData imageData;
   final String text;
 
@@ -129,13 +129,13 @@ final class ChatSendImageMessage extends MessagesEvent with EquatableMixin {
 }
 
 // Event that is emitted to clear the messages
-final class ChatClearMessages extends MessagesEvent with EquatableMixin {
+final class ChatClearMessages extends MessagesEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 // Event to retry sending a user message that previously failed to deliver.
-final class ChatRetryMessage extends MessagesEvent with EquatableMixin {
+final class ChatRetryMessage extends MessagesEvent with Equatable {
   final int messageId;
 
   ChatRetryMessage({required this.messageId});
@@ -147,7 +147,7 @@ final class ChatRetryMessage extends MessagesEvent with EquatableMixin {
 // Emitted internally when the await-response timer expires without an
 // assistant message having arrived. Clears the loading indicator.
 final class ChatAwaitResponseTimedOut extends MessagesEvent
-    with EquatableMixin {
+    with Equatable {
   const ChatAwaitResponseTimedOut();
   @override
   List<Object?> get props => [];

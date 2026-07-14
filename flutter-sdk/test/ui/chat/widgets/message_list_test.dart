@@ -552,6 +552,10 @@ void main() {
         when(
           () => mockVideoPlayerPlatform.setMixWithOthers(any()),
         ).thenAnswer((_) async {});
+        when(
+          () => mockVideoPlayerPlatform
+              .setPreventsDisplaySleepDuringVideoPlayback(any(), any()),
+        ).thenAnswer((_) async {});
       });
 
       testWidgets(
@@ -758,6 +762,10 @@ void main() {
         ).thenAnswer((_) async {});
         when(
           () => mockVideoPlayerPlatform.setMixWithOthers(any()),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockVideoPlayerPlatform
+              .setPreventsDisplaySleepDuringVideoPlayback(any(), any()),
         ).thenAnswer((_) async {});
       });
 

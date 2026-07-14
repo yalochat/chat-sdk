@@ -1268,6 +1268,62 @@ void main() {
       );
 
       blocTest<MessagesBloc, MessagesState>(
+        'should surface quick replies from an earlier assistant message when the latest one has none on initial load',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        act: (bloc) {
+          when(
+            () => chatMessageRepository.getChatMessagePageDesc(
+              null,
+              SdkConstants.defaultPageSize,
+            ),
+          ).thenAnswer(
+            (_) async => Result.ok(
+              Page<ChatMessage>(
+                data: [
+                  ChatMessage(
+                    id: 2,
+                    role: MessageRole.assistant,
+                    type: MessageType.text,
+                    content: 'Working on it',
+                    timestamp: fixedClock.now(),
+                  ),
+                  ChatMessage(
+                    id: 1,
+                    role: MessageRole.assistant,
+                    type: MessageType.text,
+                    content: 'How can I help?',
+                    buttons: const [
+                      Button(text: 'Track order', type: ButtonType.reply),
+                    ],
+                    timestamp: fixedClock.now(),
+                  ),
+                ],
+                pageInfo: PageInfo(pageSize: SdkConstants.defaultPageSize),
+              ),
+            ),
+          );
+          bloc.add(ChatLoadMessages(direction: PageDirection.initial));
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (state) => state.isLoading,
+            'is loading',
+            equals(true),
+          ),
+          isA<MessagesState>().having(
+            (state) => state.quickReplies,
+            'quickReplies',
+            equals(['Track order']),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
         'should request the guidance card when the initial page is empty',
         build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
@@ -1706,7 +1762,7 @@ void main() {
       );
 
       blocTest<MessagesBloc, MessagesState>(
-        'should clear previously shown quick replies when a new assistant message without reply buttons arrives',
+        'should keep previously shown quick replies when a new assistant message without reply buttons arrives',
         build: () => MessagesBloc(
           chatMessageRepository: chatMessageRepository,
           imageRepository: imageRepository,
@@ -1735,7 +1791,43 @@ void main() {
           isA<MessagesState>().having(
             (s) => s.quickReplies,
             'quickReplies',
-            isEmpty,
+            equals(['Yes', 'No']),
+          ),
+        ],
+      );
+
+      blocTest<MessagesBloc, MessagesState>(
+        'should override previously shown quick replies when a new assistant message with reply buttons arrives',
+        build: () => MessagesBloc(
+          chatMessageRepository: chatMessageRepository,
+          imageRepository: imageRepository,
+          yaloMessageRepository: yaloMessageRepository,
+          clock: fixedClock,
+        ),
+        seed: () => MessagesState(quickReplies: ['Yes', 'No']),
+        act: (bloc) {
+          final chatMessageStub = ChatMessage(
+            role: MessageRole.assistant,
+            type: MessageType.text,
+            content: 'Pick again',
+            buttons: const [Button(text: 'Later', type: ButtonType.reply)],
+            timestamp: fixedClock.now(),
+          );
+          when(
+            () => yaloMessageRepository.messages(),
+          ).thenAnswer((_) => fakeStream.stream.asBroadcastStream());
+          when(
+            () => chatMessageRepository.insertChatMessage(chatMessageStub),
+          ).thenAnswer((_) async => Result.ok(chatMessageStub.copyWith(id: 1)));
+          bloc.add(ChatSubscribeToMessages());
+
+          fakeStream.sink.add(chatMessageStub);
+        },
+        expect: () => [
+          isA<MessagesState>().having(
+            (s) => s.quickReplies,
+            'quickReplies',
+            equals(['Later']),
           ),
         ],
       );

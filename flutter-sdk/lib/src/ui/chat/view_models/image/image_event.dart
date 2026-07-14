@@ -4,27 +4,27 @@ import 'package:equatable/equatable.dart';
 
 sealed class ImageEvent {}
 
-final class ImagePickFromCamera extends ImageEvent with EquatableMixin {
+final class ImagePickFromCamera extends ImageEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
-final class ImagePickFromGallery extends ImageEvent with EquatableMixin {
+final class ImagePickFromGallery extends ImageEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
-final class ImageCancelPick extends ImageEvent with EquatableMixin {
+final class ImageCancelPick extends ImageEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
-final class ImageHidePreview extends ImageEvent with EquatableMixin {
+final class ImageHidePreview extends ImageEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
-final class ImageShowPreview extends ImageEvent with EquatableMixin {
+final class ImageShowPreview extends ImageEvent with Equatable {
   @override
   List<Object?> get props => [];
 }

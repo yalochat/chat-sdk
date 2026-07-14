@@ -147,6 +147,23 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
         .toList();
   }
 
+  // Finds the quick replies that should currently show, scanning from the most
+  // recent message. Assistant messages without reply buttons are skipped so the
+  // last offered replies stay visible, but a user message clears them. Messages
+  // arrive newest first.
+  List<String> _quickRepliesFromHistory(List<ChatMessage> messages) {
+    for (final ChatMessage message in messages) {
+      if (message.role == MessageRole.user) {
+        return const [];
+      }
+      final List<String> replies = _quickRepliesFrom(message);
+      if (replies.isNotEmpty) {
+        return replies;
+      }
+    }
+    return const [];
+  }
+
   // Event that handles the pagination of messages
   Future<void> _handleFetchMessages(
     ChatLoadMessages event,
@@ -177,11 +194,12 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
           ...newMessages.result.data,
         ];
         // On the first load, surface the quick replies offered by the most
-        // recent message so they survive closing and reopening the chat.
-        // Pagination loads older messages, so it leaves the replies untouched.
+        // recent message that carries them so they survive closing and
+        // reopening the chat. Pagination loads older messages, so it leaves the
+        // replies untouched.
         final List<String> quickReplies =
             event.direction == PageDirection.initial && messages.isNotEmpty
-            ? _quickRepliesFrom(messages.first)
+            ? _quickRepliesFromHistory(messages)
             : state.quickReplies;
         emit(
           state.copyWith(
@@ -268,11 +286,15 @@ class MessagesBloc extends Bloc<MessagesEvent, MessagesState>
         log.fine('Inserted message received with id ${chatMessage.id}');
         _awaitResponseTimer?.cancel();
         _awaitResponseTimer = null;
-        // Quick replies always reflect the latest message, so an assistant
-        // message without reply buttons clears any previously shown ones.
+        // Quick replies persist until the user acts or a newer assistant
+        // message offers its own. An assistant message without reply buttons
+        // keeps the previously shown ones visible.
+        final List<String> incomingReplies = _quickRepliesFrom(chatMessage);
         return state.copyWith(
           messages: [chatMessage, ...state.messages],
-          quickReplies: _quickRepliesFrom(chatMessage),
+          quickReplies: incomingReplies.isNotEmpty
+              ? incomingReplies
+              : state.quickReplies,
           isAwaitingResponse: false,
         );
       },

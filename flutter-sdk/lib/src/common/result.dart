@@ -19,7 +19,7 @@ sealed class Result<T> {
 }
 
 // Ok holds a valid return value
-final class Ok<T> extends Result<T> with EquatableMixin {
+final class Ok<T> extends Result<T> with Equatable {
   final T result;
   const Ok._(this.result);
 
@@ -28,7 +28,7 @@ final class Ok<T> extends Result<T> with EquatableMixin {
 }
 
 // Error holds an exception that need to be handler by the caller
-final class Error<T> extends Result<T> with EquatableMixin {
+final class Error<T> extends Result<T> with Equatable {
   // The exception that was thrown
   final Exception error;
   const Error._(this.error);

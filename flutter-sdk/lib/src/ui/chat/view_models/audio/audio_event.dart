@@ -5,25 +5,25 @@ import 'package:equatable/equatable.dart';
 
 sealed class AudioEvent {}
 
-final class AudioAmplitudeSubscribe extends AudioEvent with EquatableMixin {
+final class AudioAmplitudeSubscribe extends AudioEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 // Event that starts recording audio
-final class AudioStartRecording extends AudioEvent with EquatableMixin {
+final class AudioStartRecording extends AudioEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 // Event that stops recording audio
-final class AudioStopRecording extends AudioEvent with EquatableMixin {
+final class AudioStopRecording extends AudioEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 // Event that starts playing an audio
-final class AudioPlay extends AudioEvent with EquatableMixin {
+final class AudioPlay extends AudioEvent with Equatable {
   final ChatMessage message;
   AudioPlay({required this.message});
   @override
@@ -31,13 +31,13 @@ final class AudioPlay extends AudioEvent with EquatableMixin {
 }
 
 // Event that stops playing audio
-final class AudioStop extends AudioEvent with EquatableMixin {
+final class AudioStop extends AudioEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
 
 // Event to subscribe to a stream that emits events if an audio has been stopped playing
-final class AudioCompletedSubscribe extends AudioEvent with EquatableMixin {
+final class AudioCompletedSubscribe extends AudioEvent with Equatable {
   @override
   List<Object?> get props => [];
 }
