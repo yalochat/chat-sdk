@@ -96,7 +96,11 @@ export class WaveformPainter extends LitElement {
               @click=${() =>
                 this.dispatchEvent(new Event('yalo-chat-stop-voice-message'))}
             >
-              <span class="yalo-icon" data-icon="close" aria-hidden="true"></span>
+              <span
+                class="yalo-icon"
+                data-icon="close"
+                aria-hidden="true"
+              ></span>
             </button>`
           : nothing}
       </div>
