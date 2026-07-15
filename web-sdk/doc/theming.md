@@ -193,6 +193,14 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
 
   /* Color of the placeholder shown inside the message input field when empty. */
   --yalo-chat-input-placeholder-color: #757575;
+
+  /* Color of the scrollbar thumb shown inside the message input field
+     when the typed text is tall enough to scroll. */
+  --yalo-chat-input-scrollbar-color: #bdbdbd;
+
+  /* Background color of the scrollbar track inside the message input field.
+     Defaults to transparent so it blends with the input. */
+  --yalo-chat-input-scrollbar-track-color: transparent;
 }
 ```
 

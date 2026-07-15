@@ -48,7 +48,21 @@ export class ChatFooter extends LitElement {
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
-      scrollbar-width: none;
+      scrollbar-color: var(--yalo-chat-input-scrollbar-color, #bdbdbd)
+        var(--yalo-chat-input-scrollbar-track-color, transparent);
+    }
+
+    .chat-input::-webkit-scrollbar {
+      width: 0.375em;
+    }
+
+    .chat-input::-webkit-scrollbar-track {
+      background: var(--yalo-chat-input-scrollbar-track-color, transparent);
+    }
+
+    .chat-input::-webkit-scrollbar-thumb {
+      background: var(--yalo-chat-input-scrollbar-color, #bdbdbd);
+      border-radius: 1rem;
     }
 
     .chat-input-wrapper {
