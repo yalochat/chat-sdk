@@ -143,6 +143,9 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Text color for the channel name and status text in the header. */
   --yalo-chat-header-color: #010101;
 
+  /* Font size of the channel name (header title). */
+  --yalo-chat-header-title-font-size: 1.2rem;
+
   /* Display of the chat header bar. Set to `none` to hide the header.
      This is the CSS equivalent of the `hideHeader` config property. */
   --yalo-chat-header-display: flex;
@@ -157,6 +160,13 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Font size of the Material Symbols icons rendered inside the header
      (close button). */
   --yalo-chat-header-icon-font-size: 1.5rem;
+
+  /* Width of the header image icon (the logo shown next to the title). */
+  --yalo-chat-header-icon-width: 3rem;
+
+  /* Height of the header image icon. Defaults to `auto` so the image keeps
+     its aspect ratio. */
+  --yalo-chat-header-icon-height: auto;
 
   /* Border radius of the chat header bar. Accepts any CSS border-radius
      shorthand, so you can round just the top corners with values like

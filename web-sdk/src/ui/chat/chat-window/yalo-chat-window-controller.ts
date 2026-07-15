@@ -214,7 +214,22 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.logger.error('Unable to request guidance cards', {
         error: result.error,
       });
+      return;
     }
+    this._startWritingIndicator();
+  }
+
+  // Shows the loading animation and schedules its automatic removal. The
+  // indicator is also cleared early when a message arrives. Any indicator
+  // already in flight is reset so its timeout does not fire prematurely.
+  private _startWritingIndicator(): void {
+    clearTimeout(this._writingTimeout);
+    this.isWriting = true;
+    this.host.requestUpdate();
+    this._writingTimeout = setTimeout(() => {
+      this.isWriting = false;
+      this.host.requestUpdate();
+    }, this._writingTimeoutMs);
   }
 
   async sendTextMessage(e: CustomEvent) {
@@ -244,12 +259,7 @@ export default class YaloChatWindowController implements ReactiveController {
       });
     }
 
-    this.isWriting = true;
-    this.host.requestUpdate();
-    this._writingTimeout = setTimeout(() => {
-      this.isWriting = false;
-      this.host.requestUpdate();
-    }, this._writingTimeoutMs);
+    this._startWritingIndicator();
   }
 
   async sendVoiceMessage(e: CustomEvent) {
@@ -282,12 +292,7 @@ export default class YaloChatWindowController implements ReactiveController {
       });
     }
 
-    this.isWriting = true;
-    this.host.requestUpdate();
-    this._writingTimeout = setTimeout(() => {
-      this.isWriting = false;
-      this.host.requestUpdate();
-    }, this._writingTimeoutMs);
+    this._startWritingIndicator();
   }
 
   async sendAttachmentMessage(e: CustomEvent) {
@@ -322,12 +327,7 @@ export default class YaloChatWindowController implements ReactiveController {
       });
     }
 
-    this.isWriting = true;
-    this.host.requestUpdate();
-    this._writingTimeout = setTimeout(() => {
-      this.isWriting = false;
-      this.host.requestUpdate();
-    }, this._writingTimeoutMs);
+    this._startWritingIndicator();
   }
 
   async sendImageMessage(e: CustomEvent) {
@@ -360,12 +360,7 @@ export default class YaloChatWindowController implements ReactiveController {
       });
     }
 
-    this.isWriting = true;
-    this.host.requestUpdate();
-    this._writingTimeout = setTimeout(() => {
-      this.isWriting = false;
-      this.host.requestUpdate();
-    }, this._writingTimeoutMs);
+    this._startWritingIndicator();
   }
 
   async retryMessage(e: CustomEvent) {

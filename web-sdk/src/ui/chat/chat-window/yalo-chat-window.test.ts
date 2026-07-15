@@ -2159,6 +2159,33 @@ describe('YaloChatWindow guidance card on first open', () => {
     expect(requestSpy).not.toHaveBeenCalled();
   });
 
+  it('shows the loading animation after requesting a guidance card', async () => {
+    const window = await createWith();
+    vi.spyOn(
+      window.yaloMessageRepository,
+      'requestGuidanceCard'
+    ).mockResolvedValue(new Ok(undefined));
+
+    window.open = true;
+    await window.updateComplete;
+
+    await vi.waitUntil(() => getMessageList(window).isWriting === true);
+  });
+
+  it('does not show the loading animation when the guidance card request fails', async () => {
+    const window = await createWith();
+    vi.spyOn(
+      window.yaloMessageRepository,
+      'requestGuidanceCard'
+    ).mockResolvedValue(new Err(new Error('socket closed')));
+
+    window.open = true;
+    await window.updateComplete;
+
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(getMessageList(window).isWriting).toBe(false);
+  });
+
   it('logs an error when the guidance card request fails', async () => {
     const window = await createWith();
     const errorSpy = vi.spyOn(window.logger, 'error');

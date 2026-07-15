@@ -29,15 +29,15 @@ export class ChatHeader extends LitElement {
     }
 
     .chat-header-title {
-      font-size: 1.2rem;
+      font-size: var(--yalo-chat-header-title-font-size, 1.2rem);
       padding: 0;
       margin: 0;
       font-weight: 600;
     }
 
     .header-icon {
-      width: 3rem;
-      height: auto;
+      width: var(--yalo-chat-header-icon-width, 3rem);
+      height: var(--yalo-chat-header-icon-height, auto);
     }
 
     .chat-status {
