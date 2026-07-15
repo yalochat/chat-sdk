@@ -31,6 +31,7 @@ export class ChatFooter extends LitElement {
       border: var(--yalo-chat-input-border, 1px solid #e8e8e8);
       border-radius: var(--yalo-chat-input-border-radius, 25.5px);
       padding: var(--yalo-chat-column-item-space, 8px);
+      display: flex;
     }
 
     .chat-input {
@@ -47,6 +48,7 @@ export class ChatFooter extends LitElement {
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
+      scrollbar-width: none;
     }
 
     .chat-input-wrapper {
@@ -97,6 +99,10 @@ export class ChatFooter extends LitElement {
       }
     }
 
+    .waveform-recorder {
+      width: 100%;
+    }
+
     .yalo-icon {
       font-size: var(--yalo-chat-footer-icon-font-size, 1.5rem);
       font-family: var(
@@ -120,6 +126,7 @@ export class ChatFooter extends LitElement {
 
     .chat-input-container {
       display: flex;
+      width: 100%;
     }
 
     .action-button-container {
@@ -260,6 +267,7 @@ export class ChatFooter extends LitElement {
           <div class="chat-input-box">
             ${this._audioController.status === 'recording'
               ? html`<yalo-chat-waveform-recorder
+                  class="waveform-recorder"
                   time=${this._audioController.formatTime(
                     this._audioController.elapsedMs
                   )}
