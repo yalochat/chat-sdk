@@ -33,6 +33,21 @@ export default class ChatMessageList extends LitElement {
       display: flex;
       flex-direction: column-reverse;
       overflow-anchor: none;
+      scrollbar-color: var(--yalo-chat-message-list-scrollbar-color, #bdbdbd)
+        var(--yalo-chat-message-list-scrollbar-track-color, transparent);
+    }
+
+    .message-list::-webkit-scrollbar {
+      width: 0.375em;
+    }
+
+    .message-list::-webkit-scrollbar-track {
+      background: var(--yalo-chat-message-list-scrollbar-track-color, transparent);
+    }
+
+    .message-list::-webkit-scrollbar-thumb {
+      background: var(--yalo-chat-message-list-scrollbar-color, #bdbdbd);
+      border-radius: 1rem;
     }
 
     .chat-message {

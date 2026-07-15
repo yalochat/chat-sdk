@@ -255,6 +255,14 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Font size of the Material Symbols icons rendered inside user message
      bubbles (the error indicator). */
   --yalo-chat-user-message-icon-font-size: 1.25rem;
+
+  /* Color of the scrollbar thumb shown on the message list when the
+     conversation is tall enough to scroll. */
+  --yalo-chat-message-list-scrollbar-color: #bdbdbd;
+
+  /* Background color of the message list scrollbar track.
+     Defaults to transparent so it blends with the conversation area. */
+  --yalo-chat-message-list-scrollbar-track-color: transparent;
 }
 ```
 
