@@ -12,6 +12,7 @@ import type {
   GetCartRequest,
   SdkMessage,
   SdkMessageAck,
+  UpdateCartProductRequest,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 import type { ChatCommandCallback } from '@domain/models/command/chat-command';
 import type {
@@ -684,6 +685,13 @@ export default class YaloChatWindowController implements ReactiveController {
       );
       return;
     }
+    if (message.updateCartProductRequest) {
+      await this._handleUpdateCartProductCommand(
+        message.correlationId,
+        message.updateCartProductRequest
+      );
+      return;
+    }
     if (message.customCommandRequest) {
       await this._handleCustomCommand(
         message.correlationId,
@@ -694,6 +702,51 @@ export default class YaloChatWindowController implements ReactiveController {
     this.host.logger.warn('Received unsupported channel command', {
       correlationId: message.correlationId,
     });
+  }
+
+  private async _handleUpdateCartProductCommand(
+    correlationId: string,
+    request: UpdateCartProductRequest
+  ): Promise<void> {
+    const handler = this.host.commands.get('updateCartProduct') as
+      | ChatCommandCallback
+      | undefined;
+    if (!handler) {
+      this.host.logger.warn('Received unregistered command', {
+        commandId: 'updateCartProduct',
+      });
+      return;
+    }
+
+    try {
+      await handler(request);
+    } catch (error) {
+      this.host.logger.error('Command handler threw', {
+        error,
+        commandId: 'updateCartProduct',
+      });
+      await this._sendUpdateCartProductResponse(correlationId, 'error');
+      return;
+    }
+
+    await this._sendUpdateCartProductResponse(correlationId, 'success');
+  }
+
+  private async _sendUpdateCartProductResponse(
+    correlationId: string,
+    status: 'success' | 'error'
+  ): Promise<void> {
+    const response =
+      await this.host.yaloMessageRepository.sendUpdateCartProductResponse(
+        correlationId,
+        status
+      );
+    if (!response.ok) {
+      this.host.logger.error('Unable to send update cart product response', {
+        error: response.error,
+        correlationId,
+      });
+    }
   }
 
   private async _handleGetCartCommand(

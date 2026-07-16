@@ -48,6 +48,13 @@ export abstract class YaloMessageRepository {
     payload: string
   ): Promise<Result<void>>;
 
+  // Replies to an UpdateCartProductRequest from the channel. The correlationId
+  // must match the one received on the request so the channel can correlate it.
+  abstract sendUpdateCartProductResponse(
+    correlationId: string,
+    status: CommandResponseStatus
+  ): Promise<Result<void>>;
+
   // Replies to a GetCartRequest from the channel with the page of cart
   // products the host returned. The correlationId must match the one received
   // on the request so the channel can correlate it.
