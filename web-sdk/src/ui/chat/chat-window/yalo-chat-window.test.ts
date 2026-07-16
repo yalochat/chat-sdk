@@ -1966,6 +1966,65 @@ describe('YaloChatWindow get cart command', () => {
     });
     expect(sendSpy).not.toHaveBeenCalled();
   });
+
+  const updateCartProductMessage = (
+    request = {},
+    correlationId = 'update-1'
+  ): SdkMessage => ({
+    correlationId,
+    timestamp: new Date(),
+    updateCartProductRequest: {
+      sku: 'sku-1',
+      units: 2,
+      subunits: undefined,
+      timestamp: undefined,
+      ...request,
+    },
+  });
+
+  it('runs the updateCartProduct handler and sends a success response', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendUpdateCartProductResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const handler = vi.fn().mockResolvedValue(undefined);
+    el.commands = new Map([['updateCartProduct', handler]]);
+
+    subscribeCallback!(updateCartProductMessage());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(handler).toHaveBeenCalledWith(
+      expect.objectContaining({ sku: 'sku-1', units: 2 })
+    );
+    expect(sendSpy).toHaveBeenCalledWith('update-1', 'success');
+  });
+
+  it('sends an error response when the updateCartProduct handler throws', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendUpdateCartProductResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const handler = vi.fn().mockRejectedValue(new Error('boom'));
+    el.commands = new Map([['updateCartProduct', handler]]);
+
+    subscribeCallback!(updateCartProductMessage());
+
+    await vi.waitUntil(() => sendSpy.mock.calls.length > 0);
+    expect(sendSpy).toHaveBeenCalledWith('update-1', 'error');
+  });
+
+  it('logs a warning and sends no response when no updateCartProduct handler is registered', async () => {
+    const sendSpy = vi
+      .spyOn(el.yaloMessageRepository, 'sendUpdateCartProductResponse')
+      .mockResolvedValue(new Ok(undefined));
+    const warnSpy = vi.spyOn(el.logger, 'warn').mockReturnValue();
+
+    subscribeCallback!(updateCartProductMessage());
+
+    await vi.waitUntil(() => warnSpy.mock.calls.length > 0);
+    expect(warnSpy).toHaveBeenCalledWith('Received unregistered command', {
+      commandId: 'updateCartProduct',
+    });
+    expect(sendSpy).not.toHaveBeenCalled();
+  });
 });
 
 describe('YaloChatWindow pagination', () => {

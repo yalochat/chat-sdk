@@ -136,6 +136,24 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     });
   }
 
+  async sendUpdateCartProductResponse(
+    correlationId: string,
+    status: CommandResponseStatus
+  ): Promise<Result<void>> {
+    const timestamp = new Date();
+    return this._service.sendMessage({
+      correlationId,
+      updateCartProductResponse: {
+        status:
+          status === 'success'
+            ? ResponseStatus.RESPONSE_STATUS_SUCCESS
+            : ResponseStatus.RESPONSE_STATUS_ERROR,
+        timestamp,
+      },
+      timestamp,
+    });
+  }
+
   async sendGetCartResponse(
     correlationId: string,
     status: CommandResponseStatus,
@@ -164,7 +182,11 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         callback(event);
         return;
       }
-      if (event.message?.customCommandRequest || event.message?.getCartRequest) {
+      if (
+        event.message?.customCommandRequest ||
+        event.message?.getCartRequest ||
+        event.message?.updateCartProductRequest
+      ) {
         callback(event.message);
         return;
       }

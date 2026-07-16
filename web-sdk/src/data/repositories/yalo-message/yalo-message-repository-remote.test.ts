@@ -558,6 +558,59 @@ describe('YaloMessageRepositoryRemote', () => {
     });
   });
 
+  describe('sendUpdateCartProductResponse', () => {
+    it('sends a success updateCartProductResponse echoing the correlation id', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      const result = await repo.sendUpdateCartProductResponse(
+        'update-1',
+        'success'
+      );
+
+      expect(result.ok).toBe(true);
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent).toMatchObject({
+        correlationId: 'update-1',
+        updateCartProductResponse: {
+          status: ResponseStatus.RESPONSE_STATUS_SUCCESS,
+        },
+      });
+      expect(sent.updateCartProductResponse.timestamp).toBeInstanceOf(Date);
+    });
+
+    it('maps an error status to RESPONSE_STATUS_ERROR', async () => {
+      const { service } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+      await repo.sendUpdateCartProductResponse('update-2', 'error');
+
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
+      expect(sent.updateCartProductResponse).toMatchObject({
+        status: ResponseStatus.RESPONSE_STATUS_ERROR,
+      });
+    });
+
+    it('propagates send failures', async () => {
+      const repo = new YaloMessageRepositoryRemote(
+        failingService(new Error('socket closed')),
+        okMedia()
+      );
+
+      const result = await repo.sendUpdateCartProductResponse(
+        'update-3',
+        'success'
+      );
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('socket closed');
+      }
+    });
+  });
+
   describe('subscribeToMessages', () => {
     it('subscribes to the service exactly once', () => {
       const { service } = okService();
@@ -647,6 +700,38 @@ describe('YaloMessageRepositoryRemote', () => {
         correlationId: 'corr-cart',
         getCartRequest: {
           pageSize: 10,
+        },
+      });
+    });
+
+    it('forwards an updateCartProductRequest frame as the raw SdkMessage', () => {
+      const { service, emit } = okService();
+      const repo = new YaloMessageRepositoryRemote(service, okMedia());
+      const callback = vi.fn();
+      repo.subscribeToMessages(callback);
+
+      emit({
+        id: 'update-cmd-1',
+        userId: 'u',
+        status: 0,
+        message: {
+          correlationId: 'corr-update',
+          timestamp: new Date(),
+          updateCartProductRequest: {
+            sku: 'SKU-1',
+            units: 2,
+            subunits: undefined,
+            timestamp: undefined,
+          },
+        },
+      });
+
+      expect(callback).toHaveBeenCalledOnce();
+      expect(callback.mock.calls[0][0]).toMatchObject({
+        correlationId: 'corr-update',
+        updateCartProductRequest: {
+          sku: 'SKU-1',
+          units: 2,
         },
       });
     });
