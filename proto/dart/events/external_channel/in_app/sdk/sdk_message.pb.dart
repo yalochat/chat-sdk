@@ -48,8 +48,6 @@ enum SdkMessage_Payload {
   customCommandRequest,
   customCommandResponse,
   videoMessageRequest,
-  getCommandsRequest,
-  getCommandsResponse,
   updateCartProductRequest,
   updateCartProductResponse,
   productConfirmationMessageRequest,
@@ -90,8 +88,6 @@ class SdkMessage extends $pb.GeneratedMessage {
     CustomCommandRequest? customCommandRequest,
     CustomCommandResponse? customCommandResponse,
     VideoMessageRequest? videoMessageRequest,
-    GetCommandsRequest? getCommandsRequest,
-    GetCommandsResponse? getCommandsResponse,
     UpdateCartProductRequest? updateCartProductRequest,
     UpdateCartProductResponse? updateCartProductResponse,
     ProductConfirmationMessageRequest? productConfirmationMessageRequest,
@@ -145,10 +141,6 @@ class SdkMessage extends $pb.GeneratedMessage {
       result.customCommandResponse = customCommandResponse;
     if (videoMessageRequest != null)
       result.videoMessageRequest = videoMessageRequest;
-    if (getCommandsRequest != null)
-      result.getCommandsRequest = getCommandsRequest;
-    if (getCommandsResponse != null)
-      result.getCommandsResponse = getCommandsResponse;
     if (updateCartProductRequest != null)
       result.updateCartProductRequest = updateCartProductRequest;
     if (updateCartProductResponse != null)
@@ -199,8 +191,6 @@ class SdkMessage extends $pb.GeneratedMessage {
     36: SdkMessage_Payload.customCommandRequest,
     37: SdkMessage_Payload.customCommandResponse,
     38: SdkMessage_Payload.videoMessageRequest,
-    44: SdkMessage_Payload.getCommandsRequest,
-    45: SdkMessage_Payload.getCommandsResponse,
     46: SdkMessage_Payload.updateCartProductRequest,
     47: SdkMessage_Payload.updateCartProductResponse,
     48: SdkMessage_Payload.productConfirmationMessageRequest,
@@ -239,8 +229,6 @@ class SdkMessage extends $pb.GeneratedMessage {
       36,
       37,
       38,
-      44,
-      45,
       46,
       47,
       48,
@@ -312,10 +300,6 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: CustomCommandResponse.create)
     ..aOM<VideoMessageRequest>(38, _omitFieldNames ? '' : 'videoMessageRequest',
         subBuilder: VideoMessageRequest.create)
-    ..aOM<GetCommandsRequest>(44, _omitFieldNames ? '' : 'getCommandsRequest',
-        subBuilder: GetCommandsRequest.create)
-    ..aOM<GetCommandsResponse>(45, _omitFieldNames ? '' : 'getCommandsResponse',
-        subBuilder: GetCommandsResponse.create)
     ..aOM<UpdateCartProductRequest>(
         46, _omitFieldNames ? '' : 'updateCartProductRequest',
         subBuilder: UpdateCartProductRequest.create)
@@ -376,8 +360,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
   @$pb.TagNumber(38)
-  @$pb.TagNumber(44)
-  @$pb.TagNumber(45)
   @$pb.TagNumber(46)
   @$pb.TagNumber(47)
   @$pb.TagNumber(48)
@@ -410,8 +392,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(36)
   @$pb.TagNumber(37)
   @$pb.TagNumber(38)
-  @$pb.TagNumber(44)
-  @$pb.TagNumber(45)
   @$pb.TagNumber(46)
   @$pb.TagNumber(47)
   @$pb.TagNumber(48)
@@ -500,7 +480,6 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(18)
   AttachmentMessageRequest ensureAttachmentMessageRequest() => $_ensure(6);
 
-  /// Client → channel
   @$pb.TagNumber(20)
   AddToCartRequest get addToCartRequest => $_getN(7);
   @$pb.TagNumber(20)
@@ -569,6 +548,7 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(25)
   ClearCartResponse ensureClearCartResponse() => $_ensure(12);
 
+  /// Client → channel
   @$pb.TagNumber(26)
   GuidanceCardRequest get guidanceCardRequest => $_getN(13);
   @$pb.TagNumber(26)
@@ -718,104 +698,81 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(38)
   VideoMessageRequest ensureVideoMessageRequest() => $_ensure(25);
 
-  /// Client → channel
-  @$pb.TagNumber(44)
-  GetCommandsRequest get getCommandsRequest => $_getN(26);
-  @$pb.TagNumber(44)
-  set getCommandsRequest(GetCommandsRequest value) => $_setField(44, value);
-  @$pb.TagNumber(44)
-  $core.bool hasGetCommandsRequest() => $_has(26);
-  @$pb.TagNumber(44)
-  void clearGetCommandsRequest() => $_clearField(44);
-  @$pb.TagNumber(44)
-  GetCommandsRequest ensureGetCommandsRequest() => $_ensure(26);
-
-  @$pb.TagNumber(45)
-  GetCommandsResponse get getCommandsResponse => $_getN(27);
-  @$pb.TagNumber(45)
-  set getCommandsResponse(GetCommandsResponse value) => $_setField(45, value);
-  @$pb.TagNumber(45)
-  $core.bool hasGetCommandsResponse() => $_has(27);
-  @$pb.TagNumber(45)
-  void clearGetCommandsResponse() => $_clearField(45);
-  @$pb.TagNumber(45)
-  GetCommandsResponse ensureGetCommandsResponse() => $_ensure(27);
-
   @$pb.TagNumber(46)
-  UpdateCartProductRequest get updateCartProductRequest => $_getN(28);
+  UpdateCartProductRequest get updateCartProductRequest => $_getN(26);
   @$pb.TagNumber(46)
   set updateCartProductRequest(UpdateCartProductRequest value) =>
       $_setField(46, value);
   @$pb.TagNumber(46)
-  $core.bool hasUpdateCartProductRequest() => $_has(28);
+  $core.bool hasUpdateCartProductRequest() => $_has(26);
   @$pb.TagNumber(46)
   void clearUpdateCartProductRequest() => $_clearField(46);
   @$pb.TagNumber(46)
-  UpdateCartProductRequest ensureUpdateCartProductRequest() => $_ensure(28);
+  UpdateCartProductRequest ensureUpdateCartProductRequest() => $_ensure(26);
 
   @$pb.TagNumber(47)
-  UpdateCartProductResponse get updateCartProductResponse => $_getN(29);
+  UpdateCartProductResponse get updateCartProductResponse => $_getN(27);
   @$pb.TagNumber(47)
   set updateCartProductResponse(UpdateCartProductResponse value) =>
       $_setField(47, value);
   @$pb.TagNumber(47)
-  $core.bool hasUpdateCartProductResponse() => $_has(29);
+  $core.bool hasUpdateCartProductResponse() => $_has(27);
   @$pb.TagNumber(47)
   void clearUpdateCartProductResponse() => $_clearField(47);
   @$pb.TagNumber(47)
-  UpdateCartProductResponse ensureUpdateCartProductResponse() => $_ensure(29);
+  UpdateCartProductResponse ensureUpdateCartProductResponse() => $_ensure(27);
 
   @$pb.TagNumber(48)
   ProductConfirmationMessageRequest get productConfirmationMessageRequest =>
-      $_getN(30);
+      $_getN(28);
   @$pb.TagNumber(48)
   set productConfirmationMessageRequest(
           ProductConfirmationMessageRequest value) =>
       $_setField(48, value);
   @$pb.TagNumber(48)
-  $core.bool hasProductConfirmationMessageRequest() => $_has(30);
+  $core.bool hasProductConfirmationMessageRequest() => $_has(28);
   @$pb.TagNumber(48)
   void clearProductConfirmationMessageRequest() => $_clearField(48);
   @$pb.TagNumber(48)
   ProductConfirmationMessageRequest ensureProductConfirmationMessageRequest() =>
-      $_ensure(30);
+      $_ensure(28);
 
   @$pb.TagNumber(49)
   ProductConfirmationMessageResponse get productConfirmationMessageResponse =>
-      $_getN(31);
+      $_getN(29);
   @$pb.TagNumber(49)
   set productConfirmationMessageResponse(
           ProductConfirmationMessageResponse value) =>
       $_setField(49, value);
   @$pb.TagNumber(49)
-  $core.bool hasProductConfirmationMessageResponse() => $_has(31);
+  $core.bool hasProductConfirmationMessageResponse() => $_has(29);
   @$pb.TagNumber(49)
   void clearProductConfirmationMessageResponse() => $_clearField(49);
   @$pb.TagNumber(49)
   ProductConfirmationMessageResponse
-      ensureProductConfirmationMessageResponse() => $_ensure(31);
+      ensureProductConfirmationMessageResponse() => $_ensure(29);
 
   @$pb.TagNumber(50)
-  GetCartRequest get getCartRequest => $_getN(32);
+  GetCartRequest get getCartRequest => $_getN(30);
   @$pb.TagNumber(50)
   set getCartRequest(GetCartRequest value) => $_setField(50, value);
   @$pb.TagNumber(50)
-  $core.bool hasGetCartRequest() => $_has(32);
+  $core.bool hasGetCartRequest() => $_has(30);
   @$pb.TagNumber(50)
   void clearGetCartRequest() => $_clearField(50);
   @$pb.TagNumber(50)
-  GetCartRequest ensureGetCartRequest() => $_ensure(32);
+  GetCartRequest ensureGetCartRequest() => $_ensure(30);
 
   @$pb.TagNumber(51)
-  GetCartResponse get getCartResponse => $_getN(33);
+  GetCartResponse get getCartResponse => $_getN(31);
   @$pb.TagNumber(51)
   set getCartResponse(GetCartResponse value) => $_setField(51, value);
   @$pb.TagNumber(51)
-  $core.bool hasGetCartResponse() => $_has(33);
+  $core.bool hasGetCartResponse() => $_has(31);
   @$pb.TagNumber(51)
   void clearGetCartResponse() => $_clearField(51);
   @$pb.TagNumber(51)
-  GetCartResponse ensureGetCartResponse() => $_ensure(33);
+  GetCartResponse ensureGetCartResponse() => $_ensure(31);
 }
 
 /// Button represents a single tappable option attached to a message.
@@ -4611,135 +4568,6 @@ class CustomCommandResponse extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(3);
   @$pb.TagNumber(3)
   $0.Timestamp ensureTimestamp() => $_ensure(2);
-}
-
-/// GetCommandsRequest is sent by the client to declare that it is ready to
-/// receive the list of commands it is able to execute.
-class GetCommandsRequest extends $pb.GeneratedMessage {
-  factory GetCommandsRequest({
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
-
-  GetCommandsRequest._();
-
-  factory GetCommandsRequest.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory GetCommandsRequest.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'GetCommandsRequest',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
-    ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetCommandsRequest clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetCommandsRequest copyWith(void Function(GetCommandsRequest) updates) =>
-      super.copyWith((message) => updates(message as GetCommandsRequest))
-          as GetCommandsRequest;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static GetCommandsRequest create() => GetCommandsRequest._();
-  @$core.override
-  GetCommandsRequest createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static GetCommandsRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetCommandsRequest>(create);
-  static GetCommandsRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $0.Timestamp get timestamp => $_getN(0);
-  @$pb.TagNumber(1)
-  set timestamp($0.Timestamp value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasTimestamp() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearTimestamp() => $_clearField(1);
-  @$pb.TagNumber(1)
-  $0.Timestamp ensureTimestamp() => $_ensure(0);
-}
-
-/// GetCommandsResponse declares which commands the SDK is able to execute,
-/// so the channel can decide which ones it may dispatch back to the client.
-class GetCommandsResponse extends $pb.GeneratedMessage {
-  factory GetCommandsResponse({
-    $core.Iterable<SdkCommand>? commands,
-    $0.Timestamp? timestamp,
-  }) {
-    final result = create();
-    if (commands != null) result.commands.addAll(commands);
-    if (timestamp != null) result.timestamp = timestamp;
-    return result;
-  }
-
-  GetCommandsResponse._();
-
-  factory GetCommandsResponse.fromBuffer($core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory GetCommandsResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'GetCommandsResponse',
-      package: const $pb.PackageName(
-          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
-    ..pc<SdkCommand>(1, _omitFieldNames ? '' : 'commands', $pb.PbFieldType.KE,
-        valueOf: SdkCommand.valueOf,
-        enumValues: SdkCommand.values,
-        defaultEnumValue: SdkCommand.SDK_COMMAND_UNSPECIFIED)
-    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetCommandsResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetCommandsResponse copyWith(void Function(GetCommandsResponse) updates) =>
-      super.copyWith((message) => updates(message as GetCommandsResponse))
-          as GetCommandsResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static GetCommandsResponse create() => GetCommandsResponse._();
-  @$core.override
-  GetCommandsResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static GetCommandsResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetCommandsResponse>(create);
-  static GetCommandsResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $pb.PbList<SdkCommand> get commands => $_getList(0);
-
-  @$pb.TagNumber(2)
-  $0.Timestamp get timestamp => $_getN(1);
-  @$pb.TagNumber(2)
-  set timestamp($0.Timestamp value) => $_setField(2, value);
-  @$pb.TagNumber(2)
-  $core.bool hasTimestamp() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearTimestamp() => $_clearField(2);
-  @$pb.TagNumber(2)
-  $0.Timestamp ensureTimestamp() => $_ensure(1);
 }
 
 /// AuthRequest is the body of POST /auth used to obtain an initial access token.
