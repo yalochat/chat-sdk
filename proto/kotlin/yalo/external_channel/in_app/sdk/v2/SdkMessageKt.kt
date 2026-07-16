@@ -244,10 +244,6 @@ public object SdkMessageKt {
     }
 
     /**
-     * ```
-     * Client → channel
-     * ```
-     *
      * `.yalo.external_channel.in_app.sdk.v2.AddToCartRequest add_to_cart_request = 20;`
      */
     public var addToCartRequest: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.AddToCartRequest
@@ -258,20 +254,12 @@ public object SdkMessageKt {
         _builder.addToCartRequest = value
       }
     /**
-     * ```
-     * Client → channel
-     * ```
-     *
      * `.yalo.external_channel.in_app.sdk.v2.AddToCartRequest add_to_cart_request = 20;`
      */
     public fun clearAddToCartRequest() {
       _builder.clearAddToCartRequest()
     }
     /**
-     * ```
-     * Client → channel
-     * ```
-     *
      * `.yalo.external_channel.in_app.sdk.v2.AddToCartRequest add_to_cart_request = 20;`
      * @return Whether the addToCartRequest field is set.
      */
@@ -397,54 +385,6 @@ public object SdkMessageKt {
      */
     public fun hasClearCartResponse(): kotlin.Boolean {
       return _builder.hasClearCartResponse()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest guidance_card_request = 26;`
-     */
-    public var guidanceCardRequest: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardRequest
-      @kotlin.jvm.JvmName("getGuidanceCardRequest")
-        get() = _builder.guidanceCardRequest
-      @kotlin.jvm.JvmName("setGuidanceCardRequest")
-        set(value) {
-        _builder.guidanceCardRequest = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest guidance_card_request = 26;`
-     */
-    public fun clearGuidanceCardRequest() {
-      _builder.clearGuidanceCardRequest()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest guidance_card_request = 26;`
-     * @return Whether the guidanceCardRequest field is set.
-     */
-    public fun hasGuidanceCardRequest(): kotlin.Boolean {
-      return _builder.hasGuidanceCardRequest()
-    }
-
-    /**
-     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse guidance_card_response = 27;`
-     */
-    public var guidanceCardResponse: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardResponse
-      @kotlin.jvm.JvmName("getGuidanceCardResponse")
-        get() = _builder.guidanceCardResponse
-      @kotlin.jvm.JvmName("setGuidanceCardResponse")
-        set(value) {
-        _builder.guidanceCardResponse = value
-      }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse guidance_card_response = 27;`
-     */
-    public fun clearGuidanceCardResponse() {
-      _builder.clearGuidanceCardResponse()
-    }
-    /**
-     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse guidance_card_response = 27;`
-     * @return Whether the guidanceCardResponse field is set.
-     */
-    public fun hasGuidanceCardResponse(): kotlin.Boolean {
-      return _builder.hasGuidanceCardResponse()
     }
 
     /**
@@ -848,59 +788,59 @@ public object SdkMessageKt {
      * Client → channel
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v2.GetCommandsRequest get_commands_request = 44;`
+     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest guidance_card_request = 26;`
      */
-    public var getCommandsRequest: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsRequest
-      @kotlin.jvm.JvmName("getGetCommandsRequest")
-        get() = _builder.getCommandsRequest
-      @kotlin.jvm.JvmName("setGetCommandsRequest")
+    public var guidanceCardRequest: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardRequest
+      @kotlin.jvm.JvmName("getGuidanceCardRequest")
+        get() = _builder.guidanceCardRequest
+      @kotlin.jvm.JvmName("setGuidanceCardRequest")
         set(value) {
-        _builder.getCommandsRequest = value
+        _builder.guidanceCardRequest = value
       }
     /**
      * ```
      * Client → channel
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v2.GetCommandsRequest get_commands_request = 44;`
+     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest guidance_card_request = 26;`
      */
-    public fun clearGetCommandsRequest() {
-      _builder.clearGetCommandsRequest()
+    public fun clearGuidanceCardRequest() {
+      _builder.clearGuidanceCardRequest()
     }
     /**
      * ```
      * Client → channel
      * ```
      *
-     * `.yalo.external_channel.in_app.sdk.v2.GetCommandsRequest get_commands_request = 44;`
-     * @return Whether the getCommandsRequest field is set.
+     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest guidance_card_request = 26;`
+     * @return Whether the guidanceCardRequest field is set.
      */
-    public fun hasGetCommandsRequest(): kotlin.Boolean {
-      return _builder.hasGetCommandsRequest()
+    public fun hasGuidanceCardRequest(): kotlin.Boolean {
+      return _builder.hasGuidanceCardRequest()
     }
 
     /**
-     * `.yalo.external_channel.in_app.sdk.v2.GetCommandsResponse get_commands_response = 45;`
+     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse guidance_card_response = 27;`
      */
-    public var getCommandsResponse: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsResponse
-      @kotlin.jvm.JvmName("getGetCommandsResponse")
-        get() = _builder.getCommandsResponse
-      @kotlin.jvm.JvmName("setGetCommandsResponse")
+    public var guidanceCardResponse: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardResponse
+      @kotlin.jvm.JvmName("getGuidanceCardResponse")
+        get() = _builder.guidanceCardResponse
+      @kotlin.jvm.JvmName("setGuidanceCardResponse")
         set(value) {
-        _builder.getCommandsResponse = value
+        _builder.guidanceCardResponse = value
       }
     /**
-     * `.yalo.external_channel.in_app.sdk.v2.GetCommandsResponse get_commands_response = 45;`
+     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse guidance_card_response = 27;`
      */
-    public fun clearGetCommandsResponse() {
-      _builder.clearGetCommandsResponse()
+    public fun clearGuidanceCardResponse() {
+      _builder.clearGuidanceCardResponse()
     }
     /**
-     * `.yalo.external_channel.in_app.sdk.v2.GetCommandsResponse get_commands_response = 45;`
-     * @return Whether the getCommandsResponse field is set.
+     * `.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse guidance_card_response = 27;`
+     * @return Whether the guidanceCardResponse field is set.
      */
-    public fun hasGetCommandsResponse(): kotlin.Boolean {
-      return _builder.hasGetCommandsResponse()
+    public fun hasGuidanceCardResponse(): kotlin.Boolean {
+      return _builder.hasGuidanceCardResponse()
     }
     public val payloadCase: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessage.PayloadCase
     @kotlin.jvm.JvmName("getPayloadCase")
@@ -953,12 +893,6 @@ public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOr
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.clearCartResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ClearCartResponse?
   get() = if (hasClearCartResponse()) getClearCartResponse() else null
 
-public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.guidanceCardRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardRequest?
-  get() = if (hasGuidanceCardRequest()) getGuidanceCardRequest() else null
-
-public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.guidanceCardResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardResponse?
-  get() = if (hasGuidanceCardResponse()) getGuidanceCardResponse() else null
-
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.addPromotionRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.AddPromotionRequest?
   get() = if (hasAddPromotionRequest()) getAddPromotionRequest() else null
 
@@ -1007,9 +941,9 @@ public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOr
 public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.productConfirmationMessageResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.ProductConfirmationMessageResponse?
   get() = if (hasProductConfirmationMessageResponse()) getProductConfirmationMessageResponse() else null
 
-public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsRequest?
-  get() = if (hasGetCommandsRequest()) getGetCommandsRequest() else null
+public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.guidanceCardRequestOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardRequest?
+  get() = if (hasGuidanceCardRequest()) getGuidanceCardRequest() else null
 
-public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.getCommandsResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GetCommandsResponse?
-  get() = if (hasGetCommandsResponse()) getGetCommandsResponse() else null
+public val yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.SdkMessageOrBuilder.guidanceCardResponseOrNull: yalo.external_channel.in_app.sdk.v2.SdkMessageOuterClass.GuidanceCardResponse?
+  get() = if (hasGuidanceCardResponse()) getGuidanceCardResponse() else null
 

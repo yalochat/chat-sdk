@@ -286,83 +286,6 @@ export function buttonTypeToJSON(object: ButtonType): string {
   }
 }
 
-/** SdkCommand enumerates the commands the SDK is able to execute on the client. */
-export const SdkCommand = {
-  SDK_COMMAND_UNSPECIFIED: 0,
-  SDK_COMMAND_ADD_TO_CART: 1,
-  SDK_COMMAND_REMOVE_FROM_CART: 2,
-  SDK_COMMAND_CLEAR_CART: 3,
-  SDK_COMMAND_GUIDANCE_CARD: 4,
-  SDK_COMMAND_ADD_PROMOTION: 5,
-  SDK_COMMAND_UPDATE_CART_PRODUCT: 6,
-  UNRECOGNIZED: -1,
-} as const;
-
-export type SdkCommand = typeof SdkCommand[keyof typeof SdkCommand];
-
-export namespace SdkCommand {
-  export type SDK_COMMAND_UNSPECIFIED = typeof SdkCommand.SDK_COMMAND_UNSPECIFIED;
-  export type SDK_COMMAND_ADD_TO_CART = typeof SdkCommand.SDK_COMMAND_ADD_TO_CART;
-  export type SDK_COMMAND_REMOVE_FROM_CART = typeof SdkCommand.SDK_COMMAND_REMOVE_FROM_CART;
-  export type SDK_COMMAND_CLEAR_CART = typeof SdkCommand.SDK_COMMAND_CLEAR_CART;
-  export type SDK_COMMAND_GUIDANCE_CARD = typeof SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
-  export type SDK_COMMAND_ADD_PROMOTION = typeof SdkCommand.SDK_COMMAND_ADD_PROMOTION;
-  export type SDK_COMMAND_UPDATE_CART_PRODUCT = typeof SdkCommand.SDK_COMMAND_UPDATE_CART_PRODUCT;
-  export type UNRECOGNIZED = typeof SdkCommand.UNRECOGNIZED;
-}
-
-export function sdkCommandFromJSON(object: any): SdkCommand {
-  switch (object) {
-    case 0:
-    case "SDK_COMMAND_UNSPECIFIED":
-      return SdkCommand.SDK_COMMAND_UNSPECIFIED;
-    case 1:
-    case "SDK_COMMAND_ADD_TO_CART":
-      return SdkCommand.SDK_COMMAND_ADD_TO_CART;
-    case 2:
-    case "SDK_COMMAND_REMOVE_FROM_CART":
-      return SdkCommand.SDK_COMMAND_REMOVE_FROM_CART;
-    case 3:
-    case "SDK_COMMAND_CLEAR_CART":
-      return SdkCommand.SDK_COMMAND_CLEAR_CART;
-    case 4:
-    case "SDK_COMMAND_GUIDANCE_CARD":
-      return SdkCommand.SDK_COMMAND_GUIDANCE_CARD;
-    case 5:
-    case "SDK_COMMAND_ADD_PROMOTION":
-      return SdkCommand.SDK_COMMAND_ADD_PROMOTION;
-    case 6:
-    case "SDK_COMMAND_UPDATE_CART_PRODUCT":
-      return SdkCommand.SDK_COMMAND_UPDATE_CART_PRODUCT;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return SdkCommand.UNRECOGNIZED;
-  }
-}
-
-export function sdkCommandToJSON(object: SdkCommand): string {
-  switch (object) {
-    case SdkCommand.SDK_COMMAND_UNSPECIFIED:
-      return "SDK_COMMAND_UNSPECIFIED";
-    case SdkCommand.SDK_COMMAND_ADD_TO_CART:
-      return "SDK_COMMAND_ADD_TO_CART";
-    case SdkCommand.SDK_COMMAND_REMOVE_FROM_CART:
-      return "SDK_COMMAND_REMOVE_FROM_CART";
-    case SdkCommand.SDK_COMMAND_CLEAR_CART:
-      return "SDK_COMMAND_CLEAR_CART";
-    case SdkCommand.SDK_COMMAND_GUIDANCE_CARD:
-      return "SDK_COMMAND_GUIDANCE_CARD";
-    case SdkCommand.SDK_COMMAND_ADD_PROMOTION:
-      return "SDK_COMMAND_ADD_PROMOTION";
-    case SdkCommand.SDK_COMMAND_UPDATE_CART_PRODUCT:
-      return "SDK_COMMAND_UPDATE_CART_PRODUCT";
-    case SdkCommand.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
 /** ConnectionAckType discriminates the variants of a ConnectionAck frame. */
 export const ConnectionAckType = {
   CONNECTION_ACK_TYPE_UNSPECIFIED: 0,
@@ -464,18 +387,13 @@ export interface SdkMessage {
   imageMessageRequest?: ImageMessageRequest | undefined;
   messageReceiptRequest?: MessageReceiptRequest | undefined;
   attachmentMessageRequest?: AttachmentMessageRequest | undefined;
-  videoMessageRequest?:
-    | VideoMessageRequest
-    | undefined;
-  /** Client → channel */
+  videoMessageRequest?: VideoMessageRequest | undefined;
   addToCartRequest?: AddToCartRequest | undefined;
   addToCartResponse?: AddToCartResponse | undefined;
   removeFromCartRequest?: RemoveFromCartRequest | undefined;
   removeFromCartResponse?: RemoveFromCartResponse | undefined;
   clearCartRequest?: ClearCartRequest | undefined;
   clearCartResponse?: ClearCartResponse | undefined;
-  guidanceCardRequest?: GuidanceCardRequest | undefined;
-  guidanceCardResponse?: GuidanceCardResponse | undefined;
   addPromotionRequest?: AddPromotionRequest | undefined;
   addPromotionResponse?: AddPromotionResponse | undefined;
   updateCartProductRequest?: UpdateCartProductRequest | undefined;
@@ -498,8 +416,8 @@ export interface SdkMessage {
     | ProductConfirmationMessageResponse
     | undefined;
   /** Client → channel */
-  getCommandsRequest?: GetCommandsRequest | undefined;
-  getCommandsResponse?: GetCommandsResponse | undefined;
+  guidanceCardRequest?: GuidanceCardRequest | undefined;
+  guidanceCardResponse?: GuidanceCardResponse | undefined;
 }
 
 /**
@@ -987,23 +905,6 @@ export interface CustomCommandResponse {
   timestamp: Date | undefined;
 }
 
-/**
- * GetCommandsRequest is sent by the client to declare that it is ready to
- * receive the list of commands it is able to execute.
- */
-export interface GetCommandsRequest {
-  timestamp: Date | undefined;
-}
-
-/**
- * GetCommandsResponse declares which commands the SDK is able to execute,
- * so the channel can decide which ones it may dispatch back to the client.
- */
-export interface GetCommandsResponse {
-  commands: SdkCommand[];
-  timestamp: Date | undefined;
-}
-
 /** AuthRequest is the body of POST /auth used to obtain an initial access token. */
 export interface AuthRequest {
   userType: string;
@@ -1093,8 +994,6 @@ function createBaseSdkMessage(): SdkMessage {
     removeFromCartResponse: undefined,
     clearCartRequest: undefined,
     clearCartResponse: undefined,
-    guidanceCardRequest: undefined,
-    guidanceCardResponse: undefined,
     addPromotionRequest: undefined,
     addPromotionResponse: undefined,
     updateCartProductRequest: undefined,
@@ -1111,8 +1010,8 @@ function createBaseSdkMessage(): SdkMessage {
     customCommandResponse: undefined,
     productConfirmationMessageRequest: undefined,
     productConfirmationMessageResponse: undefined,
-    getCommandsRequest: undefined,
-    getCommandsResponse: undefined,
+    guidanceCardRequest: undefined,
+    guidanceCardResponse: undefined,
   };
 }
 
@@ -1159,12 +1058,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.clearCartResponse !== undefined) {
       ClearCartResponse.encode(message.clearCartResponse, writer.uint32(202).fork()).join();
-    }
-    if (message.guidanceCardRequest !== undefined) {
-      GuidanceCardRequest.encode(message.guidanceCardRequest, writer.uint32(210).fork()).join();
-    }
-    if (message.guidanceCardResponse !== undefined) {
-      GuidanceCardResponse.encode(message.guidanceCardResponse, writer.uint32(218).fork()).join();
     }
     if (message.addPromotionRequest !== undefined) {
       AddPromotionRequest.encode(message.addPromotionRequest, writer.uint32(226).fork()).join();
@@ -1216,11 +1109,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       ProductConfirmationMessageResponse.encode(message.productConfirmationMessageResponse, writer.uint32(394).fork())
         .join();
     }
-    if (message.getCommandsRequest !== undefined) {
-      GetCommandsRequest.encode(message.getCommandsRequest, writer.uint32(354).fork()).join();
+    if (message.guidanceCardRequest !== undefined) {
+      GuidanceCardRequest.encode(message.guidanceCardRequest, writer.uint32(210).fork()).join();
     }
-    if (message.getCommandsResponse !== undefined) {
-      GetCommandsResponse.encode(message.getCommandsResponse, writer.uint32(362).fork()).join();
+    if (message.guidanceCardResponse !== undefined) {
+      GuidanceCardResponse.encode(message.guidanceCardResponse, writer.uint32(218).fork()).join();
     }
     return writer;
   },
@@ -1342,22 +1235,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           }
 
           message.clearCartResponse = ClearCartResponse.decode(reader, reader.uint32());
-          continue;
-        }
-        case 26: {
-          if (tag !== 210) {
-            break;
-          }
-
-          message.guidanceCardRequest = GuidanceCardRequest.decode(reader, reader.uint32());
-          continue;
-        }
-        case 27: {
-          if (tag !== 218) {
-            break;
-          }
-
-          message.guidanceCardResponse = GuidanceCardResponse.decode(reader, reader.uint32());
           continue;
         }
         case 28: {
@@ -1491,20 +1368,20 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           );
           continue;
         }
-        case 44: {
-          if (tag !== 354) {
+        case 26: {
+          if (tag !== 210) {
             break;
           }
 
-          message.getCommandsRequest = GetCommandsRequest.decode(reader, reader.uint32());
+          message.guidanceCardRequest = GuidanceCardRequest.decode(reader, reader.uint32());
           continue;
         }
-        case 45: {
-          if (tag !== 362) {
+        case 27: {
+          if (tag !== 218) {
             break;
           }
 
-          message.getCommandsResponse = GetCommandsResponse.decode(reader, reader.uint32());
+          message.guidanceCardResponse = GuidanceCardResponse.decode(reader, reader.uint32());
           continue;
         }
       }
@@ -1583,16 +1460,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         ? ClearCartResponse.fromJSON(object.clearCartResponse)
         : isSet(object.clear_cart_response)
         ? ClearCartResponse.fromJSON(object.clear_cart_response)
-        : undefined,
-      guidanceCardRequest: isSet(object.guidanceCardRequest)
-        ? GuidanceCardRequest.fromJSON(object.guidanceCardRequest)
-        : isSet(object.guidance_card_request)
-        ? GuidanceCardRequest.fromJSON(object.guidance_card_request)
-        : undefined,
-      guidanceCardResponse: isSet(object.guidanceCardResponse)
-        ? GuidanceCardResponse.fromJSON(object.guidanceCardResponse)
-        : isSet(object.guidance_card_response)
-        ? GuidanceCardResponse.fromJSON(object.guidance_card_response)
         : undefined,
       addPromotionRequest: isSet(object.addPromotionRequest)
         ? AddPromotionRequest.fromJSON(object.addPromotionRequest)
@@ -1674,15 +1541,15 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.product_confirmation_message_response)
         ? ProductConfirmationMessageResponse.fromJSON(object.product_confirmation_message_response)
         : undefined,
-      getCommandsRequest: isSet(object.getCommandsRequest)
-        ? GetCommandsRequest.fromJSON(object.getCommandsRequest)
-        : isSet(object.get_commands_request)
-        ? GetCommandsRequest.fromJSON(object.get_commands_request)
+      guidanceCardRequest: isSet(object.guidanceCardRequest)
+        ? GuidanceCardRequest.fromJSON(object.guidanceCardRequest)
+        : isSet(object.guidance_card_request)
+        ? GuidanceCardRequest.fromJSON(object.guidance_card_request)
         : undefined,
-      getCommandsResponse: isSet(object.getCommandsResponse)
-        ? GetCommandsResponse.fromJSON(object.getCommandsResponse)
-        : isSet(object.get_commands_response)
-        ? GetCommandsResponse.fromJSON(object.get_commands_response)
+      guidanceCardResponse: isSet(object.guidanceCardResponse)
+        ? GuidanceCardResponse.fromJSON(object.guidanceCardResponse)
+        : isSet(object.guidance_card_response)
+        ? GuidanceCardResponse.fromJSON(object.guidance_card_response)
         : undefined,
     };
   },
@@ -1730,12 +1597,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.clearCartResponse !== undefined) {
       obj.clearCartResponse = ClearCartResponse.toJSON(message.clearCartResponse);
-    }
-    if (message.guidanceCardRequest !== undefined) {
-      obj.guidanceCardRequest = GuidanceCardRequest.toJSON(message.guidanceCardRequest);
-    }
-    if (message.guidanceCardResponse !== undefined) {
-      obj.guidanceCardResponse = GuidanceCardResponse.toJSON(message.guidanceCardResponse);
     }
     if (message.addPromotionRequest !== undefined) {
       obj.addPromotionRequest = AddPromotionRequest.toJSON(message.addPromotionRequest);
@@ -1789,11 +1650,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         message.productConfirmationMessageResponse,
       );
     }
-    if (message.getCommandsRequest !== undefined) {
-      obj.getCommandsRequest = GetCommandsRequest.toJSON(message.getCommandsRequest);
+    if (message.guidanceCardRequest !== undefined) {
+      obj.guidanceCardRequest = GuidanceCardRequest.toJSON(message.guidanceCardRequest);
     }
-    if (message.getCommandsResponse !== undefined) {
-      obj.getCommandsResponse = GetCommandsResponse.toJSON(message.getCommandsResponse);
+    if (message.guidanceCardResponse !== undefined) {
+      obj.guidanceCardResponse = GuidanceCardResponse.toJSON(message.guidanceCardResponse);
     }
     return obj;
   },
@@ -1845,12 +1706,6 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       : undefined;
     message.clearCartResponse = (object.clearCartResponse !== undefined && object.clearCartResponse !== null)
       ? ClearCartResponse.fromPartial(object.clearCartResponse)
-      : undefined;
-    message.guidanceCardRequest = (object.guidanceCardRequest !== undefined && object.guidanceCardRequest !== null)
-      ? GuidanceCardRequest.fromPartial(object.guidanceCardRequest)
-      : undefined;
-    message.guidanceCardResponse = (object.guidanceCardResponse !== undefined && object.guidanceCardResponse !== null)
-      ? GuidanceCardResponse.fromPartial(object.guidanceCardResponse)
       : undefined;
     message.addPromotionRequest = (object.addPromotionRequest !== undefined && object.addPromotionRequest !== null)
       ? AddPromotionRequest.fromPartial(object.addPromotionRequest)
@@ -1909,11 +1764,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       (object.productConfirmationMessageResponse !== undefined && object.productConfirmationMessageResponse !== null)
         ? ProductConfirmationMessageResponse.fromPartial(object.productConfirmationMessageResponse)
         : undefined;
-    message.getCommandsRequest = (object.getCommandsRequest !== undefined && object.getCommandsRequest !== null)
-      ? GetCommandsRequest.fromPartial(object.getCommandsRequest)
+    message.guidanceCardRequest = (object.guidanceCardRequest !== undefined && object.guidanceCardRequest !== null)
+      ? GuidanceCardRequest.fromPartial(object.guidanceCardRequest)
       : undefined;
-    message.getCommandsResponse = (object.getCommandsResponse !== undefined && object.getCommandsResponse !== null)
-      ? GetCommandsResponse.fromPartial(object.getCommandsResponse)
+    message.guidanceCardResponse = (object.guidanceCardResponse !== undefined && object.guidanceCardResponse !== null)
+      ? GuidanceCardResponse.fromPartial(object.guidanceCardResponse)
       : undefined;
     return message;
   },
@@ -6450,154 +6305,6 @@ export const CustomCommandResponse: MessageFns<CustomCommandResponse> = {
     const message = createBaseCustomCommandResponse();
     message.status = object.status ?? 0;
     message.payload = object.payload ?? "";
-    message.timestamp = object.timestamp ?? undefined;
-    return message;
-  },
-};
-
-function createBaseGetCommandsRequest(): GetCommandsRequest {
-  return { timestamp: undefined };
-}
-
-export const GetCommandsRequest: MessageFns<GetCommandsRequest> = {
-  encode(message: GetCommandsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCommandsRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetCommandsRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GetCommandsRequest {
-    return { timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined };
-  },
-
-  toJSON(message: GetCommandsRequest): unknown {
-    const obj: any = {};
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(base?: I): GetCommandsRequest {
-    return GetCommandsRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GetCommandsRequest>, I>>(object: I): GetCommandsRequest {
-    const message = createBaseGetCommandsRequest();
-    message.timestamp = object.timestamp ?? undefined;
-    return message;
-  },
-};
-
-function createBaseGetCommandsResponse(): GetCommandsResponse {
-  return { commands: [], timestamp: undefined };
-}
-
-export const GetCommandsResponse: MessageFns<GetCommandsResponse> = {
-  encode(message: GetCommandsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    writer.uint32(10).fork();
-    for (const v of message.commands) {
-      writer.int32(v);
-    }
-    writer.join();
-    if (message.timestamp !== undefined) {
-      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCommandsResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGetCommandsResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag === 8) {
-            message.commands.push(reader.int32() as any);
-
-            continue;
-          }
-
-          if (tag === 10) {
-            const end2 = reader.uint32() + reader.pos;
-            while (reader.pos < end2) {
-              message.commands.push(reader.int32() as any);
-            }
-
-            continue;
-          }
-
-          break;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GetCommandsResponse {
-    return {
-      commands: globalThis.Array.isArray(object?.commands)
-        ? object.commands.map((e: any) => sdkCommandFromJSON(e))
-        : [],
-      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
-    };
-  },
-
-  toJSON(message: GetCommandsResponse): unknown {
-    const obj: any = {};
-    if (message.commands?.length) {
-      obj.commands = message.commands.map((e) => sdkCommandToJSON(e));
-    }
-    if (message.timestamp !== undefined) {
-      obj.timestamp = message.timestamp.toISOString();
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GetCommandsResponse>, I>>(base?: I): GetCommandsResponse {
-    return GetCommandsResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GetCommandsResponse>, I>>(object: I): GetCommandsResponse {
-    const message = createBaseGetCommandsResponse();
-    message.commands = object.commands?.map((e) => e) || [];
     message.timestamp = object.timestamp ?? undefined;
     return message;
   },

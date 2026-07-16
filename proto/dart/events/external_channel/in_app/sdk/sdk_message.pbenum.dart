@@ -142,41 +142,6 @@ class ButtonType extends $pb.ProtobufEnum {
   const ButtonType._(super.value, super.name);
 }
 
-/// SdkCommand enumerates the commands the SDK is able to execute on the client.
-class SdkCommand extends $pb.ProtobufEnum {
-  static const SdkCommand SDK_COMMAND_UNSPECIFIED =
-      SdkCommand._(0, _omitEnumNames ? '' : 'SDK_COMMAND_UNSPECIFIED');
-  static const SdkCommand SDK_COMMAND_ADD_TO_CART =
-      SdkCommand._(1, _omitEnumNames ? '' : 'SDK_COMMAND_ADD_TO_CART');
-  static const SdkCommand SDK_COMMAND_REMOVE_FROM_CART =
-      SdkCommand._(2, _omitEnumNames ? '' : 'SDK_COMMAND_REMOVE_FROM_CART');
-  static const SdkCommand SDK_COMMAND_CLEAR_CART =
-      SdkCommand._(3, _omitEnumNames ? '' : 'SDK_COMMAND_CLEAR_CART');
-  static const SdkCommand SDK_COMMAND_GUIDANCE_CARD =
-      SdkCommand._(4, _omitEnumNames ? '' : 'SDK_COMMAND_GUIDANCE_CARD');
-  static const SdkCommand SDK_COMMAND_ADD_PROMOTION =
-      SdkCommand._(5, _omitEnumNames ? '' : 'SDK_COMMAND_ADD_PROMOTION');
-  static const SdkCommand SDK_COMMAND_UPDATE_CART_PRODUCT =
-      SdkCommand._(6, _omitEnumNames ? '' : 'SDK_COMMAND_UPDATE_CART_PRODUCT');
-
-  static const $core.List<SdkCommand> values = <SdkCommand>[
-    SDK_COMMAND_UNSPECIFIED,
-    SDK_COMMAND_ADD_TO_CART,
-    SDK_COMMAND_REMOVE_FROM_CART,
-    SDK_COMMAND_CLEAR_CART,
-    SDK_COMMAND_GUIDANCE_CARD,
-    SDK_COMMAND_ADD_PROMOTION,
-    SDK_COMMAND_UPDATE_CART_PRODUCT,
-  ];
-
-  static final $core.List<SdkCommand?> _byValue =
-      $pb.ProtobufEnum.$_initByValueList(values, 6);
-  static SdkCommand? valueOf($core.int value) =>
-      value < 0 || value >= _byValue.length ? null : _byValue[value];
-
-  const SdkCommand._(super.value, super.name);
-}
-
 /// ConnectionAckType discriminates the variants of a ConnectionAck frame.
 class ConnectionAckType extends $pb.ProtobufEnum {
   static const ConnectionAckType CONNECTION_ACK_TYPE_UNSPECIFIED =
