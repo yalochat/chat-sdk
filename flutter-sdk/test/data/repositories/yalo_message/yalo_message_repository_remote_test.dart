@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:protobuf/well_known_types/google/protobuf/timestamp.pb.dart';
 import 'package:yalo_chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
+import 'package:yalo_chat_flutter_sdk/domain/models/command/cart_product_update.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/command/chat_command.dart';
 import 'package:yalo_chat_flutter_sdk/domain/models/product/product.dart';
 import 'package:yalo_chat_flutter_sdk/src/common/result.dart';
@@ -562,9 +563,10 @@ void main() {
 
     group('updateCartProduct', () {
       test('calls registered command callback instead of service', () async {
-        Object? receivedPayload;
+        CartProductUpdate? receivedPayload;
         when(() => mockClient.commands).thenReturn({
-          ChatCommand.updateCartProduct: (payload) => receivedPayload = payload,
+          ChatCommand.updateCartProduct: (CartProductUpdate payload) =>
+              receivedPayload = payload,
         });
 
         final result = await repo.updateCartProduct('sku-3', 2, 4);
@@ -572,7 +574,9 @@ void main() {
         expect(result, isA<Ok<Unit>>());
         expect(
           receivedPayload,
-          equals({'sku': 'sku-3', 'units': 2.0, 'subunits': 4.0}),
+          equals(
+            const CartProductUpdate(sku: 'sku-3', units: 2, subunits: 4),
+          ),
         );
         verifyNever(() => mockMessageService.sendSdkMessage(any()));
       });
@@ -879,6 +883,114 @@ void main() {
               .where((m) => m.type != MessageType.chatStatus)
               .listen(received.add);
           incoming.add(customCommandItem());
+          await pumpEventQueue();
+
+          expect(received, isEmpty);
+        },
+      );
+    });
+
+    group('update cart product from channel', () {
+      proto.PollMessageItem updateCartProductItem({
+        String sku = 'sku-3',
+        double units = 2,
+        double subunits = 4,
+        String correlationId = 'corr-update-1',
+      }) => proto.PollMessageItem(
+        id: 'update-cmd-1',
+        message: proto.SdkMessage(
+          correlationId: correlationId,
+          updateCartProductRequest: proto.UpdateCartProductRequest(
+            sku: sku,
+            units: units,
+            subunits: subunits,
+          ),
+        ),
+        date: Timestamp.fromDateTime(DateTime.parse(fixedDate)),
+        userId: 'user-123',
+        status: 'IN_DELIVERY',
+      );
+
+      test('runs the registered handler and sends a success response', () async {
+        CartProductUpdate? receivedPayload;
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.updateCartProduct: (CartProductUpdate payload) {
+            receivedPayload = payload;
+          },
+        });
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        repo.messages().listen((_) {});
+        incoming.add(updateCartProductItem());
+        await pumpEventQueue();
+
+        expect(
+          receivedPayload,
+          const CartProductUpdate(sku: 'sku-3', units: 2, subunits: 4),
+        );
+        final sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(sent.correlationId, 'corr-update-1');
+        expect(
+          sent.updateCartProductResponse.status,
+          proto.ResponseStatus.RESPONSE_STATUS_SUCCESS,
+        );
+      });
+
+      test('sends an error response when the handler throws', () async {
+        when(() => mockClient.commands).thenReturn({
+          ChatCommand.updateCartProduct: (_) => throw Exception('boom'),
+        });
+        when(
+          () => mockMessageService.sendSdkMessage(any()),
+        ).thenAnswer((_) async => Result.ok(Unit()));
+
+        repo.messages().listen((_) {});
+        incoming.add(updateCartProductItem());
+        await pumpEventQueue();
+
+        final sent =
+            verify(
+                  () => mockMessageService.sendSdkMessage(captureAny()),
+                ).captured.single
+                as proto.SdkMessage;
+        expect(
+          sent.updateCartProductResponse.status,
+          proto.ResponseStatus.RESPONSE_STATUS_ERROR,
+        );
+      });
+
+      test('sends no response when no handler is registered', () async {
+        when(() => mockClient.commands).thenReturn({});
+
+        repo.messages().listen((_) {});
+        incoming.add(updateCartProductItem());
+        await pumpEventQueue();
+
+        verifyNever(() => mockMessageService.sendSdkMessage(any()));
+      });
+
+      test(
+        'does not emit an update cart product request as a chat message',
+        () async {
+          when(() => mockClient.commands).thenReturn({
+            ChatCommand.updateCartProduct: (_) {},
+          });
+          when(
+            () => mockMessageService.sendSdkMessage(any()),
+          ).thenAnswer((_) async => Result.ok(Unit()));
+
+          final received = <ChatMessage>[];
+          repo
+              .messages()
+              .where((m) => m.type != MessageType.chatStatus)
+              .listen(received.add);
+          incoming.add(updateCartProductItem());
           await pumpEventQueue();
 
           expect(received, isEmpty);

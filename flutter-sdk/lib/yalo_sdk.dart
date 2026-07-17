@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 export 'package:yalo_chat_flutter_sdk/data/services/client/yalo_chat_client.dart';
+export 'package:yalo_chat_flutter_sdk/domain/models/command/cart_product_update.dart';
 export 'package:yalo_chat_flutter_sdk/domain/models/command/chat_command.dart';
 export 'package:yalo_chat_flutter_sdk/domain/models/command/custom_command.dart';
 export 'package:yalo_chat_flutter_sdk/ui/chat/widgets/chat.dart';
