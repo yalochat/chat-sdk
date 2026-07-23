@@ -239,6 +239,7 @@ Optional properties:
   - `"perContext"`: the conversation is remembered but scoped by `openContext`. Two tabs opened with the same `openContext` share a conversation, while different `openContext` values start a fresh conversation.
   - `"ephemeral"`: the conversation is not remembered. It starts fresh each time and nothing is left behind once the page is closed.
 - **`logLevel`** (`"debug" | "info" | "warn" | "error" | "silent"`): Controls how verbose the chat is in the browser console. Defaults to `"warn"`, which keeps the console quiet outside of warnings and errors. Raise to `"debug"` or `"info"` when investigating integration issues, or set `"silent"` to suppress all console output, including errors.
+- **`welcomeCard`** (`string`): Customizes how the first message in the chat renders. Defaults to `"none"`.
 
 ## Theming
 
