@@ -22,4 +22,5 @@ export interface YaloChatClientConfig {
   hideVoiceButton?: boolean;
   sessionMode?: SessionMode;
   logLevel?: LogLevel;
+  welcomeCard?: string;
 }
