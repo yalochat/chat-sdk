@@ -1,6 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import AssistantMessageController from './assistant-message-controller';
@@ -21,6 +24,25 @@ export class AssistantMessage extends LitElement {
       margin: 0.25rem 0.5rem;
       padding-left: 0.5rem;
       color: var(--yalo-chat-assistant-message-color, #181818);
+      animation: yalo-chat-assistant-message-appear
+        var(--yalo-chat-message-appear-duration, 0.3s) ease;
+    }
+
+    @keyframes yalo-chat-assistant-message-appear {
+      from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        animation: none;
+      }
     }
 
     p {
@@ -120,12 +142,99 @@ export class AssistantMessage extends LitElement {
     .buttons a:hover {
       background-color: var(--yalo-chat-buttons-hover-background, #dde4ec);
     }
+
+    .chips-container {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition:
+        grid-template-rows
+          var(--yalo-chat-quick-replies-animation-duration, 0.3s) ease,
+        opacity var(--yalo-chat-quick-replies-animation-duration, 0.3s) ease;
+    }
+
+    .chips-container.open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    .chips-inner {
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: var(--yalo-chat-quick-replies-gap, 0.5rem);
+      margin-top: 0.5rem;
+    }
+
+    .chips button {
+      padding: var(--yalo-chat-quick-replies-chip-padding, 0.5rem 0.75rem);
+      border: 1px solid
+        var(--yalo-chat-quick-replies-chip-border-color, #9db1c8);
+      border-radius: var(--yalo-chat-quick-replies-chip-border-radius, 1.125rem);
+      background: var(--yalo-chat-quick-replies-chip-background, transparent);
+      color: var(--yalo-chat-quick-replies-chip-color, #111111);
+      font-size: var(--yalo-chat-quick-replies-chip-font-size, 0.875rem);
+      cursor: pointer;
+      word-break: break-word;
+    }
+
+    .chips button:hover {
+      background-color: var(
+        --yalo-chat-quick-replies-chip-hover-background,
+        #dde4ec
+      );
+    }
+
+    :host([centered]) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    :host([centered]) .header,
+    :host([centered]) p,
+    :host([centered]) .footer,
+    :host([centered]) .buttons {
+      text-align: center;
+      align-items: center;
+    }
+
+    :host([centered]) .chips-container,
+    :host([centered]) .chips {
+      width: 100%;
+    }
+
+    :host([centered]) .chips {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    :host([centered]) .chips button {
+      width: 100%;
+      max-width: var(--yalo-chat-vertical-quick-replies-chip-max-width, 20rem);
+    }
   `;
+
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
 
   private _controller = new AssistantMessageController(this);
 
   @property({ attribute: false })
   message!: ChatMessage;
+
+  @property({ type: Boolean })
+  showInlineReplies = false;
+
+  @property({ type: Boolean, reflect: true })
+  centered = false;
 
   render() {
     let body;
@@ -178,6 +287,12 @@ export class AssistantMessage extends LitElement {
     const buttons = this.message.buttons.filter(
       (button) => button.type !== 'reply'
     );
+    const isInlineQuickReplies =
+      this.config.quickReplyType === 'inline' || this.centered;
+    const replies = isInlineQuickReplies
+      ? this.message.buttons.filter((button) => button.type === 'reply')
+      : [];
+    const showReplies = this.showInlineReplies && replies.length > 0;
 
     return html`
       ${this.message.header
@@ -212,6 +327,25 @@ export class AssistantMessage extends LitElement {
                     ${button.text}
                   </button>`
             )}
+          </div>`
+        : null}
+      ${replies.length > 0
+        ? html`<div
+            class="chips-container ${showReplies ? 'open' : ''}"
+            aria-hidden=${!showReplies}
+          >
+            <div class="chips-inner">
+              <div class="chips">
+                ${replies.map(
+                  (reply) => html`<button
+                    type="button"
+                    @click=${() => this._controller.onReplyClick(reply.text)}
+                  >
+                    ${reply.text}
+                  </button>`
+                )}
+              </div>
+            </div>
           </div>`
         : null}
     `;

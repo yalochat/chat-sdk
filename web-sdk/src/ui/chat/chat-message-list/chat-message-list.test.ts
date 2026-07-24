@@ -67,10 +67,16 @@ const settle = async (): Promise<void> => {
   });
 };
 
-const renderList = async (messages: ChatMessage[]) => {
+const renderList = async (
+  messages: ChatMessage[],
+  configOverrides: Partial<YaloChatClientConfig> = {}
+) => {
   const wrapper = document.createElement(
     'test-context-provider'
   ) as TestContextProvider;
+  if (Object.keys(configOverrides).length > 0) {
+    wrapper._configProvider.setValue({ ...config, ...configOverrides });
+  }
   const list = document.createElement(
     'yalo-chat-message-list'
   ) as ChatMessageList;
@@ -1432,6 +1438,335 @@ describe('ChatMessageList', () => {
         type: 'text',
         content: 'Yes',
       });
+    });
+  });
+
+  describe('inline quick replies', () => {
+    it('renders reply buttons as chips under the message instead of the emerging section', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 300,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [
+              { text: 'Yes', type: 'reply' },
+              { text: 'No link', type: 'postback' },
+              { text: 'Maybe', type: 'reply' },
+            ],
+          }),
+        ],
+        { quickReplyType: 'inline' }
+      );
+
+      expect(list.shadowRoot!.querySelector('yalo-chat-quick-replies')).toBeNull();
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      await (assistant as LitElement).updateComplete;
+      const chips =
+        assistant.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+          '.chips button'
+        );
+      expect([...chips].map((c) => c.textContent?.trim())).toEqual([
+        'Yes',
+        'Maybe',
+      ]);
+    });
+
+    it('left aligns the inline chip row', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 301,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [{ text: 'Yes', type: 'reply' }],
+          }),
+        ],
+        { quickReplyType: 'inline' }
+      );
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      await (assistant as LitElement).updateComplete;
+      const chips = assistant.shadowRoot!.querySelector('.chips')!;
+      expect(getComputedStyle(chips).justifyContent).toBe('flex-start');
+    });
+
+    it('opens the chip container for the latest agent message with replies', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 302,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [{ text: 'Yes', type: 'reply' }],
+          }),
+        ],
+        { quickReplyType: 'inline' }
+      );
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      await (assistant as LitElement).updateComplete;
+      expect(
+        assistant.shadowRoot!.querySelector('.chips-container.open')
+      ).not.toBeNull();
+    });
+
+    it('closes (and keeps mounted for the animation) the chip container once a user reply follows', async () => {
+      const agent = new ChatMessage({
+        id: 303,
+        role: 'AGENT',
+        type: 'text',
+        timestamp,
+        content: 'Pick one',
+        buttons: [{ text: 'Yes', type: 'reply' }],
+      });
+      const list = await renderList([agent], { quickReplyType: 'inline' });
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 304,
+          role: 'USER',
+          timestamp,
+          content: 'Yes',
+        }),
+        agent,
+      ];
+      await list.updateComplete;
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      await (assistant as LitElement).updateComplete;
+      const container = assistant.shadowRoot!.querySelector(
+        '.chips-container'
+      )!;
+      expect(container.classList.contains('open')).toBe(false);
+      expect(container.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('dispatches yalo-chat-send-text-message when an inline chip is clicked', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 305,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [{ text: 'Yes', type: 'reply' }],
+          }),
+        ],
+        { quickReplyType: 'inline' }
+      );
+
+      const listener = vi.fn();
+      list.addEventListener('yalo-chat-send-text-message', listener);
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      await (assistant as LitElement).updateComplete;
+      const chip =
+        assistant.shadowRoot!.querySelector<HTMLButtonElement>(
+          '.chips button'
+        )!;
+      chip.click();
+
+      expect(listener).toHaveBeenCalledOnce();
+      expect((listener.mock.calls[0][0] as CustomEvent).detail).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'Yes',
+      });
+    });
+
+    it('omits the chip container entirely for messages without reply buttons', async () => {
+      const list = await renderList(
+        [
+          ChatMessage.text({
+            id: 306,
+            role: 'AGENT',
+            timestamp,
+            content: 'No replies here',
+          }),
+        ],
+        { quickReplyType: 'inline' }
+      );
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      await (assistant as LitElement).updateComplete;
+      expect(assistant.shadowRoot!.querySelector('.chips-container')).toBeNull();
+    });
+
+    it('keeps replies out of the modal component even when there are none inline', async () => {
+      const list = await renderList(
+        [
+          ChatMessage.text({
+            id: 307,
+            role: 'AGENT',
+            timestamp,
+            content: 'No replies here',
+          }),
+        ],
+        { quickReplyType: 'inline' }
+      );
+
+      expect(list.shadowRoot!.querySelector('yalo-chat-quick-replies')).toBeNull();
+    });
+  });
+
+  describe('vertical welcome message', () => {
+    it('renders only the first message when no user message exists yet', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 400,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            header: 'Welcome',
+            content: 'Pick one',
+            buttons: [
+              { text: 'Yes', type: 'reply' },
+              { text: 'No', type: 'reply' },
+            ],
+          }),
+          ChatMessage.text({
+            id: 401,
+            role: 'AGENT',
+            timestamp,
+            content: 'A second message',
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies' }
+      );
+
+      const assistantMessages = list.shadowRoot!.querySelectorAll(
+        'yalo-chat-assistant-message'
+      );
+      expect(assistantMessages).toHaveLength(1);
+      expect(assistantMessages[0].shadowRoot!.textContent).toContain(
+        'Welcome'
+      );
+    });
+
+    it('renders the full conversation again once the user has replied', async () => {
+      const list = await renderList(
+        [
+          ChatMessage.text({
+            id: 402,
+            role: 'USER',
+            timestamp,
+            content: 'Yes',
+          }),
+          new ChatMessage({
+            id: 403,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [{ text: 'Yes', type: 'reply' }],
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies' }
+      );
+
+      expect(
+        list.shadowRoot!.querySelectorAll('yalo-chat-assistant-message')
+      ).toHaveLength(1);
+      expect(
+        list.shadowRoot!.querySelectorAll('yalo-chat-user-message')
+      ).toHaveLength(1);
+    });
+
+    it('marks the welcome message as centered and shows its quick replies inline', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 404,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [
+              { text: 'Yes', type: 'reply' },
+              { text: 'No', type: 'reply' },
+            ],
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies' }
+      );
+
+      const assistant = list.shadowRoot!.querySelector(
+        'yalo-chat-assistant-message'
+      )!;
+      expect(assistant.hasAttribute('centered')).toBe(true);
+      await (assistant as LitElement).updateComplete;
+      const chips =
+        assistant.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+          '.chips button'
+        );
+      expect([...chips].map((c) => c.textContent?.trim())).toEqual([
+        'Yes',
+        'No',
+      ]);
+    });
+
+    it('does not render the modal quick replies component for the welcome message', async () => {
+      const list = await renderList(
+        [
+          new ChatMessage({
+            id: 405,
+            role: 'AGENT',
+            type: 'text',
+            timestamp,
+            content: 'Pick one',
+            buttons: [{ text: 'Yes', type: 'reply' }],
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies' }
+      );
+
+      expect(
+        list.shadowRoot!.querySelector('yalo-chat-quick-replies')
+      ).toBeNull();
+    });
+
+    it('renders the full conversation when the welcome mode is not set', async () => {
+      const list = await renderList([
+        new ChatMessage({
+          id: 406,
+          role: 'AGENT',
+          type: 'text',
+          timestamp,
+          content: 'First',
+        }),
+        ChatMessage.text({
+          id: 407,
+          role: 'AGENT',
+          timestamp,
+          content: 'Second',
+        }),
+      ]);
+
+      expect(
+        list.shadowRoot!.querySelectorAll('yalo-chat-assistant-message')
+      ).toHaveLength(2);
     });
   });
 

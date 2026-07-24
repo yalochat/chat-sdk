@@ -348,6 +348,10 @@ option instead (see the README configuration reference).
   /* Font size of the Material Symbols icons rendered inside assistant
      messages (e.g. the loading spinner glyph). */
   --yalo-chat-assistant-message-icon-font-size: 1rem;
+
+  /* Duration of the fade and slide-up animation played when a new
+     assistant message appears. */
+  --yalo-chat-message-appear-duration: 0.3s;
 }
 ```
 
@@ -387,6 +391,10 @@ Buttons attached to assistant messages, rendered below the body.
 
 Reply-type buttons attached to the latest agent message render as chips in an emerging section above the input. Once a newer message arrives, those reply buttons render inline like postback buttons.
 
+When `quickReplyType` is set to `"inline"`, reply-type buttons render as chips directly under their own message instead, left aligned, using the same chip styles below. They appear instantly, since they show up together with the assistant message itself, but fade out when a reply is chosen, controlled by `--yalo-chat-quick-replies-animation-duration`.
+
+When `welcomeMessageType` is set to `"verticalQuickReplies"` (see the README configuration reference), the welcome message's chips render inline as well, but stacked one per line and centered, using the same chip variables below plus `--yalo-chat-vertical-quick-replies-chip-max-width` to cap their width.
+
 ```css
 :root {
   /* Gap between quick reply chips. */
@@ -421,6 +429,10 @@ Reply-type buttons attached to the latest agent message render as chips in an em
 
   /* Duration of the open and close animation. */
   --yalo-chat-quick-replies-animation-duration: 0.3s;
+
+  /* Max width of a single quick reply chip when welcomeMessageType is
+     set to "verticalQuickReplies". */
+  --yalo-chat-vertical-quick-replies-chip-max-width: 20rem;
 }
 ```
 
