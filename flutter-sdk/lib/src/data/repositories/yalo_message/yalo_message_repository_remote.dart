@@ -90,6 +90,10 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
       await _handleCustomCommand(item.message);
       return;
     }
+    if (item.message.hasUpdateCartProductRequest()) {
+      await _handleUpdateCartProductCommand(item.message);
+      return;
+    }
     final ChatMessage? message = await pollMessageItemToChatMessage(
       item,
       mediaService: mediaService,
@@ -159,6 +163,61 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     }
   }
 
+  // Looks up the updateCartProduct handler registered by the consumer. If found,
+  // runs it with the request payload and replies with the result; otherwise logs
+  // a warning and sends nothing.
+  Future<void> _handleUpdateCartProductCommand(proto.SdkMessage message) async {
+    final proto.UpdateCartProductRequest request =
+        message.updateCartProductRequest;
+    final UpdateCartProductCallback? handler =
+        yaloChatClient.commands[ChatCommand.updateCartProduct]
+            as UpdateCartProductCallback?;
+    if (handler == null) {
+      log.warning(
+        'Received unregistered command: ${ChatCommand.updateCartProduct}',
+      );
+      return;
+    }
+    try {
+      handler(
+        CartProductUpdate(
+          sku: request.sku,
+          units: request.units,
+          subunits: request.subunits,
+        ),
+      );
+      await _sendUpdateCartProductResponse(
+        message.correlationId,
+        proto.ResponseStatus.RESPONSE_STATUS_SUCCESS,
+      );
+    } catch (error) {
+      log.severe('updateCartProduct command handler threw', error);
+      await _sendUpdateCartProductResponse(
+        message.correlationId,
+        proto.ResponseStatus.RESPONSE_STATUS_ERROR,
+      );
+    }
+  }
+
+  Future<void> _sendUpdateCartProductResponse(
+    String correlationId,
+    proto.ResponseStatus status,
+  ) async {
+    final DateTime timestamp = DateTime.now();
+    final proto.SdkMessage response = proto.SdkMessage(
+      correlationId: correlationId,
+      timestamp: Timestamp.fromDateTime(timestamp),
+      updateCartProductResponse: proto.UpdateCartProductResponse(
+        status: status,
+        timestamp: Timestamp.fromDateTime(timestamp),
+      ),
+    );
+    final Result<Unit> result = await messageService.sendSdkMessage(response);
+    if (result case Error(:final error)) {
+      log.severe('Unable to send update cart product response', error);
+    }
+  }
+
   @override
   Future<Result<Unit>> sendMessage(ChatMessage chatMessage) async {
     String? mediaId;
@@ -193,11 +252,13 @@ final class YaloMessageRepositoryRemote implements YaloMessageRepository {
     double units,
     double subunits,
   ) async {
-    final ChatCommandCallback? callback =
+    final UpdateCartProductCallback? callback =
         yaloChatClient.commands[ChatCommand.updateCartProduct]
-            as ChatCommandCallback?;
+            as UpdateCartProductCallback?;
     if (callback != null) {
-      callback({'sku': sku, 'units': units, 'subunits': subunits});
+      callback(
+        CartProductUpdate(sku: sku, units: units, subunits: subunits),
+      );
       return Result.ok(Unit());
     }
     final DateTime timestamp = DateTime.now();

@@ -15,9 +15,8 @@ final client = YaloChatClient(
   organizationId: 'your-organization-id',
 );
 
-client.registerCommand(ChatCommand.updateCartProduct, (payload) {
-  // payload: { 'sku': String, 'units': double, 'subunits': double }
-  print('Updating cart for ${payload['sku']} to ${payload['units']}');
+client.registerCommand(ChatCommand.updateCartProduct, (CartProductUpdate product) {
+  print('Updating cart for ${product.sku} to ${product.units}');
 });
 ```
 
@@ -25,7 +24,7 @@ client.registerCommand(ChatCommand.updateCartProduct, (payload) {
 
 Built-in commands run your callback instead of sending the action through the default remote API. Their callbacks receive a payload and return nothing.
 
-- **`ChatCommand.updateCartProduct`**: Triggered when the user sends a product to the cart, either from the add to cart button of a product card or by confirming a product confirmation card. Sets the absolute units and subunits for the product. Callback payload: `{ 'sku': String, 'units': double, 'subunits': double }`.
+- **`ChatCommand.updateCartProduct`**: Triggered when the user sends a product to the cart, either from the add to cart button of a product card or by confirming a product confirmation card. Sets the absolute units and subunits for the product. The same command also fires when the channel requests the update. Callback payload: a `CartProductUpdate` with `sku` (String), `units` (double) and `subunits` (double).
 - **`ChatCommand.clearCart`**: Triggered when the cart is cleared. Callback payload: `null`.
 - **`ChatCommand.goToCart`**: Triggered when the user asks to open the cart from the chat. Callback payload: `null`. Use it to navigate the user to your cart screen.
 

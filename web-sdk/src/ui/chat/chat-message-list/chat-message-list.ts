@@ -182,8 +182,20 @@ export default class ChatMessageList extends LitElement {
   }
 
   render() {
+    const isInlineQuickReplies = this.config.quickReplyType === 'inline';
+    const hasUserMessage = this.chatMessages.some(
+      (message) => message.role === 'USER'
+    );
+    const showWelcomeOnly =
+      this.config.welcomeMessageType === 'verticalQuickReplies' &&
+      !hasUserMessage;
+    const messagesToRender = showWelcomeOnly
+      ? this.chatMessages.slice(0, 1)
+      : this.chatMessages;
+
     let quickReplies: MessageButton[] = [];
-    for (const message of this.chatMessages) {
+    let latestReplyMessageId: ChatMessage['id'];
+    for (const message of messagesToRender) {
       if (message.role === 'USER') {
         break;
       }
@@ -192,6 +204,7 @@ export default class ChatMessageList extends LitElement {
       );
       if (replies.length > 0) {
         quickReplies = replies;
+        latestReplyMessageId = message.id;
         break;
       }
     }
@@ -204,7 +217,7 @@ export default class ChatMessageList extends LitElement {
             </li>`
           : nothing}
         ${repeat(
-          this.chatMessages,
+          messagesToRender,
           (chatMessage) => chatMessage.id,
           (chatMessage) => {
             const isUser = chatMessage.role === 'USER';
@@ -218,6 +231,9 @@ export default class ChatMessageList extends LitElement {
                   ? html`<yalo-chat-user-message .message=${chatMessage}></yalo-chat-user-message>`
                   : html`<yalo-chat-assistant-message
                       .message=${chatMessage}
+                      .showInlineReplies=${showWelcomeOnly ||
+                      chatMessage.id === latestReplyMessageId}
+                      .centered=${showWelcomeOnly}
                     ></yalo-chat-assistant-message>`}
               </li>
             `;
@@ -225,7 +241,11 @@ export default class ChatMessageList extends LitElement {
         )}
         <li class="loader"></li>
       </ul>
-      <yalo-chat-quick-replies .replies=${quickReplies}></yalo-chat-quick-replies>
+      ${isInlineQuickReplies || showWelcomeOnly
+        ? nothing
+        : html`<yalo-chat-quick-replies
+            .replies=${quickReplies}
+          ></yalo-chat-quick-replies>`}
     `;
   }
 }
