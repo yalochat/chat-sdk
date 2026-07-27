@@ -71,6 +71,17 @@ export default class YaloChatClient {
     this._onClose?.();
   }
 
+  // Sends a text message on the user's behalf, as if they had typed it in the
+  // chat footer. It renders as a user bubble and is delivered to the channel.
+  // Empty or whitespace-only text is ignored.
+  sendTextMessage(text: string): void {
+    if (!this.chatWindowEl) {
+      console.warn('sendTextMessage called before init(). Call init() first.');
+      return;
+    }
+    this.chatWindowEl.sendTextMessage(text);
+  }
+
   // Registers a handler the chat can invoke on the host, keyed by command id.
   // Client -> channel command ids (ChatCommands) run instead of the built-in
   // remote call. Any other id answers the matching channel command request and

@@ -4,6 +4,9 @@ import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
 import type { ChatCommand } from '@domain/models/command/chat-command';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import YaloChatClient from './yalo-chat-client';
+import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
+import { Ok } from '@domain/common/result';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -257,6 +260,51 @@ describe('YaloChatClient', () => {
         () => client.chatWindowEl?.yaloMessageRepository != null
       );
       expect(getChatWindow().commands.get('getCart')).toBe(handler);
+    });
+  });
+
+  describe('sendTextMessage', () => {
+    const spyInsertMessage = () =>
+      vi
+        .spyOn(YaloMessageRepositoryRemote.prototype, 'insertMessage')
+        .mockImplementation((message: ChatMessage) =>
+          Promise.resolve(new Ok(message))
+        );
+
+    it('warns and does not throw when called before init', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const client = new YaloChatClient(baseConfig);
+      expect(() => client.sendTextMessage('hello')).not.toThrow();
+      expect(warn).toHaveBeenCalledWith(
+        'sendTextMessage called before init(). Call init() first.'
+      );
+    });
+
+    it('delivers the text to the channel as a user message', async () => {
+      const insertMessage = spyInsertMessage();
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.sendTextMessage('hello');
+      await vi.waitUntil(() => insertMessage.mock.calls.length > 0);
+      expect(insertMessage.mock.calls[0][0]).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'hello',
+      });
+    });
+
+    it('ignores empty or whitespace-only text', async () => {
+      const insertMessage = spyInsertMessage();
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.sendTextMessage('   ');
+      expect(insertMessage).not.toHaveBeenCalled();
     });
   });
 

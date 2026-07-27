@@ -211,6 +211,25 @@ Each pushed configuration also accepts the `onOpen` and `onClose` callbacks that
 
 Each pushed configuration also accepts `registerCommands` so you can register commands without a direct `YaloChatClient` reference (see [Commands](doc/commands.md)).
 
+To drive the chat imperatively later (for example to call `client.sendTextMessage(...)`), you need the `YaloChatClient` the queue creates. Use the `onReady` callback to receive it. It runs once the client is created and works the same whether you push before or after the SDK script loads, so it is the reliable way to get the reference from the queue:
+
+```html
+<script>
+  window.yaloOpen = window.yaloOpen || [];
+  window.yaloOpen.push({
+    channelId: 'your-channel-id',
+    organizationId: 'your-organization-id',
+    channelName: 'Support',
+    target: 'yalo-chat',
+    onReady: (client) => {
+      window.myChat = client;
+      // later, from anywhere on your page:
+      // window.myChat.sendTextMessage('I want to reorder');
+    },
+  });
+</script>
+```
+
 The target element referenced by `config.target` must exist in the DOM at the time the configuration is processed. Place the script after the target element or wrap the push in your own `DOMContentLoaded` handler if needed.
 
 ## Configuration
@@ -253,4 +272,5 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 - **`client.open()`**: Shows the chat window. Uses the `openContext` from the config.
 - **`client.close()`**: Hides the chat window.
 - **`client.registerCommand(command, handler)`**: Registers a handler the chat can invoke on your page, keyed by command id. Built-in command ids run your callback instead of the built-in remote call. Any other id answers custom command requests from the channel: the handler runs with the request payload and its return value is sent back as the response (see [Commands](doc/commands.md)).
+- **`client.sendTextMessage(text)`**: Sends a text message on the user's behalf, as if they had typed it in the footer. Empty or whitespace-only text is ignored. You can call it any time after `init()`. Sends requested before the chat has finished loading are queued and delivered once it is ready.
 - **`client.dispose()`**: Removes the chat widget from the page and releases its resources. Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal.

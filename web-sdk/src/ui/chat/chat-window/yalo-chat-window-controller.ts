@@ -51,6 +51,8 @@ export default class YaloChatWindowController implements ReactiveController {
   private _writingTimeout?: ReturnType<typeof setTimeout>;
   private _guidanceCardRequested = false;
   private _messagesLoaded = false;
+  private _isReady = false;
+  private _pendingUserTexts: string[] = [];
   private _pendingAckTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
   private static readonly _DB_NAME = 'YaloChatMessages';
@@ -190,6 +192,15 @@ export default class YaloChatWindowController implements ReactiveController {
     // Subscribe to incoming message stream
     this.host.yaloMessageRepository.subscribeToMessages(this.onMessageReceived);
 
+    // The repositories are set, so programmatic sends are safe now. Flush any
+    // text that was requested before the window finished connecting.
+    this._isReady = true;
+    const pending = this._pendingUserTexts;
+    this._pendingUserTexts = [];
+    for (const text of pending) {
+      await this.sendUserText(text);
+    }
+
     if (this.host.open) {
       await this.requestGuidanceCardIfEmpty();
     }
@@ -234,8 +245,30 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   async sendTextMessage(e: CustomEvent) {
-    const textMessage = e.detail as ChatMessage;
+    await this._deliverUserMessage(e.detail as ChatMessage);
+  }
 
+  // Sends a text message on the user's behalf, as if they had typed it in the
+  // footer. Empty or whitespace-only text is ignored. Calls that arrive before
+  // the window has finished connecting are buffered and flushed once ready.
+  async sendUserText(content: string): Promise<void> {
+    const text = content.trim();
+    if (!text) {
+      return;
+    }
+    if (!this._isReady) {
+      this._pendingUserTexts.push(text);
+      return;
+    }
+    const message = ChatMessage.text({
+      role: 'USER',
+      timestamp: new Date(),
+      content: text,
+    });
+    await this._deliverUserMessage(message);
+  }
+
+  private async _deliverUserMessage(textMessage: ChatMessage): Promise<void> {
     const localResult =
       await this.host.chatMessageRepository.insertChatMessage(textMessage);
 
@@ -881,6 +914,8 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   hostDisconnected() {
+    this._isReady = false;
+    this._pendingUserTexts = [];
     clearTimeout(this._writingTimeout);
     for (const timer of this._pendingAckTimers.values()) {
       clearTimeout(timer);

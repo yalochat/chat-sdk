@@ -355,6 +355,73 @@ describe('YaloChatWindow', () => {
     });
   });
 
+  describe('host-triggered text messages', () => {
+    it('renders a user bubble and delivers the text through the window API', async () => {
+      vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(
+        new Ok(
+          ChatMessage.text({
+            role: 'USER',
+            timestamp: new Date(),
+            content: 'programmatic',
+          })
+        )
+      );
+
+      el.sendTextMessage('programmatic');
+
+      await vi.waitUntil(() => getMessageList(el).chatMessages.length > 0);
+      expect(getMessageList(el).chatMessages[0]).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'programmatic',
+      });
+    });
+
+    it('ignores whitespace-only text on the window API', async () => {
+      const insert = vi.spyOn(el.yaloMessageRepository, 'insertMessage');
+
+      el.sendTextMessage('   ');
+
+      await new Promise((resolve) => setTimeout(resolve, 30));
+      expect(insert).not.toHaveBeenCalled();
+      expect(getMessageList(el).chatMessages).toHaveLength(0);
+    });
+
+    it('buffers a text message sent before the window is ready and delivers it once ready', async () => {
+      const insertMessage = vi
+        .spyOn(YaloMessageRepositoryRemote.prototype, 'insertMessage')
+        .mockImplementation((message: ChatMessage) =>
+          Promise.resolve(new Ok(message))
+        );
+
+      const fresh = document.createElement(
+        'yalo-chat-window'
+      ) as YaloChatWindow;
+      fresh.config = baseConfig;
+      document.body.appendChild(fresh);
+      // Send immediately, before hostConnected finishes wiring the repositories.
+      fresh.sendTextMessage('buffered hello');
+
+      await vi.waitUntil(() =>
+        insertMessage.mock.calls.some((c) => c[0].content === 'buffered hello')
+      );
+      const delivered = insertMessage.mock.calls.find(
+        (c) => c[0].content === 'buffered hello'
+      );
+      expect(delivered?.[0]).toMatchObject({
+        role: 'USER',
+        type: 'text',
+        content: 'buffered hello',
+      });
+
+      // This spy is on the shared prototype, so restore it here to avoid
+      // leaking into other tests in this file (its afterEach does not restore
+      // mocks, since every other test spies on instances that are discarded).
+      fresh.remove();
+      insertMessage.mockRestore();
+    });
+  });
+
   describe('error display', () => {
     it('marks message as ERROR when remote insert fails', async () => {
       vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockResolvedValue(

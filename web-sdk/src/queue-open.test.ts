@@ -3,6 +3,10 @@
 import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { installYaloOpenQueue } from './queue-open';
+import YaloChatClient from '@data/services/client/yalo-chat-client';
+import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
+import { Ok } from '@domain/common/result';
+import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 
 const baseConfig = {
   channelId: 'channel-1',
@@ -146,5 +150,32 @@ describe('installYaloOpenQueue', () => {
     installYaloOpenQueue();
     expect(getChatWindow()).toBeNull();
     expect(typeof (window.yaloOpen as { push: unknown }).push).toBe('function');
+  });
+
+  it('invokes onReady with the created client', async () => {
+    const onReady = vi.fn();
+    window.yaloOpen = [{ ...baseConfig, onReady }];
+    installYaloOpenQueue();
+    await waitForChatWindow();
+    expect(onReady).toHaveBeenCalledTimes(1);
+    expect(onReady.mock.calls[0][0]).toBeInstanceOf(YaloChatClient);
+  });
+
+  it('lets onReady send a text message through the client', async () => {
+    const insertMessage = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'insertMessage')
+      .mockImplementation((message: ChatMessage) =>
+        Promise.resolve(new Ok(message))
+      );
+    const onReady = (client: YaloChatClient) =>
+      client.sendTextMessage('from host');
+    window.yaloOpen = [{ ...baseConfig, onReady }];
+    installYaloOpenQueue();
+    await vi.waitUntil(() => insertMessage.mock.calls.length > 0);
+    expect(insertMessage.mock.calls[0][0]).toMatchObject({
+      role: 'USER',
+      type: 'text',
+      content: 'from host',
+    });
   });
 });
