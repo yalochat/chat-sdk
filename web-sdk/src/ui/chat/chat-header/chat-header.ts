@@ -17,10 +17,26 @@ export class ChatHeader extends LitElement {
       gap: 1rem;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
+      padding: var(--yalo-chat-header-padding, 12px 16px);
       background: var(--yalo-chat-header-background, #f1f5fc);
       color: var(--yalo-chat-header-color, #010101);
       border-radius: var(--yalo-chat-header-border-radius, 0);
+      border-top: var(
+        --yalo-chat-header-border-top,
+        var(--yalo-chat-header-border, none)
+      );
+      border-right: var(
+        --yalo-chat-header-border-right,
+        var(--yalo-chat-header-border, none)
+      );
+      border-bottom: var(
+        --yalo-chat-header-border-bottom,
+        var(--yalo-chat-header-border, none)
+      );
+      border-left: var(
+        --yalo-chat-header-border-left,
+        var(--yalo-chat-header-border, none)
+      );
     }
 
     .chat-header-title-group {
@@ -32,7 +48,7 @@ export class ChatHeader extends LitElement {
       font-size: var(--yalo-chat-header-title-font-size, 1.2rem);
       padding: 0;
       margin: 0;
-      font-weight: 600;
+      font-weight: var(--yalo-chat-header-title-font-weight, 600);
     }
 
     .header-icon {

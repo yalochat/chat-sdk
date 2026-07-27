@@ -20,17 +20,40 @@ import '@ui/chat/waveform-painter/waveform-painter';
 @localized()
 export class ChatFooter extends LitElement {
   static styles = css`
+    .chat-footer {
+      padding: var(--yalo-chat-footer-padding, 8px);
+      border-top: var(
+        --yalo-chat-footer-border-top,
+        var(--yalo-chat-footer-border, none)
+      );
+      border-right: var(
+        --yalo-chat-footer-border-right,
+        var(--yalo-chat-footer-border, none)
+      );
+      border-bottom: var(
+        --yalo-chat-footer-border-bottom,
+        var(--yalo-chat-footer-border, none)
+      );
+      border-left: var(
+        --yalo-chat-footer-border-left,
+        var(--yalo-chat-footer-border, none)
+      );
+    }
+
     .chat-form {
       display: flex;
-      padding: 8px;
       gap: 1rem;
+      padding: var(--yalo-chat-form-padding, 0);
+      background: var(--yalo-chat-form-background, transparent);
+      border: var(--yalo-chat-form-border, none);
+      border-radius: var(--yalo-chat-form-border-radius, 0);
     }
 
     .chat-input-box {
       flex-grow: 1;
       border: var(--yalo-chat-input-border, 1px solid #e8e8e8);
       border-radius: var(--yalo-chat-input-border-radius, 25.5px);
-      padding: var(--yalo-chat-column-item-space, 8px);
+      padding: var(--yalo-chat-input-padding, 8px);
       display: flex;
     }
 

@@ -22,7 +22,7 @@ export class AssistantMessage extends LitElement {
       display: flow;
       justify-content: flex-start;
       margin: 0.25rem 0.5rem;
-      padding-left: 0.5rem;
+      padding: var(--yalo-chat-assistant-message-padding, 0 0 0 0.5rem);
       color: var(--yalo-chat-assistant-message-color, #181818);
       animation: yalo-chat-assistant-message-appear
         var(--yalo-chat-message-appear-duration, 0.3s) ease;
@@ -45,9 +45,21 @@ export class AssistantMessage extends LitElement {
       }
     }
 
+    .bubble {
+      width: fit-content;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: var(--yalo-chat-assistant-message-bubble-padding, 0);
+      background: var(--yalo-chat-assistant-message-background, transparent);
+      border: var(--yalo-chat-assistant-message-border, none);
+      border-radius: var(--yalo-chat-assistant-message-border-radius, 0);
+    }
+
     p {
       margin: 0;
       word-break: break-word;
+      font-size: var(--yalo-chat-assistant-message-font-size, 1rem);
+      font-weight: var(--yalo-chat-assistant-message-font-weight, normal);
     }
 
     a {
@@ -56,14 +68,6 @@ export class AssistantMessage extends LitElement {
 
     .voice-bubble {
       max-width: 90%;
-    }
-
-    .image-bubble,
-    .video-bubble {
-      max-width: 90%;
-      border-radius: 1.125rem;
-      border-bottom-left-radius: 0.25rem;
-      overflow: hidden;
     }
 
     .attachment-bubble {
@@ -179,6 +183,7 @@ export class AssistantMessage extends LitElement {
       background: var(--yalo-chat-quick-replies-chip-background, transparent);
       color: var(--yalo-chat-quick-replies-chip-color, #111111);
       font-size: var(--yalo-chat-quick-replies-chip-font-size, 0.875rem);
+      font-weight: var(--yalo-chat-quick-replies-chip-font-weight, normal);
       cursor: pointer;
       word-break: break-word;
     }
@@ -204,6 +209,20 @@ export class AssistantMessage extends LitElement {
     :host([centered]) .buttons {
       text-align: center;
       align-items: center;
+    }
+
+    :host([centered]) .bubble {
+      width: 100%;
+      padding: var(--yalo-chat-vertical-quick-replies-message-bubble-padding, 0);
+      background: var(
+        --yalo-chat-vertical-quick-replies-message-background,
+        transparent
+      );
+      border: var(--yalo-chat-vertical-quick-replies-message-border, none);
+      border-radius: var(
+        --yalo-chat-vertical-quick-replies-message-border-radius,
+        0
+      );
     }
 
     :host([centered]) .chips-container,
@@ -295,13 +314,15 @@ export class AssistantMessage extends LitElement {
     const showReplies = this.showInlineReplies && replies.length > 0;
 
     return html`
-      ${this.message.header
-        ? html`<div class="header">${this.message.header}</div>`
-        : null}
-      ${body}
-      ${this.message.footer
-        ? html`<div class="footer">${this.message.footer}</div>`
-        : null}
+      <div class="bubble">
+        ${this.message.header
+          ? html`<div class="header">${this.message.header}</div>`
+          : null}
+        ${body}
+        ${this.message.footer
+          ? html`<div class="footer">${this.message.footer}</div>`
+          : null}
+      </div>
       ${buttons.length > 0
         ? html`<div class="buttons">
             ${buttons.map((button) =>

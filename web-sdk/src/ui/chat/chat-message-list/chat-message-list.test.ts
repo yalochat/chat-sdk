@@ -1631,7 +1631,7 @@ describe('ChatMessageList', () => {
   });
 
   describe('vertical welcome message', () => {
-    it('renders only the first message when no user message exists yet', async () => {
+    it('renders every message once more than one exists, even without a user message', async () => {
       const list = await renderList(
         [
           new ChatMessage({
@@ -1659,10 +1659,12 @@ describe('ChatMessageList', () => {
       const assistantMessages = list.shadowRoot!.querySelectorAll(
         'yalo-chat-assistant-message'
       );
-      expect(assistantMessages).toHaveLength(1);
-      expect(assistantMessages[0].shadowRoot!.textContent).toContain(
-        'Welcome'
-      );
+      expect(assistantMessages).toHaveLength(2);
+      expect(
+        [...assistantMessages].some((message) =>
+          message.hasAttribute('centered')
+        )
+      ).toBe(false);
     });
 
     it('renders the full conversation again once the user has replied', async () => {
