@@ -74,10 +74,14 @@ export class UserMessage extends LitElement {
     .bubble {
       max-width: 80%;
       padding: var(--yalo-chat-bubble-padding, 0.5rem 0.75rem);
-      border-radius: 1.125rem;
-      border-bottom-right-radius: 0.25rem;
+      border-radius: var(
+        --yalo-chat-user-message-border-radius,
+        1.125rem 1.125rem 0.25rem 1.125rem
+      );
       background: var(--yalo-chat-user-message-background, #f9fafc);
       color: var(--yalo-chat-user-message-color, #181818);
+      font-size: var(--yalo-chat-user-message-font-size, 1rem);
+      font-weight: var(--yalo-chat-user-message-font-weight, normal);
       word-break: break-word;
     }
 
@@ -90,16 +94,20 @@ export class UserMessage extends LitElement {
     .voice-bubble {
       width: var(--yalo-chat-waveform-max-width, 12rem);
       padding: var(--yalo-chat-bubble-padding, 0.5rem 0.75rem);
-      border-radius: 1.125rem;
-      border-bottom-right-radius: 0.25rem;
+      border-radius: var(
+        --yalo-chat-user-message-border-radius,
+        1.125rem 1.125rem 0.25rem 1.125rem
+      );
       background: var(--yalo-chat-user-message-background, #f9fafc);
       color: var(--yalo-chat-user-message-color, #181818);
     }
 
     .image-bubble {
       max-width: 80%;
-      border-radius: 1.125rem;
-      border-bottom-right-radius: 0.25rem;
+      border-radius: var(
+        --yalo-chat-user-message-border-radius,
+        1.125rem 1.125rem 0.25rem 1.125rem
+      );
       overflow: hidden;
     }
   `;

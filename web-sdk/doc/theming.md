@@ -140,11 +140,18 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
      where the channel name is displayed. */
   --yalo-chat-header-background: #f1f5fc;
 
+  /* Padding inside the chat header bar. Accepts any valid CSS `padding`
+     shorthand. */
+  --yalo-chat-header-padding: 12px 16px;
+
   /* Text color for the channel name and status text in the header. */
   --yalo-chat-header-color: #010101;
 
   /* Font size of the channel name (header title). */
   --yalo-chat-header-title-font-size: 1.2rem;
+
+  /* Font weight of the channel name (header title). */
+  --yalo-chat-header-title-font-weight: 600;
 
   /* Display of the chat header bar. Set to `none` to hide the header.
      This is the CSS equivalent of the `hideHeader` config property. */
@@ -172,6 +179,18 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
      shorthand, so you can round just the top corners with values like
      `12px 12px 0 0`. */
   --yalo-chat-header-border-radius: 0;
+
+  /* Border around the header bar. Accepts any valid CSS border value
+     (width, style, color). Applies to all four sides. Defaults to `none`. */
+  --yalo-chat-header-border: none;
+
+  /* Per-side header borders. Each one overrides --yalo-chat-header-border
+     for that side only, so you can render just a bottom border without
+     setting the others. Each defaults to --yalo-chat-header-border. */
+  --yalo-chat-header-border-top: none;
+  --yalo-chat-header-border-right: none;
+  --yalo-chat-header-border-bottom: none;
+  --yalo-chat-header-border-left: none;
 }
 ```
 
@@ -179,6 +198,41 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
 
 ```css
 :root {
+  /* Full border shorthand for the form wrapping the input and action button
+     inside the footer. Accepts any valid CSS border value (width, style,
+     color). Defaults to `none`. */
+  --yalo-chat-form-border: none;
+
+  /* Border radius of the footer form. Defaults to `0`. */
+  --yalo-chat-form-border-radius: 0;
+
+  /* Background color of the footer form that wraps the input and action
+     button. Defaults to `transparent`. */
+  --yalo-chat-form-background: transparent;
+
+  /* Padding inside the footer form, between its border and the input and
+     action button. Accepts any valid CSS `padding` shorthand. Defaults to
+     `0`. */
+  --yalo-chat-form-padding: 0;
+
+  /* Padding of the footer, around the form that wraps the input and action
+     button. Accepts any valid CSS `padding` shorthand. */
+  --yalo-chat-footer-padding: 8px;
+
+  /* Border around the footer, separating it from the message list.
+     Accepts any valid CSS border value (width, style, color).
+     Applies to all four sides. Defaults to `none`. */
+  --yalo-chat-footer-border: none;
+
+  /* Per-side footer borders. Each one overrides --yalo-chat-footer-border
+     for that side only, so you can render just a top border, or a top and
+     bottom border, without setting the others. Each defaults to
+     --yalo-chat-footer-border. */
+  --yalo-chat-footer-border-top: 1px solid #e8e8e8;
+  --yalo-chat-footer-border-right: 1px solid #e8e8e8;
+  --yalo-chat-footer-border-bottom: 1px solid #e8e8e8;
+  --yalo-chat-footer-border-left: 1px solid #e8e8e8;
+
   /* Full border shorthand for the message input field.
      Accepts any valid CSS border value (width, style, color). */
   --yalo-chat-input-border: 1px solid #e8e8e8;
@@ -187,6 +241,10 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
      The default produces a pill shape.
      Lower values make it more rectangular. */
   --yalo-chat-input-border-radius: 25.5px;
+
+  /* Padding inside the message input box, around the editable text area.
+     Accepts any valid CSS `padding` shorthand. Defaults to `8px`. */
+  --yalo-chat-input-padding: 8px;
 
   /* Font size of the text typed into the message input field. */
   --yalo-chat-input-font-size: 16px;
@@ -238,6 +296,18 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Text color inside message bubbles sent by the user. */
   --yalo-chat-user-message-color: #181818;
 
+  /* Font size of the text inside user message bubbles. */
+  --yalo-chat-user-message-font-size: 1rem;
+
+  /* Font weight of the text inside user message bubbles. */
+  --yalo-chat-user-message-font-weight: normal;
+
+  /* Border radius of user message bubbles (text, voice, and image).
+     Accepts any CSS border-radius shorthand, so you can round corners
+     individually with values like `8px 8px 2px 8px`.
+     Defaults to `1.125rem 1.125rem 0.25rem 1.125rem`. */
+  --yalo-chat-user-message-border-radius: 1.125rem 1.125rem 0.25rem 1.125rem;
+
   /* Color of the error icon shown on messages that failed to send. */
   --yalo-chat-user-message-error-color: #a01600;
 
@@ -277,6 +347,15 @@ The widget renders icons as font ligatures. By default it uses Material Symbols 
   /* Color of the animated dots displayed as a typing indicator
      when the assistant is composing a response. */
   --yalo-chat-dot-color: #2207f1;
+
+  /* Margin around the history spinner shown while older messages are
+     fetched. Accepts any valid CSS `margin` shorthand. Defaults to `0`. */
+  --yalo-chat-loader-margin: 0;
+
+  /* Margin around the typing indicator shown while the assistant is
+     composing a response. Accepts any valid CSS `margin` shorthand.
+     Defaults to `0`. */
+  --yalo-chat-writing-loader-margin: 0;
 }
 ```
 
@@ -332,6 +411,34 @@ option instead (see the README configuration reference).
 :root {
   /* Text color of the assistant message body and header. */
   --yalo-chat-assistant-message-color: #181818;
+
+  /* Font size of the assistant message text body. */
+  --yalo-chat-assistant-message-font-size: 1rem;
+
+  /* Font weight of the assistant message text body. */
+  --yalo-chat-assistant-message-font-weight: normal;
+
+  /* Padding inside each assistant message. Accepts any valid CSS `padding`
+     shorthand. Defaults to `0 0 0 0.5rem` (a small left inset). */
+  --yalo-chat-assistant-message-padding: 0 0 0 0.5rem;
+
+  /* Background color of the assistant text message bubble. Applies only to
+     the text body, so buttons and quick replies stay outside the bubble.
+     Defaults to `transparent`. */
+  --yalo-chat-assistant-message-background: transparent;
+
+  /* Border of the assistant text message bubble. Accepts any valid CSS
+     border value (width, style, color). Defaults to `none`. */
+  --yalo-chat-assistant-message-border: none;
+
+  /* Border radius of the assistant text message bubble. Accepts any CSS
+     border-radius shorthand, so you can round corners individually with
+     values like `8px 8px 8px 2px`. Defaults to `0`. */
+  --yalo-chat-assistant-message-border-radius: 0;
+
+  /* Padding inside the assistant text message bubble. Accepts any valid CSS
+     `padding` shorthand. Defaults to `0`. */
+  --yalo-chat-assistant-message-bubble-padding: 0;
 
   /* Color of links and link buttons inside assistant messages. */
   --yalo-chat-link-button-color: #2207f1;
@@ -427,12 +534,36 @@ When `welcomeMessageType` is set to `"verticalQuickReplies"` (see the README con
   /* Font size for chip text. */
   --yalo-chat-quick-replies-chip-font-size: 0.875rem;
 
+  /* Font weight for chip text. */
+  --yalo-chat-quick-replies-chip-font-weight: normal;
+
   /* Duration of the open and close animation. */
   --yalo-chat-quick-replies-animation-duration: 0.3s;
 
   /* Max width of a single quick reply chip when welcomeMessageType is
      set to "verticalQuickReplies". */
   --yalo-chat-vertical-quick-replies-chip-max-width: 20rem;
+
+  /* The welcome message rendered with welcomeMessageType set to
+     "verticalQuickReplies" has no text bubble by default, so the regular
+     assistant message bubble variables do not apply to it. Set the
+     variables below to give that first message its own bubble. */
+
+  /* Background color of the vertical quick replies welcome message bubble.
+     Defaults to `transparent`. */
+  --yalo-chat-vertical-quick-replies-message-background: transparent;
+
+  /* Border of the vertical quick replies welcome message bubble. Accepts any
+     valid CSS border value (width, style, color). Defaults to `none`. */
+  --yalo-chat-vertical-quick-replies-message-border: none;
+
+  /* Border radius of the vertical quick replies welcome message bubble.
+     Accepts any CSS border-radius shorthand. Defaults to `0`. */
+  --yalo-chat-vertical-quick-replies-message-border-radius: 0;
+
+  /* Padding inside the vertical quick replies welcome message bubble.
+     Accepts any valid CSS `padding` shorthand. Defaults to `0`. */
+  --yalo-chat-vertical-quick-replies-message-bubble-padding: 0;
 }
 ```
 

@@ -45,6 +45,7 @@ export default class ChatQuickReplies extends LitElement {
       background: var(--yalo-chat-quick-replies-chip-background, transparent);
       color: var(--yalo-chat-quick-replies-chip-color, #111111);
       font-size: var(--yalo-chat-quick-replies-chip-font-size, 0.875rem);
+      font-weight: var(--yalo-chat-quick-replies-chip-font-weight, normal);
       cursor: pointer;
       word-break: break-word;
     }

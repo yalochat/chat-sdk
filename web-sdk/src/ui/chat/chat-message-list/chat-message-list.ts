@@ -42,7 +42,10 @@ export default class ChatMessageList extends LitElement {
     }
 
     .message-list::-webkit-scrollbar-track {
-      background: var(--yalo-chat-message-list-scrollbar-track-color, transparent);
+      background: var(
+        --yalo-chat-message-list-scrollbar-track-color,
+        transparent
+      );
     }
 
     .message-list::-webkit-scrollbar-thumb {
@@ -62,7 +65,6 @@ export default class ChatMessageList extends LitElement {
     .agent-message {
       justify-content: flex-start;
       display: flow;
-      padding-left: 0.5rem;
     }
 
     .bubble {
@@ -79,6 +81,7 @@ export default class ChatMessageList extends LitElement {
       justify-content: center;
       padding: 0.5rem;
       height: 48px;
+      margin: var(--yalo-chat-loader-margin, 0);
     }
 
     .spinner {
@@ -104,6 +107,7 @@ export default class ChatMessageList extends LitElement {
     .writing-loader {
       display: flex;
       padding-left: 1rem;
+      margin: var(--yalo-chat-writing-loader-margin, 0);
     }
 
     .dot-loader {
@@ -228,7 +232,9 @@ export default class ChatMessageList extends LitElement {
                   : 'agent-message'}"
               >
                 ${isUser
-                  ? html`<yalo-chat-user-message .message=${chatMessage}></yalo-chat-user-message>`
+                  ? html`<yalo-chat-user-message
+                      .message=${chatMessage}
+                    ></yalo-chat-user-message>`
                   : html`<yalo-chat-assistant-message
                       .message=${chatMessage}
                       .showInlineReplies=${showWelcomeOnly ||
