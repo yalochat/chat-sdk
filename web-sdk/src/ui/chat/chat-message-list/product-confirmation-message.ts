@@ -26,10 +26,18 @@ export class ProductConfirmationMessage extends LitElement {
       margin-right: auto;
       gap: var(--yalo-chat-product-confirmation-gap, 0.75rem);
       box-sizing: border-box;
+      padding: var(--yalo-chat-assistant-message-bubble-padding, 0);
+      background: var(--yalo-chat-assistant-message-background, transparent);
+      border: var(--yalo-chat-assistant-message-border, none);
+      border-radius: var(--yalo-chat-assistant-message-border-radius, 0);
     }
 
     .title {
-      color: var(--yalo-chat-product-confirmation-title-color, #111111);
+      color: var(
+        --yalo-chat-product-confirmation-title-color,
+        var(--yalo-chat-assistant-message-color, #181818)
+      );
+      font-size: var(--yalo-chat-assistant-message-font-size, 1rem);
       font-weight: var(
         --yalo-chat-product-confirmation-title-font-weight,
         bold
@@ -38,7 +46,12 @@ export class ProductConfirmationMessage extends LitElement {
     }
 
     .body {
-      color: var(--yalo-chat-product-confirmation-body-color, #111111);
+      color: var(
+        --yalo-chat-product-confirmation-body-color,
+        var(--yalo-chat-assistant-message-color, #181818)
+      );
+      font-size: var(--yalo-chat-assistant-message-font-size, 1rem);
+      font-weight: var(--yalo-chat-assistant-message-font-weight, normal);
       word-break: break-word;
     }
 

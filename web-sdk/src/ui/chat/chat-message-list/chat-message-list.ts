@@ -192,14 +192,12 @@ export default class ChatMessageList extends LitElement {
     );
     const showWelcomeOnly =
       this.config.welcomeMessageType === 'verticalQuickReplies' &&
-      !hasUserMessage;
-    const messagesToRender = showWelcomeOnly
-      ? this.chatMessages.slice(0, 1)
-      : this.chatMessages;
+      !hasUserMessage &&
+      this.chatMessages.length === 1;
 
     let quickReplies: MessageButton[] = [];
     let latestReplyMessageId: ChatMessage['id'];
-    for (const message of messagesToRender) {
+    for (const message of this.chatMessages) {
       if (message.role === 'USER') {
         break;
       }
@@ -221,7 +219,7 @@ export default class ChatMessageList extends LitElement {
             </li>`
           : nothing}
         ${repeat(
-          messagesToRender,
+          this.chatMessages,
           (chatMessage) => chatMessage.id,
           (chatMessage) => {
             const isUser = chatMessage.role === 'USER';

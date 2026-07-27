@@ -682,14 +682,24 @@ When `welcomeMessageType` is set to `"verticalQuickReplies"` (see the README con
   /* Vertical gap between title, body, button, and footer. */
   --yalo-chat-product-confirmation-gap: 0.75rem;
 
-  /* Color of the bold title rendered at the top of the card. */
-  --yalo-chat-product-confirmation-title-color: #111111;
+  /* Color of the bold title rendered at the top of the card. Defaults to the
+     assistant message color so the card matches assistant messages. */
+  --yalo-chat-product-confirmation-title-color: var(
+    --yalo-chat-assistant-message-color,
+    #181818
+  );
 
   /* Font weight applied to the title. */
   --yalo-chat-product-confirmation-title-font-weight: bold;
 
-  /* Color of the body text. */
-  --yalo-chat-product-confirmation-body-color: #111111;
+  /* Color of the body text. Defaults to the assistant message color so the
+     card matches assistant messages. The title and body also use
+     --yalo-chat-assistant-message-font-size and
+     --yalo-chat-assistant-message-font-weight for their font. */
+  --yalo-chat-product-confirmation-body-color: var(
+    --yalo-chat-assistant-message-color,
+    #181818
+  );
 
   /* Background color of the call-to-action button before it is clicked. */
   --yalo-chat-product-confirmation-button-background: #111111;
