@@ -86,8 +86,7 @@ export class UserMessage extends LitElement {
     }
 
     .error-wrapper .bubble,
-    .error-wrapper .voice-bubble,
-    .error-wrapper .image-bubble {
+    .error-wrapper .voice-bubble {
       max-width: 100%;
     }
 
@@ -102,14 +101,6 @@ export class UserMessage extends LitElement {
       color: var(--yalo-chat-user-message-color, #181818);
     }
 
-    .image-bubble {
-      max-width: 80%;
-      border-radius: var(
-        --yalo-chat-user-message-border-radius,
-        1.125rem 1.125rem 0.25rem 1.125rem
-      );
-      overflow: hidden;
-    }
   `;
 
   private _controller = new UserMessageController(this);

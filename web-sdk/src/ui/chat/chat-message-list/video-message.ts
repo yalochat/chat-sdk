@@ -9,10 +9,11 @@ export class VideoMessage extends LitElement {
   static styles = css`
     :host {
       display: block;
+      max-width: 90%;
     }
 
     .video-bubble {
-      border-radius: 1.125rem;
+      border-radius: var(--yalo-chat-video-border-radius, 1.125rem);
       overflow: hidden;
       min-height: 4rem;
       position: relative;
@@ -22,13 +23,14 @@ export class VideoMessage extends LitElement {
       display: block;
       max-width: 100%;
       height: auto;
-      border-radius: 1.125rem;
+      border-radius: var(--yalo-chat-video-border-radius, 1.125rem);
     }
 
     .video-caption {
-      padding: 0.5rem 0.75rem;
+      padding: var(--yalo-chat-video-caption-padding, 0.5rem 0.75rem);
       word-break: break-word;
-      font-size: 0.875rem;
+      font-size: var(--yalo-chat-assistant-message-font-size, 1rem);
+      font-weight: var(--yalo-chat-assistant-message-font-weight, normal);
     }
 
     .loader {

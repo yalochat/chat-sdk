@@ -45,15 +45,21 @@ export class AssistantMessage extends LitElement {
       }
     }
 
+    .bubble {
+      width: fit-content;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: var(--yalo-chat-assistant-message-bubble-padding, 0);
+      background: var(--yalo-chat-assistant-message-background, transparent);
+      border: var(--yalo-chat-assistant-message-border, none);
+      border-radius: var(--yalo-chat-assistant-message-border-radius, 0);
+    }
+
     p {
       margin: 0;
       word-break: break-word;
       font-size: var(--yalo-chat-assistant-message-font-size, 1rem);
       font-weight: var(--yalo-chat-assistant-message-font-weight, normal);
-      padding: var(--yalo-chat-assistant-message-bubble-padding, 0);
-      background: var(--yalo-chat-assistant-message-background, transparent);
-      border: var(--yalo-chat-assistant-message-border, none);
-      border-radius: var(--yalo-chat-assistant-message-border-radius, 0);
     }
 
     a {
@@ -62,14 +68,6 @@ export class AssistantMessage extends LitElement {
 
     .voice-bubble {
       max-width: 90%;
-    }
-
-    .image-bubble,
-    .video-bubble {
-      max-width: 90%;
-      border-radius: 1.125rem;
-      border-bottom-left-radius: 0.25rem;
-      overflow: hidden;
     }
 
     .attachment-bubble {
@@ -213,7 +211,8 @@ export class AssistantMessage extends LitElement {
       align-items: center;
     }
 
-    :host([centered]) p {
+    :host([centered]) .bubble {
+      width: 100%;
       padding: var(--yalo-chat-vertical-quick-replies-message-bubble-padding, 0);
       background: var(
         --yalo-chat-vertical-quick-replies-message-background,
@@ -315,13 +314,15 @@ export class AssistantMessage extends LitElement {
     const showReplies = this.showInlineReplies && replies.length > 0;
 
     return html`
-      ${this.message.header
-        ? html`<div class="header">${this.message.header}</div>`
-        : null}
-      ${body}
-      ${this.message.footer
-        ? html`<div class="footer">${this.message.footer}</div>`
-        : null}
+      <div class="bubble">
+        ${this.message.header
+          ? html`<div class="header">${this.message.header}</div>`
+          : null}
+        ${body}
+        ${this.message.footer
+          ? html`<div class="footer">${this.message.footer}</div>`
+          : null}
+      </div>
       ${buttons.length > 0
         ? html`<div class="buttons">
             ${buttons.map((button) =>

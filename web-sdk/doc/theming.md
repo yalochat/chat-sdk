@@ -16,6 +16,7 @@ The Webchat SDK exposes CSS custom properties (variables) that let you customize
   - [Loading and typing indicators](#loading-and-typing-indicators)
   - [Voice and audio](#voice-and-audio)
   - [Attachments](#attachments)
+  - [Image and video messages](#image-and-video-messages)
   - [Assistant messages](#assistant-messages)
   - [Message buttons](#message-buttons)
   - [Quick replies](#quick-replies)
@@ -402,6 +403,33 @@ option instead (see the README configuration reference).
 
   /* Font size of the Material Symbols icon shown next to the file name. */
   --yalo-chat-attachment-message-icon-font-size: 1.5rem;
+}
+```
+
+### Image and video messages
+
+These apply to image and video messages sent by either the user or the
+assistant. Image and video captions use the assistant message font, so they
+follow `--yalo-chat-assistant-message-font-size` and
+`--yalo-chat-assistant-message-font-weight`.
+
+```css
+:root {
+  /* Border radius of image messages. Accepts any CSS border-radius
+     shorthand. */
+  --yalo-chat-image-border-radius: 1.125rem;
+
+  /* Padding of the caption shown below an image message. Accepts any valid
+     CSS `padding` shorthand. */
+  --yalo-chat-image-caption-padding: 0.5rem 0.75rem;
+
+  /* Border radius of video messages. Accepts any CSS border-radius
+     shorthand. */
+  --yalo-chat-video-border-radius: 1.125rem;
+
+  /* Padding of the caption shown below a video message. Accepts any valid
+     CSS `padding` shorthand. */
+  --yalo-chat-video-caption-padding: 0.5rem 0.75rem;
 }
 ```
 
