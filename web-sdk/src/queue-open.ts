@@ -18,9 +18,20 @@ export interface YaloOpenCommandOptions {
   registerCommands?: RegisteredCommandsMap;
 }
 
+// Lifecycle callbacks specific to the queue path. `onReady` hands back the
+// created client once it is initialized, so hosts that open through the queue
+// (and never hold a client reference) can still drive it imperatively, for
+// example to call `client.sendTextMessage(...)` later. It is the reliable way
+// to get the client from the queue: it fires whether you push before or after
+// the SDK script loads.
+export interface YaloOpenLifecycleOptions {
+  onReady?: (client: YaloChatClient) => void;
+}
+
 export type YaloOpenConfig = YaloChatClientConfig &
   YaloChatClientInitOptions &
-  YaloOpenCommandOptions;
+  YaloOpenCommandOptions &
+  YaloOpenLifecycleOptions;
 
 export interface YaloOpenQueue {
   push(config: YaloOpenConfig): void;
@@ -33,7 +44,7 @@ declare global {
 }
 
 function openClient(config: YaloOpenConfig): YaloChatClient {
-  const { onOpen, onClose, registerCommands, ...clientConfig } = config;
+  const { onOpen, onClose, onReady, registerCommands, ...clientConfig } = config;
   const client = new YaloChatClient(clientConfig);
   if (registerCommands) {
     for (const [command, handler] of Object.entries(registerCommands)) {
@@ -47,6 +58,7 @@ function openClient(config: YaloOpenConfig): YaloChatClient {
   }
   client.init({ onOpen, onClose });
   client.open();
+  onReady?.(client);
   return client;
 }
 

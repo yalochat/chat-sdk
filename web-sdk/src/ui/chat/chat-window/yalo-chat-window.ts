@@ -100,6 +100,12 @@ export class YaloChatWindow extends LitElement {
     }
   }
 
+  // Sends a text message on the user's behalf. Delegates to the controller so
+  // it follows the same path as a message typed in the footer.
+  sendTextMessage(text: string): void {
+    this._chatWindowController.sendUserText(text);
+  }
+
   private _handleClose = () => {
     this.open = false;
     this.dispatchEvent(
