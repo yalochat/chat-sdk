@@ -295,6 +295,8 @@ export class ChatFooter extends LitElement {
     const hideAttachmentButton = this.config?.hideAttachmentButton === true;
     const hideVoiceButton = this.config?.hideVoiceButton === true;
     const actionIcon = shouldShowSend || hideVoiceButton ? 'send' : 'mic';
+    const inputPlaceholder =
+      this.config?.texts?.inputPlaceholder ?? msg('Write a message...');
     return html`
       <footer class="chat-footer">
         <form
@@ -320,7 +322,7 @@ export class ChatFooter extends LitElement {
                       contenteditable="plaintext-only"
                       role="textbox"
                       aria-multiline="true"
-                      aria-label=${msg('Write a message...')}
+                      aria-label=${inputPlaceholder}
                       @input=${() => this._chatFootercontroller.handleOnInput()}
                       @keydown=${(e: KeyboardEvent) =>
                         this._chatFootercontroller.handleOnKeyDown(e)}
@@ -331,7 +333,7 @@ export class ChatFooter extends LitElement {
                           class="chat-input-placeholder"
                           aria-hidden="true"
                         >
-                          ${msg('Write a message...')}
+                          ${inputPlaceholder}
                         </div>`}
                   </div>
                   ${hideAttachmentButton
