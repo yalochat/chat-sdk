@@ -1,6 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import '@ui/chat/waveform-painter/waveform-painter';
@@ -50,10 +53,20 @@ export class VoiceMessage extends LitElement {
       content: var(--yalo-chat-icon-pause, 'pause');
     }
 
+    .yalo-icon-img {
+      width: var(--yalo-chat-voice-message-icon-font-size, 1.5rem);
+      height: var(--yalo-chat-voice-message-icon-font-size, 1.5rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
     yalo-chat-waveform-recorder {
       flex-grow: 1;
     }
   `;
+
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -92,6 +105,8 @@ export class VoiceMessage extends LitElement {
   }
 
   render() {
+    const iconName = this._playing ? 'pause' : 'play';
+    const iconOverride = this.config?.icons?.[iconName];
     return html`
       <div class="voice-container">
         <button
@@ -99,11 +114,18 @@ export class VoiceMessage extends LitElement {
           type="button"
           @click=${() => this._togglePlayback()}
         >
-          <span
-            class="yalo-icon"
-            data-icon=${this._playing ? 'pause' : 'play'}
-            aria-hidden="true"
-          ></span>
+          ${iconOverride
+            ? html`<img
+                class="yalo-icon-img"
+                src=${iconOverride}
+                alt=""
+                aria-hidden="true"
+              />`
+            : html`<span
+                class="yalo-icon"
+                data-icon=${iconName}
+                aria-hidden="true"
+              ></span>`}
         </button>
         <yalo-chat-waveform-recorder
           .amplitudes=${this.message.amplitudes ?? []}

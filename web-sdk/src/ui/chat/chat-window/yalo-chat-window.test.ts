@@ -2448,3 +2448,154 @@ describe('YaloChatWindow cross-tab sync', () => {
     expect(pageSpy).not.toHaveBeenCalled();
   });
 });
+
+describe('YaloChatWindow icon overrides', () => {
+  const icons = {
+    send: 'https://cdn.test/send.svg',
+    mic: 'https://cdn.test/mic.svg',
+    attachment: 'https://cdn.test/attachment.svg',
+    close: 'https://cdn.test/close.svg',
+    play: 'https://cdn.test/play.svg',
+    pause: 'https://cdn.test/pause.svg',
+    document: 'https://cdn.test/document.svg',
+    arrowForward: 'https://cdn.test/arrow.svg',
+    check: 'https://cdn.test/check.svg',
+    error: 'https://cdn.test/error.svg',
+  };
+
+  // Walks the whole widget across shadow boundaries and returns the set of
+  // src values used by overridden icons (rendered as <img class="yalo-icon-img">).
+  const collectIconImgSrcs = (root: ParentNode): Set<string> => {
+    const srcs = new Set<string>();
+    const visit = (node: ParentNode) => {
+      node
+        .querySelectorAll<HTMLImageElement>('img.yalo-icon-img')
+        .forEach((img) => srcs.add(img.getAttribute('src') ?? ''));
+      node.querySelectorAll('*').forEach((el) => {
+        const shadow = (el as HTMLElement).shadowRoot;
+        if (shadow) {
+          visit(shadow);
+        }
+      });
+    };
+    visit(root);
+    return srcs;
+  };
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('renders every overridden icon as an image across the composed widget', async () => {
+    // No incoming messages, so the seeded conversation below is the only source
+    // of message-list content and the window never re-renders over it.
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(() => {});
+
+    const win = document.createElement('yalo-chat-window') as YaloChatWindow;
+    win.config = { ...baseConfig, icons };
+    document.body.appendChild(win);
+    await vi.waitUntil(() => win.yaloMessageRepository !== undefined);
+    await win.updateComplete;
+
+    // Seed one message of each icon-bearing type directly on the list child.
+    const list = win.shadowRoot!.querySelector(
+      'yalo-chat-message-list'
+    ) as unknown as { chatMessages: ChatMessage[]; updateComplete: Promise<unknown> };
+    list.chatMessages = [
+      ChatMessage.voice({
+        id: 1,
+        role: 'USER',
+        timestamp: new Date(0),
+        fileName: 'voice.webm',
+        amplitudes: [1, 2, 3],
+        duration: 1,
+      }),
+      ChatMessage.attachment({
+        id: 2,
+        role: 'USER',
+        timestamp: new Date(0),
+        fileName: 'doc.pdf',
+      }),
+      ChatMessage.text({
+        id: 3,
+        role: 'USER',
+        timestamp: new Date(0),
+        content: 'oops',
+        status: 'ERROR',
+      }),
+      ChatMessage.text({
+        id: 4,
+        role: 'AGENT',
+        timestamp: new Date(0),
+        content: 'Check this out',
+        buttons: [{ text: 'Open', type: 'link', url: 'https://example.com' }],
+      }),
+      ChatMessage.productConfirmation({
+        id: 5,
+        role: 'AGENT',
+        timestamp: new Date(0),
+        header: 'Confirm',
+        content: 'Add this product?',
+        footer: 'Go to cart',
+        button: { text: 'Confirm' },
+        product: new Product({
+          sku: 'sku-1',
+          name: 'Product',
+          price: 1,
+          unitName: 'unit',
+        }),
+        status: 'CLICKED',
+      }),
+    ];
+    await list.updateComplete;
+
+    // Icons present in this layout. The footer action button shows the mic
+    // icon while the input is empty; send is exercised separately below since
+    // the two share one render site and never appear at the same time.
+    const expectedIcons = [
+      icons.close,
+      icons.attachment,
+      icons.mic,
+      icons.play,
+      icons.document,
+      icons.error,
+      icons.arrowForward,
+      icons.check,
+    ];
+    await vi.waitUntil(() => {
+      const srcs = collectIconImgSrcs(win.shadowRoot!);
+      return expectedIcons.every((src) => srcs.has(src));
+    });
+    const srcs = collectIconImgSrcs(win.shadowRoot!);
+    for (const src of expectedIcons) {
+      expect(srcs.has(src)).toBe(true);
+    }
+
+    // The header close icon renders as an <img>, not the font span.
+    expect(
+      win.shadowRoot!
+        .querySelector('yalo-chat-header')!
+        .shadowRoot!.querySelector('.yalo-icon')
+    ).toBeNull();
+
+    // Typing flips the action button to the send icon, exercising that key too.
+    const footer = win.shadowRoot!.querySelector(
+      'yalo-chat-footer'
+    ) as LitElement;
+    await footer.updateComplete;
+    const input = footer.shadowRoot!.querySelector('.chat-input') as HTMLElement;
+    input.textContent = 'hi';
+    input.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+    await footer.updateComplete;
+
+    await vi.waitUntil(() =>
+      collectIconImgSrcs(win.shadowRoot!).has(icons.send)
+    );
+    expect(collectIconImgSrcs(win.shadowRoot!).has(icons.send)).toBe(true);
+  });
+});

@@ -142,6 +142,13 @@ export class AssistantMessage extends LitElement {
       content: var(--yalo-chat-icon-arrow-forward, 'arrow_forward');
     }
 
+    .yalo-icon-img {
+      width: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
+      height: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
     .buttons button:hover,
     .buttons a:hover {
       background-color: var(--yalo-chat-buttons-hover-background, #dde4ec);
@@ -334,11 +341,18 @@ export class AssistantMessage extends LitElement {
                   >
                     ${button.text}
                     <span class="arrow">
-                      <span
-                        class="yalo-icon"
-                        data-icon="arrow-forward"
-                        aria-hidden="true"
-                      ></span>
+                      ${this.config?.icons?.arrowForward
+                        ? html`<img
+                            class="yalo-icon-img"
+                            src=${this.config.icons.arrowForward}
+                            alt=""
+                            aria-hidden="true"
+                          />`
+                        : html`<span
+                            class="yalo-icon"
+                            data-icon="arrow-forward"
+                            aria-hidden="true"
+                          ></span>`}
                     </span>
                   </a>`
                 : html`<button

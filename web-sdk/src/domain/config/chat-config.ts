@@ -15,6 +15,19 @@ export interface YaloChatTexts {
   inputPlaceholder?: string;
 }
 
+export interface YaloChatIcons {
+  send?: string;
+  mic?: string;
+  attachment?: string;
+  close?: string;
+  play?: string;
+  pause?: string;
+  document?: string;
+  arrowForward?: string;
+  check?: string;
+  error?: string;
+}
+
 export interface YaloChatClientConfig {
   channelId: string;
   organizationId: string;
@@ -35,4 +48,5 @@ export interface YaloChatClientConfig {
   welcomeMessageType?: WelcomeMessageType;
   quickReplyType?: QuickReplyType;
   texts?: YaloChatTexts;
+  icons?: YaloChatIcons;
 }
