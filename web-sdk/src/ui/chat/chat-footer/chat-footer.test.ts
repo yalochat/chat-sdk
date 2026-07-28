@@ -316,6 +316,21 @@ describe('ChatFooter', () => {
         footer.shadowRoot!.querySelector('.chat-input-placeholder')
       ).toBeNull();
     });
+
+    it('shows the configured text override instead of the default placeholder', async () => {
+      const footer = await renderFooter({
+        texts: { inputPlaceholder: 'Type here to reach us' },
+      });
+      const placeholder = footer.shadowRoot!.querySelector(
+        '.chat-input-placeholder'
+      ) as HTMLElement | null;
+      const input = footer.shadowRoot!.querySelector(
+        '.chat-input'
+      ) as HTMLElement;
+
+      expect(placeholder?.textContent?.trim()).toBe('Type here to reach us');
+      expect(input.getAttribute('aria-label')).toBe('Type here to reach us');
+    });
   });
 
   describe('voice recording', () => {

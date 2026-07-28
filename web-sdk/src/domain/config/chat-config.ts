@@ -11,6 +11,10 @@ export type WelcomeMessageType = (typeof WELCOME_MESSAGE_TYPES)[number];
 export const QUICK_REPLY_TYPES = ['modal', 'inline'] as const;
 export type QuickReplyType = (typeof QUICK_REPLY_TYPES)[number];
 
+export interface YaloChatTexts {
+  inputPlaceholder?: string;
+}
+
 export interface YaloChatClientConfig {
   channelId: string;
   organizationId: string;
@@ -30,4 +34,5 @@ export interface YaloChatClientConfig {
   logLevel?: LogLevel;
   welcomeMessageType?: WelcomeMessageType;
   quickReplyType?: QuickReplyType;
+  texts?: YaloChatTexts;
 }
