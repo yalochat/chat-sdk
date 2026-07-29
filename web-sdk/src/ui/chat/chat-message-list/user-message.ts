@@ -1,6 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { localized, msg } from '@lit/localize';
@@ -59,6 +62,13 @@ export class UserMessage extends LitElement {
       content: var(--yalo-chat-icon-error, 'error');
     }
 
+    .yalo-icon-img {
+      width: var(--yalo-chat-user-message-icon-font-size, 1.25rem);
+      height: var(--yalo-chat-user-message-icon-font-size, 1.25rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
     .error-label {
       font-size: 0.75rem;
       color: var(--yalo-chat-user-message-error-text-color, #461a1a);
@@ -105,6 +115,9 @@ export class UserMessage extends LitElement {
 
   private _controller = new UserMessageController(this);
 
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
+
   @property({ attribute: false })
   message!: ChatMessage;
 
@@ -139,7 +152,13 @@ export class UserMessage extends LitElement {
         >
           <div class="error-row">
             <span class="error-icon" aria-hidden="true">
-              <span class="yalo-icon" data-icon="error"></span>
+              ${this.config?.icons?.error
+                ? html`<img
+                    class="yalo-icon-img"
+                    src=${this.config.icons.error}
+                    alt=""
+                  />`
+                : html`<span class="yalo-icon" data-icon="error"></span>`}
             </span>
             ${this._renderBubble()}
           </div>

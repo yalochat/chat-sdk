@@ -262,6 +262,7 @@ Optional properties:
   - `"verticalQuickReplies"`: while the user has not sent a message yet, only the first message is shown, with its header, body and quick replies centered, and one quick reply per line. Once the user sends a message, the full conversation renders normally.
 - **`quickReplyType`** (`"modal" | "inline"`): Controls how quick replies are presented. Defaults to `"modal"`, which shows them in a modal over the chat footer. Set to `"inline"` to show them inline instead.
 - **`texts`** (`object`): Overrides for built-in text strings. See [Translations](doc/translations.md).
+- **`icons`** (`object`): Replace built-in icons with your own SVGs. See [Icons](doc/icons.md).
 
 ## Theming
 

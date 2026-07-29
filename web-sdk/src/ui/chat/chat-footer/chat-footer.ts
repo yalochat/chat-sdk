@@ -161,6 +161,13 @@ export class ChatFooter extends LitElement {
       content: var(--yalo-chat-icon-attachment, 'add');
     }
 
+    .yalo-icon-img {
+      width: var(--yalo-chat-footer-icon-font-size, 1.5rem);
+      height: var(--yalo-chat-footer-icon-font-size, 1.5rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
     .chat-input-container {
       display: flex;
       width: 100%;
@@ -295,6 +302,7 @@ export class ChatFooter extends LitElement {
     const hideAttachmentButton = this.config?.hideAttachmentButton === true;
     const hideVoiceButton = this.config?.hideVoiceButton === true;
     const actionIcon = shouldShowSend || hideVoiceButton ? 'send' : 'mic';
+    const actionIconOverride = this.config?.icons?.[actionIcon];
     const inputPlaceholder =
       this.config?.texts?.inputPlaceholder ?? msg('Write a message...');
     return html`
@@ -339,11 +347,18 @@ export class ChatFooter extends LitElement {
                   ${hideAttachmentButton
                     ? nothing
                     : html`<label for="file-picker">
-                          <span
-                            class="yalo-icon"
-                            data-icon="attachment"
-                            aria-hidden="true"
-                          ></span>
+                          ${this.config?.icons?.attachment
+                            ? html`<img
+                                class="yalo-icon-img"
+                                src=${this.config.icons.attachment}
+                                alt=""
+                                aria-hidden="true"
+                              />`
+                            : html`<span
+                                class="yalo-icon"
+                                data-icon="attachment"
+                                aria-hidden="true"
+                              ></span>`}
                         </label>
                         <input
                           id="file-picker"
@@ -363,11 +378,18 @@ export class ChatFooter extends LitElement {
               ${keyed(
                 actionIcon,
                 html`<span class="icon-wrapper">
-                  <span
-                    class="yalo-icon"
-                    data-icon=${actionIcon}
-                    aria-hidden="true"
-                  ></span>
+                  ${actionIconOverride
+                    ? html`<img
+                        class="yalo-icon-img"
+                        src=${actionIconOverride}
+                        alt=""
+                        aria-hidden="true"
+                      />`
+                    : html`<span
+                        class="yalo-icon"
+                        data-icon=${actionIcon}
+                        aria-hidden="true"
+                      ></span>`}
                 </span>`
               )}
             </button>

@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import {
   registeredCommandsContext,
   type RegisteredCommands,
@@ -138,6 +140,13 @@ export class ProductConfirmationMessage extends LitElement {
       content: var(--yalo-chat-icon-check, 'check');
     }
 
+    .yalo-icon-img {
+      width: var(--yalo-chat-product-confirmation-icon-font-size, 1rem);
+      height: var(--yalo-chat-product-confirmation-icon-font-size, 1rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
     .footer {
       align-self: center;
       background: none;
@@ -173,6 +182,9 @@ export class ProductConfirmationMessage extends LitElement {
 
   @consume({ context: registeredCommandsContext, subscribe: true })
   commands?: RegisteredCommands;
+
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
 
   @state()
   private _pending = false;
@@ -210,11 +222,18 @@ export class ProductConfirmationMessage extends LitElement {
           <span class="label">
             ${clicked
               ? html`<span class="icon">
-                  <span
-                    class="yalo-icon"
-                    data-icon="check"
-                    aria-hidden="true"
-                  ></span>
+                  ${this.config?.icons?.check
+                    ? html`<img
+                        class="yalo-icon-img"
+                        src=${this.config.icons.check}
+                        alt=""
+                        aria-hidden="true"
+                      />`
+                    : html`<span
+                        class="yalo-icon"
+                        data-icon="check"
+                        aria-hidden="true"
+                      ></span>`}
                 </span>`
               : nothing}
             ${button.text}

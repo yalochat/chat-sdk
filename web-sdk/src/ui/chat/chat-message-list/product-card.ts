@@ -151,6 +151,13 @@ export class ProductCard extends LitElement {
     .yalo-icon[data-icon='check']::before {
       content: var(--yalo-chat-icon-check, 'check');
     }
+
+    .yalo-icon-img {
+      width: var(--yalo-chat-product-card-button-icon-font-size, 1rem);
+      height: var(--yalo-chat-product-card-button-icon-font-size, 1rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
   `;
 
   private _controller = new ProductCardController(this);
@@ -298,11 +305,18 @@ export class ProductCard extends LitElement {
           >
             ${this._effectiveCartState === 'in-cart'
               ? html`<span class="icon">
-                  <span
-                    class="yalo-icon"
-                    data-icon="check"
-                    aria-hidden="true"
-                  ></span>
+                  ${this.config?.icons?.check
+                    ? html`<img
+                        class="yalo-icon-img"
+                        src=${this.config.icons.check}
+                        alt=""
+                        aria-hidden="true"
+                      />`
+                    : html`<span
+                        class="yalo-icon"
+                        data-icon="check"
+                        aria-hidden="true"
+                      ></span>`}
                 </span>`
               : nothing}
             ${this._cartButtonLabel()}

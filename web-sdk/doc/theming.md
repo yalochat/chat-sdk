@@ -74,6 +74,8 @@ Every variable includes a built-in fallback, so the widget renders correctly eve
 
 The widget renders icons as font ligatures. By default it uses Material Symbols Outlined (loaded by the host page) and each icon name maps to a ligature in that font. Override the variables below to point at a different font, or to swap individual glyphs to other ligatures in the same font.
 
+To replace an icon with your own SVG image instead of a font glyph, use the `icons` configuration object. See [Icons](icons.md).
+
 ```css
 :root {
   /* Font family used to render every icon in the widget.

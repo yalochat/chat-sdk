@@ -55,6 +55,13 @@ export class WaveformPainter extends LitElement {
       content: var(--yalo-chat-icon-close, 'close');
     }
 
+    .yalo-icon-img {
+      width: var(--yalo-chat-waveform-icon-font-size, 1.5em);
+      height: var(--yalo-chat-waveform-icon-font-size, 1.5em);
+      object-fit: contain;
+      vertical-align: middle;
+    }
+
     .recording-time {
       color: var(--yalo-chat-waveform-timer-color, #7c8086);
       display: flex;
@@ -96,11 +103,18 @@ export class WaveformPainter extends LitElement {
               @click=${() =>
                 this.dispatchEvent(new Event('yalo-chat-stop-voice-message'))}
             >
-              <span
-                class="yalo-icon"
-                data-icon="close"
-                aria-hidden="true"
-              ></span>
+              ${this.config?.icons?.close
+                ? html`<img
+                    class="yalo-icon-img"
+                    src=${this.config.icons.close}
+                    alt=""
+                    aria-hidden="true"
+                  />`
+                : html`<span
+                    class="yalo-icon"
+                    data-icon="close"
+                    aria-hidden="true"
+                  ></span>`}
             </button>`
           : nothing}
       </div>

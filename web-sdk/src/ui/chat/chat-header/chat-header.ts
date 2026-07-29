@@ -93,6 +93,13 @@ export class ChatHeader extends LitElement {
     .yalo-icon[data-icon='close']::before {
       content: var(--yalo-chat-icon-close, 'close');
     }
+
+    .yalo-icon-img {
+      width: var(--yalo-chat-header-icon-font-size, 1.5rem);
+      height: var(--yalo-chat-header-icon-font-size, 1.5rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
   `;
 
   @consume({ context: yaloChatClientConfigContext })
@@ -124,7 +131,18 @@ export class ChatHeader extends LitElement {
               aria-label="${msg(`Close Chat`)}"
               @click=${this._handleClose}
             >
-              <span class="yalo-icon" data-icon="close" aria-hidden="true"></span>
+              ${this.config?.icons?.close
+                ? html`<img
+                    class="yalo-icon-img"
+                    src=${this.config.icons.close}
+                    alt=""
+                    aria-hidden="true"
+                  />`
+                : html`<span
+                    class="yalo-icon"
+                    data-icon="close"
+                    aria-hidden="true"
+                  ></span>`}
             </button>`}
       </header>
     `;

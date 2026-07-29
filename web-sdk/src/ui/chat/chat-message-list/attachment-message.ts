@@ -1,6 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
+import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
+import { consume } from '@lit/context';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -44,7 +47,17 @@ export class AttachmentMessage extends LitElement {
     .yalo-icon[data-icon='document']::before {
       content: var(--yalo-chat-icon-document, 'description');
     }
+
+    .yalo-icon-img {
+      width: var(--yalo-chat-attachment-message-icon-font-size, 1.5rem);
+      height: var(--yalo-chat-attachment-message-icon-font-size, 1.5rem);
+      object-fit: contain;
+      vertical-align: middle;
+    }
   `;
+
+  @consume({ context: yaloChatClientConfigContext })
+  config!: YaloChatClientConfig;
 
   @property({ attribute: false })
   message!: ChatMessage;
@@ -62,7 +75,18 @@ export class AttachmentMessage extends LitElement {
     return html`
       <div class="attachment">
         <span class="attachment-icon">
-          <span class="yalo-icon" data-icon="document" aria-hidden="true"></span>
+          ${this.config?.icons?.document
+            ? html`<img
+                class="yalo-icon-img"
+                src=${this.config.icons.document}
+                alt=""
+                aria-hidden="true"
+              />`
+            : html`<span
+                class="yalo-icon"
+                data-icon="document"
+                aria-hidden="true"
+              ></span>`}
         </span>
         <span class="attachment-name">${this._getDisplayName()}</span>
       </div>
