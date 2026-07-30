@@ -5,10 +5,11 @@ import {
   yaloChatClientConfigContext,
 } from '@domain/config/chat-config-context';
 import { consume } from '@lit/context';
-import { msg } from '@lit/localize';
+import { localized, msg } from '@lit/localize';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
+@localized()
 @customElement('yalo-chat-header')
 export class ChatHeader extends LitElement {
   static styles = css`
@@ -59,6 +60,25 @@ export class ChatHeader extends LitElement {
     .chat-status {
       margin: 0;
       font-size: 0.8rem;
+    }
+
+    .yalo-watermark {
+      margin: 0;
+      font-size: var(--yalo-chat-header-watermark-font-size, 0.7rem);
+      font-weight: var(--yalo-chat-header-watermark-font-weight, 400);
+      color: var(--yalo-chat-header-watermark-color, #747474);
+    }
+
+    .yalo-watermark[data-position='header-left'] {
+      text-align: left;
+    }
+
+    .yalo-watermark[data-position='header-right'] {
+      text-align: right;
+    }
+
+    .yalo-watermark b {
+      font-weight: var(--yalo-chat-header-watermark-brand-font-weight, 700);
     }
 
     .chat-close-btn {
@@ -113,6 +133,7 @@ export class ChatHeader extends LitElement {
   };
 
   render() {
+    const watermarkPosition = this.config.yaloWatermark ?? 'header-left';
     return html`
       <header class="chat-header">
         ${this.config.image != null
@@ -123,6 +144,11 @@ export class ChatHeader extends LitElement {
           ${this.statusMessage !== ''
             ? html`<p class="chat-status">${this.statusMessage}</p>`
             : nothing}
+          ${watermarkPosition === 'none'
+            ? nothing
+            : html`<p class="yalo-watermark" data-position=${watermarkPosition}>
+                ${msg(html`By <b>Yalo</b>`)}
+              </p>`}
         </hgroup>
         ${this.config.hideCloseButton
           ? nothing

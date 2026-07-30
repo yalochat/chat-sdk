@@ -11,6 +11,13 @@ export type WelcomeMessageType = (typeof WELCOME_MESSAGE_TYPES)[number];
 export const QUICK_REPLY_TYPES = ['modal', 'inline'] as const;
 export type QuickReplyType = (typeof QUICK_REPLY_TYPES)[number];
 
+export const YALO_WATERMARK_POSITIONS = [
+  'none',
+  'header-left',
+  'header-right',
+] as const;
+export type YaloWatermarkPosition = (typeof YALO_WATERMARK_POSITIONS)[number];
+
 export interface YaloChatTexts {
   inputPlaceholder?: string;
 }
@@ -41,6 +48,7 @@ export interface YaloChatClientConfig {
   openContext?: Record<string, unknown>;
   hideCloseButton?: boolean;
   hideHeader?: boolean;
+  yaloWatermark?: YaloWatermarkPosition;
   hideAttachmentButton?: boolean;
   hideVoiceButton?: boolean;
   sessionMode?: SessionMode;

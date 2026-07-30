@@ -209,6 +209,70 @@ describe('YaloChatWindow', () => {
 
       expect(hidden.shadowRoot?.querySelector('yalo-chat-header')).toBeNull();
     });
+
+    const renderHeaderWith = async (
+      yaloWatermark: 'none' | 'header-left' | 'header-right'
+    ): Promise<LitElement> => {
+      document.body.innerHTML = '';
+      const window = document.createElement(
+        'yalo-chat-window'
+      ) as YaloChatWindow;
+      window.config = { ...baseConfig, yaloWatermark };
+      document.body.appendChild(window);
+      await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+      const header = window.shadowRoot?.querySelector(
+        'yalo-chat-header'
+      ) as LitElement;
+      await header.updateComplete;
+      return header;
+    };
+
+    const getWatermark = (header: LitElement): HTMLElement | null =>
+      header.shadowRoot?.querySelector('.yalo-watermark') ?? null;
+
+    it('shows the by Yalo watermark under the title on the left by default', async () => {
+      const header = el.shadowRoot?.querySelector(
+        'yalo-chat-header'
+      ) as LitElement;
+      await header.updateComplete;
+
+      const watermark = getWatermark(header);
+      const titleGroup = header.shadowRoot?.querySelector(
+        '.chat-header-title-group'
+      );
+      expect(watermark?.textContent?.trim()).toBe('By Yalo');
+      expect(titleGroup?.contains(watermark)).toBe(true);
+      expect(getComputedStyle(watermark!).textAlign).toBe('left');
+    });
+
+    it('renders the watermark under the title when header-left', async () => {
+      const header = await renderHeaderWith('header-left');
+
+      const watermark = getWatermark(header);
+      const titleGroup = header.shadowRoot?.querySelector(
+        '.chat-header-title-group'
+      );
+      expect(titleGroup?.contains(watermark)).toBe(true);
+      expect(getComputedStyle(watermark!).textAlign).toBe('left');
+    });
+
+    it('right aligns the watermark under the title when header-right', async () => {
+      const header = await renderHeaderWith('header-right');
+
+      const watermark = getWatermark(header);
+      const titleGroup = header.shadowRoot?.querySelector(
+        '.chat-header-title-group'
+      );
+      expect(watermark?.textContent?.trim()).toBe('By Yalo');
+      expect(titleGroup?.contains(watermark)).toBe(true);
+      expect(getComputedStyle(watermark!).textAlign).toBe('right');
+    });
+
+    it('hides the watermark when config.yaloWatermark is none', async () => {
+      const header = await renderHeaderWith('none');
+
+      expect(getWatermark(header)).toBeNull();
+    });
   });
 
   describe('sending messages', () => {
