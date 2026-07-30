@@ -4,39 +4,45 @@
 <body>
 <trans-unit id="sf900fe612519e672">
   <source>Write a message...</source>
-  <target>写下一条消息...</target>
+  <target>åä¸ä¸æ¡æ¶æ¯...</target>
 </trans-unit>
 <trans-unit id="s32bad8884f0b1be7">
   <source>Close Chat</source>
-  <target>关闭聊天</target>
+  <target>å
+³é­èå¤©</target>
 </trans-unit>
 <trans-unit id="sa50a6326530d8a0d">
   <source>Show less</source>
-  <target>显示更少</target>
+  <target>æ¾ç¤ºæ´å°</target>
 </trans-unit>
 <trans-unit id="sb2c57b2d347203dd">
   <source>Show more</source>
-  <target>显示更多</target>
+  <target>æ¾ç¤ºæ´å¤</target>
 </trans-unit>
 <trans-unit id="s317b6c4a03e34c5d">
   <source>In the cart</source>
-  <target>已在购物车中</target>
+  <target>å·²å¨è´­ç©è½¦ä¸­</target>
 </trans-unit>
 <trans-unit id="s20dfc2658b5ed207">
   <source>Update the cart</source>
-  <target>更新购物车</target>
+  <target>æ´æ°è´­ç©è½¦</target>
 </trans-unit>
 <trans-unit id="sf5d501d58546bff9">
   <source>Add to cart</source>
-  <target>加入购物车</target>
+  <target>å å
+¥è´­ç©è½¦</target>
 </trans-unit>
 <trans-unit id="sc876da507d6d97c4">
   <source>Not delivered.</source>
-  <target>未送达。</target>
+  <target>æªéè¾¾ã</target>
 </trans-unit>
 <trans-unit id="s2c8189544e3ea679">
   <source>Retry</source>
-  <target>重试</target>
+  <target>éè¯</target>
+</trans-unit>
+<trans-unit id="h6d222a138907d6d6">
+  <source>By <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></source>
+  <target>由 <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/> 提供</target>
 </trans-unit>
 </body>
 </file>

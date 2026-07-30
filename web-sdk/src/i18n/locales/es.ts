@@ -2,14 +2,15 @@
     // Do not modify this file by hand!
     // Re-generate this file by running lit-localize
 
-    
+    import {html} from 'lit';
     
 
     /* eslint-disable no-irregular-whitespace */
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      's20dfc2658b5ed207': `Actualizar el carrito`,
+      'h6d222a138907d6d6': html`Por <b>Yalo</b>`,
+'s20dfc2658b5ed207': `Actualizar el carrito`,
 's2c8189544e3ea679': `Reintentar`,
 's317b6c4a03e34c5d': `En el carrito`,
 's32bad8884f0b1be7': `Cerrar chat`,

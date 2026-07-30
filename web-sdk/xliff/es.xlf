@@ -38,6 +38,10 @@
   <source>Retry</source>
   <target>Reintentar</target>
 </trans-unit>
+<trans-unit id="h6d222a138907d6d6">
+  <source>By <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></source>
+  <target>Por <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></target>
+</trans-unit>
 </body>
 </file>
 </xliff>

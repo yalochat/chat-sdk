@@ -156,6 +156,20 @@ To replace an icon with your own SVG image instead of a font glyph, use the `ico
   /* Font weight of the channel name (header title). */
   --yalo-chat-header-title-font-weight: 600;
 
+  /* Font size of the "by Yalo" watermark shown in the header.
+     Rendered when the `yaloWatermark` config property is `header-left`
+     or `header-right`. */
+  --yalo-chat-header-watermark-font-size: 0.7rem;
+
+  /* Font weight of the "by" text in the watermark. */
+  --yalo-chat-header-watermark-font-weight: 400;
+
+  /* Font weight of the bold "Yalo" brand name in the watermark. */
+  --yalo-chat-header-watermark-brand-font-weight: 700;
+
+  /* Text color of the "by Yalo" watermark. */
+  --yalo-chat-header-watermark-color: #747474;
+
   /* Display of the chat header bar. Set to `none` to hide the header.
      This is the CSS equivalent of the `hideHeader` config property. */
   --yalo-chat-header-display: flex;

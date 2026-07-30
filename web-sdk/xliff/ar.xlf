@@ -4,39 +4,49 @@
 <body>
 <trans-unit id="sf900fe612519e672">
   <source>Write a message...</source>
-  <target>اكتب رسالة...</target>
+  <target>Ø§ÙØªØ¨ Ø±Ø³Ø§ÙØ©...</target>
 </trans-unit>
 <trans-unit id="s32bad8884f0b1be7">
   <source>Close Chat</source>
-  <target>إغلاق المحادثة</target>
+  <target>Ø¥ØºÙØ§Ù Ø§ÙÙ
+Ø­Ø§Ø¯Ø«Ø©</target>
 </trans-unit>
 <trans-unit id="sa50a6326530d8a0d">
   <source>Show less</source>
-  <target>عرض أقل</target>
+  <target>Ø¹Ø±Ø¶ Ø£ÙÙ</target>
 </trans-unit>
 <trans-unit id="sb2c57b2d347203dd">
   <source>Show more</source>
-  <target>عرض المزيد</target>
+  <target>Ø¹Ø±Ø¶ Ø§ÙÙ
+Ø²ÙØ¯</target>
 </trans-unit>
 <trans-unit id="s317b6c4a03e34c5d">
   <source>In the cart</source>
-  <target>في السلة</target>
+  <target>ÙÙ Ø§ÙØ³ÙØ©</target>
 </trans-unit>
 <trans-unit id="s20dfc2658b5ed207">
   <source>Update the cart</source>
-  <target>تحديث السلة</target>
+  <target>ØªØ­Ø¯ÙØ« Ø§ÙØ³ÙØ©</target>
 </trans-unit>
 <trans-unit id="sf5d501d58546bff9">
   <source>Add to cart</source>
-  <target>أضف إلى السلة</target>
+  <target>Ø£Ø¶Ù Ø¥ÙÙ Ø§ÙØ³ÙØ©</target>
 </trans-unit>
 <trans-unit id="sc876da507d6d97c4">
   <source>Not delivered.</source>
-  <target>لم يتم التسليم.</target>
+  <target>ÙÙ
+ ÙØªÙ
+ Ø§ÙØªØ³ÙÙÙ
+.</target>
 </trans-unit>
 <trans-unit id="s2c8189544e3ea679">
   <source>Retry</source>
-  <target>إعادة المحاولة</target>
+  <target>Ø¥Ø¹Ø§Ø¯Ø© Ø§ÙÙ
+Ø­Ø§ÙÙØ©</target>
+</trans-unit>
+<trans-unit id="h6d222a138907d6d6">
+  <source>By <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></source>
+  <target>من <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></target>
 </trans-unit>
 </body>
 </file>

@@ -2,21 +2,24 @@
     // Do not modify this file by hand!
     // Re-generate this file by running lit-localize
 
-    
+    import {html} from 'lit';
     
 
     /* eslint-disable no-irregular-whitespace */
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      's20dfc2658b5ed207': `更新购物车`,
-'s2c8189544e3ea679': `重试`,
-'s317b6c4a03e34c5d': `已在购物车中`,
-'s32bad8884f0b1be7': `关闭聊天`,
-'sa50a6326530d8a0d': `显示更少`,
-'sb2c57b2d347203dd': `显示更多`,
-'sc876da507d6d97c4': `未送达。`,
-'sf5d501d58546bff9': `加入购物车`,
-'sf900fe612519e672': `写下一条消息...`,
+      'h6d222a138907d6d6': html`由 <b>Yalo</b> 提供`,
+'s20dfc2658b5ed207': `æ´æ°è´­ç©è½¦`,
+'s2c8189544e3ea679': `éè¯`,
+'s317b6c4a03e34c5d': `å·²å¨è´­ç©è½¦ä¸­`,
+'s32bad8884f0b1be7': `å
+³é­èå¤©`,
+'sa50a6326530d8a0d': `æ¾ç¤ºæ´å°`,
+'sb2c57b2d347203dd': `æ¾ç¤ºæ´å¤`,
+'sc876da507d6d97c4': `æªéè¾¾ã`,
+'sf5d501d58546bff9': `å å
+¥è´­ç©è½¦`,
+'sf900fe612519e672': `åä¸ä¸æ¡æ¶æ¯...`,
     };
   
