@@ -2,6 +2,13 @@
 
 By default the chat renders its icons as font ligatures from Material Symbols Outlined, loaded by the host page. You can change the font or swap individual glyphs with CSS variables. See the [Icons theming section](theming.md#icons) for that approach.
 
+## Table of contents
+
+- [Overriding icons with your own SVGs](#overriding-icons-with-your-own-svgs)
+- [Color is not customizable when overriding](#color-is-not-customizable-when-overriding)
+- [Available icons](#available-icons)
+- [Notes](#notes)
+
 ## Overriding icons with your own SVGs
 
 The `icons` configuration object lets you replace individual built-in icons with your own image. Pass a URL or a `data:` URI per icon:

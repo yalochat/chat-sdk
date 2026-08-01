@@ -4,6 +4,14 @@ Commands are actions the chat can invoke on your page. Use `registerCommand` to 
 
 You can register commands before or after calling `init()`.
 
+## Table of contents
+
+- [Usage](#usage)
+- [Built-in commands](#built-in-commands)
+- [Custom commands](#custom-commands)
+- [Returning the cart](#returning-the-cart)
+- [Registering through the queue](#registering-through-the-queue)
+
 ## Usage
 
 ```js
