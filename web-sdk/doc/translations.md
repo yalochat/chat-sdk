@@ -2,6 +2,11 @@
 
 The chat ships with built-in translations for its interface strings. The active language follows the `locale` you pass in the configuration, and every built-in string is translated for each supported locale.
 
+## Table of contents
+
+- [Overriding text](#overriding-text)
+- [Localization is your responsibility when overriding](#localization-is-your-responsibility-when-overriding)
+
 ## Overriding text
 
 The `texts` configuration object lets you replace individual built-in strings with your own copy.
