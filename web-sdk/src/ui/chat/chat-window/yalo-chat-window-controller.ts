@@ -150,16 +150,40 @@ export default class YaloChatWindowController implements ReactiveController {
         ),
       }))
     );
-    const abandoned = ownership
-      .filter((entry) => entry.abandoned)
-      .map((entry) => entry.sessionId);
-    if (abandoned.length === 0) {
+    await this._clearSessions(
+      db,
+      ownership.filter((entry) => entry.abandoned).map((entry) => entry.sessionId)
+    );
+  }
+
+  // Reclaims ephemeral sessions left by builds that shipped before the flag
+  // existed. Runs in every session mode, since a customer may have moved off
+  // ephemeral since, and nothing else would ever reach those records. No lock
+  // is probed because those builds took none, and an ephemeral token is
+  // disposable by design, so the worst case is one re-authentication.
+  private async _reclaimLegacyEphemeralSessions(
+    db: IDBDatabase
+  ): Promise<void> {
+    const listed = await TokenRepositoryLocal.listLegacyEphemeralSessions(db);
+    if (!listed.ok) {
+      this.host.logger.error('Unable to list legacy ephemeral sessions', {
+        error: listed.error,
+      });
       return;
     }
+    await this._clearSessions(db, listed.value);
+  }
 
+  private async _clearSessions(
+    db: IDBDatabase,
+    sessionIds: string[]
+  ): Promise<void> {
+    if (sessionIds.length === 0) {
+      return;
+    }
     const [tokens, messages] = await Promise.all([
-      TokenRepositoryLocal.clearSessions(db, abandoned),
-      ChatMessageRepositoryLocal.clearSessions(db, abandoned),
+      TokenRepositoryLocal.clearSessions(db, sessionIds),
+      ChatMessageRepositoryLocal.clearSessions(db, sessionIds),
     ]);
     if (!tokens.ok || !messages.ok) {
       this.host.logger.error('Unable to reclaim ephemeral sessions', {
@@ -167,8 +191,8 @@ export default class YaloChatWindowController implements ReactiveController {
       });
       return;
     }
-    this.host.logger.debug('Reclaimed abandoned ephemeral sessions', {
-      count: abandoned.length,
+    this.host.logger.debug('Reclaimed ephemeral sessions', {
+      count: sessionIds.length,
     });
   }
 
@@ -252,6 +276,7 @@ export default class YaloChatWindowController implements ReactiveController {
     );
     this._tokenRepository = tokenRepository;
 
+    await this._reclaimLegacyEphemeralSessions(db);
     if (isEphemeral) {
       await this._holdEphemeralLock(sessionId);
       await this._reclaimAbandonedEphemeralSessions(db);

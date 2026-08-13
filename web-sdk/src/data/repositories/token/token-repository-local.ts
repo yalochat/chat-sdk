@@ -21,11 +21,40 @@ export class TokenRepositoryLocal implements TokenRepository {
     }
   }
 
+  // Only crypto.randomUUID ever produced a suffix of this shape, so a record
+  // written before the ephemeral flag existed that carries one came from an
+  // ephemeral session. A perContext suffix is a base36 hash and never has
+  // dashes, and a shared session has no suffix at all, so neither can match.
+  private static readonly _LEGACY_EPHEMERAL_SUFFIX =
+    /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
   // Lists the sessions that stored an ephemeral token, so the caller can work
   // out which of them no document owns any more. Sessions of any other mode are
   // never reported: an anonymous shared session would lose its identity along
   // with its token, so its record has to survive.
   static listEphemeralSessions(db: IDBDatabase): Promise<Result<string[]>> {
+    return TokenRepositoryLocal._listSessions(
+      db,
+      (stored) => stored.ephemeral === true
+    );
+  }
+
+  // Lists ephemeral sessions left by builds that predate the flag. Their
+  // records are invisible to listEphemeralSessions, so without this pass they
+  // would sit in storage forever holding a usable refresh token.
+  static listLegacyEphemeralSessions(db: IDBDatabase): Promise<Result<string[]>> {
+    return TokenRepositoryLocal._listSessions(
+      db,
+      (stored, sessionId) =>
+        stored.ephemeral === undefined &&
+        TokenRepositoryLocal._LEGACY_EPHEMERAL_SUFFIX.test(sessionId)
+    );
+  }
+
+  private static _listSessions(
+    db: IDBDatabase,
+    matches: (stored: StoredToken, sessionId: string) => boolean
+  ): Promise<Result<string[]>> {
     return new Promise((resolve) => {
       try {
         const sessionIds: string[] = [];
@@ -39,19 +68,18 @@ export class TokenRepositoryLocal implements TokenRepository {
             resolve(new Ok(sessionIds));
             return;
           }
-          if ((cursor.value as StoredToken).ephemeral === true) {
-            sessionIds.push(
-              String(cursor.key).slice(TokenRepositoryLocal._KEY_PREFIX.length)
-            );
+          const sessionId = String(cursor.key).slice(
+            TokenRepositoryLocal._KEY_PREFIX.length
+          );
+          if (matches(cursor.value as StoredToken, sessionId)) {
+            sessionIds.push(sessionId);
           }
           cursor.continue();
         };
 
         request.onerror = () => {
           resolve(
-            new Err(
-              request.error ?? new Error('Unable to list ephemeral sessions')
-            )
+            new Err(request.error ?? new Error('Unable to list sessions'))
           );
         };
       } catch (e) {

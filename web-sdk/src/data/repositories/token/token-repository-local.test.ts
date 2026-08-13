@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Ok, Err } from '@domain/common/result';
 import type { YaloMessageAuthService } from '@data/services/yalo-message/yalo-message-auth-service';
+import { xxhash32 } from '@common/hash';
 import { TokenRepositoryLocal } from './token-repository-local';
 
 const DB_NAME = 'YaloChatMessages';
@@ -27,6 +28,25 @@ function deleteDb(): Promise<void> {
     req.onerror = () => reject(req.error);
   });
 }
+
+// Writes a record in the shape builds before the ephemeral flag produced.
+const seedLegacyToken = (
+  db: IDBDatabase,
+  sessionId: string
+): Promise<void> =>
+  new Promise((resolve, reject) => {
+    const tx = db.transaction('session', 'readwrite');
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.objectStore('session').put(
+      {
+        accessToken: 'legacy-access',
+        refreshToken: 'legacy-refresh',
+        expiresAt: Date.now() + 3600 * 1000,
+      },
+      `token:${sessionId}`
+    );
+  });
 
 const makeAuthResponse = (overrides: Partial<{
   accessToken: string;
@@ -247,6 +267,43 @@ describe('TokenRepositoryLocal', () => {
       await new TokenRepositoryLocal(db, SESSION_ID, makeAuthService()).getToken();
 
       const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: true, value: [] });
+    });
+
+    it('lists unflagged sessions whose id carries a uuid as legacy ephemeral', async () => {
+      await seedLegacyToken(db, `${SESSION_ID}-${crypto.randomUUID()}`);
+
+      const listed = await TokenRepositoryLocal.listLegacyEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: true, value: [expect.any(String)] });
+    });
+
+    it('leaves an unflagged shared session out of the legacy listing', async () => {
+      await seedLegacyToken(db, 'org-1-channel-1-anonymous');
+
+      const listed = await TokenRepositoryLocal.listLegacyEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: true, value: [] });
+    });
+
+    it('leaves an unflagged perContext session out of the legacy listing', async () => {
+      await seedLegacyToken(db, `org-1-channel-1-anonymous-${xxhash32('ctx')}`);
+
+      const listed = await TokenRepositoryLocal.listLegacyEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: true, value: [] });
+    });
+
+    it('leaves flagged ephemeral sessions to the lock based reclamation', async () => {
+      await new TokenRepositoryLocal(
+        db,
+        `${SESSION_ID}-${crypto.randomUUID()}`,
+        makeAuthService(),
+        true
+      ).getToken();
+
+      const listed = await TokenRepositoryLocal.listLegacyEphemeralSessions(db);
 
       expect(listed).toMatchObject({ ok: true, value: [] });
     });

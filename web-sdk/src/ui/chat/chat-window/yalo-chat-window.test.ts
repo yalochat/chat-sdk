@@ -161,8 +161,12 @@ const readStoredTokenKeys = (): Promise<IDBValidKey[]> =>
   readAll('session', (store) => store.getAllKeys());
 
 // Writes what a session that went away without any teardown would leave behind:
-// an ephemeral token plus the messages it never got to clear.
-const seedEphemeralSession = async (sessionId: string): Promise<void> => {
+// a token plus the messages it never got to clear. A legacy record is one from
+// a build that predates the ephemeral flag, so it carries no flag at all.
+const seedEphemeralSession = async (
+  sessionId: string,
+  options: { legacy?: boolean } = {}
+): Promise<void> => {
   const db = await openDb();
   try {
     await new Promise<void>((resolve, reject) => {
@@ -174,7 +178,7 @@ const seedEphemeralSession = async (sessionId: string): Promise<void> => {
           accessToken: 'stale-access',
           refreshToken: 'stale-refresh',
           expiresAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
-          ephemeral: true,
+          ...(options.legacy === true ? {} : { ephemeral: true }),
         },
         `token:${sessionId}`
       );
@@ -1700,6 +1704,33 @@ describe('YaloChatWindow ephemeral session mode', () => {
     expect(await readStoredTokenKeys()).toContain('token:live-session');
     expect(await countStoredMessages()).toBe(1);
     release();
+  });
+
+  it('reclaims legacy ephemeral sessions even when the mode is no longer ephemeral', async () => {
+    const legacyId = `org-1-channel-1-anonymous-${crypto.randomUUID()}`;
+    await seedEphemeralSession(legacyId, { legacy: true });
+
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = baseConfig;
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(await readStoredTokenKeys()).not.toContain(`token:${legacyId}`);
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('keeps legacy sessions that were never ephemeral', async () => {
+    await seedEphemeralSession('org-2-channel-9-anonymous', { legacy: true });
+
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = baseConfig;
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(await readStoredTokenKeys()).toContain(
+      'token:org-2-channel-9-anonymous'
+    );
+    expect(await countStoredMessages()).toBe(1);
   });
 
   it('keeps messages from other sessions intact when this session is ephemeral', async () => {
