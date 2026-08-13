@@ -230,6 +230,80 @@ describe('TokenRepositoryLocal', () => {
       expect(result).toMatchObject({ ok: false });
     });
 
+    it('lists the sessions that stored an ephemeral token', async () => {
+      await new TokenRepositoryLocal(
+        db,
+        'ephemeral-session',
+        makeAuthService(),
+        true
+      ).getToken();
+
+      const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: true, value: ['ephemeral-session'] });
+    });
+
+    it('leaves sessions of any other mode out of the listing', async () => {
+      await new TokenRepositoryLocal(db, SESSION_ID, makeAuthService()).getToken();
+
+      const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: true, value: [] });
+    });
+
+    it('listEphemeralSessions returns Err when the database is closed', async () => {
+      db.close();
+
+      const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
+
+      expect(listed).toMatchObject({ ok: false });
+    });
+
+    it('a reclaimed session has to authenticate again', async () => {
+      await new TokenRepositoryLocal(
+        db,
+        'abandoned-session',
+        makeAuthService(),
+        true
+      ).getToken();
+
+      await TokenRepositoryLocal.clearSessions(db, ['abandoned-session']);
+
+      const laterAuth = makeAuthService();
+      await new TokenRepositoryLocal(
+        db,
+        'abandoned-session',
+        laterAuth,
+        true
+      ).getToken();
+
+      expect(laterAuth.fetchToken).toHaveBeenCalledOnce();
+    });
+
+    it('clearSessions leaves sessions it was not given alone', async () => {
+      const keptAuth = makeAuthService();
+      await new TokenRepositoryLocal(db, SESSION_ID, keptAuth, true).getToken();
+      await new TokenRepositoryLocal(
+        db,
+        'abandoned-session',
+        makeAuthService(),
+        true
+      ).getToken();
+
+      await TokenRepositoryLocal.clearSessions(db, ['abandoned-session']);
+
+      const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
+      expect(listed).toMatchObject({ ok: true, value: [SESSION_ID] });
+    });
+
+    it('clearSessions returns Err when the database is closed', async () => {
+      db.close();
+
+      const cleared = await TokenRepositoryLocal.clearSessions(db, ['gone']);
+
+      expect(cleared).toMatchObject({ ok: false });
+    });
+
     it('clearSession only removes the configured session token', async () => {
       const mine = new TokenRepositoryLocal(db, SESSION_ID, makeAuthService());
       const theirsAuth = makeAuthService();

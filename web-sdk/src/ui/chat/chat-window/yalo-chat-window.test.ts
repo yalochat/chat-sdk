@@ -8,6 +8,7 @@ import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { Product } from '@domain/models/product/product';
 import { Err, Ok } from '@domain/common/result';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
+import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import type { PollCallback } from '@data/repositories/yalo-message/yalo-message-repository';
 import {
@@ -115,6 +116,79 @@ const clearDb = (): Promise<void> =>
       }
     };
   });
+
+const openDb = (): Promise<IDBDatabase> =>
+  new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      ChatMessageRepositoryLocal.upgrade(request.result);
+      TokenRepositoryLocal.upgrade(request.result);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+
+const readAll = async <T>(
+  storeName: string,
+  read: (store: IDBObjectStore) => IDBRequest<T>
+): Promise<T> => {
+  const db = await openDb();
+  try {
+    return await new Promise<T>((resolve, reject) => {
+      const request = read(db.transaction(storeName).objectStore(storeName));
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  } finally {
+    db.close();
+  }
+};
+
+// Stands in for another tab running that session. The controller reads the very
+// same lock name to decide whether a session still has an owner.
+const holdEphemeralLock = (sessionId: string): Promise<() => void> =>
+  new Promise((resolve) => {
+    navigator.locks.request(
+      `yalo-chat:ephemeral:${sessionId}`,
+      () => new Promise<void>((release) => resolve(release))
+    );
+  });
+
+const countStoredMessages = (): Promise<number> =>
+  readAll('chatMessage', (store) => store.count());
+
+const readStoredTokenKeys = (): Promise<IDBValidKey[]> =>
+  readAll('session', (store) => store.getAllKeys());
+
+// Writes what a session that went away without any teardown would leave behind:
+// an ephemeral token plus the messages it never got to clear.
+const seedEphemeralSession = async (sessionId: string): Promise<void> => {
+  const db = await openDb();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(['session', 'chatMessage'], 'readwrite');
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.objectStore('session').put(
+        {
+          accessToken: 'stale-access',
+          refreshToken: 'stale-refresh',
+          expiresAt: Date.now() - 30 * 24 * 60 * 60 * 1000,
+          ephemeral: true,
+        },
+        `token:${sessionId}`
+      );
+      tx.objectStore('chatMessage').add({
+        sessionId,
+        role: 'AGENT',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+        content: 'abandoned',
+      });
+    });
+  } finally {
+    db.close();
+  }
+};
 
 describe('YaloChatWindow', () => {
   let el: YaloChatWindow;
@@ -1560,6 +1634,72 @@ describe('YaloChatWindow ephemeral session mode', () => {
     await vi.waitUntil(() => fresh.yaloMessageRepository !== undefined);
 
     expect(getMessageList(fresh).chatMessages).toHaveLength(0);
+  });
+
+  it('clears the ephemeral session when the window is removed without a pagehide', async () => {
+    const clearToken = vi.spyOn(TokenRepositoryLocal.prototype, 'clearSession');
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, sessionMode: 'ephemeral' };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+    await el.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+        content: 'ephemeral',
+      })
+    );
+
+    el.remove();
+
+    await vi.waitUntil(() => clearToken.mock.calls.length > 0);
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('keeps the session when a window of any other mode is removed', async () => {
+    const clearToken = vi.spyOn(TokenRepositoryLocal.prototype, 'clearSession');
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = baseConfig;
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+    await el.chatMessageRepository.insertChatMessage(
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date('2026-01-01T00:00:00Z'),
+        content: 'persistent',
+      })
+    );
+
+    el.remove();
+
+    expect(clearToken).not.toHaveBeenCalled();
+    expect(await countStoredMessages()).toBe(1);
+  });
+
+  it('reclaims ephemeral sessions no document holds any more', async () => {
+    await seedEphemeralSession('abandoned-session');
+
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, sessionMode: 'ephemeral' };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(await readStoredTokenKeys()).not.toContain('token:abandoned-session');
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('keeps ephemeral sessions another document is still holding', async () => {
+    await seedEphemeralSession('live-session');
+    const release = await holdEphemeralLock('live-session');
+
+    const el = document.createElement('yalo-chat-window') as YaloChatWindow;
+    el.config = { ...baseConfig, sessionMode: 'ephemeral' };
+    document.body.appendChild(el);
+    await vi.waitUntil(() => el.yaloMessageRepository !== undefined);
+
+    expect(await readStoredTokenKeys()).toContain('token:live-session');
+    expect(await countStoredMessages()).toBe(1);
+    release();
   });
 
   it('keeps messages from other sessions intact when this session is ephemeral', async () => {

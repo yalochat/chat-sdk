@@ -82,13 +82,110 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   private _handleEphemeralPageHide = () => {
+    this.host.yaloMessageRepository.unsubscribeMessages();
+    this._disposeEphemeralSession();
+  };
+
+  private _releaseEphemeralLock?: () => void;
+
+  private static _ephemeralLockName(sessionId: string): string {
+    return `yalo-chat:ephemeral:${sessionId}`;
+  }
+
+  // Claims a lock for as long as this document lives. The browser releases it
+  // on unload, on a crash and on a tab close alike, which makes "nobody holds
+  // this lock" the signal that a session is abandoned.
+  private _holdEphemeralLock(sessionId: string): Promise<void> {
+    return new Promise((resolve) => {
+      if (navigator.locks === undefined) {
+        resolve();
+        return;
+      }
+      navigator.locks
+        .request(
+          YaloChatWindowController._ephemeralLockName(sessionId),
+          { ifAvailable: true },
+          (lock) => {
+            resolve();
+            if (lock === null) {
+              return;
+            }
+            return new Promise<void>((release) => {
+              this._releaseEphemeralLock = release;
+            });
+          }
+        )
+        .catch(() => resolve());
+    });
+  }
+
+  // Reclaims every ephemeral session no document holds a lock for. Covers the
+  // reload, the crash and the tab close in one pass, since all three release
+  // the lock while a session live in another tab keeps holding it.
+  private async _reclaimAbandonedEphemeralSessions(
+    db: IDBDatabase
+  ): Promise<void> {
+    // Without locks there is no way to tell an abandoned session apart from one
+    // a second tab is using, and guessing wrong would cut that tab off.
+    if (navigator.locks === undefined) {
+      this.host.logger.debug('Web Locks unavailable, skipping reclamation');
+      return;
+    }
+
+    const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
+    if (!listed.ok) {
+      this.host.logger.error('Unable to list ephemeral sessions', {
+        error: listed.error,
+      });
+      return;
+    }
+
+    const ownership = await Promise.all(
+      listed.value.map(async (sessionId) => ({
+        sessionId,
+        abandoned: await navigator.locks.request(
+          YaloChatWindowController._ephemeralLockName(sessionId),
+          { ifAvailable: true },
+          (lock) => lock !== null
+        ),
+      }))
+    );
+    const abandoned = ownership
+      .filter((entry) => entry.abandoned)
+      .map((entry) => entry.sessionId);
+    if (abandoned.length === 0) {
+      return;
+    }
+
+    const [tokens, messages] = await Promise.all([
+      TokenRepositoryLocal.clearSessions(db, abandoned),
+      ChatMessageRepositoryLocal.clearSessions(db, abandoned),
+    ]);
+    if (!tokens.ok || !messages.ok) {
+      this.host.logger.error('Unable to reclaim ephemeral sessions', {
+        error: tokens.ok ? messages : tokens,
+      });
+      return;
+    }
+    this.host.logger.debug('Reclaimed abandoned ephemeral sessions', {
+      count: abandoned.length,
+    });
+  }
+
+  // Drops this session's messages and token before releasing the connection.
+  // Runs on every teardown path we control, since an ephemeral session must
+  // never outlive the window that created it.
+  private _disposeEphemeralSession(): void {
     const messageRepo = this.host.chatMessageRepository;
     const tokenRepo = this._tokenRepository;
-    this.host.yaloMessageRepository.unsubscribeMessages();
+    // Unmounting leaves the document alive, so the lock has to be handed back
+    // explicitly. Whatever this teardown fails to delete becomes reclaimable.
+    this._releaseEphemeralLock?.();
+    this._releaseEphemeralLock = undefined;
     Promise.all([messageRepo.clearSession(), tokenRepo?.clearSession()]).finally(
       () => messageRepo.dispose()
     );
-  };
+  }
 
   private _handleVisibilityChange = () => {
     if (document.visibilityState !== 'visible') {
@@ -146,14 +243,18 @@ export default class YaloChatWindowController implements ReactiveController {
         userId: computeEffectiveAuthUserId(this.host.config, ephemeralToken),
       }
     );
-    const tokenRepository = new TokenRepositoryLocal(db, sessionId, authService);
+    const isEphemeral = this.host.config.sessionMode === 'ephemeral';
+    const tokenRepository = new TokenRepositoryLocal(
+      db,
+      sessionId,
+      authService,
+      isEphemeral
+    );
     this._tokenRepository = tokenRepository;
 
-    if (this.host.config.sessionMode === 'ephemeral') {
-      await Promise.all([
-        this.host.chatMessageRepository.clearSession(),
-        tokenRepository.clearSession(),
-      ]);
+    if (isEphemeral) {
+      await this._holdEphemeralLock(sessionId);
+      await this._reclaimAbandonedEphemeralSessions(db);
       window.addEventListener('pagehide', this._handleEphemeralPageHide);
     }
     document.addEventListener('visibilitychange', this._handleVisibilityChange);
@@ -927,6 +1028,10 @@ export default class YaloChatWindowController implements ReactiveController {
       this._handleVisibilityChange
     );
     this.host.yaloMessageRepository.unsubscribeMessages();
+    if (this.host.config.sessionMode === 'ephemeral') {
+      this._disposeEphemeralSession();
+      return;
+    }
     this.host.chatMessageRepository.dispose();
   }
 }
