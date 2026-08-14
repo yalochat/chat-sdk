@@ -8,10 +8,12 @@ interface StoredToken {
   accessToken: string;
   refreshToken: string;
   expiresAt: number;
+  ephemeral?: boolean;
 }
 
 export class TokenRepositoryLocal implements TokenRepository {
   private static readonly _STORE_NAME = 'session';
+  private static readonly _KEY_PREFIX = 'token:';
 
   static upgrade(db: IDBDatabase): void {
     if (!db.objectStoreNames.contains(TokenRepositoryLocal._STORE_NAME)) {
@@ -19,18 +21,115 @@ export class TokenRepositoryLocal implements TokenRepository {
     }
   }
 
+  // Only crypto.randomUUID ever produced a suffix of this shape, so a record
+  // written before the ephemeral flag existed that carries one came from an
+  // ephemeral session. A perContext suffix is a base36 hash and never has
+  // dashes, and a shared session has no suffix at all, so neither can match.
+  private static readonly _LEGACY_EPHEMERAL_SUFFIX =
+    /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+  // Lists the sessions that stored an ephemeral token, so the caller can work
+  // out which of them no document owns any more. Sessions of any other mode are
+  // never reported: an anonymous shared session would lose its identity along
+  // with its token, so its record has to survive.
+  static listEphemeralSessions(db: IDBDatabase): Promise<Result<string[]>> {
+    return TokenRepositoryLocal._listSessions(
+      db,
+      (stored) => stored.ephemeral === true
+    );
+  }
+
+  // Lists ephemeral sessions left by builds that predate the flag. Their
+  // records are invisible to listEphemeralSessions, so without this pass they
+  // would sit in storage forever holding a usable refresh token.
+  static listLegacyEphemeralSessions(db: IDBDatabase): Promise<Result<string[]>> {
+    return TokenRepositoryLocal._listSessions(
+      db,
+      (stored, sessionId) =>
+        stored.ephemeral === undefined &&
+        TokenRepositoryLocal._LEGACY_EPHEMERAL_SUFFIX.test(sessionId)
+    );
+  }
+
+  private static _listSessions(
+    db: IDBDatabase,
+    matches: (stored: StoredToken, sessionId: string) => boolean
+  ): Promise<Result<string[]>> {
+    return new Promise((resolve) => {
+      try {
+        const sessionIds: string[] = [];
+        const tx = db.transaction(TokenRepositoryLocal._STORE_NAME, 'readonly');
+        const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
+        const request = store.openCursor();
+
+        request.onsuccess = () => {
+          const cursor = request.result;
+          if (!cursor) {
+            resolve(new Ok(sessionIds));
+            return;
+          }
+          const sessionId = String(cursor.key).slice(
+            TokenRepositoryLocal._KEY_PREFIX.length
+          );
+          if (matches(cursor.value as StoredToken, sessionId)) {
+            sessionIds.push(sessionId);
+          }
+          cursor.continue();
+        };
+
+        request.onerror = () => {
+          resolve(
+            new Err(request.error ?? new Error('Unable to list sessions'))
+          );
+        };
+      } catch (e) {
+        resolve(new Err(e instanceof Error ? e : new Error(String(e))));
+      }
+    });
+  }
+
+  // Deletes the tokens of the given sessions. Deleting a key that is already
+  // gone succeeds, so callers can pass sessions the sweep may have taken.
+  static clearSessions(
+    db: IDBDatabase,
+    sessionIds: string[]
+  ): Promise<Result<boolean>> {
+    return new Promise((resolve) => {
+      if (sessionIds.length === 0) {
+        resolve(new Ok(true));
+        return;
+      }
+      try {
+        const tx = db.transaction(TokenRepositoryLocal._STORE_NAME, 'readwrite');
+        const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
+        tx.oncomplete = () => resolve(new Ok(true));
+        tx.onerror = () => {
+          resolve(new Err(tx.error ?? new Error('Unable to clear sessions')));
+        };
+        for (const sessionId of sessionIds) {
+          store.delete(`${TokenRepositoryLocal._KEY_PREFIX}${sessionId}`);
+        }
+      } catch (e) {
+        resolve(new Err(e instanceof Error ? e : new Error(String(e))));
+      }
+    });
+  }
+
   private readonly _db: IDBDatabase;
   private readonly _authService: YaloMessageAuthService;
   private readonly _key: string;
+  private readonly _ephemeral: boolean;
 
   constructor(
     db: IDBDatabase,
     sessionId: string,
-    authService: YaloMessageAuthService
+    authService: YaloMessageAuthService,
+    ephemeral: boolean = false
   ) {
     this._db = db;
     this._authService = authService;
-    this._key = `token:${sessionId}`;
+    this._key = `${TokenRepositoryLocal._KEY_PREFIX}${sessionId}`;
+    this._ephemeral = ephemeral;
   }
 
   async getToken(): Promise<Result<string>> {
@@ -94,6 +193,7 @@ export class TokenRepositoryLocal implements TokenRepository {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
         expiresAt: Date.now() + data.expiresIn * 1000,
+        ephemeral: this._ephemeral,
       };
       const request = store.put(record, this._key);
       request.onsuccess = () => resolve();
