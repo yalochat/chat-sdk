@@ -67,6 +67,24 @@ const settle = async (): Promise<void> => {
   });
 };
 
+// Resize observations are delivered after the animation frame callbacks, so
+// the corrected scroll position of a tall message is only readable a frame
+// after the one that rendered it.
+const nextFrame = async (): Promise<void> => {
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)));
+  });
+};
+
+// Quick replies expand over a transition, so their message keeps growing for a
+// while after it is rendered.
+const settleAnimations = async (): Promise<void> => {
+  await new Promise((resolve) => {
+    setTimeout(resolve, 400);
+  });
+  await nextFrame();
+};
+
 const renderList = async (
   messages: ChatMessage[],
   configOverrides: Partial<YaloChatClientConfig> = {}
@@ -115,6 +133,38 @@ const getProductCard = async (list: ChatMessageList): Promise<LitElement> => {
   ) as LitElement;
   await card.updateComplete;
   return card;
+};
+
+const getMessageList = (list: ChatMessageList): HTMLUListElement =>
+  list.shadowRoot!.querySelector('.message-list') as HTMLUListElement;
+
+// Renders a list that is shorter than a single long message, which is what a
+// landscape viewport looks like.
+const renderShortList = async (
+  messages: ChatMessage[],
+  configOverrides: Partial<YaloChatClientConfig> = {}
+): Promise<ChatMessageList> => {
+  const list = await renderList(messages, configOverrides);
+  list.style.height = '200px';
+  await nextFrame();
+  return list;
+};
+
+const longContent = 'Lorem ipsum dolor sit amet consectetur. '.repeat(200);
+
+// A tall image that only reports its size once the browser has decoded it, the
+// same way a real image message grows after it is rendered.
+const tallImage = `data:image/svg+xml;utf8,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="900"></svg>'
+)}`;
+
+const distanceFromListTop = (list: ChatMessageList): number => {
+  const messageList = getMessageList(list);
+  const newest = messageList.querySelector('.chat-message')!;
+  return Math.abs(
+    newest.getBoundingClientRect().top -
+      messageList.getBoundingClientRect().top
+  );
 };
 
 describe('ChatMessageList', () => {
@@ -2068,6 +2118,301 @@ describe('ChatMessageList', () => {
       await list.updateComplete;
 
       expect(messageList.scrollTop).toBe(0);
+    });
+
+    it('aligns the top of a tall assistant message with the top of the list', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 80,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      const messageList = getMessageList(list);
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 81,
+          role: 'AGENT',
+          timestamp,
+          content: longContent,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+
+      expect(distanceFromListTop(list)).toBeLessThan(2);
+      expect(messageList.scrollTop).toBeLessThan(0);
+    });
+
+    it('keeps the list at the bottom when the assistant message fits', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 82,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      const messageList = getMessageList(list);
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 83,
+          role: 'AGENT',
+          timestamp,
+          content: 'Short answer',
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+
+      expect(messageList.scrollTop).toBe(0);
+    });
+
+    it('keeps the list at the bottom when the user sends a tall message', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 84,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      const messageList = getMessageList(list);
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 85,
+          role: 'USER',
+          timestamp,
+          content: longContent,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+
+      expect(messageList.scrollTop).toBe(0);
+    });
+
+    it('keeps following the conversation after a tall message was aligned', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 86,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      const messageList = getMessageList(list);
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 87,
+          role: 'AGENT',
+          timestamp,
+          content: longContent,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+      expect(messageList.scrollTop).toBeLessThan(0);
+
+      // The user never touched the scrollbar, so the next answer should still
+      // bring the list back to the bottom.
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 88,
+          role: 'AGENT',
+          timestamp,
+          content: 'Short follow up',
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+
+      expect(messageList.scrollTop).toBe(0);
+    });
+
+    it('aligns the top of a tall vertical quick replies welcome message', async () => {
+      const list = await renderShortList(
+        [
+          ChatMessage.text({
+            id: 91,
+            role: 'AGENT',
+            timestamp,
+            header: 'Welcome',
+            content: 'Pick one of the options below',
+            buttons: Array.from({ length: 12 }, (_, index) => ({
+              text: `Option ${index + 1}`,
+              type: 'reply' as const,
+            })),
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies' }
+      );
+
+      // The chips expand over a transition, the message is only taller than
+      // the list once that finishes.
+      await settleAnimations();
+
+      expect(distanceFromListTop(list)).toBeLessThan(2);
+      expect(getMessageList(list).scrollTop).toBeLessThan(0);
+    });
+
+    it('keeps the top aligned while a tall image finishes loading', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 94,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+
+      list.chatMessages = [
+        ChatMessage.image({
+          id: 95,
+          role: 'AGENT',
+          timestamp,
+          fileName: tallImage,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+
+      // The message starts as a small placeholder and only becomes taller than
+      // the list once the image is decoded.
+      await settleAnimations();
+
+      expect(distanceFromListTop(list)).toBeLessThan(2);
+      expect(getMessageList(list).scrollTop).toBeLessThan(0);
+    });
+
+    it('keeps the top aligned when the message reflows after a resize', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 96,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      list.style.width = '600px';
+      await nextFrame();
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 97,
+          role: 'AGENT',
+          timestamp,
+          content: longContent,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+      expect(distanceFromListTop(list)).toBeLessThan(2);
+
+      // Rotating the device reflows the message into a different height
+      list.style.width = '300px';
+      await nextFrame();
+
+      expect(distanceFromListTop(list)).toBeLessThan(2);
+    });
+
+    it('stops correcting the position once the user scrolls', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 98,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      list.style.width = '600px';
+      await nextFrame();
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 99,
+          role: 'AGENT',
+          timestamp,
+          content: longContent,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+
+      const messageList = getMessageList(list);
+      messageList.scrollTop = -50;
+      await nextFrame();
+
+      // A reflow must not pull the list back onto the message the user just
+      // scrolled away from.
+      list.style.width = '300px';
+      await nextFrame();
+
+      expect(messageList.scrollTop).toBe(-50);
+    });
+
+    it('keeps a reopened conversation at the bottom', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 92,
+          role: 'AGENT',
+          timestamp,
+          content: longContent,
+        }),
+        ChatMessage.text({
+          id: 93,
+          role: 'USER',
+          timestamp,
+          content: 'Older question',
+        }),
+      ]);
+      await nextFrame();
+
+      expect(getMessageList(list).scrollTop).toBe(0);
+    });
+
+    it('does not move the list when the user scrolled up to read history', async () => {
+      const list = await renderShortList([
+        ChatMessage.text({
+          id: 89,
+          role: 'AGENT',
+          timestamp,
+          content: 'Older message',
+        }),
+      ]);
+      const messageList = getMessageList(list);
+
+      // Simulate the user having scrolled far up into the history
+      Object.defineProperty(messageList, 'scrollTop', {
+        value: -5000,
+        writable: true,
+      });
+
+      list.chatMessages = [
+        ChatMessage.text({
+          id: 90,
+          role: 'AGENT',
+          timestamp,
+          content: longContent,
+        }),
+        ...list.chatMessages,
+      ];
+      await list.updateComplete;
+      await nextFrame();
+
+      expect(messageList.scrollTop).toBe(-5000);
     });
   });
 
