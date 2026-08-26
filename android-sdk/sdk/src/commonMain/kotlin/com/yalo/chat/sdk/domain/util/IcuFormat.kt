@@ -29,11 +29,10 @@ internal fun formatIcuUnit(amount: Double, pattern: String): String {
 }
 
 // Regex matches the outer plural wrapper and captures the cases string.
-// DOT_MATCHES_ALL lets (.*) span the nested { } of each case value.
-private val ICU_PLURAL_RE = Regex(
-    """\{[^,]+,\s*plural\s*,\s*(.*)\}""",
-    setOf(RegexOption.DOT_MATCHES_ALL),
-)
+// The inline (?s) flag lets (.*) span the nested { } of each case value. It is used instead
+// of RegexOption.DOT_MATCHES_ALL because that entry is JVM-only, not part of the common
+// stdlib RegexOption.
+private val ICU_PLURAL_RE = Regex("""(?s)\{[^,]+,\s*plural\s*,\s*(.*)\}""")
 
 // Each case: keyword-or-=N followed by {text}.
 // [^}]* is safe here because case values in product unit names are plain words.

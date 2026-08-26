@@ -10,8 +10,10 @@
 -keep class com.yalo.chat.sdk.database.ChatDatabase { *; }
 
 # ── kotlinx.serialization ─────────────────────────────────────────────────────
--keepattributes *Annotation*, InnerClasses
--dontnote kotlinx.serialization.AnnotationsKt
+# AGP 9 rejects global options (-keepattributes, -dontnote, ...) in library consumer rules
+# (android.r8.globalOptionsInConsumerRules.disallowed defaults to true). The annotation and
+# InnerClasses attributes are already kept by the rules kotlinx-serialization ships in its
+# own AAR, so nothing is lost here.
 -keepclassmembers class kotlinx.serialization.json.** {
     *** Companion;
 }

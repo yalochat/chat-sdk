@@ -22,12 +22,18 @@ A Kotlin-native Android library that embeds the Yalo Chat interface into any And
 
 | Tool | Minimum version |
 |---|---|
-| Android Studio | Ladybug 2024.2+ |
-| Android Gradle Plugin | 8.7+ |
-| Kotlin | 2.0.21 |
-| Min SDK (library) | API 21 (Android 5.0) |
+| Android Studio | Otter 3 (2025.2.3)+ |
+| Android Gradle Plugin | 9.3+ |
+| Gradle | 9.7+ |
+| JDK | 17+ |
+| Kotlin | 2.3.21 |
+| Min SDK (library) | API 23 (Android 6.0) |
 | Min SDK (demo app) | API 23 (Android 6.0) |
-| Target SDK | API 35 |
+| Compile SDK | API 36 |
+| Target SDK (demo app) | API 35 |
+
+AGP 9 is only fully supported by Android Studio Otter 3 and later. IntelliJ IDEA does not
+support AGP 9, so use Android Studio for this project.
 
 ---
 
@@ -76,15 +82,18 @@ yalo.organizationId=your-organization-id
 ### 3. Build the SDK library
 
 ```bash
-./gradlew :sdk:assembleRelease
+./gradlew :sdk:assemble
 ```
 
-The output `.aar` is at `sdk/build/outputs/aar/sdk-release.aar`.
+The output `.aar` is at `sdk/build/outputs/aar/sdk.aar`.
+
+The `:sdk` module uses the Android/KMP library plugin, which builds a single variant. There is
+no `assembleDebug` or `assembleRelease` for it.
 
 To run all unit tests:
 
 ```bash
-./gradlew :sdk:test
+./gradlew :sdk:testAndroidHostTest
 ```
 
 ---
