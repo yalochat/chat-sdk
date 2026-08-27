@@ -4,7 +4,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    // No kotlin-android plugin: AGP 9 has built-in Kotlin compilation.
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -27,7 +27,7 @@ fun localProp(key: String): String {
 
 android {
     namespace = "com.yalo.chat.demo"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.yalo.chat.demo"
@@ -53,7 +53,7 @@ android {
     }
 
     lint {
-        // IncompatibleClassChangeError crashes from buggy lint detectors on Kotlin 2.x / AGP 8.x.
+        // IncompatibleClassChangeError crashes from buggy lint detectors on Kotlin 2.x.
         disable += "NullSafeMutableLiveData"
         disable += "RememberInComposition"
         disable += "FrequentlyChangingValue"
@@ -61,11 +61,7 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
-}
+// With built-in Kotlin, jvmTarget defaults to android.compileOptions.targetCompatibility (17).
 
 dependencies {
     implementation(project(":sdk"))

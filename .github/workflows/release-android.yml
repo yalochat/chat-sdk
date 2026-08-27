@@ -14,7 +14,9 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    # macOS is required: the KMP publication set includes iOS klibs and the shared
+    # metadata module, and Kotlin/Native cannot build Apple targets on Linux.
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -57,13 +59,15 @@ jobs:
 
       - name: Run unit tests
         working-directory: ./android-sdk
-        run: ./gradlew :sdk:testDebugUnitTest
+        run: ./gradlew :sdk:testAndroidHostTest
 
       - name: Publish to Maven Central
         working-directory: ./android-sdk
-        # publishMavenPublication targets only the Android AAR — skips iOS klib
-        # publications that the KMP plugin registers but can't build on Linux.
-        run: ./gradlew :sdk:publishMavenPublicationToMavenCentralRepository
+        # Publishes the whole KMP set: the root module (com.yalo.chat:yalo-chat-android-sdk,
+        # which is what consumers depend on), the Android AAR, and the three iOS targets.
+        # Publishing only the android publication would leave the root coordinate missing
+        # and break every consumer's dependency line.
+        run: ./gradlew :sdk:publishToMavenCentral
         env:
           ORG_GRADLE_PROJECT_VERSION_NAME: ${{ inputs.version }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}

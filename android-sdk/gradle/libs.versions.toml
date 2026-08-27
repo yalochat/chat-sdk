@@ -1,22 +1,22 @@
 [versions]
-agp = "8.7.3"
+agp = "9.3.2"
 kotlinxDatetime = "0.6.1"
 activityCompose = "1.10.1"
-kotlin = "2.1.20"
-ksp = "2.1.20-1.0.31"
+kotlin = "2.3.21"
+ksp = "2.3.11"
 composeBom = "2025.12.00"
-sqldelight = "2.0.2"
+sqldelight = "2.3.2"
 ktor = "3.1.0"
-kotlinxSerialization = "1.7.3"
+kotlinxSerialization = "1.9.0"
 lifecycle = "2.8.7"
-coroutines = "1.9.0"
-hilt = "2.56"
+coroutines = "1.10.2"
+hilt = "2.60.1"
 junit = "4.13.2"
 coil = "3.0.4"
 protobuf = "4.29.3"
 markdownRenderer = "0.35.0"
 securityCrypto = "1.0.0"
-mavenPublish = "0.30.0"
+mavenPublish = "0.37.0"
 
 [libraries]
 # Compose
@@ -88,9 +88,12 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
 
 [plugins]
-android-library = { id = "com.android.library", version.ref = "agp" }
+# KMP modules use the Android/KMP-integrated library plugin. AGP 9 no longer allows
+# com.android.library in a module that also applies org.jetbrains.kotlin.multiplatform.
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+# org.jetbrains.kotlin.android is gone: AGP 9 compiles Kotlin in com.android.application
+# modules with its own built-in Kotlin support.
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

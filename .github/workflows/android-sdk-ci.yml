@@ -54,14 +54,14 @@ jobs:
         run: ./gradlew :sdk:lint
 
       - name: Unit tests
-        run: ./gradlew :sdk:testDebugUnitTest
+        run: ./gradlew :sdk:testAndroidHostTest
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: android-sdk/sdk/build/reports/tests/testDebugUnitTest/
+          path: android-sdk/sdk/build/reports/tests/testAndroidHostTest/
           retention-days: 7
 
       - name: Build demo app (debug)
@@ -70,7 +70,9 @@ jobs:
       - name: Build release AAR + R8 gate
         # Builds both the SDK AAR and the demo app release APK so R8 shrinking runs
         # against the SDK's consumer-proguard-rules.pro. Any shrinking error surfaces here.
-        run: ./gradlew :sdk:assembleRelease :app:assembleRelease
+        # :sdk has a single variant under the KMP Android library plugin, so it is
+        # :sdk:assemble rather than :sdk:assembleRelease.
+        run: ./gradlew :sdk:assemble :app:assembleRelease
 
   xcframework:
     runs-on: macos-latest
