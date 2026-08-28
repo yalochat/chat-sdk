@@ -138,7 +138,8 @@ Your app
 
 **Message flow:**
 - Outgoing messages are inserted locally first (optimistic UI) and then sent to the Yalo backend over HTTP.
-- Incoming messages are fetched by a background polling loop that runs only while `ChatScreen` is visible. When the screen is dismissed, polling stops automatically.
+- Incoming messages arrive in real time over a WebSocket, so there is no polling delay.
+- The SDK manages that connection for you. It reconnects if the connection drops, and releases it while your app is in the background. There is nothing to wire up.
 - Messages are persisted in a local SQLite database via SQLDelight, so they survive process restarts.
 
 **Permissions:**
@@ -221,7 +222,7 @@ The SDK does not manage its own back stack — navigation is left to the host ap
 
 ## Theming and customisation
 
-Pass a `ChatTheme` instance to `YaloChatConfig` to control how the chat looks. All properties have sensible defaults (matching the Flutter SDK's built-in light theme), so you only need to override what you want to change.
+Pass a `ChatTheme` instance to `YaloChat.init()` to control how the chat looks. It is a separate parameter from `config`, and it defaults to `ChatTheme.Default`. All properties have sensible defaults (matching the Flutter SDK's built-in light theme), so you only need to override what you want to change.
 
 ### Partial override
 
@@ -229,14 +230,14 @@ Pass a `ChatTheme` instance to `YaloChatConfig` to control how the chat looks. A
 YaloChat.init(
     config = YaloChatConfig(
         // ... credentials ...
-        theme = ChatTheme(
-            sendButtonColor       = Color(0xFF00AA00),
-            userBubbleColor       = Color(0xFFDCF8C6),
-            userMessageTextStyle  = TextStyle(color = Color(0xFF000000)),
-            bubbleShape           = RoundedCornerShape(8.dp),
-        ),
     ),
     context = this,
+    theme = ChatTheme(
+        sendButtonColor       = Color(0xFF00AA00),
+        userBubbleColor       = Color(0xFFDCF8C6),
+        userMessageTextStyle  = TextStyle(color = Color(0xFF000000)),
+        bubbleShape           = RoundedCornerShape(8.dp),
+    ),
 )
 ```
 
@@ -254,9 +255,9 @@ setContent {
         YaloChat.init(
             config = YaloChatConfig(
                 // ... credentials ...
-                theme = chatTheme,
             ),
             context = this@MainActivity,
+            theme = chatTheme,
         )
 
         ChatScreen()
@@ -270,11 +271,11 @@ If you initialise the SDK in `Activity.onCreate` before `setContent`, construct 
 YaloChat.init(
     config = YaloChatConfig(
         // ... credentials ...
-        theme = ChatTheme.fromMaterialTheme(
-            lightColorScheme(primary = Color(0xFF6650A4))
-        ),
     ),
     context = this,
+    theme = ChatTheme.fromMaterialTheme(
+        lightColorScheme(primary = Color(0xFF6650A4))
+    ),
 )
 ```
 
