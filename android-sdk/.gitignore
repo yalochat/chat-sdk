@@ -1,18 +1,15 @@
-# Local configuration — never commit
-local.properties
-
-# Build outputs
-build/
-.gradle/
-**/.gradle/
-**/build/
-.kotlin/
-
-# Android Studio
-.idea/
 *.iml
-*.ipr
-*.iws
-
-# OS
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
