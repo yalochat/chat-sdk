@@ -1,87 +1,55 @@
-// Copyright (c) Yalochat, Inc. All rights reserved.
-
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
-    // No kotlin-android plugin: AGP 9 has built-in Kotlin compilation.
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
-}
-
-// Read demo credentials from local.properties (never committed to git).
-// Copy local.properties.example → local.properties and fill in the values.
-val localProps = Properties().also { props ->
-    val file = rootProject.file("local.properties")
-    if (file.exists()) file.inputStream().use { props.load(it) }
-}
-
-fun localProp(key: String): String {
-    val value = localProps.getProperty(key, "")
-    if (value.isEmpty()) {
-        logger.warn("WARNING: local.properties is missing '$key'. Copy local.properties.example → local.properties and fill in the values. The demo app will fail at runtime.")
-    }
-    return value
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace = "com.yalo.chat.demo"
-    compileSdk = 36
+    namespace = "ai.yalo.chat.sdk.example"
+    compileSdk {
+        version = release(37)
+    }
 
     defaultConfig {
-        applicationId = "com.yalo.chat.demo"
-        minSdk = 23
-        targetSdk = 35
+        applicationId = "ai.yalo.chat.sdk.example"
+        minSdk = 24
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String",  "YALO_CHANNEL_NAME",      "\"${localProp("yalo.channelName")}\"")
-        buildConfigField("String",  "YALO_CHANNEL_ID",        "\"${localProp("yalo.channelId")}\"")
-        buildConfigField("String",  "YALO_ORGANIZATION_ID",   "\"${localProp("yalo.organizationId")}\"")
-        buildConfigField("String",  "YALO_ENVIRONMENT",       "\"${localProps.getProperty("yalo.environment", "PRODUCTION")}\"")
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildTypes {
+        release {
+            optimization {
+                enable = false
+            }
+        }
+    }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
     buildFeatures {
         compose = true
-        buildConfig = true
-    }
-
-    lint {
-        // IncompatibleClassChangeError crashes from buggy lint detectors on Kotlin 2.x.
-        disable += "NullSafeMutableLiveData"
-        disable += "RememberInComposition"
-        disable += "FrequentlyChangingValue"
-        disable += "AutoboxingStateCreation"
     }
 }
 
-// With built-in Kotlin, jvmTarget defaults to android.compileOptions.targetCompatibility (17).
-
 dependencies {
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(project(":sdk"))
-
-    // Compose BOM
-    val composeBom = platform(libs.compose.bom)
-    implementation(composeBom)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons.extended)
-    implementation(libs.compose.ui.tooling.preview)
-    debugImplementation(libs.compose.ui.tooling)
-
-    // Activity Compose — provides setContent {}
-    implementation(libs.activity.compose)
-
-    // Lifecycle
-    implementation(libs.lifecycle.runtime.ktx)
-
-    // Hilt — app only, never inside :sdk
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    testImplementation(libs.junit)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }
