@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="yalo_chat_input_placeholder">输入消息</string>
+    <string name="yalo_chat_send_button_description">发送消息</string>
+</resources>

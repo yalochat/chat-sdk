@@ -1,4 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
+package ai.yalo.chat.sdk
 
 
 public data class YaloChatClientConfig(
