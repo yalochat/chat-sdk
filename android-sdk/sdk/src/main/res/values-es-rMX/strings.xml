@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="yalo_chat_input_placeholder">Escribe un mensaje</string>
-    <string name="yalo_chat_send_button_description">Enviar mensaje</string>
-</resources>

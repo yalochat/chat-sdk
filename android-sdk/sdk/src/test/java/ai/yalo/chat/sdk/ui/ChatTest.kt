@@ -11,6 +11,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +43,15 @@ class ChatTest {
     }
 
     @Test
+    fun appliesTheModifierTheHostPassesIn() {
+        composeRule.setContent {
+            Chat(client, Modifier.testTag(HOST_TAG))
+        }
+
+        composeRule.onNodeWithTag(HOST_TAG).assertIsDisplayed()
+    }
+
+    @Test
     fun enablesSendOnceTheUserTypes() {
         composeRule.setContent {
             Chat(client)
@@ -63,5 +74,9 @@ class ChatTest {
 
         composeRule.onNodeWithText("Hello").assertDoesNotExist()
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
+    }
+
+    private companion object {
+        const val HOST_TAG = "host-modifier"
     }
 }

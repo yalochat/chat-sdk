@@ -18,8 +18,9 @@ import org.robolectric.annotation.Config
 import java.util.Locale
 
 /**
- * A user in any supported language must read the chat in that language rather
- * than in the English default.
+ * A user in any supported locale must read the chat in their own language rather
+ * than in the English default. Regional locales are covered by the language
+ * translation, so es-MX reads the Spanish strings and pt-BR the Portuguese ones.
  */
 @RunWith(RobolectricTestRunner::class)
 class ChatTranslationsTest {
@@ -28,14 +29,14 @@ class ChatTranslationsTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun translatesEveryChatStringForEverySupportedLanguage() {
+    fun translatesEveryChatStringForEverySupportedLocale() {
         val english = chatStrings(Locale.ENGLISH)
 
-        for (languageTag in SUPPORTED_LANGUAGE_TAGS) {
-            val translated = chatStrings(Locale.forLanguageTag(languageTag))
+        for (locale in SUPPORTED_LOCALES) {
+            val translated = chatStrings(Locale.forLanguageTag(locale))
 
-            assertTrue("$languageTag has a blank string", translated.none { it.isBlank() })
-            assertNotEquals("$languageTag falls back to English", english, translated)
+            assertTrue("$locale has a blank string", translated.none { it.isBlank() })
+            assertNotEquals("$locale falls back to English", english, translated)
         }
     }
 
@@ -67,6 +68,6 @@ class ChatTranslationsTest {
     }
 
     private companion object {
-        val SUPPORTED_LANGUAGE_TAGS = listOf("ar", "es", "es-MX", "pt", "pt-BR", "zh", "zh-CN")
+        val SUPPORTED_LOCALES = listOf("ar", "es", "es-MX", "pt", "pt-BR", "zh", "zh-CN")
     }
 }
