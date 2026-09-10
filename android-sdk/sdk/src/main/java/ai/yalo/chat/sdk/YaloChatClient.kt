@@ -1,10 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
+package ai.yalo.chat.sdk
 
-public class YaloChatClient(val config: YaloChatClientConfig) {
+import java.util.concurrent.ConcurrentHashMap
 
-    private val commands: Map<String, Function<*>> = ConcurrentHashMap()
+public class YaloChatClient(internal val config: YaloChatClientConfig) {
 
-    public fun registerCommand(val command: String, handler: Function<*>) {
+    private val commands = ConcurrentHashMap<String, Function<*>>()
+
+    public fun registerCommand(command: String, handler: Function<*>) {
 	this.commands[command] = handler
     }
 
