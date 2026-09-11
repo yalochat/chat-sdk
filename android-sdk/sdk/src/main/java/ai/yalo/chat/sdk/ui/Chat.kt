@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.YaloChatClient
+import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import ai.yalo.chat.sdk.ui.theme.ProvideChatTheme
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
@@ -37,8 +39,8 @@ public fun Chat(
     onBack: (() -> Unit)? = null,
 ) {
     val viewModel: ChatViewModel = viewModel(
-        key = client.config.channelId,
-        factory = ChatViewModel.factory(client.config),
+        key = client.config.sessionId,
+        factory = ChatViewModel.factory(LocalContext.current, client.config),
     )
     ProvideChatTheme(theme) {
         ChatLayout(
@@ -48,6 +50,8 @@ public fun Chat(
             onSend = viewModel::onSend,
             modifier = modifier,
             status = viewModel.uiState.status,
+            messages = viewModel.uiState.messages,
+            isWaitingForReply = viewModel.uiState.isWaitingForReply,
             avatar = avatar,
             onBack = onBack,
         )
@@ -62,6 +66,8 @@ internal fun ChatLayout(
     onSend: () -> Unit,
     modifier: Modifier = Modifier,
     status: String? = null,
+    messages: List<ChatMessage> = emptyList(),
+    isWaitingForReply: Boolean = false,
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
 ) {
@@ -77,6 +83,8 @@ internal fun ChatLayout(
                 onBack = onBack,
             )
             ChatMessageList(
+                messages = messages,
+                isWaitingForReply = isWaitingForReply,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
