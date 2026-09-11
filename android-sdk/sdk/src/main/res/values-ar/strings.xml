@@ -2,4 +2,7 @@
 <resources>
     <string name="yalo_chat_input_placeholder">اكتب رسالة</string>
     <string name="yalo_chat_send_button_description">إرسال رسالة</string>
+    <string name="yalo_chat_back_button_description">رجوع</string>
+    <string name="yalo_chat_watermark">من %1$s</string>
+    <string name="yalo_chat_mic_button_description">تسجيل رسالة صوتية</string>
 </resources>

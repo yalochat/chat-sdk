@@ -2,4 +2,7 @@
 <resources>
     <string name="yalo_chat_input_placeholder">Digite uma mensagem</string>
     <string name="yalo_chat_send_button_description">Enviar mensagem</string>
+    <string name="yalo_chat_back_button_description">Voltar</string>
+    <string name="yalo_chat_watermark">Por %1$s</string>
+    <string name="yalo_chat_mic_button_description">Gravar mensagem de voz</string>
 </resources>
