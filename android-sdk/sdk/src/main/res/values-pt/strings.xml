@@ -5,4 +5,5 @@
     <string name="yalo_chat_back_button_description">Voltar</string>
     <string name="yalo_chat_watermark">Por %1$s</string>
     <string name="yalo_chat_mic_button_description">Gravar mensagem de voz</string>
+    <string name="yalo_chat_unsupported_message">Esta mensagem não pode ser exibida aqui</string>
 </resources>

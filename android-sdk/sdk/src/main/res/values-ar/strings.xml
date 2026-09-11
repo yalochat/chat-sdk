@@ -5,4 +5,5 @@
     <string name="yalo_chat_back_button_description">رجوع</string>
     <string name="yalo_chat_watermark">من %1$s</string>
     <string name="yalo_chat_mic_button_description">تسجيل رسالة صوتية</string>
+    <string name="yalo_chat_unsupported_message">لا يمكن عرض هذه الرسالة هنا</string>
 </resources>

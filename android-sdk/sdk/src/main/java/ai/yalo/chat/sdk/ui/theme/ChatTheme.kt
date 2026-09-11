@@ -5,8 +5,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 
 /**
  * How the chat paints itself.
@@ -33,10 +36,20 @@ public data class ChatTheme(
     public val onHeaderBackground: Color,
     public val footerBackground: Color,
     public val onFooterBackground: Color,
+    public val userMessageBackground: Color,
+    public val onUserMessageBackground: Color,
+    public val agentMessageBackground: Color,
+    public val onAgentMessageBackground: Color,
+    public val typingIndicatorDotColor: Color,
     public val inputShape: Shape,
+    public val userMessageShape: Shape,
+    public val agentMessageShape: Shape,
 ) {
 
     public companion object {
+
+        private val BUBBLE_CORNER = 18.dp
+        private val BUBBLE_TAIL_CORNER = 4.dp
 
         /** The theme derived from the host `MaterialTheme`. */
         @Composable
@@ -48,7 +61,21 @@ public data class ChatTheme(
             onHeaderBackground = MaterialTheme.colorScheme.onSurface,
             footerBackground = MaterialTheme.colorScheme.surfaceContainer,
             onFooterBackground = MaterialTheme.colorScheme.onSurface,
+            userMessageBackground = MaterialTheme.colorScheme.surfaceContainerHigh,
+            onUserMessageBackground = MaterialTheme.colorScheme.onSurface,
+            // The web SDK leaves what the agent says unbubbled, so it reads as
+            // the conversation itself rather than as a reply.
+            agentMessageBackground = Color.Transparent,
+            onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
+            typingIndicatorDotColor = MaterialTheme.colorScheme.onSurfaceVariant,
             inputShape = MaterialTheme.shapes.extraLarge,
+            userMessageShape = RoundedCornerShape(
+                topStart = BUBBLE_CORNER,
+                topEnd = BUBBLE_CORNER,
+                bottomEnd = BUBBLE_TAIL_CORNER,
+                bottomStart = BUBBLE_CORNER,
+            ),
+            agentMessageShape = RectangleShape,
         )
     }
 }

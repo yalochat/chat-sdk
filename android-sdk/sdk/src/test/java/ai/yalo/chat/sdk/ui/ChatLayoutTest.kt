@@ -1,9 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui
 
+import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageRole
+import ai.yalo.chat.sdk.domain.models.MessageType
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -24,12 +28,42 @@ class ChatLayoutTest {
                 text = "",
                 onTextChange = {},
                 onSend = {},
+                messages = listOf(
+                    ChatMessage(
+                        role = MessageRole.Agent,
+                        type = MessageType.Text,
+                        timestamp = 1_000L,
+                        content = "How can I help?",
+                    ),
+                ),
             )
         }
 
         composeRule.onNodeWithTag(CHAT_HEADER_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(CHAT_MESSAGE_LIST_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(CHAT_FOOTER_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun showsTheConversationBetweenTheHeaderAndTheFooter() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(
+                    ChatMessage(
+                        role = MessageRole.Agent,
+                        type = MessageType.Text,
+                        timestamp = 1_000L,
+                        content = "How can I help?",
+                    ),
+                ),
+            )
+        }
+
+        composeRule.onNodeWithText("How can I help?").assertIsDisplayed()
     }
 
     @Test
@@ -40,6 +74,14 @@ class ChatLayoutTest {
                 text = "",
                 onTextChange = {},
                 onSend = {},
+                messages = listOf(
+                    ChatMessage(
+                        role = MessageRole.Agent,
+                        type = MessageType.Text,
+                        timestamp = 1_000L,
+                        content = "How can I help?",
+                    ),
+                ),
             )
         }
 
