@@ -2,4 +2,6 @@
 <resources>
     <string name="yalo_chat_input_placeholder">Escribe un mensaje</string>
     <string name="yalo_chat_send_button_description">Enviar mensaje</string>
+    <string name="yalo_chat_back_button_description">Atrás</string>
+    <string name="yalo_chat_watermark">Por %1$s</string>
 </resources>

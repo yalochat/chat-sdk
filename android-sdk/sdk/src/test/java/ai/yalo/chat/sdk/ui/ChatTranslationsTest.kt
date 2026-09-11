@@ -57,6 +57,8 @@ class ChatTranslationsTest {
         return listOf(
             context.getString(R.string.yalo_chat_input_placeholder),
             context.getString(R.string.yalo_chat_send_button_description),
+            context.getString(R.string.yalo_chat_back_button_description),
+            context.getString(R.string.yalo_chat_watermark, "Yalo"),
         )
     }
 

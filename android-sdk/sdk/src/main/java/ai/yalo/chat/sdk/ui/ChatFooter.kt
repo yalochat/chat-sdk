@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.R
+import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,12 +37,13 @@ internal fun ChatFooter(
     modifier: Modifier = Modifier,
 ) {
     val canSend = text.isNotBlank()
+    val theme = currentChatTheme
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .testTag(CHAT_FOOTER_TAG),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        color = theme.footerBackground,
+        contentColor = theme.onFooterBackground,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
