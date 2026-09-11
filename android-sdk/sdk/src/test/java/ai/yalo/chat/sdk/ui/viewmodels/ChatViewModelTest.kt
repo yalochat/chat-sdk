@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -25,6 +26,7 @@ class ChatViewModelTest {
 
     private val chatMessages = FakeChatMessageRepository()
     private val scheduler = TestCoroutineScheduler()
+    private val hostMessages = MutableSharedFlow<String>(extraBufferCapacity = 8)
 
     @Before
     fun useATestDispatcher() {
@@ -206,6 +208,49 @@ class ChatViewModelTest {
         assertFalse(viewModel.uiState.isWaitingForReply)
     }
 
+    @Test
+    fun keepsWhatTheHostAskedToSend() {
+        val viewModel = chatViewModel()
+
+        hostMessages.tryEmit("Sent by the app")
+
+        val sent = viewModel.uiState.messages.single()
+        assertEquals(
+            listOf("Sent by the app", MessageRole.User, MessageType.Text),
+            listOf(sent.content, sent.role, sent.type),
+        )
+    }
+
+    @Test
+    fun waitsForAReplyToWhatTheHostSent() {
+        val viewModel = chatViewModel()
+
+        hostMessages.tryEmit("Sent by the app")
+
+        assertTrue(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun sendsNothingWhenTheHostAsksForOnlySpace() {
+        val viewModel = chatViewModel()
+
+        hostMessages.tryEmit("   ")
+
+        assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
+        assertFalse(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun leavesAHalfTypedDraftAloneWhenTheHostSends() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Typing this")
+
+        hostMessages.tryEmit("Sent by the app")
+
+        assertEquals("Typing this", viewModel.uiState.draft)
+        assertEquals(listOf("Sent by the app"), viewModel.uiState.messages.map { it.content })
+    }
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
@@ -213,6 +258,7 @@ class ChatViewModelTest {
         title = title,
         chatMessages = chatMessages,
         savedState = savedState,
+        hostMessages = hostMessages,
         now = { SENT_AT },
     )
 

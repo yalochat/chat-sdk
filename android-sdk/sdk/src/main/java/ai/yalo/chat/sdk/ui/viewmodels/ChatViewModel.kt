@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
-import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
@@ -19,6 +19,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -53,6 +55,7 @@ internal class ChatViewModel(
     title: String,
     private val chatMessages: ChatMessageRepository,
     private val savedState: SavedStateHandle,
+    hostMessages: Flow<String> = emptyFlow(),
     private val now: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
@@ -65,6 +68,9 @@ internal class ChatViewModel(
 
     init {
         refreshMessages()
+        viewModelScope.launch {
+            hostMessages.collect { text -> send(text) }
+        }
     }
 
     fun onDraftChange(value: String) {
@@ -79,17 +85,30 @@ internal class ChatViewModel(
         }
         onDraftChange("")
         viewModelScope.launch {
-            chatMessages.insert(
-                ChatMessage(
-                    role = MessageRole.User,
-                    type = MessageType.Text,
-                    timestamp = now(),
-                    content = text,
-                ),
-            ).onSuccess {
-                refreshMessages()
-                waitForReply()
-            }
+            send(text)
+        }
+    }
+
+    /**
+     * Stores [text] as the person's own message, whether they typed it or the
+     * host asked for it on their behalf. Both arrive the same way, so a host
+     * message is as much part of the conversation as a typed one.
+     */
+    private suspend fun send(text: String) {
+        val content = text.trim()
+        if (content.isEmpty()) {
+            return
+        }
+        chatMessages.insert(
+            ChatMessage(
+                role = MessageRole.User,
+                type = MessageType.Text,
+                timestamp = now(),
+                content = content,
+            ),
+        ).onSuccess {
+            refreshMessages()
+            waitForReply()
         }
     }
 
@@ -128,13 +147,14 @@ internal class ChatViewModel(
 
         fun factory(
             context: Context,
-            config: YaloChatClientConfig,
+            client: YaloChatClient,
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 ChatViewModel(
-                    title = config.channelName,
-                    chatMessages = ChatDependencies(context, config).chatMessages,
+                    title = client.config.channelName,
+                    chatMessages = ChatDependencies(context, client.config).chatMessages,
                     savedState = createSavedStateHandle(),
+                    hostMessages = client.outgoingTextMessages,
                 )
             }
         }

@@ -40,7 +40,7 @@ public fun Chat(
 ) {
     val viewModel: ChatViewModel = viewModel(
         key = client.config.sessionId,
-        factory = ChatViewModel.factory(LocalContext.current, client.config),
+        factory = ChatViewModel.factory(LocalContext.current, client),
     )
     ProvideChatTheme(theme) {
         ChatLayout(

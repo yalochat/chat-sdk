@@ -107,6 +107,23 @@ class ChatTest {
     }
 
     @Test
+    fun showsWhatTheHostSentThroughTheClient() {
+        composeRule.setContent {
+            Chat(client)
+        }
+
+        client.sendTextMessage("Sent by the app")
+
+        // The chat takes the message off the client's queue on its own
+        // coroutine, so the conversation catches up a frame or two later.
+        composeRule.waitUntil {
+            composeRule.onAllNodesWithText("Sent by the app")
+                .fetchSemanticsNodes()
+                .isNotEmpty()
+        }
+    }
+
+    @Test
     fun sharesOneChatBetweenClientsOnTheSameSession() {
         val sameSession = YaloChatClient(client.config.copy())
         composeRule.setContent {
