@@ -4,4 +4,5 @@
     <string name="yalo_chat_send_button_description">Send message</string>
     <string name="yalo_chat_back_button_description">Back</string>
     <string name="yalo_chat_watermark">By %1$s</string>
+    <string name="yalo_chat_mic_button_description">Record voice message</string>
 </resources>

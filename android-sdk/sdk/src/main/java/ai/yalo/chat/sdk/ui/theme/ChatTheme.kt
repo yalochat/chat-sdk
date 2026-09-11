@@ -6,16 +6,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 
 /**
- * Colors the chat paints itself with.
+ * How the chat paints itself.
  *
  * Every value defaults to the host `MaterialTheme`, so a chat dropped into an
  * app follows that app's light and dark schemes with no setup. Override only
  * what you need:
  *
  * ```
- * Chat(client, theme = ChatTheme.default().copy(headerBackground = Color.Red))
+ * Chat(
+ *     client,
+ *     theme = ChatTheme.default().copy(
+ *         headerBackground = Color.Red,
+ *         inputShape = RoundedCornerShape(8.dp),
+ *     ),
+ * )
  * ```
  */
 @Immutable
@@ -26,6 +33,7 @@ public data class ChatTheme(
     public val onHeaderBackground: Color,
     public val footerBackground: Color,
     public val onFooterBackground: Color,
+    public val inputShape: Shape,
 ) {
 
     public companion object {
@@ -40,6 +48,7 @@ public data class ChatTheme(
             onHeaderBackground = MaterialTheme.colorScheme.onSurface,
             footerBackground = MaterialTheme.colorScheme.surfaceContainer,
             onFooterBackground = MaterialTheme.colorScheme.onSurface,
+            inputShape = MaterialTheme.shapes.extraLarge,
         )
     }
 }

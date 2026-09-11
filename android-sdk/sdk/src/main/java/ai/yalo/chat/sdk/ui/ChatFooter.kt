@@ -3,14 +3,18 @@ package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.R
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -60,7 +65,7 @@ internal fun ChatFooter(
                     Text(text = stringResource(R.string.yalo_chat_input_placeholder))
                 },
                 maxLines = 4,
-                shape = MaterialTheme.shapes.large,
+                shape = theme.inputShape,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                 keyboardActions = KeyboardActions(
                     onSend = {
@@ -77,10 +82,27 @@ internal fun ChatFooter(
                     .testTag(CHAT_SEND_BUTTON_TAG),
                 enabled = canSend,
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.yalo_chat_send_button_description),
-                )
+                // The button offers to record until there is something to send,
+                // then turns into the send button.
+                AnimatedContent(
+                    targetState = canSend,
+                    transitionSpec = {
+                        (fadeIn() + scaleIn()) togetherWith (fadeOut() + scaleOut())
+                    },
+                    label = "yalo-chat-send-button-icon",
+                ) { sending ->
+                    if (sending) {
+                        Icon(
+                            painter = painterResource(R.drawable.yalo_chat_ic_send),
+                            contentDescription = stringResource(R.string.yalo_chat_send_button_description),
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(R.drawable.yalo_chat_ic_mic),
+                            contentDescription = stringResource(R.string.yalo_chat_mic_button_description),
+                        )
+                    }
+                }
             }
         }
     }

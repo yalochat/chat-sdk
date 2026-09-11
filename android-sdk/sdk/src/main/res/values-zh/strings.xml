@@ -4,4 +4,5 @@
     <string name="yalo_chat_send_button_description">发送消息</string>
     <string name="yalo_chat_back_button_description">返回</string>
     <string name="yalo_chat_watermark">由 %1$s 提供</string>
+    <string name="yalo_chat_mic_button_description">录制语音消息</string>
 </resources>
