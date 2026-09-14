@@ -26,24 +26,18 @@ The chat renders inside the space you give it, follows your app theme out of the
 
 ## Installation
 
-The SDK is not published to a Maven repository yet, so it is consumed as a Gradle module. Include the `sdk` folder in your project settings:
-
-```kotlin
-// settings.gradle.kts
-include(":yalo-chat-sdk")
-project(":yalo-chat-sdk").projectDir = file("path/to/android-sdk/sdk")
-```
-
-Then depend on it from your app module:
+The SDK is published to Maven Central. Make sure `mavenCentral()` is in your repositories, then add the dependency to your app module:
 
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation(project(":yalo-chat-sdk"))
+    implementation("ai.yalo.chat:chat-android-sdk:0.0.1")
 }
 ```
 
-The module resolves its plugins and dependencies through a Gradle version catalog, so your project needs the entries in `android-sdk/gradle/libs.versions.toml`. The simplest way to try the SDK today is to open the `android-sdk` project and run its example app, which is already wired this way.
+Replace `0.0.1` with the version you want. Every released version has a matching `android-sdk/vX.Y.Z` tag in this repository.
+
+To try the SDK without adding it to your own app, open the `android-sdk` project and run its example app.
 
 ## Quick start
 
