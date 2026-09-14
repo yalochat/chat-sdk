@@ -12,6 +12,7 @@ appcompat = "1.8.0"
 material = "1.14.0"
 robolectric = "4.16"
 coroutines = "1.9.0"
+protobuf = "4.34.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

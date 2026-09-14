@@ -95,7 +95,7 @@ class SdkMessage extends $pb.GeneratedMessage {
     GetCartRequest? getCartRequest,
     GetCartResponse? getCartResponse,
   }) {
-    final result = create();
+    final result = SdkMessage._();
     if (correlationId != null) result.correlationId = correlationId;
     if (timestamp != null) result.timestamp = timestamp;
     if (textMessageRequest != null)
@@ -160,10 +160,10 @@ class SdkMessage extends $pb.GeneratedMessage {
 
   factory SdkMessage.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      SdkMessage()..mergeFromBuffer(data, registry);
   factory SdkMessage.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      SdkMessage()..mergeFromJson(json, registry);
 
   static const $core.Map<$core.int, SdkMessage_Payload>
       _SdkMessage_PayloadByTag = {
@@ -203,7 +203,7 @@ class SdkMessage extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'SdkMessage',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: SdkMessage.$_createMessage)
     ..oo(0, [
       10,
       12,
@@ -238,84 +238,84 @@ class SdkMessage extends $pb.GeneratedMessage {
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOM<TextMessageRequest>(10, _omitFieldNames ? '' : 'textMessageRequest',
-        subBuilder: TextMessageRequest.create)
+        subBuilder: TextMessageRequest.$_createMessage)
     ..aOM<VoiceNoteMessageRequest>(
         12, _omitFieldNames ? '' : 'voiceNoteMessageRequest',
-        subBuilder: VoiceNoteMessageRequest.create)
+        subBuilder: VoiceNoteMessageRequest.$_createMessage)
     ..aOM<ImageMessageRequest>(14, _omitFieldNames ? '' : 'imageMessageRequest',
-        subBuilder: ImageMessageRequest.create)
+        subBuilder: ImageMessageRequest.$_createMessage)
     ..aOM<MessageReceiptRequest>(
         16, _omitFieldNames ? '' : 'messageReceiptRequest',
-        subBuilder: MessageReceiptRequest.create)
+        subBuilder: MessageReceiptRequest.$_createMessage)
     ..aOM<AttachmentMessageRequest>(
         18, _omitFieldNames ? '' : 'attachmentMessageRequest',
-        subBuilder: AttachmentMessageRequest.create)
+        subBuilder: AttachmentMessageRequest.$_createMessage)
     ..aOM<AddToCartRequest>(20, _omitFieldNames ? '' : 'addToCartRequest',
-        subBuilder: AddToCartRequest.create)
+        subBuilder: AddToCartRequest.$_createMessage)
     ..aOM<AddToCartResponse>(21, _omitFieldNames ? '' : 'addToCartResponse',
-        subBuilder: AddToCartResponse.create)
+        subBuilder: AddToCartResponse.$_createMessage)
     ..aOM<RemoveFromCartRequest>(
         22, _omitFieldNames ? '' : 'removeFromCartRequest',
-        subBuilder: RemoveFromCartRequest.create)
+        subBuilder: RemoveFromCartRequest.$_createMessage)
     ..aOM<RemoveFromCartResponse>(
         23, _omitFieldNames ? '' : 'removeFromCartResponse',
-        subBuilder: RemoveFromCartResponse.create)
+        subBuilder: RemoveFromCartResponse.$_createMessage)
     ..aOM<ClearCartRequest>(24, _omitFieldNames ? '' : 'clearCartRequest',
-        subBuilder: ClearCartRequest.create)
+        subBuilder: ClearCartRequest.$_createMessage)
     ..aOM<ClearCartResponse>(25, _omitFieldNames ? '' : 'clearCartResponse',
-        subBuilder: ClearCartResponse.create)
+        subBuilder: ClearCartResponse.$_createMessage)
     ..aOM<GuidanceCardRequest>(26, _omitFieldNames ? '' : 'guidanceCardRequest',
-        subBuilder: GuidanceCardRequest.create)
+        subBuilder: GuidanceCardRequest.$_createMessage)
     ..aOM<GuidanceCardResponse>(
         27, _omitFieldNames ? '' : 'guidanceCardResponse',
-        subBuilder: GuidanceCardResponse.create)
+        subBuilder: GuidanceCardResponse.$_createMessage)
     ..aOM<AddPromotionRequest>(28, _omitFieldNames ? '' : 'addPromotionRequest',
-        subBuilder: AddPromotionRequest.create)
+        subBuilder: AddPromotionRequest.$_createMessage)
     ..aOM<AddPromotionResponse>(
         29, _omitFieldNames ? '' : 'addPromotionResponse',
-        subBuilder: AddPromotionResponse.create)
+        subBuilder: AddPromotionResponse.$_createMessage)
     ..aOM<PromotionMessageRequest>(
         30, _omitFieldNames ? '' : 'promotionMessageRequest',
-        subBuilder: PromotionMessageRequest.create)
+        subBuilder: PromotionMessageRequest.$_createMessage)
     ..aOM<PromotionMessageResponse>(
         31, _omitFieldNames ? '' : 'promotionMessageResponse',
-        subBuilder: PromotionMessageResponse.create)
+        subBuilder: PromotionMessageResponse.$_createMessage)
     ..aOM<ProductMessageRequest>(
         32, _omitFieldNames ? '' : 'productMessageRequest',
-        subBuilder: ProductMessageRequest.create)
+        subBuilder: ProductMessageRequest.$_createMessage)
     ..aOM<ProductMessageResponse>(
         33, _omitFieldNames ? '' : 'productMessageResponse',
-        subBuilder: ProductMessageResponse.create)
+        subBuilder: ProductMessageResponse.$_createMessage)
     ..aOM<ChatStatusRequest>(34, _omitFieldNames ? '' : 'chatStatusRequest',
-        subBuilder: ChatStatusRequest.create)
+        subBuilder: ChatStatusRequest.$_createMessage)
     ..aOM<ChatStatusResponse>(35, _omitFieldNames ? '' : 'chatStatusResponse',
-        subBuilder: ChatStatusResponse.create)
+        subBuilder: ChatStatusResponse.$_createMessage)
     ..aOM<CustomCommandRequest>(
         36, _omitFieldNames ? '' : 'customCommandRequest',
-        subBuilder: CustomCommandRequest.create)
+        subBuilder: CustomCommandRequest.$_createMessage)
     ..aOM<CustomCommandResponse>(
         37, _omitFieldNames ? '' : 'customCommandResponse',
-        subBuilder: CustomCommandResponse.create)
+        subBuilder: CustomCommandResponse.$_createMessage)
     ..aOM<VideoMessageRequest>(38, _omitFieldNames ? '' : 'videoMessageRequest',
-        subBuilder: VideoMessageRequest.create)
+        subBuilder: VideoMessageRequest.$_createMessage)
     ..aOM<UpdateCartProductRequest>(
         46, _omitFieldNames ? '' : 'updateCartProductRequest',
-        subBuilder: UpdateCartProductRequest.create)
+        subBuilder: UpdateCartProductRequest.$_createMessage)
     ..aOM<UpdateCartProductResponse>(
         47, _omitFieldNames ? '' : 'updateCartProductResponse',
-        subBuilder: UpdateCartProductResponse.create)
+        subBuilder: UpdateCartProductResponse.$_createMessage)
     ..aOM<ProductConfirmationMessageRequest>(
         48, _omitFieldNames ? '' : 'productConfirmationMessageRequest',
-        subBuilder: ProductConfirmationMessageRequest.create)
+        subBuilder: ProductConfirmationMessageRequest.$_createMessage)
     ..aOM<ProductConfirmationMessageResponse>(
         49, _omitFieldNames ? '' : 'productConfirmationMessageResponse',
-        subBuilder: ProductConfirmationMessageResponse.create)
+        subBuilder: ProductConfirmationMessageResponse.$_createMessage)
     ..aOM<GetCartRequest>(50, _omitFieldNames ? '' : 'getCartRequest',
-        subBuilder: GetCartRequest.create)
+        subBuilder: GetCartRequest.$_createMessage)
     ..aOM<GetCartResponse>(51, _omitFieldNames ? '' : 'getCartResponse',
-        subBuilder: GetCartResponse.create)
+        subBuilder: GetCartResponse.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -328,12 +328,14 @@ class SdkMessage extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use SdkMessage() / SdkMessage.new instead')
   static SdkMessage create() => SdkMessage._();
+  static $pb.GeneratedMessage $_createMessage() => SdkMessage._();
   @$core.override
-  SdkMessage createEmptyInstance() => create();
+  SdkMessage createEmptyInstance() => SdkMessage._();
   @$core.pragma('dart2js:noInline')
   static SdkMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<SdkMessage>(create);
+      $pb.GeneratedMessage.$_defaultFor<SdkMessage>(SdkMessage.$_createMessage);
   static SdkMessage? _defaultInstance;
 
   @$pb.TagNumber(10)
@@ -783,7 +785,7 @@ class Button extends $pb.GeneratedMessage {
     ButtonType? buttonType,
     $core.String? url,
   }) {
-    final result = create();
+    final result = Button._();
     if (text != null) result.text = text;
     if (buttonType != null) result.buttonType = buttonType;
     if (url != null) result.url = url;
@@ -794,16 +796,16 @@ class Button extends $pb.GeneratedMessage {
 
   factory Button.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      Button()..mergeFromBuffer(data, registry);
   factory Button.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      Button()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'Button',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: Button.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'text')
     ..aE<ButtonType>(2, _omitFieldNames ? '' : 'buttonType',
         enumValues: ButtonType.values)
@@ -820,12 +822,14 @@ class Button extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use Button() / Button.new instead')
   static Button create() => Button._();
+  static $pb.GeneratedMessage $_createMessage() => Button._();
   @$core.override
-  Button createEmptyInstance() => create();
+  Button createEmptyInstance() => Button._();
   @$core.pragma('dart2js:noInline')
-  static Button getDefault() =>
-      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Button>(create);
+  static Button getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Button>(Button.$_createMessage);
   static Button? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -864,7 +868,7 @@ class TextMessage extends $pb.GeneratedMessage {
     MessageStatus? status,
     MessageRole? role,
   }) {
-    final result = create();
+    final result = TextMessage._();
     if (timestamp != null) result.timestamp = timestamp;
     if (text != null) result.text = text;
     if (status != null) result.status = status;
@@ -876,18 +880,18 @@ class TextMessage extends $pb.GeneratedMessage {
 
   factory TextMessage.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      TextMessage()..mergeFromBuffer(data, registry);
   factory TextMessage.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      TextMessage()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'TextMessage',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: TextMessage.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'text')
     ..aE<MessageStatus>(3, _omitFieldNames ? '' : 'status',
         enumValues: MessageStatus.values)
@@ -906,12 +910,15 @@ class TextMessage extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use TextMessage() / TextMessage.new instead')
   static TextMessage create() => TextMessage._();
+  static $pb.GeneratedMessage $_createMessage() => TextMessage._();
   @$core.override
-  TextMessage createEmptyInstance() => create();
+  TextMessage createEmptyInstance() => TextMessage._();
   @$core.pragma('dart2js:noInline')
-  static TextMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<TextMessage>(create);
+  static TextMessage getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TextMessage>(
+          TextMessage.$_createMessage);
   static TextMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -964,7 +971,7 @@ class TextMessageRequest extends $pb.GeneratedMessage {
     $core.String? header,
     $core.String? footer,
   }) {
-    final result = create();
+    final result = TextMessageRequest._();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
     if (buttons != null) result.buttons.addAll(buttons);
@@ -977,22 +984,22 @@ class TextMessageRequest extends $pb.GeneratedMessage {
 
   factory TextMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      TextMessageRequest()..mergeFromBuffer(data, registry);
   factory TextMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      TextMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'TextMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: TextMessageRequest.$_createMessage)
     ..aOM<TextMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: TextMessage.create)
+        subBuilder: TextMessage.$_createMessage)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
-        subBuilder: Button.create)
+        subBuilder: Button.$_createMessage)
     ..aOS(4, _omitFieldNames ? '' : 'header')
     ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
@@ -1008,12 +1015,15 @@ class TextMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use TextMessageRequest() / TextMessageRequest.new instead')
   static TextMessageRequest create() => TextMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => TextMessageRequest._();
   @$core.override
-  TextMessageRequest createEmptyInstance() => create();
+  TextMessageRequest createEmptyInstance() => TextMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static TextMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<TextMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<TextMessageRequest>(
+          TextMessageRequest.$_createMessage);
   static TextMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1073,7 +1083,7 @@ class VoiceMessage extends $pb.GeneratedMessage {
     $fixnum.Int64? byteCount,
     $core.String? fileName,
   }) {
-    final result = create();
+    final result = VoiceMessage._();
     if (timestamp != null) result.timestamp = timestamp;
     if (mediaUrl != null) result.mediaUrl = mediaUrl;
     if (amplitudesPreview != null)
@@ -1091,18 +1101,18 @@ class VoiceMessage extends $pb.GeneratedMessage {
 
   factory VoiceMessage.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      VoiceMessage()..mergeFromBuffer(data, registry);
   factory VoiceMessage.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      VoiceMessage()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VoiceMessage',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: VoiceMessage.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'mediaUrl')
     ..p<$core.double>(
         3, _omitFieldNames ? '' : 'amplitudesPreview', $pb.PbFieldType.KF)
@@ -1127,12 +1137,15 @@ class VoiceMessage extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use VoiceMessage() / VoiceMessage.new instead')
   static VoiceMessage create() => VoiceMessage._();
+  static $pb.GeneratedMessage $_createMessage() => VoiceMessage._();
   @$core.override
-  VoiceMessage createEmptyInstance() => create();
+  VoiceMessage createEmptyInstance() => VoiceMessage._();
   @$core.pragma('dart2js:noInline')
-  static VoiceMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VoiceMessage>(create);
+  static VoiceMessage getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VoiceMessage>(
+          VoiceMessage.$_createMessage);
   static VoiceMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1223,7 +1236,7 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
     $core.String? header,
     $core.String? footer,
   }) {
-    final result = create();
+    final result = VoiceNoteMessageRequest._();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
     if (buttons != null) result.buttons.addAll(buttons);
@@ -1236,22 +1249,22 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
 
   factory VoiceNoteMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      VoiceNoteMessageRequest()..mergeFromBuffer(data, registry);
   factory VoiceNoteMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      VoiceNoteMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VoiceNoteMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: VoiceNoteMessageRequest.$_createMessage)
     ..aOM<VoiceMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: VoiceMessage.create)
+        subBuilder: VoiceMessage.$_createMessage)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
-        subBuilder: Button.create)
+        subBuilder: Button.$_createMessage)
     ..aOS(4, _omitFieldNames ? '' : 'header')
     ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
@@ -1268,12 +1281,16 @@ class VoiceNoteMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use VoiceNoteMessageRequest() / VoiceNoteMessageRequest.new instead')
   static VoiceNoteMessageRequest create() => VoiceNoteMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => VoiceNoteMessageRequest._();
   @$core.override
-  VoiceNoteMessageRequest createEmptyInstance() => create();
+  VoiceNoteMessageRequest createEmptyInstance() => VoiceNoteMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static VoiceNoteMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VoiceNoteMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<VoiceNoteMessageRequest>(
+          VoiceNoteMessageRequest.$_createMessage);
   static VoiceNoteMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1332,7 +1349,7 @@ class ImageMessage extends $pb.GeneratedMessage {
     $fixnum.Int64? byteCount,
     $core.String? fileName,
   }) {
-    final result = create();
+    final result = ImageMessage._();
     if (timestamp != null) result.timestamp = timestamp;
     if (text != null) result.text = text;
     if (mediaUrl != null) result.mediaUrl = mediaUrl;
@@ -1348,18 +1365,18 @@ class ImageMessage extends $pb.GeneratedMessage {
 
   factory ImageMessage.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ImageMessage()..mergeFromBuffer(data, registry);
   factory ImageMessage.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ImageMessage()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ImageMessage',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ImageMessage.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'text')
     ..aOS(3, _omitFieldNames ? '' : 'mediaUrl')
     ..aOS(4, _omitFieldNames ? '' : 'mediaType')
@@ -1382,12 +1399,15 @@ class ImageMessage extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ImageMessage() / ImageMessage.new instead')
   static ImageMessage create() => ImageMessage._();
+  static $pb.GeneratedMessage $_createMessage() => ImageMessage._();
   @$core.override
-  ImageMessage createEmptyInstance() => create();
+  ImageMessage createEmptyInstance() => ImageMessage._();
   @$core.pragma('dart2js:noInline')
-  static ImageMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ImageMessage>(create);
+  static ImageMessage getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ImageMessage>(
+          ImageMessage.$_createMessage);
   static ImageMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1474,7 +1494,7 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
     $core.String? header,
     $core.String? footer,
   }) {
-    final result = create();
+    final result = ImageMessageRequest._();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
     if (buttons != null) result.buttons.addAll(buttons);
@@ -1487,22 +1507,22 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
 
   factory ImageMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ImageMessageRequest()..mergeFromBuffer(data, registry);
   factory ImageMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ImageMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ImageMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ImageMessageRequest.$_createMessage)
     ..aOM<ImageMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: ImageMessage.create)
+        subBuilder: ImageMessage.$_createMessage)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
-        subBuilder: Button.create)
+        subBuilder: Button.$_createMessage)
     ..aOS(4, _omitFieldNames ? '' : 'header')
     ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
@@ -1518,12 +1538,16 @@ class ImageMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core
+      .Deprecated('Use ImageMessageRequest() / ImageMessageRequest.new instead')
   static ImageMessageRequest create() => ImageMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => ImageMessageRequest._();
   @$core.override
-  ImageMessageRequest createEmptyInstance() => create();
+  ImageMessageRequest createEmptyInstance() => ImageMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static ImageMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ImageMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<ImageMessageRequest>(
+          ImageMessageRequest.$_createMessage);
   static ImageMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1582,7 +1606,7 @@ class AttachmentMessage extends $pb.GeneratedMessage {
     $fixnum.Int64? byteCount,
     $core.String? fileName,
   }) {
-    final result = create();
+    final result = AttachmentMessage._();
     if (timestamp != null) result.timestamp = timestamp;
     if (text != null) result.text = text;
     if (mediaUrl != null) result.mediaUrl = mediaUrl;
@@ -1598,18 +1622,18 @@ class AttachmentMessage extends $pb.GeneratedMessage {
 
   factory AttachmentMessage.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AttachmentMessage()..mergeFromBuffer(data, registry);
   factory AttachmentMessage.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AttachmentMessage()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AttachmentMessage',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AttachmentMessage.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'text')
     ..aOS(3, _omitFieldNames ? '' : 'mediaUrl')
     ..aOS(4, _omitFieldNames ? '' : 'mediaType')
@@ -1632,12 +1656,15 @@ class AttachmentMessage extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use AttachmentMessage() / AttachmentMessage.new instead')
   static AttachmentMessage create() => AttachmentMessage._();
+  static $pb.GeneratedMessage $_createMessage() => AttachmentMessage._();
   @$core.override
-  AttachmentMessage createEmptyInstance() => create();
+  AttachmentMessage createEmptyInstance() => AttachmentMessage._();
   @$core.pragma('dart2js:noInline')
-  static AttachmentMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AttachmentMessage>(create);
+  static AttachmentMessage getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AttachmentMessage>(
+          AttachmentMessage.$_createMessage);
   static AttachmentMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1724,7 +1751,7 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
     $core.String? header,
     $core.String? footer,
   }) {
-    final result = create();
+    final result = AttachmentMessageRequest._();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
     if (buttons != null) result.buttons.addAll(buttons);
@@ -1737,22 +1764,22 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
 
   factory AttachmentMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AttachmentMessageRequest()..mergeFromBuffer(data, registry);
   factory AttachmentMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AttachmentMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AttachmentMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AttachmentMessageRequest.$_createMessage)
     ..aOM<AttachmentMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: AttachmentMessage.create)
+        subBuilder: AttachmentMessage.$_createMessage)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
-        subBuilder: Button.create)
+        subBuilder: Button.$_createMessage)
     ..aOS(4, _omitFieldNames ? '' : 'header')
     ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
@@ -1769,12 +1796,17 @@ class AttachmentMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use AttachmentMessageRequest() / AttachmentMessageRequest.new instead')
   static AttachmentMessageRequest create() => AttachmentMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => AttachmentMessageRequest._();
   @$core.override
-  AttachmentMessageRequest createEmptyInstance() => create();
+  AttachmentMessageRequest createEmptyInstance() =>
+      AttachmentMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static AttachmentMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AttachmentMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<AttachmentMessageRequest>(
+          AttachmentMessageRequest.$_createMessage);
   static AttachmentMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1834,7 +1866,7 @@ class VideoMessage extends $pb.GeneratedMessage {
     $core.String? fileName,
     $core.double? duration,
   }) {
-    final result = create();
+    final result = VideoMessage._();
     if (timestamp != null) result.timestamp = timestamp;
     if (text != null) result.text = text;
     if (mediaUrl != null) result.mediaUrl = mediaUrl;
@@ -1851,18 +1883,18 @@ class VideoMessage extends $pb.GeneratedMessage {
 
   factory VideoMessage.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      VideoMessage()..mergeFromBuffer(data, registry);
   factory VideoMessage.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      VideoMessage()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VideoMessage',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: VideoMessage.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'text')
     ..aOS(3, _omitFieldNames ? '' : 'mediaUrl')
     ..aOS(4, _omitFieldNames ? '' : 'mediaType')
@@ -1886,12 +1918,15 @@ class VideoMessage extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use VideoMessage() / VideoMessage.new instead')
   static VideoMessage create() => VideoMessage._();
+  static $pb.GeneratedMessage $_createMessage() => VideoMessage._();
   @$core.override
-  VideoMessage createEmptyInstance() => create();
+  VideoMessage createEmptyInstance() => VideoMessage._();
   @$core.pragma('dart2js:noInline')
-  static VideoMessage getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VideoMessage>(create);
+  static VideoMessage getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<VideoMessage>(
+          VideoMessage.$_createMessage);
   static VideoMessage? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -1987,7 +2022,7 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
     $core.String? header,
     $core.String? footer,
   }) {
-    final result = create();
+    final result = VideoMessageRequest._();
     if (content != null) result.content = content;
     if (timestamp != null) result.timestamp = timestamp;
     if (buttons != null) result.buttons.addAll(buttons);
@@ -2000,22 +2035,22 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
 
   factory VideoMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      VideoMessageRequest()..mergeFromBuffer(data, registry);
   factory VideoMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      VideoMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'VideoMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: VideoMessageRequest.$_createMessage)
     ..aOM<VideoMessage>(1, _omitFieldNames ? '' : 'content',
-        subBuilder: VideoMessage.create)
+        subBuilder: VideoMessage.$_createMessage)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..pPM<Button>(3, _omitFieldNames ? '' : 'buttons',
-        subBuilder: Button.create)
+        subBuilder: Button.$_createMessage)
     ..aOS(4, _omitFieldNames ? '' : 'header')
     ..aOS(5, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
@@ -2031,12 +2066,16 @@ class VideoMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core
+      .Deprecated('Use VideoMessageRequest() / VideoMessageRequest.new instead')
   static VideoMessageRequest create() => VideoMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => VideoMessageRequest._();
   @$core.override
-  VideoMessageRequest createEmptyInstance() => create();
+  VideoMessageRequest createEmptyInstance() => VideoMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static VideoMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<VideoMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<VideoMessageRequest>(
+          VideoMessageRequest.$_createMessage);
   static VideoMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2090,7 +2129,7 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
     $core.String? messageId,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = MessageReceiptRequest._();
     if (status != null) result.status = status;
     if (messageId != null) result.messageId = messageId;
     if (timestamp != null) result.timestamp = timestamp;
@@ -2101,21 +2140,21 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
 
   factory MessageReceiptRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      MessageReceiptRequest()..mergeFromBuffer(data, registry);
   factory MessageReceiptRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      MessageReceiptRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'MessageReceiptRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: MessageReceiptRequest.$_createMessage)
     ..aE<MessageStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: MessageStatus.values)
     ..aOS(2, _omitFieldNames ? '' : 'messageId')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2130,12 +2169,16 @@ class MessageReceiptRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use MessageReceiptRequest() / MessageReceiptRequest.new instead')
   static MessageReceiptRequest create() => MessageReceiptRequest._();
+  static $pb.GeneratedMessage $_createMessage() => MessageReceiptRequest._();
   @$core.override
-  MessageReceiptRequest createEmptyInstance() => create();
+  MessageReceiptRequest createEmptyInstance() => MessageReceiptRequest._();
   @$core.pragma('dart2js:noInline')
   static MessageReceiptRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<MessageReceiptRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<MessageReceiptRequest>(
+          MessageReceiptRequest.$_createMessage);
   static MessageReceiptRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2176,7 +2219,7 @@ class AddToCartRequest extends $pb.GeneratedMessage {
     $core.double? quantity,
     UnitType? unitType,
   }) {
-    final result = create();
+    final result = AddToCartRequest._();
     if (sku != null) result.sku = sku;
     if (timestamp != null) result.timestamp = timestamp;
     if (quantity != null) result.quantity = quantity;
@@ -2188,19 +2231,19 @@ class AddToCartRequest extends $pb.GeneratedMessage {
 
   factory AddToCartRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AddToCartRequest()..mergeFromBuffer(data, registry);
   factory AddToCartRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AddToCartRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddToCartRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AddToCartRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aD(3, _omitFieldNames ? '' : 'quantity')
     ..aE<UnitType>(4, _omitFieldNames ? '' : 'unitType',
         enumValues: UnitType.values)
@@ -2217,12 +2260,15 @@ class AddToCartRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use AddToCartRequest() / AddToCartRequest.new instead')
   static AddToCartRequest create() => AddToCartRequest._();
+  static $pb.GeneratedMessage $_createMessage() => AddToCartRequest._();
   @$core.override
-  AddToCartRequest createEmptyInstance() => create();
+  AddToCartRequest createEmptyInstance() => AddToCartRequest._();
   @$core.pragma('dart2js:noInline')
-  static AddToCartRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AddToCartRequest>(create);
+  static AddToCartRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AddToCartRequest>(
+          AddToCartRequest.$_createMessage);
   static AddToCartRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2272,7 +2318,7 @@ class AddToCartResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = AddToCartResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -2282,20 +2328,20 @@ class AddToCartResponse extends $pb.GeneratedMessage {
 
   factory AddToCartResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AddToCartResponse()..mergeFromBuffer(data, registry);
   factory AddToCartResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AddToCartResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddToCartResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AddToCartResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2309,12 +2355,15 @@ class AddToCartResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use AddToCartResponse() / AddToCartResponse.new instead')
   static AddToCartResponse create() => AddToCartResponse._();
+  static $pb.GeneratedMessage $_createMessage() => AddToCartResponse._();
   @$core.override
-  AddToCartResponse createEmptyInstance() => create();
+  AddToCartResponse createEmptyInstance() => AddToCartResponse._();
   @$core.pragma('dart2js:noInline')
-  static AddToCartResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AddToCartResponse>(create);
+  static AddToCartResponse getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AddToCartResponse>(
+          AddToCartResponse.$_createMessage);
   static AddToCartResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2346,7 +2395,7 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
     $core.double? quantity,
     UnitType? unitType,
   }) {
-    final result = create();
+    final result = RemoveFromCartRequest._();
     if (sku != null) result.sku = sku;
     if (timestamp != null) result.timestamp = timestamp;
     if (quantity != null) result.quantity = quantity;
@@ -2358,19 +2407,19 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
 
   factory RemoveFromCartRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      RemoveFromCartRequest()..mergeFromBuffer(data, registry);
   factory RemoveFromCartRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      RemoveFromCartRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RemoveFromCartRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: RemoveFromCartRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aD(3, _omitFieldNames ? '' : 'quantity')
     ..aE<UnitType>(4, _omitFieldNames ? '' : 'unitType',
         enumValues: UnitType.values)
@@ -2388,12 +2437,16 @@ class RemoveFromCartRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use RemoveFromCartRequest() / RemoveFromCartRequest.new instead')
   static RemoveFromCartRequest create() => RemoveFromCartRequest._();
+  static $pb.GeneratedMessage $_createMessage() => RemoveFromCartRequest._();
   @$core.override
-  RemoveFromCartRequest createEmptyInstance() => create();
+  RemoveFromCartRequest createEmptyInstance() => RemoveFromCartRequest._();
   @$core.pragma('dart2js:noInline')
   static RemoveFromCartRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<RemoveFromCartRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<RemoveFromCartRequest>(
+          RemoveFromCartRequest.$_createMessage);
   static RemoveFromCartRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2443,7 +2496,7 @@ class RemoveFromCartResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = RemoveFromCartResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -2453,20 +2506,20 @@ class RemoveFromCartResponse extends $pb.GeneratedMessage {
 
   factory RemoveFromCartResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      RemoveFromCartResponse()..mergeFromBuffer(data, registry);
   factory RemoveFromCartResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      RemoveFromCartResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RemoveFromCartResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: RemoveFromCartResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2481,12 +2534,16 @@ class RemoveFromCartResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use RemoveFromCartResponse() / RemoveFromCartResponse.new instead')
   static RemoveFromCartResponse create() => RemoveFromCartResponse._();
+  static $pb.GeneratedMessage $_createMessage() => RemoveFromCartResponse._();
   @$core.override
-  RemoveFromCartResponse createEmptyInstance() => create();
+  RemoveFromCartResponse createEmptyInstance() => RemoveFromCartResponse._();
   @$core.pragma('dart2js:noInline')
   static RemoveFromCartResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<RemoveFromCartResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<RemoveFromCartResponse>(
+          RemoveFromCartResponse.$_createMessage);
   static RemoveFromCartResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2515,7 +2572,7 @@ class ClearCartRequest extends $pb.GeneratedMessage {
   factory ClearCartRequest({
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ClearCartRequest._();
     if (timestamp != null) result.timestamp = timestamp;
     return result;
   }
@@ -2524,18 +2581,18 @@ class ClearCartRequest extends $pb.GeneratedMessage {
 
   factory ClearCartRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ClearCartRequest()..mergeFromBuffer(data, registry);
   factory ClearCartRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ClearCartRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ClearCartRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ClearCartRequest.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2549,12 +2606,15 @@ class ClearCartRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ClearCartRequest() / ClearCartRequest.new instead')
   static ClearCartRequest create() => ClearCartRequest._();
+  static $pb.GeneratedMessage $_createMessage() => ClearCartRequest._();
   @$core.override
-  ClearCartRequest createEmptyInstance() => create();
+  ClearCartRequest createEmptyInstance() => ClearCartRequest._();
   @$core.pragma('dart2js:noInline')
-  static ClearCartRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ClearCartRequest>(create);
+  static ClearCartRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClearCartRequest>(
+          ClearCartRequest.$_createMessage);
   static ClearCartRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2575,7 +2635,7 @@ class ClearCartResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ClearCartResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -2585,20 +2645,20 @@ class ClearCartResponse extends $pb.GeneratedMessage {
 
   factory ClearCartResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ClearCartResponse()..mergeFromBuffer(data, registry);
   factory ClearCartResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ClearCartResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ClearCartResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ClearCartResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2612,12 +2672,15 @@ class ClearCartResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ClearCartResponse() / ClearCartResponse.new instead')
   static ClearCartResponse create() => ClearCartResponse._();
+  static $pb.GeneratedMessage $_createMessage() => ClearCartResponse._();
   @$core.override
-  ClearCartResponse createEmptyInstance() => create();
+  ClearCartResponse createEmptyInstance() => ClearCartResponse._();
   @$core.pragma('dart2js:noInline')
-  static ClearCartResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ClearCartResponse>(create);
+  static ClearCartResponse getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClearCartResponse>(
+          ClearCartResponse.$_createMessage);
   static ClearCartResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2656,7 +2719,7 @@ class UpdateCartProductRequest extends $pb.GeneratedMessage {
     $core.double? units,
     $core.double? subunits,
   }) {
-    final result = create();
+    final result = UpdateCartProductRequest._();
     if (sku != null) result.sku = sku;
     if (timestamp != null) result.timestamp = timestamp;
     if (units != null) result.units = units;
@@ -2668,19 +2731,19 @@ class UpdateCartProductRequest extends $pb.GeneratedMessage {
 
   factory UpdateCartProductRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      UpdateCartProductRequest()..mergeFromBuffer(data, registry);
   factory UpdateCartProductRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      UpdateCartProductRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'UpdateCartProductRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: UpdateCartProductRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aD(3, _omitFieldNames ? '' : 'units')
     ..aD(4, _omitFieldNames ? '' : 'subunits')
     ..hasRequiredFields = false;
@@ -2697,12 +2760,17 @@ class UpdateCartProductRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use UpdateCartProductRequest() / UpdateCartProductRequest.new instead')
   static UpdateCartProductRequest create() => UpdateCartProductRequest._();
+  static $pb.GeneratedMessage $_createMessage() => UpdateCartProductRequest._();
   @$core.override
-  UpdateCartProductRequest createEmptyInstance() => create();
+  UpdateCartProductRequest createEmptyInstance() =>
+      UpdateCartProductRequest._();
   @$core.pragma('dart2js:noInline')
   static UpdateCartProductRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UpdateCartProductRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<UpdateCartProductRequest>(
+          UpdateCartProductRequest.$_createMessage);
   static UpdateCartProductRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2753,7 +2821,7 @@ class UpdateCartProductResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = UpdateCartProductResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -2763,20 +2831,20 @@ class UpdateCartProductResponse extends $pb.GeneratedMessage {
 
   factory UpdateCartProductResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      UpdateCartProductResponse()..mergeFromBuffer(data, registry);
   factory UpdateCartProductResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      UpdateCartProductResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'UpdateCartProductResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: UpdateCartProductResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2791,12 +2859,18 @@ class UpdateCartProductResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use UpdateCartProductResponse() / UpdateCartProductResponse.new instead')
   static UpdateCartProductResponse create() => UpdateCartProductResponse._();
+  static $pb.GeneratedMessage $_createMessage() =>
+      UpdateCartProductResponse._();
   @$core.override
-  UpdateCartProductResponse createEmptyInstance() => create();
+  UpdateCartProductResponse createEmptyInstance() =>
+      UpdateCartProductResponse._();
   @$core.pragma('dart2js:noInline')
   static UpdateCartProductResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<UpdateCartProductResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<UpdateCartProductResponse>(
+          UpdateCartProductResponse.$_createMessage);
   static UpdateCartProductResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -2835,7 +2909,7 @@ class PageInfo extends $pb.GeneratedMessage {
     $core.String? prevCursor,
     $core.int? pageSize,
   }) {
-    final result = create();
+    final result = PageInfo._();
     if (total != null) result.total = total;
     if (totalPages != null) result.totalPages = totalPages;
     if (page != null) result.page = page;
@@ -2850,16 +2924,16 @@ class PageInfo extends $pb.GeneratedMessage {
 
   factory PageInfo.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      PageInfo()..mergeFromBuffer(data, registry);
   factory PageInfo.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      PageInfo()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PageInfo',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: PageInfo.$_createMessage)
     ..aI(1, _omitFieldNames ? '' : 'total')
     ..aI(2, _omitFieldNames ? '' : 'totalPages')
     ..aI(3, _omitFieldNames ? '' : 'page')
@@ -2879,12 +2953,14 @@ class PageInfo extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use PageInfo() / PageInfo.new instead')
   static PageInfo create() => PageInfo._();
+  static $pb.GeneratedMessage $_createMessage() => PageInfo._();
   @$core.override
-  PageInfo createEmptyInstance() => create();
+  PageInfo createEmptyInstance() => PageInfo._();
   @$core.pragma('dart2js:noInline')
-  static PageInfo getDefault() =>
-      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PageInfo>(create);
+  static PageInfo getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<PageInfo>(PageInfo.$_createMessage);
   static PageInfo? _defaultInstance;
 
   /// Total number of items across all pages, when known.
@@ -2967,7 +3043,7 @@ class GetCartRequest extends $pb.GeneratedMessage {
     $core.String? cursor,
     $core.int? pageSize,
   }) {
-    final result = create();
+    final result = GetCartRequest._();
     if (timestamp != null) result.timestamp = timestamp;
     if (cursor != null) result.cursor = cursor;
     if (pageSize != null) result.pageSize = pageSize;
@@ -2978,18 +3054,18 @@ class GetCartRequest extends $pb.GeneratedMessage {
 
   factory GetCartRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      GetCartRequest()..mergeFromBuffer(data, registry);
   factory GetCartRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      GetCartRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GetCartRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: GetCartRequest.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'cursor')
     ..aI(3, _omitFieldNames ? '' : 'pageSize')
     ..hasRequiredFields = false;
@@ -3005,12 +3081,15 @@ class GetCartRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use GetCartRequest() / GetCartRequest.new instead')
   static GetCartRequest create() => GetCartRequest._();
+  static $pb.GeneratedMessage $_createMessage() => GetCartRequest._();
   @$core.override
-  GetCartRequest createEmptyInstance() => create();
+  GetCartRequest createEmptyInstance() => GetCartRequest._();
   @$core.pragma('dart2js:noInline')
-  static GetCartRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetCartRequest>(create);
+  static GetCartRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetCartRequest>(
+          GetCartRequest.$_createMessage);
   static GetCartRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3054,7 +3133,7 @@ class GetCartResponse extends $pb.GeneratedMessage {
     $core.Iterable<Product>? products,
     PageInfo? pageInfo,
   }) {
-    final result = create();
+    final result = GetCartResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     if (products != null) result.products.addAll(products);
@@ -3066,24 +3145,24 @@ class GetCartResponse extends $pb.GeneratedMessage {
 
   factory GetCartResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      GetCartResponse()..mergeFromBuffer(data, registry);
   factory GetCartResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      GetCartResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GetCartResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: GetCartResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..pPM<Product>(3, _omitFieldNames ? '' : 'products',
-        subBuilder: Product.create)
+        subBuilder: Product.$_createMessage)
     ..aOM<PageInfo>(4, _omitFieldNames ? '' : 'pageInfo',
-        subBuilder: PageInfo.create)
+        subBuilder: PageInfo.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3097,12 +3176,15 @@ class GetCartResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use GetCartResponse() / GetCartResponse.new instead')
   static GetCartResponse create() => GetCartResponse._();
+  static $pb.GeneratedMessage $_createMessage() => GetCartResponse._();
   @$core.override
-  GetCartResponse createEmptyInstance() => create();
+  GetCartResponse createEmptyInstance() => GetCartResponse._();
   @$core.pragma('dart2js:noInline')
-  static GetCartResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetCartResponse>(create);
+  static GetCartResponse getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetCartResponse>(
+          GetCartResponse.$_createMessage);
   static GetCartResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3150,7 +3232,7 @@ class GuidanceCardRequest extends $pb.GeneratedMessage {
     $core.String? targetId,
     $core.String? context,
   }) {
-    final result = create();
+    final result = GuidanceCardRequest._();
     if (timestamp != null) result.timestamp = timestamp;
     if (targetId != null) result.targetId = targetId;
     if (context != null) result.context = context;
@@ -3161,18 +3243,18 @@ class GuidanceCardRequest extends $pb.GeneratedMessage {
 
   factory GuidanceCardRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      GuidanceCardRequest()..mergeFromBuffer(data, registry);
   factory GuidanceCardRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      GuidanceCardRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GuidanceCardRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: GuidanceCardRequest.$_createMessage)
     ..aOM<$0.Timestamp>(1, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(2, _omitFieldNames ? '' : 'targetId')
     ..aOS(3, _omitFieldNames ? '' : 'context')
     ..hasRequiredFields = false;
@@ -3188,12 +3270,16 @@ class GuidanceCardRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core
+      .Deprecated('Use GuidanceCardRequest() / GuidanceCardRequest.new instead')
   static GuidanceCardRequest create() => GuidanceCardRequest._();
+  static $pb.GeneratedMessage $_createMessage() => GuidanceCardRequest._();
   @$core.override
-  GuidanceCardRequest createEmptyInstance() => create();
+  GuidanceCardRequest createEmptyInstance() => GuidanceCardRequest._();
   @$core.pragma('dart2js:noInline')
   static GuidanceCardRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GuidanceCardRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<GuidanceCardRequest>(
+          GuidanceCardRequest.$_createMessage);
   static GuidanceCardRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3237,7 +3323,7 @@ class GuidanceCardResponse extends $pb.GeneratedMessage {
     $core.String? guidanceDescription,
     $core.Iterable<$core.String>? guidanceCards,
   }) {
-    final result = create();
+    final result = GuidanceCardResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     if (guidanceTitle != null) result.guidanceTitle = guidanceTitle;
@@ -3251,20 +3337,20 @@ class GuidanceCardResponse extends $pb.GeneratedMessage {
 
   factory GuidanceCardResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      GuidanceCardResponse()..mergeFromBuffer(data, registry);
   factory GuidanceCardResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      GuidanceCardResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'GuidanceCardResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: GuidanceCardResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(3, _omitFieldNames ? '' : 'guidanceTitle')
     ..aOS(4, _omitFieldNames ? '' : 'guidanceDescription')
     ..pPS(5, _omitFieldNames ? '' : 'guidanceCards')
@@ -3281,12 +3367,16 @@ class GuidanceCardResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use GuidanceCardResponse() / GuidanceCardResponse.new instead')
   static GuidanceCardResponse create() => GuidanceCardResponse._();
+  static $pb.GeneratedMessage $_createMessage() => GuidanceCardResponse._();
   @$core.override
-  GuidanceCardResponse createEmptyInstance() => create();
+  GuidanceCardResponse createEmptyInstance() => GuidanceCardResponse._();
   @$core.pragma('dart2js:noInline')
   static GuidanceCardResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GuidanceCardResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<GuidanceCardResponse>(
+          GuidanceCardResponse.$_createMessage);
   static GuidanceCardResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3337,7 +3427,7 @@ class AddPromotionRequest extends $pb.GeneratedMessage {
     $core.String? promotionId,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = AddPromotionRequest._();
     if (promotionId != null) result.promotionId = promotionId;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -3347,19 +3437,19 @@ class AddPromotionRequest extends $pb.GeneratedMessage {
 
   factory AddPromotionRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AddPromotionRequest()..mergeFromBuffer(data, registry);
   factory AddPromotionRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AddPromotionRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddPromotionRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AddPromotionRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'promotionId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3373,12 +3463,16 @@ class AddPromotionRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core
+      .Deprecated('Use AddPromotionRequest() / AddPromotionRequest.new instead')
   static AddPromotionRequest create() => AddPromotionRequest._();
+  static $pb.GeneratedMessage $_createMessage() => AddPromotionRequest._();
   @$core.override
-  AddPromotionRequest createEmptyInstance() => create();
+  AddPromotionRequest createEmptyInstance() => AddPromotionRequest._();
   @$core.pragma('dart2js:noInline')
   static AddPromotionRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AddPromotionRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<AddPromotionRequest>(
+          AddPromotionRequest.$_createMessage);
   static AddPromotionRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3408,7 +3502,7 @@ class AddPromotionResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = AddPromotionResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -3418,20 +3512,20 @@ class AddPromotionResponse extends $pb.GeneratedMessage {
 
   factory AddPromotionResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AddPromotionResponse()..mergeFromBuffer(data, registry);
   factory AddPromotionResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AddPromotionResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AddPromotionResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AddPromotionResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3445,12 +3539,16 @@ class AddPromotionResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use AddPromotionResponse() / AddPromotionResponse.new instead')
   static AddPromotionResponse create() => AddPromotionResponse._();
+  static $pb.GeneratedMessage $_createMessage() => AddPromotionResponse._();
   @$core.override
-  AddPromotionResponse createEmptyInstance() => create();
+  AddPromotionResponse createEmptyInstance() => AddPromotionResponse._();
   @$core.pragma('dart2js:noInline')
   static AddPromotionResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AddPromotionResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<AddPromotionResponse>(
+          AddPromotionResponse.$_createMessage);
   static AddPromotionResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3485,7 +3583,7 @@ class PromotionMessageRequest extends $pb.GeneratedMessage {
     $core.String? footer,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = PromotionMessageRequest._();
     if (promotionId != null) result.promotionId = promotionId;
     if (title != null) result.title = title;
     if (gain != null) result.gain = gain;
@@ -3500,16 +3598,16 @@ class PromotionMessageRequest extends $pb.GeneratedMessage {
 
   factory PromotionMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      PromotionMessageRequest()..mergeFromBuffer(data, registry);
   factory PromotionMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      PromotionMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PromotionMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: PromotionMessageRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'promotionId')
     ..aOS(2, _omitFieldNames ? '' : 'title')
     ..aOS(3, _omitFieldNames ? '' : 'gain')
@@ -3517,7 +3615,7 @@ class PromotionMessageRequest extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'imageUrl')
     ..aOS(6, _omitFieldNames ? '' : 'footer')
     ..aOM<$0.Timestamp>(7, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3532,12 +3630,16 @@ class PromotionMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use PromotionMessageRequest() / PromotionMessageRequest.new instead')
   static PromotionMessageRequest create() => PromotionMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => PromotionMessageRequest._();
   @$core.override
-  PromotionMessageRequest createEmptyInstance() => create();
+  PromotionMessageRequest createEmptyInstance() => PromotionMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static PromotionMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<PromotionMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<PromotionMessageRequest>(
+          PromotionMessageRequest.$_createMessage);
   static PromotionMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3612,7 +3714,7 @@ class PromotionMessageResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = PromotionMessageResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -3622,20 +3724,20 @@ class PromotionMessageResponse extends $pb.GeneratedMessage {
 
   factory PromotionMessageResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      PromotionMessageResponse()..mergeFromBuffer(data, registry);
   factory PromotionMessageResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      PromotionMessageResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PromotionMessageResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: PromotionMessageResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3650,12 +3752,17 @@ class PromotionMessageResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use PromotionMessageResponse() / PromotionMessageResponse.new instead')
   static PromotionMessageResponse create() => PromotionMessageResponse._();
+  static $pb.GeneratedMessage $_createMessage() => PromotionMessageResponse._();
   @$core.override
-  PromotionMessageResponse createEmptyInstance() => create();
+  PromotionMessageResponse createEmptyInstance() =>
+      PromotionMessageResponse._();
   @$core.pragma('dart2js:noInline')
   static PromotionMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<PromotionMessageResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<PromotionMessageResponse>(
+          PromotionMessageResponse.$_createMessage);
   static PromotionMessageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3695,7 +3802,7 @@ class Product extends $pb.GeneratedMessage {
     $core.double? unitsAdded,
     $core.double? subunitsAdded,
   }) {
-    final result = create();
+    final result = Product._();
     if (sku != null) result.sku = sku;
     if (name != null) result.name = name;
     if (price != null) result.price = price;
@@ -3715,16 +3822,16 @@ class Product extends $pb.GeneratedMessage {
 
   factory Product.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      Product()..mergeFromBuffer(data, registry);
   factory Product.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      Product()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'Product',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: Product.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOS(2, _omitFieldNames ? '' : 'name')
     ..aD(3, _omitFieldNames ? '' : 'price')
@@ -3749,12 +3856,14 @@ class Product extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use Product() / Product.new instead')
   static Product create() => Product._();
+  static $pb.GeneratedMessage $_createMessage() => Product._();
   @$core.override
-  Product createEmptyInstance() => create();
+  Product createEmptyInstance() => Product._();
   @$core.pragma('dart2js:noInline')
-  static Product getDefault() =>
-      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Product>(create);
+  static Product getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<Product>(Product.$_createMessage);
   static Product? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3874,7 +3983,7 @@ class ProductMessageRequest extends $pb.GeneratedMessage {
     ProductMessageRequest_Orientation? orientation,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ProductMessageRequest._();
     if (products != null) result.products.addAll(products);
     if (orientation != null) result.orientation = orientation;
     if (timestamp != null) result.timestamp = timestamp;
@@ -3885,23 +3994,23 @@ class ProductMessageRequest extends $pb.GeneratedMessage {
 
   factory ProductMessageRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ProductMessageRequest()..mergeFromBuffer(data, registry);
   factory ProductMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ProductMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ProductMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ProductMessageRequest.$_createMessage)
     ..pPM<Product>(1, _omitFieldNames ? '' : 'products',
-        subBuilder: Product.create)
+        subBuilder: Product.$_createMessage)
     ..aE<ProductMessageRequest_Orientation>(
         2, _omitFieldNames ? '' : 'orientation',
         enumValues: ProductMessageRequest_Orientation.values)
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3916,12 +4025,16 @@ class ProductMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use ProductMessageRequest() / ProductMessageRequest.new instead')
   static ProductMessageRequest create() => ProductMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() => ProductMessageRequest._();
   @$core.override
-  ProductMessageRequest createEmptyInstance() => create();
+  ProductMessageRequest createEmptyInstance() => ProductMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static ProductMessageRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ProductMessageRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<ProductMessageRequest>(
+          ProductMessageRequest.$_createMessage);
   static ProductMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -3955,7 +4068,7 @@ class ProductMessageResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ProductMessageResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -3965,20 +4078,20 @@ class ProductMessageResponse extends $pb.GeneratedMessage {
 
   factory ProductMessageResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ProductMessageResponse()..mergeFromBuffer(data, registry);
   factory ProductMessageResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ProductMessageResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ProductMessageResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ProductMessageResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3993,12 +4106,16 @@ class ProductMessageResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use ProductMessageResponse() / ProductMessageResponse.new instead')
   static ProductMessageResponse create() => ProductMessageResponse._();
+  static $pb.GeneratedMessage $_createMessage() => ProductMessageResponse._();
   @$core.override
-  ProductMessageResponse createEmptyInstance() => create();
+  ProductMessageResponse createEmptyInstance() => ProductMessageResponse._();
   @$core.pragma('dart2js:noInline')
   static ProductMessageResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ProductMessageResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<ProductMessageResponse>(
+          ProductMessageResponse.$_createMessage);
   static ProductMessageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4037,7 +4154,7 @@ class ProductConfirmationMessageRequest extends $pb.GeneratedMessage {
     Button? button,
     $core.String? footer,
   }) {
-    final result = create();
+    final result = ProductConfirmationMessageRequest._();
     if (sku != null) result.sku = sku;
     if (timestamp != null) result.timestamp = timestamp;
     if (units != null) result.units = units;
@@ -4054,24 +4171,25 @@ class ProductConfirmationMessageRequest extends $pb.GeneratedMessage {
   factory ProductConfirmationMessageRequest.fromBuffer(
           $core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ProductConfirmationMessageRequest()..mergeFromBuffer(data, registry);
   factory ProductConfirmationMessageRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ProductConfirmationMessageRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ProductConfirmationMessageRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ProductConfirmationMessageRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'sku')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aD(3, _omitFieldNames ? '' : 'units')
     ..aD(4, _omitFieldNames ? '' : 'subunits')
     ..aOS(5, _omitFieldNames ? '' : 'header')
     ..aOS(6, _omitFieldNames ? '' : 'body')
-    ..aOM<Button>(7, _omitFieldNames ? '' : 'button', subBuilder: Button.create)
+    ..aOM<Button>(7, _omitFieldNames ? '' : 'button',
+        subBuilder: Button.$_createMessage)
     ..aOS(8, _omitFieldNames ? '' : 'footer')
     ..hasRequiredFields = false;
 
@@ -4088,14 +4206,19 @@ class ProductConfirmationMessageRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use ProductConfirmationMessageRequest() / ProductConfirmationMessageRequest.new instead')
   static ProductConfirmationMessageRequest create() =>
       ProductConfirmationMessageRequest._();
+  static $pb.GeneratedMessage $_createMessage() =>
+      ProductConfirmationMessageRequest._();
   @$core.override
-  ProductConfirmationMessageRequest createEmptyInstance() => create();
+  ProductConfirmationMessageRequest createEmptyInstance() =>
+      ProductConfirmationMessageRequest._();
   @$core.pragma('dart2js:noInline')
   static ProductConfirmationMessageRequest getDefault() => _defaultInstance ??=
       $pb.GeneratedMessage.$_defaultFor<ProductConfirmationMessageRequest>(
-          create);
+          ProductConfirmationMessageRequest.$_createMessage);
   static ProductConfirmationMessageRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4188,7 +4311,7 @@ class ProductConfirmationMessageResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ProductConfirmationMessageResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -4199,20 +4322,20 @@ class ProductConfirmationMessageResponse extends $pb.GeneratedMessage {
   factory ProductConfirmationMessageResponse.fromBuffer(
           $core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ProductConfirmationMessageResponse()..mergeFromBuffer(data, registry);
   factory ProductConfirmationMessageResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ProductConfirmationMessageResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ProductConfirmationMessageResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ProductConfirmationMessageResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4228,14 +4351,19 @@ class ProductConfirmationMessageResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use ProductConfirmationMessageResponse() / ProductConfirmationMessageResponse.new instead')
   static ProductConfirmationMessageResponse create() =>
       ProductConfirmationMessageResponse._();
+  static $pb.GeneratedMessage $_createMessage() =>
+      ProductConfirmationMessageResponse._();
   @$core.override
-  ProductConfirmationMessageResponse createEmptyInstance() => create();
+  ProductConfirmationMessageResponse createEmptyInstance() =>
+      ProductConfirmationMessageResponse._();
   @$core.pragma('dart2js:noInline')
   static ProductConfirmationMessageResponse getDefault() => _defaultInstance ??=
       $pb.GeneratedMessage.$_defaultFor<ProductConfirmationMessageResponse>(
-          create);
+          ProductConfirmationMessageResponse.$_createMessage);
   static ProductConfirmationMessageResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4265,7 +4393,7 @@ class ChatStatusRequest extends $pb.GeneratedMessage {
     $core.String? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ChatStatusRequest._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -4275,19 +4403,19 @@ class ChatStatusRequest extends $pb.GeneratedMessage {
 
   factory ChatStatusRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ChatStatusRequest()..mergeFromBuffer(data, registry);
   factory ChatStatusRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ChatStatusRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ChatStatusRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ChatStatusRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'status')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4301,12 +4429,15 @@ class ChatStatusRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ChatStatusRequest() / ChatStatusRequest.new instead')
   static ChatStatusRequest create() => ChatStatusRequest._();
+  static $pb.GeneratedMessage $_createMessage() => ChatStatusRequest._();
   @$core.override
-  ChatStatusRequest createEmptyInstance() => create();
+  ChatStatusRequest createEmptyInstance() => ChatStatusRequest._();
   @$core.pragma('dart2js:noInline')
-  static ChatStatusRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ChatStatusRequest>(create);
+  static ChatStatusRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ChatStatusRequest>(
+          ChatStatusRequest.$_createMessage);
   static ChatStatusRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4336,7 +4467,7 @@ class ChatStatusResponse extends $pb.GeneratedMessage {
     ResponseStatus? status,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ChatStatusResponse._();
     if (status != null) result.status = status;
     if (timestamp != null) result.timestamp = timestamp;
     return result;
@@ -4346,20 +4477,20 @@ class ChatStatusResponse extends $pb.GeneratedMessage {
 
   factory ChatStatusResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ChatStatusResponse()..mergeFromBuffer(data, registry);
   factory ChatStatusResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ChatStatusResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ChatStatusResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ChatStatusResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4373,12 +4504,15 @@ class ChatStatusResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ChatStatusResponse() / ChatStatusResponse.new instead')
   static ChatStatusResponse create() => ChatStatusResponse._();
+  static $pb.GeneratedMessage $_createMessage() => ChatStatusResponse._();
   @$core.override
-  ChatStatusResponse createEmptyInstance() => create();
+  ChatStatusResponse createEmptyInstance() => ChatStatusResponse._();
   @$core.pragma('dart2js:noInline')
   static ChatStatusResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ChatStatusResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<ChatStatusResponse>(
+          ChatStatusResponse.$_createMessage);
   static ChatStatusResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4409,7 +4543,7 @@ class CustomCommandRequest extends $pb.GeneratedMessage {
     $core.String? payload,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = CustomCommandRequest._();
     if (commandId != null) result.commandId = commandId;
     if (payload != null) result.payload = payload;
     if (timestamp != null) result.timestamp = timestamp;
@@ -4420,20 +4554,20 @@ class CustomCommandRequest extends $pb.GeneratedMessage {
 
   factory CustomCommandRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      CustomCommandRequest()..mergeFromBuffer(data, registry);
   factory CustomCommandRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      CustomCommandRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'CustomCommandRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: CustomCommandRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'commandId')
     ..aOS(2, _omitFieldNames ? '' : 'payload')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4447,12 +4581,16 @@ class CustomCommandRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use CustomCommandRequest() / CustomCommandRequest.new instead')
   static CustomCommandRequest create() => CustomCommandRequest._();
+  static $pb.GeneratedMessage $_createMessage() => CustomCommandRequest._();
   @$core.override
-  CustomCommandRequest createEmptyInstance() => create();
+  CustomCommandRequest createEmptyInstance() => CustomCommandRequest._();
   @$core.pragma('dart2js:noInline')
   static CustomCommandRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CustomCommandRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<CustomCommandRequest>(
+          CustomCommandRequest.$_createMessage);
   static CustomCommandRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4492,7 +4630,7 @@ class CustomCommandResponse extends $pb.GeneratedMessage {
     $core.String? payload,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = CustomCommandResponse._();
     if (status != null) result.status = status;
     if (payload != null) result.payload = payload;
     if (timestamp != null) result.timestamp = timestamp;
@@ -4503,21 +4641,21 @@ class CustomCommandResponse extends $pb.GeneratedMessage {
 
   factory CustomCommandResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      CustomCommandResponse()..mergeFromBuffer(data, registry);
   factory CustomCommandResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      CustomCommandResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'CustomCommandResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: CustomCommandResponse.$_createMessage)
     ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
         enumValues: ResponseStatus.values)
     ..aOS(2, _omitFieldNames ? '' : 'payload')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4532,12 +4670,16 @@ class CustomCommandResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use CustomCommandResponse() / CustomCommandResponse.new instead')
   static CustomCommandResponse create() => CustomCommandResponse._();
+  static $pb.GeneratedMessage $_createMessage() => CustomCommandResponse._();
   @$core.override
-  CustomCommandResponse createEmptyInstance() => create();
+  CustomCommandResponse createEmptyInstance() => CustomCommandResponse._();
   @$core.pragma('dart2js:noInline')
   static CustomCommandResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<CustomCommandResponse>(create);
+      $pb.GeneratedMessage.$_defaultFor<CustomCommandResponse>(
+          CustomCommandResponse.$_createMessage);
   static CustomCommandResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4578,7 +4720,7 @@ class AuthRequest extends $pb.GeneratedMessage {
     $core.String? organizationId,
     $fixnum.Int64? timestamp,
   }) {
-    final result = create();
+    final result = AuthRequest._();
     if (userType != null) result.userType = userType;
     if (channelId != null) result.channelId = channelId;
     if (organizationId != null) result.organizationId = organizationId;
@@ -4590,16 +4732,16 @@ class AuthRequest extends $pb.GeneratedMessage {
 
   factory AuthRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AuthRequest()..mergeFromBuffer(data, registry);
   factory AuthRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AuthRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AuthRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AuthRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'userType')
     ..aOS(2, _omitFieldNames ? '' : 'channelId')
     ..aOS(3, _omitFieldNames ? '' : 'organizationId')
@@ -4617,12 +4759,15 @@ class AuthRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use AuthRequest() / AuthRequest.new instead')
   static AuthRequest create() => AuthRequest._();
+  static $pb.GeneratedMessage $_createMessage() => AuthRequest._();
   @$core.override
-  AuthRequest createEmptyInstance() => create();
+  AuthRequest createEmptyInstance() => AuthRequest._();
   @$core.pragma('dart2js:noInline')
-  static AuthRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AuthRequest>(create);
+  static AuthRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AuthRequest>(
+          AuthRequest.$_createMessage);
   static AuthRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4670,7 +4815,7 @@ class RefreshTokenRequest extends $pb.GeneratedMessage {
     $core.String? grantType,
     $core.String? refreshToken,
   }) {
-    final result = create();
+    final result = RefreshTokenRequest._();
     if (grantType != null) result.grantType = grantType;
     if (refreshToken != null) result.refreshToken = refreshToken;
     return result;
@@ -4680,16 +4825,16 @@ class RefreshTokenRequest extends $pb.GeneratedMessage {
 
   factory RefreshTokenRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      RefreshTokenRequest()..mergeFromBuffer(data, registry);
   factory RefreshTokenRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      RefreshTokenRequest()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'RefreshTokenRequest',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: RefreshTokenRequest.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'grantType')
     ..aOS(2, _omitFieldNames ? '' : 'refreshToken')
     ..hasRequiredFields = false;
@@ -4705,12 +4850,16 @@ class RefreshTokenRequest extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core
+      .Deprecated('Use RefreshTokenRequest() / RefreshTokenRequest.new instead')
   static RefreshTokenRequest create() => RefreshTokenRequest._();
+  static $pb.GeneratedMessage $_createMessage() => RefreshTokenRequest._();
   @$core.override
-  RefreshTokenRequest createEmptyInstance() => create();
+  RefreshTokenRequest createEmptyInstance() => RefreshTokenRequest._();
   @$core.pragma('dart2js:noInline')
   static RefreshTokenRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<RefreshTokenRequest>(create);
+      $pb.GeneratedMessage.$_defaultFor<RefreshTokenRequest>(
+          RefreshTokenRequest.$_createMessage);
   static RefreshTokenRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4741,7 +4890,7 @@ class AuthResponse extends $pb.GeneratedMessage {
     $core.String? refreshToken,
     $core.String? clientId,
   }) {
-    final result = create();
+    final result = AuthResponse._();
     if (accessToken != null) result.accessToken = accessToken;
     if (tokenType != null) result.tokenType = tokenType;
     if (expiresIn != null) result.expiresIn = expiresIn;
@@ -4754,16 +4903,16 @@ class AuthResponse extends $pb.GeneratedMessage {
 
   factory AuthResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      AuthResponse()..mergeFromBuffer(data, registry);
   factory AuthResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      AuthResponse()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'AuthResponse',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: AuthResponse.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'accessToken')
     ..aOS(2, _omitFieldNames ? '' : 'tokenType')
     ..aInt64(3, _omitFieldNames ? '' : 'expiresIn')
@@ -4782,12 +4931,15 @@ class AuthResponse extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use AuthResponse() / AuthResponse.new instead')
   static AuthResponse create() => AuthResponse._();
+  static $pb.GeneratedMessage $_createMessage() => AuthResponse._();
   @$core.override
-  AuthResponse createEmptyInstance() => create();
+  AuthResponse createEmptyInstance() => AuthResponse._();
   @$core.pragma('dart2js:noInline')
-  static AuthResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<AuthResponse>(create);
+  static AuthResponse getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<AuthResponse>(
+          AuthResponse.$_createMessage);
   static AuthResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -4845,7 +4997,7 @@ class ConnectionAck extends $pb.GeneratedMessage {
     $core.String? connectionId,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = ConnectionAck._();
     if (type != null) result.type = type;
     if (connectionId != null) result.connectionId = connectionId;
     if (timestamp != null) result.timestamp = timestamp;
@@ -4856,21 +5008,21 @@ class ConnectionAck extends $pb.GeneratedMessage {
 
   factory ConnectionAck.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      ConnectionAck()..mergeFromBuffer(data, registry);
   factory ConnectionAck.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      ConnectionAck()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ConnectionAck',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: ConnectionAck.$_createMessage)
     ..aE<ConnectionAckType>(1, _omitFieldNames ? '' : 'type',
         enumValues: ConnectionAckType.values)
     ..aOS(2, _omitFieldNames ? '' : 'connectionId')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4884,12 +5036,15 @@ class ConnectionAck extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ConnectionAck() / ConnectionAck.new instead')
   static ConnectionAck create() => ConnectionAck._();
+  static $pb.GeneratedMessage $_createMessage() => ConnectionAck._();
   @$core.override
-  ConnectionAck createEmptyInstance() => create();
+  ConnectionAck createEmptyInstance() => ConnectionAck._();
   @$core.pragma('dart2js:noInline')
-  static ConnectionAck getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ConnectionAck>(create);
+  static ConnectionAck getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ConnectionAck>(
+          ConnectionAck.$_createMessage);
   static ConnectionAck? _defaultInstance;
 
   /// Constant discriminator; always CONNECTION_ACK_TYPE_CONNECTION_ACK.
@@ -4932,7 +5087,7 @@ class SdkMessageAck extends $pb.GeneratedMessage {
     $core.String? correlationId,
     $0.Timestamp? timestamp,
   }) {
-    final result = create();
+    final result = SdkMessageAck._();
     if (type != null) result.type = type;
     if (correlationId != null) result.correlationId = correlationId;
     if (timestamp != null) result.timestamp = timestamp;
@@ -4943,21 +5098,21 @@ class SdkMessageAck extends $pb.GeneratedMessage {
 
   factory SdkMessageAck.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      SdkMessageAck()..mergeFromBuffer(data, registry);
   factory SdkMessageAck.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      SdkMessageAck()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'SdkMessageAck',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: SdkMessageAck.$_createMessage)
     ..aE<SdkMessageAckType>(1, _omitFieldNames ? '' : 'type',
         enumValues: SdkMessageAckType.values)
     ..aOS(2, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4971,12 +5126,15 @@ class SdkMessageAck extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use SdkMessageAck() / SdkMessageAck.new instead')
   static SdkMessageAck create() => SdkMessageAck._();
+  static $pb.GeneratedMessage $_createMessage() => SdkMessageAck._();
   @$core.override
-  SdkMessageAck createEmptyInstance() => create();
+  SdkMessageAck createEmptyInstance() => SdkMessageAck._();
   @$core.pragma('dart2js:noInline')
-  static SdkMessageAck getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<SdkMessageAck>(create);
+  static SdkMessageAck getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SdkMessageAck>(
+          SdkMessageAck.$_createMessage);
   static SdkMessageAck? _defaultInstance;
 
   /// Constant discriminator; always SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK.
@@ -5021,7 +5179,7 @@ class PollMessageItem extends $pb.GeneratedMessage {
     $core.String? userId,
     $core.String? status,
   }) {
-    final result = create();
+    final result = PollMessageItem._();
     if (id != null) result.id = id;
     if (message != null) result.message = message;
     if (date != null) result.date = date;
@@ -5034,21 +5192,21 @@ class PollMessageItem extends $pb.GeneratedMessage {
 
   factory PollMessageItem.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
+      PollMessageItem()..mergeFromBuffer(data, registry);
   factory PollMessageItem.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
+      PollMessageItem()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'PollMessageItem',
       package: const $pb.PackageName(
           _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
-      createEmptyInstance: create)
+      createEmptyInstance: PollMessageItem.$_createMessage)
     ..aOS(1, _omitFieldNames ? '' : 'id')
     ..aOM<SdkMessage>(2, _omitFieldNames ? '' : 'message',
-        subBuilder: SdkMessage.create)
+        subBuilder: SdkMessage.$_createMessage)
     ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'date',
-        subBuilder: $0.Timestamp.create)
+        subBuilder: $0.Timestamp.$_createMessage)
     ..aOS(4, _omitFieldNames ? '' : 'userId')
     ..aOS(5, _omitFieldNames ? '' : 'status')
     ..hasRequiredFields = false;
@@ -5064,12 +5222,15 @@ class PollMessageItem extends $pb.GeneratedMessage {
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use PollMessageItem() / PollMessageItem.new instead')
   static PollMessageItem create() => PollMessageItem._();
+  static $pb.GeneratedMessage $_createMessage() => PollMessageItem._();
   @$core.override
-  PollMessageItem createEmptyInstance() => create();
+  PollMessageItem createEmptyInstance() => PollMessageItem._();
   @$core.pragma('dart2js:noInline')
-  static PollMessageItem getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<PollMessageItem>(create);
+  static PollMessageItem getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PollMessageItem>(
+          PollMessageItem.$_createMessage);
   static PollMessageItem? _defaultInstance;
 
   /// Server-assigned unique identifier for this poll entry.
