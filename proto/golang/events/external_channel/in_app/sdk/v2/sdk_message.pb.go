@@ -4510,7 +4510,8 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\"CONNECTION_ACK_TYPE_CONNECTION_ACK\x10\x01*_\n" +
 	"\x11SdkMessageAckType\x12$\n" +
 	" SDK_MESSAGE_ACK_TYPE_UNSPECIFIED\x10\x00\x12$\n" +
-	" SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK\x10\x01BTZRgithub.com/yalochat/chat-sdk/proto/v2/golang/events/external_channel/in_app/sdk/v2b\x06proto3"
+	" SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK\x10\x01Bx\n" +
+	"\"ai.yalo.chat.sdk.internal.proto.v2ZRgithub.com/yalochat/chat-sdk/proto/v2/golang/events/external_channel/in_app/sdk/v2b\x06proto3"
 
 var (
 	file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescOnce sync.Once
