@@ -33,13 +33,13 @@ proto_dart:
 	protoc --dart_out=$(flutter_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_dart
 
-# Android SDK: generate Java lite + Kotlin lite sources from the proto.
-# The Gradle protobuf plugin runs this automatically at build time (build/generated/source/proto/).
-# This target exists for CI reference, manual inspection, or if you need the generated files
-# outside a Gradle build (e.g. for static analysis or cross-SDK comparison).
+# Android SDK: generate Java sources from the proto. The full runtime is
+# required because the wire format is proto3 JSON and JsonFormat needs the
+# descriptors that the lite runtime strips. The :sdk module reads this output
+# directly as an extra source directory, so it must stay committed.
 proto_kotlin:
 	mkdir -p $(kotlin_out_path)
-	protoc --java_out=lite:$(kotlin_out_path) \
-		   --kotlin_out=lite:$(kotlin_out_path) \
+	protoc --java_out=$(kotlin_out_path) \
+		   --kotlin_out=$(kotlin_out_path) \
 		   `find events -name '*.proto' -print | sort`
 .PHONY: proto_kotlin
