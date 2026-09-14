@@ -75,14 +75,14 @@ jobs:
           files: ./android-sdk/sdk/build/reports/coverage/test/debug/report.xml
 
       - name: Build release AAR
-        # Same artifact the release job publishes, so a broken release build
+        # Same artifact the rollout job publishes, so a broken release build
         # fails on the pull request instead of at release time.
         run: ./gradlew :sdk:assembleRelease
 
       - name: Build example app
         run: ./gradlew :app:assembleDebug :app:assembleRelease
 
-  release:
+  rollout:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
     needs: quality-gate
