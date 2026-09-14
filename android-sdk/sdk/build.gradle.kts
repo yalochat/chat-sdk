@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.maven.publish)
     jacoco
 }
 
@@ -34,6 +35,46 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+        }
+    }
+}
+
+// The release workflow overrides this with ORG_GRADLE_PROJECT_VERSION_NAME, taken
+// from the android-sdk/vX.Y.Z tag that triggered it.
+val sdkVersion: String = providers.gradleProperty("VERSION_NAME").getOrElse("0.0.1-SNAPSHOT")
+
+mavenPublishing {
+    publishToMavenCentral()
+    coordinates("ai.yalo.chat", "chat-android-sdk", sdkVersion)
+
+    // Signing keys only exist on the release workflow, so a local
+    // publishToMavenLocal still works for trying the artifact out.
+    if (providers.gradleProperty("signingInMemoryKey").isPresent) {
+        signAllPublications()
+    }
+
+    pom {
+        name.set("Yalo Chat Android SDK")
+        description.set("Android SDK for the Yalo chat product.")
+        url.set("https://github.com/yalochat/chat-sdk")
+        inceptionYear.set("2026")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("yalochat")
+                name.set("Yalochat, Inc.")
+                url.set("https://github.com/yalochat")
+            }
+        }
+        scm {
+            url.set("https://github.com/yalochat/chat-sdk")
+            connection.set("scm:git:git://github.com/yalochat/chat-sdk.git")
+            developerConnection.set("scm:git:ssh://git@github.com/yalochat/chat-sdk.git")
         }
     }
 }

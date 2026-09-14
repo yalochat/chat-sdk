@@ -1,0 +1,153 @@
+# Copyright (c) Yalochat, Inc. All rights reserved.
+
+name: Android SDK Pipeline
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'android-sdk/v*.*.*'
+    paths:
+      - 'android-sdk/**'
+      - '.github/workflows/android-ci-cd.yml'
+
+  pull_request:
+    paths:
+      - 'android-sdk/**'
+      - '.github/workflows/android-ci-cd.yml'
+
+env:
+  JAVA_VERSION: "21"
+  ANDROID_PACKAGES: "platforms;android-37.0 build-tools;37.0.0"
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./android-sdk
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Gitleaks Scan
+        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:latest detect --source="/code" -v
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          packages: ${{ env.ANDROID_PACKAGES }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Lint
+        run: ./gradlew :sdk:lintRelease
+
+      - name: Unit tests with coverage
+        run: ./gradlew :sdk:createDebugUnitTestCoverageReport
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: android-test-results
+          path: |
+            android-sdk/sdk/build/reports/tests/testDebugUnitTest/
+            android-sdk/sdk/build/reports/coverage/test/debug/
+          retention-days: 7
+
+      - name: Publish coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: android
+          files: ./android-sdk/sdk/build/reports/coverage/test/debug/report.xml
+
+      - name: Build release AAR
+        # Same artifact the rollout job publishes, so a broken release build
+        # fails on the pull request instead of at release time.
+        run: ./gradlew :sdk:assembleRelease
+
+      - name: Build example app
+        run: ./gradlew :app:assembleDebug :app:assembleRelease
+
+  rollout:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs: quality-gate
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#android-sdk/v}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: tag must be android-sdk/vX.Y.Z (got: $GITHUB_REF_NAME)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Assert tag is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "ERROR: releases must be tagged on a commit merged into main"
+            exit 1
+          fi
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          packages: ${{ env.ANDROID_PACKAGES }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: true
+
+      - name: Publish to Maven Central
+        working-directory: ./android-sdk
+        # Uploads the signed bundle to the Central Portal and releases it once
+        # validation passes, so no manual step is left in the portal UI.
+        # Gradle publish tasks are not configuration cache compatible.
+        run: ./gradlew :sdk:publishAndReleaseToMavenCentral --no-configuration-cache
+        env:
+          ORG_GRADLE_PROJECT_VERSION_NAME: ${{ steps.version.outputs.version }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Android SDK v${{ steps.version.outputs.version }}" \
+            --generate-notes \
+            android-sdk/sdk/build/outputs/aar/sdk-release.aar
