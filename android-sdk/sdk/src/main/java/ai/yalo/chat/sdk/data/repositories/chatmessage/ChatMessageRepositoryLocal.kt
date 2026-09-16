@@ -16,15 +16,8 @@ import kotlinx.coroutines.withContext
 /**
  * Keeps a conversation's messages in the shared [ChatMessageDatabaseService].
  *
- * The session is fixed when the repository is built and every statement here
- * carries it, so there is no way to phrase a query that reaches another
- * conversation.
- *
- * SQLite blocks, so the work moves off the caller's thread. [dispatcher] is
- * open so a test can run it on the thread it is already on.
- *
- * Only [SQLException] is caught. Anything else, a cancelled coroutine most
- * of all, is left to travel up the way it should.
+ * Only [SQLException] is caught. Anything else, a cancelled coroutine most of
+ * all, is left to travel up.
  */
 internal class ChatMessageRepositoryLocal(
     private val database: ChatMessageDatabaseService,
