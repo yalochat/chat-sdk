@@ -24,6 +24,11 @@ env:
 jobs:
   quality-gate:
     runs-on: ubuntu-latest
+    # The build refuses to run without a host, so every Gradle step in this
+    # job needs it. Checks build against staging; only the published artifact
+    # points at production.
+    env:
+      YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL }}
     defaults:
       run:
         working-directory: ./android-sdk
@@ -86,6 +91,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
     needs: quality-gate
+    # What ships talks to production. This is the only job that uses it.
+    env:
+      YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL_PROD }}
     permissions:
       contents: write
 
