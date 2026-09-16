@@ -2,9 +2,11 @@
 package ai.yalo.chat.sdk.data.services.auth
 
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -36,14 +38,14 @@ import java.util.concurrent.atomic.AtomicLong
  * across a round trip would make every other caller queue behind it and undo
  * the point of collecting them in the first place.
  */
-internal class AuthServiceRemote(
+internal class YaloMessageAuthServiceRemote(
     private val config: YaloChatClientConfig,
     private val storage: AuthTokenStorage,
     private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val client: OkHttpClient = OkHttpClient(),
     private val now: () -> Long = System::currentTimeMillis,
-) : AuthService {
+) : YaloMessageAuthService {
 
     private val connection = AuthConnection()
     private val mutex = Mutex()
@@ -58,7 +60,17 @@ internal class AuthServiceRemote(
             waiting[requestId] = answer
             dispatch(AuthConnection.Event.TokenRequested(requestId, now()))
         }
-        return runCatching { answer.await() }
+        return try {
+            Result.success(answer.await())
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Throwable) {
+            Result.failure(error)
+        } finally {
+            withContext(NonCancellable) {
+                mutex.withLock { waiting.remove(requestId) }
+            }
+        }
     }
 
     override suspend fun invalidateToken() {
