@@ -11,6 +11,8 @@ import ai.yalo.chat.sdk.data.services.auth.AuthTokenStorageLocal
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaServiceRemote
+import ai.yalo.chat.sdk.data.services.message.YaloMessageService
+import ai.yalo.chat.sdk.data.services.message.YaloMessageServiceWebsocket
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * Everything one conversation needs, built the first time it is asked for.
@@ -54,11 +57,15 @@ internal class ChatDependencies(
     // and a second set of threads for the same host.
     private val client: OkHttpClient by lazy { OkHttpClient() }
 
+    // One scope for everything in this conversation that outlives a single call,
+    // so closing the chat has one thing to cancel rather than several.
+    private val scope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
+
     val auth: YaloMessageAuthService by lazy {
         YaloMessageAuthServiceRemote(
             config = config,
             storage = AuthTokenStorageLocal.of(applicationContext, config.sessionId),
-            scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+            scope = scope,
             baseUrl = baseUrl,
             client = client,
         )
@@ -73,10 +80,33 @@ internal class ChatDependencies(
         )
     }
 
+    val messages: YaloMessageService by lazy {
+        YaloMessageServiceWebsocket(
+            auth = auth,
+            scope = scope,
+            baseUrl = baseUrl,
+            // Built from the shared client so the socket keeps the same
+            // connection pool and threads, with pings added. OkHttp sends none
+            // by default, and a mobile network drops an idle socket without
+            // telling either end, which leaves a chat that looks connected and
+            // receives nothing. A ping turns that into a failure the connection
+            // already knows how to answer.
+            sockets = client.newBuilder()
+                .pingInterval(PING_INTERVAL_SECONDS, TimeUnit.SECONDS)
+                .build(),
+        )
+    }
+
     private companion object {
 
         // Its own directory, so clearing what the chat downloaded never reaches
         // anything else the app cached.
         private const val MEDIA_CACHE = "yalo-chat-media"
+
+        // Short enough to sit under the shortest carrier NAT window, and on
+        // the same order as the ten seconds the socket waits to be
+        // acknowledged, so a link broken either way is noticed in a
+        // comparable time.
+        private const val PING_INTERVAL_SECONDS = 20L
     }
 }
