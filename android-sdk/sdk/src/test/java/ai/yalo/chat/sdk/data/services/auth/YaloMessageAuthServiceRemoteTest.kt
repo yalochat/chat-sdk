@@ -8,6 +8,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -191,6 +193,19 @@ class YaloMessageAuthServiceRemoteTest {
     }
 
     @Test
+    fun stopsInsteadOfReportingAFailureWhenTheCallerWalksAway() = runBlocking {
+        server.enqueue(tokenResponse(delayMillis = 2_000))
+        val service = service()
+        var outcome: Result<String>? = null
+
+        val caller = launch(Dispatchers.IO) { outcome = service.token() }
+        server.takeRequest()
+        caller.cancelAndJoin()
+
+        assertNull(outcome)
+    }
+
+    @Test
     fun forgetsTheStoredTokenWhenTheSessionEnds() = runBlocking {
         storage.token = AuthToken("stored", "refresh", NOW + 3_600_000)
 
@@ -223,17 +238,19 @@ class YaloMessageAuthServiceRemoteTest {
         accessToken: String = "access",
         refreshToken: String = "refresh",
         expiresIn: Long = 3_600,
+        delayMillis: Long = 50,
     ): MockResponse = response(
         """{"access_token":"$accessToken","refresh_token":"$refreshToken","expires_in":$expiresIn}""",
+        delayMillis,
     )
 
-    private fun response(body: String): MockResponse = MockResponse.Builder()
+    private fun response(body: String, delayMillis: Long = 50): MockResponse = MockResponse.Builder()
         .code(200)
         .body(body)
         // Every caller that arrives while this is in flight has to be waiting
         // before the answer lands, which is the whole point of the test that
         // counts requests.
-        .bodyDelay(50, TimeUnit.MILLISECONDS)
+        .bodyDelay(delayMillis, TimeUnit.MILLISECONDS)
         .build()
 
     private class FakeAuthTokenStorage : AuthTokenStorage {

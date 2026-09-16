@@ -18,6 +18,7 @@ class ChatDependenciesTest {
 
         assertNotNull(dependencies.chatMessages)
         assertNotNull(dependencies.auth)
+        assertNotNull(dependencies.media)
     }
 
     @Test
@@ -26,6 +27,7 @@ class ChatDependenciesTest {
 
         assertSame(dependencies.chatMessages, dependencies.chatMessages)
         assertSame(dependencies.auth, dependencies.auth)
+        assertSame(dependencies.media, dependencies.media)
     }
 
     private fun dependencies() = ChatDependencies(

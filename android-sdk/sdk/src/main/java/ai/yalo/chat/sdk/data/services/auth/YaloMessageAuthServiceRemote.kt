@@ -2,9 +2,11 @@
 package ai.yalo.chat.sdk.data.services.auth
 
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -58,7 +60,17 @@ internal class YaloMessageAuthServiceRemote(
             waiting[requestId] = answer
             dispatch(AuthConnection.Event.TokenRequested(requestId, now()))
         }
-        return runCatching { answer.await() }
+        return try {
+            Result.success(answer.await())
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Throwable) {
+            Result.failure(error)
+        } finally {
+            withContext(NonCancellable) {
+                mutex.withLock { waiting.remove(requestId) }
+            }
+        }
     }
 
     override suspend fun invalidateToken() {
