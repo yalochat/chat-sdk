@@ -10,7 +10,7 @@ package ai.yalo.chat.sdk.data.services.auth
  * a message should have to think about, and asking twice in the same moment
  * costs one round trip rather than two.
  */
-internal interface AuthService {
+internal interface YaloMessageAuthService {
 
     /**
      * A token to put on the next request.

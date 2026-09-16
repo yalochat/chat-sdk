@@ -24,7 +24,7 @@ import org.robolectric.RobolectricTestRunner
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
-class AuthServiceRemoteTest {
+class YaloMessageAuthServiceRemoteTest {
 
     private lateinit var server: MockWebServer
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -203,8 +203,8 @@ class AuthServiceRemoteTest {
     // Every request these tests look at does.
     private fun RecordedRequest.text(): String = requireNotNull(body).utf8()
 
-    private fun service(config: YaloChatClientConfig = config()): AuthServiceRemote =
-        AuthServiceRemote(
+    private fun service(config: YaloChatClientConfig = config()): YaloMessageAuthServiceRemote =
+        YaloMessageAuthServiceRemote(
             config = config,
             storage = storage,
             scope = scope,

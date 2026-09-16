@@ -36,14 +36,14 @@ import java.util.concurrent.atomic.AtomicLong
  * across a round trip would make every other caller queue behind it and undo
  * the point of collecting them in the first place.
  */
-internal class AuthServiceRemote(
+internal class YaloMessageAuthServiceRemote(
     private val config: YaloChatClientConfig,
     private val storage: AuthTokenStorage,
     private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val client: OkHttpClient = OkHttpClient(),
     private val now: () -> Long = System::currentTimeMillis,
-) : AuthService {
+) : YaloMessageAuthService {
 
     private val connection = AuthConnection()
     private val mutex = Mutex()

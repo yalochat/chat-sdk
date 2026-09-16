@@ -5,8 +5,8 @@ import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
-import ai.yalo.chat.sdk.data.services.auth.AuthService
-import ai.yalo.chat.sdk.data.services.auth.AuthServiceRemote
+import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthServiceRemote
 import ai.yalo.chat.sdk.data.services.auth.AuthTokenStorageLocal
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import android.content.Context
@@ -42,8 +42,8 @@ internal class ChatDependencies(
     // The configured host carries no scheme, so the scheme is put on here
     // rather than inside the service. The socket will ask the same field for
     // wss, and neither should have to strip the other's prefix off.
-    val auth: AuthService by lazy {
-        AuthServiceRemote(
+    val auth: YaloMessageAuthService by lazy {
+        YaloMessageAuthServiceRemote(
             config = config,
             storage = AuthTokenStorageLocal.of(applicationContext, config.sessionId),
             scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
