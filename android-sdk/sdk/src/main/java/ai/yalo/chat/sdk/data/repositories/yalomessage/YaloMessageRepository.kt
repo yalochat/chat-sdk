@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import kotlinx.coroutines.flow.Flow
 
 /**
  * The channel's side of one conversation, in the terms the chat thinks in.
@@ -20,6 +21,15 @@ internal interface YaloMessageRepository {
      * be up, because a message sent before then is held and goes out once it is.
      */
     fun connect()
+
+    /**
+     * What the channel says, as it arrives.
+     *
+     * Hot, and nothing is replayed, so this carries what turns up while
+     * somebody is listening rather than the conversation so far. What was said
+     * before is what storage holds.
+     */
+    fun messages(): Flow<ChatMessage>
 
     /**
      * Sends [message] to the channel.

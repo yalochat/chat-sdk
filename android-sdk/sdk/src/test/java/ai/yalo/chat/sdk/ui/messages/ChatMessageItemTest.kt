@@ -46,6 +46,24 @@ class ChatMessageItemTest {
     }
 
     @Test
+    fun readsWhatTheAgentAnsweredAsMarkdown() {
+        composeRule.setContent {
+            ChatMessageItem(message(role = MessageRole.Agent, content = "**Shipped** today"))
+        }
+
+        composeRule.onNodeWithText("Shipped today").assertIsDisplayed()
+    }
+
+    @Test
+    fun showsWhatThePersonTypedTheWayTheyTypedIt() {
+        composeRule.setContent {
+            ChatMessageItem(message(role = MessageRole.User, content = "**Shipped** today"))
+        }
+
+        composeRule.onNodeWithText("**Shipped** today").assertIsDisplayed()
+    }
+
+    @Test
     fun saysSoRatherThanDroppingAMessageItCannotDraw() {
         composeRule.setContent {
             ChatMessageItem(
@@ -61,16 +79,16 @@ class ChatMessageItemTest {
         val undrawable = MessageType.entries - MessageType.Text
         composeRule.setContent {
             Column {
-                undrawable.forEach { type ->
-                    ChatMessageItem(
-                        message(role = MessageRole.Agent, content = "raw").copy(type = type),
-                    )
+                MessageRole.entries.forEach { role ->
+                    undrawable.forEach { type ->
+                        ChatMessageItem(message(role = role, content = "raw").copy(type = type))
+                    }
                 }
             }
         }
 
         composeRule.onAllNodesWithTag(CHAT_UNSUPPORTED_MESSAGE_TAG)
-            .assertCountEquals(undrawable.size)
+            .assertCountEquals(undrawable.size * MessageRole.entries.size)
         composeRule.onAllNodesWithText("raw").assertCountEquals(0)
     }
 

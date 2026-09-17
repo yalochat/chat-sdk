@@ -38,6 +38,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Carries out what a [MessageConnection] decides, against a real socket.
@@ -182,7 +183,7 @@ internal class YaloMessageServiceWebsocket(
     private fun timer(running: Job?, delayMillis: Long, event: () -> Event): Job {
         running?.cancel()
         return scope.launch {
-            delay(delayMillis)
+            delay(delayMillis.milliseconds)
             events.trySend(event())
         }
     }

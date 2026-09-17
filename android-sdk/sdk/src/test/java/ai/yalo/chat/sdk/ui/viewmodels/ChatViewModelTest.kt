@@ -9,6 +9,7 @@ import ai.yalo.chat.sdk.domain.models.MessageType
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -336,6 +337,80 @@ class ChatViewModelTest {
         assertEquals(listOf("Hello"), viewModel.uiState.messages.map { it.content })
     }
 
+    @Test
+    fun showsWhatTheChannelAnswered() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("On its way"))
+
+        assertEquals(listOf("On its way"), viewModel.uiState.messages.map { it.content })
+        assertEquals(MessageRole.Agent, viewModel.uiState.messages.single().role)
+    }
+
+    @Test
+    fun keepsWhatTheChannelAnsweredForTheNextTimeTheChatIsOpened() {
+        chatViewModel()
+        yaloMessageRepository.answer(answer("On its way"))
+
+        val reopened = chatViewModel()
+
+        assertEquals(listOf("On its way"), reopened.uiState.messages.map { it.content })
+    }
+
+    @Test
+    fun stopsWaitingOnceTheChannelAnswers() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+        viewModel.onSend()
+
+        yaloMessageRepository.answer(answer("On its way"))
+
+        assertFalse(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun keepsTheLoaderAwayOnceAnAnswerEndedTheWait() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+        viewModel.onSend()
+        yaloMessageRepository.answer(answer("On its way"))
+
+        scheduler.advanceTimeBy(45.seconds)
+        scheduler.runCurrent()
+
+        assertFalse(viewModel.uiState.isWaitingForReply)
+    }
+
+    // The channel repeats a message when the line comes back, and it names the
+    // same id both times, which is how the same answer stays one answer.
+    @Test
+    fun showsAnAnswerTheChannelRepeatedOnlyOnce() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("On its way"))
+        yaloMessageRepository.answer(answer("On its way"))
+
+        assertEquals(listOf("On its way"), viewModel.uiState.messages.map { it.content })
+    }
+
+    @Test
+    fun showsNoAnswerThatStorageWouldNotTake() {
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("On its way"))
+
+        assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
+    }
+
+    private fun answer(content: String, wiId: String = "wi-1"): ChatMessage = ChatMessage(
+        role = MessageRole.Agent,
+        type = MessageType.Text,
+        timestamp = SENT_AT,
+        wiId = wiId,
+        content = content,
+    )
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
@@ -363,8 +438,17 @@ class ChatViewModelTest {
         var isOpen: Boolean = false
             private set
 
+        private val incoming = MutableSharedFlow<ChatMessage>(extraBufferCapacity = 8)
+
         override fun connect() {
             isOpen = true
+        }
+
+        override fun messages(): Flow<ChatMessage> = incoming
+
+        /** Has the channel say [message], the way the socket would. */
+        fun answer(message: ChatMessage) {
+            incoming.tryEmit(message)
         }
 
         override suspend fun send(message: ChatMessage): Result<Unit> {

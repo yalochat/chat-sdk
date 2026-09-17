@@ -1,19 +1,25 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
+import ai.yalo.chat.sdk.data.services.message.MessageReceived
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import java.util.UUID
+import ai.yalo.chat.sdk.domain.models.MessageStatus as ChatStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
 
 /**
@@ -40,6 +46,14 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
+    /**
+     * Only what the channel said. An acknowledgement travels the other way and
+     * is the channel's own bookkeeping, so it is not part of the conversation.
+     */
+    override fun messages(): Flow<ChatMessage> = service.messages
+        .filterIsInstance<MessageReceived>()
+        .mapNotNull { received -> chatMessageOf(received.item) }
+
     override suspend fun send(message: ChatMessage): Result<Unit> {
         if (message.type != MessageType.Text) {
             return Result.failure(UnsupportedMessageTypeException(message.type))
@@ -51,6 +65,31 @@ internal class YaloMessageRepositoryRemote(
         scope.launch {
             service.close()
         }
+    }
+
+    /**
+     * Reads a message the channel sent, or nothing when the payload is not one.
+     *
+     * A kind the chat cannot draw yet still becomes a message of that kind, so
+     * the person sees that something arrived rather than nothing at all. Only
+     * text carries a body worth storing so far.
+     */
+    private fun chatMessageOf(item: PollMessageItem): ChatMessage? {
+        val type = INBOUND_TYPES[item.message.payloadCase] ?: return null
+        val text: TextMessageRequest? = item.message.takeIf { type == MessageType.Text }
+            ?.textMessageRequest
+        return ChatMessage(
+            role = MessageRole.Agent,
+            type = type,
+            timestamp = if (item.hasDate()) Timestamps.toMillis(item.date) else now(),
+            wiId = item.id,
+            content = text?.content?.text.orEmpty(),
+            // It is here, so it arrived. The channel's own word for that is
+            // taken when it is one the SDK knows.
+            status = ChatStatus.of(item.status, ChatStatus.Delivered),
+            header = text?.takeIf { it.hasHeader() }?.header,
+            footer = text?.takeIf { it.hasFooter() }?.footer,
+        )
     }
 
     private fun sdkMessageOf(message: ChatMessage): SdkMessage {
@@ -88,6 +127,24 @@ internal class YaloMessageRepositoryRemote(
         MessageRole.Agent -> WireRole.MESSAGE_ROLE_AGENT
     }
 }
+
+/**
+ * The kinds of payload that belong in the conversation, and what the chat calls
+ * each of them.
+ *
+ * Everything else the channel can send, a cart answer for instance, is an
+ * exchange rather than something anyone said, so it is left out.
+ */
+private val INBOUND_TYPES: Map<SdkMessage.PayloadCase, MessageType> = mapOf(
+    SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST to MessageType.Text,
+    SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST to MessageType.Image,
+    SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST to MessageType.Voice,
+    SdkMessage.PayloadCase.VIDEO_MESSAGE_REQUEST to MessageType.Video,
+    SdkMessage.PayloadCase.ATTACHMENT_MESSAGE_REQUEST to MessageType.Attachment,
+    SdkMessage.PayloadCase.PRODUCT_MESSAGE_REQUEST to MessageType.Product,
+    SdkMessage.PayloadCase.PRODUCT_CONFIRMATION_MESSAGE_REQUEST to MessageType.ProductConfirmation,
+    SdkMessage.PayloadCase.PROMOTION_MESSAGE_REQUEST to MessageType.Promotion,
+)
 
 /** A kind of message the SDK can hold and show, but cannot yet put on the wire. */
 internal class UnsupportedMessageTypeException(type: MessageType) :

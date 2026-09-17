@@ -2,17 +2,27 @@
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
 import ai.yalo.chat.sdk.data.services.message.InboundMessage
+import ai.yalo.chat.sdk.data.services.message.MessageAcknowledged
+import ai.yalo.chat.sdk.data.services.message.MessageReceived
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ChatStatusRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -139,7 +149,155 @@ class YaloMessageRepositoryRemoteTest {
         assertFalse(service.isOpen)
     }
 
+    @Test
+    fun readsWhatTheChannelSaid() = runTest {
+        val received = received(pollItem(textMessage("On its way")))
+
+        assertEquals("On its way", received.single().content)
+        assertEquals(MessageRole.Agent, received.single().role)
+        assertEquals(MessageType.Text, received.single().type)
+    }
+
+    // The backend's id is what tells a message the channel repeats from a new
+    // one, so it has to survive the crossing.
+    @Test
+    fun keepsTheIdTheChannelGaveTheMessage() = runTest {
+        val received = received(pollItem(textMessage(), id = "wi-7"))
+
+        assertEquals("wi-7", received.single().wiId)
+    }
+
+    @Test
+    fun keepsTheTimeTheChannelRecordedTheMessage() = runTest {
+        val received = received(pollItem(textMessage(), date = ARRIVED_AT))
+
+        assertEquals(ARRIVED_AT, received.single().timestamp)
+    }
+
+    @Test
+    fun timesAMessageThatArrivedWithoutADateAsNow() = runTest {
+        val received = received(pollItem(textMessage(), date = null))
+
+        assertEquals(SENT_AT, received.single().timestamp)
+    }
+
+    @Test
+    fun keepsWhatWasWrittenAroundTheMessage() = runTest {
+        val message = textMessage(header = "Your order", footer = "Reply to change it")
+
+        val received = received(pollItem(message))
+
+        assertEquals("Your order", received.single().header)
+        assertEquals("Reply to change it", received.single().footer)
+    }
+
+    @Test
+    fun leavesOutAHeaderAndFooterTheChannelDidNotSend() = runTest {
+        val received = received(pollItem(textMessage()))
+
+        assertEquals(null, received.single().header)
+        assertEquals(null, received.single().footer)
+    }
+
+    // The chat cannot draw a picture yet, but a person who was sent one should
+    // see that something arrived rather than nothing.
+    @Test
+    fun readsAKindItCannotDrawYetAsThatKind() = runTest {
+        val received = received(pollItem(imageMessage()))
+
+        assertEquals(MessageType.Image, received.single().type)
+    }
+
+    @Test
+    fun readsAStatusItDoesNotKnowAsArrived() = runTest {
+        val received = received(pollItem(textMessage(), status = "SOMETHING_NEWER"))
+
+        assertEquals(MessageStatus.Delivered, received.single().status)
+    }
+
+    @Test
+    fun takesTheChannelsWordForHowFarTheMessageGot() = runTest {
+        val received = received(pollItem(textMessage(), status = "READ"))
+
+        assertEquals(MessageStatus.Read, received.single().status)
+    }
+
+    @Test
+    fun leavesOutWhatIsNotSomethingAnyoneSaid() = runTest {
+        val status = SdkMessage.newBuilder()
+            .setChatStatusRequest(ChatStatusRequest.newBuilder().setStatus("typing"))
+            .build()
+
+        assertEquals(emptyList<ChatMessage>(), received(pollItem(status)))
+    }
+
+    @Test
+    fun leavesOutAnAcknowledgement() = runTest {
+        val received = received(MessageAcknowledged(SdkMessageAck.getDefaultInstance()))
+
+        assertEquals(emptyList<ChatMessage>(), received)
+    }
+
     private fun sentText(): String = service.sent.single().textMessageRequest.content.text
+
+    /** What the repository makes of [inbound], once the channel has sent it. */
+    private fun TestScope.received(vararg inbound: InboundMessage): List<ChatMessage> {
+        val received = mutableListOf<ChatMessage>()
+        val collector = launch {
+            repository(this@received).messages().collect { message -> received.add(message) }
+        }
+        runCurrent()
+        inbound.forEach { message -> service.receive(message) }
+        runCurrent()
+        collector.cancel()
+        return received
+    }
+
+    private fun TestScope.received(vararg items: PollMessageItem): List<ChatMessage> =
+        received(*items.map { item -> MessageReceived(item) }.toTypedArray())
+
+    private fun pollItem(
+        message: SdkMessage,
+        id: String = "wi-1",
+        date: Long? = ARRIVED_AT,
+        status: String = "DELIVERED",
+    ): PollMessageItem = PollMessageItem.newBuilder()
+        .setId(id)
+        .setMessage(message)
+        .setStatus(status)
+        .also { item ->
+            if (date != null) {
+                item.date = Timestamps.fromMillis(date)
+            }
+        }
+        .build()
+
+    private fun textMessage(
+        text: String = "On its way",
+        header: String? = null,
+        footer: String? = null,
+    ): SdkMessage {
+        val request = TextMessageRequest.newBuilder()
+            .setContent(
+                TextMessage.newBuilder()
+                    .setText(text)
+                    .setRole(WireRole.MESSAGE_ROLE_AGENT),
+            )
+        if (header != null) {
+            request.header = header
+        }
+        if (footer != null) {
+            request.footer = footer
+        }
+        return SdkMessage.newBuilder().setTextMessageRequest(request).build()
+    }
+
+    private fun imageMessage(): SdkMessage = SdkMessage.newBuilder()
+        .setImageMessageRequest(
+            ImageMessageRequest.newBuilder()
+                .setContent(ImageMessage.newBuilder().setMediaUrl("https://yalo.com/shirt.png")),
+        )
+        .build()
 
     private fun TestScope.repository(): YaloMessageRepositoryRemote = repository(this)
 
@@ -174,7 +332,13 @@ class YaloMessageRepositoryRemoteTest {
             private set
         var failure: Throwable? = null
 
-        override val messages: Flow<InboundMessage> = emptyFlow()
+        private val incoming = MutableSharedFlow<InboundMessage>(extraBufferCapacity = 8)
+
+        override val messages: Flow<InboundMessage> = incoming
+
+        fun receive(message: InboundMessage) {
+            incoming.tryEmit(message)
+        }
 
         override suspend fun connect() {
             isOpen = true
@@ -198,5 +362,6 @@ class YaloMessageRepositoryRemoteTest {
     private companion object {
         const val WRITTEN_AT = 1_700_000_000_000L
         const val SENT_AT = 1_700_000_005_000L
+        const val ARRIVED_AT = 1_700_000_009_000L
     }
 }

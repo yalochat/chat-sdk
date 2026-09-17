@@ -75,6 +75,9 @@ internal class ChatViewModel(
         yaloMessageRepository.connect()
         refreshMessages()
         viewModelScope.launch {
+            yaloMessageRepository.messages().collect { message -> receive(message) }
+        }
+        viewModelScope.launch {
             hostMessages.collect { text -> send(text) }
         }
     }
@@ -123,13 +126,28 @@ internal class ChatViewModel(
     }
 
     /**
+     * Stores what the channel said and shows it.
+     *
+     * It is stored before it is shown, for the same reason a sent message is:
+     * the screen shows what storage holds, so a reply survives the app being
+     * closed. A message the channel repeats is stored once, because it carries
+     * the id storage recognises it by.
+     */
+    private suspend fun receive(message: ChatMessage) {
+        chatMessageRepository.insert(message).onSuccess {
+            stopWaitingForReply()
+            refreshMessages()
+        }
+    }
+
+    /**
      * Shows the loader until a reply turns up, and gives up after
      * [REPLY_TIMEOUT] so it cannot spin forever against a channel that went
      * quiet.
      *
      * Sending again starts the wait over rather than leaving the first send's
-     * deadline in charge. Once assistant messages arrive they clear this too,
-     * and the timeout becomes the fallback rather than the only way out.
+     * deadline in charge. A reply arriving ends it as well, which leaves the
+     * timeout as the fallback rather than the only way out.
      */
     private fun waitForReply() {
         replyDeadline?.cancel()
@@ -138,6 +156,12 @@ internal class ChatViewModel(
             delay(REPLY_TIMEOUT)
             uiState = uiState.copy(isWaitingForReply = false)
         }
+    }
+
+    private fun stopWaitingForReply() {
+        replyDeadline?.cancel()
+        replyDeadline = null
+        uiState = uiState.copy(isWaitingForReply = false)
     }
 
     override fun onCleared() {

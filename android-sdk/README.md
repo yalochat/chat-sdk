@@ -14,6 +14,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Sizing and window insets](#sizing-and-window-insets)
   - [Avatar](#avatar)
   - [Back button](#back-button)
+- [Message formatting](#message-formatting)
 - [Theming](#theming)
 - [Translations](#translations)
 - [Methods](#methods)
@@ -157,6 +158,27 @@ Chat(
 ```
 
 Leave it out when the chat is embedded in a screen that already has a way back, such as a tab or a pane next to your content.
+
+## Message formatting
+
+What the channel answers is written in markdown, and the chat draws it that way. Messages the person sends are shown exactly as they typed them, so their own asterisks and underscores stay put.
+
+The chat draws:
+
+- Emphasis
+  - `**bold**`, `*italic*` and `~~strikethrough~~`.
+- Links
+  - `[label](https://example.com)`, and plain addresses such as `https://example.com`, which become tappable and open in the browser. They take their color from `linkColor` in the theme.
+- Lists
+  - Bulleted and numbered, including lists inside lists.
+- Headings
+  - From `#` to `######`, sized against the text around them.
+- Code
+  - `` `inline` `` and fenced blocks, set in a monospace face.
+- Quotes
+  - Lines starting with `>`.
+
+Anything else, a table for instance, is shown as the text it was written as, so nothing an answer contains goes missing.
 
 ## Theming
 
