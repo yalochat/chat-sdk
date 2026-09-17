@@ -46,10 +46,7 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
-    /**
-     * Only what the channel said. An acknowledgement travels the other way and
-     * is the channel's own bookkeeping, so it is not part of the conversation.
-     */
+    /** Only what the channel said, never an acknowledgement. */
     override fun messages(): Flow<ChatMessage> = service.messages
         .filterIsInstance<MessageReceived>()
         .mapNotNull { received -> chatMessageOf(received.item) }
@@ -71,8 +68,7 @@ internal class YaloMessageRepositoryRemote(
      * Reads a message the channel sent, or nothing when the payload is not one.
      *
      * A kind the chat cannot draw yet still becomes a message of that kind, so
-     * the person sees that something arrived rather than nothing at all. Only
-     * text carries a body worth storing so far.
+     * nothing arrives silently. Only text carries a body so far.
      */
     private fun chatMessageOf(item: PollMessageItem): ChatMessage? {
         val type = INBOUND_TYPES[item.message.payloadCase] ?: return null
@@ -84,8 +80,6 @@ internal class YaloMessageRepositoryRemote(
             timestamp = if (item.hasDate()) Timestamps.toMillis(item.date) else now(),
             wiId = item.id,
             content = text?.content?.text.orEmpty(),
-            // It is here, so it arrived. The channel's own word for that is
-            // taken when it is one the SDK knows.
             status = ChatStatus.of(item.status, ChatStatus.Delivered),
             header = text?.takeIf { it.hasHeader() }?.header,
             footer = text?.takeIf { it.hasFooter() }?.footer,
@@ -129,11 +123,10 @@ internal class YaloMessageRepositoryRemote(
 }
 
 /**
- * The kinds of payload that belong in the conversation, and what the chat calls
- * each of them.
+ * The payloads that belong in the conversation, and what the chat calls each.
  *
- * Everything else the channel can send, a cart answer for instance, is an
- * exchange rather than something anyone said, so it is left out.
+ * Anything else, a cart answer for instance, is an exchange rather than
+ * something anyone said.
  */
 private val INBOUND_TYPES: Map<SdkMessage.PayloadCase, MessageType> = mapOf(
     SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST to MessageType.Text,

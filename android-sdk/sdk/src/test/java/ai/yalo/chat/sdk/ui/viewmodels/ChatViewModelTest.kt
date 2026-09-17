@@ -381,8 +381,7 @@ class ChatViewModelTest {
         assertFalse(viewModel.uiState.isWaitingForReply)
     }
 
-    // The channel repeats a message when the line comes back, and it names the
-    // same id both times, which is how the same answer stays one answer.
+    // The channel repeats a message when the line comes back, naming the same id.
     @Test
     fun showsAnAnswerTheChannelRepeatedOnlyOnce() {
         val viewModel = chatViewModel()

@@ -158,8 +158,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(MessageType.Text, received.single().type)
     }
 
-    // The backend's id is what tells a message the channel repeats from a new
-    // one, so it has to survive the crossing.
+    // The backend's id is what tells a repeat from a new message.
     @Test
     fun keepsTheIdTheChannelGaveTheMessage() = runTest {
         val received = received(pollItem(textMessage(), id = "wi-7"))
@@ -199,8 +198,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(null, received.single().footer)
     }
 
-    // The chat cannot draw a picture yet, but a person who was sent one should
-    // see that something arrived rather than nothing.
+    // A picture the chat cannot draw yet still has to show up as something.
     @Test
     fun readsAKindItCannotDrawYetAsThatKind() = runTest {
         val received = received(pollItem(imageMessage()))

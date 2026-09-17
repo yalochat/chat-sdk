@@ -22,13 +22,7 @@ internal interface YaloMessageRepository {
      */
     fun connect()
 
-    /**
-     * What the channel says, as it arrives.
-     *
-     * Hot, and nothing is replayed, so this carries what turns up while
-     * somebody is listening rather than the conversation so far. What was said
-     * before is what storage holds.
-     */
+    /** What the channel says, as it arrives. Hot, and nothing is replayed. */
     fun messages(): Flow<ChatMessage>
 
     /**
