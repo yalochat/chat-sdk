@@ -2,9 +2,12 @@
 package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
+import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
+import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -24,7 +27,8 @@ import kotlin.time.Duration.Companion.seconds
 @RunWith(RobolectricTestRunner::class)
 class ChatViewModelTest {
 
-    private val chatMessages = FakeChatMessageRepository()
+    private val chatMessageRepository = FakeChatMessageRepository()
+    private val yaloMessageRepository = FakeYaloMessageRepository()
     private val scheduler = TestCoroutineScheduler()
     private val hostMessages = MutableSharedFlow<String>(extraBufferCapacity = 8)
 
@@ -132,7 +136,7 @@ class ChatViewModelTest {
 
     @Test
     fun showsNoMessagesWhenStorageIsBroken() {
-        chatMessages.failure = IllegalStateException("storage is gone")
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
         val viewModel = chatViewModel()
 
         viewModel.onDraftChange("Hello")
@@ -199,7 +203,7 @@ class ChatViewModelTest {
 
     @Test
     fun waitsForNothingWhenTheMessageWasNeverStored() {
-        chatMessages.failure = IllegalStateException("storage is gone")
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
         val viewModel = chatViewModel()
         viewModel.onDraftChange("Hello")
 
@@ -251,16 +255,128 @@ class ChatViewModelTest {
         assertEquals(listOf("Sent by the app"), viewModel.uiState.messages.map { it.content })
     }
 
+    @Test
+    fun opensTheLineToTheChannelAsSoonAsTheChatIsShown() {
+        chatViewModel()
+
+        assertTrue(yaloMessageRepository.isOpen)
+    }
+
+    @Test
+    fun endsTheConversationOnceTheChatIsGone() {
+        val store = ViewModelStore()
+        store.put("chat", chatViewModel())
+
+        store.clear()
+
+        assertFalse(yaloMessageRepository.isOpen)
+    }
+
+    @Test
+    fun sendsWhatTheUserWroteToTheChannel() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+
+        viewModel.onSend()
+
+        assertEquals(listOf("Hello"), yaloMessageRepository.sent.map { it.content })
+    }
+
+    @Test
+    fun sendsTheStoredMessageSoTheChannelCanBeAnsweredAboutIt() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+
+        viewModel.onSend()
+
+        assertEquals(viewModel.uiState.messages.single().id, yaloMessageRepository.sent.single().id)
+    }
+
+    @Test
+    fun sendsWhatTheHostAskedForToTheChannel() {
+        chatViewModel()
+
+        hostMessages.tryEmit("Sent by the app")
+
+        assertEquals(listOf("Sent by the app"), yaloMessageRepository.sent.map { it.content })
+    }
+
+    @Test
+    fun sendsNothingToTheChannelWhenTheMessageWasNeverStored() {
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+
+        viewModel.onSend()
+
+        assertEquals(emptyList<String>(), yaloMessageRepository.sent.map { it.content })
+    }
+
+    // A message that never left the device is not one anybody is about to
+    // answer, so the loader has nothing to wait for.
+    @Test
+    fun waitsForNothingWhenTheChannelWouldNotTakeTheMessage() {
+        yaloMessageRepository.failure = IllegalStateException("the line is down")
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+
+        viewModel.onSend()
+
+        assertFalse(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun stillShowsAMessageTheChannelWouldNotTake() {
+        yaloMessageRepository.failure = IllegalStateException("the line is down")
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+
+        viewModel.onSend()
+
+        assertEquals(listOf("Hello"), viewModel.uiState.messages.map { it.content })
+    }
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
     ): ChatViewModel = ChatViewModel(
         title = title,
-        chatMessages = chatMessages,
+        chatMessageRepository = chatMessageRepository,
+        yaloMessageRepository = yaloMessageRepository,
         savedState = savedState,
         hostMessages = hostMessages,
         now = { SENT_AT },
     )
+
+    /**
+     * Stands in for the channel so a test can say what it does without a socket.
+     *
+     * Set [failure] to make every send come back failed, which is how a test
+     * asks what the screen does when the message never leaves the device.
+     */
+    private class FakeYaloMessageRepository(
+        var failure: Throwable? = null,
+    ) : YaloMessageRepository {
+
+        val sent: MutableList<ChatMessage> = mutableListOf()
+
+        var isOpen: Boolean = false
+            private set
+
+        override fun connect() {
+            isOpen = true
+        }
+
+        override suspend fun send(message: ChatMessage): Result<Unit> {
+            failure?.let { error -> return Result.failure(error) }
+            sent.add(message)
+            return Result.success(Unit)
+        }
+
+        override fun close() {
+            isOpen = false
+        }
+    }
 
     private companion object {
         const val SENT_AT = 1_700_000_000_000L

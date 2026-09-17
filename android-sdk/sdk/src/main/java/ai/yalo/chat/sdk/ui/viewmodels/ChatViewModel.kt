@@ -4,6 +4,7 @@ package ai.yalo.chat.sdk.ui.viewmodels
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
+import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
@@ -44,16 +45,20 @@ internal data class ChatUiState(
  * Holds the chat screen state and turns what the user does into stored
  * messages.
  *
- * Sending writes through [chatMessages] and then reads the conversation back,
- * so what the screen shows is what storage actually holds rather than a
- * separate copy that can drift from it.
+ * Sending writes through [chatMessageRepository] and then reads the
+ * conversation back, so what the screen shows is what storage actually holds
+ * rather than a separate copy that can drift from it. Only once the message is
+ * stored does it go to the channel through [yaloMessageRepository], so a
+ * message the app has shown is one it can send again rather than one it has
+ * lost.
  *
  * The draft goes through [SavedStateHandle], so a half typed message survives
  * both a rotation and the process being killed in the background.
  */
 internal class ChatViewModel(
     title: String,
-    private val chatMessages: ChatMessageRepository,
+    private val chatMessageRepository: ChatMessageRepository,
+    private val yaloMessageRepository: YaloMessageRepository,
     private val savedState: SavedStateHandle,
     hostMessages: Flow<String> = emptyFlow(),
     private val now: () -> Long = System::currentTimeMillis,
@@ -67,6 +72,7 @@ internal class ChatViewModel(
     private var replyDeadline: Job? = null
 
     init {
+        yaloMessageRepository.connect()
         refreshMessages()
         viewModelScope.launch {
             hostMessages.collect { text -> send(text) }
@@ -99,16 +105,20 @@ internal class ChatViewModel(
         if (content.isEmpty()) {
             return
         }
-        chatMessages.insert(
+        chatMessageRepository.insert(
             ChatMessage(
                 role = MessageRole.User,
                 type = MessageType.Text,
                 timestamp = now(),
                 content = content,
             ),
-        ).onSuccess {
+        ).onSuccess { stored ->
             refreshMessages()
-            waitForReply()
+            // Nothing is coming back for a message the channel never took, so
+            // the loader is only shown once it has been taken.
+            yaloMessageRepository.send(stored).onSuccess {
+                waitForReply()
+            }
         }
     }
 
@@ -130,9 +140,13 @@ internal class ChatViewModel(
         }
     }
 
+    override fun onCleared() {
+        yaloMessageRepository.close()
+    }
+
     private fun refreshMessages() {
         viewModelScope.launch {
-            chatMessages.messages().onSuccess { stored ->
+            chatMessageRepository.messages().onSuccess { stored ->
                 uiState = uiState.copy(messages = stored)
             }
         }
@@ -150,9 +164,11 @@ internal class ChatViewModel(
             client: YaloChatClient,
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
+                val dependencies = ChatDependencies(context, client.config)
                 ChatViewModel(
                     title = client.config.channelName,
-                    chatMessages = ChatDependencies(context, client.config).chatMessages,
+                    chatMessageRepository = dependencies.chatMessages,
+                    yaloMessageRepository = dependencies.yaloMessages,
                     savedState = createSavedStateHandle(),
                     hostMessages = client.outgoingTextMessages,
                 )
