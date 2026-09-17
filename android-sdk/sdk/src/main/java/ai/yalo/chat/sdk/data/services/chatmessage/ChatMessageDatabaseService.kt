@@ -6,17 +6,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 /**
- * Stores messages, however many chats an app shows.
+ * Stores messages, however many chats an app shows. Rows carry the session they
+ * belong to, so there is one schema to migrate and one connection to open.
  *
- * Rows carry the session they belong to rather than living in a file per
- * conversation, so there is a single schema to migrate and a single connection
- * to open. Sessions that come and go are cleaned up by deleting their rows.
- *
- * The columns follow the web SDK's message model. The fields it keeps for
- * richer messages, the voice amplitudes, the buttons, the products and the
- * media blob, are not here: they are collections rather than scalars, and the
- * SDK has no model for them yet. They arrive as their own columns or tables
- * once it does.
+ * The columns follow the web SDK's message model, minus the collection valued
+ * fields it keeps for richer messages, which have no model here yet.
  */
 internal class ChatMessageDatabaseService(
     context: Context,
@@ -30,8 +24,7 @@ internal class ChatMessageDatabaseService(
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // The schema has only ever had one version, so there is nothing to move
-        // yet. Every later version adds its migration here.
+        // One version so far. Every later version adds its migration here.
     }
 
     companion object {
@@ -40,23 +33,16 @@ internal class ChatMessageDatabaseService(
         private var shared: ChatMessageDatabaseService? = null
 
         /**
-         * The one instance every chat in this app writes through.
-         *
-         * Several helpers open on the same file would each keep their own
-         * connection and their own idea of the schema version, so the instance
-         * is shared however many conversations are on screen.
+         * The one instance every chat writes through. Several helpers on the
+         * same file would each hold their own connection and their own idea of
+         * the schema version.
          */
         fun of(context: Context): ChatMessageDatabaseService =
             shared ?: synchronized(this) {
                 shared ?: ChatMessageDatabaseService(context.applicationContext).also { shared = it }
             }
 
-        /**
-         * Closes the shared instance and forgets it.
-         *
-         * A test writes through the same instance every other test would, so
-         * it has to hand the next one back something clean.
-         */
+        /** Closes the shared instance and forgets it, so a test starts clean. */
         fun reset() {
             synchronized(this) {
                 shared?.close()
@@ -96,8 +82,8 @@ internal class ChatMessageDatabaseService(
         """
 
         // Backend ids repeat across sessions, so the pair is what has to be
-        // unique. SQLite treats nulls as distinct, which leaves a message the
-        // user just wrote free to be stored as many times as it is sent.
+        // unique. SQLite treats nulls as distinct, so a message with no backend
+        // id yet is free to be stored as many times as it is sent.
         private const val CREATE_SESSION_WI_ID_INDEX = """
             CREATE UNIQUE INDEX index_${MESSAGE_TABLE}_session_wi_id
             ON $MESSAGE_TABLE ($COLUMN_SESSION_ID, $COLUMN_WI_ID)

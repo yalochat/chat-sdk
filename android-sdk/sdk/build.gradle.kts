@@ -43,6 +43,12 @@ val apiBaseUrl: String = providers.environmentVariable("YALO_API_BASE_URL").orNu
         """.trimIndent(),
     )
 
+// The generated sources hold both the Java message classes and the Kotlin
+// builder DSL, and the DSL will not compile without the classes it wraps, so
+// the directory is handed to both compilers.
+val protoSources = "../../proto/kotlin"
+val generatedProtoClasses = "ai/yalo/chat/sdk/internal/proto/**"
+
 kotlin {
     explicitApi()
 }
@@ -53,12 +59,27 @@ android {
         version = release(37)
     }
 
+    // The wire format the chat speaks is generated once in the sibling proto
+    // package and committed, so every SDK in the monorepo is built from the same
+    // contract. It is read from where it is generated rather than copied in,
+    // because a copy is a second place for the two to drift apart.
+    sourceSets {
+        getByName("main") {
+            java.directories.add(protoSources)
+            kotlin.directories.add(protoSources)
+        }
+    }
+
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "YALO_API_BASE_URL", "\"$apiBaseUrl\"")
+
+        // Shipped to whoever uses the SDK, because the rules protect the
+        // generated proto in their build, not in this one.
+        consumerProguardFiles("consumer-rules.pro")
     }
     buildTypes {
         getByName("debug") {
@@ -129,6 +150,43 @@ tasks.withType<Test>().configureEach {
     }
 }
 
+// The coverage figure the project gates on has to be about the code in this
+// repository. AGP's own report measures every class in the variant, and since
+// the generated proto is compiled in here it would count 144 classes and
+// several thousand methods that no test will ever call on purpose, which drags
+// the number from the nineties into single digits and makes the gate say
+// nothing.
+//
+// AGP's report task cannot be narrowed: it fills its class collection in as it
+// runs and finalizes the property first, so there is no point at which a build
+// script can reach it. This is the same measurement expressed with the JaCoCo
+// plugin's own task, where the exclusion is ordinary configuration.
+tasks.register<JacocoReport>("sdkCoverageReport") {
+    group = "verification"
+    description = "Unit test coverage for the SDK's own code, without the generated proto."
+    dependsOn("testDebugUnitTest")
+
+    executionData.setFrom(
+        layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"),
+    )
+    sourceDirectories.setFrom(files("src/main/java"))
+    classDirectories.setFrom(
+        files(
+            tasks.named("compileDebugJavaWithJavac").map { task ->
+                (task as JavaCompile).destinationDirectory
+            },
+            tasks.named("compileDebugKotlin").map { task ->
+                task.outputs.files.filter { it.name == "classes" }
+            },
+        ).asFileTree.matching { exclude(generatedProtoClasses) },
+    )
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
 dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
@@ -139,6 +197,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.okhttp)
     implementation(libs.okio)
+    implementation(libs.protobuf.java)
+    implementation(libs.protobuf.kotlin)
+    implementation(libs.protobuf.java.util)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)

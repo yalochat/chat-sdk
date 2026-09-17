@@ -60,7 +60,7 @@ jobs:
         run: ./gradlew :sdk:lintRelease
 
       - name: Unit tests with coverage
-        run: ./gradlew :sdk:createDebugUnitTestCoverageReport
+        run: ./gradlew :sdk:sdkCoverageReport
 
       - name: Upload test results
         if: always()
@@ -69,7 +69,7 @@ jobs:
           name: android-test-results
           path: |
             android-sdk/sdk/build/reports/tests/testDebugUnitTest/
-            android-sdk/sdk/build/reports/coverage/test/debug/
+            android-sdk/sdk/build/reports/jacoco/sdkCoverageReport/
           retention-days: 7
 
       - name: Publish coverage to Codecov
@@ -77,7 +77,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: android
-          files: ./android-sdk/sdk/build/reports/coverage/test/debug/report.xml
+          files: ./android-sdk/sdk/build/reports/jacoco/sdkCoverageReport/sdkCoverageReport.xml
 
       - name: Build release AAR
         # Same artifact the rollout job publishes, so a broken release build

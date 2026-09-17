@@ -27,17 +27,11 @@ import java.io.File
 import java.io.IOException
 
 /**
- * Uploads to the backend and downloads from wherever the backend keeps what it
- * was given.
+ * Uploads to the backend and downloads from wherever it keeps what it was
+ * given.
  *
- * Unlike the auth service there is no state machine behind this. A token has a
- * lifecycle worth modelling, an upload does not: one request, one answer. The
- * only decision here is what to do about a token the backend will not accept,
- * and the answer is to get another one and send the same bytes again.
- *
- * Downloads are cached as files. The alternative, handing back bytes, means a
- * video has to fit in memory twice over, and it means every re-read of the same
- * image is another round trip.
+ * No state machine behind this one: an upload is one request and one answer.
+ * Downloads are cached as files so a video never has to fit in memory.
  */
 internal class YaloMediaServiceRemote(
     private val auth: YaloMessageAuthService,
@@ -54,21 +48,14 @@ internal class YaloMediaServiceRemote(
             .addFormDataPart(PART_FILE, content.fileName, MediaRequestBody(content))
             .build()
 
-        // The body is built once and sent twice if it has to be. Nothing in it
-        // is spent by a first attempt, because the content opens a new stream
-        // every time it is read.
+        // Nothing in the body is spent by a first attempt, because the content
+        // opens a new stream every time it is read.
         post(body)?.let { answer -> return answer }
         auth.invalidateToken()
         return post(body) ?: Result.failure(IOException("$UPLOAD_FAILED: $HTTP_UNAUTHORIZED"))
     }
 
-    /**
-     * One attempt at sending [body].
-     *
-     * Null means the backend refused the token, which is the one outcome worth
-     * trying again, so it is told apart from every other failure here rather
-     * than by unwrapping an exception later.
-     */
+    /** Null means the backend refused the token, the one outcome worth trying again. */
     private suspend fun post(body: RequestBody): Result<Media>? {
         val token = auth.token().getOrElse { cause -> return Result.failure(cause) }
         val request = Request.Builder()
@@ -100,8 +87,8 @@ internal class YaloMediaServiceRemote(
             return Result.success(target)
         }
 
-        // No authorization goes on this one. The address is already signed, and
-        // the token has no business reaching whoever stores the file.
+        // No authorization: the address is already signed, and the token has no
+        // business reaching whoever stores the file.
         val request = Request.Builder().url(address).build()
         return try {
             execute(request) { response ->
@@ -115,9 +102,8 @@ internal class YaloMediaServiceRemote(
         }
     }
 
-    // Cancelling the coroutine has to cancel the call. Without this an
-    // abandoned upload keeps pushing a video at the network until it runs out
-    // of bytes, long after whoever asked for it has gone.
+    // Without this an abandoned upload keeps pushing a video at the network
+    // long after whoever asked for it has gone.
     private suspend fun <T> execute(request: Request, read: (Response) -> T): T =
         withContext(Dispatchers.IO) {
             val call = client.newCall(request)
@@ -125,9 +111,8 @@ internal class YaloMediaServiceRemote(
             call.execute().use(read)
         }
 
-    // The file appears under its real name only once it is whole. A download
-    // that stops halfway leaves a discarded partial rather than a truncated
-    // file that every later read would trust.
+    // The file appears under its real name only once it is whole, so a download
+    // that stops halfway cannot leave a truncated file later reads would trust.
     private fun store(source: BufferedSource, target: File): File {
         cacheDir.mkdirs()
         val partial = File.createTempFile(target.name, PARTIAL_SUFFIX, cacheDir)
@@ -143,16 +128,12 @@ internal class YaloMediaServiceRemote(
         return target
     }
 
-    // Only the host and the path say which file this is. The rest of a signed
-    // address is the signature and how long it lasts, and those are different
-    // every time the backend describes the same media, so keying on the whole
-    // address would store another copy on every read.
+    // The signature and its expiry differ every time the backend describes the
+    // same media, so keying on the whole address would store a copy per read.
     private fun key(url: HttpUrl): String =
         "${url.host}${url.encodedPath}".encodeUtf8().sha256().hex()
 
-    // The upload endpoint answers in snake case, the same way the refresh
-    // endpoint does, but a serialised protobuf would spell it in camel case.
-    // Both are looked for, as in the auth service.
+    // Snake case from the endpoint, camel case from a serialised protobuf.
     private fun media(json: String): Media {
         val fields = JSONObject(json)
         return Media(
@@ -191,21 +172,19 @@ internal class YaloMediaServiceRemote(
 /**
  * Writes a [MediaContent] to the network without holding it in memory.
  *
- * [isOneShot] is left alone on purpose. The default says the body can be sent
- * more than once, which is what lets an upload be tried again after the backend
- * turns away a stale token, and it holds because the content opens a new stream
- * each time.
+ * [isOneShot] is left at its default, which says the body can be sent more than
+ * once. That holds because the content opens a new stream each time, and it is
+ * what lets an upload be retried after a stale token.
  */
 private class MediaRequestBody(private val content: MediaContent) : RequestBody() {
 
-    // A type the device made up would raise here if it had to be valid, and a
-    // file is still worth sending when nobody can say what is in it.
+    // A file is still worth sending when nobody can say what is in it.
     override fun contentType(): MediaType? = content.mimeType.toMediaTypeOrNull()
 
     override fun contentLength(): Long = content.sizeBytes
 
     override fun writeTo(sink: BufferedSink) {
-        // The sink belongs to the caller. Closing it here would cut the request
+        // The sink belongs to the caller: closing it here would cut the request
         // off before the closing boundary is written.
         content.openStream().source().use { source -> sink.writeAll(source) }
     }

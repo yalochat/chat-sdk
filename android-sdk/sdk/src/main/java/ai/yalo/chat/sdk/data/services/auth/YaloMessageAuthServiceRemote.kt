@@ -23,20 +23,13 @@ import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Drives an [AuthConnection] against the backend and the device.
+ * Carries out what an [AuthConnection] decides, against the backend and the
+ * device.
  *
- * Every decision about what to do next belongs to the state machine. This is
- * the half that cannot be pure: it calls the two endpoints, reads and writes
- * [storage], reads the clock, and hands answers back to whoever is waiting.
- * What is here is a translation of each [AuthConnection.Command] into the work
- * it names, which is why almost nothing about the token lifecycle is decided in
- * this file.
- *
- * Events are applied one at a time under [mutex]. Storage runs while the lock
- * is held, so forgetting a token and writing the next one cannot land out of
- * order. The two network calls are launched instead, because holding the lock
- * across a round trip would make every other caller queue behind it and undo
- * the point of collecting them in the first place.
+ * Storage runs under [mutex] so forgetting a token and writing the next one
+ * cannot land out of order. The network calls are launched instead, because
+ * holding the lock across a round trip would make every other caller queue
+ * behind it.
  */
 internal class YaloMessageAuthServiceRemote(
     private val config: YaloChatClientConfig,
@@ -86,8 +79,7 @@ internal class YaloMessageAuthServiceRemote(
     }
 
     // Reading storage answers straight away, so its event is applied here
-    // rather than posted back. Looping instead of recursing keeps the lock
-    // held once for the whole chain.
+    // rather than posted back.
     private suspend fun dispatch(event: AuthConnection.Event) {
         var next: AuthConnection.Event? = event
         while (next != null) {
@@ -185,10 +177,8 @@ internal class YaloMessageAuthServiceRemote(
             }
         }
 
-    // Both endpoints answer with the same shape under two spellings. The
-    // refresh endpoint follows OAuth and sends snake case, while the auth
-    // endpoint serialises a protobuf message and sends camel case, so each
-    // field is looked for both ways.
+    // The refresh endpoint follows OAuth and sends snake case; the auth
+    // endpoint serialises a protobuf message and sends camel case.
     private fun credentials(json: String): AuthCredentials {
         val fields = JSONObject(json)
         return AuthCredentials(

@@ -26,20 +26,16 @@ import javax.crypto.spec.GCMParameterSpec
 /**
  * Keeps tokens in a single DataStore file, one entry per session.
  *
- * DataStore rather than shared preferences because writes here are ordered
- * against each other. Forgetting a token and storing a new one arrive as two
- * separate pieces of work, and on plain preferences a slow delete can land
- * after the write and quietly take a good token with it.
+ * DataStore rather than shared preferences because writes are ordered against
+ * each other: on plain preferences a slow delete can land after the write and
+ * take a good token with it.
  *
- * Values are encrypted with a key that never leaves the device's keystore, so
- * what is on disk is useless on its own. The refresh token is the part worth
- * protecting: an access token is spent within the hour, a refresh token is a
- * way back into the conversation for as long as the backend honours it.
+ * Values are encrypted under a key that never leaves the device's keystore. The
+ * refresh token is the part worth protecting, being a way back into the
+ * conversation for as long as the backend honours it.
  *
- * Every failure here reports no token rather than raising. A keystore that was
- * cleared, a file written by a version that stored something else, a device
- * that lost the key on a restore from backup: none of those should stop a chat
- * from opening, and all of them are answered by authenticating again.
+ * Every failure reports no token rather than raising, and is answered by
+ * authenticating again.
  */
 internal class AuthTokenStorageLocal(
     private val store: DataStore<Preferences>,
@@ -63,9 +59,8 @@ internal class AuthTokenStorageLocal(
         return try {
             decode(cipher.decrypt(stored))
         } catch (error: GeneralSecurityException) {
-            // The key is gone or the value was not written by it. Either way
-            // there is nothing to recover, so the entry goes and the SDK
-            // authenticates from scratch.
+            // The key is gone or the value was not written by it, so there is
+            // nothing to recover.
             clear()
             null
         } catch (error: JSONException) {
@@ -81,8 +76,8 @@ internal class AuthTokenStorageLocal(
         val encrypted = try {
             cipher.encrypt(encode(token))
         } catch (error: GeneralSecurityException) {
-            // Storing is an optimisation. A chat that cannot encrypt still
-            // works, it just authenticates again next time it opens.
+            // Storing is an optimisation: a chat that cannot encrypt still
+            // works, it just authenticates again next time.
             return
         }
         try {
@@ -117,12 +112,7 @@ internal class AuthTokenStorageLocal(
 
     companion object {
 
-        /**
-         * Storage for one session, on the file every session shares.
-         *
-         * DataStore allows one instance per file per process, so the store
-         * comes from a delegate that hands the same one to every chat.
-         */
+        /** Storage for one session, on the file every session shares. */
         fun of(
             context: Context,
             sessionId: String,
@@ -140,9 +130,8 @@ internal class AuthTokenStorageLocal(
     }
 }
 
-// One store for the whole app, the way one database holds every conversation's
-// messages. DataStore allows a single instance per file per process, so the
-// delegate is what keeps several open chats from fighting over it.
+// DataStore allows a single instance per file per process, so the delegate is
+// what keeps several open chats from fighting over it.
 private val Context.authTokenStore: DataStore<Preferences> by preferencesDataStore(
     name = "yalo_chat_auth",
 )
@@ -158,15 +147,11 @@ internal interface TokenCipher {
 }
 
 /**
- * Encrypts with AES-GCM under a key held by the platform keystore.
+ * Encrypts with AES-GCM under a key held by the platform keystore, which on
+ * most devices means it never leaves secure hardware.
  *
- * The key is generated once and never leaves the keystore, which on most
- * devices means it never leaves secure hardware. Only this app can ask for it,
- * so a copy of the file on its own gives nothing away.
- *
- * GCM picks a fresh initialisation vector for every value, and it has to be
- * kept to read the value back, so it is written in front of the ciphertext
- * rather than stored apart from it.
+ * GCM picks a fresh initialisation vector per value and it is needed to read
+ * the value back, so it is written in front of the ciphertext.
  */
 internal class KeystoreTokenCipher(private val alias: String = DEFAULT_ALIAS) : TokenCipher {
 
