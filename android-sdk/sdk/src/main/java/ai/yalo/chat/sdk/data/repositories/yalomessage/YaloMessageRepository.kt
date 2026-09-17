@@ -1,0 +1,35 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
+package ai.yalo.chat.sdk.data.repositories.yalomessage
+
+import ai.yalo.chat.sdk.domain.models.ChatMessage
+
+/**
+ * The channel's side of one conversation, in the terms the chat thinks in.
+ *
+ * Everything here can fail on a network the app does not control, which is
+ * something the chat has to show rather than crash on, so [send] reports it as
+ * a failed [Result] instead of throwing.
+ */
+internal interface YaloMessageRepository {
+
+    /**
+     * Opens the line to the channel and has it rebuilt whenever it is lost.
+     * Asking again while one is already open changes nothing.
+     *
+     * This returns as soon as it has asked. Nothing has to wait for the line to
+     * be up, because a message sent before then is held and goes out once it is.
+     */
+    fun connect()
+
+    /**
+     * Sends [message] to the channel.
+     *
+     * Success means the channel has taken the message, not that anyone has read
+     * it. Only text can be sent so far: any other kind comes back as a failed
+     * [Result] rather than being dropped quietly.
+     */
+    suspend fun send(message: ChatMessage): Result<Unit>
+
+    /** Ends the conversation and forgets whatever was waiting to be sent. */
+    fun close()
+}

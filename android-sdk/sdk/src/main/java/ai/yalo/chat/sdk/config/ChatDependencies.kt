@@ -5,6 +5,8 @@ import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
+import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemote
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthServiceRemote
 import ai.yalo.chat.sdk.data.services.auth.AuthTokenStorageLocal
@@ -95,6 +97,10 @@ internal class ChatDependencies(
                 .pingInterval(PING_INTERVAL_SECONDS, TimeUnit.SECONDS)
                 .build(),
         )
+    }
+
+    val yaloMessages: YaloMessageRepository by lazy {
+        YaloMessageRepositoryRemote(service = messages, scope = scope)
     }
 
     private companion object {
