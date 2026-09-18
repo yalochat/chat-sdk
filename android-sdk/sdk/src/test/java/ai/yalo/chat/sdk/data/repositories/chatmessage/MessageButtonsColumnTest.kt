@@ -10,7 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class MessageButtonsJsonTest {
+class MessageButtonsColumnTest {
 
     @Test
     fun readsBackEveryButtonItWasGiven() {
@@ -24,45 +24,45 @@ class MessageButtonsJsonTest {
             ),
         )
 
-        assertEquals(buttons, MessageButtonsJson.decode(MessageButtonsJson.encode(buttons)))
+        assertEquals(buttons, MessageButtonsColumn.decode(MessageButtonsColumn.encode(buttons)))
     }
 
     @Test
     fun writesNothingForAMessageWithNoButtons() {
-        assertNull(MessageButtonsJson.encode(emptyList()))
+        assertNull(MessageButtonsColumn.encode(emptyList()))
     }
 
     @Test
     fun readsAnEmptyColumnAsNoButtons() {
-        assertEquals(emptyList<MessageButton>(), MessageButtonsJson.decode(null))
-        assertEquals(emptyList<MessageButton>(), MessageButtonsJson.decode(""))
+        assertEquals(emptyList<MessageButton>(), MessageButtonsColumn.decode(null))
+        assertEquals(emptyList<MessageButton>(), MessageButtonsColumn.decode(""))
     }
 
     // A row written by something else is not worth losing the conversation over.
     @Test
     fun readsSomethingThatIsNotAListOfButtonsAsNoButtons() {
-        assertEquals(emptyList<MessageButton>(), MessageButtonsJson.decode("not json"))
-        assertEquals(emptyList<MessageButton>(), MessageButtonsJson.decode("""{"text":"Yes"}"""))
+        assertEquals(emptyList<MessageButton>(), MessageButtonsColumn.decode("not json"))
+        assertEquals(emptyList<MessageButton>(), MessageButtonsColumn.decode("""{"text":"Yes"}"""))
     }
 
     @Test
     fun leavesOutAButtonWithNothingWrittenOnIt() {
         val stored = """[{"text":""},{"text":"Yes","type":"reply"}]"""
 
-        assertEquals(listOf("Yes"), MessageButtonsJson.decode(stored).map { it.text })
+        assertEquals(listOf("Yes"), MessageButtonsColumn.decode(stored).map { it.text })
     }
 
     @Test
     fun leavesOutAnEntryThatIsNotAButton() {
         val stored = """["Yes",{"text":"No"}]"""
 
-        assertEquals(listOf("No"), MessageButtonsJson.decode(stored).map { it.text })
+        assertEquals(listOf("No"), MessageButtonsColumn.decode(stored).map { it.text })
     }
 
     @Test
     fun readsAKindItDoesNotKnowAsAnAnswer() {
         val stored = """[{"text":"Yes","type":"something-newer"}]"""
 
-        assertEquals(MessageButtonType.Reply, MessageButtonsJson.decode(stored).single().type)
+        assertEquals(MessageButtonType.Reply, MessageButtonsColumn.decode(stored).single().type)
     }
 }

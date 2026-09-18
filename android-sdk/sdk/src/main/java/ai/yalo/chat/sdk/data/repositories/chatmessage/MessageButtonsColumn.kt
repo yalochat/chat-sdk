@@ -14,7 +14,7 @@ import org.json.JSONObject
  * back as a message, so anything that is not a list of buttons reads as none
  * rather than breaking the conversation.
  */
-internal object MessageButtonsJson {
+internal object MessageButtonsColumn {
 
     private const val TEXT = "text"
     private const val TYPE = "type"
