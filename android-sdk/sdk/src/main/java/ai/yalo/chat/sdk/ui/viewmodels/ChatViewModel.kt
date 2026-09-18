@@ -70,6 +70,7 @@ internal class ChatViewModel(
     private val yaloMessageRepository: YaloMessageRepository,
     private val savedState: SavedStateHandle,
     hostMessages: Flow<String> = emptyFlow(),
+    private val openContext: Map<String, String> = emptyMap(),
     private val now: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
@@ -82,7 +83,17 @@ internal class ChatViewModel(
 
     init {
         yaloMessageRepository.connect()
-        refreshMessages()
+        viewModelScope.launch {
+            // Only a conversation read back as empty is opened: storage failing
+            // says nothing about whether the person has been here before, and
+            // greeting them again in the middle of a conversation is worse than
+            // not greeting them at all.
+            loadMessages().onSuccess { stored ->
+                if (stored.isEmpty()) {
+                    openConversation()
+                }
+            }
+        }
         viewModelScope.launch {
             yaloMessageRepository.messages().collect { message -> receive(message) }
         }
@@ -176,18 +187,34 @@ internal class ChatViewModel(
         yaloMessageRepository.close()
     }
 
-    private fun refreshMessages() {
-        viewModelScope.launch {
-            chatMessageRepository.messages().onSuccess { stored ->
-                val offering: ChatMessage? = offeringQuickReplies(stored)
-                uiState = uiState.copy(
-                    messages = stored,
-                    quickReplies = offering?.quickReplies.orEmpty(),
-                    quickRepliesMessageId = offering?.id,
-                )
-            }
+    /**
+     * Says the chat has been opened, and what it was opened from, so the
+     * channel can speak before the person does.
+     *
+     * The loader goes up the same way it does for a sent message, because from
+     * here on the chat is waiting on the channel either way.
+     */
+    private suspend fun openConversation() {
+        yaloMessageRepository.requestGuidanceCard(openContext).onSuccess {
+            waitForReply()
         }
     }
+
+    private fun refreshMessages() {
+        viewModelScope.launch {
+            loadMessages()
+        }
+    }
+
+    private suspend fun loadMessages(): Result<List<ChatMessage>> =
+        chatMessageRepository.messages().onSuccess { stored ->
+            val offering: ChatMessage? = offeringQuickReplies(stored)
+            uiState = uiState.copy(
+                messages = stored,
+                quickReplies = offering?.quickReplies.orEmpty(),
+                quickRepliesMessageId = offering?.id,
+            )
+        }
 
     /**
      * The message whose quick replies are still worth offering, if any.
@@ -220,6 +247,7 @@ internal class ChatViewModel(
                     yaloMessageRepository = dependencies.yaloMessages,
                     savedState = createSavedStateHandle(),
                     hostMessages = client.outgoingTextMessages,
+                    openContext = client.config.openContext,
                 )
             }
         }

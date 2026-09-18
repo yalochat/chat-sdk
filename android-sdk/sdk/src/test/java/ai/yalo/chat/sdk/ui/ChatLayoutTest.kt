@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -172,6 +173,36 @@ class ChatLayoutTest {
 
         assertEquals(listOf("Yes"), chosen)
     }
+
+    // A message fades in as it arrives, so this says it is left on screen
+    // rather than part way through.
+    @Test
+    fun showsAMessageThatArrivesWhileTheChatIsOpen() {
+        val messages = mutableStateListOf(agentMessage("How can I help?"))
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = messages,
+            )
+        }
+
+        // Newest first, the way the conversation is held.
+        messages.add(0, userMessage("A question"))
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("A question").assertIsDisplayed()
+    }
+
+    private fun userMessage(content: String) = ChatMessage(
+        role = MessageRole.User,
+        type = MessageType.Text,
+        timestamp = 2_000L,
+        id = 2L,
+        content = content,
+    )
 
     private fun agentMessage(content: String) = ChatMessage(
         role = MessageRole.Agent,

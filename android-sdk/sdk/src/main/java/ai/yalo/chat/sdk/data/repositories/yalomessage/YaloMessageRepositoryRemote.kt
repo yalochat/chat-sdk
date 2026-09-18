@@ -8,6 +8,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
@@ -60,6 +61,31 @@ internal class YaloMessageRepositoryRemote(
             return Result.failure(UnsupportedMessageTypeException(message.type))
         }
         return service.send(sdkMessageOf(message))
+    }
+
+    /**
+     * Asks the channel to open the conversation, telling it what the chat was
+     * opened from.
+     *
+     * The answer is not returned here. What the channel makes of the context
+     * comes back as ordinary messages, the same way anything else it says does.
+     */
+    override suspend fun requestGuidanceCard(openContext: Map<String, String>): Result<Unit> {
+        val askedAt: Timestamp = Timestamps.fromMillis(now())
+        val request: GuidanceCardRequest.Builder = GuidanceCardRequest.newBuilder()
+            .setTimestamp(askedAt)
+        // Nothing to go on is said by leaving the field out, rather than by
+        // sending an empty object the channel would have to read and discard.
+        if (openContext.isNotEmpty()) {
+            request.setContext(jsonOf(openContext))
+        }
+        return service.send(
+            SdkMessage.newBuilder()
+                .setCorrelationId(correlationIds())
+                .setTimestamp(askedAt)
+                .setGuidanceCardRequest(request)
+                .build(),
+        )
     }
 
     override fun close() {
@@ -179,3 +205,34 @@ private val INBOUND_TYPES: Map<SdkMessage.PayloadCase, MessageType> = mapOf(
 /** A kind of message the SDK can hold and show, but cannot yet put on the wire. */
 internal class UnsupportedMessageTypeException(type: MessageType) :
     IllegalArgumentException("A ${type.wireName} message cannot be sent yet")
+
+/**
+ * The open context as the channel reads it, which is the JSON object the web
+ * SDK sends in the same field.
+ *
+ * Written out here rather than with `JSONObject`, which belongs to the
+ * platform and so is not there in a plain unit test, and which does not promise
+ * to keep the order the keys were given in. The order is kept because the
+ * channel is free to treat the string as one value.
+ */
+private fun jsonOf(context: Map<String, String>): String = context.entries.joinToString(
+    separator = ",",
+    prefix = "{",
+    postfix = "}",
+) { (key, value) -> "${quoted(key)}:${quoted(value)}" }
+
+private fun quoted(text: String): String = buildString {
+    append('"')
+    for (character in text) {
+        when {
+            character == '"' -> append("\\\"")
+            character == '\\' -> append("\\\\")
+            character == '\n' -> append("\\n")
+            character == '\r' -> append("\\r")
+            character == '\t' -> append("\\t")
+            character < ' ' -> append("\\u").append(character.code.toString(16).padStart(4, '0'))
+            else -> append(character)
+        }
+    }
+    append('"')
+}

@@ -1,7 +1,15 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk
 
-
+/**
+ * The details of one conversation.
+ *
+ * @property openContext What the chat is being opened from, for example the
+ * product a person was looking at. It is sent to the channel when the chat
+ * opens on an empty conversation, so the first thing said can be about what
+ * the person is doing rather than a generic greeting. Fixed for the life of
+ * the client.
+ */
 public data class YaloChatClientConfig(
     public val channelId: String,
     public val organizationId: String,
@@ -9,6 +17,7 @@ public data class YaloChatClientConfig(
     public val userId: String? = null,
     public val quickReplyType: QuickReplyType = QuickReplyType.Modal,
     public val logLevel: LogLevel = LogLevel.Warn,
+    public val openContext: Map<String, String> = emptyMap(),
 ) {
 
     /**

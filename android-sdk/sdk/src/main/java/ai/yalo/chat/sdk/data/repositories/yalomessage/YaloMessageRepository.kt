@@ -34,6 +34,14 @@ internal interface YaloMessageRepository {
      */
     suspend fun send(message: ChatMessage): Result<Unit>
 
+    /**
+     * Tells the channel a chat has been opened, so it can say something first.
+     *
+     * [openContext] is what the chat was opened from, and reaches the channel
+     * as it is given. An empty one asks the same question with nothing to go on.
+     */
+    suspend fun requestGuidanceCard(openContext: Map<String, String> = emptyMap()): Result<Unit>
+
     /** Ends the conversation and forgets whatever was waiting to be sent. */
     fun close()
 }

@@ -133,6 +133,57 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun asksTheChannelToOpenTheConversation() = runTest {
+        repository().requestGuidanceCard()
+
+        assertEquals(
+            SdkMessage.PayloadCase.GUIDANCE_CARD_REQUEST,
+            service.sent.single().payloadCase,
+        )
+        assertEquals(SENT_AT, Timestamps.toMillis(service.sent.single().guidanceCardRequest.timestamp))
+    }
+
+    @Test
+    fun saysWhatTheChatWasOpenedFrom() = runTest {
+        repository().requestGuidanceCard(mapOf("source" to "product-page", "sku" to "123"))
+
+        assertEquals(
+            """{"source":"product-page","sku":"123"}""",
+            service.sent.single().guidanceCardRequest.context,
+        )
+    }
+
+    // A context the channel could not read back is worse than none, so what a
+    // host puts in a value cannot break out of it.
+    @Test
+    fun saysAContextWithQuotesAndLineBreaksInItWithoutBreakingTheJson() = runTest {
+        repository().requestGuidanceCard(
+            mapOf("note" to "a \"quoted\" \\ line\r\n\tand a \u0001 of its own"),
+        )
+
+        assertEquals(
+            """{"note":"a \"quoted\" \\ line\r\n\tand a \u0001 of its own"}""",
+            service.sent.single().guidanceCardRequest.context,
+        )
+    }
+
+    @Test
+    fun leavesTheContextOutWhenTheChatWasOpenedFromNothing() = runTest {
+        repository().requestGuidanceCard()
+
+        assertFalse(service.sent.single().guidanceCardRequest.hasContext())
+    }
+
+    @Test
+    fun reportsAnOpenTheChannelWouldNotTake() = runTest {
+        service.failure = IOException("the line is down")
+
+        val result = repository().requestGuidanceCard()
+
+        assertEquals("the line is down", result.exceptionOrNull()?.message)
+    }
+
+    @Test
     fun opensTheLineToTheChannel() = runTest {
         repository(this).connect()
         runCurrent()
