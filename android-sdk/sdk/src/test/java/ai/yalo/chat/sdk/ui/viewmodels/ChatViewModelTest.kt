@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -160,7 +161,9 @@ class ChatViewModelTest {
     }
 
     @Test
-    fun waitsForNoReplyBeforeAnythingIsSent() {
+    fun waitsForNoReplyOnAConversationItOnlyPickedUpAgain() {
+        alreadyStored(answer("Where were we?"))
+
         assertFalse(chatViewModel().uiState.isWaitingForReply)
     }
 
@@ -244,7 +247,7 @@ class ChatViewModelTest {
         hostMessages.tryEmit("   ")
 
         assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
-        assertFalse(viewModel.uiState.isWaitingForReply)
+        assertEquals(emptyList<String>(), yaloMessageRepository.sent.map { it.content })
     }
 
     @Test
@@ -516,6 +519,59 @@ class ChatViewModelTest {
         assertEquals("Typing this", viewModel.uiState.draft)
     }
 
+    @Test
+    fun asksTheChannelToSpeakFirstOnAConversationWithNothingInIt() {
+        chatViewModel()
+
+        assertEquals(listOf(emptyMap<String, String>()), yaloMessageRepository.openedWith)
+    }
+
+    @Test
+    fun tellsTheChannelWhatTheChatWasOpenedFrom() {
+        chatViewModel(openContext = mapOf("source" to "product-page", "sku" to "123"))
+
+        assertEquals(
+            mapOf("source" to "product-page", "sku" to "123"),
+            yaloMessageRepository.openedWith.single(),
+        )
+    }
+
+    @Test
+    fun leavesAConversationAlreadyUnderWayToCarryOn() {
+        alreadyStored(answer("Where were we?"))
+
+        chatViewModel()
+
+        assertTrue(yaloMessageRepository.openedWith.isEmpty())
+    }
+
+    // Storage failing says nothing about whether the person has been here
+    // before, and a greeting on top of a conversation reads as an answer to it.
+    @Test
+    fun saysNothingAboutTheOpenWhenStorageCannotBeRead() {
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
+
+        chatViewModel()
+
+        assertTrue(yaloMessageRepository.openedWith.isEmpty())
+    }
+
+    @Test
+    fun waitsForTheChannelToSpeakFirst() {
+        val viewModel = chatViewModel()
+
+        assertTrue(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun doesNotWaitWhenTheChannelWouldNotTakeTheOpen() {
+        yaloMessageRepository.failure = IllegalStateException("The line is down")
+
+        val viewModel = chatViewModel()
+
+        assertFalse(viewModel.uiState.isWaitingForReply)
+    }
+
     private fun reply(text: String): MessageButton = MessageButton(text = text)
 
     private fun answer(
@@ -534,14 +590,25 @@ class ChatViewModelTest {
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
+        openContext: Map<String, String> = emptyMap(),
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
         yaloMessageRepository = yaloMessageRepository,
         savedState = savedState,
         hostMessages = hostMessages,
+        openContext = openContext,
         now = { SENT_AT },
     )
+
+    /** Puts [messages] in storage, the way an earlier visit would have left them. */
+    private fun alreadyStored(vararg messages: ChatMessage) {
+        runBlocking {
+            for (message in messages) {
+                chatMessageRepository.insert(message)
+            }
+        }
+    }
 
     /**
      * Stands in for the channel so a test can say what it does without a socket.
@@ -554,6 +621,9 @@ class ChatViewModelTest {
     ) : YaloMessageRepository {
 
         val sent: MutableList<ChatMessage> = mutableListOf()
+
+        /** The context of every open the chat asked the channel to answer. */
+        val openedWith: MutableList<Map<String, String>> = mutableListOf()
 
         var isOpen: Boolean = false
             private set
@@ -574,6 +644,12 @@ class ChatViewModelTest {
         override suspend fun send(message: ChatMessage): Result<Unit> {
             failure?.let { error -> return Result.failure(error) }
             sent.add(message)
+            return Result.success(Unit)
+        }
+
+        override suspend fun requestGuidanceCard(openContext: Map<String, String>): Result<Unit> {
+            failure?.let { error -> return Result.failure(error) }
+            openedWith.add(openContext)
             return Result.success(Unit)
         }
 

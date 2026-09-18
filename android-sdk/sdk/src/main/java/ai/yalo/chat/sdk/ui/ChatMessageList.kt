@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
 import ai.yalo.chat.sdk.ui.messages.TypingIndicator
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,14 @@ import androidx.compose.ui.unit.dp
 internal const val CHAT_MESSAGE_LIST_TAG: String = "yalo-chat-message-list"
 
 private const val TYPING_INDICATOR_KEY = "yalo-chat-typing-indicator-item"
+
+/**
+ * How long a message takes to fade in, whoever sent it.
+ *
+ * Short enough that a message never feels held back, and long enough that one
+ * arriving is noticed rather than found already there.
+ */
+private const val MESSAGE_FADE_MILLIS = 220
 
 /**
  * The conversation, newest message at the bottom.
@@ -73,6 +82,11 @@ internal fun ChatMessageList(
             items(items = messages, key = { message -> message.id ?: message.timestamp }) { message ->
                 ChatMessageItem(
                     message = message,
+                    // A message fades in where it lands, and the ones already
+                    // there slide up to make room for it.
+                    modifier = Modifier.animateItem(
+                        fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
+                    ),
                     quickReplies = if (quickRepliesMessageId != null && message.id == quickRepliesMessageId) {
                         message.quickReplies
                     } else {

@@ -10,6 +10,7 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Installation](#installation)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
+- [Open context](#open-context)
 - [The Chat composable](#the-chat-composable)
   - [Sizing and window insets](#sizing-and-window-insets)
   - [Avatar](#avatar)
@@ -91,8 +92,33 @@ Optional properties:
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `null`, which keeps the conversation anonymous on the device.
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them. See [Quick replies](#quick-replies).
+- **`openContext`** (`Map<String, String>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 
 Two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages.
+
+## Open context
+
+The chat can tell the channel where it was opened from, so the conversation starts with something about what the person is doing rather than a generic greeting.
+
+```kotlin
+private val client = YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        openContext = mapOf("source" to "product-page", "sku" to "37549996"),
+    ),
+)
+```
+
+What to expect:
+
+- The context is sent once, when the chat is shown and the conversation has nothing in it yet.
+- A conversation already under way is picked up where it was left and nothing is sent, so nobody is greeted twice.
+- The keys and values are yours. The channel decides what to make of them.
+- The loading indicator is shown while the chat waits for the channel to say the first thing.
+
+The context is part of the configuration, so a chat opened from somewhere else needs its own client.
 
 ## The Chat composable
 
