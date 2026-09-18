@@ -58,6 +58,32 @@ internal enum class MessageStatus(val wireName: String) {
     }
 }
 
+/** What tapping a button attached to a message does. */
+internal enum class MessageButtonType(val wireName: String) {
+    Reply("reply"),
+    Postback("postback"),
+    Link("link"),
+    ;
+
+    companion object {
+        /** What [wireName] means, or [Reply] when it is one this SDK does not know. */
+        fun of(wireName: String): MessageButtonType =
+            entries.firstOrNull { type -> type.wireName == wireName } ?: Reply
+    }
+}
+
+/**
+ * A tappable option the channel attached to a message.
+ *
+ * [url] is only meaningful for a [MessageButtonType.Link], which is the one
+ * kind that leaves the conversation.
+ */
+internal data class MessageButton(
+    val text: String,
+    val type: MessageButtonType = MessageButtonType.Reply,
+    val url: String? = null,
+)
+
 /**
  * One message in a conversation.
  *
@@ -78,4 +104,14 @@ internal data class ChatMessage(
     val status: MessageStatus = MessageStatus.InProgress,
     val header: String? = null,
     val footer: String? = null,
+    val buttons: List<MessageButton> = emptyList(),
 )
+
+/**
+ * The buttons that answer the message rather than doing something else with it.
+ *
+ * These are what the chat offers as quick replies. Tapping one says its text
+ * back to the channel, so the person picks an answer instead of typing it.
+ */
+internal val ChatMessage.quickReplies: List<MessageButton>
+    get() = buttons.filter { button -> button.type == MessageButtonType.Reply }

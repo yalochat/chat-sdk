@@ -1,7 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.auth
 
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.log.YaloLog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -38,8 +40,10 @@ internal class YaloMessageAuthServiceRemote(
     baseUrl: HttpUrl,
     private val client: OkHttpClient = OkHttpClient(),
     private val now: () -> Long = System::currentTimeMillis,
+    logLevel: LogLevel = LogLevel.Warn,
 ) : YaloMessageAuthService {
 
+    private val log = YaloLog(LOG_NAME, logLevel)
     private val connection = AuthConnection()
     private val mutex = Mutex()
     private val waiting = mutableMapOf<Long, CompletableDeferred<String>>()
@@ -67,10 +71,12 @@ internal class YaloMessageAuthServiceRemote(
     }
 
     override suspend fun invalidateToken() {
+        log.info { "the backend refused the token, authenticating again" }
         send(AuthConnection.Event.TokenRejected)
     }
 
     override suspend fun clearSession() {
+        log.info { "forgetting the session" }
         send(AuthConnection.Event.SessionCleared)
     }
 
@@ -92,21 +98,41 @@ internal class YaloMessageAuthServiceRemote(
         for (command in connection.handle(event)) {
             when (command) {
                 AuthConnection.Command.LoadStoredToken -> {
-                    follow = AuthConnection.Event.StoredTokenLoaded(storage.read(), now())
+                    val stored = storage.read()
+                    if (stored == null) {
+                        log.debug { "no token on the device" }
+                    } else {
+                        log.debug { "read a stored token" }
+                    }
+                    follow = AuthConnection.Event.StoredTokenLoaded(stored, now())
                 }
                 AuthConnection.Command.FetchToken -> {
+                    log.info { "authenticating" }
                     scope.launch {
                         fetchToken().fold(
-                            onSuccess = { send(AuthConnection.Event.AuthSucceeded(it, now())) },
-                            onFailure = { send(AuthConnection.Event.AuthFailed(it)) },
+                            onSuccess = {
+                                log.info { "authenticated" }
+                                send(AuthConnection.Event.AuthSucceeded(it, now()))
+                            },
+                            onFailure = { cause ->
+                                log.warn(cause) { "authentication failed" }
+                                send(AuthConnection.Event.AuthFailed(cause))
+                            },
                         )
                     }
                 }
                 is AuthConnection.Command.RefreshToken -> {
+                    log.info { "refreshing the token" }
                     scope.launch {
                         refreshToken(command.refreshToken).fold(
-                            onSuccess = { send(AuthConnection.Event.RefreshSucceeded(it, now())) },
-                            onFailure = { send(AuthConnection.Event.RefreshFailed(it)) },
+                            onSuccess = {
+                                log.info { "refreshed the token" }
+                                send(AuthConnection.Event.RefreshSucceeded(it, now()))
+                            },
+                            onFailure = { cause ->
+                                log.warn(cause) { "refresh failed, authenticating instead" }
+                                send(AuthConnection.Event.RefreshFailed(cause))
+                            },
                         )
                     }
                 }
@@ -114,14 +140,17 @@ internal class YaloMessageAuthServiceRemote(
                     storage.write(command.token)
                 }
                 AuthConnection.Command.ClearStoredToken -> {
+                    log.debug { "clearing the stored token" }
                     storage.clear()
                 }
                 is AuthConnection.Command.DeliverToken -> {
+                    log.debug { "handing a token to ${command.requestIds.size} waiting for one" }
                     for (requestId in command.requestIds) {
                         waiting.remove(requestId)?.complete(command.accessToken)
                     }
                 }
                 is AuthConnection.Command.FailRequests -> {
+                    log.warn(command.cause) { "failing ${command.requestIds.size} waiting for a token" }
                     for (requestId in command.requestIds) {
                         waiting.remove(requestId)?.completeExceptionally(command.cause)
                     }
@@ -192,6 +221,8 @@ internal class YaloMessageAuthServiceRemote(
         optString(snakeCase).ifEmpty { optString(camelCase) }
 
     private companion object {
+
+        private const val LOG_NAME = "Auth"
 
         private const val CHANNELS_PATH = "v1/channels"
         private const val AUTH_PATH = "auth"

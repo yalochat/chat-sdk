@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.auth
 
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -225,6 +226,7 @@ class YaloMessageAuthServiceRemoteTest {
             scope = scope,
             baseUrl = server.url("/"),
             now = { NOW },
+            logLevel = LogLevel.Debug,
         )
 
     private fun config(userId: String? = null) = YaloChatClientConfig(

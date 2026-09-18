@@ -42,15 +42,20 @@ public data class ChatTheme(
     public val onAgentMessageBackground: Color,
     public val typingIndicatorDotColor: Color,
     public val linkColor: Color,
+    public val quickReplyBackground: Color,
+    public val onQuickReplyBackground: Color,
+    public val quickReplyBorderColor: Color,
     public val inputShape: Shape,
     public val userMessageShape: Shape,
     public val agentMessageShape: Shape,
+    public val quickReplyShape: Shape,
 ) {
 
     public companion object {
 
         private val BUBBLE_CORNER = 18.dp
         private val BUBBLE_TAIL_CORNER = 4.dp
+        private val CHIP_CORNER = 18.dp
 
         /** The theme derived from the host `MaterialTheme`. */
         @Composable
@@ -70,6 +75,11 @@ public data class ChatTheme(
             onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
             typingIndicatorDotColor = MaterialTheme.colorScheme.onSurfaceVariant,
             linkColor = MaterialTheme.colorScheme.primary,
+            // Outlined rather than filled, the way the web SDK draws them, so a
+            // quick reply reads as an offer rather than as something said.
+            quickReplyBackground = Color.Transparent,
+            onQuickReplyBackground = MaterialTheme.colorScheme.onSurface,
+            quickReplyBorderColor = MaterialTheme.colorScheme.outline,
             inputShape = MaterialTheme.shapes.extraLarge,
             userMessageShape = RoundedCornerShape(
                 topStart = BUBBLE_CORNER,
@@ -78,6 +88,7 @@ public data class ChatTheme(
                 bottomStart = BUBBLE_CORNER,
             ),
             agentMessageShape = RectangleShape,
+            quickReplyShape = RoundedCornerShape(CHIP_CORNER),
         )
     }
 }

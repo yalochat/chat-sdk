@@ -4,6 +4,8 @@ package ai.yalo.chat.sdk.ui.viewmodels
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
+import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import androidx.lifecycle.SavedStateHandle
@@ -402,12 +404,131 @@ class ChatViewModelTest {
         assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
     }
 
-    private fun answer(content: String, wiId: String = "wi-1"): ChatMessage = ChatMessage(
+    @Test
+    fun offersTheAnswersTheChannelSuggested() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("Anything else?", buttons = listOf(reply("Yes"), reply("No"))))
+
+        assertEquals(listOf("Yes", "No"), viewModel.uiState.quickReplies.map { it.text })
+    }
+
+    @Test
+    fun namesTheMessageOfferingTheAnswers() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("Anything else?", buttons = listOf(reply("Yes"))))
+
+        assertEquals(
+            viewModel.uiState.messages.single().id,
+            viewModel.uiState.quickRepliesMessageId,
+        )
+    }
+
+    @Test
+    fun offersNothingBeforeTheChannelSuggestsAnything() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("On its way"))
+
+        assertEquals(emptyList<MessageButton>(), viewModel.uiState.quickReplies)
+        assertEquals(null, viewModel.uiState.quickRepliesMessageId)
+    }
+
+    // Only the answers themselves are worth offering. A link goes somewhere
+    // else, which is not the same as answering the question.
+    @Test
+    fun offersOnlyTheButtonsThatAnswerTheMessage() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(
+            answer(
+                "Anything else?",
+                buttons = listOf(
+                    reply("Yes"),
+                    MessageButton(text = "Open the store", type = MessageButtonType.Link),
+                ),
+            ),
+        )
+
+        assertEquals(listOf("Yes"), viewModel.uiState.quickReplies.map { it.text })
+    }
+
+    @Test
+    fun offersTheAnswersOfTheLatestSuggestionOnly() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("Anything else?", wiId = "wi-1", buttons = listOf(reply("Yes"))))
+        yaloMessageRepository.answer(answer("Still there?", wiId = "wi-2", buttons = listOf(reply("Here"))))
+
+        assertEquals(listOf("Here"), viewModel.uiState.quickReplies.map { it.text })
+    }
+
+    @Test
+    fun keepsOfferingTheAnswersWhenTheChannelSaysSomethingElseAfterThem() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("Anything else?", wiId = "wi-1", buttons = listOf(reply("Yes"))))
+        yaloMessageRepository.answer(answer("Take your time", wiId = "wi-2"))
+
+        assertEquals(listOf("Yes"), viewModel.uiState.quickReplies.map { it.text })
+    }
+
+    @Test
+    fun stopsOfferingTheAnswersOnceThePersonAnswers() {
+        val viewModel = chatViewModel()
+        yaloMessageRepository.answer(answer("Anything else?", buttons = listOf(reply("Yes"))))
+
+        viewModel.onDraftChange("No thanks")
+        viewModel.onSend()
+
+        assertEquals(emptyList<MessageButton>(), viewModel.uiState.quickReplies)
+        assertEquals(null, viewModel.uiState.quickRepliesMessageId)
+    }
+
+    @Test
+    fun saysAChosenAnswerBackToTheChannel() {
+        val viewModel = chatViewModel()
+        yaloMessageRepository.answer(answer("Anything else?", buttons = listOf(reply("Yes"))))
+
+        viewModel.onQuickReply("Yes")
+
+        assertEquals(listOf("Yes"), yaloMessageRepository.sent.map { it.content })
+        assertEquals(MessageRole.User, viewModel.uiState.messages.first().role)
+    }
+
+    @Test
+    fun waitsForAReplyToAChosenAnswer() {
+        val viewModel = chatViewModel()
+
+        viewModel.onQuickReply("Yes")
+
+        assertTrue(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun leavesAHalfTypedDraftAloneWhenAnAnswerIsChosen() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Typing this")
+
+        viewModel.onQuickReply("Yes")
+
+        assertEquals("Typing this", viewModel.uiState.draft)
+    }
+
+    private fun reply(text: String): MessageButton = MessageButton(text = text)
+
+    private fun answer(
+        content: String,
+        wiId: String = "wi-1",
+        buttons: List<MessageButton> = emptyList(),
+    ): ChatMessage = ChatMessage(
         role = MessageRole.Agent,
         type = MessageType.Text,
         timestamp = SENT_AT,
         wiId = wiId,
         content = content,
+        buttons = buttons,
     )
 
     private fun chatViewModel(

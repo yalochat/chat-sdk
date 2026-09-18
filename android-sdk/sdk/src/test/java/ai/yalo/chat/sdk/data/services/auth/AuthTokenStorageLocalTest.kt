@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.auth
 
+import ai.yalo.chat.sdk.LogLevel
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
@@ -196,7 +197,7 @@ class AuthTokenStorageLocalTest {
     private fun storage(
         sessionId: String = "session",
         cipher: TokenCipher = ReversingCipher(),
-    ): AuthTokenStorageLocal = AuthTokenStorageLocal(store, sessionId, cipher)
+    ): AuthTokenStorageLocal = AuthTokenStorageLocal(store, sessionId, cipher, LogLevel.Debug)
 
     /** Stands in for the keystore: not encryption, but not the plain text either. */
     private class ReversingCipher : TokenCipher {

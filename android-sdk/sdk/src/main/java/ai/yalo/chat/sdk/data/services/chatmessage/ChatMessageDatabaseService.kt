@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.chatmessage
 
+import ai.yalo.chat.sdk.LogLevel
+import ai.yalo.chat.sdk.log.YaloLog
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -10,21 +12,30 @@ import android.database.sqlite.SQLiteOpenHelper
  * belong to, so there is one schema to migrate and one connection to open.
  *
  * The columns follow the web SDK's message model, minus the collection valued
- * fields it keeps for richer messages, which have no model here yet.
+ * fields it keeps for richer messages, which have no model here yet. The one
+ * exception is [COLUMN_BUTTONS], which holds a message's options as JSON
+ * because they are read and written whole and are never searched on.
  */
 internal class ChatMessageDatabaseService(
     context: Context,
     name: String? = NAME,
+    logLevel: LogLevel = LogLevel.Warn,
 ) : SQLiteOpenHelper(context.applicationContext, name, null, VERSION) {
 
+    private val log = YaloLog(LOG_NAME, logLevel)
+
     override fun onCreate(db: SQLiteDatabase) {
+        log.info { "creating the message store at version $VERSION" }
         db.execSQL(CREATE_MESSAGE_TABLE)
         db.execSQL(CREATE_SESSION_WI_ID_INDEX)
         db.execSQL(CREATE_SESSION_TIMESTAMP_INDEX)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // One version so far. Every later version adds its migration here.
+        log.info { "migrating the message store from version $oldVersion to $newVersion" }
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_BUTTONS TEXT")
+        }
     }
 
     companion object {
@@ -36,10 +47,15 @@ internal class ChatMessageDatabaseService(
          * The one instance every chat writes through. Several helpers on the
          * same file would each hold their own connection and their own idea of
          * the schema version.
+         *
+         * Because it is shared, [logLevel] is the one the first chat asked for.
          */
-        fun of(context: Context): ChatMessageDatabaseService =
+        fun of(context: Context, logLevel: LogLevel = LogLevel.Warn): ChatMessageDatabaseService =
             shared ?: synchronized(this) {
-                shared ?: ChatMessageDatabaseService(context.applicationContext).also { shared = it }
+                shared ?: ChatMessageDatabaseService(
+                    context.applicationContext,
+                    logLevel = logLevel,
+                ).also { shared = it }
             }
 
         /** Closes the shared instance and forgets it, so a test starts clean. */
@@ -50,8 +66,10 @@ internal class ChatMessageDatabaseService(
             }
         }
 
+        private const val LOG_NAME = "Database"
+
         const val NAME: String = "yalo_chat.db"
-        const val VERSION: Int = 1
+        const val VERSION: Int = 2
 
         const val MESSAGE_TABLE: String = "chat_message"
 
@@ -65,6 +83,7 @@ internal class ChatMessageDatabaseService(
         const val COLUMN_TIMESTAMP: String = "timestamp"
         const val COLUMN_HEADER: String = "header"
         const val COLUMN_FOOTER: String = "footer"
+        const val COLUMN_BUTTONS: String = "buttons"
 
         private const val CREATE_MESSAGE_TABLE = """
             CREATE TABLE $MESSAGE_TABLE (
@@ -77,7 +96,8 @@ internal class ChatMessageDatabaseService(
                 $COLUMN_STATUS TEXT NOT NULL,
                 $COLUMN_TIMESTAMP INTEGER NOT NULL,
                 $COLUMN_HEADER TEXT,
-                $COLUMN_FOOTER TEXT
+                $COLUMN_FOOTER TEXT,
+                $COLUMN_BUTTONS TEXT
             )
         """
 

@@ -6,8 +6,10 @@ import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.quickReplies
 import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +34,11 @@ import kotlin.time.Duration.Companion.seconds
  * [status] is the line under the channel name, for things like "typing...".
  * Nothing produces it yet, so the header leaves it out until the message
  * repository starts reporting it.
+ *
+ * [quickReplies] are the answers the conversation is offering now, and
+ * [quickRepliesMessageId] is the message that offered them. Both are here
+ * whatever the chat does with them, because where they are drawn is a matter of
+ * configuration and which ones are live is not.
  */
 internal data class ChatUiState(
     val title: String,
@@ -39,6 +46,8 @@ internal data class ChatUiState(
     val status: String? = null,
     val messages: List<ChatMessage> = emptyList(),
     val isWaitingForReply: Boolean = false,
+    val quickReplies: List<MessageButton> = emptyList(),
+    val quickRepliesMessageId: Long? = null,
 )
 
 /**
@@ -93,6 +102,13 @@ internal class ChatViewModel(
             return
         }
         onDraftChange("")
+        viewModelScope.launch {
+            send(text)
+        }
+    }
+
+    /** Says a quick reply back to the channel, as if the person had typed it. */
+    fun onQuickReply(text: String) {
         viewModelScope.launch {
             send(text)
         }
@@ -163,10 +179,27 @@ internal class ChatViewModel(
     private fun refreshMessages() {
         viewModelScope.launch {
             chatMessageRepository.messages().onSuccess { stored ->
-                uiState = uiState.copy(messages = stored)
+                val offering: ChatMessage? = offeringQuickReplies(stored)
+                uiState = uiState.copy(
+                    messages = stored,
+                    quickReplies = offering?.quickReplies.orEmpty(),
+                    quickRepliesMessageId = offering?.id,
+                )
             }
         }
     }
+
+    /**
+     * The message whose quick replies are still worth offering, if any.
+     *
+     * Only what the channel has said since the person last spoke counts:
+     * answering moves the conversation on, so the offer before it is over. The
+     * newest message comes first, which is why the search stops rather than
+     * starts at the person.
+     */
+    private fun offeringQuickReplies(messages: List<ChatMessage>): ChatMessage? = messages
+        .takeWhile { message -> message.role != MessageRole.User }
+        .firstOrNull { message -> message.quickReplies.isNotEmpty() }
 
     companion object {
 

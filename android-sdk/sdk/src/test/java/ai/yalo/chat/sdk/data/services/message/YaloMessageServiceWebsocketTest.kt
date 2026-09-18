@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.message
 
+import ai.yalo.chat.sdk.LogLevel
+import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
@@ -38,9 +40,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLog
 import java.io.IOException
 
 /**
@@ -69,6 +73,11 @@ class YaloMessageServiceWebsocketTest {
     // its own, cancelled after each test, rather than the test's own scope,
     // which would wait forever for a loop designed never to finish.
     private val scope = CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher(scheduler))
+
+    @Before
+    fun forgetEarlierLogs() {
+        ShadowLog.clear()
+    }
 
     @After
     fun stopTheService() {
@@ -414,6 +423,7 @@ class YaloMessageServiceWebsocketTest {
         scope = scope,
         baseUrl = BASE_URL,
         sockets = sockets,
+        logLevel = LogLevel.Debug,
     )
 
     /** Drives a service all the way to a connection the server has acknowledged. */
@@ -424,6 +434,46 @@ class YaloMessageServiceWebsocketTest {
         sockets.last().acknowledge()
         runCurrent()
     }
+
+    @Test
+    fun writesWhatItSentSoAConversationCanBeFollowed() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+
+        service.send(textMessage("cid-1", "hi"))
+        runCurrent()
+
+        assertTrue(logged().any { line -> line.contains("sent") && line.contains("\"text\":\"hi\"") })
+    }
+
+    @Test
+    fun writesWhatTheBackendSentSoAConversationCanBeFollowed() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+
+        sockets.last().deliver(json(pollItem("wi-1", "hello")))
+        runCurrent()
+
+        assertTrue(logged().any { line -> line.contains("received") && line.contains("\"text\":\"hello\"") })
+    }
+
+    // The token only ever travels in the address the socket is opened with, and
+    // that is the one thing these lines must never carry.
+    @Test
+    fun writesNoTokenWhileFollowingAConversation() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+
+        service.send(textMessage("cid-1", "hi"))
+        sockets.last().deliver(json(pollItem("wi-1", "hello")))
+        runCurrent()
+
+        assertTrue(logged().none { line -> line.contains("access") })
+    }
+
+    private fun logged(): List<String> = ShadowLog.getLogs()
+        .filter { item -> item.tag == YaloLog.TAG }
+        .map { item -> item.msg }
 
     // Subscribing eagerly matters: the flow is hot and replays nothing, so a
     // collector that starts a moment late sees none of what the test then makes

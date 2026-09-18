@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.auth
 
+import ai.yalo.chat.sdk.LogLevel
+import ai.yalo.chat.sdk.log.YaloLog
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -41,8 +43,10 @@ internal class AuthTokenStorageLocal(
     private val store: DataStore<Preferences>,
     sessionId: String,
     private val cipher: TokenCipher = KeystoreTokenCipher(),
+    logLevel: LogLevel = LogLevel.Warn,
 ) : AuthTokenStorage {
 
+    private val log = YaloLog(LOG_NAME, logLevel)
     private val entry: Preferences.Key<String> = stringPreferencesKey("$KEY_PREFIX$sessionId")
 
     override suspend fun read(): AuthToken? {
@@ -61,15 +65,18 @@ internal class AuthTokenStorageLocal(
         } catch (error: GeneralSecurityException) {
             // The key is gone or the value was not written by it, so there is
             // nothing to recover.
-            clear()
-            null
+            forget(error)
         } catch (error: JSONException) {
-            clear()
-            null
+            forget(error)
         } catch (error: IllegalArgumentException) {
-            clear()
-            null
+            forget(error)
         }
+    }
+
+    private suspend fun forget(error: Throwable): AuthToken? {
+        log.warn(error) { "the stored token cannot be read, forgetting it" }
+        clear()
+        return null
     }
 
     override suspend fun write(token: AuthToken) {
@@ -78,11 +85,14 @@ internal class AuthTokenStorageLocal(
         } catch (error: GeneralSecurityException) {
             // Storing is an optimisation: a chat that cannot encrypt still
             // works, it just authenticates again next time.
+            log.warn(error) { "the token cannot be encrypted, keeping it for this run only" }
             return
         }
         try {
             store.edit { preferences -> preferences[entry] = encrypted }
+            log.debug { "stored the token" }
         } catch (error: IOException) {
+            log.warn(error) { "the token cannot be stored, keeping it for this run only" }
             return
         }
     }
@@ -90,7 +100,9 @@ internal class AuthTokenStorageLocal(
     override suspend fun clear() {
         try {
             store.edit { preferences -> preferences.remove(entry) }
+            log.debug { "forgot the stored token" }
         } catch (error: IOException) {
+            log.warn(error) { "the stored token cannot be forgotten" }
             return
         }
     }
@@ -117,12 +129,15 @@ internal class AuthTokenStorageLocal(
             context: Context,
             sessionId: String,
             cipher: TokenCipher = KeystoreTokenCipher(),
+            logLevel: LogLevel = LogLevel.Warn,
         ): AuthTokenStorageLocal = AuthTokenStorageLocal(
             store = context.applicationContext.authTokenStore,
             sessionId = sessionId,
             cipher = cipher,
+            logLevel = logLevel,
         )
 
+        private const val LOG_NAME = "TokenStorage"
         private const val KEY_PREFIX = "token:"
         private const val FIELD_ACCESS_TOKEN = "access"
         private const val FIELD_REFRESH_TOKEN = "refresh"

@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -90,6 +93,45 @@ class ChatMessageItemTest {
         composeRule.onAllNodesWithTag(CHAT_UNSUPPORTED_MESSAGE_TAG)
             .assertCountEquals(undrawable.size * MessageRole.entries.size)
         composeRule.onAllNodesWithText("raw").assertCountEquals(0)
+    }
+
+    @Test
+    fun offersTheAnswersItWasGiven() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message = message(role = MessageRole.Agent, content = "Anything else?"),
+                quickReplies = listOf(MessageButton(text = "Yes"), MessageButton(text = "No")),
+            )
+        }
+
+        composeRule.onNodeWithText("Yes").assertIsDisplayed()
+        composeRule.onNodeWithText("No").assertIsDisplayed()
+        composeRule.onAllNodesWithTag(CHAT_QUICK_REPLY_TAG).assertCountEquals(2)
+    }
+
+    @Test
+    fun offersNothingWhenItWasGivenNoAnswers() {
+        composeRule.setContent {
+            ChatMessageItem(message(role = MessageRole.Agent, content = "Anything else?"))
+        }
+
+        composeRule.onNodeWithTag(CHAT_QUICK_REPLY_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun saysTheAnswerThatWasTapped() {
+        val chosen = mutableListOf<String>()
+        composeRule.setContent {
+            ChatMessageItem(
+                message = message(role = MessageRole.Agent, content = "Anything else?"),
+                quickReplies = listOf(MessageButton(text = "Yes"), MessageButton(text = "No")),
+                onQuickReply = { text -> chosen.add(text) },
+            )
+        }
+
+        composeRule.onNodeWithText("No").performClick()
+
+        assertEquals(listOf("No"), chosen)
     }
 
     private fun message(role: MessageRole, content: String) = ChatMessage(

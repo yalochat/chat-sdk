@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.media
 
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.domain.models.MessageType
 import kotlinx.coroutines.runBlocking
@@ -293,6 +294,7 @@ class YaloMediaServiceRemoteTest {
         baseUrl = server.url("/"),
         cacheDir = cacheDir(),
         client = OkHttpClient(),
+        logLevel = LogLevel.Debug,
     )
 
     private fun cacheDir(): File = File(cache.root, "media")

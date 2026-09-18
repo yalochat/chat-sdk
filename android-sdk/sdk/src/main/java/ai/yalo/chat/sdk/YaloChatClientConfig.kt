@@ -7,6 +7,8 @@ public data class YaloChatClientConfig(
     public val organizationId: String,
     public val channelName: String,
     public val userId: String? = null,
+    public val quickReplyType: QuickReplyType = QuickReplyType.Modal,
+    public val logLevel: LogLevel = LogLevel.Warn,
 ) {
 
     /**

@@ -6,9 +6,12 @@ import ai.yalo.chat.sdk.data.services.message.MessageAcknowledged
 import ai.yalo.chat.sdk.data.services.message.MessageReceived
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ChatStatusRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
@@ -230,6 +233,76 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun readsTheAnswersAMessageOffers() = runTest {
+        val message = textMessage(buttons = listOf(button("Yes"), button("No")))
+
+        val received = received(pollItem(message))
+
+        assertEquals(listOf("Yes", "No"), received.single().buttons.map { it.text })
+    }
+
+    @Test
+    fun keepsWhatEachButtonIsForApartFromWhatItSays() = runTest {
+        val message = textMessage(
+            buttons = listOf(
+                button("Yes", ButtonType.BUTTON_TYPE_REPLY),
+                button("Track it", ButtonType.BUTTON_TYPE_POSTBACK),
+                button("Open the store", ButtonType.BUTTON_TYPE_LINK, url = "https://yalo.com"),
+            ),
+        )
+
+        val received = received(pollItem(message))
+
+        assertEquals(
+            listOf(MessageButtonType.Reply, MessageButtonType.Postback, MessageButtonType.Link),
+            received.single().buttons.map { it.type },
+        )
+    }
+
+    @Test
+    fun keepsWhereALinkGoes() = runTest {
+        val message = textMessage(
+            buttons = listOf(button("Open the store", ButtonType.BUTTON_TYPE_LINK, url = "https://yalo.com")),
+        )
+
+        val received = received(pollItem(message))
+
+        assertEquals("https://yalo.com", received.single().buttons.single().url)
+    }
+
+    @Test
+    fun leavesOutAnAddressAButtonNeverCarried() = runTest {
+        val received = received(pollItem(textMessage(buttons = listOf(button("Yes")))))
+
+        assertEquals(null, received.single().buttons.single().url)
+    }
+
+    // A button kind only a newer backend knows still has to do something, and
+    // answering is the one thing every button can do.
+    @Test
+    fun readsAButtonKindItDoesNotKnowAsAnAnswer() = runTest {
+        val newerKind = Button.newBuilder().setText("Yes").setButtonTypeValue(99).build()
+
+        val received = received(pollItem(textMessage(buttons = listOf(newerKind))))
+
+        assertEquals(MessageButtonType.Reply, received.single().buttons.single().type)
+    }
+
+    @Test
+    fun readsTheAnswersOfferedWithAMessageItCannotDrawYet() = runTest {
+        val received = received(pollItem(imageMessage(buttons = listOf(button("Yes")))))
+
+        assertEquals(listOf("Yes"), received.single().buttons.map { it.text })
+    }
+
+    @Test
+    fun offersNothingForAMessageWithNoButtons() = runTest {
+        val received = received(pollItem(textMessage()))
+
+        assertEquals(emptyList<String>(), received.single().buttons.map { it.text })
+    }
+
+    @Test
     fun leavesOutAnAcknowledgement() = runTest {
         val received = received(MessageAcknowledged(SdkMessageAck.getDefaultInstance()))
 
@@ -270,10 +343,25 @@ class YaloMessageRepositoryRemoteTest {
         }
         .build()
 
+    private fun button(
+        text: String,
+        type: ButtonType = ButtonType.BUTTON_TYPE_REPLY,
+        url: String? = null,
+    ): Button = Button.newBuilder()
+        .setText(text)
+        .setButtonType(type)
+        .also { button ->
+            if (url != null) {
+                button.url = url
+            }
+        }
+        .build()
+
     private fun textMessage(
         text: String = "On its way",
         header: String? = null,
         footer: String? = null,
+        buttons: List<Button> = emptyList(),
     ): SdkMessage {
         val request = TextMessageRequest.newBuilder()
             .setContent(
@@ -281,6 +369,7 @@ class YaloMessageRepositoryRemoteTest {
                     .setText(text)
                     .setRole(WireRole.MESSAGE_ROLE_AGENT),
             )
+            .addAllButtons(buttons)
         if (header != null) {
             request.header = header
         }
@@ -290,10 +379,11 @@ class YaloMessageRepositoryRemoteTest {
         return SdkMessage.newBuilder().setTextMessageRequest(request).build()
     }
 
-    private fun imageMessage(): SdkMessage = SdkMessage.newBuilder()
+    private fun imageMessage(buttons: List<Button> = emptyList()): SdkMessage = SdkMessage.newBuilder()
         .setImageMessageRequest(
             ImageMessageRequest.newBuilder()
-                .setContent(ImageMessage.newBuilder().setMediaUrl("https://yalo.com/shirt.png")),
+                .setContent(ImageMessage.newBuilder().setMediaUrl("https://yalo.com/shirt.png"))
+                .addAllButtons(buttons),
         )
         .build()
 

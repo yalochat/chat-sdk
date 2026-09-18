@@ -4,6 +4,8 @@ package ai.yalo.chat.sdk.data.repositories.yalomessage
 import ai.yalo.chat.sdk.data.services.message.MessageReceived
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
+import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
@@ -20,6 +22,8 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import java.util.UUID
 import ai.yalo.chat.sdk.domain.models.MessageStatus as ChatStatus
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button as WireButton
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType as WireButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
 
 /**
@@ -83,7 +87,40 @@ internal class YaloMessageRepositoryRemote(
             status = ChatStatus.of(item.status, ChatStatus.Delivered),
             header = text?.takeIf { it.hasHeader() }?.header,
             footer = text?.takeIf { it.hasFooter() }?.footer,
+            buttons = buttonsOf(item.message),
         )
+    }
+
+    /**
+     * The options attached to a message, whatever kind of message it is.
+     *
+     * Every payload that can carry them keeps them beside the body rather than
+     * inside it, so they are read here even for a kind the chat cannot draw yet.
+     */
+    private fun buttonsOf(message: SdkMessage): List<MessageButton> {
+        val attached: List<WireButton> = when (message.payloadCase) {
+            SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST -> message.textMessageRequest.buttonsList
+            SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST -> message.imageMessageRequest.buttonsList
+            SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST -> message.voiceNoteMessageRequest.buttonsList
+            SdkMessage.PayloadCase.VIDEO_MESSAGE_REQUEST -> message.videoMessageRequest.buttonsList
+            SdkMessage.PayloadCase.ATTACHMENT_MESSAGE_REQUEST -> message.attachmentMessageRequest.buttonsList
+            else -> emptyList()
+        }
+        return attached.map { button ->
+            MessageButton(
+                text = button.text,
+                type = buttonTypeOf(button.buttonType),
+                url = button.url.takeIf { button.hasUrl() },
+            )
+        }
+    }
+
+    // A kind this SDK does not know reads back as a reply, which is the one
+    // thing every button can do and the one that stays inside the conversation.
+    private fun buttonTypeOf(type: WireButtonType): MessageButtonType = when (type) {
+        WireButtonType.BUTTON_TYPE_POSTBACK -> MessageButtonType.Postback
+        WireButtonType.BUTTON_TYPE_LINK -> MessageButtonType.Link
+        else -> MessageButtonType.Reply
     }
 
     private fun sdkMessageOf(message: ChatMessage): SdkMessage {

@@ -44,7 +44,7 @@ internal class ChatDependencies(
 
     val chatMessages: ChatMessageRepository by lazy {
         ChatMessageRepositoryLocal(
-            database = ChatMessageDatabaseService.of(applicationContext),
+            database = ChatMessageDatabaseService.of(applicationContext, config.logLevel),
             sessionId = config.sessionId,
         )
     }
@@ -66,10 +66,15 @@ internal class ChatDependencies(
     val auth: YaloMessageAuthService by lazy {
         YaloMessageAuthServiceRemote(
             config = config,
-            storage = AuthTokenStorageLocal.of(applicationContext, config.sessionId),
+            storage = AuthTokenStorageLocal.of(
+                context = applicationContext,
+                sessionId = config.sessionId,
+                logLevel = config.logLevel,
+            ),
             scope = scope,
             baseUrl = baseUrl,
             client = client,
+            logLevel = config.logLevel,
         )
     }
 
@@ -79,6 +84,7 @@ internal class ChatDependencies(
             baseUrl = baseUrl,
             cacheDir = File(applicationContext.cacheDir, MEDIA_CACHE),
             client = client,
+            logLevel = config.logLevel,
         )
     }
 
@@ -96,6 +102,7 @@ internal class ChatDependencies(
             sockets = client.newBuilder()
                 .pingInterval(PING_INTERVAL_SECONDS, TimeUnit.SECONDS)
                 .build(),
+            logLevel = config.logLevel,
         )
     }
 
