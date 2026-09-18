@@ -15,7 +15,9 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Avatar](#avatar)
   - [Back button](#back-button)
 - [Message formatting](#message-formatting)
+- [Quick replies](#quick-replies)
 - [Theming](#theming)
+- [Logging](#logging)
 - [Translations](#translations)
 - [Methods](#methods)
 
@@ -87,6 +89,8 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `null`, which keeps the conversation anonymous on the device.
+- **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
+- **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them. See [Quick replies](#quick-replies).
 
 Two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages.
 
@@ -180,9 +184,76 @@ The chat draws:
 
 Anything else, a table for instance, is shown as the text it was written as, so nothing an answer contains goes missing.
 
+## Quick replies
+
+When the channel offers a set of answers, the chat shows them as chips. Tapping one sends its text as a message from the person, exactly as if they had typed it.
+
+Only the latest offer is live, and it goes away as soon as the person answers, whether they tapped a chip or typed something of their own.
+
+Where the chips appear follows `quickReplyType`:
+
+- `QuickReplyType.Modal`
+  - The default. A bar between the conversation and the message input, holding only what the channel is offering right now.
+  - The bar is always in reach, so a long conversation does not hide the answers.
+- `QuickReplyType.Inline`
+  - Chips under the message that offered them, scrolling with the conversation.
+  - The answers stay next to the question they belong to.
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        quickReplyType = QuickReplyType.Inline,
+    ),
+)
+```
+
+Their colors and shape come from the theme, the same as the rest of the chat. See [Theming](doc/theming.md).
+
 ## Theming
 
 The chat derives its colors and shapes from your `MaterialTheme`, so it follows your light and dark schemes with no setup. Override only what you need. See the [Theming API](doc/theming.md) for the full list of properties.
+
+## Logging
+
+The SDK writes to logcat under the single tag `YaloChatSDK`, so you can read everything it says and nothing else:
+
+```
+adb logcat -s YaloChatSDK
+```
+
+Every line names the part of the SDK it came from, such as `Auth`, `MessageSocket`, `Media`, `TokenStorage` or `Database`.
+
+How much it writes follows `logLevel` in the config:
+
+- `LogLevel.Warn`
+  - The default. Only what went wrong, which is what you want in a released app.
+- `LogLevel.Info`
+  - Adds the course of a conversation: connecting, authenticating, reconnecting, uploads and downloads.
+- `LogLevel.Debug`
+  - Adds the full payload of every message sent and received, exactly as it went over the socket, along with each token read and the timers behind reconnecting.
+  - Meant for working on an integration, not for a released app.
+- `LogLevel.Error`
+  - Only failures the chat could not work around.
+- `LogLevel.Silent`
+  - Nothing at all.
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        logLevel = LogLevel.Debug,
+    ),
+)
+```
+
+No level ever writes an access or refresh token, or a signed media address. Anything on the device can read logcat, so nothing that opens a session goes into it.
+
+What people actually said is different. Up to `LogLevel.Info` a line says that a message moved and what kind it was, never its content. At `LogLevel.Debug` the whole conversation is written as it goes over the socket, in both directions, so you can follow an integration frame by frame. Ship a released app at `LogLevel.Warn`, which is the default.
 
 ## Translations
 

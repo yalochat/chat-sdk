@@ -1,8 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui
 
+import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import ai.yalo.chat.sdk.ui.theme.ProvideChatTheme
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
@@ -25,6 +27,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * `Modifier.padding(innerPadding).consumeWindowInsets(innerPadding).imePadding()`.
  *
  * [theme] follows the host `MaterialTheme` unless you pass one in.
+ *
+ * Quick replies follow `quickReplyType` in the client config: a bar above the
+ * message input, or chips under the message that offered them.
  *
  * [avatar] draws whatever you want beside the channel name, an image loaded
  * with your own library or none at all. [onBack] adds a back button to the
@@ -52,6 +57,10 @@ public fun Chat(
             status = viewModel.uiState.status,
             messages = viewModel.uiState.messages,
             isWaitingForReply = viewModel.uiState.isWaitingForReply,
+            quickReplyType = client.config.quickReplyType,
+            quickReplies = viewModel.uiState.quickReplies,
+            quickRepliesMessageId = viewModel.uiState.quickRepliesMessageId,
+            onQuickReply = viewModel::onQuickReply,
             avatar = avatar,
             onBack = onBack,
         )
@@ -68,9 +77,14 @@ internal fun ChatLayout(
     status: String? = null,
     messages: List<ChatMessage> = emptyList(),
     isWaitingForReply: Boolean = false,
+    quickReplyType: QuickReplyType = QuickReplyType.Modal,
+    quickReplies: List<MessageButton> = emptyList(),
+    quickRepliesMessageId: Long? = null,
+    onQuickReply: (String) -> Unit = {},
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
 ) {
+    val inline = quickReplyType == QuickReplyType.Inline
     Surface(
         modifier = modifier.fillMaxSize(),
         color = currentChatTheme.background,
@@ -85,10 +99,15 @@ internal fun ChatLayout(
             ChatMessageList(
                 messages = messages,
                 isWaitingForReply = isWaitingForReply,
+                quickRepliesMessageId = quickRepliesMessageId.takeIf { inline },
+                onQuickReply = onQuickReply,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
             )
+            if (!inline) {
+                ChatQuickReplies(replies = quickReplies, onReplyClick = onQuickReply)
+            }
             ChatFooter(
                 text = text,
                 onTextChange = onTextChange,

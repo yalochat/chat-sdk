@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
 import ai.yalo.chat.sdk.ui.messages.TypingIndicator
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
@@ -23,11 +24,19 @@ internal const val CHAT_MESSAGE_LIST_TAG: String = "yalo-chat-message-list"
 
 private const val TYPING_INDICATOR_KEY = "yalo-chat-typing-indicator-item"
 
+/**
+ * The conversation, newest message at the bottom.
+ *
+ * [quickRepliesMessageId] names the message whose answers are drawn under it,
+ * and is null when the chat shows them in a bar of their own instead.
+ */
 @Composable
 internal fun ChatMessageList(
     messages: List<ChatMessage>,
     modifier: Modifier = Modifier,
     isWaitingForReply: Boolean = false,
+    quickRepliesMessageId: Long? = null,
+    onQuickReply: (String) -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
 ) {
     val theme = currentChatTheme
@@ -62,7 +71,15 @@ internal fun ChatMessageList(
                 }
             }
             items(items = messages, key = { message -> message.id ?: message.timestamp }) { message ->
-                ChatMessageItem(message)
+                ChatMessageItem(
+                    message = message,
+                    quickReplies = if (quickRepliesMessageId != null && message.id == quickRepliesMessageId) {
+                        message.quickReplies
+                    } else {
+                        emptyList()
+                    },
+                    onQuickReply = onQuickReply,
+                )
             }
         }
     }

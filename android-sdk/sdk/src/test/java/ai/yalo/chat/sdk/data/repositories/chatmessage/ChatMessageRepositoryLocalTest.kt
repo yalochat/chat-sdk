@@ -3,6 +3,8 @@ package ai.yalo.chat.sdk.data.repositories.chatmessage
 
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
+import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
@@ -75,6 +77,46 @@ class ChatMessageRepositoryLocalTest {
                 read.header,
                 read.footer,
             ),
+        )
+    }
+
+    @Test
+    fun readsBackTheAnswersAMessageOffered() = runBlocking {
+        val repository = repository()
+        repository.insert(
+            agentMessage("Anything else?", wiId = "wi-1").copy(
+                buttons = listOf(
+                    MessageButton(text = "Yes"),
+                    MessageButton(
+                        text = "Open the store",
+                        type = MessageButtonType.Link,
+                        url = "https://yalo.com",
+                    ),
+                ),
+            ),
+        )
+
+        val read = repository.messages().getOrThrow().single()
+
+        assertEquals(
+            listOf("Yes", "Open the store"),
+            read.buttons.map { button -> button.text },
+        )
+        assertEquals(
+            listOf(MessageButtonType.Reply, MessageButtonType.Link),
+            read.buttons.map { button -> button.type },
+        )
+        assertEquals("https://yalo.com", read.buttons.last().url)
+    }
+
+    @Test
+    fun readsBackAMessageWithNoButtonsAsOfferingNone() = runBlocking {
+        val repository = repository()
+        repository.insert(userMessage("Hello"))
+
+        assertEquals(
+            emptyList<MessageButton>(),
+            repository.messages().getOrThrow().single().buttons,
         )
     }
 

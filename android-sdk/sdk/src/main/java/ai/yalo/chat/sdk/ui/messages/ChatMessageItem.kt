@@ -2,9 +2,11 @@
 package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,12 +21,28 @@ import kotlin.math.roundToInt
 internal const val CHAT_USER_MESSAGE_TAG: String = "yalo-chat-user-message"
 internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
 
-/** One message in the conversation, drawn for whoever sent it. */
+/**
+ * One message in the conversation, drawn for whoever sent it.
+ *
+ * [quickReplies] are the answers drawn under the message. They are passed in
+ * rather than read off the message, because only the latest offer is live and
+ * only the chat knows which message that is.
+ */
 @Composable
-internal fun ChatMessageItem(message: ChatMessage, modifier: Modifier = Modifier) {
+internal fun ChatMessageItem(
+    message: ChatMessage,
+    modifier: Modifier = Modifier,
+    quickReplies: List<MessageButton> = emptyList(),
+    onQuickReply: (String) -> Unit = {},
+) {
     when (message.role) {
         MessageRole.User -> UserMessage(message = message, modifier = modifier)
-        MessageRole.Agent -> AgentMessage(message = message, modifier = modifier)
+        MessageRole.Agent -> AgentMessage(
+            message = message,
+            quickReplies = quickReplies,
+            onQuickReply = onQuickReply,
+            modifier = modifier,
+        )
     }
 }
 
@@ -64,21 +82,34 @@ private fun UserMessage(message: ChatMessage, modifier: Modifier = Modifier) {
  * so the reply reads as the conversation rather than as a card.
  */
 @Composable
-private fun AgentMessage(message: ChatMessage, modifier: Modifier = Modifier) {
+private fun AgentMessage(
+    message: ChatMessage,
+    quickReplies: List<MessageButton>,
+    onQuickReply: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val theme = currentChatTheme
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Surface(
-            modifier = Modifier
-                .widthAtMost(AGENT_MESSAGE_WIDTH)
-                .testTag(CHAT_AGENT_MESSAGE_TAG),
-            shape = theme.agentMessageShape,
-            color = theme.agentMessageBackground,
-            contentColor = theme.onAgentMessageBackground,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
         ) {
-            AgentMessageBody(message = message)
+            Surface(
+                modifier = Modifier
+                    .widthAtMost(AGENT_MESSAGE_WIDTH)
+                    .testTag(CHAT_AGENT_MESSAGE_TAG),
+                shape = theme.agentMessageShape,
+                color = theme.agentMessageBackground,
+                contentColor = theme.onAgentMessageBackground,
+            ) {
+                AgentMessageBody(message = message)
+            }
+        }
+        if (quickReplies.isNotEmpty()) {
+            QuickReplies(replies = quickReplies, onReplyClick = onQuickReply)
         }
     }
 }

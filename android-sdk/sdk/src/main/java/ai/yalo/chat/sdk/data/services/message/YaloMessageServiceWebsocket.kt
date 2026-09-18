@@ -1,9 +1,11 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.message
 
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.data.services.message.MessageConnection.Command
 import ai.yalo.chat.sdk.data.services.message.MessageConnection.Event
+import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
@@ -48,8 +50,10 @@ internal class YaloMessageServiceWebsocket(
     private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val sockets: WebSocket.Factory = OkHttpClient(),
+    logLevel: LogLevel = LogLevel.Warn,
 ) : YaloMessageService {
 
+    private val log = YaloLog(LOG_NAME, logLevel)
     private val connection = MessageConnection()
     private val mutex = Mutex()
     private val waiting = mutableMapOf<Long, CompletableDeferred<Unit>>()
@@ -83,18 +87,22 @@ internal class YaloMessageServiceWebsocket(
     override val messages: Flow<InboundMessage> = incoming.asSharedFlow()
 
     override suspend fun connect() {
+        log.info { "connecting" }
         post(Event.Started)
     }
 
     override suspend fun pause() {
+        log.info { "pausing, the app went away" }
         post(Event.Paused)
     }
 
     override suspend fun resume() {
+        log.info { "resuming" }
         post(Event.Resumed)
     }
 
     override suspend fun close() {
+        log.info { "closing" }
         post(Event.Stopped)
     }
 
@@ -134,6 +142,7 @@ internal class YaloMessageServiceWebsocket(
                 }
                 is Command.OpenSocket -> open(command.generation, command.accessToken)
                 is Command.CloseSocket -> {
+                    log.debug { "closing the socket" }
                     socket?.close(NORMAL_CLOSURE, null)
                     socket = null
                 }
@@ -142,20 +151,29 @@ internal class YaloMessageServiceWebsocket(
                     // OkHttp answers false rather than throwing when the socket
                     // will not take the frame.
                     if (socket?.send(command.frame) == true) {
+                        log.debug { "sent ${command.frame}" }
                         answer?.complete(Unit)
                     } else {
+                        log.warn { "the socket would not take a message" }
                         answer?.completeExceptionally(IOException(FRAME_NOT_SENT))
                     }
                 }
                 is Command.FlushFrames -> {
+                    log.info { "sending ${command.frames.size} held back while the line was down" }
                     for (frame in command.frames) {
+                        log.debug { "sent $frame" }
                         socket?.send(frame)
                     }
                 }
                 is Command.CompleteSend -> waiting.remove(command.requestId)?.complete(Unit)
-                is Command.FailSend ->
+                is Command.FailSend -> {
+                    log.warn(command.cause) { "a message was not taken" }
                     waiting.remove(command.requestId)?.completeExceptionally(command.cause)
-                is Command.DeliverMessage -> incoming.tryEmit(command.message)
+                }
+                is Command.DeliverMessage -> {
+                    log.debug { "the channel sent ${nameOf(command.message)}" }
+                    incoming.tryEmit(command.message)
+                }
                 is Command.StartAckTimer -> {
                     ackTimer = timer(ackTimer, command.delayMillis) {
                         Event.AckTimerFired(command.generation)
@@ -166,6 +184,7 @@ internal class YaloMessageServiceWebsocket(
                     ackTimer = null
                 }
                 is Command.StartReconnectTimer -> {
+                    log.info { "reconnecting in ${command.delayMillis}ms" }
                     reconnectTimer = timer(reconnectTimer, command.delayMillis) {
                         Event.ReconnectTimerFired(command.generation)
                     }
@@ -189,6 +208,7 @@ internal class YaloMessageServiceWebsocket(
     }
 
     private fun open(generation: Long, accessToken: String) {
+        log.info { "opening the socket to ${socketUrl.host}" }
         // The backend reads the token from the query, not a header. These are
         // JWTs, so base64url, so the literal plus addQueryParameter leaves
         // alone cannot be read back as a space.
@@ -200,11 +220,13 @@ internal class YaloMessageServiceWebsocket(
     private inner class Listener(private val generation: Long) : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
+            log.info { "the socket is open" }
             events.trySend(Event.SocketOpened(generation))
         }
 
         // Read on the reader thread rather than under the lock.
         override fun onMessage(webSocket: WebSocket, text: String) {
+            log.debug { "received $text" }
             events.trySend(Event.FrameReceived(generation, frameFrom(text)))
         }
 
@@ -216,10 +238,12 @@ internal class YaloMessageServiceWebsocket(
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            log.info { "the socket closed with $code" }
             events.trySend(Event.SocketClosed(generation))
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            log.warn(t) { "the socket failed" }
             events.trySend(Event.SocketClosed(generation))
         }
     }
@@ -227,7 +251,15 @@ internal class YaloMessageServiceWebsocket(
     private fun frameOf(message: SdkMessage): Result<String> = try {
         Result.success(PRINTER.print(message))
     } catch (error: InvalidProtocolBufferException) {
+        log.error(error) { "a message cannot be put on the wire" }
         Result.failure(error)
+    }
+
+    // What reached the chat, as against what arrived on the wire: a frame can be
+    // dropped or belong to a socket that has since been replaced.
+    private fun nameOf(message: InboundMessage): String = when (message) {
+        is MessageReceived -> "a ${message.item.message.payloadCase.name} message"
+        is MessageAcknowledged -> "an acknowledgement"
     }
 
     // Classified by shape rather than by what the connection is waiting for, so
@@ -245,8 +277,10 @@ internal class YaloMessageServiceWebsocket(
             else -> connectionAck(text)
         }
     } catch (error: JSONException) {
+        log.warn(error) { "a frame that is not JSON was dropped" }
         SocketFrame.Unusable
     } catch (error: InvalidProtocolBufferException) {
+        log.warn(error) { "a frame this SDK cannot read was dropped" }
         SocketFrame.Unusable
     }
 
@@ -267,6 +301,8 @@ internal class YaloMessageServiceWebsocket(
     }
 
     private companion object {
+
+        private const val LOG_NAME = "MessageSocket"
 
         private const val SOCKET_PATH = "websocket/v1/connect/inapp"
         private const val QUERY_TOKEN = "token"

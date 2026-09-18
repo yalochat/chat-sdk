@@ -1,8 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.media
 
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.log.YaloLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withContext
@@ -38,11 +40,14 @@ internal class YaloMediaServiceRemote(
     baseUrl: HttpUrl,
     private val cacheDir: File,
     private val client: OkHttpClient = OkHttpClient(),
+    logLevel: LogLevel = LogLevel.Warn,
 ) : YaloMediaService {
 
+    private val log = YaloLog(LOG_NAME, logLevel)
     private val mediaUrl: HttpUrl = baseUrl.newBuilder().addPathSegments(MEDIA_PATH).build()
 
     override suspend fun upload(content: MediaContent): Result<Media> {
+        log.info { "uploading ${content.sizeBytes} bytes of ${content.mimeType}" }
         val body = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart(PART_FILE, content.fileName, MediaRequestBody(content))
@@ -51,6 +56,7 @@ internal class YaloMediaServiceRemote(
         // Nothing in the body is spent by a first attempt, because the content
         // opens a new stream every time it is read.
         post(body)?.let { answer -> return answer }
+        log.info { "the upload was refused, authenticating again and retrying" }
         auth.invalidateToken()
         return post(body) ?: Result.failure(IOException("$UPLOAD_FAILED: $HTTP_UNAUTHORIZED"))
     }
@@ -67,14 +73,22 @@ internal class YaloMediaServiceRemote(
         return try {
             execute(request) { response ->
                 when (response.code) {
-                    HTTP_CREATED -> Result.success(media(response.body.string()))
+                    HTTP_CREATED -> {
+                        log.info { "uploaded" }
+                        Result.success(media(response.body.string()))
+                    }
                     HTTP_UNAUTHORIZED -> null
-                    else -> Result.failure(IOException("$UPLOAD_FAILED: ${response.code}"))
+                    else -> {
+                        log.warn { "$UPLOAD_FAILED: ${response.code}" }
+                        Result.failure(IOException("$UPLOAD_FAILED: ${response.code}"))
+                    }
                 }
             }
         } catch (error: IOException) {
+            log.warn(error) { UPLOAD_FAILED }
             Result.failure(error)
         } catch (error: JSONException) {
+            log.warn(error) { "$UPLOAD_FAILED: the answer cannot be read" }
             Result.failure(error)
         }
     }
@@ -84,8 +98,10 @@ internal class YaloMediaServiceRemote(
             ?: return Result.failure(IOException("$DOWNLOAD_FAILED: $url is not an address"))
         val target = File(cacheDir, key(address))
         if (target.exists()) {
+            log.debug { "serving ${target.name} from the cache" }
             return Result.success(target)
         }
+        log.info { "downloading from ${address.host}" }
 
         // No authorization: the address is already signed, and the token has no
         // business reaching whoever stores the file.
@@ -93,11 +109,19 @@ internal class YaloMediaServiceRemote(
         return try {
             execute(request) { response ->
                 when {
-                    response.isSuccessful -> Result.success(store(response.body.source(), target))
-                    else -> Result.failure(IOException("$DOWNLOAD_FAILED: ${response.code}"))
+                    response.isSuccessful -> {
+                        val file = store(response.body.source(), target)
+                        log.info { "downloaded ${file.length()} bytes" }
+                        Result.success(file)
+                    }
+                    else -> {
+                        log.warn { "$DOWNLOAD_FAILED: ${response.code}" }
+                        Result.failure(IOException("$DOWNLOAD_FAILED: ${response.code}"))
+                    }
                 }
             }
         } catch (error: IOException) {
+            log.warn(error) { DOWNLOAD_FAILED }
             Result.failure(error)
         }
     }
@@ -148,6 +172,8 @@ internal class YaloMediaServiceRemote(
         optString(snakeCase).ifEmpty { optString(camelCase) }
 
     private companion object {
+
+        private const val LOG_NAME = "Media"
 
         private const val MEDIA_PATH = "v1/channels/all/media"
         private const val PART_FILE = "file"

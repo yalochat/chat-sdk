@@ -69,6 +69,7 @@ internal class ChatMessageRepositoryLocal(
             put(ChatMessageDatabaseService.COLUMN_TIMESTAMP, message.timestamp)
             put(ChatMessageDatabaseService.COLUMN_HEADER, message.header)
             put(ChatMessageDatabaseService.COLUMN_FOOTER, message.footer)
+            put(ChatMessageDatabaseService.COLUMN_BUTTONS, MessageButtonsJson.encode(message.buttons))
         }
         val id = database.writableDatabase.insertOrThrow(ChatMessageDatabaseService.MESSAGE_TABLE, null, values)
         return message.copy(id = id)
@@ -120,6 +121,7 @@ internal class ChatMessageRepositoryLocal(
         status = MessageStatus.of(text(ChatMessageDatabaseService.COLUMN_STATUS)),
         header = optionalText(ChatMessageDatabaseService.COLUMN_HEADER),
         footer = optionalText(ChatMessageDatabaseService.COLUMN_FOOTER),
+        buttons = MessageButtonsJson.decode(optionalText(ChatMessageDatabaseService.COLUMN_BUTTONS)),
     )
 
     private fun Cursor.text(column: String): String = getString(getColumnIndexOrThrow(column))
