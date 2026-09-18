@@ -49,7 +49,7 @@ private fun UserMessage(message: ChatMessage, modifier: Modifier = Modifier) {
             color = theme.userMessageBackground,
             contentColor = theme.onUserMessageBackground,
         ) {
-            MessageBody(
+            UserMessageBody(
                 message = message,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             )
@@ -78,7 +78,7 @@ private fun AgentMessage(message: ChatMessage, modifier: Modifier = Modifier) {
             color = theme.agentMessageBackground,
             contentColor = theme.onAgentMessageBackground,
         ) {
-            MessageBody(message = message)
+            AgentMessageBody(message = message)
         }
     }
 }

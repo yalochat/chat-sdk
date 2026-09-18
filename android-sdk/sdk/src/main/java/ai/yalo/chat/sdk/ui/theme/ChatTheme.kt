@@ -41,6 +41,7 @@ public data class ChatTheme(
     public val agentMessageBackground: Color,
     public val onAgentMessageBackground: Color,
     public val typingIndicatorDotColor: Color,
+    public val linkColor: Color,
     public val inputShape: Shape,
     public val userMessageShape: Shape,
     public val agentMessageShape: Shape,
@@ -68,6 +69,7 @@ public data class ChatTheme(
             agentMessageBackground = Color.Transparent,
             onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
             typingIndicatorDotColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            linkColor = MaterialTheme.colorScheme.primary,
             inputShape = MaterialTheme.shapes.extraLarge,
             userMessageShape = RoundedCornerShape(
                 topStart = BUBBLE_CORNER,

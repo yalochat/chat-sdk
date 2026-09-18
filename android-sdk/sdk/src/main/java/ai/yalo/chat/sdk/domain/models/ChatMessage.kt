@@ -51,6 +51,10 @@ internal enum class MessageStatus(val wireName: String) {
 
     companion object {
         fun of(wireName: String): MessageStatus = entries.first { it.wireName == wireName }
+
+        /** What [wireName] means, or [fallback] when it is one this SDK does not know. */
+        fun of(wireName: String, fallback: MessageStatus): MessageStatus =
+            entries.firstOrNull { status -> status.wireName == wireName } ?: fallback
     }
 }
 

@@ -59,6 +59,7 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`onUserMessageBackground`** (`Color`): Text color inside those bubbles. Defaults to the Material `onSurface` color.
 - **`agentMessageBackground`** (`Color`): Bubble background for messages the channel sent. Defaults to transparent, so what the channel says reads as the conversation itself rather than as a reply. Set a color to give it a bubble.
 - **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the Material `onSurface` color.
+- **`linkColor`** (`Color`): Color of the links inside a message the channel sent. Defaults to the Material `primary` color. See [Message formatting](../README.md#message-formatting) for what else a message can contain.
 - **`userMessageShape`** (`Shape`): Shape of the person's bubbles. Defaults to a rounded shape with a squared off bottom corner on the side the bubble sits.
 - **`agentMessageShape`** (`Shape`): Shape of the channel's bubbles. Defaults to a rectangle, which is invisible while the background is transparent. Set it along with `agentMessageBackground` when you want those messages bubbled.
 
@@ -105,6 +106,7 @@ fun BrandedChat(client: YaloChatClient) {
             agentMessageBackground = MaterialTheme.colorScheme.surfaceContainer,
             onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
             typingIndicatorDotColor = brand,
+            linkColor = brand,
             inputShape = RoundedCornerShape(8.dp),
             userMessageShape = RoundedCornerShape(16.dp),
             agentMessageShape = RoundedCornerShape(16.dp),
