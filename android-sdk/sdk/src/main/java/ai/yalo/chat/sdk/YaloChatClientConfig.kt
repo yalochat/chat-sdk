@@ -9,6 +9,8 @@ package ai.yalo.chat.sdk
  * opens on an empty conversation, so the first thing said can be about what
  * the person is doing rather than a generic greeting. Fixed for the life of
  * the client.
+ * @property sessionMode How the conversation is scoped, and whether it is
+ * remembered between visits.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -18,6 +20,7 @@ public data class YaloChatClientConfig(
     public val quickReplyType: QuickReplyType = QuickReplyType.Modal,
     public val logLevel: LogLevel = LogLevel.Warn,
     public val openContext: Map<String, String> = emptyMap(),
+    public val sessionMode: SessionMode = SessionMode.Shared,
 ) {
 
     /**
