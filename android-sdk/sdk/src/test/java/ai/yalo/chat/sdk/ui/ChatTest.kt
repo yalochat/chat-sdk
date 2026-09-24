@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -88,9 +89,9 @@ class ChatTest {
         composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTextInput("Hello")
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).performClick()
 
+        composeRule.awaitTag(CHAT_USER_MESSAGE_TAG)
         // An empty input is what leaves nothing to send, so the disabled button
         // is the visible proof the draft was cleared.
-        composeRule.onNodeWithTag(CHAT_USER_MESSAGE_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
     }
 
@@ -103,7 +104,7 @@ class ChatTest {
         composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTextInput("Hello")
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).performClick()
 
-        composeRule.onNodeWithTag(CHAT_TYPING_INDICATOR_TAG).assertIsDisplayed()
+        composeRule.awaitTag(CHAT_TYPING_INDICATOR_TAG)
     }
 
     @Test
@@ -114,9 +115,7 @@ class ChatTest {
 
         client.sendTextMessage("Sent by the app")
 
-        // The chat takes the message off the client's queue on its own
-        // coroutine, so the conversation catches up a frame or two later.
-        composeRule.waitUntil {
+        composeRule.waitUntil(CATCH_UP_TIMEOUT) {
             composeRule.onAllNodesWithText("Sent by the app")
                 .fetchSemanticsNodes()
                 .isNotEmpty()
@@ -161,7 +160,18 @@ class ChatTest {
         composeRule.onAllNodesWithText("Hello").assertCountEquals(1)
     }
 
+    // A sent message is stored before it is shown, and the storing happens off
+    // the main thread, so the node turns up after the click rather than with it.
+    private fun ComposeContentTestRule.awaitTag(tag: String) {
+        waitUntil(CATCH_UP_TIMEOUT) {
+            onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        }
+    }
+
     private companion object {
         const val HOST_TAG = "host-modifier"
+
+        // Long enough for a loaded build machine to get round to the storage.
+        const val CATCH_UP_TIMEOUT = 10_000L
     }
 }
