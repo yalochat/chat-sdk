@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.repositories.chatmessage
 
-import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
+import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -23,7 +23,7 @@ import org.robolectric.RuntimeEnvironment
 @RunWith(RobolectricTestRunner::class)
 class ChatMessageRepositoryLocalTest {
 
-    private val database = ChatMessageDatabaseService(RuntimeEnvironment.getApplication(), name = null)
+    private val database = ChatMessageDatabaseDataSource(RuntimeEnvironment.getApplication(), name = null)
 
     @After
     fun closeDatabase() {
@@ -210,7 +210,7 @@ class ChatMessageRepositoryLocalTest {
     @Test
     fun reportsStorageBreakingInsteadOfThrowing() = runBlocking {
         val repository = repository()
-        database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseService.MESSAGE_TABLE}")
+        database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseDataSource.MESSAGE_TABLE}")
 
         val inserted = repository.insert(userMessage("Hello"))
         val read = repository.messages()

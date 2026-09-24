@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.media
+package ai.yalo.chat.sdk.data.datasources.media
 
 import ai.yalo.chat.sdk.domain.models.MessageType
 import java.io.File
@@ -13,7 +13,7 @@ internal data class Media(
 )
 
 /** Moves the files a conversation carries to the backend and back. */
-internal interface YaloMediaService {
+internal interface YaloMediaDataSource {
 
     /** An upload the backend turns away for a stale token is sent again with a new one. */
     suspend fun upload(content: MediaContent): Result<Media>

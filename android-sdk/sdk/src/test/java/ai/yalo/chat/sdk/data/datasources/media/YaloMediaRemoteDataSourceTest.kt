@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.media
+package ai.yalo.chat.sdk.data.datasources.media
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
@@ -26,7 +26,7 @@ import java.io.IOException
 import java.io.InputStream
 
 @RunWith(RobolectricTestRunner::class)
-class YaloMediaServiceRemoteTest {
+class YaloMediaRemoteDataSourceTest {
 
     @get:Rule
     val cache = TemporaryFolder()
@@ -49,7 +49,7 @@ class YaloMediaServiceRemoteTest {
     fun sendsTheFileToTheMediaEndpointWithTheToken() = runBlocking {
         server.enqueue(created())
 
-        service().upload(content())
+        dataSource().upload(content())
 
         val request = server.takeRequest()
         assertEquals("/v1/channels/all/media", request.url.encodedPath)
@@ -60,7 +60,7 @@ class YaloMediaServiceRemoteTest {
     fun sendsTheFileAsAFormPartNamedFile() = runBlocking {
         server.enqueue(created())
 
-        service().upload(content(fileName = "holiday.jpg", payload = "the-bytes"))
+        dataSource().upload(content(fileName = "holiday.jpg", payload = "the-bytes"))
 
         val body = requireNotNull(server.takeRequest().body).utf8()
         assertTrue(body.contains("""name="file"; filename="holiday.jpg""""))
@@ -75,7 +75,7 @@ class YaloMediaServiceRemoteTest {
     fun saysHowLongTheFileIsRatherThanSendingItInChunks() = runBlocking {
         server.enqueue(created())
 
-        service().upload(content(payload = "0123456789"))
+        dataSource().upload(content(payload = "0123456789"))
 
         val request = server.takeRequest()
         assertTrue(request.chunkSizes.orEmpty().isEmpty())
@@ -86,7 +86,7 @@ class YaloMediaServiceRemoteTest {
     fun readsBackTheMediaTheBackendCreated() = runBlocking {
         server.enqueue(created(id = "yalo_42", type = "voice"))
 
-        val media = service().upload(content()).getOrNull()
+        val media = dataSource().upload(content()).getOrNull()
 
         assertEquals("yalo_42", media?.id)
         assertEquals("https://files.example/yalo_42?signature=first", media?.signedUrl)
@@ -103,7 +103,7 @@ class YaloMediaServiceRemoteTest {
             ),
         )
 
-        val media = service().upload(content()).getOrNull()
+        val media = dataSource().upload(content()).getOrNull()
 
         assertEquals("https://files.example/1", media?.signedUrl)
         assertEquals("a.jpg", media?.originalName)
@@ -117,7 +117,7 @@ class YaloMediaServiceRemoteTest {
         server.enqueue(response(401))
         server.enqueue(created())
 
-        val media = service().upload(content(payload = "the-bytes")).getOrNull()
+        val media = dataSource().upload(content(payload = "the-bytes")).getOrNull()
 
         server.takeRequest()
         val retry = server.takeRequest()
@@ -132,7 +132,7 @@ class YaloMediaServiceRemoteTest {
         server.enqueue(response(401))
         server.enqueue(response(401))
 
-        val result = service().upload(content())
+        val result = dataSource().upload(content())
 
         assertTrue(result.isFailure)
         assertEquals(2, server.requestCount)
@@ -143,7 +143,7 @@ class YaloMediaServiceRemoteTest {
     fun reportsAFailureWhenTheBackendWillNotTakeTheFile() = runBlocking {
         server.enqueue(response(500))
 
-        val result = service().upload(content())
+        val result = dataSource().upload(content())
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("500") == true)
@@ -155,21 +155,21 @@ class YaloMediaServiceRemoteTest {
     fun reportsAFailureWhenTheBackendAnswersWithoutCreatingAnything() = runBlocking {
         server.enqueue(response(200, """{"id":"yalo_1"}"""))
 
-        assertTrue(service().upload(content()).isFailure)
+        assertTrue(dataSource().upload(content()).isFailure)
     }
 
     @Test
     fun reportsAFailureWhenTheBackendSendsSomethingThatIsNotMedia() = runBlocking {
         server.enqueue(response(201, "not json at all"))
 
-        assertTrue(service().upload(content()).isFailure)
+        assertTrue(dataSource().upload(content()).isFailure)
     }
 
     @Test
     fun reportsAFailureWhenNoTokenCanBeHad() = runBlocking {
         auth.failure = IOException("no token")
 
-        val result = service().upload(content())
+        val result = dataSource().upload(content())
 
         assertEquals(0, server.requestCount)
         assertEquals("no token", result.exceptionOrNull()?.message)
@@ -179,7 +179,7 @@ class YaloMediaServiceRemoteTest {
     fun keepsADownloadedFileInTheCache() = runBlocking {
         server.enqueue(response(200, "the-picture"))
 
-        val file = service().download(server.url("/files/pic.jpg").toString()).getOrNull()
+        val file = dataSource().download(server.url("/files/pic.jpg").toString()).getOrNull()
 
         assertEquals("the-picture", file?.readText())
     }
@@ -187,11 +187,11 @@ class YaloMediaServiceRemoteTest {
     @Test
     fun answersASecondDownloadWithoutAskingAgain() = runBlocking {
         server.enqueue(response(200, "the-picture"))
-        val service = service()
+        val dataSource = dataSource()
         val address = server.url("/files/pic.jpg").toString()
 
-        service.download(address)
-        val again = service.download(address)
+        dataSource.download(address)
+        val again = dataSource.download(address)
 
         assertEquals(1, server.requestCount)
         assertEquals("the-picture", again.getOrNull()?.readText())
@@ -203,10 +203,10 @@ class YaloMediaServiceRemoteTest {
     @Test
     fun treatsTwoSignaturesForTheSameFileAsOneDownload() = runBlocking {
         server.enqueue(response(200, "the-picture"))
-        val service = service()
+        val dataSource = dataSource()
 
-        val first = service.download(server.url("/files/pic.jpg?signature=first").toString())
-        val second = service.download(server.url("/files/pic.jpg?signature=second").toString())
+        val first = dataSource.download(server.url("/files/pic.jpg?signature=first").toString())
+        val second = dataSource.download(server.url("/files/pic.jpg?signature=second").toString())
 
         assertEquals(1, server.requestCount)
         assertEquals(first.getOrNull(), second.getOrNull())
@@ -216,7 +216,7 @@ class YaloMediaServiceRemoteTest {
     fun reportsAFailureWhenTheFileIsNotThere() = runBlocking {
         server.enqueue(response(404))
 
-        val result = service().download(server.url("/files/pic.jpg").toString())
+        val result = dataSource().download(server.url("/files/pic.jpg").toString())
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("404") == true)
@@ -224,7 +224,7 @@ class YaloMediaServiceRemoteTest {
 
     @Test
     fun reportsAFailureWhenTheAddressIsNotAnAddress() = runBlocking {
-        val result = service().download("not an address")
+        val result = dataSource().download("not an address")
 
         assertTrue(result.isFailure)
         assertEquals(0, server.requestCount)
@@ -244,7 +244,7 @@ class YaloMediaServiceRemoteTest {
             )
         }
 
-        val result = service().download(server.url("/files/pic.jpg").toString())
+        val result = dataSource().download(server.url("/files/pic.jpg").toString())
 
         assertTrue(result.isFailure)
         assertTrue(cacheDir().listFiles().orEmpty().isEmpty())
@@ -254,7 +254,7 @@ class YaloMediaServiceRemoteTest {
     fun doesNotSendTheTokenToWhoeverStoresTheFile() = runBlocking {
         server.enqueue(response(200, "the-picture"))
 
-        service().download(server.url("/files/pic.jpg").toString())
+        dataSource().download(server.url("/files/pic.jpg").toString())
 
         assertFalse(server.takeRequest().headers.names().contains("Authorization"))
     }
@@ -273,23 +273,23 @@ class YaloMediaServiceRemoteTest {
             },
         )
 
-        assertTrue(service().upload(unreadable).isFailure)
+        assertTrue(dataSource().upload(unreadable).isFailure)
     }
 
     @Test
     fun bringsItsOwnClientWhenItIsNotGivenOne() = runBlocking {
         server.enqueue(created())
 
-        val service = YaloMediaServiceRemote(
+        val dataSource = YaloMediaRemoteDataSource(
             auth = auth,
             baseUrl = server.url("/"),
             cacheDir = cacheDir(),
         )
 
-        assertEquals("yalo_1", service.upload(content()).getOrNull()?.id)
+        assertEquals("yalo_1", dataSource.upload(content()).getOrNull()?.id)
     }
 
-    private fun service(): YaloMediaServiceRemote = YaloMediaServiceRemote(
+    private fun dataSource(): YaloMediaRemoteDataSource = YaloMediaRemoteDataSource(
         auth = auth,
         baseUrl = server.url("/"),
         cacheDir = cacheDir(),

@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.chatmessage
+package ai.yalo.chat.sdk.data.datasources.chatmessage
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.log.YaloLog
@@ -16,7 +16,7 @@ import android.database.sqlite.SQLiteOpenHelper
  * exception is [COLUMN_BUTTONS], which holds a message's options as JSON
  * because they are read and written whole and are never searched on.
  */
-internal class ChatMessageDatabaseService(
+internal class ChatMessageDatabaseDataSource(
     context: Context,
     name: String? = NAME,
     logLevel: LogLevel = LogLevel.Warn,
@@ -41,7 +41,7 @@ internal class ChatMessageDatabaseService(
     companion object {
 
         @Volatile
-        private var shared: ChatMessageDatabaseService? = null
+        private var shared: ChatMessageDatabaseDataSource? = null
 
         /**
          * The one instance every chat writes through. Several helpers on the
@@ -50,9 +50,9 @@ internal class ChatMessageDatabaseService(
          *
          * Because it is shared, [logLevel] is the one the first chat asked for.
          */
-        fun of(context: Context, logLevel: LogLevel = LogLevel.Warn): ChatMessageDatabaseService =
+        fun of(context: Context, logLevel: LogLevel = LogLevel.Warn): ChatMessageDatabaseDataSource =
             shared ?: synchronized(this) {
-                shared ?: ChatMessageDatabaseService(
+                shared ?: ChatMessageDatabaseDataSource(
                     context.applicationContext,
                     logLevel = logLevel,
                 ).also { shared = it }
