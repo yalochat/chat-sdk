@@ -48,12 +48,9 @@ import org.robolectric.shadows.ShadowLog
 import java.io.IOException
 
 /**
- * Covers what only the shell can get wrong.
- *
- * Which command follows which event is the state machine's to answer and is
- * tested in [MessageConnectionTest] without any of this machinery. What is left
- * here is the translation: the address it dials, the wire format it reads and
- * writes, and whether the timers it is told to start actually fire.
+ * Covers the conversation the SDK holds with the channel: the address it dials,
+ * the wire format it reads and writes, what it does with a message while the
+ * line is down and how long it waits before opening the line again.
  *
  * Robolectric is here because the frames are classified with `org.json`, which
  * throws out of a plain JVM test. The socket itself is a fake, so the delays are
@@ -225,7 +222,7 @@ class YaloMessageServiceWebsocketTest {
         val result = service.send(textMessage("cid-1", "hi"))
         runCurrent()
 
-        assertTrue(result.exceptionOrNull() is MessageConnectionClosedException)
+        assertTrue(result.exceptionOrNull() is MessageServiceClosedException)
         assertTrue(sockets.opened.isEmpty())
     }
 
@@ -418,6 +415,133 @@ class YaloMessageServiceWebsocketTest {
         assertEquals(2, sockets.opened.size)
     }
 
+    @Test
+    fun opensOnlyOneSocketWhenAskedToConnectTwice() = runTest(scheduler) {
+        val service = service()
+
+        service.connect()
+        service.connect()
+        runCurrent()
+
+        assertEquals(1, sockets.opened.size)
+    }
+
+    @Test
+    fun ignoresComingBackWhenItNeverWentAway() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+
+        service.resume()
+        runCurrent()
+
+        assertEquals(1, sockets.opened.size)
+    }
+
+    @Test
+    fun keepsWhatItWasHoldingWhileTheAppIsAway() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+        service.pause()
+        runCurrent()
+
+        val result = service.send(textMessage("cid-1", "held"))
+        service.resume()
+        sockets.last().open()
+        sockets.last().acknowledge()
+        runCurrent()
+
+        assertTrue(result.isSuccess)
+        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlationId)
+    }
+
+    @Test
+    fun forgetsWhatItWasHoldingWhenTheChatIsClosed() = runTest(scheduler) {
+        val service = service()
+        service.connect()
+        runCurrent()
+        sockets.last().open()
+        service.send(textMessage("cid-1", "held"))
+        runCurrent()
+
+        service.close()
+        service.connect()
+        sockets.last().open()
+        sockets.last().acknowledge()
+        runCurrent()
+
+        assertTrue(sockets.last().sent.isEmpty())
+    }
+
+    @Test
+    fun reportsAFailureWhenTheChatIsClosedAgain() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+        service.close()
+
+        val result = service.send(textMessage("cid-1", "hi"))
+        runCurrent()
+
+        assertTrue(result.exceptionOrNull() is MessageServiceClosedException)
+    }
+
+    @Test
+    fun dropsTheOldestHeldMessageWhenTooManyPileUp() = runTest(scheduler) {
+        val service = service()
+        service.connect()
+        runCurrent()
+        sockets.last().open()
+
+        repeat(MAX_PENDING_FRAMES + 1) { index ->
+            service.send(textMessage("cid-$index", "held"))
+        }
+        runCurrent()
+        sockets.last().acknowledge()
+        runCurrent()
+
+        val sent = sockets.last().sent
+        assertEquals(MAX_PENDING_FRAMES, sent.size)
+        assertEquals("cid-1", parsedSdkMessage(sent.first()).correlationId)
+    }
+
+    @Test
+    fun startsTheDelaysOverOnceASocketOpens() = runTest(scheduler) {
+        val service = service()
+        service.connect()
+        runCurrent()
+
+        sockets.last().die()
+        advanceTimeBy(SECOND_MILLIS + 1)
+        sockets.last().die()
+        advanceTimeBy(2 * SECOND_MILLIS + 1)
+        assertEquals(3, sockets.opened.size)
+
+        sockets.last().open()
+        runCurrent()
+        sockets.last().die()
+        advanceTimeBy(SECOND_MILLIS + 1)
+
+        assertEquals("a socket that opened puts the waits back to a second", 4, sockets.opened.size)
+    }
+
+    @Test
+    fun neverWaitsLongerThanHalfAMinuteBetweenAttempts() = runTest(scheduler) {
+        val service = service()
+        service.connect()
+        runCurrent()
+        repeat(ATTEMPTS_TO_THE_LONGEST_WAIT) {
+            sockets.last().die()
+            advanceTimeBy(MAX_BACKOFF_MILLIS + 1)
+        }
+        val attempts = sockets.opened.size
+
+        sockets.last().die()
+        advanceTimeBy(MAX_BACKOFF_MILLIS)
+        assertEquals(attempts, sockets.opened.size)
+        advanceTimeBy(1)
+
+        assertEquals(attempts + 1, sockets.opened.size)
+    }
+
     private fun service(): YaloMessageService = YaloMessageServiceWebsocket(
         auth = auth,
         scope = scope,
@@ -521,6 +645,11 @@ class YaloMessageServiceWebsocketTest {
         const val SECOND_MILLIS = 1_000L
         const val ACK_TIMEOUT_MILLIS = 10_000L
         const val MINUTE_MILLIS = 60_000L
+        const val MAX_BACKOFF_MILLIS = 30_000L
+        const val MAX_PENDING_FRAMES = 128
+
+        // 1s, 2s, 4s, 8s and 16s, after which the wait stops growing.
+        const val ATTEMPTS_TO_THE_LONGEST_WAIT = 5
         const val NORMAL_CLOSURE = 1_000
 
         val PRINTER: JsonFormat.Printer = JsonFormat.printer().omittingInsignificantWhitespace()
