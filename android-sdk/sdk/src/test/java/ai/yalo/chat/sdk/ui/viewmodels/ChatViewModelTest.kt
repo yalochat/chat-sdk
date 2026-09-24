@@ -269,6 +269,25 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun dropsTheLineWhenTheChatLeavesTheScreen() {
+        val viewModel = chatViewModel()
+
+        viewModel.onScreenHidden()
+
+        assertFalse(yaloMessageRepository.isOpen)
+    }
+
+    @Test
+    fun opensTheLineAgainWhenTheChatComesBack() {
+        val viewModel = chatViewModel()
+        viewModel.onScreenHidden()
+
+        viewModel.onScreenShown()
+
+        assertTrue(yaloMessageRepository.isOpen)
+    }
+
+    @Test
     fun endsTheConversationOnceTheChatIsGone() {
         val store = ViewModelStore()
         store.put("chat", chatViewModel())

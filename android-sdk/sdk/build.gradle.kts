@@ -202,6 +202,7 @@ dependencies {
     implementation(libs.protobuf.java.util)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.jetbrains.markdown)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.androidx.compose.ui)
