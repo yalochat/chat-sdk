@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.media
+package ai.yalo.chat.sdk.data.datasources.media
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
@@ -35,13 +35,13 @@ import java.io.IOException
  * No state machine behind this one: an upload is one request and one answer.
  * Downloads are cached as files so a video never has to fit in memory.
  */
-internal class YaloMediaServiceRemote(
+internal class YaloMediaRemoteDataSource(
     private val auth: TokenRepository,
     baseUrl: HttpUrl,
     private val cacheDir: File,
     private val client: OkHttpClient = OkHttpClient(),
     logLevel: LogLevel = LogLevel.Warn,
-) : YaloMediaService {
+) : YaloMediaDataSource {
 
     private val log = YaloLog(LOG_NAME, logLevel)
     private val mediaUrl: HttpUrl = baseUrl.newBuilder().addPathSegments(MEDIA_PATH).build()

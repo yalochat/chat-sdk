@@ -3,7 +3,7 @@ package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
-import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
+import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.ui.messages.CHAT_TYPING_INDICATOR_TAG
 import ai.yalo.chat.sdk.ui.messages.CHAT_USER_MESSAGE_TAG
 import androidx.compose.foundation.layout.Box
@@ -38,7 +38,7 @@ class ChatTest {
     // one back a clean instance rather than the one it just wrote through.
     @After
     fun forgetTheSharedDatabase() {
-        ChatMessageDatabaseService.reset()
+        ChatMessageDatabaseDataSource.reset()
     }
 
     private val client = YaloChatClient(

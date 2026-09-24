@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.media
+package ai.yalo.chat.sdk.data.datasources.media
 
 import android.content.Context
 import android.net.Uri

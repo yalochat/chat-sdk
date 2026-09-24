@@ -4,17 +4,17 @@ package ai.yalo.chat.sdk.config
 import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthRemoteDataSource
+import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
+import ai.yalo.chat.sdk.data.datasources.media.YaloMediaDataSource
+import ai.yalo.chat.sdk.data.datasources.media.YaloMediaRemoteDataSource
+import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
+import ai.yalo.chat.sdk.data.datasources.message.YaloMessageWebsocketDataSource
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemote
-import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
-import ai.yalo.chat.sdk.data.services.media.YaloMediaService
-import ai.yalo.chat.sdk.data.services.media.YaloMediaServiceRemote
-import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
-import ai.yalo.chat.sdk.data.datasources.message.YaloMessageWebsocketDataSource
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,13 +44,13 @@ internal class ChatDependencies(
 
     val chatMessages: ChatMessageRepository by lazy {
         ChatMessageRepositoryLocal(
-            database = ChatMessageDatabaseService.of(applicationContext, config.logLevel),
+            database = ChatMessageDatabaseDataSource.of(applicationContext, config.logLevel),
             sessionId = config.sessionId,
         )
     }
 
     // The configured host carries no scheme, so the scheme is put on here
-    // rather than inside the services. The socket will ask the same field for
+    // rather than inside the data sources. The socket will ask the same field for
     // wss, and neither should have to strip the other's prefix off.
     private val baseUrl: HttpUrl = "https://${BuildConfig.YALO_API_BASE_URL}".toHttpUrl()
 
@@ -77,8 +77,8 @@ internal class ChatDependencies(
         )
     }
 
-    val media: YaloMediaService by lazy {
-        YaloMediaServiceRemote(
+    val media: YaloMediaDataSource by lazy {
+        YaloMediaRemoteDataSource(
             auth = auth,
             baseUrl = baseUrl,
             cacheDir = File(applicationContext.cacheDir, MEDIA_CACHE),

@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.repositories.chatmessage
 
-import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
+import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
@@ -14,13 +14,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Keeps a conversation's messages in the shared [ChatMessageDatabaseService].
+ * Keeps a conversation's messages in the shared [ChatMessageDatabaseDataSource].
  *
  * Only [SQLException] is caught. Anything else, a cancelled coroutine most of
  * all, is left to travel up.
  */
 internal class ChatMessageRepositoryLocal(
-    private val database: ChatMessageDatabaseService,
+    private val database: ChatMessageDatabaseDataSource,
     private val sessionId: String,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ChatMessageRepository {
@@ -44,8 +44,8 @@ internal class ChatMessageRepositoryLocal(
     override suspend fun clearSession(): Result<Unit> = withContext(dispatcher) {
         try {
             database.writableDatabase.delete(
-                ChatMessageDatabaseService.MESSAGE_TABLE,
-                "${ChatMessageDatabaseService.COLUMN_SESSION_ID} = ?",
+                ChatMessageDatabaseDataSource.MESSAGE_TABLE,
+                "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ?",
                 arrayOf(sessionId),
             )
             Result.success(Unit)
@@ -60,30 +60,30 @@ internal class ChatMessageRepositoryLocal(
             return alreadyStored
         }
         val values = ContentValues().apply {
-            put(ChatMessageDatabaseService.COLUMN_SESSION_ID, sessionId)
-            put(ChatMessageDatabaseService.COLUMN_WI_ID, message.wiId)
-            put(ChatMessageDatabaseService.COLUMN_ROLE, message.role.wireName)
-            put(ChatMessageDatabaseService.COLUMN_CONTENT, message.content)
-            put(ChatMessageDatabaseService.COLUMN_TYPE, message.type.wireName)
-            put(ChatMessageDatabaseService.COLUMN_STATUS, message.status.wireName)
-            put(ChatMessageDatabaseService.COLUMN_TIMESTAMP, message.timestamp)
-            put(ChatMessageDatabaseService.COLUMN_HEADER, message.header)
-            put(ChatMessageDatabaseService.COLUMN_FOOTER, message.footer)
-            put(ChatMessageDatabaseService.COLUMN_BUTTONS, MessageButtonsColumn.encode(message.buttons))
+            put(ChatMessageDatabaseDataSource.COLUMN_SESSION_ID, sessionId)
+            put(ChatMessageDatabaseDataSource.COLUMN_WI_ID, message.wiId)
+            put(ChatMessageDatabaseDataSource.COLUMN_ROLE, message.role.wireName)
+            put(ChatMessageDatabaseDataSource.COLUMN_CONTENT, message.content)
+            put(ChatMessageDatabaseDataSource.COLUMN_TYPE, message.type.wireName)
+            put(ChatMessageDatabaseDataSource.COLUMN_STATUS, message.status.wireName)
+            put(ChatMessageDatabaseDataSource.COLUMN_TIMESTAMP, message.timestamp)
+            put(ChatMessageDatabaseDataSource.COLUMN_HEADER, message.header)
+            put(ChatMessageDatabaseDataSource.COLUMN_FOOTER, message.footer)
+            put(ChatMessageDatabaseDataSource.COLUMN_BUTTONS, MessageButtonsColumn.encode(message.buttons))
         }
-        val id = database.writableDatabase.insertOrThrow(ChatMessageDatabaseService.MESSAGE_TABLE, null, values)
+        val id = database.writableDatabase.insertOrThrow(ChatMessageDatabaseDataSource.MESSAGE_TABLE, null, values)
         return message.copy(id = id)
     }
 
     private fun read(limit: Int): List<ChatMessage> =
         database.readableDatabase.query(
-            ChatMessageDatabaseService.MESSAGE_TABLE,
+            ChatMessageDatabaseDataSource.MESSAGE_TABLE,
             null,
-            "${ChatMessageDatabaseService.COLUMN_SESSION_ID} = ?",
+            "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ?",
             arrayOf(sessionId),
             null,
             null,
-            "${ChatMessageDatabaseService.COLUMN_TIMESTAMP} DESC, ${ChatMessageDatabaseService.COLUMN_ID} DESC",
+            "${ChatMessageDatabaseDataSource.COLUMN_TIMESTAMP} DESC, ${ChatMessageDatabaseDataSource.COLUMN_ID} DESC",
             limit.toString(),
         ).use { cursor ->
             buildList {
@@ -95,9 +95,9 @@ internal class ChatMessageRepositoryLocal(
 
     private fun findByWiId(wiId: String): ChatMessage? =
         database.readableDatabase.query(
-            ChatMessageDatabaseService.MESSAGE_TABLE,
+            ChatMessageDatabaseDataSource.MESSAGE_TABLE,
             null,
-            "${ChatMessageDatabaseService.COLUMN_SESSION_ID} = ? AND ${ChatMessageDatabaseService.COLUMN_WI_ID} = ?",
+            "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ? AND ${ChatMessageDatabaseDataSource.COLUMN_WI_ID} = ?",
             arrayOf(sessionId, wiId),
             null,
             null,
@@ -112,16 +112,16 @@ internal class ChatMessageRepositoryLocal(
         }
 
     private fun Cursor.toChatMessage(): ChatMessage = ChatMessage(
-        role = MessageRole.of(text(ChatMessageDatabaseService.COLUMN_ROLE)),
-        type = MessageType.of(text(ChatMessageDatabaseService.COLUMN_TYPE)),
-        timestamp = getLong(getColumnIndexOrThrow(ChatMessageDatabaseService.COLUMN_TIMESTAMP)),
-        id = getLong(getColumnIndexOrThrow(ChatMessageDatabaseService.COLUMN_ID)),
-        wiId = optionalText(ChatMessageDatabaseService.COLUMN_WI_ID),
-        content = text(ChatMessageDatabaseService.COLUMN_CONTENT),
-        status = MessageStatus.of(text(ChatMessageDatabaseService.COLUMN_STATUS)),
-        header = optionalText(ChatMessageDatabaseService.COLUMN_HEADER),
-        footer = optionalText(ChatMessageDatabaseService.COLUMN_FOOTER),
-        buttons = MessageButtonsColumn.decode(optionalText(ChatMessageDatabaseService.COLUMN_BUTTONS)),
+        role = MessageRole.of(text(ChatMessageDatabaseDataSource.COLUMN_ROLE)),
+        type = MessageType.of(text(ChatMessageDatabaseDataSource.COLUMN_TYPE)),
+        timestamp = getLong(getColumnIndexOrThrow(ChatMessageDatabaseDataSource.COLUMN_TIMESTAMP)),
+        id = getLong(getColumnIndexOrThrow(ChatMessageDatabaseDataSource.COLUMN_ID)),
+        wiId = optionalText(ChatMessageDatabaseDataSource.COLUMN_WI_ID),
+        content = text(ChatMessageDatabaseDataSource.COLUMN_CONTENT),
+        status = MessageStatus.of(text(ChatMessageDatabaseDataSource.COLUMN_STATUS)),
+        header = optionalText(ChatMessageDatabaseDataSource.COLUMN_HEADER),
+        footer = optionalText(ChatMessageDatabaseDataSource.COLUMN_FOOTER),
+        buttons = MessageButtonsColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_BUTTONS)),
     )
 
     private fun Cursor.text(column: String): String = getString(getColumnIndexOrThrow(column))

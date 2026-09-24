@@ -39,7 +39,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun authenticatesAnonymouslyWhenNoUserIsConfigured() = runBlocking {
         server.enqueue(tokenResponse())
 
-        service().authenticate()
+        dataSource().authenticate()
 
         val body = JSONObject(server.takeRequest().text())
         assertEquals("anonymous", body.getString("user_type"))
@@ -50,7 +50,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun identifiesTheUserWhenOneIsConfigured() = runBlocking {
         server.enqueue(tokenResponse())
 
-        service(config(userId = "user-1")).authenticate()
+        dataSource(config(userId = "user-1")).authenticate()
 
         val body = JSONObject(server.takeRequest().text())
         assertEquals("third_party_anonymous", body.getString("user_type"))
@@ -61,7 +61,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun sendsTheChannelItIsAuthenticatingFor() = runBlocking {
         server.enqueue(tokenResponse())
 
-        service().authenticate()
+        dataSource().authenticate()
 
         val request = server.takeRequest()
         val body = JSONObject(request.text())
@@ -80,7 +80,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun handsBackTheTokenTheBackendIssued() = runBlocking {
         server.enqueue(tokenResponse(accessToken = "issued", refreshToken = "for-later"))
 
-        val result = service().authenticate()
+        val result = dataSource().authenticate()
 
         assertEquals(AuthToken("issued", "for-later", NOW + 3_600_000), result.getOrNull())
     }
@@ -91,14 +91,14 @@ class YaloMessageAuthRemoteDataSourceTest {
             response("""{"accessToken":"camel","refreshToken":"r","expiresIn":60}"""),
         )
 
-        assertEquals(AuthToken("camel", "r", NOW + 60_000), service().authenticate().getOrNull())
+        assertEquals(AuthToken("camel", "r", NOW + 60_000), dataSource().authenticate().getOrNull())
     }
 
     @Test
     fun reportsAFailureWhenTheBackendWillNotAuthenticate() = runBlocking {
         server.enqueue(MockResponse.Builder().code(401).build())
 
-        val result = service().authenticate()
+        val result = dataSource().authenticate()
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("401") == true)
@@ -108,14 +108,14 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun reportsAFailureWhenTheBackendSendsSomethingThatIsNotAToken() = runBlocking {
         server.enqueue(response("not json at all"))
 
-        assertTrue(service().authenticate().isFailure)
+        assertTrue(dataSource().authenticate().isFailure)
     }
 
     @Test
     fun reportsAFailureWhenTheBackendCannotBeReached() = runBlocking {
         // A port nothing is listening on, which is the same to the caller as a
         // phone that has just lost its signal.
-        val unreachable = service(baseUrl = "http://localhost:1/".toHttpUrl())
+        val unreachable = dataSource(baseUrl = "http://localhost:1/".toHttpUrl())
 
         assertTrue(unreachable.authenticate().isFailure)
         assertTrue(unreachable.refresh("refresh").isFailure)
@@ -125,7 +125,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun tradesARefreshTokenForANewOne() = runBlocking {
         server.enqueue(tokenResponse(accessToken = "refreshed", refreshToken = "the-next-one"))
 
-        val result = service().refresh("the-refresh-token")
+        val result = dataSource().refresh("the-refresh-token")
 
         val request = server.takeRequest()
         assertEquals("/v1/channels/oauth/token", request.url.encodedPath)
@@ -137,7 +137,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun keepsTheRefreshTokenWhenTheAnswerCarriesNoNewOne() = runBlocking {
         server.enqueue(response("""{"access_token":"refreshed","expires_in":3600}"""))
 
-        val result = service().refresh("the-refresh-token")
+        val result = dataSource().refresh("the-refresh-token")
 
         assertEquals("the-refresh-token", result.getOrNull()?.refreshToken)
     }
@@ -146,7 +146,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     fun reportsAFailureWhenTheBackendWillNotRefresh() = runBlocking {
         server.enqueue(MockResponse.Builder().code(403).build())
 
-        val result = service().refresh("stale")
+        val result = dataSource().refresh("stale")
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("403") == true)
@@ -156,7 +156,7 @@ class YaloMessageAuthRemoteDataSourceTest {
     // Every request these tests look at does.
     private fun RecordedRequest.text(): String = requireNotNull(body).utf8()
 
-    private fun service(
+    private fun dataSource(
         config: YaloChatClientConfig = config(),
         baseUrl: HttpUrl = server.url("/"),
     ): YaloMessageAuthRemoteDataSource = YaloMessageAuthRemoteDataSource(
