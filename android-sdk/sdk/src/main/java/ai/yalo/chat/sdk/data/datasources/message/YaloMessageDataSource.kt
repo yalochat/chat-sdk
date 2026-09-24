@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.message
+package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
@@ -19,7 +19,7 @@ internal data class MessageReceived(val item: PollMessageItem) : InboundMessage
 internal data class MessageAcknowledged(val ack: SdkMessageAck) : InboundMessage
 
 /** Carries a conversation between the device and the channel. */
-internal interface YaloMessageService {
+internal interface YaloMessageDataSource {
 
     /** What the channel sends, as it arrives. Hot, and nothing is replayed. */
     val messages: Flow<InboundMessage>
@@ -47,5 +47,5 @@ internal interface YaloMessageService {
 }
 
 /** Thrown when a message is written while the chat is not open. */
-internal class MessageServiceClosedException :
+internal class MessageDataSourceClosedException :
     IllegalStateException("The chat is not open, so the message was not taken")

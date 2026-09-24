@@ -1,8 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
-import ai.yalo.chat.sdk.data.services.message.MessageReceived
-import ai.yalo.chat.sdk.data.services.message.YaloMessageService
+import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
+import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -29,7 +29,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as Wi
 
 /**
  * Says what the chat means in the wire format, and hands it to a
- * [YaloMessageService].
+ * [YaloMessageDataSource].
  *
  * The wire format stops here: above this a message is a [ChatMessage], below it
  * an `SdkMessage`, and neither side has to know about the other.
@@ -39,7 +39,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as Wi
  * and neither of those can wait.
  */
 internal class YaloMessageRepositoryRemote(
-    private val service: YaloMessageService,
+    private val source: YaloMessageDataSource,
     private val scope: CoroutineScope,
     private val now: () -> Long = System::currentTimeMillis,
     private val correlationIds: () -> String = { UUID.randomUUID().toString() },
@@ -47,12 +47,12 @@ internal class YaloMessageRepositoryRemote(
 
     override fun connect() {
         scope.launch {
-            service.connect()
+            source.connect()
         }
     }
 
     /** Only what the channel said, never an acknowledgement. */
-    override fun messages(): Flow<ChatMessage> = service.messages
+    override fun messages(): Flow<ChatMessage> = source.messages
         .filterIsInstance<MessageReceived>()
         .mapNotNull { received -> chatMessageOf(received.item) }
 
@@ -60,7 +60,7 @@ internal class YaloMessageRepositoryRemote(
         if (message.type != MessageType.Text) {
             return Result.failure(UnsupportedMessageTypeException(message.type))
         }
-        return service.send(sdkMessageOf(message))
+        return source.send(sdkMessageOf(message))
     }
 
     /**
@@ -79,7 +79,7 @@ internal class YaloMessageRepositoryRemote(
         if (openContext.isNotEmpty()) {
             request.setContext(jsonOf(openContext))
         }
-        return service.send(
+        return source.send(
             SdkMessage.newBuilder()
                 .setCorrelationId(correlationIds())
                 .setTimestamp(askedAt)
@@ -90,7 +90,7 @@ internal class YaloMessageRepositoryRemote(
 
     override fun close() {
         scope.launch {
-            service.close()
+            source.close()
         }
     }
 

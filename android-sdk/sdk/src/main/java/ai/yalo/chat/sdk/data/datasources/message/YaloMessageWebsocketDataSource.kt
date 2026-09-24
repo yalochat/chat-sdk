@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.message
+package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
@@ -48,13 +48,13 @@ import kotlin.time.Duration.Companion.milliseconds
  * server to acknowledge it, reads from it until it dies and then waits a growing
  * while before starting over. Stopping the link is cancelling that coroutine.
  */
-internal class YaloMessageServiceWebsocket(
+internal class YaloMessageWebsocketDataSource(
     private val auth: TokenRepository,
     private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val sockets: WebSocket.Factory = OkHttpClient(),
     logLevel: LogLevel = LogLevel.Warn,
-) : YaloMessageService {
+) : YaloMessageDataSource {
 
     private val log = YaloLog(LOG_NAME, logLevel)
 
@@ -133,7 +133,7 @@ internal class YaloMessageServiceWebsocket(
             when {
                 lifecycle == Lifecycle.Closed -> {
                     log.warn { "a message was written while the chat was closed" }
-                    Result.failure(MessageServiceClosedException())
+                    Result.failure(MessageDataSourceClosedException())
                 }
                 socket == null -> {
                     hold(frame)
