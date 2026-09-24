@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "lint": "eslint .",
-    "ci": "eslint .",
+    "ci": "eslint . && tsc -p cli",
     "format": "prettier . --write",
     "test": "vitest",
     "localize-extract": "lit-localize extract",
@@ -14,7 +14,10 @@
     "coverage": "vitest run --coverage",
     "build": "tsc && vite build && bun run build:sri",
     "build:sri": "./scripts/generate-sri.sh",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cli": "bun cli/main.ts",
+    "cli:typecheck": "tsc -p cli",
+    "cli:build": "bun scripts/build-cli.ts"
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.11.0",

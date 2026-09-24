@@ -14,6 +14,7 @@ Yalo Webchat SDK lets you embed a chat widget into any website with a single scr
 - [Configuration](#configuration)
 - [Theming](#theming)
 - [Methods](#methods)
+- [CLI](#cli)
 
 ## Prerequisites
 
@@ -277,3 +278,25 @@ The widget can be fully customized with CSS custom properties. See the [Theming 
 - **`client.registerCommand(command, handler)`**: Registers a handler the chat can invoke on your page, keyed by command id. Built-in command ids run your callback instead of the built-in remote call. Any other id answers custom command requests from the channel: the handler runs with the request payload and its return value is sent back as the response (see [Commands](doc/commands.md)).
 - **`client.sendTextMessage(text)`**: Sends a text message on the user's behalf, as if they had typed it in the footer. Empty or whitespace-only text is ignored. You can call it any time after `init()`. Sends requested before the chat has finished loading are queued and delivered once it is ready.
 - **`client.dispose()`**: Removes the chat widget from the page and releases its resources. Call this before navigating away in single page apps. The client can be re-initialized with `init()` after disposal.
+
+## CLI
+
+`cli/` is a small terminal client that talks to a webchat channel the same way the widget does, reusing the SDK's own auth service, message mapper and HTTPS polling transport. Use it to test a channel without a browser, or to drive it from scripts (e.g. automated evals).
+
+```bash
+bun run cli send "hola" --channel-id <uuid> --org-id <id>
+bun run cli chat --channel-id <uuid> --org-id <id>
+```
+
+Both ids are in Studio → Channels → your web-chat channel ("ID del canal" and "ID de organización").
+
+| Option                | Description                                                                 |
+| --------------------- | --------------------------------------------------------------------------- |
+| `--env prod\|staging` | Environment (default `prod`)                                                |
+| `--user-id`           | Authenticate as a third-party user instead of anonymous                     |
+| `--context '<json>'`  | Open the conversation with this context, like the widget's `openContext`    |
+| `--wait <s>`          | `send`: max time to listen for replies (default 30)                         |
+| `--quiet <s>`         | `send`: stop after this long without a new reply (default 20)               |
+| `--json`              | Print one raw `SdkMessage` per line (NDJSON), with the poll `id` and `date` |
+
+Every run authenticates as a fresh anonymous visitor (the token lives in memory only). `bun run cli:build` produces a standalone `dist/yalo-webchat` binary.
