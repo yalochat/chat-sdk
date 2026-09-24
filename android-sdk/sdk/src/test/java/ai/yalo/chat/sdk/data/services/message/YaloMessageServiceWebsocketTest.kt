@@ -3,7 +3,6 @@ package ai.yalo.chat.sdk.data.services.message
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.log.YaloLog
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole
@@ -19,6 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
@@ -65,7 +65,6 @@ import java.io.IOException
 class YaloMessageServiceWebsocketTest {
 
     private val sockets = FakeWebSocketFactory()
-    private val auth = FakeYaloMessageAuthService()
     private val scheduler = TestCoroutineScheduler()
 
     // The service outlives any one call into it: the loop that applies what the
@@ -88,7 +87,7 @@ class YaloMessageServiceWebsocketTest {
     fun opensTheSocketWithTheTokenAsAQueryParameter() = runTest(scheduler) {
         val service = service()
 
-        service.connect()
+        service.connect("access")
         runCurrent()
 
         assertEquals(
@@ -99,26 +98,24 @@ class YaloMessageServiceWebsocketTest {
 
     @Test
     fun encodesATokenThatWouldNotSurviveAUrl() = runTest(scheduler) {
-        auth.current = "a b&c=d"
         val service = service()
 
-        service.connect()
+        service.connect("a b&c=d")
         runCurrent()
 
         assertEquals("a b&c=d", sockets.opened.single().queryParameter("token"))
     }
 
     @Test
-    fun fetchesAFreshTokenForEveryAttempt() = runTest(scheduler) {
+    fun opensEveryAttemptWithTheTokenItWasGiven() = runTest(scheduler) {
         val service = service()
-        service.connect()
+        service.connect("access")
         runCurrent()
 
-        auth.current = "second"
         sockets.last().die()
         advanceTimeBy(SECOND_MILLIS + 1)
 
-        assertEquals(listOf("access", "second"), sockets.opened.map { it.queryParameter("token") })
+        assertEquals(listOf("access", "access"), sockets.opened.map { it.queryParameter("token") })
     }
 
     @Test
@@ -176,7 +173,7 @@ class YaloMessageServiceWebsocketTest {
     fun dropsMessagesThatArriveBeforeTheConnectionIsAcknowledged() = runTest(scheduler) {
         val service = service()
         val seen = collect(service.messages)
-        service.connect()
+        service.connect("access")
         runCurrent()
         sockets.last().open()
         runCurrent()
@@ -200,26 +197,7 @@ class YaloMessageServiceWebsocketTest {
     }
 
     @Test
-    fun holdsMessagesUntilTheConnectionIsAcknowledged() = runTest(scheduler) {
-        val service = service()
-        service.connect()
-        runCurrent()
-        sockets.last().open()
-        runCurrent()
-
-        val result = service.send(textMessage("cid-1", "held"))
-        runCurrent()
-        assertTrue(result.isSuccess)
-        assertTrue(sockets.last().sent.isEmpty())
-
-        sockets.last().acknowledge()
-        runCurrent()
-
-        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlationId)
-    }
-
-    @Test
-    fun reportsAFailureWhenTheChatIsNotOpen() = runTest(scheduler) {
+    fun refusesAMessageWhileThereIsNoConnection() = runTest(scheduler) {
         val service = service()
 
         val result = service.send(textMessage("cid-1", "hi"))
@@ -227,6 +205,47 @@ class YaloMessageServiceWebsocketTest {
 
         assertTrue(result.exceptionOrNull() is MessageConnectionClosedException)
         assertTrue(sockets.opened.isEmpty())
+    }
+
+    @Test
+    fun refusesAMessageWhileTheConnectionIsNotAcknowledgedYet() = runTest(scheduler) {
+        val service = service()
+        service.connect("access")
+        runCurrent()
+        sockets.last().open()
+        runCurrent()
+
+        val result = service.send(textMessage("cid-1", "hi"))
+        runCurrent()
+
+        assertTrue(result.exceptionOrNull() is MessageConnectionClosedException)
+    }
+
+    @Test
+    fun saysWhenTheChannelWillTakeMessages() = runTest(scheduler) {
+        val service = service()
+        val seen = mutableListOf<Boolean>()
+        scope.launch { service.isReady.toList(seen) }
+        runCurrent()
+
+        acknowledgedConnection(service)
+        sockets.last().die()
+        runCurrent()
+
+        assertEquals(listOf(false, true, false), seen)
+    }
+
+    @Test
+    fun reportsAFailureWhenTheChatIsClosed() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+        service.close()
+        runCurrent()
+
+        val result = service.send(textMessage("cid-1", "hi"))
+        runCurrent()
+
+        assertTrue(result.exceptionOrNull() is MessageConnectionClosedException)
     }
 
     @Test
@@ -244,7 +263,7 @@ class YaloMessageServiceWebsocketTest {
     @Test
     fun waitsLongerBeforeEachReconnectAttempt() = runTest(scheduler) {
         val service = service()
-        service.connect()
+        service.connect("access")
         runCurrent()
 
         sockets.last().die()
@@ -260,9 +279,71 @@ class YaloMessageServiceWebsocketTest {
     }
 
     @Test
+    fun neverWaitsLongerThanHalfAMinute() = runTest(scheduler) {
+        val service = service()
+        service.connect("access")
+        runCurrent()
+
+        // Six failures is past the point where the wait stops growing.
+        repeat(6) {
+            sockets.last().die()
+            advanceTimeBy(MINUTE_MILLIS)
+        }
+        val opened = sockets.opened.size
+
+        sockets.last().die()
+        advanceTimeBy(HALF_MINUTE_MILLIS + 1)
+
+        assertEquals(opened + 1, sockets.opened.size)
+    }
+
+    // A socket that opened has shown the line works, so the next failure is
+    // treated as the first one rather than carrying the old delay on.
+    @Test
+    fun startsTheDelaysOverOnceASocketOpens() = runTest(scheduler) {
+        val service = service()
+        service.connect("access")
+        runCurrent()
+        sockets.last().die()
+        advanceTimeBy(SECOND_MILLIS + 1)
+        sockets.last().die()
+        advanceTimeBy(MINUTE_MILLIS)
+
+        sockets.last().open()
+        runCurrent()
+        sockets.last().die()
+        advanceTimeBy(SECOND_MILLIS + 1)
+
+        assertEquals("the wait is a second again", 4, sockets.opened.size)
+    }
+
+    @Test
+    fun ignoresASecondRequestToConnect() = runTest(scheduler) {
+        val service = service()
+        service.connect("access")
+        runCurrent()
+
+        service.connect("another")
+        runCurrent()
+
+        assertEquals(1, sockets.opened.size)
+    }
+
+    @Test
+    fun ignoresComingBackWhenItNeverWentAway() = runTest(scheduler) {
+        val service = service()
+        acknowledgedConnection(service)
+
+        service.resume()
+        runCurrent()
+
+        assertEquals(1, sockets.opened.size)
+    }
+
+    @Test
     fun closesAConnectionThatIsNeverAcknowledged() = runTest(scheduler) {
         val service = service()
-        service.connect()
+        service.connect("access")
         runCurrent()
         sockets.last().open()
         runCurrent()
@@ -318,21 +399,6 @@ class YaloMessageServiceWebsocketTest {
     }
 
     @Test
-    fun waitsAndTriesAgainWhenNoTokenCanBeFetched() = runTest(scheduler) {
-        auth.failure = IOException("no token")
-        val service = service()
-
-        service.connect()
-        runCurrent()
-        assertTrue(sockets.opened.isEmpty())
-
-        auth.failure = null
-        advanceTimeBy(SECOND_MILLIS + 1)
-
-        assertEquals(1, sockets.opened.size)
-    }
-
-    @Test
     fun stopsAPendingReconnectWhenTheChatIsClosed() = runTest(scheduler) {
         val service = service()
         acknowledgedConnection(service)
@@ -374,7 +440,7 @@ class YaloMessageServiceWebsocketTest {
     @Test
     fun waitsForAnAcknowledgementOfTheRightKindBeforeSending() = runTest(scheduler) {
         val service = service()
-        service.connect()
+        service.connect("access")
         runCurrent()
         sockets.last().open()
         service.send(textMessage("cid-1", "held"))
@@ -419,7 +485,6 @@ class YaloMessageServiceWebsocketTest {
     }
 
     private fun service(): YaloMessageService = YaloMessageServiceWebsocket(
-        auth = auth,
         scope = scope,
         baseUrl = BASE_URL,
         sockets = sockets,
@@ -428,7 +493,7 @@ class YaloMessageServiceWebsocketTest {
 
     /** Drives a service all the way to a connection the server has acknowledged. */
     private suspend fun TestScope.acknowledgedConnection(service: YaloMessageService) {
-        service.connect()
+        service.connect("access")
         runCurrent()
         sockets.last().open()
         sockets.last().acknowledge()
@@ -521,6 +586,10 @@ class YaloMessageServiceWebsocketTest {
         const val SECOND_MILLIS = 1_000L
         const val ACK_TIMEOUT_MILLIS = 10_000L
         const val MINUTE_MILLIS = 60_000L
+        const val HALF_MINUTE_MILLIS = 30_000L
+
+        /** What the service will hold before it starts forgetting. */
+        const val HELD_LIMIT = 128
         const val NORMAL_CLOSURE = 1_000
 
         val PRINTER: JsonFormat.Printer = JsonFormat.printer().omittingInsignificantWhitespace()
@@ -605,16 +674,4 @@ class YaloMessageServiceWebsocketTest {
         override fun cancel() = Unit
     }
 
-    private class FakeYaloMessageAuthService : YaloMessageAuthService {
-
-        var current: String = "access"
-        var failure: Throwable? = null
-
-        override suspend fun token(): Result<String> =
-            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
-
-        override suspend fun invalidateToken() = Unit
-
-        override suspend fun clearSession() = Unit
-    }
 }

@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.data.services.media
 
 import ai.yalo.chat.sdk.domain.models.MessageType
 import java.io.File
+import java.io.IOException
 
 /** [signedUrl] expires, so it is worth following rather than keeping. */
 internal data class Media(
@@ -12,11 +13,18 @@ internal data class Media(
     val type: MessageType,
 )
 
-/** Moves the files a conversation carries to the backend and back. */
+/** The backend turned the token away, the one outcome worth trying again with a new one. */
+internal class TokenRefusedException : IOException("Upload failed: 401")
+
+/**
+ * Moves the files a conversation carries to the backend and back.
+ *
+ * [token] is handed in per call: what a good one is, and what to do when the
+ * backend will not take it, is the caller's.
+ */
 internal interface YaloMediaService {
 
-    /** An upload the backend turns away for a stale token is sent again with a new one. */
-    suspend fun upload(content: MediaContent): Result<Media>
+    suspend fun upload(content: MediaContent, token: String): Result<Media>
 
     /**
      * Fetches [url] into the cache and returns the file holding it. Asking twice

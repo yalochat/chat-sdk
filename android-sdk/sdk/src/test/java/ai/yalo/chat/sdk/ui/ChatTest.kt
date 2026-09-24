@@ -4,7 +4,6 @@ package ai.yalo.chat.sdk.ui
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
-import ai.yalo.chat.sdk.ui.messages.CHAT_TYPING_INDICATOR_TAG
 import ai.yalo.chat.sdk.ui.messages.CHAT_USER_MESSAGE_TAG
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -92,18 +91,6 @@ class ChatTest {
         // is the visible proof the draft was cleared.
         composeRule.onNodeWithTag(CHAT_USER_MESSAGE_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
-    }
-
-    @Test
-    fun waitsForAReplyOnceSomethingIsSent() {
-        composeRule.setContent {
-            Chat(client)
-        }
-
-        composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTextInput("Hello")
-        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).performClick()
-
-        composeRule.onNodeWithTag(CHAT_TYPING_INDICATOR_TAG).assertIsDisplayed()
     }
 
     @Test

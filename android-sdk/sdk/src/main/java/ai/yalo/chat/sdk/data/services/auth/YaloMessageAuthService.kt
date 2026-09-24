@@ -1,14 +1,22 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.auth
 
-/** Hands out an access token for one conversation, and keeps one worth handing out. */
+/**
+ * The two calls the backend offers for getting into a conversation.
+ *
+ * Nothing here remembers anything. Deciding when a token is worth asking for,
+ * and what to do with one afterwards, belongs to whoever calls this.
+ */
 internal interface YaloMessageAuthService {
 
-    /** Several callers suspending at once are answered by a single exchange with the backend. */
-    suspend fun token(): Result<String>
+    suspend fun fetchToken(): Result<AuthCredentials>
 
-    /** The next [token] will not be the one that was refused. */
-    suspend fun invalidateToken()
-
-    suspend fun clearSession()
+    suspend fun refreshToken(refreshToken: String): Result<AuthCredentials>
 }
+
+/** The lifetime arrives as a length, so it only means something next to a clock. */
+internal data class AuthCredentials(
+    val accessToken: String,
+    val refreshToken: String,
+    val expiresInSeconds: Long,
+)

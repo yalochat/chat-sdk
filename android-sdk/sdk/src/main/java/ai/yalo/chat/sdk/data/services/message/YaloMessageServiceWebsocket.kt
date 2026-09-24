@@ -2,9 +2,6 @@
 package ai.yalo.chat.sdk.data.services.message
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
-import ai.yalo.chat.sdk.data.services.message.MessageConnection.Command
-import ai.yalo.chat.sdk.data.services.message.MessageConnection.Event
 import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
@@ -14,17 +11,20 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAckType
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.util.JsonFormat
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -39,14 +39,21 @@ import okio.ByteString
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Carries out what a [MessageConnection] decides, against a real socket.
+ * Keeps a socket to the channel open, and rebuilds it whenever it is lost.
+ *
+ * One coroutine owns the connection: it opens a socket, waits for the server to
+ * acknowledge it, hands on what arrives, and when the socket dies waits a little
+ * longer each time before trying again. Cancelling that coroutine is what pause
+ * and close do, so a dropped attempt cleans up after itself rather than having
+ * to be told to.
+ *
+ * Messages written before there is a connection are held and sent once there is
+ * one. Messages written after [close] are refused.
  */
 internal class YaloMessageServiceWebsocket(
-    private val auth: YaloMessageAuthService,
     private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val sockets: WebSocket.Factory = OkHttpClient(),
@@ -54,180 +61,190 @@ internal class YaloMessageServiceWebsocket(
 ) : YaloMessageService {
 
     private val log = YaloLog(LOG_NAME, logLevel)
-    private val connection = MessageConnection()
     private val mutex = Mutex()
-    private val waiting = mutableMapOf<Long, CompletableDeferred<Unit>>()
-    private val nextRequestId = AtomicLong()
+    private val socketUrl: HttpUrl = baseUrl.newBuilder().addPathSegments(SOCKET_PATH).build()
 
-    // A socket callback arrives on OkHttp's reader thread, which cannot wait on
-    // the lock. Queueing keeps the order the server sent things in.
-    private val events = Channel<Event>(Channel.UNLIMITED)
-
-    // Delivering happens under the lock, so a listener that stopped reading
-    // must not be able to stall the connection behind it.
+    // Delivering must not be able to stall the connection behind it.
     private val incoming = MutableSharedFlow<InboundMessage>(
         extraBufferCapacity = INCOMING_BUFFER,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
-    private val socketUrl: HttpUrl = baseUrl.newBuilder().addPathSegments(SOCKET_PATH).build()
+    // All four are guarded by [mutex].
+    private var token: String? = null
+    private var closed: Boolean = false
+    private var connection: Job? = null
+    private var live: WebSocket? = null
 
-    private var socket: WebSocket? = null
-    private var ackTimer: Job? = null
-    private var reconnectTimer: Job? = null
-
-    init {
-        scope.launch {
-            for (event in events) {
-                post(event)
-            }
-        }
-    }
+    private val ready = MutableStateFlow(false)
 
     override val messages: Flow<InboundMessage> = incoming.asSharedFlow()
 
-    override suspend fun connect() {
+    override val isReady: Flow<Boolean> = ready.asStateFlow()
+
+    override suspend fun connect(token: String) {
         log.info { "connecting" }
-        post(Event.Started)
+        mutex.withLock {
+            if (closed || connection != null) {
+                return
+            }
+            this.token = token
+            connection = scope.launch { keepConnected(token) }
+        }
     }
 
     override suspend fun pause() {
         log.info { "pausing, the app went away" }
-        post(Event.Paused)
+        stopConnecting()
     }
 
     override suspend fun resume() {
         log.info { "resuming" }
-        post(Event.Resumed)
+        val token = mutex.withLock {
+            if (closed || connection != null) {
+                return
+            }
+            token ?: return
+        }
+        mutex.withLock { connection = scope.launch { keepConnected(token) } }
     }
 
     override suspend fun close() {
         log.info { "closing" }
-        post(Event.Stopped)
+        mutex.withLock { closed = true }
+        stopConnecting()
+    }
+
+    private suspend fun stopConnecting() {
+        val running = mutex.withLock {
+            val job = connection
+            connection = null
+            job
+        }
+        running?.cancelAndJoin()
     }
 
     override suspend fun send(message: SdkMessage): Result<Unit> {
         val frame = frameOf(message).getOrElse { cause -> return Result.failure(cause) }
-        val requestId = nextRequestId.incrementAndGet()
-        val answer = CompletableDeferred<Unit>()
-        mutex.withLock {
-            waiting[requestId] = answer
-            apply(Event.SendRequested(requestId, frame))
-        }
-        return try {
-            Result.success(answer.await())
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: Throwable) {
-            Result.failure(error)
-        } finally {
-            withContext(NonCancellable) {
-                mutex.withLock { waiting.remove(requestId) }
-            }
-        }
-    }
-
-    private suspend fun post(event: Event) {
-        mutex.withLock { apply(event) }
-    }
-
-    private fun apply(event: Event) {
-        for (command in connection.handle(event)) {
-            when (command) {
-                is Command.FetchToken -> scope.launch {
-                    auth.token().fold(
-                        onSuccess = { token -> events.trySend(Event.TokenFetched(command.generation, token)) },
-                        onFailure = { events.trySend(Event.TokenFetchFailed(command.generation)) },
-                    )
+        return mutex.withLock {
+            val socket = live
+            when {
+                socket == null -> Result.failure(MessageConnectionClosedException())
+                // OkHttp answers false rather than throwing when the socket will
+                // not take the frame.
+                socket.send(frame) -> {
+                    log.debug { "sent $frame" }
+                    Result.success(Unit)
                 }
-                is Command.OpenSocket -> open(command.generation, command.accessToken)
-                is Command.CloseSocket -> {
-                    log.debug { "closing the socket" }
-                    socket?.close(NORMAL_CLOSURE, null)
-                    socket = null
-                }
-                is Command.SendFrame -> {
-                    val answer = waiting.remove(command.requestId)
-                    // OkHttp answers false rather than throwing when the socket
-                    // will not take the frame.
-                    if (socket?.send(command.frame) == true) {
-                        log.debug { "sent ${command.frame}" }
-                        answer?.complete(Unit)
-                    } else {
-                        log.warn { "the socket would not take a message" }
-                        answer?.completeExceptionally(IOException(FRAME_NOT_SENT))
-                    }
-                }
-                is Command.FlushFrames -> {
-                    log.info { "sending ${command.frames.size} held back while the line was down" }
-                    for (frame in command.frames) {
-                        log.debug { "sent $frame" }
-                        socket?.send(frame)
-                    }
-                }
-                is Command.CompleteSend -> waiting.remove(command.requestId)?.complete(Unit)
-                is Command.FailSend -> {
-                    log.warn(command.cause) { "a message was not taken" }
-                    waiting.remove(command.requestId)?.completeExceptionally(command.cause)
-                }
-                is Command.DeliverMessage -> {
-                    log.debug { "the channel sent ${nameOf(command.message)}" }
-                    incoming.tryEmit(command.message)
-                }
-                is Command.StartAckTimer -> {
-                    ackTimer = timer(ackTimer, command.delayMillis) {
-                        Event.AckTimerFired(command.generation)
-                    }
-                }
-                is Command.CancelAckTimer -> {
-                    ackTimer?.cancel()
-                    ackTimer = null
-                }
-                is Command.StartReconnectTimer -> {
-                    log.info { "reconnecting in ${command.delayMillis}ms" }
-                    reconnectTimer = timer(reconnectTimer, command.delayMillis) {
-                        Event.ReconnectTimerFired(command.generation)
-                    }
-                }
-                is Command.CancelReconnectTimer -> {
-                    reconnectTimer?.cancel()
-                    reconnectTimer = null
+                else -> {
+                    log.warn { "the socket would not take a message" }
+                    Result.failure(IOException(FRAME_NOT_SENT))
                 }
             }
         }
     }
 
-    // Cancelling a job already past its wait does not unfire it, so the event it
-    // posts names its attempt and the state machine drops it.
-    private fun timer(running: Job?, delayMillis: Long, event: () -> Event): Job {
-        running?.cancel()
-        return scope.launch {
-            delay(delayMillis.milliseconds)
-            events.trySend(event())
+    /**
+     * Opens a socket, and opens another whenever the last one dies.
+     *
+     * The wait doubles after each attempt that never got a socket open. One that
+     * did starts the ladder over, since the line has shown it works.
+     */
+    private suspend fun keepConnected(token: String) {
+        var attempt = FIRST_ATTEMPT
+        while (currentCoroutineContext().isActive) {
+            val opened = connectOnce(token)
+            if (opened) {
+                attempt = FIRST_ATTEMPT
+            }
+            val wait = minOf(MAX_BACKOFF_MILLIS, INITIAL_BACKOFF_MILLIS shl attempt)
+            attempt = (attempt + 1).coerceAtMost(MAX_ATTEMPT)
+            log.info { "reconnecting in ${wait}ms" }
+            delay(wait.milliseconds)
         }
     }
 
-    private fun open(generation: Long, accessToken: String) {
+    /** Runs one socket to its end. Answers whether it ever opened. */
+    private suspend fun connectOnce(token: String): Boolean {
+        val events = Channel<SocketEvent>(Channel.UNLIMITED)
         log.info { "opening the socket to ${socketUrl.host}" }
         // The backend reads the token from the query, not a header. These are
         // JWTs, so base64url, so the literal plus addQueryParameter leaves
         // alone cannot be read back as a space.
-        val url = socketUrl.newBuilder().addQueryParameter(QUERY_TOKEN, accessToken).build()
-        socket = sockets.newWebSocket(Request.Builder().url(url).build(), Listener(generation))
+        val url = socketUrl.newBuilder().addQueryParameter(QUERY_TOKEN, token).build()
+        val socket = sockets.newWebSocket(Request.Builder().url(url).build(), Listener(events))
+
+        var opened = false
+        var acknowledged = false
+        var watchdog: Job? = null
+        try {
+            for (event in events) {
+                when (event) {
+                    is SocketEvent.Opened -> {
+                        log.info { "the socket is open" }
+                        opened = true
+                        // Nothing obliges the server to acknowledge, so a socket
+                        // that stays quiet is dropped rather than waited on.
+                        watchdog = scope.launch {
+                            delay(ACK_TIMEOUT_MILLIS.milliseconds)
+                            log.warn { "the connection was never acknowledged" }
+                            events.trySend(SocketEvent.Closed)
+                        }
+                    }
+                    is SocketEvent.Closed -> return opened
+                    is SocketEvent.Received -> when {
+                        !opened -> Unit
+                        acknowledged -> deliver(event.frame)
+                        event.frame is SocketFrame.ConnectionAck -> {
+                            acknowledged = true
+                            watchdog?.cancel()
+                            mutex.withLock { live = socket }
+                            ready.value = true
+                        }
+                        else -> Unit
+                    }
+                }
+            }
+            return opened
+        } finally {
+            watchdog?.cancel()
+            // Cancelled is the usual way out of here, and a cancelled coroutine
+            // cannot take a lock.
+            ready.value = false
+            withContext(NonCancellable) { mutex.withLock { live = null } }
+            log.debug { "closing the socket" }
+            socket.close(NORMAL_CLOSURE, null)
+        }
     }
 
-    /** One socket's reports, stamped with the attempt they belong to. */
-    private inner class Listener(private val generation: Long) : WebSocketListener() {
+    private fun deliver(frame: SocketFrame) {
+        if (frame !is SocketFrame.Payload) {
+            return
+        }
+        log.debug { "the channel sent ${nameOf(frame.message)}" }
+        incoming.tryEmit(frame.message)
+    }
+
+    private sealed interface SocketEvent {
+
+        data object Opened : SocketEvent
+
+        data object Closed : SocketEvent
+
+        data class Received(val frame: SocketFrame) : SocketEvent
+    }
+
+    /** One socket's reports. A socket that is gone has nobody reading its channel. */
+    private inner class Listener(private val events: Channel<SocketEvent>) : WebSocketListener() {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            log.info { "the socket is open" }
-            events.trySend(Event.SocketOpened(generation))
+            events.trySend(SocketEvent.Opened)
         }
 
         // Read on the reader thread rather than under the lock.
         override fun onMessage(webSocket: WebSocket, text: String) {
             log.debug { "received $text" }
-            events.trySend(Event.FrameReceived(generation, frameFrom(text)))
+            events.trySend(SocketEvent.Received(frameFrom(text)))
         }
 
         /** The wire format is text, so binary is not this protocol. */
@@ -239,12 +256,12 @@ internal class YaloMessageServiceWebsocket(
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
             log.info { "the socket closed with $code" }
-            events.trySend(Event.SocketClosed(generation))
+            events.trySend(SocketEvent.Closed)
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             log.warn(t) { "the socket failed" }
-            events.trySend(Event.SocketClosed(generation))
+            events.trySend(SocketEvent.Closed)
         }
     }
 
@@ -311,6 +328,16 @@ internal class YaloMessageServiceWebsocket(
         private const val FRAME_NOT_SENT = "The socket would not take the frame"
         private const val NORMAL_CLOSURE = 1000
         private const val INCOMING_BUFFER = 64
+
+        private const val ACK_TIMEOUT_MILLIS = 10_000L
+        private const val INITIAL_BACKOFF_MILLIS = 1_000L
+        private const val MAX_BACKOFF_MILLIS = 30_000L
+        private const val FIRST_ATTEMPT = 0
+
+        // Counting past the point where the delay stops growing keeps the shift
+        // that computes it honest.
+        private const val MAX_ATTEMPT = 5
+
 
         // The wire format is proto3 JSON, which is what these produce and accept
         // by default. Ignoring unknown fields keeps a newer backend from

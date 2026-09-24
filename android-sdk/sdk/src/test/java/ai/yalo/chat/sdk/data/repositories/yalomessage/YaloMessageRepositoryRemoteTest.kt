@@ -4,6 +4,10 @@ package ai.yalo.chat.sdk.data.repositories.yalomessage
 import ai.yalo.chat.sdk.data.services.message.InboundMessage
 import ai.yalo.chat.sdk.data.services.message.MessageAcknowledged
 import ai.yalo.chat.sdk.data.services.message.MessageReceived
+import ai.yalo.chat.sdk.LogLevel
+import ai.yalo.chat.sdk.data.repositories.token.AuthToken
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
+import ai.yalo.chat.sdk.data.services.message.MessageConnectionClosedException
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -25,8 +29,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -41,6 +47,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus as 
 class YaloMessageRepositoryRemoteTest {
 
     private val service = FakeYaloMessageService()
+    private val tokens = FakeTokenRepository()
 
     @Test
     fun sendsWhatThePersonWrote() = runTest {
@@ -188,6 +195,52 @@ class YaloMessageRepositoryRemoteTest {
         repository(this).connect()
         runCurrent()
 
+        assertTrue(service.isOpen)
+    }
+
+    @Test
+    fun opensTheLineWithACurrentToken() = runTest {
+        repository(this).connect()
+        runCurrent()
+
+        assertEquals(listOf("access"), service.tokensUsed)
+    }
+
+    // The socket is handed a token rather than fetching its own, so a backend
+    // that is not answering yet has to be waited out here or the chat never
+    // comes up at all.
+    @Test
+    fun keepsAskingForATokenUntilThereIsOne() = runTest {
+        tokens.failure = IOException("no token")
+        repository(this).connect()
+        runCurrent()
+        assertFalse(service.isOpen)
+
+        tokens.failure = null
+        advanceTimeBy(RETRY_MILLIS)
+        runCurrent()
+
+        assertTrue(service.isOpen)
+    }
+
+    @Test
+    fun waitsLongerEachTimeATokenCannotBeHad() = runTest {
+        tokens.failure = IOException("no token")
+        repository(this).connect()
+        runCurrent()
+
+        advanceTimeBy(RETRY_MILLIS)
+        runCurrent()
+        tokens.failure = null
+
+        // Still nothing: the second wait is twice the first, so the token that
+        // is now available is not asked for until it has passed.
+        advanceTimeBy(RETRY_MILLIS)
+        runCurrent()
+        assertFalse(service.isOpen)
+
+        advanceTimeBy(RETRY_MILLIS + 1)
+        runCurrent()
         assertTrue(service.isOpen)
     }
 
@@ -443,9 +496,13 @@ class YaloMessageRepositoryRemoteTest {
     private fun repository(scope: CoroutineScope): YaloMessageRepositoryRemote =
         YaloMessageRepositoryRemote(
             service = service,
+            tokens = tokens,
             scope = scope,
             now = { SENT_AT },
             correlationIds = { "generated-id" },
+            // This suite runs off Robolectric, so android.util.Log is not there
+            // to write to.
+            logLevel = LogLevel.Silent,
         )
 
     private fun message(
@@ -464,6 +521,21 @@ class YaloMessageRepositoryRemoteTest {
         status = status,
     )
 
+    private class FakeTokenRepository : TokenRepository {
+        var failure: Throwable? = null
+
+        override suspend fun token(): Result<String> =
+            failure?.let { cause -> Result.failure(cause) } ?: Result.success("access")
+
+        override suspend fun invalidateToken() = Unit
+
+        override suspend fun storedSessions(): Map<String, AuthToken> = emptyMap()
+
+        override suspend fun clearSessions(sessionIds: Set<String>) = Unit
+
+        override suspend fun clearAllSessions() = Unit
+    }
+
     private class FakeYaloMessageService : YaloMessageService {
 
         val sent: MutableList<SdkMessage> = mutableListOf()
@@ -472,19 +544,37 @@ class YaloMessageRepositoryRemoteTest {
         var failure: Throwable? = null
 
         private val incoming = MutableSharedFlow<InboundMessage>(extraBufferCapacity = 8)
+        private val ready = MutableStateFlow(false)
 
         override val messages: Flow<InboundMessage> = incoming
+
+        override val isReady: Flow<Boolean> = ready
+
+        /** The line comes up, so whatever was held goes out. */
+        fun becomeReady() {
+            ready.value = true
+        }
+
+        fun dropTheLine() {
+            ready.value = false
+        }
 
         fun receive(message: InboundMessage) {
             incoming.tryEmit(message)
         }
 
-        override suspend fun connect() {
+        val tokensUsed: MutableList<String> = mutableListOf()
+
+        override suspend fun connect(token: String) {
+            tokensUsed.add(token)
             isOpen = true
         }
 
         override suspend fun send(message: SdkMessage): Result<Unit> {
             failure?.let { error -> return Result.failure(error) }
+            if (!ready.value) {
+                return Result.failure(MessageConnectionClosedException())
+            }
             sent.add(message)
             return Result.success(Unit)
         }
@@ -499,6 +589,10 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     private companion object {
+
+        /** The first wait before a token is asked for again. */
+        const val RETRY_MILLIS = 1_000L
+
         const val WRITTEN_AT = 1_700_000_000_000L
         const val SENT_AT = 1_700_000_005_000L
         const val ARRIVED_AT = 1_700_000_009_000L

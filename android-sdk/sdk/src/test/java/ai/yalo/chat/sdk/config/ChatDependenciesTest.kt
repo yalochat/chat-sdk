@@ -17,7 +17,7 @@ class ChatDependenciesTest {
         val dependencies = dependencies()
 
         assertNotNull(dependencies.chatMessages)
-        assertNotNull(dependencies.auth)
+        assertNotNull(dependencies.tokens)
         assertNotNull(dependencies.media)
         assertNotNull(dependencies.messages)
         assertNotNull(dependencies.yaloMessages)
@@ -28,7 +28,7 @@ class ChatDependenciesTest {
         val dependencies = dependencies()
 
         assertSame(dependencies.chatMessages, dependencies.chatMessages)
-        assertSame(dependencies.auth, dependencies.auth)
+        assertSame(dependencies.tokens, dependencies.tokens)
         assertSame(dependencies.media, dependencies.media)
         assertSame(dependencies.messages, dependencies.messages)
         assertSame(dependencies.yaloMessages, dependencies.yaloMessages)

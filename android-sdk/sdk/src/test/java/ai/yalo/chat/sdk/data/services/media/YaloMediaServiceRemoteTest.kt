@@ -2,7 +2,6 @@
 package ai.yalo.chat.sdk.data.services.media
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.domain.models.MessageType
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
@@ -32,7 +31,6 @@ class YaloMediaServiceRemoteTest {
     val cache = TemporaryFolder()
 
     private lateinit var server: MockWebServer
-    private val auth = FakeYaloMessageAuthService()
 
     @Before
     fun startServer() {
@@ -49,7 +47,7 @@ class YaloMediaServiceRemoteTest {
     fun sendsTheFileToTheMediaEndpointWithTheToken() = runBlocking {
         server.enqueue(created())
 
-        service().upload(content())
+        service().upload(content(), "access")
 
         val request = server.takeRequest()
         assertEquals("/v1/channels/all/media", request.url.encodedPath)
@@ -60,7 +58,7 @@ class YaloMediaServiceRemoteTest {
     fun sendsTheFileAsAFormPartNamedFile() = runBlocking {
         server.enqueue(created())
 
-        service().upload(content(fileName = "holiday.jpg", payload = "the-bytes"))
+        service().upload(content(fileName = "holiday.jpg", payload = "the-bytes"), "access")
 
         val body = requireNotNull(server.takeRequest().body).utf8()
         assertTrue(body.contains("""name="file"; filename="holiday.jpg""""))
@@ -75,7 +73,7 @@ class YaloMediaServiceRemoteTest {
     fun saysHowLongTheFileIsRatherThanSendingItInChunks() = runBlocking {
         server.enqueue(created())
 
-        service().upload(content(payload = "0123456789"))
+        service().upload(content(payload = "0123456789"), "access")
 
         val request = server.takeRequest()
         assertTrue(request.chunkSizes.orEmpty().isEmpty())
@@ -86,7 +84,7 @@ class YaloMediaServiceRemoteTest {
     fun readsBackTheMediaTheBackendCreated() = runBlocking {
         server.enqueue(created(id = "yalo_42", type = "voice"))
 
-        val media = service().upload(content()).getOrNull()
+        val media = service().upload(content(), "access").getOrNull()
 
         assertEquals("yalo_42", media?.id)
         assertEquals("https://files.example/yalo_42?signature=first", media?.signedUrl)
@@ -103,47 +101,26 @@ class YaloMediaServiceRemoteTest {
             ),
         )
 
-        val media = service().upload(content()).getOrNull()
+        val media = service().upload(content(), "access").getOrNull()
 
         assertEquals("https://files.example/1", media?.signedUrl)
         assertEquals("a.jpg", media?.originalName)
     }
 
-    // The second request carrying the payload is the point. A body that had
-    // already been spent would be sent empty, and the test would still see two
-    // requests and a success.
     @Test
-    fun getsANewTokenAndSendsTheFileAgainWhenTheOldTokenIsRefused() = runBlocking {
-        server.enqueue(response(401))
-        server.enqueue(created())
-
-        val media = service().upload(content(payload = "the-bytes")).getOrNull()
-
-        server.takeRequest()
-        val retry = server.takeRequest()
-        assertEquals("yalo_1", media?.id)
-        assertEquals(1, auth.invalidations)
-        assertEquals("Bearer refreshed", retry.headers["Authorization"])
-        assertTrue(requireNotNull(retry.body).utf8().contains("the-bytes"))
-    }
-
-    @Test
-    fun givesUpWhenTheSecondTokenIsRefusedToo() = runBlocking {
-        server.enqueue(response(401))
+    fun saysTheTokenWasRefusedSoTheCallerCanTryAgainWithANewOne() = runBlocking {
         server.enqueue(response(401))
 
-        val result = service().upload(content())
+        val result = service().upload(content(), "stale")
 
-        assertTrue(result.isFailure)
-        assertEquals(2, server.requestCount)
-        assertTrue(result.exceptionOrNull()?.message?.contains("401") == true)
+        assertTrue(result.exceptionOrNull() is TokenRefusedException)
     }
 
     @Test
     fun reportsAFailureWhenTheBackendWillNotTakeTheFile() = runBlocking {
         server.enqueue(response(500))
 
-        val result = service().upload(content())
+        val result = service().upload(content(), "access")
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("500") == true)
@@ -155,24 +132,14 @@ class YaloMediaServiceRemoteTest {
     fun reportsAFailureWhenTheBackendAnswersWithoutCreatingAnything() = runBlocking {
         server.enqueue(response(200, """{"id":"yalo_1"}"""))
 
-        assertTrue(service().upload(content()).isFailure)
+        assertTrue(service().upload(content(), "access").isFailure)
     }
 
     @Test
     fun reportsAFailureWhenTheBackendSendsSomethingThatIsNotMedia() = runBlocking {
         server.enqueue(response(201, "not json at all"))
 
-        assertTrue(service().upload(content()).isFailure)
-    }
-
-    @Test
-    fun reportsAFailureWhenNoTokenCanBeHad() = runBlocking {
-        auth.failure = IOException("no token")
-
-        val result = service().upload(content())
-
-        assertEquals(0, server.requestCount)
-        assertEquals("no token", result.exceptionOrNull()?.message)
+        assertTrue(service().upload(content(), "access").isFailure)
     }
 
     @Test
@@ -273,7 +240,7 @@ class YaloMediaServiceRemoteTest {
             },
         )
 
-        assertTrue(service().upload(unreadable).isFailure)
+        assertTrue(service().upload(unreadable, "access").isFailure)
     }
 
     @Test
@@ -281,16 +248,14 @@ class YaloMediaServiceRemoteTest {
         server.enqueue(created())
 
         val service = YaloMediaServiceRemote(
-            auth = auth,
-            baseUrl = server.url("/"),
+                baseUrl = server.url("/"),
             cacheDir = cacheDir(),
         )
 
-        assertEquals("yalo_1", service.upload(content()).getOrNull()?.id)
+        assertEquals("yalo_1", service.upload(content(), "access").getOrNull()?.id)
     }
 
     private fun service(): YaloMediaServiceRemote = YaloMediaServiceRemote(
-        auth = auth,
         baseUrl = server.url("/"),
         cacheDir = cacheDir(),
         client = OkHttpClient(),
@@ -321,20 +286,4 @@ class YaloMediaServiceRemoteTest {
     private fun response(code: Int, body: String = ""): MockResponse =
         MockResponse.Builder().code(code).body(body).build()
 
-    private class FakeYaloMessageAuthService : YaloMessageAuthService {
-
-        var current: String = "access"
-        var failure: Throwable? = null
-        var invalidations: Int = 0
-
-        override suspend fun token(): Result<String> =
-            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
-
-        override suspend fun invalidateToken() {
-            invalidations++
-            current = "refreshed"
-        }
-
-        override suspend fun clearSession() = Unit
-    }
 }

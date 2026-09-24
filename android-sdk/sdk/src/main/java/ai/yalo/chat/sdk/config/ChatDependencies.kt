@@ -5,25 +5,29 @@ import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
+import ai.yalo.chat.sdk.data.repositories.media.MediaRepositoryRemote
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.token.authTokenStore
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemote
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
 import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthServiceRemote
-import ai.yalo.chat.sdk.data.services.auth.AuthTokenStorageLocal
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaServiceRemote
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.data.services.message.YaloMessageServiceWebsocket
 import android.content.Context
+import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import java.io.File
-import java.util.concurrent.TimeUnit
 
 /**
  * Everything one conversation needs, built the first time it is asked for.
@@ -63,24 +67,22 @@ internal class ChatDependencies(
     // so closing the chat has one thing to cancel rather than several.
     private val scope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
 
-    val auth: YaloMessageAuthService by lazy {
-        YaloMessageAuthServiceRemote(
+    private val auth: YaloMessageAuthService by lazy {
+        YaloMessageAuthServiceRemote(config = config, baseUrl = baseUrl, client = client)
+    }
+
+    val tokens: TokenRepository by lazy {
+        TokenRepositoryLocal(
             config = config,
-            storage = AuthTokenStorageLocal.of(
-                context = applicationContext,
-                sessionId = config.sessionId,
-                logLevel = config.logLevel,
-            ),
+            auth = auth,
+            store = applicationContext.authTokenStore,
             scope = scope,
-            baseUrl = baseUrl,
-            client = client,
             logLevel = config.logLevel,
         )
     }
 
-    val media: YaloMediaService by lazy {
+    private val mediaService: YaloMediaService by lazy {
         YaloMediaServiceRemote(
-            auth = auth,
             baseUrl = baseUrl,
             cacheDir = File(applicationContext.cacheDir, MEDIA_CACHE),
             client = client,
@@ -88,9 +90,12 @@ internal class ChatDependencies(
         )
     }
 
+    val media: MediaRepository by lazy {
+        MediaRepositoryRemote(media = mediaService, tokens = tokens)
+    }
+
     val messages: YaloMessageService by lazy {
         YaloMessageServiceWebsocket(
-            auth = auth,
             scope = scope,
             baseUrl = baseUrl,
             // Built from the shared client so the socket keeps the same
@@ -107,7 +112,12 @@ internal class ChatDependencies(
     }
 
     val yaloMessages: YaloMessageRepository by lazy {
-        YaloMessageRepositoryRemote(service = messages, scope = scope)
+        YaloMessageRepositoryRemote(
+            service = messages,
+            tokens = tokens,
+            scope = scope,
+            logLevel = config.logLevel,
+        )
     }
 
     private companion object {

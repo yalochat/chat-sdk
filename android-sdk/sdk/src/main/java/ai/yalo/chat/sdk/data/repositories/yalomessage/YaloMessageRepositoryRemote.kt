@@ -2,6 +2,10 @@
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
 import ai.yalo.chat.sdk.data.services.message.MessageReceived
+import ai.yalo.chat.sdk.LogLevel
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
+import ai.yalo.chat.sdk.log.YaloLog
+import ai.yalo.chat.sdk.data.services.message.MessageConnectionClosedException
 import ai.yalo.chat.sdk.data.services.message.YaloMessageService
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
@@ -20,6 +24,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.launch
 import java.util.UUID
 import ai.yalo.chat.sdk.domain.models.MessageStatus as ChatStatus
@@ -40,14 +48,49 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as Wi
  */
 internal class YaloMessageRepositoryRemote(
     private val service: YaloMessageService,
+    private val tokens: TokenRepository,
     private val scope: CoroutineScope,
     private val now: () -> Long = System::currentTimeMillis,
     private val correlationIds: () -> String = { UUID.randomUUID().toString() },
+    logLevel: LogLevel = LogLevel.Warn,
 ) : YaloMessageRepository {
 
+    private val log = YaloLog(LOG_NAME, logLevel)
+    private val mutex = Mutex()
+
+    // Guarded by [mutex]. What could not be sent yet, oldest first.
+    private val held = mutableListOf<SdkMessage>()
+    private var closed: Boolean = false
+
+    /**
+     * Keeps asking for a token until there is one, then connects with it.
+     *
+     * The socket is given the token rather than fetching its own, so the waiting
+     * has to happen here: without this a single failure on a cold network would
+     * leave the chat off until something called this again.
+     */
     override fun connect() {
         scope.launch {
-            service.connect()
+            // Each acknowledged connection is the chance to send what piled up
+            // while there was not one.
+            service.isReady.collect { ready ->
+                if (ready) {
+                    flushHeld()
+                }
+            }
+        }
+        scope.launch {
+            var backoffMillis = INITIAL_BACKOFF_MILLIS
+            while (isActive) {
+                val token = tokens.token().getOrNull()
+                if (token != null) {
+                    service.connect(token)
+                    return@launch
+                }
+                log.warn { "no token to connect with, trying again in $backoffMillis ms" }
+                delay(backoffMillis)
+                backoffMillis = (backoffMillis * 2).coerceAtMost(MAX_BACKOFF_MILLIS)
+            }
         }
     }
 
@@ -60,7 +103,48 @@ internal class YaloMessageRepositoryRemote(
         if (message.type != MessageType.Text) {
             return Result.failure(UnsupportedMessageTypeException(message.type))
         }
-        return service.send(sdkMessageOf(message))
+        return deliver(sdkMessageOf(message))
+    }
+
+    /**
+     * Sends [message], or holds it until there is a connection to send it on.
+     *
+     * Taking a message is what lets the chat show it as on its way, so one
+     * written while the line is down is held rather than refused. Once the chat
+     * is closed there is nothing left to wait for, so it is refused.
+     */
+    private suspend fun deliver(message: SdkMessage): Result<Unit> {
+        val result = service.send(message)
+        if (result.exceptionOrNull() !is MessageConnectionClosedException) {
+            return result
+        }
+        return mutex.withLock {
+            if (closed) {
+                return@withLock result
+            }
+            held += message
+            // Holding without end would grow without end, so the oldest goes.
+            if (held.size > MAX_HELD_MESSAGES) {
+                held.removeAt(0)
+            }
+            log.debug { "holding a message until the line is back" }
+            Result.success(Unit)
+        }
+    }
+
+    private suspend fun flushHeld() {
+        val waiting = mutex.withLock {
+            val all = held.toList()
+            held.clear()
+            all
+        }
+        if (waiting.isEmpty()) {
+            return
+        }
+        log.info { "sending ${waiting.size} held back while the line was down" }
+        for (message in waiting) {
+            service.send(message)
+        }
     }
 
     /**
@@ -90,6 +174,10 @@ internal class YaloMessageRepositoryRemote(
 
     override fun close() {
         scope.launch {
+            mutex.withLock {
+                closed = true
+                held.clear()
+            }
             service.close()
         }
     }
@@ -191,6 +279,15 @@ internal class YaloMessageRepositoryRemote(
  * Anything else, a cart answer for instance, is an exchange rather than
  * something anyone said.
  */
+private const val LOG_NAME = "Messages"
+
+private const val MAX_HELD_MESSAGES = 128
+
+// The same ladder the socket climbs for a lost connection, so a backend that is
+// down is waited out at one pace rather than two.
+private const val INITIAL_BACKOFF_MILLIS = 1_000L
+private const val MAX_BACKOFF_MILLIS = 30_000L
+
 private val INBOUND_TYPES: Map<SdkMessage.PayloadCase, MessageType> = mapOf(
     SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST to MessageType.Text,
     SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST to MessageType.Image,
@@ -235,4 +332,5 @@ private fun quoted(text: String): String = buildString {
         }
     }
     append('"')
+
 }
