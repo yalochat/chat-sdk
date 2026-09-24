@@ -14,6 +14,7 @@ import org.intellij.markdown.ast.getTextInNode
 import org.intellij.markdown.flavours.gfm.GFMElementTypes
 import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes
+import org.intellij.markdown.parser.CancellationToken
 import org.intellij.markdown.parser.MarkdownParser
 
 /**
@@ -33,12 +34,18 @@ internal fun markdownToAnnotatedString(
     styles: MarkdownStyles = MarkdownStyles(),
 ): AnnotatedString = MarkdownAnnotator(source, styles).build()
 
-private class MarkdownAnnotator(private val source: String, private val styles: MarkdownStyles) {
+private class MarkdownAnnotator(
+    private val source: CharSequence,
+    private val styles: MarkdownStyles,
+) {
 
     private val out = AnnotatedString.Builder()
 
     fun build(): AnnotatedString {
-        val tree = MarkdownParser(GFMFlavourDescriptor()).buildMarkdownTreeFromString(source)
+        val tree = MarkdownParser(
+            flavour = GFMFlavourDescriptor(),
+            cancellationToken = CancellationToken.NonCancellable,
+        ).buildMarkdownTreeFromString(source)
         appendBlocks(tree.children)
         return out.toAnnotatedString()
     }

@@ -3,13 +3,13 @@ package ai.yalo.chat.sdk.config
 
 import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthRemoteDataSource
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemote
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthServiceRemote
-import ai.yalo.chat.sdk.data.services.auth.AuthTokenStorageLocal
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaServiceRemote
@@ -63,17 +63,16 @@ internal class ChatDependencies(
     // so closing the chat has one thing to cancel rather than several.
     private val scope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
 
-    val auth: YaloMessageAuthService by lazy {
-        YaloMessageAuthServiceRemote(
-            config = config,
-            storage = AuthTokenStorageLocal.of(
-                context = applicationContext,
-                sessionId = config.sessionId,
+    val auth: TokenRepository by lazy {
+        TokenRepositoryLocal.of(
+            context = applicationContext,
+            dataSource = YaloMessageAuthRemoteDataSource(
+                config = config,
+                baseUrl = baseUrl,
+                client = client,
                 logLevel = config.logLevel,
             ),
-            scope = scope,
-            baseUrl = baseUrl,
-            client = client,
+            sessionId = config.sessionId,
             logLevel = config.logLevel,
         )
     }

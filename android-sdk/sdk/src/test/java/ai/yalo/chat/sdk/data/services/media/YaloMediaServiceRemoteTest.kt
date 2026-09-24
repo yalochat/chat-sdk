@@ -2,7 +2,7 @@
 package ai.yalo.chat.sdk.data.services.media
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.MessageType
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
@@ -32,7 +32,7 @@ class YaloMediaServiceRemoteTest {
     val cache = TemporaryFolder()
 
     private lateinit var server: MockWebServer
-    private val auth = FakeYaloMessageAuthService()
+    private val auth = FakeTokenRepository()
 
     @Before
     fun startServer() {
@@ -321,7 +321,7 @@ class YaloMediaServiceRemoteTest {
     private fun response(code: Int, body: String = ""): MockResponse =
         MockResponse.Builder().code(code).body(body).build()
 
-    private class FakeYaloMessageAuthService : YaloMessageAuthService {
+    private class FakeTokenRepository : TokenRepository {
 
         var current: String = "access"
         var failure: Throwable? = null

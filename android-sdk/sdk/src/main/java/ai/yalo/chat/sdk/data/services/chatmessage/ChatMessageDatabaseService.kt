@@ -58,10 +58,12 @@ internal class ChatMessageDatabaseService(
                 ).also { shared = it }
             }
 
-        /** Closes the shared instance and forgets it, so a test starts clean. */
+        /**
+         * Forgets the shared instance so the next test builds its own. The old
+         * one is left open because reads a test started may still be running.
+         */
         fun reset() {
             synchronized(this) {
-                shared?.close()
                 shared = null
             }
         }

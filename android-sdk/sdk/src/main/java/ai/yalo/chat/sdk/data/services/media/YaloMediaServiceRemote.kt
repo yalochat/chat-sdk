@@ -2,7 +2,7 @@
 package ai.yalo.chat.sdk.data.services.media
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.log.YaloLog
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +36,7 @@ import java.io.IOException
  * Downloads are cached as files so a video never has to fit in memory.
  */
 internal class YaloMediaServiceRemote(
-    private val auth: YaloMessageAuthService,
+    private val auth: TokenRepository,
     baseUrl: HttpUrl,
     private val cacheDir: File,
     private val client: OkHttpClient = OkHttpClient(),
