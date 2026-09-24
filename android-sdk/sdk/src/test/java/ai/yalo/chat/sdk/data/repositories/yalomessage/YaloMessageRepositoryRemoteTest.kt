@@ -1,10 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
-import ai.yalo.chat.sdk.data.services.message.InboundMessage
-import ai.yalo.chat.sdk.data.services.message.MessageAcknowledged
-import ai.yalo.chat.sdk.data.services.message.MessageReceived
-import ai.yalo.chat.sdk.data.services.message.YaloMessageService
+import ai.yalo.chat.sdk.data.datasources.message.InboundMessage
+import ai.yalo.chat.sdk.data.datasources.message.MessageAcknowledged
+import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
+import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -40,7 +40,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus as 
 @OptIn(ExperimentalCoroutinesApi::class)
 class YaloMessageRepositoryRemoteTest {
 
-    private val service = FakeYaloMessageService()
+    private val source = FakeYaloMessageDataSource()
 
     @Test
     fun sendsWhatThePersonWrote() = runTest {
@@ -53,14 +53,14 @@ class YaloMessageRepositoryRemoteTest {
     fun sendsAMessageAsComingFromWhoeverWroteIt() = runTest {
         repository().send(message(role = MessageRole.User))
 
-        assertEquals(WireRole.MESSAGE_ROLE_USER, service.sent.single().textMessageRequest.content.role)
+        assertEquals(WireRole.MESSAGE_ROLE_USER, source.sent.single().textMessageRequest.content.role)
     }
 
     @Test
     fun sendsAMessageAsComingFromTheChannelWhenThatIsWhoWroteIt() = runTest {
         repository().send(message(role = MessageRole.Agent))
 
-        assertEquals(WireRole.MESSAGE_ROLE_AGENT, service.sent.single().textMessageRequest.content.role)
+        assertEquals(WireRole.MESSAGE_ROLE_AGENT, source.sent.single().textMessageRequest.content.role)
     }
 
     // Whatever the stored row says, a message on its way out has not arrived
@@ -71,7 +71,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             WireStatus.MESSAGE_STATUS_IN_PROGRESS,
-            service.sent.single().textMessageRequest.content.status,
+            source.sent.single().textMessageRequest.content.status,
         )
     }
 
@@ -81,7 +81,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             WRITTEN_AT,
-            Timestamps.toMillis(service.sent.single().textMessageRequest.content.timestamp),
+            Timestamps.toMillis(source.sent.single().textMessageRequest.content.timestamp),
         )
     }
 
@@ -89,7 +89,7 @@ class YaloMessageRepositoryRemoteTest {
     fun saysWhenTheMessageWasSentApartFromWhenItWasWritten() = runTest {
         repository().send(message(timestamp = WRITTEN_AT))
 
-        assertEquals(SENT_AT, Timestamps.toMillis(service.sent.single().timestamp))
+        assertEquals(SENT_AT, Timestamps.toMillis(source.sent.single().timestamp))
     }
 
     // An acknowledgement comes back naming the correlation id, so the row id is
@@ -98,14 +98,14 @@ class YaloMessageRepositoryRemoteTest {
     fun namesTheMessageAfterTheRowItWasStoredAs() = runTest {
         repository().send(message(id = 42L))
 
-        assertEquals("42", service.sent.single().correlationId)
+        assertEquals("42", source.sent.single().correlationId)
     }
 
     @Test
     fun givesAMessageThatWasNeverStoredAnIdOfItsOwn() = runTest {
         repository().send(message(id = null))
 
-        assertEquals("generated-id", service.sent.single().correlationId)
+        assertEquals("generated-id", source.sent.single().correlationId)
     }
 
     @Test
@@ -117,7 +117,7 @@ class YaloMessageRepositoryRemoteTest {
 
     @Test
     fun reportsAMessageTheChannelWouldNotTake() = runTest {
-        service.failure = IOException("the line is down")
+        source.failure = IOException("the line is down")
 
         val result = repository().send(message())
 
@@ -129,7 +129,7 @@ class YaloMessageRepositoryRemoteTest {
         val result = repository().send(message(type = MessageType.Image))
 
         assertTrue(result.exceptionOrNull() is UnsupportedMessageTypeException)
-        assertEquals(emptyList<SdkMessage>(), service.sent)
+        assertEquals(emptyList<SdkMessage>(), source.sent)
     }
 
     @Test
@@ -138,9 +138,9 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             SdkMessage.PayloadCase.GUIDANCE_CARD_REQUEST,
-            service.sent.single().payloadCase,
+            source.sent.single().payloadCase,
         )
-        assertEquals(SENT_AT, Timestamps.toMillis(service.sent.single().guidanceCardRequest.timestamp))
+        assertEquals(SENT_AT, Timestamps.toMillis(source.sent.single().guidanceCardRequest.timestamp))
     }
 
     @Test
@@ -149,7 +149,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             """{"source":"product-page","sku":"123"}""",
-            service.sent.single().guidanceCardRequest.context,
+            source.sent.single().guidanceCardRequest.context,
         )
     }
 
@@ -163,7 +163,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             """{"note":"a \"quoted\" \\ line\r\n\tand a \u0001 of its own"}""",
-            service.sent.single().guidanceCardRequest.context,
+            source.sent.single().guidanceCardRequest.context,
         )
     }
 
@@ -171,12 +171,12 @@ class YaloMessageRepositoryRemoteTest {
     fun leavesTheContextOutWhenTheChatWasOpenedFromNothing() = runTest {
         repository().requestGuidanceCard()
 
-        assertFalse(service.sent.single().guidanceCardRequest.hasContext())
+        assertFalse(source.sent.single().guidanceCardRequest.hasContext())
     }
 
     @Test
     fun reportsAnOpenTheChannelWouldNotTake() = runTest {
-        service.failure = IOException("the line is down")
+        source.failure = IOException("the line is down")
 
         val result = repository().requestGuidanceCard()
 
@@ -188,7 +188,7 @@ class YaloMessageRepositoryRemoteTest {
         repository(this).connect()
         runCurrent()
 
-        assertTrue(service.isOpen)
+        assertTrue(source.isOpen)
     }
 
     @Test
@@ -200,7 +200,7 @@ class YaloMessageRepositoryRemoteTest {
         repository.close()
         runCurrent()
 
-        assertFalse(service.isOpen)
+        assertFalse(source.isOpen)
     }
 
     @Test
@@ -360,7 +360,7 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(emptyList<ChatMessage>(), received)
     }
 
-    private fun sentText(): String = service.sent.single().textMessageRequest.content.text
+    private fun sentText(): String = source.sent.single().textMessageRequest.content.text
 
     /** What the repository makes of [inbound], once the channel has sent it. */
     private fun TestScope.received(vararg inbound: InboundMessage): List<ChatMessage> {
@@ -369,7 +369,7 @@ class YaloMessageRepositoryRemoteTest {
             repository(this@received).messages().collect { message -> received.add(message) }
         }
         runCurrent()
-        inbound.forEach { message -> service.receive(message) }
+        inbound.forEach { message -> source.receive(message) }
         runCurrent()
         collector.cancel()
         return received
@@ -442,7 +442,7 @@ class YaloMessageRepositoryRemoteTest {
 
     private fun repository(scope: CoroutineScope): YaloMessageRepositoryRemote =
         YaloMessageRepositoryRemote(
-            service = service,
+            source = source,
             scope = scope,
             now = { SENT_AT },
             correlationIds = { "generated-id" },
@@ -464,7 +464,7 @@ class YaloMessageRepositoryRemoteTest {
         status = status,
     )
 
-    private class FakeYaloMessageService : YaloMessageService {
+    private class FakeYaloMessageDataSource : YaloMessageDataSource {
 
         val sent: MutableList<SdkMessage> = mutableListOf()
         var isOpen: Boolean = false

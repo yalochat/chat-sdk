@@ -1,10 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.message
+package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import kotlinx.coroutines.flow.Flow
+
+/**
+ * Something the channel sent that a listener is meant to see. Held apart from
+ * the wire format so a listener never sees a frame.
+ */
+internal sealed interface InboundMessage
 
 /** A message the channel sent into the conversation. */
 internal data class MessageReceived(val item: PollMessageItem) : InboundMessage
@@ -13,7 +19,7 @@ internal data class MessageReceived(val item: PollMessageItem) : InboundMessage
 internal data class MessageAcknowledged(val ack: SdkMessageAck) : InboundMessage
 
 /** Carries a conversation between the device and the channel. */
-internal interface YaloMessageService {
+internal interface YaloMessageDataSource {
 
     /** What the channel sends, as it arrives. Hot, and nothing is replayed. */
     val messages: Flow<InboundMessage>
@@ -39,3 +45,7 @@ internal interface YaloMessageService {
     /** Ends the conversation and forgets what was being held for it. */
     suspend fun close()
 }
+
+/** Thrown when a message is written while the chat is not open. */
+internal class MessageDataSourceClosedException :
+    IllegalStateException("The chat is not open, so the message was not taken")

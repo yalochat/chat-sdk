@@ -13,8 +13,8 @@ import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemot
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaServiceRemote
-import ai.yalo.chat.sdk.data.services.message.YaloMessageService
-import ai.yalo.chat.sdk.data.services.message.YaloMessageServiceWebsocket
+import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
+import ai.yalo.chat.sdk.data.datasources.message.YaloMessageWebsocketDataSource
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,8 +87,8 @@ internal class ChatDependencies(
         )
     }
 
-    val messages: YaloMessageService by lazy {
-        YaloMessageServiceWebsocket(
+    val messages: YaloMessageDataSource by lazy {
+        YaloMessageWebsocketDataSource(
             auth = auth,
             scope = scope,
             baseUrl = baseUrl,
@@ -106,7 +106,7 @@ internal class ChatDependencies(
     }
 
     val yaloMessages: YaloMessageRepository by lazy {
-        YaloMessageRepositoryRemote(service = messages, scope = scope)
+        YaloMessageRepositoryRemote(source = messages, scope = scope)
     }
 
     private companion object {
