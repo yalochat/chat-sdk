@@ -3,7 +3,6 @@ package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.log.YaloLog
-import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole
@@ -15,9 +14,12 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
 import com.google.protobuf.util.JsonFormat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -37,6 +39,7 @@ import okio.ByteString
 import okio.ByteString.Companion.encodeUtf8
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -48,27 +51,28 @@ import org.robolectric.shadows.ShadowLog
 import java.io.IOException
 
 /**
- * Covers the conversation the SDK holds with the channel: the address it dials,
- * the wire format it reads and writes, what it does with a message while the
- * line is down and how long it waits before opening the line again.
+ * Covers one socket's life: the address it dials, the wire format it reads and
+ * writes, what it does with a message while the line is down, and what it
+ * answers once the socket is gone.
+ *
+ * What happens after that answer, which is whether another socket is opened and
+ * how long the wait is first, belongs to the repository above and is covered
+ * there.
  *
  * Robolectric is here because the frames are classified with `org.json`, which
- * throws out of a plain JVM test. The socket itself is a fake, so the delays are
- * the scheduler's virtual ones and the whole suite runs in milliseconds rather
- * than the two real minutes a backoff ladder would otherwise take.
+ * throws out of a plain JVM test. The socket itself is a fake, so the waits are
+ * the scheduler's virtual ones and the whole suite runs in milliseconds.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class YaloMessageWebsocketDataSourceTest {
 
     private val sockets = FakeWebSocketFactory()
-    private val auth = FakeTokenRepository()
     private val scheduler = TestCoroutineScheduler()
 
-    // The data source outlives any one call into it: the coroutine that holds the
-    // link open runs for as long as the chat does. So it gets a scope of its own,
-    // cancelled after each test, rather than the test's own scope, which would
-    // wait forever for a coroutine designed never to finish.
+    // A session lasts as long as its socket does. So it is run in a scope of its
+    // own, cancelled after each test, rather than the test's own scope, which
+    // would wait for a socket no test bothers to kill.
     private val scope = CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher(scheduler))
 
     @Before
@@ -83,10 +87,7 @@ class YaloMessageWebsocketDataSourceTest {
 
     @Test
     fun opensTheSocketWithTheTokenAsAQueryParameter() = runTest(scheduler) {
-        val source = dataSource()
-
-        source.connect()
-        runCurrent()
+        session(dataSource())
 
         assertEquals(
             "https://chat.example.com/websocket/v1/connect/inapp?token=access",
@@ -96,33 +97,79 @@ class YaloMessageWebsocketDataSourceTest {
 
     @Test
     fun encodesATokenThatWouldNotSurviveAUrl() = runTest(scheduler) {
-        auth.current = "a b&c=d"
-        val source = dataSource()
-
-        source.connect()
-        runCurrent()
+        session(dataSource(), token = "a b&c=d")
 
         assertEquals("a b&c=d", sockets.opened.single().queryParameter("token"))
     }
 
     @Test
-    fun fetchesAFreshTokenForEveryAttempt() = runTest(scheduler) {
+    fun opensASocketWithWhateverTokenItIsGiven() = runTest(scheduler) {
         val source = dataSource()
-        source.connect()
+
+        session(source, token = "first").cancelAndJoin()
+        session(source, token = "second")
+
+        assertEquals(listOf("first", "second"), sockets.opened.map { it.queryParameter("token") })
+    }
+
+    @Test
+    fun saysTheSocketNeverOpenedWhenItDiedFirst() = runTest(scheduler) {
+        val running = session(dataSource())
+
+        sockets.last().die()
         runCurrent()
 
-        auth.current = "second"
-        sockets.last().die()
-        advanceTimeBy(SECOND_MILLIS + 1)
+        assertFalse(running.await())
+    }
 
-        assertEquals(listOf("access", "second"), sockets.opened.map { it.queryParameter("token") })
+    @Test
+    fun saysTheSocketOpenedWhenItDiedAfterThat() = runTest(scheduler) {
+        val running = acknowledgedSession(dataSource())
+
+        sockets.last().die()
+        runCurrent()
+
+        assertTrue(running.await())
+    }
+
+    // It opened, so the line works, whatever the server made of it afterwards.
+    @Test
+    fun saysTheSocketOpenedWhenItDiedBeforeBeingAcknowledged() = runTest(scheduler) {
+        val source = dataSource()
+        val running = session(source)
+        sockets.last().open()
+        runCurrent()
+
+        sockets.last().die()
+        runCurrent()
+
+        assertTrue(running.await())
+    }
+
+    @Test
+    fun endsTheSessionWhenTheServerClosesTheSocket() = runTest(scheduler) {
+        val running = acknowledgedSession(dataSource())
+
+        sockets.last().listener.onClosed(sockets.last(), NORMAL_CLOSURE, "bye")
+        runCurrent()
+
+        assertTrue(running.isCompleted)
+    }
+
+    @Test
+    fun closesTheSocketWhenTheSessionIsGivenUp() = runTest(scheduler) {
+        val running = acknowledgedSession(dataSource())
+
+        running.cancelAndJoin()
+
+        assertNotNull(sockets.opened.single().closedWith)
     }
 
     @Test
     fun handsBackTheMessageTheBackendSent() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver(json(pollItem("wi-1", "hello")))
         runCurrent()
@@ -136,7 +183,7 @@ class YaloMessageWebsocketDataSourceTest {
     fun handsBackTheAcknowledgementForAMessageItSent() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver(json(messageAck("cid-1")))
         runCurrent()
@@ -148,7 +195,7 @@ class YaloMessageWebsocketDataSourceTest {
     fun ignoresAFrameThatIsNotJson() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver("not json at all")
         sockets.last().deliver(json(pollItem("wi-1", "hello")))
@@ -161,7 +208,7 @@ class YaloMessageWebsocketDataSourceTest {
     fun ignoresAFrameCarryingATypeItDoesNotKnow() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver("""{"type":"SOMETHING_NEW","connectionId":"c-9"}""")
         runCurrent()
@@ -173,8 +220,7 @@ class YaloMessageWebsocketDataSourceTest {
     fun dropsMessagesThatArriveBeforeTheConnectionIsAcknowledged() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        source.connect()
-        runCurrent()
+        session(source)
         sockets.last().open()
         runCurrent()
 
@@ -187,7 +233,7 @@ class YaloMessageWebsocketDataSourceTest {
     @Test
     fun sendsTheMessageOnceTheConnectionIsAcknowledged() = runTest(scheduler) {
         val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         val result = source.send(textMessage("cid-1", "hi"))
         runCurrent()
@@ -199,8 +245,7 @@ class YaloMessageWebsocketDataSourceTest {
     @Test
     fun holdsMessagesUntilTheConnectionIsAcknowledged() = runTest(scheduler) {
         val source = dataSource()
-        source.connect()
-        runCurrent()
+        session(source)
         sockets.last().open()
         runCurrent()
 
@@ -216,20 +261,34 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
-    fun reportsAFailureWhenTheChatIsNotOpen() = runTest(scheduler) {
+    fun holdsAMessageWrittenWhileThereIsNoSocket() = runTest(scheduler) {
         val source = dataSource()
 
-        val result = source.send(textMessage("cid-1", "hi"))
+        val result = source.send(textMessage("cid-1", "held"))
         runCurrent()
 
-        assertTrue(result.exceptionOrNull() is MessageDataSourceClosedException)
+        assertTrue(result.isSuccess)
         assertTrue(sockets.opened.isEmpty())
+    }
+
+    @Test
+    fun sendsOnTheNextSocketWhatItWasHoldingWhenTheLastOneDied() = runTest(scheduler) {
+        val source = dataSource()
+        session(source)
+        sockets.last().die()
+        runCurrent()
+
+        val result = source.send(textMessage("cid-1", "held"))
+        acknowledgedSession(source)
+
+        assertTrue(result.isSuccess)
+        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlationId)
     }
 
     @Test
     fun reportsAFailureWhenTheSocketRefusesTheFrame() = runTest(scheduler) {
         val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
         sockets.last().refuseSends = true
 
         val result = source.send(textMessage("cid-1", "hi"))
@@ -239,28 +298,9 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
-    fun waitsLongerBeforeEachReconnectAttempt() = runTest(scheduler) {
-        val source = dataSource()
-        source.connect()
-        runCurrent()
-
-        sockets.last().die()
-        advanceTimeBy(SECOND_MILLIS + 1)
-        assertEquals(2, sockets.opened.size)
-
-        sockets.last().die()
-        advanceTimeBy(SECOND_MILLIS + 1)
-        assertEquals("a second failure waits longer than a second", 2, sockets.opened.size)
-
-        advanceTimeBy(SECOND_MILLIS + 1)
-        assertEquals(3, sockets.opened.size)
-    }
-
-    @Test
     fun closesAConnectionThatIsNeverAcknowledged() = runTest(scheduler) {
         val source = dataSource()
-        source.connect()
-        runCurrent()
+        session(source)
         sockets.last().open()
         runCurrent()
 
@@ -272,8 +312,7 @@ class YaloMessageWebsocketDataSourceTest {
 
     @Test
     fun leavesAnAcknowledgedConnectionAloneWhenItGoesQuiet() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(dataSource())
 
         advanceTimeBy(MINUTE_MILLIS)
 
@@ -281,20 +320,8 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
-    fun reconnectsWhenTheServerClosesTheSocket() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-
-        sockets.last().listener.onClosed(sockets.last(), NORMAL_CLOSURE, "bye")
-        advanceTimeBy(SECOND_MILLIS + 1)
-
-        assertEquals(2, sockets.opened.size)
-    }
-
-    @Test
     fun closesTheSocketWhenTheServerStartsClosingIt() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(dataSource())
 
         sockets.last().listener.onClosing(sockets.last(), NORMAL_CLOSURE, "bye")
         runCurrent()
@@ -306,7 +333,7 @@ class YaloMessageWebsocketDataSourceTest {
     fun ignoresAFrameThatIsNotText() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().listener.onMessage(sockets.last(), "hello".encodeUtf8())
         runCurrent()
@@ -315,38 +342,10 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
-    fun waitsAndTriesAgainWhenNoTokenCanBeFetched() = runTest(scheduler) {
-        auth.failure = IOException("no token")
-        val source = dataSource()
-
-        source.connect()
-        runCurrent()
-        assertTrue(sockets.opened.isEmpty())
-
-        auth.failure = null
-        advanceTimeBy(SECOND_MILLIS + 1)
-
-        assertEquals(1, sockets.opened.size)
-    }
-
-    @Test
-    fun stopsAPendingReconnectWhenTheChatIsClosed() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-        sockets.last().die()
-        runCurrent()
-
-        source.close()
-        advanceTimeBy(MINUTE_MILLIS)
-
-        assertEquals(1, sockets.opened.size)
-    }
-
-    @Test
     fun ignoresAFrameThatIsJsonButNotTheWireFormat() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver("""{"date":"the day before yesterday"}""")
         runCurrent()
@@ -358,7 +357,7 @@ class YaloMessageWebsocketDataSourceTest {
     fun ignoresAnAcknowledgementOfAKindItDoesNotUnderstand() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver(
             """{"type":"SDK_MESSAGE_ACK_TYPE_UNSPECIFIED","correlationId":"cid-1"}""",
@@ -371,8 +370,7 @@ class YaloMessageWebsocketDataSourceTest {
     @Test
     fun waitsForAnAcknowledgementOfTheRightKindBeforeSending() = runTest(scheduler) {
         val source = dataSource()
-        source.connect()
-        runCurrent()
+        session(source)
         sockets.last().open()
         source.send(textMessage("cid-1", "held"))
         runCurrent()
@@ -388,115 +386,26 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
-    fun stopsReconnectingOnceTheChatIsClosed() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-
-        source.close()
-        advanceTimeBy(MINUTE_MILLIS)
-
-        assertEquals(1, sockets.opened.size)
-        assertNotNull(sockets.opened.single().closedWith)
-    }
-
-    @Test
-    fun dropsTheSocketWhenTheAppGoesAwayAndOpensAnotherWhenItComesBack() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-
-        source.pause()
-        advanceTimeBy(MINUTE_MILLIS)
-        assertEquals("nothing is retried while the app is away", 1, sockets.opened.size)
-        assertNotNull(sockets.opened.first().closedWith)
-
-        source.resume()
-        runCurrent()
-
-        assertEquals(2, sockets.opened.size)
-    }
-
-    @Test
-    fun opensOnlyOneSocketWhenAskedToConnectTwice() = runTest(scheduler) {
-        val source = dataSource()
-
-        source.connect()
-        source.connect()
-        runCurrent()
-
-        assertEquals(1, sockets.opened.size)
-    }
-
-    @Test
-    fun ignoresComingBackWhenItNeverWentAway() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-
-        source.resume()
-        runCurrent()
-
-        assertEquals(1, sockets.opened.size)
-    }
-
-    @Test
-    fun keepsWhatItWasHoldingWhileTheAppIsAway() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-        source.pause()
-        runCurrent()
-
-        val result = source.send(textMessage("cid-1", "held"))
-        source.resume()
-        sockets.last().open()
-        sockets.last().acknowledge()
-        runCurrent()
-
-        assertTrue(result.isSuccess)
-        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlationId)
-    }
-
-    @Test
     fun forgetsWhatItWasHoldingWhenTheChatIsClosed() = runTest(scheduler) {
         val source = dataSource()
-        source.connect()
-        runCurrent()
-        sockets.last().open()
         source.send(textMessage("cid-1", "held"))
         runCurrent()
 
         source.close()
-        source.connect()
-        sockets.last().open()
-        sockets.last().acknowledge()
-        runCurrent()
+        acknowledgedSession(source)
 
         assertTrue(sockets.last().sent.isEmpty())
     }
 
     @Test
-    fun reportsAFailureWhenTheChatIsClosedAgain() = runTest(scheduler) {
-        val source = dataSource()
-        acknowledgedConnection(source)
-        source.close()
-
-        val result = source.send(textMessage("cid-1", "hi"))
-        runCurrent()
-
-        assertTrue(result.exceptionOrNull() is MessageDataSourceClosedException)
-    }
-
-    @Test
     fun dropsTheOldestHeldMessageWhenTooManyPileUp() = runTest(scheduler) {
         val source = dataSource()
-        source.connect()
-        runCurrent()
-        sockets.last().open()
 
         repeat(MAX_PENDING_FRAMES + 1) { index ->
             source.send(textMessage("cid-$index", "held"))
         }
         runCurrent()
-        sockets.last().acknowledge()
-        runCurrent()
+        acknowledgedSession(source)
 
         val sent = sockets.last().sent
         assertEquals(MAX_PENDING_FRAMES, sent.size)
@@ -504,65 +413,9 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
-    fun startsTheDelaysOverOnceASocketOpens() = runTest(scheduler) {
-        val source = dataSource()
-        source.connect()
-        runCurrent()
-
-        sockets.last().die()
-        advanceTimeBy(SECOND_MILLIS + 1)
-        sockets.last().die()
-        advanceTimeBy(2 * SECOND_MILLIS + 1)
-        assertEquals(3, sockets.opened.size)
-
-        sockets.last().open()
-        runCurrent()
-        sockets.last().die()
-        advanceTimeBy(SECOND_MILLIS + 1)
-
-        assertEquals("a socket that opened puts the waits back to a second", 4, sockets.opened.size)
-    }
-
-    @Test
-    fun neverWaitsLongerThanHalfAMinuteBetweenAttempts() = runTest(scheduler) {
-        val source = dataSource()
-        source.connect()
-        runCurrent()
-        repeat(ATTEMPTS_TO_THE_LONGEST_WAIT) {
-            sockets.last().die()
-            advanceTimeBy(MAX_BACKOFF_MILLIS + 1)
-        }
-        val attempts = sockets.opened.size
-
-        sockets.last().die()
-        advanceTimeBy(MAX_BACKOFF_MILLIS)
-        assertEquals(attempts, sockets.opened.size)
-        advanceTimeBy(1)
-
-        assertEquals(attempts + 1, sockets.opened.size)
-    }
-
-    private fun dataSource(): YaloMessageDataSource = YaloMessageWebsocketDataSource(
-        auth = auth,
-        scope = scope,
-        baseUrl = BASE_URL,
-        sockets = sockets,
-        logLevel = LogLevel.Debug,
-    )
-
-    /** Drives a data source all the way to a connection the server has acknowledged. */
-    private suspend fun TestScope.acknowledgedConnection(source: YaloMessageDataSource) {
-        source.connect()
-        runCurrent()
-        sockets.last().open()
-        sockets.last().acknowledge()
-        runCurrent()
-    }
-
-    @Test
     fun writesWhatItSentSoAConversationCanBeFollowed() = runTest(scheduler) {
         val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         source.send(textMessage("cid-1", "hi"))
         runCurrent()
@@ -573,7 +426,7 @@ class YaloMessageWebsocketDataSourceTest {
     @Test
     fun writesWhatTheBackendSentSoAConversationCanBeFollowed() = runTest(scheduler) {
         val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         sockets.last().deliver(json(pollItem("wi-1", "hello")))
         runCurrent()
@@ -586,13 +439,38 @@ class YaloMessageWebsocketDataSourceTest {
     @Test
     fun writesNoTokenWhileFollowingAConversation() = runTest(scheduler) {
         val source = dataSource()
-        acknowledgedConnection(source)
+        acknowledgedSession(source)
 
         source.send(textMessage("cid-1", "hi"))
         sockets.last().deliver(json(pollItem("wi-1", "hello")))
         runCurrent()
 
         assertTrue(logged().none { line -> line.contains("access") })
+    }
+
+    private fun dataSource(): YaloMessageDataSource = YaloMessageWebsocketDataSource(
+        baseUrl = BASE_URL,
+        sockets = sockets,
+        logLevel = LogLevel.Debug,
+    )
+
+    /** Starts one session, which runs until its socket dies or it is cancelled. */
+    private fun TestScope.session(
+        source: YaloMessageDataSource,
+        token: String = "access",
+    ): Deferred<Boolean> {
+        val running = scope.async { source.runSession(token) }
+        runCurrent()
+        return running
+    }
+
+    /** Drives a session all the way to a connection the server has acknowledged. */
+    private fun TestScope.acknowledgedSession(source: YaloMessageDataSource): Deferred<Boolean> {
+        val running = session(source)
+        sockets.last().open()
+        sockets.last().acknowledge()
+        runCurrent()
+        return running
     }
 
     private fun logged(): List<String> = ShadowLog.getLogs()
@@ -642,14 +520,10 @@ class YaloMessageWebsocketDataSourceTest {
 
         val BASE_URL: HttpUrl = "https://chat.example.com/".toHttpUrl()
 
-        const val SECOND_MILLIS = 1_000L
         const val ACK_TIMEOUT_MILLIS = 10_000L
         const val MINUTE_MILLIS = 60_000L
-        const val MAX_BACKOFF_MILLIS = 30_000L
         const val MAX_PENDING_FRAMES = 128
 
-        // 1s, 2s, 4s, 8s and 16s, after which the wait stops growing.
-        const val ATTEMPTS_TO_THE_LONGEST_WAIT = 5
         const val NORMAL_CLOSURE = 1_000
 
         val PRINTER: JsonFormat.Printer = JsonFormat.printer().omittingInsignificantWhitespace()
@@ -662,8 +536,8 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     /**
-     * Hands out fakes and remembers them, so a test can ask how many attempts
-     * were made and what each of them was addressed to.
+     * Hands out fakes and remembers them, so a test can ask how many sockets
+     * were opened and what each of them was addressed to.
      */
     private class FakeWebSocketFactory : WebSocket.Factory {
 
@@ -732,18 +606,5 @@ class YaloMessageWebsocketDataSourceTest {
         }
 
         override fun cancel() = Unit
-    }
-
-    private class FakeTokenRepository : TokenRepository {
-
-        var current: String = "access"
-        var failure: Throwable? = null
-
-        override suspend fun token(): Result<String> =
-            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
-
-        override suspend fun invalidateToken() = Unit
-
-        override suspend fun clearSession() = Unit
     }
 }

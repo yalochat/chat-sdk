@@ -2,7 +2,6 @@
 package ai.yalo.chat.sdk.data.datasources.media
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.log.YaloLog
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +35,6 @@ import java.io.IOException
  * Downloads are cached as files so a video never has to fit in memory.
  */
 internal class YaloMediaRemoteDataSource(
-    private val auth: TokenRepository,
     baseUrl: HttpUrl,
     private val cacheDir: File,
     private val client: OkHttpClient = OkHttpClient(),
@@ -46,24 +44,12 @@ internal class YaloMediaRemoteDataSource(
     private val log = YaloLog(LOG_NAME, logLevel)
     private val mediaUrl: HttpUrl = baseUrl.newBuilder().addPathSegments(MEDIA_PATH).build()
 
-    override suspend fun upload(content: MediaContent): Result<Media> {
+    override suspend fun upload(content: MediaContent, token: String): Result<Media> {
         log.info { "uploading ${content.sizeBytes} bytes of ${content.mimeType}" }
         val body = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart(PART_FILE, content.fileName, MediaRequestBody(content))
             .build()
-
-        // Nothing in the body is spent by a first attempt, because the content
-        // opens a new stream every time it is read.
-        post(body)?.let { answer -> return answer }
-        log.info { "the upload was refused, authenticating again and retrying" }
-        auth.invalidateToken()
-        return post(body) ?: Result.failure(IOException("$UPLOAD_FAILED: $HTTP_UNAUTHORIZED"))
-    }
-
-    /** Null means the backend refused the token, the one outcome worth trying again. */
-    private suspend fun post(body: RequestBody): Result<Media>? {
-        val token = auth.token().getOrElse { cause -> return Result.failure(cause) }
         val request = Request.Builder()
             .url(mediaUrl)
             .header(HEADER_AUTHORIZATION, "$BEARER $token")
@@ -77,7 +63,10 @@ internal class YaloMediaRemoteDataSource(
                         log.info { "uploaded" }
                         Result.success(media(response.body.string()))
                     }
-                    HTTP_UNAUTHORIZED -> null
+                    HTTP_UNAUTHORIZED -> {
+                        log.info { "the token was refused" }
+                        Result.failure(StaleTokenException())
+                    }
                     else -> {
                         log.warn { "$UPLOAD_FAILED: ${response.code}" }
                         Result.failure(IOException("$UPLOAD_FAILED: ${response.code}"))

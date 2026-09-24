@@ -1,13 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
@@ -17,38 +20,127 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageReques
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 import ai.yalo.chat.sdk.domain.models.MessageStatus as ChatStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button as WireButton
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType as WireButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
 
 /**
- * Says what the chat means in the wire format, and hands it to a
- * [YaloMessageDataSource].
+ * Says what the chat means in the wire format, and keeps a line open to say it
+ * on.
  *
  * The wire format stops here: above this a message is a [ChatMessage], below it
  * an `SdkMessage`, and neither side has to know about the other.
  *
- * [connect] and [close] are handed to [scope] rather than made to suspend,
- * because the two callers are a view model being built and one being cleared,
- * and neither of those can wait.
+ * Keeping the line up is decided here as well. One socket lasts as long as it
+ * lasts, and when it dies this asks [auth] for a token and has another opened,
+ * waiting a little longer before each attempt that gets nowhere. The data
+ * source is handed the token and never learns where it came from.
+ *
+ * [connect], [pause], [resume] and [close] are handed to [scope] rather than
+ * made to suspend, because the callers are a view model being built, cleared or
+ * told the app went away, and none of those can wait.
  */
 internal class YaloMessageRepositoryRemote(
     private val source: YaloMessageDataSource,
+    private val auth: TokenRepository,
     private val scope: CoroutineScope,
     private val now: () -> Long = System::currentTimeMillis,
     private val correlationIds: () -> String = { UUID.randomUUID().toString() },
+    logLevel: LogLevel = LogLevel.Warn,
 ) : YaloMessageRepository {
+
+    private val log = YaloLog(LOG_NAME, logLevel)
+
+    // Guards the lifecycle and the coroutine holding the line, which the four
+    // calls below and a message being sent all reach for.
+    private val mutex = Mutex()
+
+    private var lifecycle: Lifecycle = Lifecycle.Closed
+
+    /** Opens sockets for as long as it runs, so cancelling it is what stops. */
+    private var connecting: Job? = null
 
     override fun connect() {
         scope.launch {
-            source.connect()
+            mutex.withLock {
+                if (lifecycle != Lifecycle.Closed) {
+                    return@launch
+                }
+                lifecycle = Lifecycle.Running
+                log.info { "connecting" }
+                connecting = scope.launch { connectUntilStopped() }
+            }
         }
+    }
+
+    override fun pause() {
+        scope.launch {
+            val running = mutex.withLock {
+                if (lifecycle != Lifecycle.Running) {
+                    return@launch
+                }
+                lifecycle = Lifecycle.Paused
+                log.info { "pausing, the app went away" }
+                connecting.also { connecting = null }
+            }
+            running?.cancelAndJoin()
+        }
+    }
+
+    override fun resume() {
+        scope.launch {
+            mutex.withLock {
+                if (lifecycle != Lifecycle.Paused) {
+                    return@launch
+                }
+                lifecycle = Lifecycle.Running
+                log.info { "resuming" }
+                connecting = scope.launch { connectUntilStopped() }
+            }
+        }
+    }
+
+    /**
+     * Opens one socket after another for as long as the chat is open.
+     *
+     * A token is fetched for every attempt rather than once, because the one
+     * that opened the last socket may have run out while it was up.
+     */
+    private suspend fun connectUntilStopped() {
+        var attempt = FIRST_ATTEMPT
+        while (true) {
+            val token = auth.token().getOrElse { cause ->
+                log.warn(cause) { "no token, so no socket" }
+                attempt = waitBefore(attempt)
+                continue
+            }
+            // A socket that opened has shown the line works, so the waits start
+            // over even when it died a moment later.
+            val opened = source.runSession(token)
+            attempt = waitBefore(if (opened) FIRST_ATTEMPT else attempt)
+        }
+    }
+
+    /** Waits out the delay owed after [attempt], and answers with the attempt after it. */
+    private suspend fun waitBefore(attempt: Int): Int {
+        val delayMillis = minOf(MAX_BACKOFF_MILLIS, INITIAL_BACKOFF_MILLIS shl attempt)
+        log.info { "reconnecting in ${delayMillis}ms" }
+        delay(delayMillis.milliseconds)
+        // Counting past the point where the delay stops growing keeps the shift
+        // that computes it honest.
+        return (attempt + 1).coerceAtMost(MAX_ATTEMPT)
     }
 
     /** Only what the channel said, never an acknowledgement. */
@@ -60,7 +152,7 @@ internal class YaloMessageRepositoryRemote(
         if (message.type != MessageType.Text) {
             return Result.failure(UnsupportedMessageTypeException(message.type))
         }
-        return source.send(sdkMessageOf(message))
+        return write(sdkMessageOf(message))
     }
 
     /**
@@ -79,7 +171,7 @@ internal class YaloMessageRepositoryRemote(
         if (openContext.isNotEmpty()) {
             request.setContext(jsonOf(openContext))
         }
-        return source.send(
+        return write(
             SdkMessage.newBuilder()
                 .setCorrelationId(correlationIds())
                 .setTimestamp(askedAt)
@@ -90,8 +182,23 @@ internal class YaloMessageRepositoryRemote(
 
     override fun close() {
         scope.launch {
+            val running = mutex.withLock {
+                lifecycle = Lifecycle.Closed
+                log.info { "closing" }
+                connecting.also { connecting = null }
+            }
+            running?.cancelAndJoin()
             source.close()
         }
+    }
+
+    /** Nothing is sent, or held to be sent later, once the chat is closed. */
+    private suspend fun write(message: SdkMessage): Result<Unit> = mutex.withLock {
+        if (lifecycle == Lifecycle.Closed) {
+            log.warn { "a message was written while the chat was closed" }
+            return@withLock Result.failure(ChatClosedException())
+        }
+        source.send(message)
     }
 
     /**
@@ -183,6 +290,20 @@ internal class YaloMessageRepositoryRemote(
         MessageRole.User -> WireRole.MESSAGE_ROLE_USER
         MessageRole.Agent -> WireRole.MESSAGE_ROLE_AGENT
     }
+
+    /** What the chat was last asked to do with its line. */
+    private enum class Lifecycle { Closed, Running, Paused }
+
+    private companion object {
+
+        private const val LOG_NAME = "Messages"
+
+        private const val INITIAL_BACKOFF_MILLIS = 1_000L
+        private const val MAX_BACKOFF_MILLIS = 30_000L
+
+        private const val FIRST_ATTEMPT = 0
+        private const val MAX_ATTEMPT = 5
+    }
 }
 
 /**
@@ -205,6 +326,10 @@ private val INBOUND_TYPES: Map<SdkMessage.PayloadCase, MessageType> = mapOf(
 /** A kind of message the SDK can hold and show, but cannot yet put on the wire. */
 internal class UnsupportedMessageTypeException(type: MessageType) :
     IllegalArgumentException("A ${type.wireName} message cannot be sent yet")
+
+/** Reported when a message is written while the chat is not open. */
+internal class ChatClosedException :
+    IllegalStateException("The chat is not open, so the message was not taken")
 
 /**
  * The open context as the channel reads it, which is the JSON object the web

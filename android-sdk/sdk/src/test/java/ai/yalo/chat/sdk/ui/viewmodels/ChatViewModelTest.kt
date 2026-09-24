@@ -634,6 +634,14 @@ class ChatViewModelTest {
             isOpen = true
         }
 
+        override fun pause() {
+            isOpen = false
+        }
+
+        override fun resume() {
+            isOpen = true
+        }
+
         override fun messages(): Flow<ChatMessage> = incoming
 
         /** Has the channel say [message], the way the socket would. */

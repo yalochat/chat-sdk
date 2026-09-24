@@ -22,6 +22,12 @@ internal interface YaloMessageRepository {
      */
     fun connect()
 
+    /** Drops the line because the app went away, keeping whatever is waiting to be sent. */
+    fun pause()
+
+    /** Opens the line again after a [pause], and sends whatever was held meanwhile. */
+    fun resume()
+
     /** What the channel says, as it arrives. Hot, and nothing is replayed. */
     fun messages(): Flow<ChatMessage>
 

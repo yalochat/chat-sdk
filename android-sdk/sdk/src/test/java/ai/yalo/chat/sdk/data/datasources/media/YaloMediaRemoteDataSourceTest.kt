@@ -2,7 +2,6 @@
 package ai.yalo.chat.sdk.data.datasources.media
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.MessageType
 import kotlinx.coroutines.runBlocking
 import mockwebserver3.MockResponse
@@ -32,7 +31,6 @@ class YaloMediaRemoteDataSourceTest {
     val cache = TemporaryFolder()
 
     private lateinit var server: MockWebServer
-    private val auth = FakeTokenRepository()
 
     @Before
     fun startServer() {
@@ -49,7 +47,7 @@ class YaloMediaRemoteDataSourceTest {
     fun sendsTheFileToTheMediaEndpointWithTheToken() = runBlocking {
         server.enqueue(created())
 
-        dataSource().upload(content())
+        dataSource().upload(content(), TOKEN)
 
         val request = server.takeRequest()
         assertEquals("/v1/channels/all/media", request.url.encodedPath)
@@ -60,7 +58,7 @@ class YaloMediaRemoteDataSourceTest {
     fun sendsTheFileAsAFormPartNamedFile() = runBlocking {
         server.enqueue(created())
 
-        dataSource().upload(content(fileName = "holiday.jpg", payload = "the-bytes"))
+        dataSource().upload(content(fileName = "holiday.jpg", payload = "the-bytes"), TOKEN)
 
         val body = requireNotNull(server.takeRequest().body).utf8()
         assertTrue(body.contains("""name="file"; filename="holiday.jpg""""))
@@ -75,7 +73,7 @@ class YaloMediaRemoteDataSourceTest {
     fun saysHowLongTheFileIsRatherThanSendingItInChunks() = runBlocking {
         server.enqueue(created())
 
-        dataSource().upload(content(payload = "0123456789"))
+        dataSource().upload(content(payload = "0123456789"), TOKEN)
 
         val request = server.takeRequest()
         assertTrue(request.chunkSizes.orEmpty().isEmpty())
@@ -86,7 +84,7 @@ class YaloMediaRemoteDataSourceTest {
     fun readsBackTheMediaTheBackendCreated() = runBlocking {
         server.enqueue(created(id = "yalo_42", type = "voice"))
 
-        val media = dataSource().upload(content()).getOrNull()
+        val media = dataSource().upload(content(), TOKEN).getOrNull()
 
         assertEquals("yalo_42", media?.id)
         assertEquals("https://files.example/yalo_42?signature=first", media?.signedUrl)
@@ -103,47 +101,29 @@ class YaloMediaRemoteDataSourceTest {
             ),
         )
 
-        val media = dataSource().upload(content()).getOrNull()
+        val media = dataSource().upload(content(), TOKEN).getOrNull()
 
         assertEquals("https://files.example/1", media?.signedUrl)
         assertEquals("a.jpg", media?.originalName)
     }
 
-    // The second request carrying the payload is the point. A body that had
-    // already been spent would be sent empty, and the test would still see two
-    // requests and a success.
+    // Said apart from every other failure, because it is the only one worth
+    // sending the same file again for.
     @Test
-    fun getsANewTokenAndSendsTheFileAgainWhenTheOldTokenIsRefused() = runBlocking {
-        server.enqueue(response(401))
-        server.enqueue(created())
-
-        val media = dataSource().upload(content(payload = "the-bytes")).getOrNull()
-
-        server.takeRequest()
-        val retry = server.takeRequest()
-        assertEquals("yalo_1", media?.id)
-        assertEquals(1, auth.invalidations)
-        assertEquals("Bearer refreshed", retry.headers["Authorization"])
-        assertTrue(requireNotNull(retry.body).utf8().contains("the-bytes"))
-    }
-
-    @Test
-    fun givesUpWhenTheSecondTokenIsRefusedToo() = runBlocking {
-        server.enqueue(response(401))
+    fun saysTheTokenWasRefusedWhenTheBackendTurnsTheUploadAway() = runBlocking {
         server.enqueue(response(401))
 
-        val result = dataSource().upload(content())
+        val result = dataSource().upload(content(), TOKEN)
 
-        assertTrue(result.isFailure)
-        assertEquals(2, server.requestCount)
-        assertTrue(result.exceptionOrNull()?.message?.contains("401") == true)
+        assertEquals(1, server.requestCount)
+        assertTrue(result.exceptionOrNull() is StaleTokenException)
     }
 
     @Test
     fun reportsAFailureWhenTheBackendWillNotTakeTheFile() = runBlocking {
         server.enqueue(response(500))
 
-        val result = dataSource().upload(content())
+        val result = dataSource().upload(content(), TOKEN)
 
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull()?.message?.contains("500") == true)
@@ -155,24 +135,14 @@ class YaloMediaRemoteDataSourceTest {
     fun reportsAFailureWhenTheBackendAnswersWithoutCreatingAnything() = runBlocking {
         server.enqueue(response(200, """{"id":"yalo_1"}"""))
 
-        assertTrue(dataSource().upload(content()).isFailure)
+        assertTrue(dataSource().upload(content(), TOKEN).isFailure)
     }
 
     @Test
     fun reportsAFailureWhenTheBackendSendsSomethingThatIsNotMedia() = runBlocking {
         server.enqueue(response(201, "not json at all"))
 
-        assertTrue(dataSource().upload(content()).isFailure)
-    }
-
-    @Test
-    fun reportsAFailureWhenNoTokenCanBeHad() = runBlocking {
-        auth.failure = IOException("no token")
-
-        val result = dataSource().upload(content())
-
-        assertEquals(0, server.requestCount)
-        assertEquals("no token", result.exceptionOrNull()?.message)
+        assertTrue(dataSource().upload(content(), TOKEN).isFailure)
     }
 
     @Test
@@ -261,7 +231,7 @@ class YaloMediaRemoteDataSourceTest {
 
     @Test
     fun reportsAFailureWhenTheFileCannotBeRead() = runBlocking {
-        repeat(2) { server.enqueue(created()) }
+        server.enqueue(created())
         val unreadable = MediaContent(
             fileName = "photo.jpg",
             mimeType = "image/jpeg",
@@ -273,7 +243,7 @@ class YaloMediaRemoteDataSourceTest {
             },
         )
 
-        assertTrue(dataSource().upload(unreadable).isFailure)
+        assertTrue(dataSource().upload(unreadable, TOKEN).isFailure)
     }
 
     @Test
@@ -281,16 +251,14 @@ class YaloMediaRemoteDataSourceTest {
         server.enqueue(created())
 
         val dataSource = YaloMediaRemoteDataSource(
-            auth = auth,
             baseUrl = server.url("/"),
             cacheDir = cacheDir(),
         )
 
-        assertEquals("yalo_1", dataSource.upload(content()).getOrNull()?.id)
+        assertEquals("yalo_1", dataSource.upload(content(), TOKEN).getOrNull()?.id)
     }
 
     private fun dataSource(): YaloMediaRemoteDataSource = YaloMediaRemoteDataSource(
-        auth = auth,
         baseUrl = server.url("/"),
         cacheDir = cacheDir(),
         client = OkHttpClient(),
@@ -321,20 +289,7 @@ class YaloMediaRemoteDataSourceTest {
     private fun response(code: Int, body: String = ""): MockResponse =
         MockResponse.Builder().code(code).body(body).build()
 
-    private class FakeTokenRepository : TokenRepository {
-
-        var current: String = "access"
-        var failure: Throwable? = null
-        var invalidations: Int = 0
-
-        override suspend fun token(): Result<String> =
-            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
-
-        override suspend fun invalidateToken() {
-            invalidations++
-            current = "refreshed"
-        }
-
-        override suspend fun clearSession() = Unit
+    private companion object {
+        private const val TOKEN = "access"
     }
 }

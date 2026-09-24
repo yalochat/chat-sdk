@@ -5,12 +5,13 @@ import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthRemoteDataSource
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
-import ai.yalo.chat.sdk.data.datasources.media.YaloMediaDataSource
 import ai.yalo.chat.sdk.data.datasources.media.YaloMediaRemoteDataSource
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageWebsocketDataSource
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
+import ai.yalo.chat.sdk.data.repositories.media.MediaRepositoryRemote
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
@@ -49,18 +50,8 @@ internal class ChatDependencies(
         )
     }
 
-    // The configured host carries no scheme, so the scheme is put on here
-    // rather than inside the data sources. The socket will ask the same field for
-    // wss, and neither should have to strip the other's prefix off.
     private val baseUrl: HttpUrl = "https://${BuildConfig.YALO_API_BASE_URL}".toHttpUrl()
-
-    // One client for everything that talks to the backend. Each of these
-    // defaults to its own, and a second one would mean a second connection pool
-    // and a second set of threads for the same host.
     private val client: OkHttpClient by lazy { OkHttpClient() }
-
-    // One scope for everything in this conversation that outlives a single call,
-    // so closing the chat has one thing to cancel rather than several.
     private val scope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
 
     val auth: TokenRepository by lazy {
@@ -77,27 +68,21 @@ internal class ChatDependencies(
         )
     }
 
-    val media: YaloMediaDataSource by lazy {
-        YaloMediaRemoteDataSource(
+    val media: MediaRepository by lazy {
+        MediaRepositoryRemote(
+            source = YaloMediaRemoteDataSource(
+                baseUrl = baseUrl,
+                cacheDir = File(applicationContext.cacheDir, MEDIA_CACHE),
+                client = client,
+                logLevel = config.logLevel,
+            ),
             auth = auth,
-            baseUrl = baseUrl,
-            cacheDir = File(applicationContext.cacheDir, MEDIA_CACHE),
-            client = client,
-            logLevel = config.logLevel,
         )
     }
 
-    val messages: YaloMessageDataSource by lazy {
+    private val messages: YaloMessageDataSource by lazy {
         YaloMessageWebsocketDataSource(
-            auth = auth,
-            scope = scope,
             baseUrl = baseUrl,
-            // Built from the shared client so the socket keeps the same
-            // connection pool and threads, with pings added. OkHttp sends none
-            // by default, and a mobile network drops an idle socket without
-            // telling either end, which leaves a chat that looks connected and
-            // receives nothing. A ping turns that into a failure the connection
-            // already knows how to answer.
             sockets = client.newBuilder()
                 .pingInterval(PING_INTERVAL_SECONDS, TimeUnit.SECONDS)
                 .build(),
@@ -106,19 +91,18 @@ internal class ChatDependencies(
     }
 
     val yaloMessages: YaloMessageRepository by lazy {
-        YaloMessageRepositoryRemote(source = messages, scope = scope)
+        YaloMessageRepositoryRemote(
+            source = messages,
+            auth = auth,
+            scope = scope,
+            logLevel = config.logLevel,
+        )
     }
 
     private companion object {
 
-        // Its own directory, so clearing what the chat downloaded never reaches
-        // anything else the app cached.
-        private const val MEDIA_CACHE = "yalo-chat-media"
 
-        // Short enough to sit under the shortest carrier NAT window, and on
-        // the same order as the ten seconds the socket waits to be
-        // acknowledged, so a link broken either way is noticed in a
-        // comparable time.
+        private const val MEDIA_CACHE = "yalo-chat-media"
         private const val PING_INTERVAL_SECONDS = 20L
     }
 }
