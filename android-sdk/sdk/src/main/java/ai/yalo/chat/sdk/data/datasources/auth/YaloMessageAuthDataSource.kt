@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.auth
+package ai.yalo.chat.sdk.data.datasources.auth
 
 import ai.yalo.chat.sdk.domain.models.AuthToken
 
@@ -9,7 +9,7 @@ import ai.yalo.chat.sdk.domain.models.AuthToken
  * Nothing here remembers anything. Deciding which call to make, and what to do
  * with what comes back, belongs to whoever keeps the token.
  */
-internal interface YaloMessageAuthService {
+internal interface YaloMessageAuthDataSource {
 
     /** Asks for a token for the configured channel and user. */
     suspend fun authenticate(): Result<AuthToken>

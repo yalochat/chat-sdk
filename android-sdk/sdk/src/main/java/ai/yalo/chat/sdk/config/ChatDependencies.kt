@@ -3,13 +3,13 @@ package ai.yalo.chat.sdk.config
 
 import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthRemoteDataSource
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemote
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthServiceRemote
 import ai.yalo.chat.sdk.data.services.chatmessage.ChatMessageDatabaseService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaService
 import ai.yalo.chat.sdk.data.services.media.YaloMediaServiceRemote
@@ -66,7 +66,7 @@ internal class ChatDependencies(
     val auth: TokenRepository by lazy {
         TokenRepositoryLocal.of(
             context = applicationContext,
-            service = YaloMessageAuthServiceRemote(
+            dataSource = YaloMessageAuthRemoteDataSource(
                 config = config,
                 baseUrl = baseUrl,
                 client = client,

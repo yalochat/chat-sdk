@@ -4,7 +4,7 @@ package ai.yalo.chat.sdk.data.repositories.token
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.common.crypto.KeystoreTokenCipher
 import ai.yalo.chat.sdk.common.crypto.TokenCipher
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthDataSource
 import ai.yalo.chat.sdk.domain.models.AuthToken
 import ai.yalo.chat.sdk.log.YaloLog
 import android.content.Context
@@ -41,7 +41,7 @@ import java.security.GeneralSecurityException
  * authenticating again rather than by raising.
  */
 internal class TokenRepositoryLocal(
-    private val service: YaloMessageAuthService,
+    private val dataSource: YaloMessageAuthDataSource,
     private val store: DataStore<Preferences>,
     sessionId: String,
     private val cipher: TokenCipher = KeystoreTokenCipher(),
@@ -90,7 +90,7 @@ internal class TokenRepositoryLocal(
     private suspend fun current(): AuthToken? = held ?: read()?.also { stored -> held = stored }
 
     private suspend fun refresh(refreshToken: String): Result<AuthToken> =
-        service.refresh(refreshToken).fold(
+        dataSource.refresh(refreshToken).fold(
             onSuccess = { token -> Result.success(keep(token)) },
             onFailure = {
                 log.info { "the refresh was refused, authenticating instead" }
@@ -102,7 +102,7 @@ internal class TokenRepositoryLocal(
         // What is on the device is what led here, and it goes before the round
         // trip rather than after: a failure must not leave it to be tried again.
         forget()
-        return service.authenticate().map { token -> keep(token) }
+        return dataSource.authenticate().map { token -> keep(token) }
     }
 
     private suspend fun keep(token: AuthToken): AuthToken {
@@ -182,12 +182,12 @@ internal class TokenRepositoryLocal(
         /** The token for one session, on the file every session shares. */
         fun of(
             context: Context,
-            service: YaloMessageAuthService,
+            dataSource: YaloMessageAuthDataSource,
             sessionId: String,
             cipher: TokenCipher = KeystoreTokenCipher(),
             logLevel: LogLevel = LogLevel.Warn,
         ): TokenRepositoryLocal = TokenRepositoryLocal(
-            service = service,
+            dataSource = dataSource,
             store = context.applicationContext.authTokenStore,
             sessionId = sessionId,
             cipher = cipher,

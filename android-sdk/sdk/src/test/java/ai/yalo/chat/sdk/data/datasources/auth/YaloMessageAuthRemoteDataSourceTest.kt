@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.auth
+package ai.yalo.chat.sdk.data.datasources.auth
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.YaloChatClientConfig
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class YaloMessageAuthServiceRemoteTest {
+class YaloMessageAuthRemoteDataSourceTest {
 
     private lateinit var server: MockWebServer
 
@@ -159,7 +159,7 @@ class YaloMessageAuthServiceRemoteTest {
     private fun service(
         config: YaloChatClientConfig = config(),
         baseUrl: HttpUrl = server.url("/"),
-    ): YaloMessageAuthServiceRemote = YaloMessageAuthServiceRemote(
+    ): YaloMessageAuthRemoteDataSource = YaloMessageAuthRemoteDataSource(
         config = config,
         baseUrl = baseUrl,
         now = { NOW },

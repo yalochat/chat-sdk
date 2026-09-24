@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.auth
+package ai.yalo.chat.sdk.data.datasources.auth
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.YaloChatClientConfig
@@ -18,13 +18,13 @@ import org.json.JSONObject
 import java.io.IOException
 
 /** Talks to the OAuth endpoints, one request per call and nothing kept. */
-internal class YaloMessageAuthServiceRemote(
+internal class YaloMessageAuthRemoteDataSource(
     private val config: YaloChatClientConfig,
     baseUrl: HttpUrl,
     private val client: OkHttpClient = OkHttpClient(),
     private val now: () -> Long = System::currentTimeMillis,
     logLevel: LogLevel = LogLevel.Warn,
-) : YaloMessageAuthService {
+) : YaloMessageAuthDataSource {
 
     private val log = YaloLog(LOG_NAME, logLevel)
     private val channels: HttpUrl = baseUrl.newBuilder().addPathSegments(CHANNELS_PATH).build()

@@ -3,7 +3,7 @@ package ai.yalo.chat.sdk.data.repositories.token
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.common.crypto.TokenCipher
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthDataSource
 import ai.yalo.chat.sdk.domain.models.AuthToken
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -40,7 +40,7 @@ class TokenRepositoryLocalTest {
 
     private lateinit var file: File
     private lateinit var store: DataStore<Preferences>
-    private val service = FakeAuthService()
+    private val dataSource = FakeAuthDataSource()
 
     @Before
     fun createStore() {
@@ -55,10 +55,10 @@ class TokenRepositoryLocalTest {
 
     @Test
     fun authenticatesWhenTheDeviceHasNothingToOffer() = runBlocking {
-        service.issued = AuthToken("issued", "refresh", LATER)
+        dataSource.issued = AuthToken("issued", "refresh", LATER)
 
         assertEquals("issued", repository().token().getOrNull())
-        assertEquals(1, service.authentications)
+        assertEquals(1, dataSource.authentications)
     }
 
     @Test
@@ -67,12 +67,12 @@ class TokenRepositoryLocalTest {
         repository.token()
 
         assertEquals("access", repository.token().getOrNull())
-        assertEquals(1, service.authentications)
+        assertEquals(1, dataSource.authentications)
     }
 
     @Test
     fun asksTheBackendOnceWhenTwoCallersAskAtTheSameTime() = runBlocking {
-        service.delayMillis = 50
+        dataSource.delayMillis = 50
         val repository = repository()
 
         val answers = listOf(
@@ -81,7 +81,7 @@ class TokenRepositoryLocalTest {
         ).awaitAll()
 
         assertEquals(listOf("access", "access"), answers.map { answer -> answer.getOrNull() })
-        assertEquals(1, service.authentications)
+        assertEquals(1, dataSource.authentications)
     }
 
     @Test
@@ -89,47 +89,47 @@ class TokenRepositoryLocalTest {
         repository().token()
 
         assertEquals("access", repository().token().getOrNull())
-        assertEquals(1, service.authentications)
+        assertEquals(1, dataSource.authentications)
     }
 
     @Test
     fun refreshesATokenThatHasRunOutRatherThanStartingOver() = runBlocking {
-        service.issued = AuthToken("expired", "the-refresh-token", NOW - 1)
-        service.refreshedInto = AuthToken("refreshed", "the-refresh-token", LATER)
+        dataSource.issued = AuthToken("expired", "the-refresh-token", NOW - 1)
+        dataSource.refreshedInto = AuthToken("refreshed", "the-refresh-token", LATER)
         val repository = repository()
         repository.token()
 
         assertEquals("refreshed", repository.token().getOrNull())
-        assertEquals(listOf("the-refresh-token"), service.traded)
+        assertEquals(listOf("the-refresh-token"), dataSource.traded)
     }
 
     @Test
     fun authenticatesAgainWhenTheBackendWillNotRefresh() = runBlocking {
-        service.issued = AuthToken("expired", "stale-refresh", NOW - 1)
-        service.refreshFailure = IOException("Refresh failed: 403")
+        dataSource.issued = AuthToken("expired", "stale-refresh", NOW - 1)
+        dataSource.refreshFailure = IOException("Refresh failed: 403")
         val repository = repository()
         repository.token()
-        service.issued = AuthToken("fresh", "refresh", LATER)
+        dataSource.issued = AuthToken("fresh", "refresh", LATER)
 
         assertEquals("fresh", repository.token().getOrNull())
-        assertEquals(2, service.authentications)
+        assertEquals(2, dataSource.authentications)
     }
 
     @Test
     fun authenticatesWhenWhatItHoldsHasRunOutAndCannotBeRefreshed() = runBlocking {
-        service.issued = AuthToken("expired", "", NOW - 1)
+        dataSource.issued = AuthToken("expired", "", NOW - 1)
         val repository = repository()
         repository.token()
 
         repository.token()
 
-        assertEquals(2, service.authentications)
-        assertTrue(service.traded.isEmpty())
+        assertEquals(2, dataSource.authentications)
+        assertTrue(dataSource.traded.isEmpty())
     }
 
     @Test
     fun reportsTheFailureWhenThereIsNoTokenToBeHad() = runBlocking {
-        service.authFailure = IOException("Auth failed: 401")
+        dataSource.authFailure = IOException("Auth failed: 401")
 
         val result = repository().token()
 
@@ -138,19 +138,19 @@ class TokenRepositoryLocalTest {
 
     @Test
     fun replacesATokenTheBackendStoppedAccepting() = runBlocking {
-        service.refreshedInto = AuthToken("replacement", "refresh", LATER)
+        dataSource.refreshedInto = AuthToken("replacement", "refresh", LATER)
         val repository = repository()
         repository.token()
 
         repository.invalidateToken()
 
         assertEquals("replacement", repository.token().getOrNull())
-        assertEquals(listOf("refresh"), service.traded)
+        assertEquals(listOf("refresh"), dataSource.traded)
     }
 
     @Test
     fun remembersThatATokenWasRefusedAfterTheAppIsClosed() = runBlocking {
-        service.refreshedInto = AuthToken("replacement", "refresh", LATER)
+        dataSource.refreshedInto = AuthToken("replacement", "refresh", LATER)
         repository().token()
 
         repository().invalidateToken()
@@ -162,7 +162,7 @@ class TokenRepositoryLocalTest {
     fun hasNothingToInvalidateBeforeATokenIsAskedFor() = runBlocking {
         repository().invalidateToken()
 
-        assertEquals(0, service.authentications)
+        assertEquals(0, dataSource.authentications)
         assertNull(storedValue())
     }
 
@@ -184,14 +184,14 @@ class TokenRepositoryLocalTest {
 
         repository.token()
 
-        assertEquals(2, service.authentications)
+        assertEquals(2, dataSource.authentications)
     }
 
     @Test
     fun keepsOneSessionsTokenOutOfAnothers() = runBlocking {
-        service.issued = AuthToken("for-a", "refresh", LATER)
+        dataSource.issued = AuthToken("for-a", "refresh", LATER)
         repository(sessionId = "a").token()
-        service.issued = AuthToken("for-b", "refresh", LATER)
+        dataSource.issued = AuthToken("for-b", "refresh", LATER)
         repository(sessionId = "b").token()
 
         assertEquals("for-a", repository(sessionId = "a").token().getOrNull())
@@ -201,7 +201,7 @@ class TokenRepositoryLocalTest {
     @Test
     fun clearingOneSessionLeavesTheOtherAlone() = runBlocking {
         repository(sessionId = "a").token()
-        service.issued = AuthToken("for-b", "refresh", LATER)
+        dataSource.issued = AuthToken("for-b", "refresh", LATER)
         repository(sessionId = "b").token()
 
         repository(sessionId = "a").clearSession()
@@ -212,7 +212,7 @@ class TokenRepositoryLocalTest {
 
     @Test
     fun leavesNoTokenReadableInTheFile() = runBlocking {
-        service.issued = AuthToken("secret-access", "secret-refresh", LATER)
+        dataSource.issued = AuthToken("secret-access", "secret-refresh", LATER)
 
         repository().token()
 
@@ -260,7 +260,7 @@ class TokenRepositoryLocalTest {
         corrupt.writeBytes(byteArrayOf(0x0A, 0x7F))
 
         val repository = TokenRepositoryLocal(
-            service = service,
+            dataSource = dataSource,
             store = PreferenceDataStoreFactory.create { corrupt },
             sessionId = "session",
             cipher = ReversingCipher(),
@@ -275,7 +275,7 @@ class TokenRepositoryLocalTest {
         // file, so the directory it needs cannot be created.
         val blocker = File.createTempFile("blocker", ".tmp")
         val repository = TokenRepositoryLocal(
-            service = service,
+            dataSource = dataSource,
             store = PreferenceDataStoreFactory.create { File(blocker, "auth.preferences_pb") },
             sessionId = "session",
             cipher = ReversingCipher(),
@@ -289,7 +289,7 @@ class TokenRepositoryLocalTest {
     fun buildsARepositoryForASessionFromAContext() = runBlocking {
         val repository = TokenRepositoryLocal.of(
             context = RuntimeEnvironment.getApplication(),
-            service = service,
+            dataSource = dataSource,
             sessionId = "session",
             cipher = ReversingCipher(),
         )
@@ -311,7 +311,7 @@ class TokenRepositoryLocalTest {
         sessionId: String = "session",
         cipher: TokenCipher = ReversingCipher(),
     ): TokenRepositoryLocal = TokenRepositoryLocal(
-        service = service,
+        dataSource = dataSource,
         store = store,
         sessionId = sessionId,
         cipher = cipher,
@@ -319,7 +319,7 @@ class TokenRepositoryLocalTest {
         logLevel = LogLevel.Debug,
     )
 
-    private class FakeAuthService : YaloMessageAuthService {
+    private class FakeAuthDataSource : YaloMessageAuthDataSource {
 
         var issued: AuthToken = AuthToken("access", "refresh", LATER)
         var refreshedInto: AuthToken = AuthToken("refreshed", "refresh", LATER)
