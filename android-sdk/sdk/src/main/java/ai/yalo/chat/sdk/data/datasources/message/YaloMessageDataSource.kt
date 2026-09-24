@@ -24,28 +24,24 @@ internal interface YaloMessageDataSource {
     /** What the channel sends, as it arrives. Hot, and nothing is replayed. */
     val messages: Flow<InboundMessage>
 
-    /** Asks for a connection, and for it to be rebuilt whenever it is lost. */
-    suspend fun connect()
+    /**
+     * Opens one connection with [token] and reads from it until it dies,
+     * answering whether it ever opened.
+     *
+     * Nothing here decides when to try again or what token to try with: the
+     * caller does, by calling this again. Cancelling the call is what ends the
+     * connection.
+     */
+    suspend fun runSession(token: String): Boolean
 
     /**
      * Sends [message] to the channel.
      *
      * Success means the message has been taken, not that it has arrived. One
-     * sent while the line is down waits until it is up again. Sending before
-     * [connect] or after [close] fails.
+     * sent while the line is down waits until it is up again.
      */
     suspend fun send(message: SdkMessage): Result<Unit>
 
-    /** Drops the socket because the app went away, keeping whatever is waiting to be sent. */
-    suspend fun pause()
-
-    /** Connects again after a [pause], and sends whatever was held meanwhile. */
-    suspend fun resume()
-
-    /** Ends the conversation and forgets what was being held for it. */
+    /** Forgets whatever was waiting to be sent. */
     suspend fun close()
 }
-
-/** Thrown when a message is written while the chat is not open. */
-internal class MessageDataSourceClosedException :
-    IllegalStateException("The chat is not open, so the message was not taken")

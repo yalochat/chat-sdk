@@ -183,6 +183,22 @@ internal class ChatViewModel(
         uiState = uiState.copy(isWaitingForReply = false)
     }
 
+    /** The chat is on screen again, so the line to the channel goes back up. */
+    fun onScreenShown() {
+        yaloMessageRepository.resume()
+    }
+
+    /**
+     * The chat has left the screen, so the line is dropped.
+     *
+     * Behind an app the person has put away the system takes the socket, and
+     * opening another one gets nowhere and costs battery. Whatever was written
+     * meanwhile is kept and goes out when they come back.
+     */
+    fun onScreenHidden() {
+        yaloMessageRepository.pause()
+    }
+
     override fun onCleared() {
         yaloMessageRepository.close()
     }

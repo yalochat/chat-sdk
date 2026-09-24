@@ -5,6 +5,7 @@ import ai.yalo.chat.sdk.data.datasources.message.InboundMessage
 import ai.yalo.chat.sdk.data.datasources.message.MessageAcknowledged
 import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -21,44 +22,68 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
 import com.google.protobuf.util.Timestamps
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.io.IOException
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus as WireStatus
 
+// Robolectric is here for the lines the repository writes about the line it is
+// holding: logcat throws out of a plain JVM test.
 @OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(RobolectricTestRunner::class)
 class YaloMessageRepositoryRemoteTest {
 
     private val source = FakeYaloMessageDataSource()
+    private val auth = FakeTokenRepository()
+    private val scheduler = TestCoroutineScheduler()
+
+    // Holding the line open is a coroutine that runs for as long as the chat
+    // does, so the repository gets a scope of its own, cancelled after each
+    // test, rather than the test's own scope, which would wait forever for it.
+    private val scope = CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher(scheduler))
+
+    @After
+    fun stopTheRepository() {
+        scope.cancel()
+    }
 
     @Test
-    fun sendsWhatThePersonWrote() = runTest {
-        repository().send(message(content = "Hello"))
+    fun sendsWhatThePersonWrote() = runTest(scheduler) {
+        connected().send(message(content = "Hello"))
 
         assertEquals("Hello", sentText())
     }
 
     @Test
-    fun sendsAMessageAsComingFromWhoeverWroteIt() = runTest {
-        repository().send(message(role = MessageRole.User))
+    fun sendsAMessageAsComingFromWhoeverWroteIt() = runTest(scheduler) {
+        connected().send(message(role = MessageRole.User))
 
         assertEquals(WireRole.MESSAGE_ROLE_USER, source.sent.single().textMessageRequest.content.role)
     }
 
     @Test
-    fun sendsAMessageAsComingFromTheChannelWhenThatIsWhoWroteIt() = runTest {
-        repository().send(message(role = MessageRole.Agent))
+    fun sendsAMessageAsComingFromTheChannelWhenThatIsWhoWroteIt() = runTest(scheduler) {
+        connected().send(message(role = MessageRole.Agent))
 
         assertEquals(WireRole.MESSAGE_ROLE_AGENT, source.sent.single().textMessageRequest.content.role)
     }
@@ -66,8 +91,8 @@ class YaloMessageRepositoryRemoteTest {
     // Whatever the stored row says, a message on its way out has not arrived
     // anywhere yet.
     @Test
-    fun sendsAMessageAsNotYetArrived() = runTest {
-        repository().send(message(status = MessageStatus.Delivered))
+    fun sendsAMessageAsNotYetArrived() = runTest(scheduler) {
+        connected().send(message(status = MessageStatus.Delivered))
 
         assertEquals(
             WireStatus.MESSAGE_STATUS_IN_PROGRESS,
@@ -76,8 +101,8 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun keepsTheTimeTheMessageWasWritten() = runTest {
-        repository().send(message(timestamp = WRITTEN_AT))
+    fun keepsTheTimeTheMessageWasWritten() = runTest(scheduler) {
+        connected().send(message(timestamp = WRITTEN_AT))
 
         assertEquals(
             WRITTEN_AT,
@@ -86,8 +111,8 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun saysWhenTheMessageWasSentApartFromWhenItWasWritten() = runTest {
-        repository().send(message(timestamp = WRITTEN_AT))
+    fun saysWhenTheMessageWasSentApartFromWhenItWasWritten() = runTest(scheduler) {
+        connected().send(message(timestamp = WRITTEN_AT))
 
         assertEquals(SENT_AT, Timestamps.toMillis(source.sent.single().timestamp))
     }
@@ -95,46 +120,46 @@ class YaloMessageRepositoryRemoteTest {
     // An acknowledgement comes back naming the correlation id, so the row id is
     // what lets the answer find the message it belongs to.
     @Test
-    fun namesTheMessageAfterTheRowItWasStoredAs() = runTest {
-        repository().send(message(id = 42L))
+    fun namesTheMessageAfterTheRowItWasStoredAs() = runTest(scheduler) {
+        connected().send(message(id = 42L))
 
         assertEquals("42", source.sent.single().correlationId)
     }
 
     @Test
-    fun givesAMessageThatWasNeverStoredAnIdOfItsOwn() = runTest {
-        repository().send(message(id = null))
+    fun givesAMessageThatWasNeverStoredAnIdOfItsOwn() = runTest(scheduler) {
+        connected().send(message(id = null))
 
         assertEquals("generated-id", source.sent.single().correlationId)
     }
 
     @Test
-    fun reportsAMessageTheChannelTook() = runTest {
-        val result = repository().send(message())
+    fun reportsAMessageTheChannelTook() = runTest(scheduler) {
+        val result = connected().send(message())
 
         assertTrue(result.isSuccess)
     }
 
     @Test
-    fun reportsAMessageTheChannelWouldNotTake() = runTest {
+    fun reportsAMessageTheChannelWouldNotTake() = runTest(scheduler) {
         source.failure = IOException("the line is down")
 
-        val result = repository().send(message())
+        val result = connected().send(message())
 
         assertEquals("the line is down", result.exceptionOrNull()?.message)
     }
 
     @Test
-    fun refusesAKindOfMessageItCannotPutOnTheWireYet() = runTest {
-        val result = repository().send(message(type = MessageType.Image))
+    fun refusesAKindOfMessageItCannotPutOnTheWireYet() = runTest(scheduler) {
+        val result = connected().send(message(type = MessageType.Image))
 
         assertTrue(result.exceptionOrNull() is UnsupportedMessageTypeException)
         assertEquals(emptyList<SdkMessage>(), source.sent)
     }
 
     @Test
-    fun asksTheChannelToOpenTheConversation() = runTest {
-        repository().requestGuidanceCard()
+    fun asksTheChannelToOpenTheConversation() = runTest(scheduler) {
+        connected().requestGuidanceCard()
 
         assertEquals(
             SdkMessage.PayloadCase.GUIDANCE_CARD_REQUEST,
@@ -144,8 +169,8 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun saysWhatTheChatWasOpenedFrom() = runTest {
-        repository().requestGuidanceCard(mapOf("source" to "product-page", "sku" to "123"))
+    fun saysWhatTheChatWasOpenedFrom() = runTest(scheduler) {
+        connected().requestGuidanceCard(mapOf("source" to "product-page", "sku" to "123"))
 
         assertEquals(
             """{"source":"product-page","sku":"123"}""",
@@ -156,8 +181,8 @@ class YaloMessageRepositoryRemoteTest {
     // A context the channel could not read back is worse than none, so what a
     // host puts in a value cannot break out of it.
     @Test
-    fun saysAContextWithQuotesAndLineBreaksInItWithoutBreakingTheJson() = runTest {
-        repository().requestGuidanceCard(
+    fun saysAContextWithQuotesAndLineBreaksInItWithoutBreakingTheJson() = runTest(scheduler) {
+        connected().requestGuidanceCard(
             mapOf("note" to "a \"quoted\" \\ line\r\n\tand a \u0001 of its own"),
         )
 
@@ -168,43 +193,200 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun leavesTheContextOutWhenTheChatWasOpenedFromNothing() = runTest {
-        repository().requestGuidanceCard()
+    fun leavesTheContextOutWhenTheChatWasOpenedFromNothing() = runTest(scheduler) {
+        connected().requestGuidanceCard()
 
         assertFalse(source.sent.single().guidanceCardRequest.hasContext())
     }
 
     @Test
-    fun reportsAnOpenTheChannelWouldNotTake() = runTest {
+    fun reportsAnOpenTheChannelWouldNotTake() = runTest(scheduler) {
         source.failure = IOException("the line is down")
 
-        val result = repository().requestGuidanceCard()
+        val result = connected().requestGuidanceCard()
 
         assertEquals("the line is down", result.exceptionOrNull()?.message)
     }
 
     @Test
-    fun opensTheLineToTheChannel() = runTest {
-        repository(this).connect()
-        runCurrent()
+    fun opensTheLineToTheChannel() = runTest(scheduler) {
+        connected()
 
-        assertTrue(source.isOpen)
+        assertEquals(listOf("access"), source.tokens)
     }
 
     @Test
-    fun endsTheConversation() = runTest {
-        val repository = repository(this)
+    fun opensOnlyOneLineWhenAskedToConnectTwice() = runTest(scheduler) {
+        val repository = connected()
+
         repository.connect()
         runCurrent()
 
-        repository.close()
-        runCurrent()
+        assertEquals(1, source.tokens.size)
+    }
 
-        assertFalse(source.isOpen)
+    // The token that opened the last socket may have run out while it was up.
+    @Test
+    fun opensEverySocketWithAFreshToken() = runTest(scheduler) {
+        connected()
+
+        auth.current = "second"
+        source.endSession()
+        advanceTimeBy(SECOND_MILLIS + 1)
+
+        assertEquals(listOf("access", "second"), source.tokens)
     }
 
     @Test
-    fun readsWhatTheChannelSaid() = runTest {
+    fun waitsLongerBeforeEachAttemptThatGetsNowhere() = runTest(scheduler) {
+        connected()
+
+        source.endSession(opened = false)
+        advanceTimeBy(SECOND_MILLIS + 1)
+        assertEquals(2, source.tokens.size)
+
+        source.endSession(opened = false)
+        advanceTimeBy(SECOND_MILLIS + 1)
+        assertEquals("a second failure waits longer than a second", 2, source.tokens.size)
+
+        advanceTimeBy(SECOND_MILLIS + 1)
+        assertEquals(3, source.tokens.size)
+    }
+
+    @Test
+    fun startsTheWaitsOverOnceASocketOpens() = runTest(scheduler) {
+        connected()
+        source.endSession(opened = false)
+        advanceTimeBy(SECOND_MILLIS + 1)
+        source.endSession(opened = false)
+        advanceTimeBy(2 * SECOND_MILLIS + 1)
+        assertEquals(3, source.tokens.size)
+
+        source.endSession(opened = true)
+        advanceTimeBy(SECOND_MILLIS + 1)
+
+        assertEquals("a socket that opened puts the waits back to a second", 4, source.tokens.size)
+    }
+
+    @Test
+    fun neverWaitsLongerThanHalfAMinuteBetweenAttempts() = runTest(scheduler) {
+        connected()
+        repeat(ATTEMPTS_TO_THE_LONGEST_WAIT) {
+            source.endSession(opened = false)
+            advanceTimeBy(MAX_BACKOFF_MILLIS + 1)
+        }
+        val attempts = source.tokens.size
+
+        source.endSession(opened = false)
+        advanceTimeBy(MAX_BACKOFF_MILLIS)
+        assertEquals(attempts, source.tokens.size)
+        advanceTimeBy(1)
+
+        assertEquals(attempts + 1, source.tokens.size)
+    }
+
+    @Test
+    fun waitsAndAsksAgainWhenNoTokenCanBeHad() = runTest(scheduler) {
+        auth.failure = IOException("no token")
+
+        connected()
+        assertTrue(source.tokens.isEmpty())
+
+        auth.failure = null
+        advanceTimeBy(SECOND_MILLIS + 1)
+
+        assertEquals(1, source.tokens.size)
+    }
+
+    @Test
+    fun endsTheConversation() = runTest(scheduler) {
+        val repository = connected()
+
+        repository.close()
+        advanceTimeBy(MINUTE_MILLIS)
+
+        assertEquals(1, source.tokens.size)
+        assertTrue(source.isForgotten)
+    }
+
+    @Test
+    fun opensNoOtherLineWhenTheChatIsClosedWhileOneIsDue() = runTest(scheduler) {
+        val repository = connected()
+        source.endSession(opened = false)
+        runCurrent()
+
+        repository.close()
+        advanceTimeBy(MINUTE_MILLIS)
+
+        assertEquals(1, source.tokens.size)
+    }
+
+    @Test
+    fun dropsTheLineWhenTheAppGoesAwayAndOpensItAgainWhenItComesBack() = runTest(scheduler) {
+        val repository = connected()
+
+        repository.pause()
+        advanceTimeBy(MINUTE_MILLIS)
+        assertEquals("nothing is opened while the app is away", 1, source.tokens.size)
+        assertFalse(source.hasSession)
+
+        repository.resume()
+        runCurrent()
+
+        assertEquals(2, source.tokens.size)
+    }
+
+    @Test
+    fun ignoresGoingAwayWhenTheChatWasNeverOpened() = runTest(scheduler) {
+        repository().pause()
+        runCurrent()
+
+        assertTrue(source.tokens.isEmpty())
+    }
+
+    @Test
+    fun ignoresComingBackWhenItNeverWentAway() = runTest(scheduler) {
+        val repository = connected()
+
+        repository.resume()
+        runCurrent()
+
+        assertEquals(1, source.tokens.size)
+    }
+
+    @Test
+    fun reportsAFailureWhenTheChatWasNeverOpened() = runTest(scheduler) {
+        val result = repository().send(message())
+
+        assertTrue(result.exceptionOrNull() is ChatClosedException)
+        assertTrue(source.sent.isEmpty())
+    }
+
+    @Test
+    fun reportsAFailureWhenTheChatIsClosedAgain() = runTest(scheduler) {
+        val repository = connected()
+        repository.close()
+        runCurrent()
+
+        val result = repository.send(message())
+
+        assertTrue(result.exceptionOrNull() is ChatClosedException)
+    }
+
+    @Test
+    fun saysNothingToTheChannelOnceTheChatIsClosed() = runTest(scheduler) {
+        val repository = connected()
+        repository.close()
+        runCurrent()
+
+        val result = repository.requestGuidanceCard()
+
+        assertTrue(result.exceptionOrNull() is ChatClosedException)
+        assertTrue(source.sent.isEmpty())
+    }
+
+    @Test
+    fun readsWhatTheChannelSaid() = runTest(scheduler) {
         val received = received(pollItem(textMessage("On its way")))
 
         assertEquals("On its way", received.single().content)
@@ -214,28 +396,28 @@ class YaloMessageRepositoryRemoteTest {
 
     // The backend's id is what tells a repeat from a new message.
     @Test
-    fun keepsTheIdTheChannelGaveTheMessage() = runTest {
+    fun keepsTheIdTheChannelGaveTheMessage() = runTest(scheduler) {
         val received = received(pollItem(textMessage(), id = "wi-7"))
 
         assertEquals("wi-7", received.single().wiId)
     }
 
     @Test
-    fun keepsTheTimeTheChannelRecordedTheMessage() = runTest {
+    fun keepsTheTimeTheChannelRecordedTheMessage() = runTest(scheduler) {
         val received = received(pollItem(textMessage(), date = ARRIVED_AT))
 
         assertEquals(ARRIVED_AT, received.single().timestamp)
     }
 
     @Test
-    fun timesAMessageThatArrivedWithoutADateAsNow() = runTest {
+    fun timesAMessageThatArrivedWithoutADateAsNow() = runTest(scheduler) {
         val received = received(pollItem(textMessage(), date = null))
 
         assertEquals(SENT_AT, received.single().timestamp)
     }
 
     @Test
-    fun keepsWhatWasWrittenAroundTheMessage() = runTest {
+    fun keepsWhatWasWrittenAroundTheMessage() = runTest(scheduler) {
         val message = textMessage(header = "Your order", footer = "Reply to change it")
 
         val received = received(pollItem(message))
@@ -245,7 +427,7 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun leavesOutAHeaderAndFooterTheChannelDidNotSend() = runTest {
+    fun leavesOutAHeaderAndFooterTheChannelDidNotSend() = runTest(scheduler) {
         val received = received(pollItem(textMessage()))
 
         assertEquals(null, received.single().header)
@@ -254,28 +436,28 @@ class YaloMessageRepositoryRemoteTest {
 
     // A picture the chat cannot draw yet still has to show up as something.
     @Test
-    fun readsAKindItCannotDrawYetAsThatKind() = runTest {
+    fun readsAKindItCannotDrawYetAsThatKind() = runTest(scheduler) {
         val received = received(pollItem(imageMessage()))
 
         assertEquals(MessageType.Image, received.single().type)
     }
 
     @Test
-    fun readsAStatusItDoesNotKnowAsArrived() = runTest {
+    fun readsAStatusItDoesNotKnowAsArrived() = runTest(scheduler) {
         val received = received(pollItem(textMessage(), status = "SOMETHING_NEWER"))
 
         assertEquals(MessageStatus.Delivered, received.single().status)
     }
 
     @Test
-    fun takesTheChannelsWordForHowFarTheMessageGot() = runTest {
+    fun takesTheChannelsWordForHowFarTheMessageGot() = runTest(scheduler) {
         val received = received(pollItem(textMessage(), status = "READ"))
 
         assertEquals(MessageStatus.Read, received.single().status)
     }
 
     @Test
-    fun leavesOutWhatIsNotSomethingAnyoneSaid() = runTest {
+    fun leavesOutWhatIsNotSomethingAnyoneSaid() = runTest(scheduler) {
         val status = SdkMessage.newBuilder()
             .setChatStatusRequest(ChatStatusRequest.newBuilder().setStatus("typing"))
             .build()
@@ -284,7 +466,7 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun readsTheAnswersAMessageOffers() = runTest {
+    fun readsTheAnswersAMessageOffers() = runTest(scheduler) {
         val message = textMessage(buttons = listOf(button("Yes"), button("No")))
 
         val received = received(pollItem(message))
@@ -293,7 +475,7 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun keepsWhatEachButtonIsForApartFromWhatItSays() = runTest {
+    fun keepsWhatEachButtonIsForApartFromWhatItSays() = runTest(scheduler) {
         val message = textMessage(
             buttons = listOf(
                 button("Yes", ButtonType.BUTTON_TYPE_REPLY),
@@ -311,7 +493,7 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun keepsWhereALinkGoes() = runTest {
+    fun keepsWhereALinkGoes() = runTest(scheduler) {
         val message = textMessage(
             buttons = listOf(button("Open the store", ButtonType.BUTTON_TYPE_LINK, url = "https://yalo.com")),
         )
@@ -322,7 +504,7 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun leavesOutAnAddressAButtonNeverCarried() = runTest {
+    fun leavesOutAnAddressAButtonNeverCarried() = runTest(scheduler) {
         val received = received(pollItem(textMessage(buttons = listOf(button("Yes")))))
 
         assertEquals(null, received.single().buttons.single().url)
@@ -331,7 +513,7 @@ class YaloMessageRepositoryRemoteTest {
     // A button kind only a newer backend knows still has to do something, and
     // answering is the one thing every button can do.
     @Test
-    fun readsAButtonKindItDoesNotKnowAsAnAnswer() = runTest {
+    fun readsAButtonKindItDoesNotKnowAsAnAnswer() = runTest(scheduler) {
         val newerKind = Button.newBuilder().setText("Yes").setButtonTypeValue(99).build()
 
         val received = received(pollItem(textMessage(buttons = listOf(newerKind))))
@@ -340,21 +522,21 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun readsTheAnswersOfferedWithAMessageItCannotDrawYet() = runTest {
+    fun readsTheAnswersOfferedWithAMessageItCannotDrawYet() = runTest(scheduler) {
         val received = received(pollItem(imageMessage(buttons = listOf(button("Yes")))))
 
         assertEquals(listOf("Yes"), received.single().buttons.map { it.text })
     }
 
     @Test
-    fun offersNothingForAMessageWithNoButtons() = runTest {
+    fun offersNothingForAMessageWithNoButtons() = runTest(scheduler) {
         val received = received(pollItem(textMessage()))
 
         assertEquals(emptyList<String>(), received.single().buttons.map { it.text })
     }
 
     @Test
-    fun leavesOutAnAcknowledgement() = runTest {
+    fun leavesOutAnAcknowledgement() = runTest(scheduler) {
         val received = received(MessageAcknowledged(SdkMessageAck.getDefaultInstance()))
 
         assertEquals(emptyList<ChatMessage>(), received)
@@ -366,7 +548,7 @@ class YaloMessageRepositoryRemoteTest {
     private fun TestScope.received(vararg inbound: InboundMessage): List<ChatMessage> {
         val received = mutableListOf<ChatMessage>()
         val collector = launch {
-            repository(this@received).messages().collect { message -> received.add(message) }
+            repository().messages().collect { message -> received.add(message) }
         }
         runCurrent()
         inbound.forEach { message -> source.receive(message) }
@@ -438,15 +620,19 @@ class YaloMessageRepositoryRemoteTest {
         )
         .build()
 
-    private fun TestScope.repository(): YaloMessageRepositoryRemote = repository(this)
+    /** A chat with its line open, which is what anything is sent from. */
+    private fun TestScope.connected(): YaloMessageRepositoryRemote = repository().also { repository ->
+        repository.connect()
+        runCurrent()
+    }
 
-    private fun repository(scope: CoroutineScope): YaloMessageRepositoryRemote =
-        YaloMessageRepositoryRemote(
-            source = source,
-            scope = scope,
-            now = { SENT_AT },
-            correlationIds = { "generated-id" },
-        )
+    private fun repository(): YaloMessageRepositoryRemote = YaloMessageRepositoryRemote(
+        source = source,
+        auth = auth,
+        scope = scope,
+        now = { SENT_AT },
+        correlationIds = { "generated-id" },
+    )
 
     private fun message(
         content: String = "Hello",
@@ -467,9 +653,20 @@ class YaloMessageRepositoryRemoteTest {
     private class FakeYaloMessageDataSource : YaloMessageDataSource {
 
         val sent: MutableList<SdkMessage> = mutableListOf()
-        var isOpen: Boolean = false
-            private set
+
+        /** One token for every socket it was asked to open, in order. */
+        val tokens: MutableList<String> = mutableListOf()
+
         var failure: Throwable? = null
+
+        var isForgotten: Boolean = false
+            private set
+
+        /** Whether a socket is up now. */
+        val hasSession: Boolean
+            get() = session != null
+
+        private var session: CompletableDeferred<Boolean>? = null
 
         private val incoming = MutableSharedFlow<InboundMessage>(extraBufferCapacity = 8)
 
@@ -479,8 +676,20 @@ class YaloMessageRepositoryRemoteTest {
             incoming.tryEmit(message)
         }
 
-        override suspend fun connect() {
-            isOpen = true
+        /** Ends the session that is running, the way its socket dying would. */
+        fun endSession(opened: Boolean = true) {
+            session?.complete(opened)
+        }
+
+        override suspend fun runSession(token: String): Boolean {
+            tokens += token
+            val running = CompletableDeferred<Boolean>()
+            session = running
+            try {
+                return running.await()
+            } finally {
+                session = null
+            }
         }
 
         override suspend fun send(message: SdkMessage): Result<Unit> {
@@ -489,18 +698,34 @@ class YaloMessageRepositoryRemoteTest {
             return Result.success(Unit)
         }
 
-        override suspend fun pause() = Unit
-
-        override suspend fun resume() = Unit
-
         override suspend fun close() {
-            isOpen = false
+            isForgotten = true
         }
+    }
+
+    private class FakeTokenRepository : TokenRepository {
+
+        var current: String = "access"
+        var failure: Throwable? = null
+
+        override suspend fun token(): Result<String> =
+            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
+
+        override suspend fun invalidateToken() = Unit
+
+        override suspend fun clearSession() = Unit
     }
 
     private companion object {
         const val WRITTEN_AT = 1_700_000_000_000L
         const val SENT_AT = 1_700_000_005_000L
         const val ARRIVED_AT = 1_700_000_009_000L
+
+        const val SECOND_MILLIS = 1_000L
+        const val MINUTE_MILLIS = 60_000L
+        const val MAX_BACKOFF_MILLIS = 30_000L
+
+        // 1s, 2s, 4s, 8s and 16s, after which the wait stops growing.
+        const val ATTEMPTS_TO_THE_LONGEST_WAIT = 5
     }
 }

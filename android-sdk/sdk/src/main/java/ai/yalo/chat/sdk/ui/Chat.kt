@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
@@ -47,6 +48,11 @@ public fun Chat(
         key = client.config.sessionId,
         factory = ChatViewModel.factory(LocalContext.current, client),
     )
+    // The line to the channel is worth holding only while the chat is on screen.
+    LifecycleStartEffect(viewModel) {
+        viewModel.onScreenShown()
+        onStopOrDispose { viewModel.onScreenHidden() }
+    }
     ProvideChatTheme(theme) {
         ChatLayout(
             title = viewModel.uiState.title,

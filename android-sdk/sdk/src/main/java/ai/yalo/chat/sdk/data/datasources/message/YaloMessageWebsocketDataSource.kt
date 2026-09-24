@@ -2,7 +2,6 @@
 package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
@@ -12,18 +11,13 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAckType
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.util.JsonFormat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -41,16 +35,17 @@ import java.io.IOException
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Holds a live link to the channel over a websocket, opening it again whenever
- * it is lost.
+ * Holds a live link to the channel over a websocket, one socket at a time.
  *
- * One coroutine owns the link: it fetches a token, opens a socket, waits for the
- * server to acknowledge it, reads from it until it dies and then waits a growing
- * while before starting over. Stopping the link is cancelling that coroutine.
+ * [runSession] is that socket's whole life: it opens one with the token it is
+ * given, waits for the server to acknowledge it, reads from it until it dies
+ * and then returns. Whether another one follows, how long to wait first and
+ * which token to open it with are not decided here.
+ *
+ * What a caller wrote while no socket was up is kept, and goes out in order as
+ * soon as one is acknowledged.
  */
 internal class YaloMessageWebsocketDataSource(
-    private val auth: TokenRepository,
-    private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val sockets: WebSocket.Factory = OkHttpClient(),
     logLevel: LogLevel = LogLevel.Warn,
@@ -58,10 +53,8 @@ internal class YaloMessageWebsocketDataSource(
 
     private val log = YaloLog(LOG_NAME, logLevel)
 
-    // Guards everything a caller and the connecting coroutine both touch.
+    // Guards everything a caller and the socket both touch.
     private val mutex = Mutex()
-
-    private var lifecycle: Lifecycle = Lifecycle.Closed
 
     /** The socket a message can go out on now, set once the server acknowledged it. */
     private var live: WebSocket? = null
@@ -78,63 +71,13 @@ internal class YaloMessageWebsocketDataSource(
 
     private val socketUrl: HttpUrl = baseUrl.newBuilder().addPathSegments(SOCKET_PATH).build()
 
-    // Only the four calls that move the lifecycle touch this, and each of them
-    // runs to the end before the next one starts.
-    private var connecting: Job? = null
-
     override val messages: Flow<InboundMessage> = incoming.asSharedFlow()
-
-    override suspend fun connect() {
-        mutex.withLock {
-            if (lifecycle != Lifecycle.Closed) {
-                return
-            }
-            lifecycle = Lifecycle.Running
-        }
-        log.info { "connecting" }
-        connecting = scope.launch { connectUntilStopped() }
-    }
-
-    override suspend fun pause() {
-        mutex.withLock {
-            if (lifecycle != Lifecycle.Running) {
-                return
-            }
-            lifecycle = Lifecycle.Paused
-        }
-        log.info { "pausing, the app went away" }
-        stopConnecting()
-    }
-
-    override suspend fun resume() {
-        mutex.withLock {
-            if (lifecycle != Lifecycle.Paused) {
-                return
-            }
-            lifecycle = Lifecycle.Running
-        }
-        log.info { "resuming" }
-        connecting = scope.launch { connectUntilStopped() }
-    }
-
-    override suspend fun close() {
-        mutex.withLock {
-            lifecycle = Lifecycle.Closed
-            pending.clear()
-        }
-        log.info { "closing" }
-        stopConnecting()
-    }
 
     override suspend fun send(message: SdkMessage): Result<Unit> {
         val frame = frameOf(message).getOrElse { cause -> return Result.failure(cause) }
         return mutex.withLock {
             val socket = live
             when {
-                lifecycle == Lifecycle.Closed -> {
-                    log.warn { "a message was written while the chat was closed" }
-                    Result.failure(MessageDataSourceClosedException())
-                }
                 socket == null -> {
                     hold(frame)
                     Result.success(Unit)
@@ -153,47 +96,24 @@ internal class YaloMessageWebsocketDataSource(
         }
     }
 
-    private suspend fun stopConnecting() {
-        connecting?.cancelAndJoin()
-        connecting = null
-    }
-
-    private suspend fun connectUntilStopped() {
-        var attempt = FIRST_ATTEMPT
-        while (true) {
-            val accessToken = auth.token().getOrElse { cause ->
-                log.warn(cause) { "no token, so no socket" }
-                attempt = waitBefore(attempt)
-                continue
-            }
-            // A socket that opened has shown the line works, so the waits start
-            // over even when it died a moment later.
-            val opened = session(accessToken)
-            attempt = waitBefore(if (opened) FIRST_ATTEMPT else attempt)
+    override suspend fun close() {
+        mutex.withLock {
+            log.info { "forgetting what was waiting to be sent" }
+            pending.clear()
         }
-    }
-
-    /** Waits out the delay owed after [attempt], and answers with the attempt after it. */
-    private suspend fun waitBefore(attempt: Int): Int {
-        val delayMillis = minOf(MAX_BACKOFF_MILLIS, INITIAL_BACKOFF_MILLIS shl attempt)
-        log.info { "reconnecting in ${delayMillis}ms" }
-        delay(delayMillis.milliseconds)
-        // Counting past the point where the delay stops growing keeps the shift
-        // that computes it honest.
-        return (attempt + 1).coerceAtMost(MAX_ATTEMPT)
     }
 
     /**
      * Runs one socket for as long as it lasts, and answers whether it ever
      * opened.
      */
-    private suspend fun session(accessToken: String): Boolean {
+    override suspend fun runSession(token: String): Boolean {
         val events = Channel<SocketEvent>(Channel.UNLIMITED)
         log.info { "opening the socket to ${socketUrl.host}" }
         // The backend reads the token from the query, not a header. These are
         // JWTs, so base64url, so the literal plus addQueryParameter leaves
         // alone cannot be read back as a space.
-        val url = socketUrl.newBuilder().addQueryParameter(QUERY_TOKEN, accessToken).build()
+        val url = socketUrl.newBuilder().addQueryParameter(QUERY_TOKEN, token).build()
         val socket = sockets.newWebSocket(Request.Builder().url(url).build(), Listener(events))
         try {
             if (!awaitOpen(events)) {
@@ -367,9 +287,6 @@ internal class YaloMessageWebsocketDataSource(
         return SocketFrame.Payload(MessageAcknowledged(ack))
     }
 
-    /** What the chat was last asked to do with its connection. */
-    private enum class Lifecycle { Closed, Running, Paused }
-
     /** A frame the server sent, as far as the connection needs to care. */
     private sealed interface SocketFrame {
 
@@ -404,11 +321,6 @@ internal class YaloMessageWebsocketDataSource(
         private const val INCOMING_BUFFER = 64
 
         private const val ACK_TIMEOUT_MILLIS = 10_000L
-        private const val INITIAL_BACKOFF_MILLIS = 1_000L
-        private const val MAX_BACKOFF_MILLIS = 30_000L
-
-        private const val FIRST_ATTEMPT = 0
-        private const val MAX_ATTEMPT = 5
 
         private const val MAX_PENDING_FRAMES = 128
 

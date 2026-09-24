@@ -269,6 +269,25 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun dropsTheLineWhenTheChatLeavesTheScreen() {
+        val viewModel = chatViewModel()
+
+        viewModel.onScreenHidden()
+
+        assertFalse(yaloMessageRepository.isOpen)
+    }
+
+    @Test
+    fun opensTheLineAgainWhenTheChatComesBack() {
+        val viewModel = chatViewModel()
+        viewModel.onScreenHidden()
+
+        viewModel.onScreenShown()
+
+        assertTrue(yaloMessageRepository.isOpen)
+    }
+
+    @Test
     fun endsTheConversationOnceTheChatIsGone() {
         val store = ViewModelStore()
         store.put("chat", chatViewModel())
@@ -631,6 +650,14 @@ class ChatViewModelTest {
         private val incoming = MutableSharedFlow<ChatMessage>(extraBufferCapacity = 8)
 
         override fun connect() {
+            isOpen = true
+        }
+
+        override fun pause() {
+            isOpen = false
+        }
+
+        override fun resume() {
             isOpen = true
         }
 
