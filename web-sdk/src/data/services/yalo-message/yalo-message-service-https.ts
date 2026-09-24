@@ -17,6 +17,14 @@ interface JwtPayload {
 }
 
 const POLL_INTERVAL_MS = 2000;
+
+function hasDocument(): boolean {
+  return typeof document !== 'undefined';
+}
+
+function isPageHidden(): boolean {
+  return hasDocument() && document.hidden;
+}
 const INITIAL_LOOKBACK_MS = 5000;
 
 export class YaloMessageServiceHttps implements YaloMessageService {
@@ -124,17 +132,21 @@ export class YaloMessageServiceHttps implements YaloMessageService {
         // swallow network errors — next poll will retry
       }
 
-      if (!document.hidden) {
+      if (!isPageHidden()) {
         this._pollTimeout = setTimeout(poll, POLL_INTERVAL_MS);
       }
     };
 
-    this._visibilityListener = () => {
-      clearTimeout(this._pollTimeout);
-      this._pollTimeout = undefined;
-      if (!document.hidden) poll();
-    };
-    document.addEventListener('visibilitychange', this._visibilityListener);
+    // Outside a browser (e.g. the CLI running on Bun/Node) there is no page to
+    // hide, so polling simply never pauses.
+    if (hasDocument()) {
+      this._visibilityListener = () => {
+        clearTimeout(this._pollTimeout);
+        this._pollTimeout = undefined;
+        if (!isPageHidden()) poll();
+      };
+      document.addEventListener('visibilitychange', this._visibilityListener);
+    }
 
     poll();
   }
@@ -145,7 +157,7 @@ export class YaloMessageServiceHttps implements YaloMessageService {
     this._seenIds.clear();
     this._lastMessageTimestamp = undefined;
     this._callback = undefined;
-    if (this._visibilityListener) {
+    if (this._visibilityListener && hasDocument()) {
       document.removeEventListener(
         'visibilitychange',
         this._visibilityListener
