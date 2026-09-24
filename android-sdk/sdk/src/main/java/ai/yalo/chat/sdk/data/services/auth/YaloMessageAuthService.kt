@@ -1,14 +1,19 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.services.auth
 
-/** Hands out an access token for one conversation, and keeps one worth handing out. */
+import ai.yalo.chat.sdk.domain.models.AuthToken
+
+/**
+ * The two calls the backend offers for getting into a conversation.
+ *
+ * Nothing here remembers anything. Deciding which call to make, and what to do
+ * with what comes back, belongs to whoever keeps the token.
+ */
 internal interface YaloMessageAuthService {
 
-    /** Several callers suspending at once are answered by a single exchange with the backend. */
-    suspend fun token(): Result<String>
+    /** Asks for a token for the configured channel and user. */
+    suspend fun authenticate(): Result<AuthToken>
 
-    /** The next [token] will not be the one that was refused. */
-    suspend fun invalidateToken()
-
-    suspend fun clearSession()
+    /** Trades [refreshToken] for a token, without becoming a new person. */
+    suspend fun refresh(refreshToken: String): Result<AuthToken>
 }

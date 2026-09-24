@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.data.services.auth
+package ai.yalo.chat.sdk.common.crypto
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.After

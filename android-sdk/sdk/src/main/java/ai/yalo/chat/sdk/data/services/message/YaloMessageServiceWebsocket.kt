@@ -2,7 +2,7 @@
 package ai.yalo.chat.sdk.data.services.message
 
 import ai.yalo.chat.sdk.LogLevel
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.data.services.message.MessageConnection.Command
 import ai.yalo.chat.sdk.data.services.message.MessageConnection.Event
 import ai.yalo.chat.sdk.log.YaloLog
@@ -46,7 +46,7 @@ import kotlin.time.Duration.Companion.milliseconds
  * Carries out what a [MessageConnection] decides, against a real socket.
  */
 internal class YaloMessageServiceWebsocket(
-    private val auth: YaloMessageAuthService,
+    private val auth: TokenRepository,
     private val scope: CoroutineScope,
     baseUrl: HttpUrl,
     private val sockets: WebSocket.Factory = OkHttpClient(),

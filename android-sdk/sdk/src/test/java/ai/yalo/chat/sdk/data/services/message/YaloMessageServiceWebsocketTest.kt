@@ -3,7 +3,7 @@ package ai.yalo.chat.sdk.data.services.message
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.log.YaloLog
-import ai.yalo.chat.sdk.data.services.auth.YaloMessageAuthService
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole
@@ -65,7 +65,7 @@ import java.io.IOException
 class YaloMessageServiceWebsocketTest {
 
     private val sockets = FakeWebSocketFactory()
-    private val auth = FakeYaloMessageAuthService()
+    private val auth = FakeTokenRepository()
     private val scheduler = TestCoroutineScheduler()
 
     // The service outlives any one call into it: the loop that applies what the
@@ -605,7 +605,7 @@ class YaloMessageServiceWebsocketTest {
         override fun cancel() = Unit
     }
 
-    private class FakeYaloMessageAuthService : YaloMessageAuthService {
+    private class FakeTokenRepository : TokenRepository {
 
         var current: String = "access"
         var failure: Throwable? = null
