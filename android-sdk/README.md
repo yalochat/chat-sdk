@@ -16,6 +16,9 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Avatar](#avatar)
   - [Back button](#back-button)
 - [Message formatting](#message-formatting)
+- [Voice messages](#voice-messages)
+  - [The microphone permission](#the-microphone-permission)
+  - [Turning voice messages off](#turning-voice-messages-off)
 - [Quick replies](#quick-replies)
 - [Theming](#theming)
 - [Logging](#logging)
@@ -93,6 +96,7 @@ Optional properties:
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them. See [Quick replies](#quick-replies).
 - **`openContext`** (`Map<String, String>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
+- **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
 
 Two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages.
 
@@ -209,6 +213,48 @@ The chat draws:
   - Lines starting with `>`.
 
 Anything else, a table for instance, is shown as the text it was written as, so nothing an answer contains goes missing.
+
+## Voice messages
+
+The person records a voice message by tapping the microphone beside the message input. While they speak, the input turns into a waveform with the elapsed time on its left, and the button beside it turns into send:
+
+- Tapping send finishes the recording and puts it in the conversation.
+- Tapping the cross in the input throws the recording away and nothing is sent.
+
+Voice messages the channel sends are shown the same way messages the person recorded are: a play button, the shape of the recording, and how long it runs. Tapping play fetches the audio if it is not on the device yet, and tapping again pauses it.
+
+Nothing has to be configured for any of this except the permission below.
+
+### The microphone permission
+
+Recording needs `RECORD_AUDIO`. The SDK does not declare it, so it is never forced on an app that has voice messages turned off. Declare it in your own manifest:
+
+```xml
+<manifest>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+</manifest>
+```
+
+The chat asks the person for the permission the first time they tap the microphone, and starts recording as soon as they allow it. Nothing happens if they refuse, or if the permission was never declared.
+
+Recordings the person makes are kept in your app's own files so they can still be played back after they have been sent. They go when the app's data does.
+
+### Turning voice messages off
+
+Set `hideVoiceButton` and the microphone is gone. The send button takes its place permanently and is simply disabled while nothing has been typed:
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        hideVoiceButton = true,
+    ),
+)
+```
+
+Leave `RECORD_AUDIO` out of your manifest as well, and the app never asks for a microphone it does not use. Voice messages the channel sends are still played, because playing one records nothing.
 
 ## Quick replies
 

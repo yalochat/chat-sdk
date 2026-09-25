@@ -1,8 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.messages
 
+import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.ui.voice.VoiceMessageBody
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,12 +18,24 @@ import androidx.compose.ui.Modifier
  * asterisks someone typed are asterisks they meant.
  */
 @Composable
-internal fun UserMessageBody(message: ChatMessage, modifier: Modifier = Modifier) {
+internal fun UserMessageBody(
+    message: ChatMessage,
+    modifier: Modifier = Modifier,
+    playback: () -> VoicePlayback? = { null },
+    onVoiceMessageToggled: () -> Unit = {},
+) {
     when (message.type) {
         MessageType.Text -> Text(
             text = message.content,
             modifier = modifier,
             style = MaterialTheme.typography.bodyLarge,
+        )
+
+        MessageType.Voice -> VoiceMessageBody(
+            message = message,
+            playback = playback,
+            onToggle = onVoiceMessageToggled,
+            modifier = modifier,
         )
 
         else -> UnsupportedMessageBody(modifier = modifier)

@@ -9,6 +9,10 @@ package ai.yalo.chat.sdk
  * opens on an empty conversation, so the first thing said can be about what
  * the person is doing rather than a generic greeting. Fixed for the life of
  * the client.
+ * @property hideVoiceButton Whether the microphone is left out of the message
+ * input. With it on, the send button is always there instead of appearing once
+ * something has been typed, and nobody can record a voice message. Named after
+ * the same setting in the web SDK so the two read alike.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -18,6 +22,7 @@ public data class YaloChatClientConfig(
     public val quickReplyType: QuickReplyType = QuickReplyType.Modal,
     public val logLevel: LogLevel = LogLevel.Warn,
     public val openContext: Map<String, String> = emptyMap(),
+    public val hideVoiceButton: Boolean = false,
 ) {
 
     /**

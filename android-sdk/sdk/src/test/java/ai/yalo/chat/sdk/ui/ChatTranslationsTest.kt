@@ -52,17 +52,23 @@ class ChatTranslationsTest {
         composeRule.onNodeWithTag(CHAT_FOOTER_TAG).assertIsDisplayed()
     }
 
+    /**
+     * Every string the SDK ships, read in [locale].
+     *
+     * Found rather than listed, so a string added to the SDK is translated
+     * everywhere or this test says so, without anybody having to remember to
+     * add it here. The brand name is passed to all of them because the ones
+     * that take no argument ignore it.
+     */
     private fun chatStrings(locale: Locale): List<String> {
         val context = localizedContext(locale)
-        return listOf(
-            context.getString(R.string.yalo_chat_input_placeholder),
-            context.getString(R.string.yalo_chat_send_button_description),
-            context.getString(R.string.yalo_chat_back_button_description),
-            context.getString(R.string.yalo_chat_mic_button_description),
-            context.getString(R.string.yalo_chat_unsupported_message),
-            context.getString(R.string.yalo_chat_watermark, "Yalo"),
-        )
+        return chatStringIds().map { id -> context.getString(id, "Yalo") }
     }
+
+    private fun chatStringIds(): List<Int> = R.string::class.java.fields
+        .filter { field -> field.name.startsWith(STRING_PREFIX) }
+        .map { field -> field.getInt(null) }
+        .also { ids -> assertTrue("no strings were found at all", ids.isNotEmpty()) }
 
     private fun localizedContext(locale: Locale): Context {
         val application = RuntimeEnvironment.getApplication()
@@ -72,6 +78,8 @@ class ChatTranslationsTest {
     }
 
     private companion object {
+        const val STRING_PREFIX = "yalo_chat_"
+
         val SUPPORTED_LOCALES = listOf("ar", "es", "es-MX", "pt", "pt-BR", "zh", "zh-CN")
     }
 }

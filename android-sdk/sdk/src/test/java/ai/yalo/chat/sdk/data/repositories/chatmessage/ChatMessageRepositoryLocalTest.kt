@@ -8,6 +8,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VoiceNote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -205,6 +206,38 @@ class ChatMessageRepositoryLocalTest {
         )
 
         assertEquals(MessageType.Promotion, repository.messages().getOrThrow().single().type)
+    }
+
+    @Test
+    fun readsBackTheRecordingAVoiceMessageCarries() = runBlocking {
+        val repository = repository()
+        val note = VoiceNote(
+            durationMillis = 4_200,
+            amplitudes = listOf(0.1f, 0.9f),
+            mediaUrl = "media-1",
+            mediaType = "audio/mp4",
+            fileName = "voice-1.m4a",
+            byteCount = 2_048,
+            localPath = "/files/voice-1.m4a",
+        )
+        repository.insert(
+            ChatMessage(
+                role = MessageRole.User,
+                type = MessageType.Voice,
+                timestamp = 1_000L,
+                voice = note,
+            ),
+        )
+
+        assertEquals(note, repository.messages().getOrThrow().single().voice)
+    }
+
+    @Test
+    fun leavesTheRecordingOffAMessageThatIsNotAVoiceMessage() = runBlocking {
+        val repository = repository()
+        repository.insert(userMessage("Hello"))
+
+        assertNull(repository.messages().getOrThrow().single().voice)
     }
 
     @Test

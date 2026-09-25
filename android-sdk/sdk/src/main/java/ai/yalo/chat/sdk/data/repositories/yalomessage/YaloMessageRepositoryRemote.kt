@@ -10,6 +10,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
@@ -17,6 +18,8 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
 import com.google.protobuf.Timestamp
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CoroutineScope
@@ -149,10 +152,9 @@ internal class YaloMessageRepositoryRemote(
         .mapNotNull { received -> chatMessageOf(received.item) }
 
     override suspend fun send(message: ChatMessage): Result<Unit> {
-        if (message.type != MessageType.Text) {
-            return Result.failure(UnsupportedMessageTypeException(message.type))
-        }
-        return write(sdkMessageOf(message))
+        val payload = sdkMessageOf(message)
+            ?: return Result.failure(UnsupportedMessageTypeException(message.type))
+        return write(payload)
     }
 
     /**
@@ -211,6 +213,8 @@ internal class YaloMessageRepositoryRemote(
         val type = INBOUND_TYPES[item.message.payloadCase] ?: return null
         val text: TextMessageRequest? = item.message.takeIf { type == MessageType.Text }
             ?.textMessageRequest
+        val voice: VoiceNoteMessageRequest? = item.message.takeIf { type == MessageType.Voice }
+            ?.voiceNoteMessageRequest
         return ChatMessage(
             role = MessageRole.Agent,
             type = type,
@@ -218,11 +222,27 @@ internal class YaloMessageRepositoryRemote(
             wiId = item.id,
             content = text?.content?.text.orEmpty(),
             status = ChatStatus.of(item.status, ChatStatus.Delivered),
-            header = text?.takeIf { it.hasHeader() }?.header,
-            footer = text?.takeIf { it.hasFooter() }?.footer,
+            header = text?.takeIf { it.hasHeader() }?.header
+                ?: voice?.takeIf { it.hasHeader() }?.header,
+            footer = text?.takeIf { it.hasFooter() }?.footer
+                ?: voice?.takeIf { it.hasFooter() }?.footer,
             buttons = buttonsOf(item.message),
+            voice = voice?.let { request -> voiceNoteOf(request.content) },
         )
     }
+
+    /**
+     * The recording the channel sent, which is an address to download rather
+     * than a file that is already here.
+     */
+    private fun voiceNoteOf(content: VoiceMessage): VoiceNote = VoiceNote(
+        durationMillis = (content.duration * MILLIS_PER_SECOND).toLong(),
+        amplitudes = content.amplitudesPreviewList.toList(),
+        mediaUrl = content.mediaUrl,
+        mediaType = content.mediaType,
+        fileName = content.fileName,
+        byteCount = content.byteCount,
+    )
 
     /**
      * The options attached to a message, whatever kind of message it is.
@@ -256,29 +276,75 @@ internal class YaloMessageRepositoryRemote(
         else -> MessageButtonType.Reply
     }
 
-    private fun sdkMessageOf(message: ChatMessage): SdkMessage {
+    /**
+     * Says [message] in the wire format, or nothing when it is a kind that
+     * cannot go out.
+     *
+     * A voice message with no recording on it is one of those: there is nothing
+     * for the channel to play, so it is turned away rather than sent empty.
+     */
+    private fun sdkMessageOf(message: ChatMessage): SdkMessage? {
         val sentAt: Timestamp = Timestamps.fromMillis(now())
-        return SdkMessage.newBuilder()
+        val envelope: SdkMessage.Builder = SdkMessage.newBuilder()
             .setCorrelationId(correlationIdOf(message))
             .setTimestamp(sentAt)
-            .setTextMessageRequest(
-                TextMessageRequest.newBuilder()
-                    .setTimestamp(sentAt)
-                    .setContent(
-                        TextMessage.newBuilder()
-                            .setText(message.content)
-                            // The time the message was written, which is not the
-                            // time it goes out: one written on a plane is sent
-                            // when the plane lands.
-                            .setTimestamp(Timestamps.fromMillis(message.timestamp))
-                            .setRole(wireRoleOf(message.role))
-                            // Whatever the stored row says, what is being sent
-                            // has not arrived anywhere yet.
-                            .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
-                    ),
+        return when (message.type) {
+            MessageType.Text -> envelope
+                .setTextMessageRequest(textRequestOf(message, sentAt))
+                .build()
+
+            MessageType.Voice -> message.voice?.let { note ->
+                envelope.setVoiceNoteMessageRequest(voiceRequestOf(message, note, sentAt)).build()
+            }
+
+            else -> null
+        }
+    }
+
+    private fun textRequestOf(message: ChatMessage, sentAt: Timestamp): TextMessageRequest =
+        TextMessageRequest.newBuilder()
+            .setTimestamp(sentAt)
+            .setContent(
+                TextMessage.newBuilder()
+                    .setText(message.content)
+                    // The time the message was written, which is not the time it
+                    // goes out: one written on a plane is sent when the plane
+                    // lands.
+                    .setTimestamp(Timestamps.fromMillis(message.timestamp))
+                    .setRole(wireRoleOf(message.role))
+                    // Whatever the stored row says, what is being sent has not
+                    // arrived anywhere yet.
+                    .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
             )
             .build()
-    }
+
+    /**
+     * A voice note in the wire format.
+     *
+     * [VoiceNote.mediaUrl] carries the id the upload answered with rather than
+     * an address, which is what the channel expects to be told and what the web
+     * SDK sends in the same field. The duration is seconds there, not
+     * milliseconds.
+     */
+    private fun voiceRequestOf(
+        message: ChatMessage,
+        note: VoiceNote,
+        sentAt: Timestamp,
+    ): VoiceNoteMessageRequest = VoiceNoteMessageRequest.newBuilder()
+        .setTimestamp(sentAt)
+        .setContent(
+            VoiceMessage.newBuilder()
+                .setTimestamp(Timestamps.fromMillis(message.timestamp))
+                .setMediaUrl(note.mediaUrl)
+                .setMediaType(note.mediaType)
+                .setFileName(note.fileName)
+                .setByteCount(note.byteCount)
+                .setDuration(note.durationMillis / MILLIS_PER_SECOND)
+                .addAllAmplitudesPreview(note.amplitudes)
+                .setRole(wireRoleOf(message.role))
+                .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
+        )
+        .build()
 
     // The local row id doubles as the correlation id, so an acknowledgement
     // coming back names the row it belongs to. A message that was never stored
@@ -303,6 +369,9 @@ internal class YaloMessageRepositoryRemote(
 
         private const val FIRST_ATTEMPT = 0
         private const val MAX_ATTEMPT = 5
+
+        /** The wire counts a voice note's length in seconds, the chat in milliseconds. */
+        private const val MILLIS_PER_SECOND = 1_000.0
     }
 }
 

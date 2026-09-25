@@ -6,4 +6,7 @@
     <string name="yalo_chat_watermark">由 %1$s 提供</string>
     <string name="yalo_chat_mic_button_description">录制语音消息</string>
     <string name="yalo_chat_unsupported_message">此消息无法在此显示</string>
+    <string name="yalo_chat_cancel_recording_description">取消录音</string>
+    <string name="yalo_chat_play_voice_message_description">播放语音消息</string>
+    <string name="yalo_chat_pause_voice_message_description">暂停语音消息</string>
 </resources>

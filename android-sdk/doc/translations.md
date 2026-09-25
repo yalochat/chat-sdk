@@ -37,6 +37,9 @@ Available strings:
 - **`yalo_chat_input_placeholder`**: Placeholder shown in the message input while it is empty.
 - **`yalo_chat_send_button_description`**: Accessible label for the send button.
 - **`yalo_chat_mic_button_description`**: Accessible label for the voice recording button, shown while there is nothing to send.
+- **`yalo_chat_cancel_recording_description`**: Accessible label for the cross that throws a recording away.
+- **`yalo_chat_play_voice_message_description`**: Accessible label for the play button on a voice message.
+- **`yalo_chat_pause_voice_message_description`**: Accessible label for that button while the voice message is playing.
 - **`yalo_chat_back_button_description`**: Accessible label for the header back button.
 - **`yalo_chat_unsupported_message`**: Text shown in place of a message the chat cannot display yet.
 - **`yalo_chat_watermark`**: The "By Yalo" line under the channel name. Takes the brand name as its first format argument, so each translation decides where the name sits.

@@ -35,8 +35,10 @@ internal interface YaloMessageRepository {
      * Sends [message] to the channel.
      *
      * Success means the channel has taken the message, not that anyone has read
-     * it. Only text can be sent so far: any other kind comes back as a failed
-     * [Result] rather than being dropped quietly.
+     * it. Text and voice notes can be sent so far: any other kind comes back as
+     * a failed [Result] rather than being dropped quietly. A voice note has to
+     * have been uploaded first, because what goes out is the id the upload
+     * answered with.
      */
     suspend fun send(message: ChatMessage): Result<Unit>
 

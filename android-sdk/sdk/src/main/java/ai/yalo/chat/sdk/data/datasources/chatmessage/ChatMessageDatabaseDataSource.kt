@@ -12,9 +12,10 @@ import android.database.sqlite.SQLiteOpenHelper
  * belong to, so there is one schema to migrate and one connection to open.
  *
  * The columns follow the web SDK's message model, minus the collection valued
- * fields it keeps for richer messages, which have no model here yet. The one
- * exception is [COLUMN_BUTTONS], which holds a message's options as JSON
- * because they are read and written whole and are never searched on.
+ * fields it keeps for richer messages, which have no model here yet. The
+ * exceptions are [COLUMN_BUTTONS] and [COLUMN_VOICE], which hold a message's
+ * options and its recording as JSON because they are read and written whole and
+ * are never searched on.
  */
 internal class ChatMessageDatabaseDataSource(
     context: Context,
@@ -35,6 +36,9 @@ internal class ChatMessageDatabaseDataSource(
         log.info { "migrating the message store from version $oldVersion to $newVersion" }
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_BUTTONS TEXT")
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_VOICE TEXT")
         }
     }
 
@@ -71,7 +75,7 @@ internal class ChatMessageDatabaseDataSource(
         private const val LOG_NAME = "Database"
 
         const val NAME: String = "yalo_chat.db"
-        const val VERSION: Int = 2
+        const val VERSION: Int = 3
 
         const val MESSAGE_TABLE: String = "chat_message"
 
@@ -86,6 +90,7 @@ internal class ChatMessageDatabaseDataSource(
         const val COLUMN_HEADER: String = "header"
         const val COLUMN_FOOTER: String = "footer"
         const val COLUMN_BUTTONS: String = "buttons"
+        const val COLUMN_VOICE: String = "voice"
 
         private const val CREATE_MESSAGE_TABLE = """
             CREATE TABLE $MESSAGE_TABLE (
@@ -99,7 +104,8 @@ internal class ChatMessageDatabaseDataSource(
                 $COLUMN_TIMESTAMP INTEGER NOT NULL,
                 $COLUMN_HEADER TEXT,
                 $COLUMN_FOOTER TEXT,
-                $COLUMN_BUTTONS TEXT
+                $COLUMN_BUTTONS TEXT,
+                $COLUMN_VOICE TEXT
             )
         """
 

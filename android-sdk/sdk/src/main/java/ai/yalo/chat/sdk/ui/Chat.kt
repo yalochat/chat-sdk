@@ -3,19 +3,29 @@ package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.YaloChatClient
+import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
+import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import ai.yalo.chat.sdk.ui.theme.ProvideChatTheme
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import ai.yalo.chat.sdk.ui.viewmodels.ChatViewModel
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -35,6 +45,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * [avatar] draws whatever you want beside the channel name, an image loaded
  * with your own library or none at all. [onBack] adds a back button to the
  * header, which is absent unless you give one.
+ *
+ * Voice messages need the `RECORD_AUDIO` permission, which your app declares in
+ * its own manifest. The chat asks the person for it the first time they tap the
+ * microphone. Set `hideVoiceButton` in the client config to leave voice
+ * messages out, and the permission with them.
  */
 @Composable
 public fun Chat(
@@ -44,15 +59,21 @@ public fun Chat(
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
 ) {
+    val context = LocalContext.current
     val viewModel: ChatViewModel = viewModel(
         key = client.config.sessionId,
-        factory = ChatViewModel.factory(LocalContext.current, client),
+        factory = ChatViewModel.factory(context, client),
     )
     // The line to the channel is worth holding only while the chat is on screen.
     LifecycleStartEffect(viewModel) {
         viewModel.onScreenShown()
         onStopOrDispose { viewModel.onScreenHidden() }
     }
+    val startRecording = rememberMicrophoneRequest { viewModel.onStartRecording() }
+    // Read where the waveform is drawn rather than here, so a recording moving
+    // sixteen times a second does not redraw the conversation behind it.
+    val recording: () -> VoiceRecording? = remember(viewModel) { { viewModel.recording } }
+    val playback: () -> VoicePlayback? = remember(viewModel) { { viewModel.playback } }
     ProvideChatTheme(theme) {
         ChatLayout(
             title = viewModel.uiState.title,
@@ -69,7 +90,44 @@ public fun Chat(
             onQuickReply = viewModel::onQuickReply,
             avatar = avatar,
             onBack = onBack,
+            hideVoiceButton = client.config.hideVoiceButton,
+            recording = recording,
+            onStartRecording = startRecording,
+            onCancelRecording = viewModel::onCancelRecording,
+            playback = playback,
+            onVoiceMessageToggled = viewModel::onVoiceMessageToggled,
         )
+    }
+}
+
+/**
+ * Asks for the microphone if it has not been granted yet, and calls [onGranted]
+ * as soon as it has been.
+ *
+ * The permission belongs to the app rather than to the SDK, so an app that has
+ * not declared `RECORD_AUDIO` gets a refusal straight back and nothing starts,
+ * which is the same thing that happens when the person says no.
+ */
+@Composable
+private fun rememberMicrophoneRequest(onGranted: () -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val granted by rememberUpdatedState(onGranted)
+    val request = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { allowed ->
+        if (allowed) {
+            granted()
+        }
+    }
+    return remember(context, request) {
+        {
+            val allowed = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+            if (allowed == PackageManager.PERMISSION_GRANTED) {
+                granted()
+            } else {
+                request.launch(Manifest.permission.RECORD_AUDIO)
+            }
+        }
     }
 }
 
@@ -89,6 +147,12 @@ internal fun ChatLayout(
     onQuickReply: (String) -> Unit = {},
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
+    hideVoiceButton: Boolean = false,
+    recording: () -> VoiceRecording? = { null },
+    onStartRecording: () -> Unit = {},
+    onCancelRecording: () -> Unit = {},
+    playback: () -> VoicePlayback? = { null },
+    onVoiceMessageToggled: (ChatMessage) -> Unit = {},
 ) {
     val inline = quickReplyType == QuickReplyType.Inline
     Surface(
@@ -107,6 +171,8 @@ internal fun ChatLayout(
                 isWaitingForReply = isWaitingForReply,
                 quickRepliesMessageId = quickRepliesMessageId.takeIf { inline },
                 onQuickReply = onQuickReply,
+                playback = playback,
+                onVoiceMessageToggled = onVoiceMessageToggled,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
@@ -118,6 +184,10 @@ internal fun ChatLayout(
                 text = text,
                 onTextChange = onTextChange,
                 onSend = onSend,
+                hideVoiceButton = hideVoiceButton,
+                recording = recording,
+                onStartRecording = onStartRecording,
+                onCancelRecording = onCancelRecording,
             )
         }
     }
