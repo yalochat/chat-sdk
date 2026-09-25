@@ -57,6 +57,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * Image messages need no permission: the plus beside the message input opens
  * the system photo picker, which hands the chat only what the person chose. Set
  * `hideAttachmentButton` in the client config to leave the plus out.
+ *
+ * The header credits Yalo under the channel name. Set `hideWatermark` in the
+ * client config to leave that line out.
  */
 @Composable
 public fun Chat(
@@ -105,6 +108,7 @@ public fun Chat(
             playback = playback,
             onVoiceMessageToggled = viewModel::onVoiceMessageToggled,
             hideAttachmentButton = client.config.hideAttachmentButton,
+            hideWatermark = client.config.hideWatermark,
             onPickImage = pickImage,
             loadImage = viewModel::imageOf,
         )
@@ -191,6 +195,7 @@ internal fun ChatLayout(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     hideAttachmentButton: Boolean = false,
+    hideWatermark: Boolean = false,
     onPickImage: () -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
 ) {
@@ -205,6 +210,7 @@ internal fun ChatLayout(
                 status = status,
                 avatar = avatar,
                 onBack = onBack,
+                hideWatermark = hideWatermark,
             )
             ChatMessageList(
                 messages = messages,

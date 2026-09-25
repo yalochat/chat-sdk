@@ -40,7 +40,8 @@ private const val YALO_BRAND: String = "Yalo"
  * [avatar] is a slot rather than an image URL so that the SDK does not force an
  * image loading library on whoever integrates it. The back button only appears
  * when [onBack] is given, which keeps it off by default for a chat embedded in
- * a screen that already has its own way back.
+ * a screen that already has its own way back. [hideWatermark] leaves the "By
+ * Yalo" line out and everything else where it is.
  */
 @Composable
 internal fun ChatHeader(
@@ -49,6 +50,7 @@ internal fun ChatHeader(
     status: String? = null,
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
+    hideWatermark: Boolean = false,
 ) {
     val theme = currentChatTheme
     Surface(
@@ -94,11 +96,13 @@ internal fun ChatHeader(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(
-                    text = watermark(),
-                    modifier = Modifier.testTag(CHAT_WATERMARK_TAG),
-                    style = MaterialTheme.typography.labelSmall,
-                )
+                if (!hideWatermark) {
+                    Text(
+                        text = watermark(),
+                        modifier = Modifier.testTag(CHAT_WATERMARK_TAG),
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                }
             }
         }
     }

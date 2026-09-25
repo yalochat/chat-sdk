@@ -39,6 +39,16 @@ class ChatHeaderTest {
     }
 
     @Test
+    fun leavesTheCreditOutWhenTheWatermarkIsHidden() {
+        composeRule.setContent {
+            ChatHeader(title = "Support", hideWatermark = true)
+        }
+
+        composeRule.onNodeWithTag(CHAT_WATERMARK_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText("Support").assertIsDisplayed()
+    }
+
+    @Test
     fun showsTheStatusOnlyWhenThereIsOne() {
         composeRule.setContent {
             ChatHeader(title = "Support")
