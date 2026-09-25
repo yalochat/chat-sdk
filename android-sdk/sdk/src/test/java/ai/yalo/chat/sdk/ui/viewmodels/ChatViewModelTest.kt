@@ -2,15 +2,18 @@
 package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
+import ai.yalo.chat.sdk.data.repositories.image.FakeImageRepository
 import ai.yalo.chat.sdk.data.repositories.media.FakeMediaRepository
 import ai.yalo.chat.sdk.data.repositories.voice.FakeVoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +46,7 @@ class ChatViewModelTest {
     private val yaloMessageRepository = FakeYaloMessageRepository()
     private val mediaRepository = FakeMediaRepository()
     private val voiceRepository = FakeVoiceRepository()
+    private val imageRepository = FakeImageRepository()
     private val scheduler = TestCoroutineScheduler()
 
     @get:Rule
@@ -744,6 +748,104 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun showsAPictureInTheConversationAsSoonAsItIsPicked() {
+        val viewModel = chatViewModel()
+        imageRepository.picture = picked()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        val stored = viewModel.uiState.messages.single()
+        assertEquals(MessageType.Image, stored.type)
+        assertEquals(MessageRole.User, stored.role)
+        assertEquals("holiday.jpg", stored.image?.fileName)
+    }
+
+    @Test
+    fun uploadsAPictureAndTellsTheChannelWhatTheUploadIsCalled() {
+        val viewModel = chatViewModel()
+        imageRepository.picture = picked()
+        mediaRepository.mediaId = "media-7"
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(listOf("holiday.jpg"), mediaRepository.uploaded.map { it.fileName })
+        assertEquals("media-7", yaloMessageRepository.sent.single().image?.mediaUrl)
+    }
+
+    @Test
+    fun waitsForAReplyOnceAPictureIsSent() {
+        val viewModel = chatViewModel()
+        imageRepository.picture = picked()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun keepsAPictureTheBackendWouldNotTakeInTheConversation() {
+        val viewModel = chatViewModel()
+        imageRepository.picture = picked()
+        mediaRepository.uploadFailure = RuntimeException("No room")
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+        assertEquals(emptyList<ChatMessage>(), yaloMessageRepository.sent)
+    }
+
+    @Test
+    fun sendsNothingWhenTheDeviceWouldNotHandThePictureOver() {
+        imageRepository.failure = IllegalStateException("the gallery said no")
+        val viewModel = chatViewModel()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
+        assertEquals(emptyList<ChatMessage>(), yaloMessageRepository.sent)
+    }
+
+    @Test
+    fun readsAPictureTheUserSentFromTheCopyKeptOnTheDevice() = runBlocking {
+        alreadyStored(imageMessage(picked()))
+        val viewModel = chatViewModel()
+
+        assertNotNull(viewModel.imageOf(viewModel.uiState.messages.single()))
+        assertEquals(emptyList<String>(), mediaRepository.downloaded)
+    }
+
+    @Test
+    fun fetchesAPictureTheChannelSentBeforeShowingIt() = runBlocking {
+        mediaRepository.downloadedFile = folder.newFile("from-the-channel.png")
+            .apply { writeBytes(ByteArray(4_096)) }
+        alreadyStored(
+            imageMessage(
+                ImageAttachment(mediaUrl = "https://media.example.com/shirt.png"),
+                role = MessageRole.Agent,
+            ),
+        )
+        val viewModel = chatViewModel()
+
+        assertNotNull(viewModel.imageOf(viewModel.uiState.messages.single()))
+        assertEquals(listOf("https://media.example.com/shirt.png"), mediaRepository.downloaded)
+    }
+
+    @Test
+    fun readsNoPictureWhenThereIsNowhereToReadItFrom() = runBlocking {
+        alreadyStored(imageMessage(ImageAttachment()))
+        val viewModel = chatViewModel()
+
+        assertNull(viewModel.imageOf(viewModel.uiState.messages.single()))
+    }
+
+    @Test
+    fun readsNoPictureForAMessageThatCarriesNone() = runBlocking {
+        val viewModel = chatViewModel()
+
+        assertNull(viewModel.imageOf(answer("On its way")))
+    }
+
+    @Test
     fun stopsTheMicrophoneAndTheSpeakerWhenTheChatLeavesTheScreen() {
         val viewModel = chatViewModel()
         viewModel.onStartRecording()
@@ -769,6 +871,31 @@ class ChatViewModelTest {
             localPath = file.absolutePath,
         )
     }
+
+    /**
+     * A picked picture, with the copy really on disk, because the chat only
+     * uploads what it can still read.
+     */
+    private fun picked(file: File = folder.newFile("image-1.jpg")): ImageAttachment {
+        file.writeBytes(ByteArray(4_096))
+        return ImageAttachment(
+            mediaType = "image/jpeg",
+            fileName = "holiday.jpg",
+            byteCount = file.length(),
+            localPath = file.absolutePath,
+        )
+    }
+
+    private fun imageMessage(
+        picture: ImageAttachment,
+        role: MessageRole = MessageRole.User,
+    ): ChatMessage = ChatMessage(
+        role = role,
+        type = MessageType.Image,
+        timestamp = SENT_AT,
+        wiId = if (role == MessageRole.Agent) "wi-image" else null,
+        image = picture,
+    )
 
     private fun voiceMessage(
         note: VoiceNote,
@@ -807,6 +934,7 @@ class ChatViewModelTest {
         savedState = savedState,
         mediaRepository = mediaRepository,
         voiceRepository = voiceRepository,
+        imageRepository = imageRepository,
         hostMessages = hostMessages,
         openContext = openContext,
         now = { SENT_AT },
@@ -879,5 +1007,7 @@ class ChatViewModelTest {
 
     private companion object {
         const val SENT_AT = 1_700_000_000_000L
+
+        val GALLERY_URI: Uri = Uri.parse("content://media/external/images/media/1")
     }
 }

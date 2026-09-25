@@ -53,6 +53,8 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`footerBackground`** (`Color`): Background of the bar holding the message input. Defaults to the Material `surfaceContainer` color.
 - **`onFooterBackground`** (`Color`): Color of the content in that bar. Defaults to the Material `onSurface` color.
 - **`inputShape`** (`Shape`): Shape of the message input. Defaults to the Material `extraLarge` shape, which gives a fully rounded field.
+- **`inputBorderColor`** (`Color`): Color of the line around the message input. That line goes around the place text is typed and the plus that picks a picture together, so the two read as one input. The recording bar that replaces the input follows it too. Defaults to the Material `outline` color.
+- **`inputFieldBorderColor`** (`Color`): Color of the line around the place text is typed on its own, inside the one above. Defaults to transparent, so only the outer line shows. Set a color when you want the field and the plus told apart.
 
 ### Messages
 
@@ -64,6 +66,7 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`userMessageShape`** (`Shape`): Shape of the person's bubbles. Defaults to a rounded shape with a squared off bottom corner on the side the bubble sits.
 - **`voiceWaveform`**: Not a property. A voice message draws its waveform in the text color of whatever it sits on, so it follows `onUserMessageBackground` in the person's bubbles, `onAgentMessageBackground` in the channel's, and `onFooterBackground` while a recording is being made. The part of a note that has not been played yet is the same color, faded.
 - **`agentMessageShape`** (`Shape`): Shape of the channel's bubbles. Defaults to a rectangle, which is invisible while the background is transparent. Set it along with `agentMessageBackground` when you want those messages bubbled.
+- **`imageShape`** (`Shape`): Shape a picture is cut to inside a message. Defaults to a rounded shape. See [Image messages](../README.md#image-messages).
 
 ### Quick replies
 
@@ -122,8 +125,10 @@ fun BrandedChat(client: YaloChatClient) {
             onQuickReplyBackground = brand,
             quickReplyBorderColor = brand,
             inputShape = RoundedCornerShape(8.dp),
+            inputBorderColor = brand,
             userMessageShape = RoundedCornerShape(16.dp),
             agentMessageShape = RoundedCornerShape(16.dp),
+            imageShape = RoundedCornerShape(8.dp),
             quickReplyShape = RoundedCornerShape(16.dp),
         ),
     )

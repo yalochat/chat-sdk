@@ -94,8 +94,9 @@ internal data class MessageButton(
  * [timestamp] is epoch milliseconds. It is passed in rather than read from the
  * clock so that whoever creates the message decides what time it happened.
  *
- * [voice] is the recording a [MessageType.Voice] message carries, and is null
- * for every other kind.
+ * [voice] is the recording a [MessageType.Voice] message carries, and [image]
+ * the picture a [MessageType.Image] message carries. Each is null for every
+ * other kind.
  */
 internal data class ChatMessage(
     val role: MessageRole,
@@ -109,6 +110,7 @@ internal data class ChatMessage(
     val footer: String? = null,
     val buttons: List<MessageButton> = emptyList(),
     val voice: VoiceNote? = null,
+    val image: ImageAttachment? = null,
 )
 
 /**

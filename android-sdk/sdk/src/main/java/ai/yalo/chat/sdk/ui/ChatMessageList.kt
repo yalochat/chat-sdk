@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
@@ -49,6 +50,7 @@ internal fun ChatMessageList(
     onQuickReply: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
+    loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
     listState: LazyListState = rememberLazyListState(),
 ) {
     val theme = currentChatTheme
@@ -98,6 +100,7 @@ internal fun ChatMessageList(
                     onQuickReply = onQuickReply,
                     playback = playback,
                     onVoiceMessageToggled = onVoiceMessageToggled,
+                    loadImage = loadImage,
                 )
             }
         }

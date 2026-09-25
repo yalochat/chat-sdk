@@ -164,6 +164,26 @@ class ChatTest {
         composeRule.onAllNodesWithText("Hello").assertCountEquals(1)
     }
 
+    @Test
+    fun offersToPickAPicture() {
+        composeRule.setContent {
+            Chat(client)
+        }
+
+        composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun leavesThePlusOutWhenTheClientTurnsPicturesOff() {
+        val withoutPictures = YaloChatClient(client.config.copy(hideAttachmentButton = true))
+        composeRule.setContent {
+            Chat(withoutPictures)
+        }
+
+        composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).assertIsDisplayed()
+    }
+
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
 

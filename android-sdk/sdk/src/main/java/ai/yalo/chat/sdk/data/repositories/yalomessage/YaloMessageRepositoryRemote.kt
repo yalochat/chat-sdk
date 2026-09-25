@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -13,6 +14,8 @@ import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
@@ -207,28 +210,57 @@ internal class YaloMessageRepositoryRemote(
      * Reads a message the channel sent, or nothing when the payload is not one.
      *
      * A kind the chat cannot draw yet still becomes a message of that kind, so
-     * nothing arrives silently. Only text carries a body so far.
+     * nothing arrives silently. Text and images carry a body so far, and an
+     * image's body is its caption.
      */
     private fun chatMessageOf(item: PollMessageItem): ChatMessage? {
-        val type = INBOUND_TYPES[item.message.payloadCase] ?: return null
-        val text: TextMessageRequest? = item.message.takeIf { type == MessageType.Text }
-            ?.textMessageRequest
-        val voice: VoiceNoteMessageRequest? = item.message.takeIf { type == MessageType.Voice }
-            ?.voiceNoteMessageRequest
+        val message: SdkMessage = item.message
+        val type = INBOUND_TYPES[message.payloadCase] ?: return null
         return ChatMessage(
             role = MessageRole.Agent,
             type = type,
             timestamp = if (item.hasDate()) Timestamps.toMillis(item.date) else now(),
             wiId = item.id,
-            content = text?.content?.text.orEmpty(),
+            content = when (type) {
+                MessageType.Text -> message.textMessageRequest.content.text
+                MessageType.Image -> message.imageMessageRequest.content.text
+                else -> ""
+            },
             status = ChatStatus.of(item.status, ChatStatus.Delivered),
-            header = text?.takeIf { it.hasHeader() }?.header
-                ?: voice?.takeIf { it.hasHeader() }?.header,
-            footer = text?.takeIf { it.hasFooter() }?.footer
-                ?: voice?.takeIf { it.hasFooter() }?.footer,
-            buttons = buttonsOf(item.message),
-            voice = voice?.let { request -> voiceNoteOf(request.content) },
+            header = headerOf(message),
+            footer = footerOf(message),
+            buttons = buttonsOf(message),
+            voice = message.takeIf { type == MessageType.Voice }
+                ?.let { request -> voiceNoteOf(request.voiceNoteMessageRequest.content) },
+            image = message.takeIf { type == MessageType.Image }
+                ?.let { request -> imageOf(request.imageMessageRequest.content) },
         )
+    }
+
+    /**
+     * The line above a message, and the one below it.
+     *
+     * Every payload that can carry them keeps them beside the body rather than
+     * inside it, the way the options are, so they are read the same way.
+     */
+    private fun headerOf(message: SdkMessage): String? = when (message.payloadCase) {
+        SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST ->
+            message.textMessageRequest.takeIf { it.hasHeader() }?.header
+        SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST ->
+            message.imageMessageRequest.takeIf { it.hasHeader() }?.header
+        SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST ->
+            message.voiceNoteMessageRequest.takeIf { it.hasHeader() }?.header
+        else -> null
+    }
+
+    private fun footerOf(message: SdkMessage): String? = when (message.payloadCase) {
+        SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST ->
+            message.textMessageRequest.takeIf { it.hasFooter() }?.footer
+        SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST ->
+            message.imageMessageRequest.takeIf { it.hasFooter() }?.footer
+        SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST ->
+            message.voiceNoteMessageRequest.takeIf { it.hasFooter() }?.footer
+        else -> null
     }
 
     /**
@@ -238,6 +270,17 @@ internal class YaloMessageRepositoryRemote(
     private fun voiceNoteOf(content: VoiceMessage): VoiceNote = VoiceNote(
         durationMillis = (content.duration * MILLIS_PER_SECOND).toLong(),
         amplitudes = content.amplitudesPreviewList.toList(),
+        mediaUrl = content.mediaUrl,
+        mediaType = content.mediaType,
+        fileName = content.fileName,
+        byteCount = content.byteCount,
+    )
+
+    /**
+     * The picture the channel sent, which is an address to download rather than
+     * a file that is already here.
+     */
+    private fun imageOf(content: ImageMessage): ImageAttachment = ImageAttachment(
         mediaUrl = content.mediaUrl,
         mediaType = content.mediaType,
         fileName = content.fileName,
@@ -280,8 +323,9 @@ internal class YaloMessageRepositoryRemote(
      * Says [message] in the wire format, or nothing when it is a kind that
      * cannot go out.
      *
-     * A voice message with no recording on it is one of those: there is nothing
-     * for the channel to play, so it is turned away rather than sent empty.
+     * A voice message with no recording on it is one of those, and so is an
+     * image message with no picture: there is nothing for the channel to play
+     * or to show, so it is turned away rather than sent empty.
      */
     private fun sdkMessageOf(message: ChatMessage): SdkMessage? {
         val sentAt: Timestamp = Timestamps.fromMillis(now())
@@ -295,6 +339,10 @@ internal class YaloMessageRepositoryRemote(
 
             MessageType.Voice -> message.voice?.let { note ->
                 envelope.setVoiceNoteMessageRequest(voiceRequestOf(message, note, sentAt)).build()
+            }
+
+            MessageType.Image -> message.image?.let { picture ->
+                envelope.setImageMessageRequest(imageRequestOf(message, picture, sentAt)).build()
             }
 
             else -> null
@@ -341,6 +389,32 @@ internal class YaloMessageRepositoryRemote(
                 .setByteCount(note.byteCount)
                 .setDuration(note.durationMillis / MILLIS_PER_SECOND)
                 .addAllAmplitudesPreview(note.amplitudes)
+                .setRole(wireRoleOf(message.role))
+                .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
+        )
+        .build()
+
+    /**
+     * A picture in the wire format.
+     *
+     * [ImageAttachment.mediaUrl] carries the id the upload answered with rather
+     * than an address, the same way a voice note's does, and the caption is the
+     * message's own body.
+     */
+    private fun imageRequestOf(
+        message: ChatMessage,
+        picture: ImageAttachment,
+        sentAt: Timestamp,
+    ): ImageMessageRequest = ImageMessageRequest.newBuilder()
+        .setTimestamp(sentAt)
+        .setContent(
+            ImageMessage.newBuilder()
+                .setTimestamp(Timestamps.fromMillis(message.timestamp))
+                .setText(message.content)
+                .setMediaUrl(picture.mediaUrl)
+                .setMediaType(picture.mediaType)
+                .setFileName(picture.fileName)
+                .setByteCount(picture.byteCount)
                 .setRole(wireRoleOf(message.role))
                 .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
         )

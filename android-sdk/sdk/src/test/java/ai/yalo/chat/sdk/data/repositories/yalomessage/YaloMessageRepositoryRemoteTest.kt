@@ -7,6 +7,7 @@ import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
@@ -23,6 +24,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VideoMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CompletableDeferred
@@ -155,7 +157,7 @@ class YaloMessageRepositoryRemoteTest {
 
     @Test
     fun refusesAKindOfMessageItCannotPutOnTheWireYet() = runTest(scheduler) {
-        val result = connected().send(message(type = MessageType.Image))
+        val result = connected().send(message(type = MessageType.Video))
 
         assertTrue(result.exceptionOrNull() is UnsupportedMessageTypeException)
         assertEquals(emptyList<SdkMessage>(), source.sent)
@@ -230,6 +232,84 @@ class YaloMessageRepositoryRemoteTest {
         val received = received(pollItem(textMessage()))
 
         assertNull(received.single().voice)
+    }
+
+    @Test
+    fun sendsAPictureUnderTheNameTheUploadGaveIt() = runTest(scheduler) {
+        connected().send(pictureMessage(picture = picked(mediaUrl = "media-42")))
+
+        val sent = source.sent.single().imageMessageRequest.content
+        assertEquals("media-42", sent.mediaUrl)
+        assertEquals("image/jpeg", sent.mediaType)
+        assertEquals("holiday.jpg", sent.fileName)
+        assertEquals(4_096L, sent.byteCount)
+    }
+
+    @Test
+    fun sendsTheCaptionWrittenWithAPicture() = runTest(scheduler) {
+        connected().send(pictureMessage(picture = picked(), caption = "Look at this"))
+
+        assertEquals("Look at this", source.sent.single().imageMessageRequest.content.text)
+    }
+
+    @Test
+    fun sendsAPictureAsNotHavingArrivedAnywhereYet() = runTest(scheduler) {
+        connected().send(pictureMessage(picture = picked()))
+
+        val sent = source.sent.single().imageMessageRequest.content
+        assertEquals(WireStatus.MESSAGE_STATUS_IN_PROGRESS, sent.status)
+        assertEquals(WireRole.MESSAGE_ROLE_USER, sent.role)
+    }
+
+    @Test
+    fun refusesAnImageMessageWithNothingToShow() = runTest(scheduler) {
+        val result = connected().send(pictureMessage(picture = null))
+
+        assertTrue(result.exceptionOrNull() is UnsupportedMessageTypeException)
+        assertEquals(emptyList<SdkMessage>(), source.sent)
+    }
+
+    @Test
+    fun readsAPictureTheChannelSent() = runTest(scheduler) {
+        val received = received(pollItem(imageMessage()))
+
+        val picture = received.single().image
+        assertEquals(MessageType.Image, received.single().type)
+        assertEquals("https://yalo.com/shirt.png", picture?.mediaUrl)
+        assertEquals("image/png", picture?.mediaType)
+        assertEquals("shirt.png", picture?.fileName)
+        assertEquals(4_096L, picture?.byteCount)
+    }
+
+    @Test
+    fun readsTheCaptionTheChannelSentWithAPicture() = runTest(scheduler) {
+        val received = received(pollItem(imageMessage(caption = "Our best seller")))
+
+        assertEquals("Our best seller", received.single().content)
+    }
+
+    @Test
+    fun readsAPictureTheChannelSentAsHavingNoFileHere() = runTest(scheduler) {
+        val received = received(pollItem(imageMessage()))
+
+        assertNull(received.single().image?.localPath)
+    }
+
+    @Test
+    fun leavesThePictureOffAMessageThatIsNotAnImage() = runTest(scheduler) {
+        val received = received(pollItem(textMessage()))
+
+        assertNull(received.single().image)
+    }
+
+    @Test
+    fun readsTheLinesAroundAPictureTheChannelSent() = runTest(scheduler) {
+        val received = received(
+            pollItem(imageMessage(header = "Support", footer = "Powered by Yalo")),
+        )
+
+        assertEquals("Support", received.single().header)
+        assertEquals("Powered by Yalo", received.single().footer)
     }
 
     @Test
@@ -509,12 +589,12 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(null, received.single().footer)
     }
 
-    // A picture the chat cannot draw yet still has to show up as something.
+    // A kind the chat cannot draw yet still has to show up as something.
     @Test
     fun readsAKindItCannotDrawYetAsThatKind() = runTest(scheduler) {
-        val received = received(pollItem(imageMessage()))
+        val received = received(pollItem(videoMessage()))
 
-        assertEquals(MessageType.Image, received.single().type)
+        assertEquals(MessageType.Video, received.single().type)
     }
 
     @Test
@@ -725,13 +805,56 @@ class YaloMessageRepositoryRemoteTest {
         )
         .build()
 
-    private fun imageMessage(buttons: List<Button> = emptyList()): SdkMessage = SdkMessage.newBuilder()
-        .setImageMessageRequest(
-            ImageMessageRequest.newBuilder()
-                .setContent(ImageMessage.newBuilder().setMediaUrl("https://yalo.com/shirt.png"))
-                .addAllButtons(buttons),
-        )
+    private fun videoMessage(): SdkMessage = SdkMessage.newBuilder()
+        .setVideoMessageRequest(VideoMessageRequest.newBuilder())
         .build()
+
+    private fun picked(mediaUrl: String = "media-1"): ImageAttachment = ImageAttachment(
+        mediaUrl = mediaUrl,
+        mediaType = "image/jpeg",
+        fileName = "holiday.jpg",
+        byteCount = 4_096,
+        localPath = "/files/image-1.jpg",
+    )
+
+    private fun pictureMessage(
+        picture: ImageAttachment?,
+        caption: String = "",
+    ): ChatMessage = ChatMessage(
+        role = MessageRole.User,
+        type = MessageType.Image,
+        timestamp = WRITTEN_AT,
+        id = 1L,
+        content = caption,
+        image = picture,
+    )
+
+    private fun imageMessage(
+        caption: String? = null,
+        header: String? = null,
+        footer: String? = null,
+        buttons: List<Button> = emptyList(),
+    ): SdkMessage {
+        val content = ImageMessage.newBuilder()
+            .setMediaUrl("https://yalo.com/shirt.png")
+            .setMediaType("image/png")
+            .setFileName("shirt.png")
+            .setByteCount(4_096)
+            .setRole(WireRole.MESSAGE_ROLE_AGENT)
+        if (caption != null) {
+            content.text = caption
+        }
+        val request = ImageMessageRequest.newBuilder()
+            .setContent(content)
+            .addAllButtons(buttons)
+        if (header != null) {
+            request.header = header
+        }
+        if (footer != null) {
+            request.footer = footer
+        }
+        return SdkMessage.newBuilder().setImageMessageRequest(request).build()
+    }
 
     /** A chat with its line open, which is what anything is sent from. */
     private fun TestScope.connected(): YaloMessageRepositoryRemote = repository().also { repository ->

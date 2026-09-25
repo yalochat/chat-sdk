@@ -3,23 +3,28 @@ package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
+import ai.yalo.chat.sdk.common.images.decodeImage
 import ai.yalo.chat.sdk.data.datasources.media.MediaContent
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
+import ai.yalo.chat.sdk.data.repositories.image.ImageRepository
 import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
-import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -27,11 +32,13 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
@@ -84,6 +91,7 @@ internal class ChatViewModel(
     private val savedState: SavedStateHandle,
     private val mediaRepository: MediaRepository,
     private val voiceRepository: VoiceRepository,
+    private val imageRepository: ImageRepository,
     hostMessages: Flow<String> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val now: () -> Long = System::currentTimeMillis,
@@ -175,6 +183,53 @@ internal class ChatViewModel(
     }
 
     /**
+     * Sends the picture the person picked out of the gallery.
+     *
+     * A copy is taken first, so the picture is in the conversation before it
+     * has been anywhere and stays there once the gallery stops answering for
+     * what was picked. What the channel is told is the id the upload answered
+     * with, which is why the upload comes before the send rather than beside
+     * it.
+     */
+    fun onImagePicked(uri: Uri) {
+        viewModelScope.launch {
+            val picture = imageRepository.store(uri).getOrNull() ?: return@launch
+            val content = contentOf(picture.fileName, picture.mediaType, picture.localPath)
+                ?: return@launch
+            chatMessageRepository.insert(
+                ChatMessage(
+                    role = MessageRole.User,
+                    type = MessageType.Image,
+                    timestamp = now(),
+                    image = picture,
+                ),
+            ).onSuccess { stored ->
+                refreshMessages()
+                val media = mediaRepository.upload(content).getOrNull() ?: return@onSuccess
+                yaloMessageRepository.send(
+                    stored.copy(image = picture.copy(mediaUrl = media.id)),
+                ).onSuccess {
+                    waitForReply()
+                }
+            }
+        }
+    }
+
+    /**
+     * The picture of [message], read from the device when the copy is still
+     * there and from the backend otherwise, or nothing when it is nowhere.
+     *
+     * Reading it is work for a background thread twice over, once to find the
+     * file and once to turn it into something that can be drawn, so neither
+     * lands on the thread the conversation is drawn on.
+     */
+    suspend fun imageOf(message: ChatMessage): ImageBitmap? {
+        val picture: ImageAttachment = message.image ?: return null
+        val file: File = fileOf(picture.localPath, picture.mediaUrl).getOrNull() ?: return null
+        return withContext(Dispatchers.Default) { decodeImage(file)?.asImageBitmap() }
+    }
+
+    /**
      * Plays [message], or pauses it when it is the one already playing.
      *
      * A note the person recorded is played from the recording itself. One the
@@ -190,7 +245,8 @@ internal class ChatViewModel(
             return
         }
         viewModelScope.launch {
-            audioOf(note).onSuccess { file -> voiceRepository.play(messageId, file) }
+            fileOf(note.localPath, note.mediaUrl)
+                .onSuccess { file -> voiceRepository.play(messageId, file) }
         }
     }
 
@@ -240,7 +296,7 @@ internal class ChatViewModel(
     private fun sendRecording() {
         viewModelScope.launch {
             val note = voiceRepository.stopRecording().getOrNull() ?: return@launch
-            val content = contentOf(note) ?: return@launch
+            val content = contentOf(note.fileName, note.mediaType, note.localPath) ?: return@launch
             chatMessageRepository.insert(
                 ChatMessage(
                     role = MessageRole.User,
@@ -260,29 +316,34 @@ internal class ChatViewModel(
         }
     }
 
-    /** The recording as an upload, or nothing when the file is no longer there. */
-    private fun contentOf(note: VoiceNote): MediaContent? {
-        val file = note.localPath?.let(::File)?.takeIf { recording -> recording.exists() }
-            ?: return null
+    /** A file on the device as an upload, or nothing when it is no longer there. */
+    private fun contentOf(fileName: String, mediaType: String, localPath: String?): MediaContent? {
+        val file = onDevice(localPath) ?: return null
         return MediaContent(
-            fileName = note.fileName,
-            mimeType = note.mediaType,
+            fileName = fileName,
+            mimeType = mediaType,
             sizeBytes = file.length(),
             openStream = { file.inputStream() },
         )
     }
 
-    /** The audio of [note], from the device when it is there and the backend otherwise. */
-    private suspend fun audioOf(note: VoiceNote): Result<File> {
-        val recorded = note.localPath?.let(::File)?.takeIf { file -> file.exists() }
-        if (recorded != null) {
-            return Result.success(recorded)
+    /**
+     * The file holding a message's media, from the device when the copy is
+     * still there and the backend otherwise.
+     */
+    private suspend fun fileOf(localPath: String?, mediaUrl: String): Result<File> {
+        val kept = onDevice(localPath)
+        if (kept != null) {
+            return Result.success(kept)
         }
-        if (note.mediaUrl.isEmpty()) {
-            return Result.failure(IOException("The voice note is nowhere to be played from"))
+        if (mediaUrl.isEmpty()) {
+            return Result.failure(IOException("The file is nowhere to be read from"))
         }
-        return mediaRepository.download(note.mediaUrl)
+        return mediaRepository.download(mediaUrl)
     }
+
+    private fun onDevice(localPath: String?): File? =
+        localPath?.let(::File)?.takeIf { file -> file.exists() }
 
     /** Stores what the channel said and shows it. */
     private suspend fun receive(message: ChatMessage) {
@@ -405,6 +466,7 @@ internal class ChatViewModel(
                     savedState = createSavedStateHandle(),
                     mediaRepository = dependencies.media,
                     voiceRepository = dependencies.voice,
+                    imageRepository = dependencies.images,
                     hostMessages = client.outgoingTextMessages,
                     openContext = client.config.openContext,
                 )

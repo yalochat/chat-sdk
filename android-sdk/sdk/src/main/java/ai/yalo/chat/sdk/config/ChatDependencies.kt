@@ -5,6 +5,7 @@ import ai.yalo.chat.sdk.BuildConfig
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthRemoteDataSource
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
+import ai.yalo.chat.sdk.data.datasources.image.ImageDeviceDataSource
 import ai.yalo.chat.sdk.data.datasources.media.YaloMediaRemoteDataSource
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageWebsocketDataSource
@@ -12,6 +13,8 @@ import ai.yalo.chat.sdk.data.datasources.voice.VoicePlayerDeviceDataSource
 import ai.yalo.chat.sdk.data.datasources.voice.VoiceRecorderDeviceDataSource
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.image.ImageRepository
+import ai.yalo.chat.sdk.data.repositories.image.ImageRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
 import ai.yalo.chat.sdk.data.repositories.media.MediaRepositoryRemote
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
@@ -101,6 +104,22 @@ internal class ChatDependencies(
         )
     }
 
+    /**
+     * The gallery.
+     *
+     * Pictures are copied into the app's files for the same reason recordings
+     * are: what the backend was told is the id of an upload, which is not
+     * something to download from, and the gallery stops answering for a picked
+     * file once the app has been restarted.
+     */
+    val images: ImageRepository by lazy {
+        ImageRepositoryLocal(
+            source = ImageDeviceDataSource(applicationContext),
+            imagesDir = File(applicationContext.filesDir, IMAGES),
+            logLevel = config.logLevel,
+        )
+    }
+
     private val messages: YaloMessageDataSource by lazy {
         YaloMessageWebsocketDataSource(
             baseUrl = baseUrl,
@@ -125,6 +144,7 @@ internal class ChatDependencies(
 
         private const val MEDIA_CACHE = "yalo-chat-media"
         private const val VOICE_RECORDINGS = "yalo-chat-voice"
+        private const val IMAGES = "yalo-chat-images"
         private const val PING_INTERVAL_SECONDS = 20L
     }
 }

@@ -9,4 +9,6 @@
     <string name="yalo_chat_cancel_recording_description">取消录音</string>
     <string name="yalo_chat_play_voice_message_description">播放语音消息</string>
     <string name="yalo_chat_pause_voice_message_description">暂停语音消息</string>
+    <string name="yalo_chat_attachment_button_description">发送图片</string>
+    <string name="yalo_chat_image_message_description">图片</string>
 </resources>

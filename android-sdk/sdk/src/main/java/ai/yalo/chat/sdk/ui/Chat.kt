@@ -13,7 +13,9 @@ import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import ai.yalo.chat.sdk.ui.viewmodels.ChatViewModel
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -50,6 +53,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * its own manifest. The chat asks the person for it the first time they tap the
  * microphone. Set `hideVoiceButton` in the client config to leave voice
  * messages out, and the permission with them.
+ *
+ * Image messages need no permission: the plus beside the message input opens
+ * the system photo picker, which hands the chat only what the person chose. Set
+ * `hideAttachmentButton` in the client config to leave the plus out.
  */
 @Composable
 public fun Chat(
@@ -70,6 +77,7 @@ public fun Chat(
         onStopOrDispose { viewModel.onScreenHidden() }
     }
     val startRecording = rememberMicrophoneRequest { viewModel.onStartRecording() }
+    val pickImage = rememberImagePicker { uri -> viewModel.onImagePicked(uri) }
     // Read where the waveform is drawn rather than here, so a recording moving
     // sixteen times a second does not redraw the conversation behind it.
     val recording: () -> VoiceRecording? = remember(viewModel) { { viewModel.recording } }
@@ -96,7 +104,36 @@ public fun Chat(
             onCancelRecording = viewModel::onCancelRecording,
             playback = playback,
             onVoiceMessageToggled = viewModel::onVoiceMessageToggled,
+            hideAttachmentButton = client.config.hideAttachmentButton,
+            onPickImage = pickImage,
+            loadImage = viewModel::imageOf,
         )
+    }
+}
+
+/**
+ * Opens the system photo picker and calls [onPicked] with whatever came back.
+ *
+ * The picker runs outside the app and hands over the one picture the person
+ * chose, so there is no gallery permission to ask for and nothing happens when
+ * they back out of it.
+ */
+@Composable
+private fun rememberImagePicker(onPicked: (Uri) -> Unit): () -> Unit {
+    val picked by rememberUpdatedState(onPicked)
+    val request = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) {
+            picked(uri)
+        }
+    }
+    return remember(request) {
+        {
+            request.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+            )
+        }
     }
 }
 
@@ -153,6 +190,9 @@ internal fun ChatLayout(
     onCancelRecording: () -> Unit = {},
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
+    hideAttachmentButton: Boolean = false,
+    onPickImage: () -> Unit = {},
+    loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
 ) {
     val inline = quickReplyType == QuickReplyType.Inline
     Surface(
@@ -173,6 +213,7 @@ internal fun ChatLayout(
                 onQuickReply = onQuickReply,
                 playback = playback,
                 onVoiceMessageToggled = onVoiceMessageToggled,
+                loadImage = loadImage,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
@@ -185,6 +226,8 @@ internal fun ChatLayout(
                 onTextChange = onTextChange,
                 onSend = onSend,
                 hideVoiceButton = hideVoiceButton,
+                hideAttachmentButton = hideAttachmentButton,
+                onPickImage = onPickImage,
                 recording = recording,
                 onStartRecording = onStartRecording,
                 onCancelRecording = onCancelRecording,

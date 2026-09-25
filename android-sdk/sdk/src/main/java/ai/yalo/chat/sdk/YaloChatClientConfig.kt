@@ -13,6 +13,10 @@ package ai.yalo.chat.sdk
  * input. With it on, the send button is always there instead of appearing once
  * something has been typed, and nobody can record a voice message. Named after
  * the same setting in the web SDK so the two read alike.
+ * @property hideAttachmentButton Whether the plus is left out of the message
+ * input. With it on, nobody can pick a picture to send. Pictures the channel
+ * sends are still shown. Named after the same setting in the web SDK so the two
+ * read alike.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -23,6 +27,7 @@ public data class YaloChatClientConfig(
     public val logLevel: LogLevel = LogLevel.Warn,
     public val openContext: Map<String, String> = emptyMap(),
     public val hideVoiceButton: Boolean = false,
+    public val hideAttachmentButton: Boolean = false,
 ) {
 
     /**

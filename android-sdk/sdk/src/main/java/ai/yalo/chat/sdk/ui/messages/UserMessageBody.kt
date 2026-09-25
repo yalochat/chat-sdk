@@ -4,11 +4,13 @@ package ai.yalo.chat.sdk.ui.messages
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.ui.images.ImageMessageBody
 import ai.yalo.chat.sdk.ui.voice.VoiceMessageBody
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 
 /**
  * What the person using the app wrote.
@@ -23,6 +25,7 @@ internal fun UserMessageBody(
     modifier: Modifier = Modifier,
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: () -> Unit = {},
+    loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
 ) {
     when (message.type) {
         MessageType.Text -> Text(
@@ -35,6 +38,12 @@ internal fun UserMessageBody(
             message = message,
             playback = playback,
             onToggle = onVoiceMessageToggled,
+            modifier = modifier,
+        )
+
+        MessageType.Image -> ImageMessageBody(
+            message = message,
+            loadImage = loadImage,
             modifier = modifier,
         )
 

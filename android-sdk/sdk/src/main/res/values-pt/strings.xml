@@ -9,4 +9,6 @@
     <string name="yalo_chat_cancel_recording_description">Cancelar gravação</string>
     <string name="yalo_chat_play_voice_message_description">Reproduzir mensagem de voz</string>
     <string name="yalo_chat_pause_voice_message_description">Pausar mensagem de voz</string>
+    <string name="yalo_chat_attachment_button_description">Enviar uma imagem</string>
+    <string name="yalo_chat_image_message_description">Imagem</string>
 </resources>

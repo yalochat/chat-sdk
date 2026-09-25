@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.data.repositories.chatmessage
 
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -238,6 +239,39 @@ class ChatMessageRepositoryLocalTest {
         repository.insert(userMessage("Hello"))
 
         assertNull(repository.messages().getOrThrow().single().voice)
+    }
+
+    @Test
+    fun readsBackThePictureAnImageMessageCarries() = runBlocking {
+        val repository = repository()
+        val picture = ImageAttachment(
+            mediaUrl = "media-1",
+            mediaType = "image/jpeg",
+            fileName = "holiday.jpg",
+            byteCount = 4_096,
+            localPath = "/files/image-1.jpg",
+        )
+        repository.insert(
+            ChatMessage(
+                role = MessageRole.User,
+                type = MessageType.Image,
+                timestamp = 1_000L,
+                content = "Look at this",
+                image = picture,
+            ),
+        )
+
+        val read = repository.messages().getOrThrow().single()
+        assertEquals(picture, read.image)
+        assertEquals("Look at this", read.content)
+    }
+
+    @Test
+    fun leavesThePictureOffAMessageThatIsNotAnImageMessage() = runBlocking {
+        val repository = repository()
+        repository.insert(userMessage("Hello"))
+
+        assertNull(repository.messages().getOrThrow().single().image)
     }
 
     @Test
