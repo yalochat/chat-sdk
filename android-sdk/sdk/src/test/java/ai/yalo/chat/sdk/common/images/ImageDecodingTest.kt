@@ -1,5 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.ui.images
+package ai.yalo.chat.sdk.common.images
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

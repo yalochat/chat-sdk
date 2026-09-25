@@ -1,9 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-package ai.yalo.chat.sdk.ui.images
+package ai.yalo.chat.sdk.common.images
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import java.io.File
 
 /** How many pixels of a picture are worth holding to draw one bubble. */
@@ -16,13 +15,13 @@ private const val MAX_PIXELS = 2_000_000
  *
  * Blocking, so call it off the main thread.
  */
-internal fun decodeImage(file: File, maxPixels: Int = MAX_PIXELS): ImageBitmap? {
+internal fun decodeImage(file: File, maxPixels: Int = MAX_PIXELS): Bitmap? {
     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
     BitmapFactory.decodeFile(file.absolutePath, bounds)
     val options = BitmapFactory.Options().apply {
         inSampleSize = sampleSizeFor(bounds.outWidth, bounds.outHeight, maxPixels)
     }
-    return BitmapFactory.decodeFile(file.absolutePath, options)?.asImageBitmap()
+    return BitmapFactory.decodeFile(file.absolutePath, options)
 }
 
 /**

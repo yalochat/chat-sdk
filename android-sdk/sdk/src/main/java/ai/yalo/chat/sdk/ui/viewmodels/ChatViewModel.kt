@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
+import ai.yalo.chat.sdk.common.images.decodeImage
 import ai.yalo.chat.sdk.data.datasources.media.MediaContent
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.ImageRepository
@@ -17,13 +18,13 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.quickReplies
-import ai.yalo.chat.sdk.ui.images.decodeImage
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -225,7 +226,7 @@ internal class ChatViewModel(
     suspend fun imageOf(message: ChatMessage): ImageBitmap? {
         val picture: ImageAttachment = message.image ?: return null
         val file: File = fileOf(picture.localPath, picture.mediaUrl).getOrNull() ?: return null
-        return withContext(Dispatchers.Default) { decodeImage(file) }
+        return withContext(Dispatchers.Default) { decodeImage(file)?.asImageBitmap() }
     }
 
     /**
