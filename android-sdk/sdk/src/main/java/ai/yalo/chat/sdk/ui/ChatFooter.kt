@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +41,10 @@ internal const val CHAT_FOOTER_TAG: String = "yalo-chat-footer"
 internal const val CHAT_INPUT_TAG: String = "yalo-chat-input"
 internal const val CHAT_SEND_BUTTON_TAG: String = "yalo-chat-send-button"
 internal const val CHAT_ATTACHMENT_BUTTON_TAG: String = "yalo-chat-attachment-button"
+internal const val CHAT_INPUT_BOX_TAG: String = "yalo-chat-input-box"
+
+/** The same hairline an outlined text field draws, so the input keeps its shape. */
+private val INPUT_BORDER_WIDTH = 1.dp
 
 /**
  * The message input and the buttons around it.
@@ -49,9 +55,10 @@ internal const val CHAT_ATTACHMENT_BUTTON_TAG: String = "yalo-chat-attachment-bu
  * microphone at all, so the button is always send and is simply disabled while
  * nothing has been typed.
  *
- * The plus between the input and that button picks a picture to send, and is
- * left out with [hideAttachmentButton] on. It goes while a recording is
- * running, because there is no input to put a picture beside.
+ * The plus picks a picture to send. It sits inside the outline with the place
+ * text is typed, so the two read as one input, and is left out with
+ * [hideAttachmentButton] on. It goes while a recording is running, because
+ * there is no input to put a picture beside.
  *
  * [recording] is a lambda so that a recording moving sixteen times a second
  * redraws the waveform rather than the footer. Whether one is running at all is
@@ -102,40 +109,62 @@ internal fun ChatFooter(
                     modifier = Modifier.weight(1f),
                 )
             } else {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = onTextChange,
+                // The outline is drawn around the field and the plus together
+                // rather than by the field, so the two read as one input. The
+                // field keeps an outline of its own that is transparent until
+                // somebody asks for the two to be told apart.
+                Row(
                     modifier = Modifier
                         .weight(1f)
-                        .testTag(CHAT_INPUT_TAG),
-                    placeholder = {
-                        Text(text = stringResource(R.string.yalo_chat_input_placeholder))
-                    },
-                    maxLines = 4,
-                    shape = theme.inputShape,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(
-                        onSend = {
-                            if (canSend) {
-                                onSend()
-                            }
-                        },
-                    ),
-                )
-            }
-            if (!isRecording && !hideAttachmentButton) {
-                IconButton(
-                    onClick = onPickImage,
-                    modifier = Modifier
-                        .padding(bottom = 4.dp)
-                        .testTag(CHAT_ATTACHMENT_BUTTON_TAG),
+                        .border(
+                            width = INPUT_BORDER_WIDTH,
+                            color = theme.inputBorderColor,
+                            shape = theme.inputShape,
+                        )
+                        .testTag(CHAT_INPUT_BOX_TAG),
+                    verticalAlignment = Alignment.Bottom,
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.yalo_chat_ic_add),
-                        contentDescription = stringResource(
-                            R.string.yalo_chat_attachment_button_description,
+                    OutlinedTextField(
+                        value = text,
+                        onValueChange = onTextChange,
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag(CHAT_INPUT_TAG),
+                        placeholder = {
+                            Text(text = stringResource(R.string.yalo_chat_input_placeholder))
+                        },
+                        maxLines = 4,
+                        shape = theme.inputShape,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = theme.inputFieldBorderColor,
+                            unfocusedBorderColor = theme.inputFieldBorderColor,
+                            disabledBorderColor = theme.inputFieldBorderColor,
+                            errorBorderColor = theme.inputFieldBorderColor,
+                        ),
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                if (canSend) {
+                                    onSend()
+                                }
+                            },
                         ),
                     )
+                    if (!hideAttachmentButton) {
+                        IconButton(
+                            onClick = onPickImage,
+                            modifier = Modifier
+                                .padding(bottom = 4.dp, end = 4.dp)
+                                .testTag(CHAT_ATTACHMENT_BUTTON_TAG),
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.yalo_chat_ic_add),
+                                contentDescription = stringResource(
+                                    R.string.yalo_chat_attachment_button_description,
+                                ),
+                            )
+                        }
+                    }
                 }
             }
             FilledIconButton(

@@ -45,6 +45,8 @@ public data class ChatTheme(
     public val quickReplyBackground: Color,
     public val onQuickReplyBackground: Color,
     public val quickReplyBorderColor: Color,
+    public val inputBorderColor: Color,
+    public val inputFieldBorderColor: Color,
     public val inputShape: Shape,
     public val userMessageShape: Shape,
     public val agentMessageShape: Shape,
@@ -82,6 +84,10 @@ public data class ChatTheme(
             quickReplyBackground = Color.Transparent,
             onQuickReplyBackground = MaterialTheme.colorScheme.onSurface,
             quickReplyBorderColor = MaterialTheme.colorScheme.outline,
+            inputBorderColor = MaterialTheme.colorScheme.outline,
+            // The place text is typed and the plus beside it share the one
+            // outline around them, so the field draws none of its own.
+            inputFieldBorderColor = Color.Transparent,
             inputShape = MaterialTheme.shapes.extraLarge,
             userMessageShape = RoundedCornerShape(
                 topStart = BUBBLE_CORNER,

@@ -13,12 +13,14 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -171,6 +173,24 @@ class ChatFooterTest {
         assertEquals(1, pickCount)
     }
 
+    // The plus shares the outline with the place text is typed, so the two read
+    // as one input rather than as a button parked next to a field.
+    @Test
+    fun keepsThePlusInsideTheOutlineAroundTheInput() {
+        setFooter(text = "")
+
+        val outline = composeRule.onNodeWithTag(CHAT_INPUT_BOX_TAG).getUnclippedBoundsInRoot()
+        val plus = composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).getUnclippedBoundsInRoot()
+
+        assertTrue(
+            "the plus at $plus sits outside the input at $outline",
+            plus.left >= outline.left &&
+                plus.right <= outline.right &&
+                plus.top >= outline.top &&
+                plus.bottom <= outline.bottom,
+        )
+    }
+
     @Test
     fun leavesThePlusOutWhenPicturesAreOff() {
         setFooter(text = "", hideAttachmentButton = true)
@@ -180,13 +200,14 @@ class ChatFooterTest {
     }
 
     @Test
-    fun takesThePlusAwayWhileARecordingIsRunning() {
+    fun takesTheWholeInputAwayWhileARecordingIsRunning() {
         setFooter(
             text = "",
             recording = { VoiceRecording(elapsedMillis = 0, amplitudes = listOf(0f)) },
         )
 
         composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(CHAT_INPUT_BOX_TAG).assertDoesNotExist()
     }
 
     private fun micDescription(): String =

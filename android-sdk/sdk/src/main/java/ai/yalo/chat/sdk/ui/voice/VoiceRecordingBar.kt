@@ -62,7 +62,7 @@ internal fun VoiceRecordingBar(
         shape = theme.inputShape,
         color = theme.footerBackground,
         contentColor = theme.onFooterBackground,
-        border = BorderStroke(INPUT_BORDER_WIDTH, MaterialTheme.colorScheme.outline),
+        border = BorderStroke(INPUT_BORDER_WIDTH, theme.inputBorderColor),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

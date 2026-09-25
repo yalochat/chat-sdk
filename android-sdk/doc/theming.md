@@ -53,6 +53,8 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`footerBackground`** (`Color`): Background of the bar holding the message input. Defaults to the Material `surfaceContainer` color.
 - **`onFooterBackground`** (`Color`): Color of the content in that bar. Defaults to the Material `onSurface` color.
 - **`inputShape`** (`Shape`): Shape of the message input. Defaults to the Material `extraLarge` shape, which gives a fully rounded field.
+- **`inputBorderColor`** (`Color`): Color of the line around the message input. That line goes around the place text is typed and the plus that picks a picture together, so the two read as one input. The recording bar that replaces the input follows it too. Defaults to the Material `outline` color.
+- **`inputFieldBorderColor`** (`Color`): Color of the line around the place text is typed on its own, inside the one above. Defaults to transparent, so only the outer line shows. Set a color when you want the field and the plus told apart.
 
 ### Messages
 
@@ -123,6 +125,7 @@ fun BrandedChat(client: YaloChatClient) {
             onQuickReplyBackground = brand,
             quickReplyBorderColor = brand,
             inputShape = RoundedCornerShape(8.dp),
+            inputBorderColor = brand,
             userMessageShape = RoundedCornerShape(16.dp),
             agentMessageShape = RoundedCornerShape(16.dp),
             imageShape = RoundedCornerShape(8.dp),
