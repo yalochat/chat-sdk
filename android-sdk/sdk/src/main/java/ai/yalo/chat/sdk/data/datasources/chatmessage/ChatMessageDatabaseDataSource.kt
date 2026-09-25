@@ -13,9 +13,9 @@ import android.database.sqlite.SQLiteOpenHelper
  *
  * The columns follow the web SDK's message model, minus the collection valued
  * fields it keeps for richer messages, which have no model here yet. The
- * exceptions are [COLUMN_BUTTONS] and [COLUMN_VOICE], which hold a message's
- * options and its recording as JSON because they are read and written whole and
- * are never searched on.
+ * exceptions are [COLUMN_BUTTONS], [COLUMN_VOICE] and [COLUMN_IMAGE], which
+ * hold a message's options, its recording and its picture as JSON because they
+ * are read and written whole and are never searched on.
  */
 internal class ChatMessageDatabaseDataSource(
     context: Context,
@@ -39,6 +39,9 @@ internal class ChatMessageDatabaseDataSource(
         }
         if (oldVersion < 3) {
             db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_VOICE TEXT")
+        }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_IMAGE TEXT")
         }
     }
 
@@ -75,7 +78,7 @@ internal class ChatMessageDatabaseDataSource(
         private const val LOG_NAME = "Database"
 
         const val NAME: String = "yalo_chat.db"
-        const val VERSION: Int = 3
+        const val VERSION: Int = 4
 
         const val MESSAGE_TABLE: String = "chat_message"
 
@@ -91,6 +94,7 @@ internal class ChatMessageDatabaseDataSource(
         const val COLUMN_FOOTER: String = "footer"
         const val COLUMN_BUTTONS: String = "buttons"
         const val COLUMN_VOICE: String = "voice"
+        const val COLUMN_IMAGE: String = "image"
 
         private const val CREATE_MESSAGE_TABLE = """
             CREATE TABLE $MESSAGE_TABLE (
@@ -105,7 +109,8 @@ internal class ChatMessageDatabaseDataSource(
                 $COLUMN_HEADER TEXT,
                 $COLUMN_FOOTER TEXT,
                 $COLUMN_BUTTONS TEXT,
-                $COLUMN_VOICE TEXT
+                $COLUMN_VOICE TEXT,
+                $COLUMN_IMAGE TEXT
             )
         """
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -30,7 +31,8 @@ internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
  * only the chat knows which message that is.
  *
  * [playback] is a lambda so that a voice note being listened to redraws its own
- * waveform rather than the conversation around it.
+ * waveform rather than the conversation around it. [loadImage] hands back the
+ * file a picture is in, and is asked only for the messages that carry one.
  */
 @Composable
 internal fun ChatMessageItem(
@@ -40,6 +42,7 @@ internal fun ChatMessageItem(
     onQuickReply: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
+    loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
 ) {
     when (message.role) {
         MessageRole.User -> UserMessage(
@@ -47,6 +50,7 @@ internal fun ChatMessageItem(
             modifier = modifier,
             playback = playback,
             onVoiceMessageToggled = onVoiceMessageToggled,
+            loadImage = loadImage,
         )
 
         MessageRole.Agent -> AgentMessage(
@@ -56,6 +60,7 @@ internal fun ChatMessageItem(
             modifier = modifier,
             playback = playback,
             onVoiceMessageToggled = onVoiceMessageToggled,
+            loadImage = loadImage,
         )
     }
 }
@@ -72,6 +77,7 @@ private fun UserMessage(
     modifier: Modifier,
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
+    loadImage: suspend (ChatMessage) -> ImageBitmap?,
 ) {
     val theme = currentChatTheme
     Row(
@@ -91,6 +97,7 @@ private fun UserMessage(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 playback = playback,
                 onVoiceMessageToggled = { onVoiceMessageToggled(message) },
+                loadImage = loadImage,
             )
         }
     }
@@ -110,6 +117,7 @@ private fun AgentMessage(
     modifier: Modifier,
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
+    loadImage: suspend (ChatMessage) -> ImageBitmap?,
 ) {
     val theme = currentChatTheme
     Column(
@@ -132,6 +140,7 @@ private fun AgentMessage(
                     message = message,
                     playback = playback,
                     onVoiceMessageToggled = { onVoiceMessageToggled(message) },
+                    loadImage = loadImage,
                 )
             }
         }

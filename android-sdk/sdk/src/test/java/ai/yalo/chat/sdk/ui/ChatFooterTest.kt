@@ -161,6 +161,34 @@ class ChatFooterTest {
         composeRule.onNodeWithTag(CHAT_RECORDING_BAR_TAG).assertDoesNotExist()
     }
 
+    @Test
+    fun offersToPickAPicture() {
+        var pickCount = 0
+        setFooter(text = "", onPickImage = { pickCount++ })
+
+        composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).assertIsDisplayed().performClick()
+
+        assertEquals(1, pickCount)
+    }
+
+    @Test
+    fun leavesThePlusOutWhenPicturesAreOff() {
+        setFooter(text = "", hideAttachmentButton = true)
+
+        composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun takesThePlusAwayWhileARecordingIsRunning() {
+        setFooter(
+            text = "",
+            recording = { VoiceRecording(elapsedMillis = 0, amplitudes = listOf(0f)) },
+        )
+
+        composeRule.onNodeWithTag(CHAT_ATTACHMENT_BUTTON_TAG).assertDoesNotExist()
+    }
+
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
 
@@ -172,6 +200,8 @@ class ChatFooterTest {
         onTextChange: (String) -> Unit = {},
         onSend: () -> Unit = {},
         hideVoiceButton: Boolean = false,
+        hideAttachmentButton: Boolean = false,
+        onPickImage: () -> Unit = {},
         recording: () -> VoiceRecording? = { null },
         onStartRecording: () -> Unit = {},
         onCancelRecording: () -> Unit = {},
@@ -182,6 +212,8 @@ class ChatFooterTest {
                 onTextChange = onTextChange,
                 onSend = onSend,
                 hideVoiceButton = hideVoiceButton,
+                hideAttachmentButton = hideAttachmentButton,
+                onPickImage = onPickImage,
                 recording = recording,
                 onStartRecording = onStartRecording,
                 onCancelRecording = onCancelRecording,

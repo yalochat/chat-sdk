@@ -19,6 +19,8 @@ class ChatDependenciesTest {
         assertNotNull(dependencies.chatMessages)
         assertNotNull(dependencies.auth)
         assertNotNull(dependencies.media)
+        assertNotNull(dependencies.voice)
+        assertNotNull(dependencies.images)
         assertNotNull(dependencies.yaloMessages)
     }
 
@@ -29,6 +31,8 @@ class ChatDependenciesTest {
         assertSame(dependencies.chatMessages, dependencies.chatMessages)
         assertSame(dependencies.auth, dependencies.auth)
         assertSame(dependencies.media, dependencies.media)
+        assertSame(dependencies.voice, dependencies.voice)
+        assertSame(dependencies.images, dependencies.images)
         assertSame(dependencies.yaloMessages, dependencies.yaloMessages)
     }
 

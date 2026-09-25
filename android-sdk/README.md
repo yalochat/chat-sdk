@@ -19,6 +19,8 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Voice messages](#voice-messages)
   - [The microphone permission](#the-microphone-permission)
   - [Turning voice messages off](#turning-voice-messages-off)
+- [Image messages](#image-messages)
+  - [Turning image messages off](#turning-image-messages-off)
 - [Quick replies](#quick-replies)
 - [Theming](#theming)
 - [Logging](#logging)
@@ -97,6 +99,7 @@ Optional properties:
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them. See [Quick replies](#quick-replies).
 - **`openContext`** (`Map<String, String>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
+- **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 
 Two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages.
 
@@ -255,6 +258,36 @@ YaloChatClient(
 ```
 
 Leave `RECORD_AUDIO` out of your manifest as well, and the app never asks for a microphone it does not use. Voice messages the channel sends are still played, because playing one records nothing.
+
+## Image messages
+
+The person sends a picture by tapping the plus beside the message input. That opens the system photo picker, they choose one picture, and it goes into the conversation:
+
+- The picture is in the conversation as soon as it is picked, before it has been anywhere.
+- It is sent on its own. A picture and typed text are two messages, not one message with a caption.
+
+Pictures the channel sends are shown the same way, with whatever text came with them underneath. One that is not on the device yet is fetched the first time it is drawn, and asking for it again costs one download.
+
+Nothing has to be configured for any of this. The photo picker runs outside your app and hands the chat only the one picture the person chose, so there is no gallery permission to declare and none to ask for.
+
+Pictures the person sends are copied into your app's own files so they can still be shown after they have been sent. They go when the app's data does.
+
+### Turning image messages off
+
+Set `hideAttachmentButton` and the plus is gone, so nobody can pick a picture:
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        hideAttachmentButton = true,
+    ),
+)
+```
+
+Pictures the channel sends are still shown, because showing one picks nothing.
 
 ## Quick replies
 

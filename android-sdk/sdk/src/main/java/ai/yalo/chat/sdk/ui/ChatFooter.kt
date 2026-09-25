@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,15 +38,20 @@ import androidx.compose.ui.unit.dp
 internal const val CHAT_FOOTER_TAG: String = "yalo-chat-footer"
 internal const val CHAT_INPUT_TAG: String = "yalo-chat-input"
 internal const val CHAT_SEND_BUTTON_TAG: String = "yalo-chat-send-button"
+internal const val CHAT_ATTACHMENT_BUTTON_TAG: String = "yalo-chat-attachment-button"
 
 /**
- * The message input and the one button beside it.
+ * The message input and the buttons around it.
  *
- * The button is whatever there is to do next: the microphone while there is
- * nothing to send, and send once there is something, whether that is typed text
- * or a recording. With [hideVoiceButton] on there is no microphone at all, so
- * the button is always send and is simply disabled while nothing has been
- * typed.
+ * The button after the input is whatever there is to do next: the microphone
+ * while there is nothing to send, and send once there is something, whether
+ * that is typed text or a recording. With [hideVoiceButton] on there is no
+ * microphone at all, so the button is always send and is simply disabled while
+ * nothing has been typed.
+ *
+ * The plus between the input and that button picks a picture to send, and is
+ * left out with [hideAttachmentButton] on. It goes while a recording is
+ * running, because there is no input to put a picture beside.
  *
  * [recording] is a lambda so that a recording moving sixteen times a second
  * redraws the waveform rather than the footer. Whether one is running at all is
@@ -58,6 +64,8 @@ internal fun ChatFooter(
     onSend: () -> Unit,
     modifier: Modifier = Modifier,
     hideVoiceButton: Boolean = false,
+    hideAttachmentButton: Boolean = false,
+    onPickImage: () -> Unit = {},
     recording: () -> VoiceRecording? = { null },
     onStartRecording: () -> Unit = {},
     onCancelRecording: () -> Unit = {},
@@ -114,6 +122,21 @@ internal fun ChatFooter(
                         },
                     ),
                 )
+            }
+            if (!isRecording && !hideAttachmentButton) {
+                IconButton(
+                    onClick = onPickImage,
+                    modifier = Modifier
+                        .padding(bottom = 4.dp)
+                        .testTag(CHAT_ATTACHMENT_BUTTON_TAG),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.yalo_chat_ic_add),
+                        contentDescription = stringResource(
+                            R.string.yalo_chat_attachment_button_description,
+                        ),
+                    )
+                }
             }
             FilledIconButton(
                 onClick = {

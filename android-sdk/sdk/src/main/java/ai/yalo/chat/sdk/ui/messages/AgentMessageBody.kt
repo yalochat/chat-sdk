@@ -4,10 +4,12 @@ package ai.yalo.chat.sdk.ui.messages
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.ui.images.ImageMessageBody
 import ai.yalo.chat.sdk.ui.messages.markdown.MarkdownText
 import ai.yalo.chat.sdk.ui.voice.VoiceMessageBody
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 
 /**
  * What the channel answered.
@@ -22,6 +24,7 @@ internal fun AgentMessageBody(
     modifier: Modifier = Modifier,
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: () -> Unit = {},
+    loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
 ) {
     when (message.type) {
         MessageType.Text -> MarkdownText(text = message.content, modifier = modifier)
@@ -30,6 +33,12 @@ internal fun AgentMessageBody(
             message = message,
             playback = playback,
             onToggle = onVoiceMessageToggled,
+            modifier = modifier,
+        )
+
+        MessageType.Image -> ImageMessageBody(
+            message = message,
+            loadImage = loadImage,
             modifier = modifier,
         )
 

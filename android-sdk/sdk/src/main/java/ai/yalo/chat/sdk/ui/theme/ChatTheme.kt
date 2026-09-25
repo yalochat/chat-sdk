@@ -48,6 +48,7 @@ public data class ChatTheme(
     public val inputShape: Shape,
     public val userMessageShape: Shape,
     public val agentMessageShape: Shape,
+    public val imageShape: Shape,
     public val quickReplyShape: Shape,
 ) {
 
@@ -55,6 +56,7 @@ public data class ChatTheme(
 
         private val BUBBLE_CORNER = 18.dp
         private val BUBBLE_TAIL_CORNER = 4.dp
+        private val IMAGE_CORNER = 12.dp
         private val CHIP_CORNER = 18.dp
 
         /** The theme derived from the host `MaterialTheme`. */
@@ -88,6 +90,7 @@ public data class ChatTheme(
                 bottomStart = BUBBLE_CORNER,
             ),
             agentMessageShape = RectangleShape,
+            imageShape = RoundedCornerShape(IMAGE_CORNER),
             quickReplyShape = RoundedCornerShape(CHIP_CORNER),
         )
     }

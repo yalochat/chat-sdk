@@ -2,10 +2,15 @@
 package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
+import ai.yalo.chat.sdk.ui.images.CHAT_IMAGE_MESSAGE_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_MESSAGE_TAG
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -44,6 +49,15 @@ class MessageBodyTest {
     }
 
     @Test
+    fun showsAPictureTheUserSent() {
+        composeRule.setContent {
+            UserMessageBody(imageMessage(MessageRole.User), loadImage = { picture() })
+        }
+
+        composeRule.onNodeWithTag(CHAT_IMAGE_MESSAGE_TAG).assertIsDisplayed()
+    }
+
+    @Test
     fun standsInForAKindTheUserCannotBeShownYet() {
         composeRule.setContent {
             UserMessageBody(message(MessageRole.User, MessageType.Video))
@@ -71,6 +85,15 @@ class MessageBodyTest {
     }
 
     @Test
+    fun showsAPictureTheAgentSent() {
+        composeRule.setContent {
+            AgentMessageBody(imageMessage(MessageRole.Agent), loadImage = { picture() })
+        }
+
+        composeRule.onNodeWithTag(CHAT_IMAGE_MESSAGE_TAG).assertIsDisplayed()
+    }
+
+    @Test
     fun standsInForAKindTheAgentSentThatCannotBeShownYet() {
         composeRule.setContent {
             AgentMessageBody(message(MessageRole.Agent, MessageType.Video))
@@ -84,6 +107,17 @@ class MessageBodyTest {
         type: MessageType,
         content: String = "",
     ) = ChatMessage(role = role, type = type, timestamp = 1_000L, id = 1L, content = content)
+
+    private fun picture(): ImageBitmap =
+        Bitmap.createBitmap(120, 80, Bitmap.Config.ARGB_8888).asImageBitmap()
+
+    private fun imageMessage(role: MessageRole) = ChatMessage(
+        role = role,
+        type = MessageType.Image,
+        timestamp = 1_000L,
+        id = 1L,
+        image = ImageAttachment(fileName = "holiday.jpg", mediaType = "image/jpeg"),
+    )
 
     private fun voiceMessage(role: MessageRole) = ChatMessage(
         role = role,
