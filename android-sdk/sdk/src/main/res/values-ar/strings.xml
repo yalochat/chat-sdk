@@ -6,4 +6,7 @@
     <string name="yalo_chat_watermark">من %1$s</string>
     <string name="yalo_chat_mic_button_description">تسجيل رسالة صوتية</string>
     <string name="yalo_chat_unsupported_message">لا يمكن عرض هذه الرسالة هنا</string>
+    <string name="yalo_chat_cancel_recording_description">إلغاء التسجيل</string>
+    <string name="yalo_chat_play_voice_message_description">تشغيل الرسالة الصوتية</string>
+    <string name="yalo_chat_pause_voice_message_description">إيقاف الرسالة الصوتية مؤقتا</string>
 </resources>

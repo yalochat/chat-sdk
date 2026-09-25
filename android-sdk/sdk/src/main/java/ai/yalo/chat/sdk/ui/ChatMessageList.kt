@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui
 
+import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
@@ -46,6 +47,8 @@ internal fun ChatMessageList(
     isWaitingForReply: Boolean = false,
     quickRepliesMessageId: Long? = null,
     onQuickReply: (String) -> Unit = {},
+    playback: () -> VoicePlayback? = { null },
+    onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
 ) {
     val theme = currentChatTheme
@@ -93,6 +96,8 @@ internal fun ChatMessageList(
                         emptyList()
                     },
                     onQuickReply = onQuickReply,
+                    playback = playback,
+                    onVoiceMessageToggled = onVoiceMessageToggled,
                 )
             }
         }

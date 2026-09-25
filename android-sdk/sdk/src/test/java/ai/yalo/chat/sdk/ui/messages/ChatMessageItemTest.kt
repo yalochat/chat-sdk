@@ -5,6 +5,9 @@ import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VoiceNote
+import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_MESSAGE_TAG
+import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_PLAY_BUTTON_TAG
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -133,6 +136,80 @@ class ChatMessageItemTest {
 
         assertEquals(listOf("No"), chosen)
     }
+
+    @Test
+    fun showsAVoiceNoteTheUserRecorded() {
+        composeRule.setContent {
+            ChatMessageItem(voiceMessage(role = MessageRole.User))
+        }
+
+        composeRule.onNodeWithTag(CHAT_VOICE_MESSAGE_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_USER_MESSAGE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun showsAVoiceNoteTheAgentSent() {
+        composeRule.setContent {
+            ChatMessageItem(voiceMessage(role = MessageRole.Agent))
+        }
+
+        composeRule.onNodeWithTag(CHAT_VOICE_MESSAGE_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_AGENT_MESSAGE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun saysWhichVoiceNoteWasTapped() {
+        val tapped = mutableListOf<Long?>()
+        composeRule.setContent {
+            ChatMessageItem(
+                message = voiceMessage(role = MessageRole.User),
+                onVoiceMessageToggled = { message -> tapped.add(message.id) },
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_VOICE_PLAY_BUTTON_TAG).performClick()
+
+        assertEquals(listOf<Long?>(7L), tapped)
+    }
+
+    @Test
+    fun saysWhichVoiceNoteTheAgentSentWasTapped() {
+        val tapped = mutableListOf<Long?>()
+        composeRule.setContent {
+            ChatMessageItem(
+                message = voiceMessage(role = MessageRole.Agent),
+                onVoiceMessageToggled = { message -> tapped.add(message.id) },
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_VOICE_PLAY_BUTTON_TAG).performClick()
+
+        assertEquals(listOf<Long?>(7L), tapped)
+    }
+
+    @Test
+    fun standsInForAKindOfMessageItCannotDrawYet() {
+        composeRule.setContent {
+            Column {
+                ChatMessageItem(
+                    message(role = MessageRole.User, content = "").copy(type = MessageType.Product),
+                )
+                ChatMessageItem(
+                    message(role = MessageRole.Agent, content = "").copy(type = MessageType.Product),
+                )
+            }
+        }
+
+        composeRule.onAllNodesWithTag(CHAT_UNSUPPORTED_MESSAGE_TAG).assertCountEquals(2)
+    }
+
+    private fun voiceMessage(role: MessageRole) = ChatMessage(
+        role = role,
+        type = MessageType.Voice,
+        timestamp = 1_000L,
+        id = 7L,
+        voice = VoiceNote(durationMillis = 4_000, amplitudes = listOf(0.2f, 0.9f)),
+    )
 
     private fun message(role: MessageRole, content: String) = ChatMessage(
         role = role,

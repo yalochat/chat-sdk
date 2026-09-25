@@ -3,12 +3,18 @@ package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
+import ai.yalo.chat.sdk.data.datasources.media.MediaContent
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
+import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
+import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
+import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
+import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -26,6 +32,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -63,12 +71,19 @@ internal data class ChatUiState(
  *
  * The draft goes through [SavedStateHandle], so a half typed message survives
  * both a rotation and the process being killed in the background.
+ *
+ * [recording] and [playback] are kept apart from [uiState] because they change
+ * many times a second while a voice note is being made or listened to. Only the
+ * part of the screen that draws a waveform reads them, so the conversation is
+ * not redrawn on every reading of how loud the room is.
  */
 internal class ChatViewModel(
     title: String,
     private val chatMessageRepository: ChatMessageRepository,
     private val yaloMessageRepository: YaloMessageRepository,
     private val savedState: SavedStateHandle,
+    private val mediaRepository: MediaRepository,
+    private val voiceRepository: VoiceRepository,
     hostMessages: Flow<String> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val now: () -> Long = System::currentTimeMillis,
@@ -77,6 +92,14 @@ internal class ChatViewModel(
     var uiState: ChatUiState by mutableStateOf(
         ChatUiState(title = title, draft = savedState.get<String>(DRAFT_KEY).orEmpty()),
     )
+        private set
+
+    /** The voice note being recorded, or null when the microphone is idle. */
+    var recording: VoiceRecording? by mutableStateOf(null)
+        private set
+
+    /** The voice note being listened to, or null when nothing is loaded. */
+    var playback: VoicePlayback? by mutableStateOf(null)
         private set
 
     private var replyDeadline: Job? = null
@@ -100,6 +123,12 @@ internal class ChatViewModel(
         viewModelScope.launch {
             hostMessages.collect { text -> send(text) }
         }
+        viewModelScope.launch {
+            voiceRepository.recording.collect { value -> recording = value }
+        }
+        viewModelScope.launch {
+            voiceRepository.playback.collect { value -> playback = value }
+        }
     }
 
     fun onDraftChange(value: String) {
@@ -107,7 +136,16 @@ internal class ChatViewModel(
         uiState = uiState.copy(draft = value)
     }
 
+    /**
+     * Sends whatever is waiting to go out, which is the recording when one is
+     * being made and the typed message otherwise. The same button does both, so
+     * which one it is is decided here rather than by the footer.
+     */
     fun onSend() {
+        if (recording != null) {
+            sendRecording()
+            return
+        }
         val text = uiState.draft.trim()
         if (text.isEmpty()) {
             return
@@ -115,6 +153,44 @@ internal class ChatViewModel(
         onDraftChange("")
         viewModelScope.launch {
             send(text)
+        }
+    }
+
+    /**
+     * Starts recording a voice note.
+     *
+     * Called only once the microphone has been granted, which the screen asks
+     * for, because whether an app may record is a question only an activity can
+     * put to the person.
+     */
+    fun onStartRecording() {
+        voiceRepository.startRecording()
+    }
+
+    /** Throws the recording away without sending it. */
+    fun onCancelRecording() {
+        viewModelScope.launch {
+            voiceRepository.cancelRecording()
+        }
+    }
+
+    /**
+     * Plays [message], or pauses it when it is the one already playing.
+     *
+     * A note the person recorded is played from the recording itself. One the
+     * channel sent is fetched first, and asking for it again costs one download
+     * because the media repository keeps what it fetched.
+     */
+    fun onVoiceMessageToggled(message: ChatMessage) {
+        val messageId = message.id ?: return
+        val note = message.voice ?: return
+        val current = playback
+        if (current?.messageId == messageId && current.isPlaying) {
+            voiceRepository.pausePlayback()
+            return
+        }
+        viewModelScope.launch {
+            audioOf(note).onSuccess { file -> voiceRepository.play(messageId, file) }
         }
     }
 
@@ -150,6 +226,62 @@ internal class ChatViewModel(
                 waitForReply()
             }
         }
+    }
+
+    /**
+     * Finishes the recording, shows it, and sends it.
+     *
+     * The note is in the conversation before it has been anywhere, the same way
+     * a typed message is, so the person sees what they recorded whatever the
+     * network then does with it. What the channel is told is the id the upload
+     * answered with, which is why the upload comes before the send rather than
+     * beside it.
+     */
+    private fun sendRecording() {
+        viewModelScope.launch {
+            val note = voiceRepository.stopRecording().getOrNull() ?: return@launch
+            val content = contentOf(note) ?: return@launch
+            chatMessageRepository.insert(
+                ChatMessage(
+                    role = MessageRole.User,
+                    type = MessageType.Voice,
+                    timestamp = now(),
+                    voice = note,
+                ),
+            ).onSuccess { stored ->
+                refreshMessages()
+                val media = mediaRepository.upload(content).getOrNull() ?: return@onSuccess
+                yaloMessageRepository.send(
+                    stored.copy(voice = note.copy(mediaUrl = media.id)),
+                ).onSuccess {
+                    waitForReply()
+                }
+            }
+        }
+    }
+
+    /** The recording as an upload, or nothing when the file is no longer there. */
+    private fun contentOf(note: VoiceNote): MediaContent? {
+        val file = note.localPath?.let(::File)?.takeIf { recording -> recording.exists() }
+            ?: return null
+        return MediaContent(
+            fileName = note.fileName,
+            mimeType = note.mediaType,
+            sizeBytes = file.length(),
+            openStream = { file.inputStream() },
+        )
+    }
+
+    /** The audio of [note], from the device when it is there and the backend otherwise. */
+    private suspend fun audioOf(note: VoiceNote): Result<File> {
+        val recorded = note.localPath?.let(::File)?.takeIf { file -> file.exists() }
+        if (recorded != null) {
+            return Result.success(recorded)
+        }
+        if (note.mediaUrl.isEmpty()) {
+            return Result.failure(IOException("The voice note is nowhere to be played from"))
+        }
+        return mediaRepository.download(note.mediaUrl)
     }
 
     /** Stores what the channel said and shows it. */
@@ -194,13 +326,22 @@ internal class ChatViewModel(
      * Behind an app the person has put away the system takes the socket, and
      * opening another one gets nowhere and costs battery. Whatever was written
      * meanwhile is kept and goes out when they come back.
+     *
+     * The microphone and the speaker go with it. Recording somebody who has
+     * gone to another app is not something to do quietly, and a voice note
+     * talking on from behind a screen they have left is not either.
      */
     fun onScreenHidden() {
         yaloMessageRepository.pause()
+        voiceRepository.pausePlayback()
+        viewModelScope.launch {
+            voiceRepository.cancelRecording()
+        }
     }
 
     override fun onCleared() {
         yaloMessageRepository.close()
+        voiceRepository.release()
     }
 
     /**
@@ -262,6 +403,8 @@ internal class ChatViewModel(
                     chatMessageRepository = dependencies.chatMessages,
                     yaloMessageRepository = dependencies.yaloMessages,
                     savedState = createSavedStateHandle(),
+                    mediaRepository = dependencies.media,
+                    voiceRepository = dependencies.voice,
                     hostMessages = client.outgoingTextMessages,
                     openContext = client.config.openContext,
                 )

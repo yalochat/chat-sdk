@@ -62,6 +62,7 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the Material `onSurface` color.
 - **`linkColor`** (`Color`): Color of the links inside a message the channel sent. Defaults to the Material `primary` color. See [Message formatting](../README.md#message-formatting) for what else a message can contain.
 - **`userMessageShape`** (`Shape`): Shape of the person's bubbles. Defaults to a rounded shape with a squared off bottom corner on the side the bubble sits.
+- **`voiceWaveform`**: Not a property. A voice message draws its waveform in the text color of whatever it sits on, so it follows `onUserMessageBackground` in the person's bubbles, `onAgentMessageBackground` in the channel's, and `onFooterBackground` while a recording is being made. The part of a note that has not been played yet is the same color, faded.
 - **`agentMessageShape`** (`Shape`): Shape of the channel's bubbles. Defaults to a rectangle, which is invisible while the background is transparent. Set it along with `agentMessageBackground` when you want those messages bubbled.
 
 ### Quick replies

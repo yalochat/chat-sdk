@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.messages
 
+import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -27,6 +28,9 @@ internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
  * [quickReplies] are the answers drawn under the message. They are passed in
  * rather than read off the message, because only the latest offer is live and
  * only the chat knows which message that is.
+ *
+ * [playback] is a lambda so that a voice note being listened to redraws its own
+ * waveform rather than the conversation around it.
  */
 @Composable
 internal fun ChatMessageItem(
@@ -34,14 +38,24 @@ internal fun ChatMessageItem(
     modifier: Modifier = Modifier,
     quickReplies: List<MessageButton> = emptyList(),
     onQuickReply: (String) -> Unit = {},
+    playback: () -> VoicePlayback? = { null },
+    onVoiceMessageToggled: (ChatMessage) -> Unit = {},
 ) {
     when (message.role) {
-        MessageRole.User -> UserMessage(message = message, modifier = modifier)
+        MessageRole.User -> UserMessage(
+            message = message,
+            modifier = modifier,
+            playback = playback,
+            onVoiceMessageToggled = onVoiceMessageToggled,
+        )
+
         MessageRole.Agent -> AgentMessage(
             message = message,
             quickReplies = quickReplies,
             onQuickReply = onQuickReply,
             modifier = modifier,
+            playback = playback,
+            onVoiceMessageToggled = onVoiceMessageToggled,
         )
     }
 }
@@ -53,7 +67,12 @@ internal fun ChatMessageItem(
  * conversation squared off so a run of messages reads as one side speaking.
  */
 @Composable
-private fun UserMessage(message: ChatMessage, modifier: Modifier = Modifier) {
+private fun UserMessage(
+    message: ChatMessage,
+    modifier: Modifier,
+    playback: () -> VoicePlayback?,
+    onVoiceMessageToggled: (ChatMessage) -> Unit,
+) {
     val theme = currentChatTheme
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -70,6 +89,8 @@ private fun UserMessage(message: ChatMessage, modifier: Modifier = Modifier) {
             UserMessageBody(
                 message = message,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                playback = playback,
+                onVoiceMessageToggled = { onVoiceMessageToggled(message) },
             )
         }
     }
@@ -86,7 +107,9 @@ private fun AgentMessage(
     message: ChatMessage,
     quickReplies: List<MessageButton>,
     onQuickReply: (String) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
+    playback: () -> VoicePlayback?,
+    onVoiceMessageToggled: (ChatMessage) -> Unit,
 ) {
     val theme = currentChatTheme
     Column(
@@ -105,7 +128,11 @@ private fun AgentMessage(
                 color = theme.agentMessageBackground,
                 contentColor = theme.onAgentMessageBackground,
             ) {
-                AgentMessageBody(message = message)
+                AgentMessageBody(
+                    message = message,
+                    playback = playback,
+                    onVoiceMessageToggled = { onVoiceMessageToggled(message) },
+                )
             }
         }
         if (quickReplies.isNotEmpty()) {

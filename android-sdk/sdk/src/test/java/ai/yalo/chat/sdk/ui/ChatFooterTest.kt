@@ -2,9 +2,17 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.R
+import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
+import ai.yalo.chat.sdk.ui.voice.CHAT_CANCEL_RECORDING_TAG
+import ai.yalo.chat.sdk.ui.voice.CHAT_RECORDING_BAR_TAG
+import ai.yalo.chat.sdk.ui.voice.CHAT_RECORDING_TIMER_TAG
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -58,10 +66,10 @@ class ChatFooterTest {
     }
 
     @Test
-    fun keepsSendDisabledWhileTheInputIsBlank() {
+    fun keepsTheMicrophoneTappableWhileTheInputIsBlank() {
         setFooter(text = "   ")
 
-        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
+        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsEnabled()
     }
 
     @Test
@@ -74,6 +82,85 @@ class ChatFooterTest {
         assertEquals(1, sendCount)
     }
 
+    @Test
+    fun startsRecordingWhenTheMicrophoneIsClicked() {
+        var recordCount = 0
+        setFooter(text = "", onStartRecording = { recordCount++ })
+
+        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).performClick()
+
+        assertEquals(1, recordCount)
+    }
+
+    @Test
+    fun leavesTheMicrophoneOutWhenVoiceMessagesAreOff() {
+        setFooter(text = "", hideVoiceButton = true)
+
+        composeRule.onNodeWithContentDescription(sendDescription()).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(micDescription()).assertDoesNotExist()
+    }
+
+    @Test
+    fun keepsSendDisabledWithNothingTypedAndNoMicrophone() {
+        setFooter(text = "   ", hideVoiceButton = true)
+
+        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun replacesTheInputWithAWaveformAndATimerWhileRecording() {
+        setFooter(text = "", recording = { VoiceRecording(elapsedMillis = 7_200, amplitudes = listOf(0.5f)) })
+
+        composeRule.onNodeWithTag(CHAT_RECORDING_BAR_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_RECORDING_TIMER_TAG).assertTextEquals("0:07")
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun offersToSendWhileRecording() {
+        var sendCount = 0
+        setFooter(
+            text = "",
+            onSend = { sendCount++ },
+            recording = { VoiceRecording(elapsedMillis = 0, amplitudes = listOf(0f)) },
+        )
+
+        composeRule.onNodeWithContentDescription(sendDescription()).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsEnabled().performClick()
+
+        assertEquals(1, sendCount)
+    }
+
+    @Test
+    fun throwsTheRecordingAwayWhenTheCrossIsClicked() {
+        var cancelCount = 0
+        setFooter(
+            text = "",
+            recording = { VoiceRecording(elapsedMillis = 0, amplitudes = listOf(0f)) },
+            onCancelRecording = { cancelCount++ },
+        )
+
+        composeRule.onNodeWithTag(CHAT_CANCEL_RECORDING_TAG).performClick()
+
+        assertEquals(1, cancelCount)
+    }
+
+    @Test
+    fun putsTheInputBackOnceTheRecordingIsOver() {
+        var current by mutableStateOf<VoiceRecording?>(
+            VoiceRecording(elapsedMillis = 0, amplitudes = listOf(0f)),
+        )
+        composeRule.setContent {
+            ChatFooter(text = "", onTextChange = {}, onSend = {}, recording = { current })
+        }
+
+        composeRule.onNodeWithTag(CHAT_RECORDING_BAR_TAG).assertIsDisplayed()
+        current = null
+
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_RECORDING_BAR_TAG).assertDoesNotExist()
+    }
+
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
 
@@ -84,9 +171,21 @@ class ChatFooterTest {
         text: String,
         onTextChange: (String) -> Unit = {},
         onSend: () -> Unit = {},
+        hideVoiceButton: Boolean = false,
+        recording: () -> VoiceRecording? = { null },
+        onStartRecording: () -> Unit = {},
+        onCancelRecording: () -> Unit = {},
     ) {
         composeRule.setContent {
-            ChatFooter(text = text, onTextChange = onTextChange, onSend = onSend)
+            ChatFooter(
+                text = text,
+                onTextChange = onTextChange,
+                onSend = onSend,
+                hideVoiceButton = hideVoiceButton,
+                recording = recording,
+                onStartRecording = onStartRecording,
+                onCancelRecording = onCancelRecording,
+            )
         }
     }
 }

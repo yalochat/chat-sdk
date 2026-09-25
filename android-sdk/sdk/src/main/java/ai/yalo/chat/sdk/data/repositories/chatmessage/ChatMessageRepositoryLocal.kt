@@ -70,6 +70,7 @@ internal class ChatMessageRepositoryLocal(
             put(ChatMessageDatabaseDataSource.COLUMN_HEADER, message.header)
             put(ChatMessageDatabaseDataSource.COLUMN_FOOTER, message.footer)
             put(ChatMessageDatabaseDataSource.COLUMN_BUTTONS, MessageButtonsColumn.encode(message.buttons))
+            put(ChatMessageDatabaseDataSource.COLUMN_VOICE, VoiceNoteColumn.encode(message.voice))
         }
         val id = database.writableDatabase.insertOrThrow(ChatMessageDatabaseDataSource.MESSAGE_TABLE, null, values)
         return message.copy(id = id)
@@ -122,6 +123,7 @@ internal class ChatMessageRepositoryLocal(
         header = optionalText(ChatMessageDatabaseDataSource.COLUMN_HEADER),
         footer = optionalText(ChatMessageDatabaseDataSource.COLUMN_FOOTER),
         buttons = MessageButtonsColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_BUTTONS)),
+        voice = VoiceNoteColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_VOICE)),
     )
 
     private fun Cursor.text(column: String): String = getString(getColumnIndexOrThrow(column))

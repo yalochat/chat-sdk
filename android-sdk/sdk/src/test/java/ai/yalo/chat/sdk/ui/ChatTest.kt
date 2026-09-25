@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui
 
+import ai.yalo.chat.sdk.R
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -27,6 +29,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
 class ChatTest {
@@ -69,14 +72,15 @@ class ChatTest {
     }
 
     @Test
-    fun enablesSendOnceTheUserTypes() {
+    fun turnsTheMicrophoneIntoSendOnceTheUserTypes() {
         composeRule.setContent {
             Chat(client)
         }
 
-        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
+        composeRule.onNodeWithContentDescription(micDescription()).assertIsDisplayed()
         composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTextInput("Hello")
 
+        composeRule.onNodeWithContentDescription(sendDescription()).assertIsDisplayed()
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsEnabled()
     }
 
@@ -90,9 +94,9 @@ class ChatTest {
         composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).performClick()
 
         composeRule.awaitTag(CHAT_USER_MESSAGE_TAG)
-        // An empty input is what leaves nothing to send, so the disabled button
-        // is the visible proof the draft was cleared.
-        composeRule.onNodeWithTag(CHAT_SEND_BUTTON_TAG).assertIsNotEnabled()
+        // An empty input is what leaves nothing to send, so the button offering
+        // to record again is the visible proof the draft was cleared.
+        composeRule.onNodeWithContentDescription(micDescription()).assertIsDisplayed()
     }
 
     @Test
@@ -159,6 +163,12 @@ class ChatTest {
 
         composeRule.onAllNodesWithText("Hello").assertCountEquals(1)
     }
+
+    private fun micDescription(): String =
+        RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
+
+    private fun sendDescription(): String =
+        RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_send_button_description)
 
     // A sent message is stored before it is shown, and the storing happens off
     // the main thread, so the node turns up after the click rather than with it.

@@ -6,4 +6,7 @@
     <string name="yalo_chat_watermark">Por %1$s</string>
     <string name="yalo_chat_mic_button_description">Gravar mensagem de voz</string>
     <string name="yalo_chat_unsupported_message">Esta mensagem não pode ser exibida aqui</string>
+    <string name="yalo_chat_cancel_recording_description">Cancelar gravação</string>
+    <string name="yalo_chat_play_voice_message_description">Reproduzir mensagem de voz</string>
+    <string name="yalo_chat_pause_voice_message_description">Pausar mensagem de voz</string>
 </resources>

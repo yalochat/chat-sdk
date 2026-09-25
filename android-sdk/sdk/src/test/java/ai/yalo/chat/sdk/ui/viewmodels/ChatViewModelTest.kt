@@ -2,12 +2,15 @@
 package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
+import ai.yalo.chat.sdk.data.repositories.media.FakeMediaRepository
+import ai.yalo.chat.sdk.data.repositories.voice.FakeVoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VoiceNote
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.Dispatchers
@@ -19,13 +22,18 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Rule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.rules.TemporaryFolder
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
@@ -33,7 +41,12 @@ class ChatViewModelTest {
 
     private val chatMessageRepository = FakeChatMessageRepository()
     private val yaloMessageRepository = FakeYaloMessageRepository()
+    private val mediaRepository = FakeMediaRepository()
+    private val voiceRepository = FakeVoiceRepository()
     private val scheduler = TestCoroutineScheduler()
+
+    @get:Rule
+    val folder = TemporaryFolder()
     private val hostMessages = MutableSharedFlow<String>(extraBufferCapacity = 8)
 
     @Before
@@ -591,6 +604,183 @@ class ChatViewModelTest {
         assertFalse(viewModel.uiState.isWaitingForReply)
     }
 
+    @Test
+    fun startsRecordingWhenTheMicrophoneIsGranted() {
+        val viewModel = chatViewModel()
+
+        viewModel.onStartRecording()
+
+        assertEquals(1, voiceRepository.startCount)
+        assertNotNull(viewModel.recording)
+    }
+
+    @Test
+    fun throwsARecordingAwayWhenItIsCancelled() {
+        val viewModel = chatViewModel()
+        viewModel.onStartRecording()
+
+        viewModel.onCancelRecording()
+
+        assertEquals(1, voiceRepository.cancelCount)
+        assertNull(viewModel.recording)
+    }
+
+    @Test
+    fun showsARecordingInTheConversationAsSoonAsItIsFinished() {
+        val viewModel = chatViewModel()
+        voiceRepository.note = recorded()
+        viewModel.onStartRecording()
+
+        viewModel.onSend()
+
+        val stored = viewModel.uiState.messages.single()
+        assertEquals(MessageType.Voice, stored.type)
+        assertEquals(MessageRole.User, stored.role)
+        assertEquals(4_200L, stored.voice?.durationMillis)
+    }
+
+    @Test
+    fun uploadsARecordingAndTellsTheChannelWhatTheUploadIsCalled() {
+        val viewModel = chatViewModel()
+        voiceRepository.note = recorded()
+        mediaRepository.mediaId = "media-42"
+        viewModel.onStartRecording()
+
+        viewModel.onSend()
+
+        assertEquals(listOf("voice-1.m4a"), mediaRepository.uploaded.map { it.fileName })
+        assertEquals("media-42", yaloMessageRepository.sent.single().voice?.mediaUrl)
+    }
+
+    @Test
+    fun keepsARecordingTheBackendWouldNotTakeInTheConversation() {
+        val viewModel = chatViewModel()
+        voiceRepository.note = recorded()
+        mediaRepository.uploadFailure = RuntimeException("No room")
+        viewModel.onStartRecording()
+
+        viewModel.onSend()
+
+        assertEquals(1, viewModel.uiState.messages.size)
+        assertEquals(emptyList<ChatMessage>(), yaloMessageRepository.sent)
+    }
+
+    @Test
+    fun sendsNothingWhenTheRecordingCameToNothing() {
+        val viewModel = chatViewModel()
+        voiceRepository.note = null
+        viewModel.onStartRecording()
+
+        viewModel.onSend()
+
+        assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
+        assertEquals(emptyList<ChatMessage>(), yaloMessageRepository.sent)
+    }
+
+    @Test
+    fun sendsTheRecordingRatherThanTheDraftWhileTheMicrophoneIsRunning() {
+        val viewModel = chatViewModel()
+        voiceRepository.note = recorded()
+        viewModel.onDraftChange("Half typed")
+        viewModel.onStartRecording()
+
+        viewModel.onSend()
+
+        assertEquals(listOf(MessageType.Voice), viewModel.uiState.messages.map { it.type })
+        assertEquals("Half typed", viewModel.uiState.draft)
+    }
+
+    @Test
+    fun playsARecordingFromTheFileItWasMadeInto() {
+        val recording = folder.newFile("voice-1.m4a")
+        alreadyStored(voiceMessage(note = recorded(file = recording)))
+        val viewModel = chatViewModel()
+
+        viewModel.onVoiceMessageToggled(viewModel.uiState.messages.single())
+
+        assertEquals(listOf(recording), voiceRepository.played.map { it.second })
+        assertEquals(emptyList<String>(), mediaRepository.downloaded)
+    }
+
+    @Test
+    fun fetchesANoteTheChannelSentBeforePlayingIt() {
+        val fetched = folder.newFile("from-the-channel.m4a")
+        mediaRepository.downloadedFile = fetched
+        alreadyStored(
+            voiceMessage(
+                note = VoiceNote(durationMillis = 4_200, mediaUrl = "https://media.example.com/1"),
+                role = MessageRole.Agent,
+            ),
+        )
+        val viewModel = chatViewModel()
+
+        viewModel.onVoiceMessageToggled(viewModel.uiState.messages.single())
+
+        assertEquals(listOf("https://media.example.com/1"), mediaRepository.downloaded)
+        assertEquals(listOf(fetched), voiceRepository.played.map { it.second })
+    }
+
+    @Test
+    fun playsNothingWhenThereIsNowhereToPlayItFrom() {
+        alreadyStored(voiceMessage(note = VoiceNote(durationMillis = 4_200)))
+        val viewModel = chatViewModel()
+
+        viewModel.onVoiceMessageToggled(viewModel.uiState.messages.single())
+
+        assertEquals(emptyList<File>(), voiceRepository.played.map { it.second })
+    }
+
+    @Test
+    fun pausesTheNoteThatIsAlreadyPlaying() {
+        alreadyStored(voiceMessage(note = recorded()))
+        val viewModel = chatViewModel()
+        val message = viewModel.uiState.messages.single()
+        viewModel.onVoiceMessageToggled(message)
+
+        viewModel.onVoiceMessageToggled(message)
+
+        assertEquals(1, voiceRepository.pauseCount)
+        assertEquals(1, voiceRepository.played.size)
+    }
+
+    @Test
+    fun stopsTheMicrophoneAndTheSpeakerWhenTheChatLeavesTheScreen() {
+        val viewModel = chatViewModel()
+        viewModel.onStartRecording()
+
+        viewModel.onScreenHidden()
+
+        assertEquals(1, voiceRepository.cancelCount)
+        assertEquals(1, voiceRepository.pauseCount)
+    }
+
+    /**
+     * A finished recording, with the file really on disk, because the chat only
+     * uploads what it can still read.
+     */
+    private fun recorded(file: File = folder.newFile("voice-1.m4a")): VoiceNote {
+        file.writeBytes(ByteArray(2_048))
+        return VoiceNote(
+            durationMillis = 4_200,
+            amplitudes = listOf(0.1f, 0.9f),
+            mediaType = "audio/mp4",
+            fileName = "voice-1.m4a",
+            byteCount = file.length(),
+            localPath = file.absolutePath,
+        )
+    }
+
+    private fun voiceMessage(
+        note: VoiceNote,
+        role: MessageRole = MessageRole.User,
+    ): ChatMessage = ChatMessage(
+        role = role,
+        type = MessageType.Voice,
+        timestamp = SENT_AT,
+        wiId = if (role == MessageRole.Agent) "wi-voice" else null,
+        voice = note,
+    )
+
     private fun reply(text: String): MessageButton = MessageButton(text = text)
 
     private fun answer(
@@ -615,6 +805,8 @@ class ChatViewModelTest {
         chatMessageRepository = chatMessageRepository,
         yaloMessageRepository = yaloMessageRepository,
         savedState = savedState,
+        mediaRepository = mediaRepository,
+        voiceRepository = voiceRepository,
         hostMessages = hostMessages,
         openContext = openContext,
         now = { SENT_AT },

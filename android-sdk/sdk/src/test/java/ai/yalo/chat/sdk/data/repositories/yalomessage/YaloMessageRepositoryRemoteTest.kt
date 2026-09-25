@@ -11,6 +11,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ChatStatusRequest
@@ -21,6 +22,8 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -39,6 +42,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -155,6 +159,77 @@ class YaloMessageRepositoryRemoteTest {
 
         assertTrue(result.exceptionOrNull() is UnsupportedMessageTypeException)
         assertEquals(emptyList<SdkMessage>(), source.sent)
+    }
+
+    @Test
+    fun sendsAVoiceNoteUnderTheNameTheUploadGaveIt() = runTest(scheduler) {
+        connected().send(voiceMessage(note = recorded(mediaUrl = "media-42")))
+
+        val sent = source.sent.single().voiceNoteMessageRequest.content
+        assertEquals("media-42", sent.mediaUrl)
+        assertEquals("audio/mp4", sent.mediaType)
+        assertEquals("voice-1.m4a", sent.fileName)
+        assertEquals(2_048L, sent.byteCount)
+    }
+
+    @Test
+    fun sendsAVoiceNoteLengthInSeconds() = runTest(scheduler) {
+        connected().send(voiceMessage(note = recorded(durationMillis = 4_500)))
+
+        assertEquals(4.5, source.sent.single().voiceNoteMessageRequest.content.duration, TOLERANCE)
+    }
+
+    @Test
+    fun sendsTheWaveformAVoiceNoteIsDrawnFrom() = runTest(scheduler) {
+        connected().send(voiceMessage(note = recorded(amplitudes = listOf(0.25f, 1f))))
+
+        assertEquals(
+            listOf(0.25f, 1f),
+            source.sent.single().voiceNoteMessageRequest.content.amplitudesPreviewList,
+        )
+    }
+
+    @Test
+    fun sendsAVoiceNoteAsNotHavingArrivedAnywhereYet() = runTest(scheduler) {
+        connected().send(voiceMessage(note = recorded()))
+
+        val sent = source.sent.single().voiceNoteMessageRequest.content
+        assertEquals(WireStatus.MESSAGE_STATUS_IN_PROGRESS, sent.status)
+        assertEquals(WireRole.MESSAGE_ROLE_USER, sent.role)
+    }
+
+    @Test
+    fun refusesAVoiceMessageWithNothingToPlay() = runTest(scheduler) {
+        val result = connected().send(voiceMessage(note = null))
+
+        assertTrue(result.exceptionOrNull() is UnsupportedMessageTypeException)
+        assertEquals(emptyList<SdkMessage>(), source.sent)
+    }
+
+    @Test
+    fun readsAVoiceNoteTheChannelSent() = runTest(scheduler) {
+        val received = received(pollItem(wireVoiceMessage()))
+
+        val note = received.single().voice
+        assertEquals(MessageType.Voice, received.single().type)
+        assertEquals("https://media.example.com/note.m4a", note?.mediaUrl)
+        assertEquals("audio/mp4", note?.mediaType)
+        assertEquals(4_500L, note?.durationMillis)
+        assertEquals(listOf(0.25f, 1f), note?.amplitudes)
+    }
+
+    @Test
+    fun readsAVoiceNoteTheChannelSentAsHavingNoFileHere() = runTest(scheduler) {
+        val received = received(pollItem(wireVoiceMessage()))
+
+        assertNull(received.single().voice?.localPath)
+    }
+
+    @Test
+    fun leavesTheRecordingOffAMessageThatIsNotAVoiceNote() = runTest(scheduler) {
+        val received = received(pollItem(textMessage()))
+
+        assertNull(received.single().voice)
     }
 
     @Test
@@ -612,6 +687,44 @@ class YaloMessageRepositoryRemoteTest {
         return SdkMessage.newBuilder().setTextMessageRequest(request).build()
     }
 
+    private fun recorded(
+        durationMillis: Long = 4_200,
+        amplitudes: List<Float> = listOf(0.1f, 0.9f),
+        mediaUrl: String = "media-1",
+    ): VoiceNote = VoiceNote(
+        durationMillis = durationMillis,
+        amplitudes = amplitudes,
+        mediaUrl = mediaUrl,
+        mediaType = "audio/mp4",
+        fileName = "voice-1.m4a",
+        byteCount = 2_048,
+        localPath = "/files/voice-1.m4a",
+    )
+
+    private fun voiceMessage(note: VoiceNote?): ChatMessage = ChatMessage(
+        role = MessageRole.User,
+        type = MessageType.Voice,
+        timestamp = WRITTEN_AT,
+        id = 1L,
+        voice = note,
+    )
+
+    private fun wireVoiceMessage(): SdkMessage = SdkMessage.newBuilder()
+        .setVoiceNoteMessageRequest(
+            VoiceNoteMessageRequest.newBuilder()
+                .setContent(
+                    VoiceMessage.newBuilder()
+                        .setMediaUrl("https://media.example.com/note.m4a")
+                        .setMediaType("audio/mp4")
+                        .setFileName("note.m4a")
+                        .setByteCount(4_096)
+                        .setDuration(4.5)
+                        .addAllAmplitudesPreview(listOf(0.25f, 1f))
+                        .setRole(WireRole.MESSAGE_ROLE_AGENT),
+                ),
+        )
+        .build()
+
     private fun imageMessage(buttons: List<Button> = emptyList()): SdkMessage = SdkMessage.newBuilder()
         .setImageMessageRequest(
             ImageMessageRequest.newBuilder()
@@ -720,6 +833,9 @@ class YaloMessageRepositoryRemoteTest {
         const val WRITTEN_AT = 1_700_000_000_000L
         const val SENT_AT = 1_700_000_005_000L
         const val ARRIVED_AT = 1_700_000_009_000L
+
+        /** How close a length in seconds has to be once it has been through a double. */
+        const val TOLERANCE = 0.0001
 
         const val SECOND_MILLIS = 1_000L
         const val MINUTE_MILLIS = 60_000L

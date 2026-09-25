@@ -8,12 +8,16 @@ import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSour
 import ai.yalo.chat.sdk.data.datasources.media.YaloMediaRemoteDataSource
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageWebsocketDataSource
+import ai.yalo.chat.sdk.data.datasources.voice.VoicePlayerDeviceDataSource
+import ai.yalo.chat.sdk.data.datasources.voice.VoiceRecorderDeviceDataSource
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
 import ai.yalo.chat.sdk.data.repositories.media.MediaRepositoryRemote
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepositoryLocal
+import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepository
+import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepositoryLocal
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepositoryRemote
 import android.content.Context
@@ -80,6 +84,23 @@ internal class ChatDependencies(
         )
     }
 
+    /**
+     * The microphone and the speaker.
+     *
+     * Recordings are kept in the app's files rather than in the cache. For a
+     * note the person recorded it is the only copy that can be played back, and
+     * the system is free to throw the cache away whenever it wants the room.
+     */
+    val voice: VoiceRepository by lazy {
+        VoiceRepositoryLocal(
+            recorder = VoiceRecorderDeviceDataSource(applicationContext, config.logLevel),
+            player = VoicePlayerDeviceDataSource(config.logLevel),
+            recordingsDir = File(applicationContext.filesDir, VOICE_RECORDINGS),
+            scope = scope,
+            logLevel = config.logLevel,
+        )
+    }
+
     private val messages: YaloMessageDataSource by lazy {
         YaloMessageWebsocketDataSource(
             baseUrl = baseUrl,
@@ -103,6 +124,7 @@ internal class ChatDependencies(
 
 
         private const val MEDIA_CACHE = "yalo-chat-media"
+        private const val VOICE_RECORDINGS = "yalo-chat-voice"
         private const val PING_INTERVAL_SECONDS = 20L
     }
 }
