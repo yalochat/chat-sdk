@@ -17,6 +17,8 @@ package ai.yalo.chat.sdk
  * input. With it on, nobody can pick a picture to send. Pictures the channel
  * sends are still shown. Named after the same setting in the web SDK so the two
  * read alike.
+ * @property hideWatermark Whether the "By Yalo" line under the channel name is
+ * left out of the header. Everything else in the header stays where it is.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -28,6 +30,7 @@ public data class YaloChatClientConfig(
     public val openContext: Map<String, String> = emptyMap(),
     public val hideVoiceButton: Boolean = false,
     public val hideAttachmentButton: Boolean = false,
+    public val hideWatermark: Boolean = false,
 ) {
 
     /**
