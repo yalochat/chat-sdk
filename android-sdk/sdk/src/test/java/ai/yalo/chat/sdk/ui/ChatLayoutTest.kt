@@ -4,8 +4,10 @@ package ai.yalo.chat.sdk.ui
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
+import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.ui.messages.CHAT_POSTBACK_BUTTON_TAG
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -174,6 +176,42 @@ class ChatLayoutTest {
         assertEquals(listOf("Yes"), chosen)
     }
 
+    @Test
+    fun keepsTheButtonsOnAMessageAfterThePersonHasAnswered() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                // Newest first, the way the conversation is held.
+                messages = listOf(userMessage("Track order"), messageWithButtons("Pick one")),
+            )
+        }
+
+        composeRule.onNodeWithText("Track order").assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun saysTheButtonThatWasTappedInTheConversation() {
+        val tapped = mutableListOf<String>()
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(messageWithButtons("Pick one")),
+                onPostback = { text -> tapped.add(text) },
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).performClick()
+
+        assertEquals(listOf("Talk to us"), tapped)
+    }
+
     // A message fades in as it arrives, so this says it is left on screen
     // rather than part way through.
     @Test
@@ -202,6 +240,10 @@ class ChatLayoutTest {
         timestamp = 2_000L,
         id = 2L,
         content = content,
+    )
+
+    private fun messageWithButtons(content: String) = agentMessage(content).copy(
+        buttons = listOf(MessageButton(text = "Talk to us", type = MessageButtonType.Postback)),
     )
 
     private fun agentMessage(content: String) = ChatMessage(

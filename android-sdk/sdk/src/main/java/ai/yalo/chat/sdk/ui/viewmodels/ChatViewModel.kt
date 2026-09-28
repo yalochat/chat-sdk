@@ -258,6 +258,19 @@ internal class ChatViewModel(
     }
 
     /**
+     * Says a postback button back to the channel, as if the person had typed
+     * it.
+     *
+     * The button stays on its message afterwards, so the same one can be tapped
+     * again later in the conversation.
+     */
+    fun onPostback(text: String) {
+        viewModelScope.launch {
+            send(text)
+        }
+    }
+
+    /**
      * Stores [text] as the person's own message, whether they typed it or the
      * host asked for it on their behalf. Both arrive the same way, so a host
      * message is as much part of the conversation as a typed one.
