@@ -184,6 +184,17 @@ class ChatTest {
         composeRule.onNodeWithTag(CHAT_INPUT_TAG).assertIsDisplayed()
     }
 
+    @Test
+    fun leavesTheCreditOutWhenTheClientTurnsTheWatermarkOff() {
+        val withoutWatermark = YaloChatClient(client.config.copy(hideWatermark = true))
+        composeRule.setContent {
+            Chat(withoutWatermark)
+        }
+
+        composeRule.onNodeWithTag(CHAT_WATERMARK_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText("Support").assertIsDisplayed()
+    }
+
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
 
