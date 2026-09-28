@@ -48,6 +48,7 @@ internal fun ChatMessageList(
     isWaitingForReply: Boolean = false,
     quickRepliesMessageId: Long? = null,
     onQuickReply: (String) -> Unit = {},
+    onPostback: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
@@ -98,6 +99,7 @@ internal fun ChatMessageList(
                         emptyList()
                     },
                     onQuickReply = onQuickReply,
+                    onPostback = onPostback,
                     playback = playback,
                     onVoiceMessageToggled = onVoiceMessageToggled,
                     loadImage = loadImage,

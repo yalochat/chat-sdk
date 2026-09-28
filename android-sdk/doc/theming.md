@@ -13,6 +13,7 @@ Every value defaults to your app `MaterialTheme`, so a chat dropped into an app 
   - [Footer and input](#footer-and-input)
   - [Messages](#messages)
   - [Quick replies](#quick-replies)
+  - [Postback buttons](#postback-buttons)
   - [Typing indicator](#typing-indicator)
 - [Light and dark](#light-and-dark)
 - [Full theming example](#full-theming-example)
@@ -70,12 +71,21 @@ Each color pair works the same way: the `background` value paints a surface and 
 
 ### Quick replies
 
-These paint the chips the person taps to answer, wherever the chat puts them. See [Quick replies](../README.md#quick-replies) for what decides that.
+These paint the chips the person taps to answer.
 
-- **`quickReplyBackground`** (`Color`): Background of a chip. Defaults to transparent, so a chip reads as an offer rather than as something already said. Set a color to fill it.
+- **`quickReplyBackground`** (`Color`): Background of a chip. Defaults to transparent. Set a color to fill it.
 - **`onQuickReplyBackground`** (`Color`): Color of the text on a chip. Defaults to the Material `onSurface` color.
 - **`quickReplyBorderColor`** (`Color`): Color of the line around a chip. Defaults to the Material `outline` color.
 - **`quickReplyShape`** (`Shape`): Shape of a chip. Defaults to a fully rounded shape.
+
+### Postback buttons
+
+These paint the buttons stacked under a message.
+
+- **`postbackBackground`** (`Color`): Background of a button. Defaults to transparent. Set a color to fill it.
+- **`onPostbackBackground`** (`Color`): Color of the text on a button. Defaults to the Material `onSurface` color.
+- **`postbackBorderColor`** (`Color`): Color of the line around a button. Defaults to the Material `outline` color.
+- **`postbackShape`** (`Shape`): Shape of a button. Defaults to a lightly rounded shape.
 
 ### Typing indicator
 
@@ -124,12 +134,16 @@ fun BrandedChat(client: YaloChatClient) {
             quickReplyBackground = Color.Transparent,
             onQuickReplyBackground = brand,
             quickReplyBorderColor = brand,
+            postbackBackground = Color.Transparent,
+            onPostbackBackground = brand,
+            postbackBorderColor = brand,
             inputShape = RoundedCornerShape(8.dp),
             inputBorderColor = brand,
             userMessageShape = RoundedCornerShape(16.dp),
             agentMessageShape = RoundedCornerShape(16.dp),
             imageShape = RoundedCornerShape(8.dp),
             quickReplyShape = RoundedCornerShape(16.dp),
+            postbackShape = RoundedCornerShape(8.dp),
         ),
     )
 }

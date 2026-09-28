@@ -5,6 +5,7 @@ import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
+import ai.yalo.chat.sdk.domain.models.postbacks
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,7 +29,8 @@ internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
  *
  * [quickReplies] are the answers drawn under the message. They are passed in
  * rather than read off the message, because only the latest offer is live and
- * only the chat knows which message that is.
+ * only the chat knows which message that is. The buttons a message keeps are
+ * read off it instead, since those never stop being on offer.
  *
  * [playback] is a lambda so that a voice note being listened to redraws its own
  * waveform rather than the conversation around it. [loadImage] hands back the
@@ -40,6 +42,7 @@ internal fun ChatMessageItem(
     modifier: Modifier = Modifier,
     quickReplies: List<MessageButton> = emptyList(),
     onQuickReply: (String) -> Unit = {},
+    onPostback: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
@@ -57,6 +60,7 @@ internal fun ChatMessageItem(
             message = message,
             quickReplies = quickReplies,
             onQuickReply = onQuickReply,
+            onPostback = onPostback,
             modifier = modifier,
             playback = playback,
             onVoiceMessageToggled = onVoiceMessageToggled,
@@ -114,6 +118,7 @@ private fun AgentMessage(
     message: ChatMessage,
     quickReplies: List<MessageButton>,
     onQuickReply: (String) -> Unit,
+    onPostback: (String) -> Unit,
     modifier: Modifier,
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
@@ -143,6 +148,14 @@ private fun AgentMessage(
                     loadImage = loadImage,
                 )
             }
+        }
+        val postbacks: List<MessageButton> = message.postbacks
+        if (postbacks.isNotEmpty()) {
+            PostbackButtons(
+                buttons = postbacks,
+                onButtonClick = onPostback,
+                modifier = Modifier.widthAtMost(AGENT_MESSAGE_WIDTH),
+            )
         }
         if (quickReplies.isNotEmpty()) {
             QuickReplies(replies = quickReplies, onReplyClick = onQuickReply)

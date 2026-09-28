@@ -45,6 +45,9 @@ public data class ChatTheme(
     public val quickReplyBackground: Color,
     public val onQuickReplyBackground: Color,
     public val quickReplyBorderColor: Color,
+    public val postbackBackground: Color,
+    public val onPostbackBackground: Color,
+    public val postbackBorderColor: Color,
     public val inputBorderColor: Color,
     public val inputFieldBorderColor: Color,
     public val inputShape: Shape,
@@ -52,6 +55,7 @@ public data class ChatTheme(
     public val agentMessageShape: Shape,
     public val imageShape: Shape,
     public val quickReplyShape: Shape,
+    public val postbackShape: Shape,
 ) {
 
     public companion object {
@@ -60,6 +64,7 @@ public data class ChatTheme(
         private val BUBBLE_TAIL_CORNER = 4.dp
         private val IMAGE_CORNER = 12.dp
         private val CHIP_CORNER = 18.dp
+        private val BUTTON_CORNER = 8.dp
 
         /** The theme derived from the host `MaterialTheme`. */
         @Composable
@@ -84,6 +89,11 @@ public data class ChatTheme(
             quickReplyBackground = Color.Transparent,
             onQuickReplyBackground = MaterialTheme.colorScheme.onSurface,
             quickReplyBorderColor = MaterialTheme.colorScheme.outline,
+            // A button that stays is drawn like a quick reply rather than like
+            // something said, since tapping it does the same thing.
+            postbackBackground = Color.Transparent,
+            onPostbackBackground = MaterialTheme.colorScheme.onSurface,
+            postbackBorderColor = MaterialTheme.colorScheme.outline,
             inputBorderColor = MaterialTheme.colorScheme.outline,
             // The place text is typed and the plus beside it share the one
             // outline around them, so the field draws none of its own.
@@ -98,6 +108,7 @@ public data class ChatTheme(
             agentMessageShape = RectangleShape,
             imageShape = RoundedCornerShape(IMAGE_CORNER),
             quickReplyShape = RoundedCornerShape(CHIP_CORNER),
+            postbackShape = RoundedCornerShape(BUTTON_CORNER),
         )
     }
 }

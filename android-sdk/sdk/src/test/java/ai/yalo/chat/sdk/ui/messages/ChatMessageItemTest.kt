@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
+import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
@@ -138,6 +139,70 @@ class ChatMessageItemTest {
     }
 
     @Test
+    fun showsTheButtonsTheMessageKeeps() {
+        composeRule.setContent {
+            ChatMessageItem(message = messageWithButtons("Pick one", "Track order", "Talk to us"))
+        }
+
+        composeRule.onNodeWithText("Track order").assertIsDisplayed()
+        composeRule.onNodeWithText("Talk to us").assertIsDisplayed()
+        composeRule.onAllNodesWithTag(CHAT_POSTBACK_BUTTON_TAG).assertCountEquals(2)
+    }
+
+    @Test
+    fun keepsTheButtonsWhateverTheConversationIsOfferingNow() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message = messageWithButtons("Pick one", "Track order"),
+                quickReplies = emptyList(),
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun drawsNoButtonsOnAMessageThatCarriesNone() {
+        composeRule.setContent {
+            ChatMessageItem(message(role = MessageRole.Agent, content = "Anything else?"))
+        }
+
+        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun leavesTheAnswersOutOfTheButtonsItKeeps() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message = message(role = MessageRole.Agent, content = "Pick one").copy(
+                    buttons = listOf(
+                        MessageButton(text = "Yes"),
+                        MessageButton(text = "Track order", type = MessageButtonType.Postback),
+                    ),
+                ),
+            )
+        }
+
+        composeRule.onAllNodesWithTag(CHAT_POSTBACK_BUTTON_TAG).assertCountEquals(1)
+        composeRule.onNodeWithText("Track order").assertIsDisplayed()
+    }
+
+    @Test
+    fun saysTheButtonThatWasTapped() {
+        val tapped = mutableListOf<String>()
+        composeRule.setContent {
+            ChatMessageItem(
+                message = messageWithButtons("Pick one", "Track order", "Talk to us"),
+                onPostback = { text -> tapped.add(text) },
+            )
+        }
+
+        composeRule.onNodeWithText("Talk to us").performClick()
+
+        assertEquals(listOf("Talk to us"), tapped)
+    }
+
+    @Test
     fun showsAVoiceNoteTheUserRecorded() {
         composeRule.setContent {
             ChatMessageItem(voiceMessage(role = MessageRole.User))
@@ -210,6 +275,13 @@ class ChatMessageItemTest {
         id = 7L,
         voice = VoiceNote(durationMillis = 4_000, amplitudes = listOf(0.2f, 0.9f)),
     )
+
+    private fun messageWithButtons(content: String, vararg buttons: String) =
+        message(role = MessageRole.Agent, content = content).copy(
+            buttons = buttons.map { text ->
+                MessageButton(text = text, type = MessageButtonType.Postback)
+            },
+        )
 
     private fun message(role: MessageRole, content: String) = ChatMessage(
         role = role,

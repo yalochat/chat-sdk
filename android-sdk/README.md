@@ -21,7 +21,6 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Turning voice messages off](#turning-voice-messages-off)
 - [Image messages](#image-messages)
   - [Turning image messages off](#turning-image-messages-off)
-- [Quick replies](#quick-replies)
 - [Theming](#theming)
 - [Logging](#logging)
 - [Translations](#translations)
@@ -96,7 +95,7 @@ Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `null`, which keeps the conversation anonymous on the device.
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
-- **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them. See [Quick replies](#quick-replies).
+- **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them.
 - **`openContext`** (`Map<String, String>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
@@ -289,34 +288,6 @@ YaloChatClient(
 ```
 
 Pictures the channel sends are still shown, because showing one picks nothing.
-
-## Quick replies
-
-When the channel offers a set of answers, the chat shows them as chips. Tapping one sends its text as a message from the person, exactly as if they had typed it.
-
-Only the latest offer is live, and it goes away as soon as the person answers, whether they tapped a chip or typed something of their own.
-
-Where the chips appear follows `quickReplyType`:
-
-- `QuickReplyType.Modal`
-  - The default. A bar between the conversation and the message input, holding only what the channel is offering right now.
-  - The bar is always in reach, so a long conversation does not hide the answers.
-- `QuickReplyType.Inline`
-  - Chips under the message that offered them, scrolling with the conversation.
-  - The answers stay next to the question they belong to.
-
-```kotlin
-YaloChatClient(
-    YaloChatClientConfig(
-        channelId = "your-channel-id",
-        organizationId = "your-organization-id",
-        channelName = "Support",
-        quickReplyType = QuickReplyType.Inline,
-    ),
-)
-```
-
-Their colors and shape come from the theme, the same as the rest of the chat. See [Theming](doc/theming.md).
 
 ## Theming
 

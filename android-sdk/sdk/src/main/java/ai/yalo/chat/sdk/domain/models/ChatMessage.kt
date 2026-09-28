@@ -121,3 +121,13 @@ internal data class ChatMessage(
  */
 internal val ChatMessage.quickReplies: List<MessageButton>
     get() = buttons.filter { button -> button.type == MessageButtonType.Reply }
+
+/**
+ * The buttons that stay on the message rather than being an offer of the moment.
+ *
+ * Tapping one says its text back to the channel, the same as a quick reply
+ * does, but the set never expires: it belongs to the message it was sent with
+ * and is still there however far the conversation has moved on.
+ */
+internal val ChatMessage.postbacks: List<MessageButton>
+    get() = buttons.filter { button -> button.type == MessageButtonType.Postback }

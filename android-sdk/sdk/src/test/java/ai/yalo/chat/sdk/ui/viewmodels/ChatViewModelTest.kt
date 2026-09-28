@@ -537,6 +537,28 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun saysATappedButtonBackToTheChannel() {
+        val viewModel = chatViewModel()
+        yaloMessageRepository.answer(answer("Pick one", buttons = listOf(postback("Track order"))))
+
+        viewModel.onPostback("Track order")
+
+        assertEquals(listOf("Track order"), yaloMessageRepository.sent.map { it.content })
+        assertEquals(MessageRole.User, viewModel.uiState.messages.first().role)
+    }
+
+    @Test
+    fun leavesTheButtonsOnTheMessageAfterOneIsTapped() {
+        val viewModel = chatViewModel()
+        yaloMessageRepository.answer(answer("Pick one", buttons = listOf(postback("Track order"))))
+
+        viewModel.onPostback("Track order")
+
+        val offered = viewModel.uiState.messages.last().buttons.map { it.text }
+        assertEquals(listOf("Track order"), offered)
+    }
+
+    @Test
     fun waitsForAReplyToAChosenAnswer() {
         val viewModel = chatViewModel()
 
@@ -909,6 +931,9 @@ class ChatViewModelTest {
     )
 
     private fun reply(text: String): MessageButton = MessageButton(text = text)
+
+    private fun postback(text: String): MessageButton =
+        MessageButton(text = text, type = MessageButtonType.Postback)
 
     private fun answer(
         content: String,

@@ -43,7 +43,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * [theme] follows the host `MaterialTheme` unless you pass one in.
  *
  * Quick replies follow `quickReplyType` in the client config: a bar above the
- * message input, or chips under the message that offered them.
+ * message input, or chips under the message that offered them. Postback buttons
+ * always sit under the message that sent them and stay there.
  *
  * [avatar] draws whatever you want beside the channel name, an image loaded
  * with your own library or none at all. [onBack] adds a back button to the
@@ -99,6 +100,7 @@ public fun Chat(
             quickReplies = viewModel.uiState.quickReplies,
             quickRepliesMessageId = viewModel.uiState.quickRepliesMessageId,
             onQuickReply = viewModel::onQuickReply,
+            onPostback = viewModel::onPostback,
             avatar = avatar,
             onBack = onBack,
             hideVoiceButton = client.config.hideVoiceButton,
@@ -186,6 +188,7 @@ internal fun ChatLayout(
     quickReplies: List<MessageButton> = emptyList(),
     quickRepliesMessageId: Long? = null,
     onQuickReply: (String) -> Unit = {},
+    onPostback: (String) -> Unit = {},
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
     hideVoiceButton: Boolean = false,
@@ -217,6 +220,7 @@ internal fun ChatLayout(
                 isWaitingForReply = isWaitingForReply,
                 quickRepliesMessageId = quickRepliesMessageId.takeIf { inline },
                 onQuickReply = onQuickReply,
+                onPostback = onPostback,
                 playback = playback,
                 onVoiceMessageToggled = onVoiceMessageToggled,
                 loadImage = loadImage,
