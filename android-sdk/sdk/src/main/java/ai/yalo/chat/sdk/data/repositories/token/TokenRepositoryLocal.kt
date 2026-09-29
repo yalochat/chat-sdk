@@ -43,7 +43,8 @@ import java.security.GeneralSecurityException
 internal class TokenRepositoryLocal(
     private val dataSource: YaloMessageAuthDataSource,
     private val store: DataStore<Preferences>,
-    sessionId: String,
+    private val sessionId: String,
+    private val ephemeral: Boolean = false,
     private val cipher: TokenCipher = KeystoreTokenCipher(),
     private val now: () -> Long = System::currentTimeMillis,
     logLevel: LogLevel = LogLevel.Warn,
@@ -86,6 +87,35 @@ internal class TokenRepositoryLocal(
         }
     }
 
+    override suspend fun deleteSessions(sessionIds: List<String>): Result<Unit> {
+        if (sessionIds.isEmpty()) {
+            return Result.success(Unit)
+        }
+        return mutex.withLock {
+            try {
+                store.edit { preferences ->
+                    for (id in sessionIds) {
+                        preferences.remove(stringPreferencesKey("$KEY_PREFIX$id"))
+                    }
+                }
+                if (sessionIds.contains(sessionId)) {
+                    held = null
+                }
+                log.debug { "forgot ${sessionIds.size} stored tokens" }
+                Result.success(Unit)
+            } catch (error: IOException) {
+                log.warn(error) { "the stored tokens cannot be forgotten" }
+                Result.failure(error)
+            }
+        }
+    }
+
+    override suspend fun ephemeralSessions(): Set<String> = preferences().asMap()
+        .filterKeys { key -> key.name.startsWith(KEY_PREFIX) }
+        .filterValues { stored -> stored is String && stored.startsWith(EPHEMERAL) }
+        .keys
+        .mapTo(mutableSetOf()) { key -> key.name.removePrefix(KEY_PREFIX) }
+
     /** What this conversation holds, read back from the device the first time. */
     private suspend fun current(): AuthToken? = held ?: read()?.also { stored -> held = stored }
 
@@ -113,8 +143,9 @@ internal class TokenRepositoryLocal(
             log.warn(error) { "the token cannot be encrypted, keeping it for this run only" }
             return token
         }
+        val mark = if (ephemeral) EPHEMERAL else PERSISTENT
         try {
-            store.edit { preferences -> preferences[entry] = encrypted }
+            store.edit { preferences -> preferences[entry] = mark + encrypted }
             log.debug { "stored the token" }
         } catch (error: IOException) {
             log.warn(error) { "the token cannot be stored, keeping it for this run only" }
@@ -122,19 +153,21 @@ internal class TokenRepositoryLocal(
         return token
     }
 
-    private suspend fun read(): AuthToken? {
-        val stored = store.data
-            .catch { error ->
-                if (error is IOException) {
-                    emit(emptyPreferences())
-                } else {
-                    throw error
-                }
+    private suspend fun preferences(): Preferences = store.data
+        .catch { error ->
+            if (error is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw error
             }
-            .first()[entry] ?: return null
+        }
+        .first()
+
+    private suspend fun read(): AuthToken? {
+        val stored = preferences()[entry] ?: return null
 
         return try {
-            decode(cipher.decrypt(stored))
+            decode(cipher.decrypt(stored.drop(1)))
         } catch (error: GeneralSecurityException) {
             // The key is gone or the value was not written by it, so there is
             // nothing to recover.
@@ -184,12 +217,14 @@ internal class TokenRepositoryLocal(
             context: Context,
             dataSource: YaloMessageAuthDataSource,
             sessionId: String,
+            ephemeral: Boolean = false,
             cipher: TokenCipher = KeystoreTokenCipher(),
             logLevel: LogLevel = LogLevel.Warn,
         ): TokenRepositoryLocal = TokenRepositoryLocal(
             dataSource = dataSource,
             store = context.applicationContext.authTokenStore,
             sessionId = sessionId,
+            ephemeral = ephemeral,
             cipher = cipher,
             logLevel = logLevel,
         )
@@ -199,6 +234,13 @@ internal class TokenRepositoryLocal(
         private const val FIELD_ACCESS_TOKEN = "access"
         private const val FIELD_REFRESH_TOKEN = "refresh"
         private const val FIELD_EXPIRES_AT = "expiresAt"
+
+        // Which kind of session stored the token, in front of it rather than
+        // inside it: a sweep has to be able to tell after the key that
+        // encrypted it has gone, and a device restored from a backup brings
+        // the file back without the key.
+        private const val EPHEMERAL = "e"
+        private const val PERSISTENT = "p"
     }
 }
 

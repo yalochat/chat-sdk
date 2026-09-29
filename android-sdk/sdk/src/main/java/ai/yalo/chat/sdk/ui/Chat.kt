@@ -2,7 +2,13 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.QuickReplyType
+import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.YaloChatClient
+import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.common.session.ChatSession
+import ai.yalo.chat.sdk.common.session.ephemeralIdOf
+import ai.yalo.chat.sdk.common.session.newEphemeralStamp
+import ai.yalo.chat.sdk.common.session.sessionOf
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.domain.models.ChatMessage
@@ -25,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -71,9 +78,10 @@ public fun Chat(
     onBack: (() -> Unit)? = null,
 ) {
     val context = LocalContext.current
+    val session = rememberChatSession(client.config)
     val viewModel: ChatViewModel = viewModel(
-        key = client.config.sessionId,
-        factory = ChatViewModel.factory(context, client),
+        key = session.id,
+        factory = ChatViewModel.factory(context, client, session),
     )
     // The line to the channel is worth holding only while the chat is on screen.
     LifecycleStartEffect(viewModel) {
@@ -115,6 +123,24 @@ public fun Chat(
             loadImage = viewModel::imageOf,
         )
     }
+}
+
+/**
+ * The conversation this chat is on.
+ *
+ * In [SessionMode.Ephemeral] the id that tells one conversation from the next
+ * is held in saved state, so turning the device keeps the conversation and
+ * starting the app again begins a new one. Two ephemeral chats written at
+ * the same place in the code, in a loop or a list, are restored by position
+ * and would come back as one, so wrap those in `key(...)`.
+ */
+@Composable
+private fun rememberChatSession(config: YaloChatClientConfig): ChatSession {
+    if (config.sessionMode != SessionMode.Ephemeral) {
+        return remember(config) { sessionOf(config) }
+    }
+    val stamp: String = rememberSaveable(config.baseSessionId) { newEphemeralStamp() }
+    return remember(config, stamp) { sessionOf(config, ephemeralIdOf(stamp)) }
 }
 
 /**

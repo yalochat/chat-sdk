@@ -200,6 +200,58 @@ class ChatMessageRepositoryLocalTest {
     }
 
     @Test
+    fun forgetsSeveralConversationsAtOnceAndLeavesTheRestAlone() = runBlocking {
+        val support = repository("support-session")
+        val sales = repository("sales-session")
+        val billing = repository("billing-session")
+        support.insert(userMessage("Support draft"))
+        sales.insert(userMessage("Sales draft"))
+        billing.insert(userMessage("Billing draft"))
+
+        val forgotten = support.deleteSessions(listOf("support-session", "sales-session"))
+
+        assertTrue(forgotten.isSuccess)
+        assertEquals(emptyList<String>(), support.messages().getOrThrow().map { it.content })
+        assertEquals(emptyList<String>(), sales.messages().getOrThrow().map { it.content })
+        assertEquals(listOf("Billing draft"), billing.messages().getOrThrow().map { it.content })
+    }
+
+    @Test
+    fun forgetsAConversationItIsNotTheOneFor() = runBlocking {
+        val support = repository("support-session")
+        val sales = repository("sales-session")
+        sales.insert(userMessage("Sales draft"))
+
+        support.deleteSessions(listOf("sales-session"))
+
+        assertEquals(emptyList<String>(), sales.messages().getOrThrow().map { it.content })
+    }
+
+    @Test
+    fun takesConversationsItHasNothingStoredFor() = runBlocking {
+        val repository = repository()
+        repository.insert(userMessage("Draft"))
+
+        assertTrue(repository.deleteSessions(emptyList()).isSuccess)
+        assertTrue(repository.deleteSessions(listOf("never-heard-of-it")).isSuccess)
+        assertEquals(listOf("Draft"), repository.messages().getOrThrow().map { it.content })
+    }
+
+    @Test
+    fun forgetsMoreConversationsThanOneStatementCanHold() = runBlocking {
+        val sessionIds: List<String> = (1..1_000).map { number -> "session-$number" }
+        for (sessionId in sessionIds) {
+            repository(sessionId).insert(userMessage("Draft in $sessionId"))
+        }
+
+        val forgotten = repository().deleteSessions(sessionIds)
+
+        assertTrue(forgotten.isSuccess)
+        assertEquals(emptyList<String>(), repository("session-1").messages().getOrThrow())
+        assertEquals(emptyList<String>(), repository("session-1000").messages().getOrThrow())
+    }
+
+    @Test
     fun readsBackATypeItDoesNotKnowAsUnknown() = runBlocking {
         val repository = repository()
         repository.insert(

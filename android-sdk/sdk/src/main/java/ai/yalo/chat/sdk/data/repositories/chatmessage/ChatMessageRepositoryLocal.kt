@@ -54,6 +54,24 @@ internal class ChatMessageRepositoryLocal(
         }
     }
 
+    override suspend fun deleteSessions(sessionIds: List<String>): Result<Unit> = withContext(dispatcher) {
+        try {
+            // SQLite takes at most 999 bound values in one statement.
+            for (batch in sessionIds.chunked(DELETE_BATCH)) {
+                database.writableDatabase.delete(
+                    ChatMessageDatabaseDataSource.MESSAGE_TABLE,
+                    "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} IN (${batch.placeholders()})",
+                    batch.toTypedArray(),
+                )
+            }
+            Result.success(Unit)
+        } catch (error: SQLException) {
+            Result.failure(error)
+        }
+    }
+
+    private fun List<String>.placeholders(): String = joinToString(separator = ",") { "?" }
+
     private fun store(message: ChatMessage): ChatMessage {
         val alreadyStored = message.wiId?.let { wiId -> findByWiId(wiId) }
         if (alreadyStored != null) {
@@ -137,5 +155,10 @@ internal class ChatMessageRepositoryLocal(
         } else {
             getString(index)
         }
+    }
+
+    private companion object {
+
+        private const val DELETE_BATCH = 900
     }
 }

@@ -58,6 +58,28 @@ class YaloMessageAuthRemoteDataSourceTest {
     }
 
     @Test
+    fun identifiesTheSessionRatherThanTheConfiguredUser() = runBlocking {
+        server.enqueue(tokenResponse())
+
+        dataSource(config(userId = "user-1"), authUserId = "user-1-188hajw").authenticate()
+
+        val body = JSONObject(server.takeRequest().text())
+        assertEquals("third_party_anonymous", body.getString("user_type"))
+        assertEquals("user-1-188hajw", body.getString("user_id"))
+    }
+
+    @Test
+    fun asksForAFreshPersonWhenTheSessionHasNoOne() = runBlocking {
+        server.enqueue(tokenResponse())
+
+        dataSource(config(userId = "user-1"), authUserId = null).authenticate()
+
+        val body = JSONObject(server.takeRequest().text())
+        assertEquals("anonymous", body.getString("user_type"))
+        assertEquals(false, body.has("user_id"))
+    }
+
+    @Test
     fun sendsTheChannelItIsAuthenticatingFor() = runBlocking {
         server.enqueue(tokenResponse())
 
@@ -158,9 +180,11 @@ class YaloMessageAuthRemoteDataSourceTest {
 
     private fun dataSource(
         config: YaloChatClientConfig = config(),
+        authUserId: String? = config.userId,
         baseUrl: HttpUrl = server.url("/"),
     ): YaloMessageAuthRemoteDataSource = YaloMessageAuthRemoteDataSource(
         config = config,
+        authUserId = authUserId,
         baseUrl = baseUrl,
         now = { NOW },
         logLevel = LogLevel.Debug,

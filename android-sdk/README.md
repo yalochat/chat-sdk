@@ -11,6 +11,7 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [Open context](#open-context)
+- [Session modes](#session-modes)
 - [The Chat composable](#the-chat-composable)
   - [Sizing and window insets](#sizing-and-window-insets)
   - [Avatar](#avatar)
@@ -97,11 +98,12 @@ Optional properties:
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them.
 - **`openContext`** (`Map<String, String>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
+- **`sessionMode`** (`SessionMode`): How the conversation is scoped, and whether it is remembered between visits. Defaults to `SessionMode.Shared`, which is one conversation per person, remembered. See [Session modes](#session-modes).
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 
-Two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages.
+In the default `SessionMode.Shared`, two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages. The other modes narrow that further. See [Session modes](#session-modes).
 
 ## Open context
 
@@ -125,7 +127,38 @@ What to expect:
 - The keys and values are yours. The channel decides what to make of them.
 - The loading indicator is shown while the chat waits for the channel to say the first thing.
 
-The context is part of the configuration, so a chat opened from somewhere else needs its own client.
+The context is part of the configuration, so a chat opened from somewhere else needs its own client. By default every context shares one conversation. To give each its own, set `sessionMode` to `SessionMode.PerContext`. See [Session modes](#session-modes).
+
+## Session modes
+
+`sessionMode` decides how a conversation is scoped and whether it is remembered.
+
+```kotlin
+private val client = YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        sessionMode = SessionMode.Ephemeral,
+    ),
+)
+```
+
+The modes:
+
+- **`SessionMode.Shared`** (default): one conversation per person, remembered until the app's data is cleared. What the chat was opened from makes no difference to which conversation is shown.
+- **`SessionMode.PerContext`**: one conversation per `openContext`, remembered the same way. Two chats opened from the same context carry on the same conversation, and a different context starts its own. A chat with no `openContext` behaves like `Shared`.
+- **`SessionMode.Ephemeral`**: a new conversation every time, and nothing left behind once it ends.
+
+What to expect from `Ephemeral`:
+
+- Turning the device keeps the conversation, the same way the rest of the screen survives it.
+- Starting the app again begins a new conversation. The messages, the token and anything the conversation kept on disk are deleted.
+- What a crash or a force stop did not get to delete is deleted the next time the app runs.
+- Two chats shown at once are two conversations, even when they were built from the same client.
+- An ephemeral chat written inside a loop or a list needs a `key(...)` around it, so two of them are not restored as one.
+
+Each mode is also its own person to the channel, so a conversation scoped by context or by a single visit does not pick up what another one said.
 
 ## The Chat composable
 

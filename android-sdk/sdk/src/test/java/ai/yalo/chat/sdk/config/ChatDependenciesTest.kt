@@ -2,6 +2,8 @@
 package ai.yalo.chat.sdk.config
 
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.common.session.sessionOf
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Test
@@ -22,6 +24,7 @@ class ChatDependenciesTest {
         assertNotNull(dependencies.voice)
         assertNotNull(dependencies.images)
         assertNotNull(dependencies.yaloMessages)
+        assertNotNull(dependencies.scope)
     }
 
     @Test
@@ -36,12 +39,27 @@ class ChatDependenciesTest {
         assertSame(dependencies.yaloMessages, dependencies.yaloMessages)
     }
 
-    private fun dependencies() = ChatDependencies(
-        context = RuntimeEnvironment.getApplication(),
-        config = YaloChatClientConfig(
+    @Test
+    fun givesEverySessionItsOwnPlaceOnDisk() {
+        val dependencies = dependencies()
+
+        assertEquals(
+            dependencies.sessionFiles("a-session").parentFile,
+            dependencies.sessionFiles("another-session").parentFile,
+        )
+        assertEquals("a-session", dependencies.sessionFiles("a-session").name)
+    }
+
+    private fun dependencies(): ChatDependencies {
+        val config = YaloChatClientConfig(
             channelId = "channel-1",
             organizationId = "org-1",
             channelName = "Support",
-        ),
-    )
+        )
+        return ChatDependencies(
+            context = RuntimeEnvironment.getApplication(),
+            config = config,
+            session = sessionOf(config),
+        )
+    }
 }

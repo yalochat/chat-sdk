@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.FakeImageRepository
+import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.data.repositories.media.FakeMediaRepository
 import ai.yalo.chat.sdk.data.repositories.voice.FakeVoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
@@ -16,7 +17,10 @@ import ai.yalo.chat.sdk.domain.models.VoiceNote
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.runBlocking
@@ -37,6 +41,7 @@ import org.junit.runner.RunWith
 import org.junit.rules.TemporaryFolder
 import org.robolectric.RobolectricTestRunner
 import java.io.File
+import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
@@ -47,6 +52,12 @@ class ChatViewModelTest {
     private val mediaRepository = FakeMediaRepository()
     private val voiceRepository = FakeVoiceRepository()
     private val imageRepository = FakeImageRepository()
+    private val tokenRepository = FakeTokenRepository()
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+    private val sessionsDir: File = File.createTempFile("sessions", "").also {
+        it.delete()
+        it.mkdirs()
+    }
     private val scheduler = TestCoroutineScheduler()
 
     @get:Rule
@@ -948,10 +959,77 @@ class ChatViewModelTest {
         buttons = buttons,
     )
 
+    @Test
+    fun forgetsASessionAnEarlierRunLeftBehind() {
+        tokenRepository.ephemeralSessions.add("a-visit-nobody-is-coming-back-for")
+        val viewModel = chatViewModel(sessionId = "this-chat")
+
+        viewModel.sweepAbandonedSessions()
+        settle()
+
+        assertEquals(
+            listOf("a-visit-nobody-is-coming-back-for"),
+            chatMessageRepository.deletedSessions,
+        )
+    }
+
+    @Test
+    fun leavesTheConversationThatIsOpenAlone() {
+        val viewModel = chatViewModel(sessionId = "this-chat", ephemeral = true)
+        tokenRepository.ephemeralSessions.add("this-chat")
+
+        viewModel.sweepAbandonedSessions()
+        settle()
+
+        assertEquals(emptyList<String>(), chatMessageRepository.deletedSessions)
+    }
+
+    @Test
+    fun sweepsNothingWhenNoSessionEverLeftAnythingBehind() {
+        val viewModel = chatViewModel(sessionId = "this-chat")
+
+        viewModel.sweepAbandonedSessions()
+        settle()
+
+        assertEquals(emptyList<String>(), chatMessageRepository.deletedSessions)
+        assertEquals(emptyList<String>(), tokenRepository.deletedSessions)
+    }
+
+    @Test
+    fun forgetsAnEphemeralConversationAndItsFilesWhenItIsOver() {
+        val kept = File(sessionsDir, "this-chat").also { it.mkdirs() }
+        File(kept, "a-recording.m4a").writeText("sound")
+        endChat(chatViewModel(sessionId = "this-chat", ephemeral = true))
+
+        assertEquals(listOf("this-chat"), chatMessageRepository.deletedSessions)
+        assertEquals(listOf("this-chat"), tokenRepository.deletedSessions)
+        assertFalse(kept.exists())
+    }
+
+    @Test
+    fun keepsAConversationThatIsRememberedWhenItIsOver() {
+        val kept = File(sessionsDir, "this-chat").also { it.mkdirs() }
+        endChat(chatViewModel(sessionId = "this-chat"))
+
+        assertEquals(emptyList<String>(), chatMessageRepository.deletedSessions)
+        assertTrue(kept.exists())
+    }
+
+    @Test
+    fun keepsAConversationTheStorageCouldNotForget() {
+        chatMessageRepository.failure = IOException("the database is gone")
+        endChat(chatViewModel(sessionId = "this-chat", ephemeral = true))
+
+        // Left for the next run to find, which the stored token is what marks.
+        assertEquals(emptyList<String>(), tokenRepository.deletedSessions)
+    }
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
         openContext: Map<String, String> = emptyMap(),
+        sessionId: String = "this-chat",
+        ephemeral: Boolean = false,
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
@@ -960,10 +1038,33 @@ class ChatViewModelTest {
         mediaRepository = mediaRepository,
         voiceRepository = voiceRepository,
         imageRepository = imageRepository,
+        tokenRepository = tokenRepository,
+        sessionId = sessionId,
+        ephemeral = ephemeral,
+        sessionFiles = { id -> File(sessionsDir, id) },
+        sessionScope = sessionScope,
         hostMessages = hostMessages,
         openContext = openContext,
         now = { SENT_AT },
     )
+
+    /** Takes the chat away for good, the way its host going away would. */
+    private fun endChat(viewModel: ChatViewModel) {
+        ViewModelStore().apply {
+            put("chat", viewModel)
+            clear()
+        }
+        settle()
+    }
+
+    /** Waits for the tidying up, which is handed to [sessionScope] and not awaited. */
+    private fun settle() {
+        runBlocking {
+            for (work in sessionScope.coroutineContext.job.children.toList()) {
+                work.join()
+            }
+        }
+    }
 
     /** Puts [messages] in storage, the way an earlier visit would have left them. */
     private fun alreadyStored(vararg messages: ChatMessage) {

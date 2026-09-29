@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.R
+import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
@@ -14,6 +15,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -143,6 +145,39 @@ class ChatTest {
         composeRule.onAllNodesWithTag(CHAT_INPUT_TAG)[0].performTextInput("Hello")
 
         composeRule.onAllNodesWithText("Hello").assertCountEquals(2)
+    }
+
+    @Test
+    fun keepsTwoEphemeralChatsApartEvenOnOneClient() {
+        val ephemeral = YaloChatClient(client.config.copy(sessionMode = SessionMode.Ephemeral))
+        composeRule.setContent {
+            Column {
+                Box(modifier = Modifier.weight(1f)) {
+                    Chat(ephemeral)
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    Chat(ephemeral)
+                }
+            }
+        }
+
+        composeRule.onAllNodesWithTag(CHAT_INPUT_TAG)[0].performTextInput("Hello")
+
+        composeRule.onAllNodesWithText("Hello").assertCountEquals(1)
+    }
+
+    @Test
+    fun keepsAnEphemeralConversationWhenTheScreenIsBuiltAgain() {
+        val ephemeral = YaloChatClient(client.config.copy(sessionMode = SessionMode.Ephemeral))
+        val restoration = StateRestorationTester(composeRule)
+        restoration.setContent {
+            Chat(ephemeral)
+        }
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTextInput("Hello")
+
+        restoration.emulateSavedInstanceStateRestore()
+
+        composeRule.onAllNodesWithText("Hello").assertCountEquals(1)
     }
 
     @Test

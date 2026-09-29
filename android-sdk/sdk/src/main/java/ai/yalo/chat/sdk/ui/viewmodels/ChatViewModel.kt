@@ -1,13 +1,16 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.common.images.decodeImage
+import ai.yalo.chat.sdk.common.session.ChatSession
 import ai.yalo.chat.sdk.data.datasources.media.MediaContent
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.ImageRepository
 import ai.yalo.chat.sdk.data.repositories.media.MediaRepository
+import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepository
@@ -32,6 +35,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +45,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -92,6 +98,17 @@ internal class ChatViewModel(
     private val mediaRepository: MediaRepository,
     private val voiceRepository: VoiceRepository,
     private val imageRepository: ImageRepository,
+    private val tokenRepository: TokenRepository,
+    private val sessionId: String,
+    private val ephemeral: Boolean,
+    /** Where a session keeps what it put on disk, for any session id. */
+    private val sessionFiles: (String) -> File,
+    /**
+     * Where tidying up runs. It has to outlive this view model, because
+     * tidying up starts as the view model is being cleared and
+     * `viewModelScope` is already cancelled by then.
+     */
+    private val sessionScope: CoroutineScope,
     hostMessages: Flow<String> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val now: () -> Long = System::currentTimeMillis,
@@ -113,6 +130,11 @@ internal class ChatViewModel(
     private var replyDeadline: Job? = null
 
     init {
+        if (ephemeral) {
+            // Said before anything reads, so the sweep below never takes the
+            // conversation this chat is opening.
+            openSessions.add(sessionId)
+        }
         yaloMessageRepository.connect()
         viewModelScope.launch {
             // Only a conversation read back as empty is opened: storage failing
@@ -416,6 +438,61 @@ internal class ChatViewModel(
     override fun onCleared() {
         yaloMessageRepository.close()
         voiceRepository.release()
+        endSession()
+    }
+
+    /**
+     * Forgets what the sessions of earlier runs of the app left behind.
+     *
+     * An app is one process, so a session that stored an ephemeral token in an
+     * earlier run and is not open now is one nothing is coming back for. It
+     * runs whatever mode this chat is in, because an app that has moved off
+     * ephemeral is the one case where nothing else would ever reach them.
+     *
+     * Whose job it is to call this, and how often, belongs to whoever builds
+     * the chat. It must come after a chat has said it is open, which building
+     * one does.
+     */
+    fun sweepAbandonedSessions() {
+        sessionScope.launch {
+            val abandoned: List<String> =
+                (tokenRepository.ephemeralSessions() - openSessions).toList()
+            if (abandoned.isEmpty()) {
+                return@launch
+            }
+            forget(abandoned)
+        }
+    }
+
+    /**
+     * Says this conversation is over, and forgets it if it was ephemeral.
+     *
+     * The conversation is over rather than merely off screen: this is not
+     * reached for a rotation, which keeps the view model.
+     */
+    private fun endSession() {
+        if (!ephemeral) {
+            return
+        }
+        openSessions.remove(sessionId)
+        sessionScope.launch {
+            forget(listOf(sessionId))
+        }
+    }
+
+    /**
+     * The stored token is what says a session was ephemeral, so it goes last:
+     * anything that fails before it leaves a session the next run finds again
+     * rather than one nothing will ever come back to.
+     */
+    private suspend fun forget(sessionIds: List<String>) {
+        if (chatMessageRepository.deleteSessions(sessionIds).isFailure) {
+            return
+        }
+        for (id in sessionIds) {
+            sessionFiles(id).deleteRecursively()
+        }
+        tokenRepository.deleteSessions(sessionIds)
     }
 
     /**
@@ -463,16 +540,22 @@ internal class ChatViewModel(
 
         private const val DRAFT_KEY = "yalo-chat-draft"
 
+        private val swept = AtomicBoolean(false)
+
+        /** The ephemeral conversations open in this run of the app. */
+        private val openSessions: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
         /** How long the loader waits before deciding no reply is coming. */
         private val REPLY_TIMEOUT = 45.seconds
 
         fun factory(
             context: Context,
             client: YaloChatClient,
+            session: ChatSession,
         ): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val dependencies = ChatDependencies(context, client.config)
-                ChatViewModel(
+                val dependencies = ChatDependencies(context, client.config, session)
+                val viewModel = ChatViewModel(
                     title = client.config.channelName,
                     chatMessageRepository = dependencies.chatMessages,
                     yaloMessageRepository = dependencies.yaloMessages,
@@ -480,9 +563,19 @@ internal class ChatViewModel(
                     mediaRepository = dependencies.media,
                     voiceRepository = dependencies.voice,
                     imageRepository = dependencies.images,
+                    tokenRepository = dependencies.auth,
+                    sessionId = session.id,
+                    ephemeral = client.config.sessionMode == SessionMode.Ephemeral,
+                    sessionFiles = dependencies.sessionFiles,
+                    sessionScope = dependencies.scope,
                     hostMessages = client.outgoingTextMessages,
                     openContext = client.config.openContext,
                 )
+                // Once a run of the app, from whichever chat opens first.
+                if (swept.compareAndSet(false, true)) {
+                    viewModel.sweepAbandonedSessions()
+                }
+                viewModel
             }
         }
     }

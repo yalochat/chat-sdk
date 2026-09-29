@@ -17,9 +17,17 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 
-/** Talks to the OAuth endpoints, one request per call and nothing kept. */
+/**
+ * Talks to the OAuth endpoints, one request per call and nothing kept.
+ *
+ * [authUserId] is who the backend is told it is talking to. It is the session's
+ * rather than the config's, because a session scoped by context or by a single
+ * visit has to be its own person on the backend as well as on the device. Null
+ * asks for a fresh anonymous one.
+ */
 internal class YaloMessageAuthRemoteDataSource(
     private val config: YaloChatClientConfig,
+    private val authUserId: String?,
     baseUrl: HttpUrl,
     private val client: OkHttpClient = OkHttpClient(),
     private val now: () -> Long = System::currentTimeMillis,
@@ -32,11 +40,11 @@ internal class YaloMessageAuthRemoteDataSource(
     override suspend fun authenticate(): Result<AuthToken> {
         log.info { "authenticating" }
         val body = JSONObject()
-            .put(FIELD_USER_TYPE, if (config.userId == null) USER_ANONYMOUS else USER_THIRD_PARTY)
+            .put(FIELD_USER_TYPE, if (authUserId == null) USER_ANONYMOUS else USER_THIRD_PARTY)
             .put(FIELD_CHANNEL_ID, config.channelId)
             .put(FIELD_ORGANIZATION_ID, config.organizationId)
             .put(FIELD_TIMESTAMP, now() / MILLIS_PER_SECOND)
-        config.userId?.let { userId -> body.put(FIELD_USER_ID, userId) }
+        authUserId?.let { userId -> body.put(FIELD_USER_ID, userId) }
 
         return call(
             Request.Builder()
