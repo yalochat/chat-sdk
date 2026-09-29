@@ -23,6 +23,13 @@ internal interface ChatMessageRepository {
 
     suspend fun clearSession(): Result<Unit>
 
+    /**
+     * Forgets the messages of [sessionIds], which do not have to include the
+     * one this repository is bound to. Sessions with nothing stored are no
+     * error, so a caller can pass ids another path may already have taken.
+     */
+    suspend fun deleteSessions(sessionIds: List<String>): Result<Unit>
+
     companion object {
         const val DEFAULT_PAGE_SIZE: Int = 50
     }

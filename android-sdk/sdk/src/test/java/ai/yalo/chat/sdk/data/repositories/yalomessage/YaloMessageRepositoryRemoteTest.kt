@@ -5,7 +5,7 @@ import ai.yalo.chat.sdk.data.datasources.message.InboundMessage
 import ai.yalo.chat.sdk.data.datasources.message.MessageAcknowledged
 import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
-import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
+import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -937,19 +937,6 @@ class YaloMessageRepositoryRemoteTest {
         override suspend fun close() {
             isForgotten = true
         }
-    }
-
-    private class FakeTokenRepository : TokenRepository {
-
-        var current: String = "access"
-        var failure: Throwable? = null
-
-        override suspend fun token(): Result<String> =
-            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
-
-        override suspend fun invalidateToken() = Unit
-
-        override suspend fun clearSession() = Unit
     }
 
     private companion object {

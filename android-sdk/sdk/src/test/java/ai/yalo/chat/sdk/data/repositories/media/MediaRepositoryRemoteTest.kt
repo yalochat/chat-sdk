@@ -5,7 +5,7 @@ import ai.yalo.chat.sdk.data.datasources.media.Media
 import ai.yalo.chat.sdk.data.datasources.media.MediaContent
 import ai.yalo.chat.sdk.data.datasources.media.StaleTokenException
 import ai.yalo.chat.sdk.data.datasources.media.YaloMediaDataSource
-import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
+import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.domain.models.MessageType
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -135,20 +135,4 @@ class MediaRepositoryRemoteTest {
         }
     }
 
-    private class FakeTokenRepository : TokenRepository {
-
-        var current: String = "access"
-        var failure: Throwable? = null
-        var invalidations: Int = 0
-
-        override suspend fun token(): Result<String> =
-            failure?.let { cause -> Result.failure(cause) } ?: Result.success(current)
-
-        override suspend fun invalidateToken() {
-            invalidations++
-            current = "refreshed"
-        }
-
-        override suspend fun clearSession() = Unit
-    }
 }

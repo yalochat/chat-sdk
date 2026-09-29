@@ -15,6 +15,9 @@ internal class FakeChatMessageRepository(
 
     private val stored = mutableListOf<ChatMessage>()
 
+    /** The sessions a caller asked to be forgotten, newest last. */
+    val deletedSessions: MutableList<String> = mutableListOf()
+
     override suspend fun insert(message: ChatMessage): Result<ChatMessage> {
         failure?.let { error -> return Result.failure(error) }
         val alreadyStored = message.wiId?.let { wiId -> stored.firstOrNull { it.wiId == wiId } }
@@ -34,6 +37,12 @@ internal class FakeChatMessageRepository(
     override suspend fun clearSession(): Result<Unit> {
         failure?.let { error -> return Result.failure(error) }
         stored.clear()
+        return Result.success(Unit)
+    }
+
+    override suspend fun deleteSessions(sessionIds: List<String>): Result<Unit> {
+        failure?.let { error -> return Result.failure(error) }
+        deletedSessions.addAll(sessionIds)
         return Result.success(Unit)
     }
 }

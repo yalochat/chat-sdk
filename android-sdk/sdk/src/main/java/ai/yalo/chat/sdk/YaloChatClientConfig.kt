@@ -9,6 +9,10 @@ package ai.yalo.chat.sdk
  * opens on an empty conversation, so the first thing said can be about what
  * the person is doing rather than a generic greeting. Fixed for the life of
  * the client.
+ * @property sessionMode How the conversation is scoped, and whether it is
+ * remembered between visits. Defaults to [SessionMode.Shared], which is one
+ * conversation per person, remembered. Named after the same setting in the web
+ * SDK so the two read alike.
  * @property hideVoiceButton Whether the microphone is left out of the message
  * input. With it on, the send button is always there instead of appearing once
  * something has been typed, and nobody can record a voice message. Named after
@@ -28,24 +32,25 @@ public data class YaloChatClientConfig(
     public val quickReplyType: QuickReplyType = QuickReplyType.Modal,
     public val logLevel: LogLevel = LogLevel.Warn,
     public val openContext: Map<String, String> = emptyMap(),
+    public val sessionMode: SessionMode = SessionMode.Shared,
     public val hideVoiceButton: Boolean = false,
     public val hideAttachmentButton: Boolean = false,
     public val hideWatermark: Boolean = false,
 ) {
 
     /**
-     * The conversation this config points at.
+     * The conversation this config points at before [sessionMode] has had its
+     * say.
      *
-     * An app can show several chats at once, and two of them are the same
-     * conversation when they resolve to the same session. Everything scoped to
-     * a conversation keys off this: the view model an open chat gets, and the
-     * rows a single shared database hands back.
+     * This is the whole session in [SessionMode.Shared] and the start of it in
+     * the other modes, which add what tells two of their conversations apart.
+     * Everything scoped to a conversation keys off the session built from it:
+     * the view model an open chat gets, and the rows a single shared database
+     * hands back.
      *
      * Built the same way as `computeSessionId` in the web SDK so both clients
-     * agree on what one session is. The web SDK also appends an `openContext`
-     * hash in `perContext` mode and a token in `ephemeral` mode; neither mode
-     * exists here yet, and this has to grow the same way when they arrive.
+     * agree on what one session is.
      */
-    internal val sessionId: String
+    internal val baseSessionId: String
         get() = "$organizationId-$channelId-${userId ?: "anonymous"}"
 }

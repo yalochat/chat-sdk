@@ -7,6 +7,9 @@ package ai.yalo.chat.sdk.data.repositories.token
  *
  * Whoever asks never has to know whether the answer came from the device, from
  * a refresh or from authenticating, and never has to look at the clock.
+ *
+ * A stored token also says whether its session is meant to leave nothing
+ * behind, which is what a sweep goes looking for.
  */
 internal interface TokenRepository {
 
@@ -18,4 +21,20 @@ internal interface TokenRepository {
 
     /** Forgets the conversation, on the device as well as in memory. */
     suspend fun clearSession()
+
+    /**
+     * Forgets the tokens of [sessionIds], which do not have to include the one
+     * this repository is bound to. Sessions with nothing stored are no error,
+     * so a caller can pass ids another path may already have taken.
+     */
+    suspend fun deleteSessions(sessionIds: List<String>): Result<Unit>
+
+    /**
+     * The sessions whose stored token says they are to leave nothing behind.
+     *
+     * Read without decrypting anything, so a session is still found after the
+     * key behind the tokens has gone. One that could not be read would be one
+     * that sat on the device for good.
+     */
+    suspend fun ephemeralSessions(): Set<String>
 }

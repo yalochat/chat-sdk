@@ -211,6 +211,104 @@ class TokenRepositoryLocalTest {
     }
 
     @Test
+    fun forgetsSeveralSessionsAtOnceAndLeavesTheRestAlone() = runBlocking {
+        repository(sessionId = "a").token()
+        dataSource.issued = AuthToken("for-b", "refresh", LATER)
+        repository(sessionId = "b").token()
+        dataSource.issued = AuthToken("for-c", "refresh", LATER)
+        repository(sessionId = "c").token()
+
+        val forgotten = repository(sessionId = "a").deleteSessions(listOf("a", "b"))
+
+        assertTrue(forgotten.isSuccess)
+        assertNull(storedValue(sessionId = "a"))
+        assertNull(storedValue(sessionId = "b"))
+        assertEquals("for-c", repository(sessionId = "c").token().getOrNull())
+    }
+
+    @Test
+    fun stopsHandingOutATokenItWasToldToForget() = runBlocking {
+        dataSource.issued = AuthToken("first", "", LATER)
+        val repository = repository(sessionId = "a")
+        repository.token()
+
+        repository.deleteSessions(listOf("a"))
+        dataSource.issued = AuthToken("second", "", LATER)
+
+        assertEquals("second", repository.token().getOrNull())
+    }
+
+    @Test
+    fun keepsWhatItHoldsWhenAnotherSessionIsForgotten() = runBlocking {
+        dataSource.issued = AuthToken("first", "", LATER)
+        val repository = repository(sessionId = "a")
+        repository.token()
+
+        repository.deleteSessions(listOf("b"))
+        dataSource.issued = AuthToken("second", "", LATER)
+
+        assertEquals("first", repository.token().getOrNull())
+    }
+
+    @Test
+    fun takesSessionsItHasNothingStoredFor() = runBlocking {
+        val repository = repository(sessionId = "a")
+
+        assertTrue(repository.deleteSessions(emptyList()).isSuccess)
+        assertTrue(repository.deleteSessions(listOf("never-heard-of-it")).isSuccess)
+    }
+
+    @Test
+    fun listsOnlyTheSessionsThatAreToLeaveNothingBehind() = runBlocking {
+        repository(sessionId = "a-visit", ephemeral = true).token()
+        dataSource.issued = AuthToken("for-b", "refresh", LATER)
+        repository(sessionId = "a-conversation").token()
+
+        assertEquals(setOf("a-visit"), repository().ephemeralSessions())
+    }
+
+    @Test
+    fun hasNothingToSweepToBeginWith() = runBlocking {
+        assertEquals(emptySet<String>(), repository().ephemeralSessions())
+    }
+
+    @Test
+    fun handsBackAnEphemeralSessionsOwnTokenUnchanged() = runBlocking {
+        dataSource.issued = AuthToken("for-a-visit", "refresh", LATER)
+        repository(sessionId = "a-visit", ephemeral = true).token()
+        // Anything else answering says the stored one could not be read back.
+        dataSource.issued = AuthToken("a-different-one", "refresh", LATER)
+
+        assertEquals(
+            "for-a-visit",
+            repository(sessionId = "a-visit", ephemeral = true).token().getOrNull(),
+        )
+    }
+
+    @Test
+    fun takesASessionOffTheListWhenItsTokenIsForgotten() = runBlocking {
+        repository(sessionId = "a-visit", ephemeral = true).token()
+
+        repository().deleteSessions(listOf("a-visit"))
+
+        assertEquals(emptySet<String>(), repository().ephemeralSessions())
+    }
+
+    @Test
+    fun keepsTheListWhereEveryChatCanSeeIt() = runBlocking {
+        repository(sessionId = "a-visit", ephemeral = true).token()
+
+        assertEquals(setOf("a-visit"), repository(sessionId = "another-chat").ephemeralSessions())
+    }
+
+    @Test
+    fun readsNothingToSweepWhenTheFileCannotBeRead() = runBlocking {
+        file.writeText("not a preferences file")
+
+        assertEquals(emptySet<String>(), repository().ephemeralSessions())
+    }
+
+    @Test
     fun leavesNoTokenReadableInTheFile() = runBlocking {
         dataSource.issued = AuthToken("secret-access", "secret-refresh", LATER)
 
@@ -309,11 +407,13 @@ class TokenRepositoryLocalTest {
 
     private fun repository(
         sessionId: String = "session",
+        ephemeral: Boolean = false,
         cipher: TokenCipher = ReversingCipher(),
     ): TokenRepositoryLocal = TokenRepositoryLocal(
         dataSource = dataSource,
         store = store,
         sessionId = sessionId,
+        ephemeral = ephemeral,
         cipher = cipher,
         now = { NOW },
         logLevel = LogLevel.Debug,
@@ -346,10 +446,24 @@ class TokenRepositoryLocalTest {
     }
 
     /** Stands in for the keystore: not encryption, but not the plain text either. */
+    /**
+     * Stands in for the keystore. It refuses anything it did not write, the
+     * way a real one refuses a value whose tag does not check out, so a test
+     * cannot pass by handing it something the device would have rejected.
+     */
     private class ReversingCipher : TokenCipher {
-        override fun encrypt(plain: String): String = plain.reversed()
+        override fun encrypt(plain: String): String = HEADER + plain.reversed()
 
-        override fun decrypt(encrypted: String): String = encrypted.reversed()
+        override fun decrypt(encrypted: String): String {
+            if (!encrypted.startsWith(HEADER)) {
+                throw GeneralSecurityException("not written by this key")
+            }
+            return encrypted.removePrefix(HEADER).reversed()
+        }
+
+        private companion object {
+            const val HEADER = "sealed:"
+        }
     }
 
     /** Stands in for a keystore that has lost the key. */

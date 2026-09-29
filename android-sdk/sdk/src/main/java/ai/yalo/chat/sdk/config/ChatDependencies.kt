@@ -2,7 +2,9 @@
 package ai.yalo.chat.sdk.config
 
 import ai.yalo.chat.sdk.BuildConfig
+import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.common.session.ChatSession
 import ai.yalo.chat.sdk.data.datasources.auth.YaloMessageAuthRemoteDataSource
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.data.datasources.image.ImageDeviceDataSource
@@ -42,35 +44,55 @@ import java.util.concurrent.TimeUnit
  *
  * What is per conversation lives here. The database underneath does not: every
  * chat in an app reads and writes the same one, scoped by session.
+ *
  */
 internal class ChatDependencies(
     context: Context,
     private val config: YaloChatClientConfig,
+    private val session: ChatSession,
+    /**
+     * Where everything built here runs its background work, and where tidying
+     * up after a conversation runs too. Never cancelled: that tidying up
+     * starts as the view model is being cleared, so a scope that died with the
+     * chat would drop it.
+     */
+    val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
 ) {
 
     private val applicationContext: Context = context.applicationContext
 
+    /**
+     * Everything one conversation keeps on disk, under a directory of its own
+     * so a session that must leave nothing behind can be deleted whole.
+     */
+    private val sessionsDir: File by lazy { File(applicationContext.filesDir, SESSIONS) }
+    private val sessionDir: File by lazy { File(sessionsDir, session.id) }
+
+    /** Where any session keeps what it put on disk, so it can be forgotten whole. */
+    val sessionFiles: (String) -> File = { sessionId -> File(sessionsDir, sessionId) }
+
     val chatMessages: ChatMessageRepository by lazy {
         ChatMessageRepositoryLocal(
             database = ChatMessageDatabaseDataSource.of(applicationContext, config.logLevel),
-            sessionId = config.sessionId,
+            sessionId = session.id,
         )
     }
 
     private val baseUrl: HttpUrl = "https://${BuildConfig.YALO_API_BASE_URL}".toHttpUrl()
     private val client: OkHttpClient by lazy { OkHttpClient() }
-    private val scope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
 
     val auth: TokenRepository by lazy {
         TokenRepositoryLocal.of(
             context = applicationContext,
             dataSource = YaloMessageAuthRemoteDataSource(
                 config = config,
+                authUserId = session.authUserId,
                 baseUrl = baseUrl,
                 client = client,
                 logLevel = config.logLevel,
             ),
-            sessionId = config.sessionId,
+            sessionId = session.id,
+            ephemeral = config.sessionMode == SessionMode.Ephemeral,
             logLevel = config.logLevel,
         )
     }
@@ -98,7 +120,7 @@ internal class ChatDependencies(
         VoiceRepositoryLocal(
             recorder = VoiceRecorderDeviceDataSource(applicationContext, config.logLevel),
             player = VoicePlayerDeviceDataSource(config.logLevel),
-            recordingsDir = File(applicationContext.filesDir, VOICE_RECORDINGS),
+            recordingsDir = File(sessionDir, VOICE_RECORDINGS),
             scope = scope,
             logLevel = config.logLevel,
         )
@@ -115,7 +137,7 @@ internal class ChatDependencies(
     val images: ImageRepository by lazy {
         ImageRepositoryLocal(
             source = ImageDeviceDataSource(applicationContext),
-            imagesDir = File(applicationContext.filesDir, IMAGES),
+            imagesDir = File(sessionDir, IMAGES),
             logLevel = config.logLevel,
         )
     }
@@ -141,10 +163,10 @@ internal class ChatDependencies(
 
     private companion object {
 
-
         private const val MEDIA_CACHE = "yalo-chat-media"
-        private const val VOICE_RECORDINGS = "yalo-chat-voice"
-        private const val IMAGES = "yalo-chat-images"
+        private const val SESSIONS = "yalo-chat-sessions"
+        private const val VOICE_RECORDINGS = "voice"
+        private const val IMAGES = "images"
         private const val PING_INTERVAL_SECONDS = 20L
     }
 }
