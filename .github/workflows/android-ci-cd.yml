@@ -95,7 +95,7 @@ jobs:
     env:
       YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL_PROD }}
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v6
@@ -150,12 +150,3 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
-
-      - name: Create GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "Android SDK v${{ steps.version.outputs.version }}" \
-            --generate-notes \
-            android-sdk/sdk/build/outputs/aar/sdk-release.aar
