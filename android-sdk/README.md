@@ -40,7 +40,7 @@ The SDK is published to Maven Central. Make sure `mavenCentral()` is in your rep
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("ai.yalo.chat:chat-android-sdk:0.0.1")
+    implementation("ai.yalo.chat:chat-android-sdk:0.1.0")
 }
 ```
 
