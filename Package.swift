@@ -5,6 +5,10 @@ import PackageDescription
 
 let package = Package(
     name: "YaloChatSDK",
+    defaultLocalization: "en",
+    platforms: [
+        .iOS(.v15),
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -18,6 +22,9 @@ let package = Package(
         .target(
             name: "YaloChatSDK",
             path: "ios-sdk/Sources/YaloChatSDK",
+            resources: [
+                .process("Resources"),
+            ],
             swiftSettings: [
                 .enableUpcomingFeature("ApproachableConcurrency"),
             ],
