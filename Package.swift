@@ -1,40 +1,34 @@
-// swift-tools-version:5.7
-// Copyright (c) Yalochat, Inc. All rights reserved.
+// swift-tools-version: 6.4
+// The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
-// YaloChatIosSDK — complete iOS chat SDK for Yalo.
-// Consumers add this package via File > Add Package Dependencies in Xcode
-// using the repo URL: https://github.com/yalochat/chat-sdk
-//
-// The SDK has two layers:
-//   YaloChatIosSDK — Swift/SwiftUI UI layer (this source target)
-//   ChatSdk        — KMP business logic (pre-compiled XCFramework)
 let package = Package(
-    name: "YaloChatIosSDK",
-    defaultLocalization: "en",
-    platforms: [
-        .iOS(.v15),
-    ],
+    name: "YaloChatSDK",
     products: [
+        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "YaloChatIosSDK",
-            targets: ["YaloChatIosSDK"]
+            name: "YaloChatSDK",
+            targets: ["YaloChatSDK"]
         ),
     ],
     targets: [
+        // Targets are the basic building blocks of a package, defining a module or a test suite.
+        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "YaloChatIosSDK",
-            dependencies: ["ChatSdk"],
+            name: "YaloChatSDK",
             path: "ios-sdk/Sources/YaloChatSDK",
-            resources: [
-                .process("Resources"),
-            ]
+            swiftSettings: [
+                .enableUpcomingFeature("ApproachableConcurrency"),
+            ],
         ),
-        .binaryTarget(
-            name: "ChatSdk",
-            url: "https://github.com/yalochat/chat-sdk/releases/download/v0.0.1/ChatSdk.xcframework.zip",
-            checksum: "0000000000000000000000000000000000000000000000000000000000000000"
+        .testTarget(
+            name: "YaloChatSDKTests",
+            dependencies: ["YaloChatSDK"],
+            path: "ios-sdk/Tests/YaloChatSDKTests",
+            swiftSettings: [
+                .enableUpcomingFeature("ApproachableConcurrency"),
+            ],
         ),
     ]
 )
