@@ -6,6 +6,10 @@
 	objectVersion = 90;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F3EBF6E930743FEB009FC7BA /* YaloChatSDK in Frameworks */ = {isa = PBXBuildFile; productRef = F3EBF6E830743FEB009FC7BA /* YaloChatSDK */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		000000000000000000000120 /* ExampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -22,6 +26,7 @@
 		000000000000000130000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				F3EBF6E930743FEB009FC7BA /* YaloChatSDK in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -31,6 +36,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000010 /* ExampleApp */,
+				F3EBF6E730743FEB009FC7BA /* Frameworks */,
 				000000000000000000000020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +47,13 @@
 				000000000000000000000120 /* ExampleApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F3EBF6E730743FEB009FC7BA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -60,6 +73,9 @@
 				000000000000000000000010 /* ExampleApp */,
 			);
 			name = ExampleApp;
+			packageProductDependencies = (
+				F3EBF6E830743FEB009FC7BA /* YaloChatSDK */,
+			);
 			productName = MyApp;
 			productReference = 000000000000000000000120 /* ExampleApp.app */;
 			productType = "com.apple.product-type.application";
@@ -88,6 +104,9 @@
 			);
 			mainGroup = 000000000000000000000001;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../../../chat-sdk-feature" */,
+			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 000000000000000000000020 /* Products */;
 			projectDirPath = "";
@@ -341,6 +360,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../../../chat-sdk-feature" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../chat-sdk-feature";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F3EBF6E830743FEB009FC7BA /* YaloChatSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../../../chat-sdk-feature" */;
+			productName = YaloChatSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 000000000000000000000000 /* Project object */;
 }

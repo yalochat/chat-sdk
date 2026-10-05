@@ -1,17 +1,12 @@
 import SwiftUI
-import Playgrounds
+import YaloChatSDK
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        Chat(title: "Yalo")
     }
 }
 
 #Preview {
     ContentView()
-}
-
-#Playground {
-    _ = 1 + 2
 }
