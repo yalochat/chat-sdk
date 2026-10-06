@@ -105,7 +105,7 @@
 			mainGroup = 000000000000000000000001;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../../../chat-sdk-feature" */,
+				F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../.." */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 000000000000000000000020 /* Products */;
@@ -362,16 +362,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../../../chat-sdk-feature" */ = {
+		F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../../chat-sdk-feature";
+			relativePath = "../..";
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		F3EBF6E830743FEB009FC7BA /* YaloChatSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../../../chat-sdk-feature" */;
+			package = F3EBF6DE30743D92009FC7BA /* XCLocalSwiftPackageReference "../.." */;
 			productName = YaloChatSDK;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -10,7 +10,7 @@ final class ChatDependencies {
     private let session: URLSession
 
     init(
-        baseURL: URL = URL(string: "https://\(BuildEnvironment.apiBaseURL)")!,
+        baseURL: URL = YaloAPI.baseURL,
         cacheDirectory: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0],
         session: URLSession = .shared
     ) {

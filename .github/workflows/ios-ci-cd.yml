@@ -1,0 +1,169 @@
+# Copyright (c) Yalochat, Inc. All rights reserved.
+
+name: iOS SDK Pipeline
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'ios-sdk/v*.*.*'
+    paths:
+      - 'ios-sdk/**'
+      - 'proto/swift/**'
+      - 'Package.swift'
+      - '.github/workflows/ios-ci-cd.yml'
+
+  pull_request:
+    paths:
+      - 'ios-sdk/**'
+      - 'proto/swift/**'
+      - 'Package.swift'
+      - '.github/workflows/ios-ci-cd.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # macOS runners have no Docker, so the scan runs on Linux like the other SDKs.
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Gitleaks Scan
+        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:latest detect --source="/code" -v
+
+  quality-gate:
+    # Package.swift needs Swift 6.4, which only the Xcode 27 image ships.
+    runs-on: xcode-27
+    env:
+      XCODE_VERSION: "27.0"
+      PACKAGES_DIR: ${{ github.workspace }}/.build/SourcePackages
+      RESULT_BUNDLE: ${{ github.workspace }}/.build/YaloChatSDK.xcresult
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app"
+          xcodebuild -version
+
+      - name: Pick iPhone simulator
+        id: simulator
+        # The runtime that matches the selected Xcode's iOS SDK.
+        run: |
+          RUNTIME="SimRuntime.iOS-$(xcrun --sdk iphonesimulator --show-sdk-version | tr . -)"
+          UDID="$(xcrun simctl list devices available -j | jq -r --arg runtime "$RUNTIME" '
+            [.devices | to_entries[]
+              | select(.key | endswith($runtime))
+              | .value[] | select(.name | startswith("iPhone"))]
+            | first | .udid')"
+          if [ -z "$UDID" ] || [ "$UDID" = "null" ]; then
+            echo "ERROR: no iPhone simulator for $RUNTIME"
+            exit 1
+          fi
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Swift packages
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.PACKAGES_DIR }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
+          restore-keys: ${{ runner.os }}-spm-
+
+      - name: Unit tests with coverage
+        run: |
+          xcodebuild test \
+            -scheme YaloChatSDK \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -clonedSourcePackagesDirPath "$PACKAGES_DIR" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE"
+
+      - name: Coverage report
+        run: xcrun xccov view --report --only-targets "$RESULT_BUNDLE"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-test-results
+          path: ${{ env.RESULT_BUNDLE }}
+          retention-days: 7
+
+      - name: Publish coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ios
+          plugins: xcode
+          xcode_archive_path: ${{ env.RESULT_BUNDLE }}
+
+      - name: Build release for device
+        # Same configuration integrators compile, so a broken release build
+        # fails on the pull request instead of at release time.
+        run: |
+          xcodebuild build \
+            -scheme YaloChatSDK \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -clonedSourcePackagesDirPath "$PACKAGES_DIR"
+
+      - name: Build example app
+        run: |
+          xcodebuild build \
+            -workspace ios-sdk/YaloChatSDK.xcworkspace \
+            -scheme ExampleApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -clonedSourcePackagesDirPath "$PACKAGES_DIR"
+
+  # SwiftPM only resolves plain semver tags, so the ios-sdk/vX.Y.Z tag from YRK
+  # gets a matching X.Y.Z tag on the same commit.
+  rollout:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs: [secrets-scan, quality-gate]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#ios-sdk/v}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: tag must be ios-sdk/vX.Y.Z (got: $GITHUB_REF_NAME)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Assert tag is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "ERROR: releases must be tagged on a commit merged into main"
+            exit 1
+          fi
+
+      - name: Guard against duplicate release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" > /dev/null; then
+            echo "ERROR: tag $VERSION already exists. Delete it before re-running."
+            exit 1
+          fi
+
+      - name: Tag SwiftPM version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "DevEx self service"
+          git config user.email "developer-acceleration@yalo.com"
+          git tag -a "$VERSION" -m "iOS SDK $VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/$VERSION"
