@@ -16,11 +16,22 @@ let package = Package(
             targets: ["YaloChatSDK"]
         ),
     ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.38.1"),
+    ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
+            name: "YaloChatProto",
+            dependencies: [
+                .product(name: "SwiftProtobuf", package: "swift-protobuf"),
+            ],
+            path: "proto/swift",
+        ),
+        .target(
             name: "YaloChatSDK",
+            dependencies: ["YaloChatProto"],
             path: "ios-sdk/Sources/YaloChatSDK",
             resources: [
                 .process("Resources"),

@@ -2,11 +2,12 @@
 flutter_sdk_out_path = ./dart/
 typescript_sdk_out_path = ./typescript/
 kotlin_out_path = ./kotlin/
+swift_out_path = ./swift/
 
 flutter_sdk_models_path = ../flutter-sdk/lib/src/domain/models
 webchat_sdk_models_path = ../web-sdk/src/domain/models
 
-proto: proto_go proto_ts proto_dart proto_kotlin symlinks
+proto: proto_go proto_ts proto_dart proto_kotlin proto_swift symlinks
 
 symlinks:
 	ln -sfn ../../../../../proto/dart/events $(flutter_sdk_models_path)/events
@@ -43,3 +44,13 @@ proto_kotlin:
 		   --kotlin_out=$(kotlin_out_path) \
 		   `find events -name '*.proto' -print | sort`
 .PHONY: proto_kotlin
+
+# iOS SDK: the root Package.swift reads this output as the YaloChatProto
+# target, so it must stay committed. Package visibility keeps the types
+# usable inside the SDK package without exposing them to integrators.
+proto_swift:
+	mkdir -p $(swift_out_path)
+	protoc --swift_out=$(swift_out_path) \
+		   --swift_opt=Visibility=Package \
+		   `find events -name '*.proto' -print | sort`
+.PHONY: proto_swift
