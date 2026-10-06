@@ -1,0 +1,186 @@
+# Copyright (c) Yalochat, Inc. All rights reserved.
+
+name: iOS SDK Pipeline
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'ios-sdk/v*.*.*'
+    paths:
+      - 'ios-sdk/**'
+      - 'proto/swift/**'
+      - 'Package.swift'
+      - '.github/workflows/ios-ci-cd.yml'
+
+  pull_request:
+    paths:
+      - 'ios-sdk/**'
+      - 'proto/swift/**'
+      - 'Package.swift'
+      - '.github/workflows/ios-ci-cd.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # macOS runners have no Docker, so the scan runs on Linux like the other SDKs.
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Gitleaks Scan
+        run: docker run --rm -v ${{ github.workspace }}:/code zricethezav/gitleaks:latest detect --source="/code" -v
+
+  quality-gate:
+    runs-on: macos-26
+    # Checks build against staging; only the released package points at
+    # production.
+    env:
+      YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL }}
+      PACKAGES_DIR: ${{ github.workspace }}/.build/SourcePackages
+      RESULT_BUNDLE: ${{ github.workspace }}/.build/YaloChatSDK.xcresult
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select latest Xcode
+        run: |
+          XCODE="$(ls -d /Applications/Xcode_*.app | sort -V | tail -n 1)"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Pick iPhone simulator
+        id: simulator
+        # Newest iOS runtime installed on the image, so the job keeps working
+        # when the runner image moves to a new Xcode.
+        run: |
+          UDID="$(xcrun simctl list devices available -j | jq -r '
+            [.devices | to_entries[]
+              | select(.key | test("SimRuntime\\.iOS-"))
+              | {key, phones: [.value[] | select(.name | startswith("iPhone"))]}
+              | select(.phones | length > 0)]
+            | sort_by(.key | capture("iOS-(?<major>[0-9]+)-(?<minor>[0-9]+)") | [(.major | tonumber), (.minor | tonumber)])
+            | last | .phones[0].udid')"
+          if [ -z "$UDID" ] || [ "$UDID" = "null" ]; then
+            echo "ERROR: no iPhone simulator available"
+            exit 1
+          fi
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Swift packages
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.PACKAGES_DIR }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
+          restore-keys: ${{ runner.os }}-spm-
+
+      - name: Generate build environment
+        run: ios-sdk/scripts/generate-build-environment.sh
+
+      - name: Unit tests with coverage
+        run: |
+          xcodebuild test \
+            -scheme YaloChatSDK \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -clonedSourcePackagesDirPath "$PACKAGES_DIR" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RESULT_BUNDLE"
+
+      - name: Coverage report
+        run: xcrun xccov view --report --only-targets "$RESULT_BUNDLE"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ios-test-results
+          path: ${{ env.RESULT_BUNDLE }}
+          retention-days: 7
+
+      - name: Publish coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ios
+          plugins: xcode
+          xcode_archive_path: ${{ env.RESULT_BUNDLE }}
+
+      - name: Build release for device
+        # Same configuration integrators compile, so a broken release build
+        # fails on the pull request instead of at release time.
+        run: |
+          xcodebuild build \
+            -scheme YaloChatSDK \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -clonedSourcePackagesDirPath "$PACKAGES_DIR"
+
+      - name: Build example app
+        run: |
+          xcodebuild build \
+            -workspace ios-sdk/YaloChatSDK.xcworkspace \
+            -scheme ExampleApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -clonedSourcePackagesDirPath "$PACKAGES_DIR"
+
+  # SwiftPM only resolves plain semver tags, and the build environment file is
+  # gitignored. So the ios-sdk/vX.Y.Z tag starts a release commit, off main,
+  # that holds the production build environment and is tagged X.Y.Z.
+  rollout:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'tag'
+    needs: [secrets-scan, quality-gate]
+    # What ships talks to production. This is the only job that uses it.
+    env:
+      YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL_PROD }}
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version from tag
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#ios-sdk/v}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "ERROR: tag must be ios-sdk/vX.Y.Z (got: $GITHUB_REF_NAME)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Assert tag is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "ERROR: releases must be tagged on a commit merged into main"
+            exit 1
+          fi
+
+      - name: Guard against duplicate release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" > /dev/null; then
+            echo "ERROR: tag $VERSION already exists. Delete it before re-running."
+            exit 1
+          fi
+
+      - name: Generate build environment
+        run: ios-sdk/scripts/generate-build-environment.sh
+
+      - name: Tag release commit
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "DevEx self service"
+          git config user.email "developer-acceleration@yalo.com"
+          git checkout --detach
+          git add --force ios-sdk/Sources/YaloChatSDK/Config/BuildEnvironment.swift
+          git commit -m "chore(ios-sdk): release $VERSION"
+          git tag -a "$VERSION" -m "iOS SDK $VERSION"
+          git push origin "refs/tags/$VERSION"
