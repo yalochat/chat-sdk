@@ -38,11 +38,8 @@ jobs:
   quality-gate:
     # Package.swift needs Swift 6.4, which only the Xcode 27 image ships.
     runs-on: xcode-27
-    # Checks build against staging; only the released package points at
-    # production.
     env:
       XCODE_VERSION: "27.0"
-      YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL }}
       PACKAGES_DIR: ${{ github.workspace }}/.build/SourcePackages
       RESULT_BUNDLE: ${{ github.workspace }}/.build/YaloChatSDK.xcresult
 
@@ -76,9 +73,6 @@ jobs:
           path: ${{ env.PACKAGES_DIR }}
           key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
           restore-keys: ${{ runner.os }}-spm-
-
-      - name: Generate build environment
-        run: ios-sdk/scripts/generate-build-environment.sh
 
       - name: Unit tests with coverage
         run: |
@@ -126,16 +120,12 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -clonedSourcePackagesDirPath "$PACKAGES_DIR"
 
-  # SwiftPM only resolves plain semver tags, and the build environment file is
-  # gitignored. So the ios-sdk/vX.Y.Z tag starts a release commit, off main,
-  # that holds the production build environment and is tagged X.Y.Z.
+  # SwiftPM only resolves plain semver tags, so the ios-sdk/vX.Y.Z tag from YRK
+  # gets a matching X.Y.Z tag on the same commit.
   rollout:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
     needs: [secrets-scan, quality-gate]
-    # What ships talks to production. This is the only job that uses it.
-    env:
-      YALO_API_BASE_URL: ${{ secrets.VITE_YALO_API_BASE_URL_PROD }}
     permissions:
       contents: write
 
@@ -170,16 +160,10 @@ jobs:
             exit 1
           fi
 
-      - name: Generate build environment
-        run: ios-sdk/scripts/generate-build-environment.sh
-
-      - name: Tag release commit
+      - name: Tag SwiftPM version
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           git config user.name "DevEx self service"
           git config user.email "developer-acceleration@yalo.com"
-          git checkout --detach
-          git add --force ios-sdk/Sources/YaloChatSDK/Config/BuildEnvironment.swift
-          git commit -m "chore(ios-sdk): release $VERSION"
-          git tag -a "$VERSION" -m "iOS SDK $VERSION"
+          git tag -a "$VERSION" -m "iOS SDK $VERSION" "$GITHUB_SHA"
           git push origin "refs/tags/$VERSION"
