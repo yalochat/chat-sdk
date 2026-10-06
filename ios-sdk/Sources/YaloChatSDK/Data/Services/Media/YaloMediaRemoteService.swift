@@ -8,13 +8,7 @@ final class YaloMediaRemoteService: YaloMediaService {
     private let cacheDirectory: URL
     private let session: URLSession
 
-    init(
-        baseURL: URL,
-        cacheDirectory: URL = FileManager.default
-            .urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("yalo-chat-media", isDirectory: true),
-        session: URLSession = .shared
-    ) {
+    init(baseURL: URL, cacheDirectory: URL, session: URLSession = .shared) {
         self.mediaURL = baseURL.appendingPathComponent("v1/channels/all/media")
         self.cacheDirectory = cacheDirectory
         self.session = session
