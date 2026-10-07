@@ -57,4 +57,26 @@ struct ChatDependenciesTests {
         #expect(body["organization_id"] as? String == "org-1")
         #expect(body["user_id"] as? String == "user-1")
     }
+
+    @Test func imagesIsBuiltOnceAndShared() {
+        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+
+        #expect(dependencies.images as AnyObject === dependencies.images as AnyObject)
+    }
+
+    @Test func imagesAreCopiedUnderTheImagesDirectory() async throws {
+        let imagesDirectory: URL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let picked: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
+        try Data("picture bytes".utf8).write(to: picked)
+        let dependencies: ChatDependencies = ChatDependencies(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            imagesDirectory: imagesDirectory
+        )
+
+        let content: MediaContent = try await dependencies.images.content(try #require(NSItemProvider(contentsOf: picked)))
+
+        #expect(content.fileURL.standardizedFileURL.path.hasPrefix(imagesDirectory.standardizedFileURL.path))
+    }
 }
