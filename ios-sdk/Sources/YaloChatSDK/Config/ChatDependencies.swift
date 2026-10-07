@@ -54,4 +54,8 @@ final class ChatDependencies {
     lazy var chatMessages: ChatMessageService = ChatMessageDatabaseService(fileURL: databaseURL)
 
     lazy var images: ImageService = ImageDeviceService(directory: imagesDirectory)
+
+    lazy var voiceRecorder: VoiceRecorderService = VoiceRecorderDeviceService()
+
+    lazy var voicePlayer: VoicePlayerService = VoicePlayerDeviceService()
 }
