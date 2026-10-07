@@ -5,6 +5,7 @@ import SwiftUI
 struct ChatInput: View {
     @Binding var text: String
     let onSend: () -> Void
+    @Environment(\.chatTheme) private var theme: ChatTheme
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
@@ -24,7 +25,7 @@ struct ChatInput: View {
             .onSubmit(onSend)
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .overlay(Capsule().strokeBorder(Color(.separator)))
+            .overlay(Capsule().strokeBorder(theme.inputBorderColor))
             .accessibilityIdentifier("yalo-chat-input")
             Button(action: onSend) {
                 Image(systemName: "paperplane.fill")
@@ -38,7 +39,8 @@ struct ChatInput: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color(.secondarySystemBackground))
+        .foregroundStyle(theme.onFooterBackground)
+        .background(theme.footerBackground)
         .accessibilityIdentifier("yalo-chat-footer")
     }
 }
