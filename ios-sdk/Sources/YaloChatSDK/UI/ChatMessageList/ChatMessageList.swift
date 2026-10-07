@@ -12,7 +12,7 @@ struct ChatMessageList: View {
                     ForEach(messages) { message in
                         switch message.role {
                         case .user:
-                            Text(message.text)
+                            Text(message.content)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 10)
                                 .background(
@@ -21,7 +21,7 @@ struct ChatMessageList: View {
                                 )
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         case .agent:
-                            Text(message.text)
+                            Text(message.content)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
@@ -43,7 +43,7 @@ struct ChatMessageList: View {
 
 #Preview {
     ChatMessageList(messages: [
-        ChatMessage(id: "1", role: .agent, text: "Hi, how can I help you?"),
-        ChatMessage(id: "2", role: .user, text: "I want to place an order"),
+        ChatMessage(role: .agent, type: .text, timestamp: Date(), id: 1, content: "Hi, how can I help you?"),
+        ChatMessage(role: .user, type: .text, timestamp: Date(), id: 2, content: "I want to place an order"),
     ])
 }
