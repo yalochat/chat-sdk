@@ -4,6 +4,7 @@ import SwiftUI
 
 struct ChatMessageList: View {
     let messages: [ChatMessage]
+    @Environment(\.chatTheme) private var theme: ChatTheme
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -15,13 +16,13 @@ struct ChatMessageList: View {
                             Text(message.content)
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 10)
-                                .background(
-                                    Color(.secondarySystemBackground),
-                                    in: RoundedRectangle(cornerRadius: 18)
-                                )
+                                .foregroundStyle(theme.onUserMessageBackground)
+                                .background(theme.userMessageBackground, in: RoundedRectangle(cornerRadius: 18))
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         case .agent:
                             Text(message.content)
+                                .foregroundStyle(theme.onAgentMessageBackground)
+                                .background(theme.agentMessageBackground)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }

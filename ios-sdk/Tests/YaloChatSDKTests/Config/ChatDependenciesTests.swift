@@ -6,8 +6,14 @@ import Testing
 
 @MainActor
 struct ChatDependenciesTests {
+    private let config: YaloChatClientConfig = YaloChatClientConfig(
+        channelId: "channel-1",
+        organizationId: "org-1",
+        channelName: "Yalo"
+    )
+
     @Test func mediaIsBuiltOnceAndShared() {
-        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+        let dependencies: ChatDependencies = ChatDependencies(config: config)
 
         #expect(dependencies.media as AnyObject === dependencies.media as AnyObject)
     }
@@ -17,8 +23,7 @@ struct ChatDependenciesTests {
         let cacheDirectory: URL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         let dependencies: ChatDependencies = ChatDependencies(
-            channelId: "channel-1",
-            organizationId: "org-1",
+            config: config,
             baseURL: server.baseURL,
             cacheDirectory: cacheDirectory,
             session: server.session
@@ -31,7 +36,7 @@ struct ChatDependenciesTests {
     }
 
     @Test func authIsBuiltOnceAndShared() {
-        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+        let dependencies: ChatDependencies = ChatDependencies(config: config)
 
         #expect(dependencies.auth as AnyObject === dependencies.auth as AnyObject)
     }
@@ -41,9 +46,12 @@ struct ChatDependenciesTests {
         {"access_token": "access", "refresh_token": "refresh", "expires_in": 60}
         """.utf8))
         let dependencies: ChatDependencies = ChatDependencies(
-            channelId: "channel-1",
-            organizationId: "org-1",
-            authUserId: "user-1",
+            config: YaloChatClientConfig(
+                channelId: "channel-1",
+                organizationId: "org-1",
+                channelName: "Yalo",
+                userId: "user-1"
+            ),
             baseURL: server.baseURL,
             session: server.session
         )
@@ -59,7 +67,7 @@ struct ChatDependenciesTests {
     }
 
     @Test func imagesIsBuiltOnceAndShared() {
-        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+        let dependencies: ChatDependencies = ChatDependencies(config: config)
 
         #expect(dependencies.images as AnyObject === dependencies.images as AnyObject)
     }
@@ -70,8 +78,7 @@ struct ChatDependenciesTests {
         let picked: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
         try Data("picture bytes".utf8).write(to: picked)
         let dependencies: ChatDependencies = ChatDependencies(
-            channelId: "channel-1",
-            organizationId: "org-1",
+            config: config,
             imagesDirectory: imagesDirectory
         )
 
@@ -81,13 +88,13 @@ struct ChatDependenciesTests {
     }
 
     @Test func voiceRecorderIsBuiltOnceAndShared() {
-        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+        let dependencies: ChatDependencies = ChatDependencies(config: config)
 
         #expect(dependencies.voiceRecorder as AnyObject === dependencies.voiceRecorder as AnyObject)
     }
 
     @Test func voicePlayerIsBuiltOnceAndShared() {
-        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+        let dependencies: ChatDependencies = ChatDependencies(config: config)
 
         #expect(dependencies.voicePlayer as AnyObject === dependencies.voicePlayer as AnyObject)
     }
