@@ -79,4 +79,16 @@ struct ChatDependenciesTests {
 
         #expect(content.fileURL.standardizedFileURL.path.hasPrefix(imagesDirectory.standardizedFileURL.path))
     }
+
+    @Test func voiceRecorderIsBuiltOnceAndShared() {
+        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+
+        #expect(dependencies.voiceRecorder as AnyObject === dependencies.voiceRecorder as AnyObject)
+    }
+
+    @Test func voicePlayerIsBuiltOnceAndShared() {
+        let dependencies: ChatDependencies = ChatDependencies(channelId: "channel-1", organizationId: "org-1")
+
+        #expect(dependencies.voicePlayer as AnyObject === dependencies.voicePlayer as AnyObject)
+    }
 }
