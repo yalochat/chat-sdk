@@ -11,6 +11,7 @@ final class ChatDependencies {
     private let baseURL: URL
     private let cacheDirectory: URL
     private let databaseURL: URL?
+    private let imagesDirectory: URL
     private let session: URLSession
 
     init(
@@ -21,6 +22,9 @@ final class ChatDependencies {
         cacheDirectory: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0],
         databaseURL: URL? = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("yalo-chat/yalo_chat.sqlite"),
+        // Not the cache: the system may empty it while a sent picture still needs its copy.
+        imagesDirectory: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("yalo-chat/images", isDirectory: true),
         session: URLSession = .shared
     ) {
         self.channelId = channelId
@@ -29,6 +33,7 @@ final class ChatDependencies {
         self.baseURL = baseURL
         self.cacheDirectory = cacheDirectory
         self.databaseURL = databaseURL
+        self.imagesDirectory = imagesDirectory
         self.session = session
     }
 
@@ -47,4 +52,6 @@ final class ChatDependencies {
     )
 
     lazy var chatMessages: ChatMessageService = ChatMessageDatabaseService(fileURL: databaseURL)
+
+    lazy var images: ImageService = ImageDeviceService(directory: imagesDirectory)
 }
