@@ -6,11 +6,12 @@ import Testing
 
 @MainActor
 struct ChatMessageListTests {
-    @Test func messageListRendersUserAndAgentMessages() {
+    @Test(arguments: [false, true])
+    func messageListRendersUserAndAgentMessages(isWaitingForReply: Bool) {
         let messages: [ChatMessage] = [
             ChatMessage(role: .agent, type: .text, timestamp: Date(), id: 1, content: "**Hi**\n\n- Orders"),
             ChatMessage(role: .user, type: .text, timestamp: Date(), id: 2, content: "Hello"),
         ]
-        #expect(renders(ChatMessageList(messages: messages)))
+        #expect(renders(ChatMessageList(messages: messages, isWaitingForReply: isWaitingForReply)))
     }
 }

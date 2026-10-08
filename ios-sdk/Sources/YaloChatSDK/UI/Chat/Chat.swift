@@ -22,7 +22,7 @@ public struct Chat: View {
     public var body: some View {
         VStack(spacing: 0) {
             ChatHeader(title: client.config.channelName, hideWatermark: client.config.hideWatermark)
-            ChatMessageList(messages: viewModel.messages)
+            ChatMessageList(messages: viewModel.messages, isWaitingForReply: viewModel.isWaitingForReply)
             ChatInput(text: $viewModel.draft, onSend: {
                 Task {
                     await viewModel.send()
