@@ -6,22 +6,40 @@ import SwiftUI
 public struct Chat: View {
     private let client: YaloChatClient
     private let theme: ChatTheme
+    private let onBack: (() -> Void)?
     @StateObject private var viewModel: ChatViewModel
     @Environment(\.scenePhase) private var scenePhase: ScenePhase
 
-    public init(client: YaloChatClient, theme: ChatTheme = ChatTheme()) {
-        self.init(client: client, theme: theme, viewModel: ChatDependencies(config: client.config).chatViewModel())
+    /// - Parameter onBack: Shows a back button in the header that calls it.
+    ///   Leave it out when the chat is not something the person closes.
+    public init(client: YaloChatClient, theme: ChatTheme = ChatTheme(), onBack: (() -> Void)? = nil) {
+        self.init(
+            client: client,
+            theme: theme,
+            onBack: onBack,
+            viewModel: ChatDependencies(config: client.config).chatViewModel()
+        )
     }
 
-    init(client: YaloChatClient, theme: ChatTheme, viewModel: @autoclosure @escaping () -> ChatViewModel) {
+    init(
+        client: YaloChatClient,
+        theme: ChatTheme,
+        onBack: (() -> Void)? = nil,
+        viewModel: @autoclosure @escaping () -> ChatViewModel
+    ) {
         self.client = client
         self.theme = theme
+        self.onBack = onBack
         _viewModel = StateObject(wrappedValue: viewModel())
     }
 
     public var body: some View {
         VStack(spacing: 0) {
-            ChatHeader(title: client.config.channelName, hideWatermark: client.config.hideWatermark)
+            ChatHeader(
+                title: client.config.channelName,
+                hideWatermark: client.config.hideWatermark,
+                onBack: onBack
+            )
             ChatMessageList(messages: viewModel.messages, isWaitingForReply: viewModel.isWaitingForReply)
             ChatInput(text: $viewModel.draft, onSend: {
                 Task {
