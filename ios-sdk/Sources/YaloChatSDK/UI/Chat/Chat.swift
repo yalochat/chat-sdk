@@ -6,21 +6,37 @@ import SwiftUI
 public struct Chat: View {
     private let client: YaloChatClient
     private let theme: ChatTheme
-    @State private var draft: String = ""
+    @StateObject private var viewModel: ChatViewModel
+    @Environment(\.scenePhase) private var scenePhase: ScenePhase
 
     public init(client: YaloChatClient, theme: ChatTheme = ChatTheme()) {
+        self.init(client: client, theme: theme, viewModel: ChatDependencies(config: client.config).chatViewModel())
+    }
+
+    init(client: YaloChatClient, theme: ChatTheme, viewModel: @autoclosure @escaping () -> ChatViewModel) {
         self.client = client
         self.theme = theme
+        _viewModel = StateObject(wrappedValue: viewModel())
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             ChatHeader(title: client.config.channelName, hideWatermark: client.config.hideWatermark)
-            ChatMessageList(messages: [])
-            ChatInput(text: $draft, onSend: {})
+            ChatMessageList(messages: viewModel.messages)
+            ChatInput(text: $viewModel.draft, onSend: {
+                Task {
+                    await viewModel.send()
+                }
+            })
         }
         .background(theme.background)
         .environment(\.chatTheme, theme)
+        .task {
+            await viewModel.start()
+        }
+        .onChange(of: scenePhase) { phase in
+            viewModel.onScenePhaseChange(phase)
+        }
     }
 }
 

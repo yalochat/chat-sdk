@@ -25,4 +25,10 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.userId = userId
         self.hideWatermark = hideWatermark
     }
+
+    /// Scopes what the device keeps for this conversation. Built like the
+    /// Android SDK's, so both agree on what one conversation is.
+    var sessionId: String {
+        "\(organizationId)-\(channelId)-\(userId ?? "anonymous")"
+    }
 }
