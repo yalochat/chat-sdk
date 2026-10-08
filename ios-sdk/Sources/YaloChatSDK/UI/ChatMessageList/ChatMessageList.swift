@@ -6,7 +6,8 @@ struct ChatMessageList: View {
     /// Short enough that a message never feels held back, long enough that one
     /// arriving is noticed rather than found already there.
     private static let fade: Animation = .easeOut(duration: 0.22)
-    private static let typingIndicatorId: String = "yalo-chat-typing-indicator"
+    /// The last row, so scrolling to it shows the very end.
+    private static let bottomId: String = "yalo-chat-message-list-bottom"
 
     let messages: [ChatMessage]
     var isWaitingForReply: Bool = false
@@ -39,26 +40,30 @@ struct ChatMessageList: View {
                     .transition(.opacity)
                     if isWaitingForReply {
                         TypingIndicator()
-                            .id(Self.typingIndicatorId)
                             .transition(.opacity)
                     }
+                    // The bottom margin, as a row of its own so it is measured
+                    // with the messages. With the spacing above it, 12 points.
+                    Color.clear
+                        .frame(height: 4)
+                        .id(Self.bottomId)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
                 // A message fades in where it lands, and the ones already there
                 // slide up to make room for it.
                 .animation(Self.fade, value: messages.last?.id)
                 .animation(Self.fade, value: isWaitingForReply)
             }
             .onAppear {
-                proxy.scrollTo(messages.last?.id, anchor: .bottom)
+                proxy.scrollTo(Self.bottomId, anchor: .bottom)
             }
-            .onChange(of: messages.last?.id) { id in
-                proxy.scrollTo(id, anchor: .bottom)
+            .onChange(of: messages.last?.id) { _ in
+                proxy.scrollTo(Self.bottomId, anchor: .bottom)
             }
             .onChange(of: isWaitingForReply) { waiting in
                 if waiting {
-                    proxy.scrollTo(Self.typingIndicatorId, anchor: .bottom)
+                    proxy.scrollTo(Self.bottomId, anchor: .bottom)
                 }
             }
         }
