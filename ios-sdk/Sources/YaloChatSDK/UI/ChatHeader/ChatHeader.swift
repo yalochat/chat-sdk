@@ -7,6 +7,7 @@ struct ChatHeader: View {
     var status: String? = nil
     var hideWatermark: Bool = false
     var onBack: (() -> Void)? = nil
+    @Environment(\.chatTheme) private var theme: ChatTheme
 
     var body: some View {
         HStack(spacing: 12) {
@@ -40,7 +41,8 @@ struct ChatHeader: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color(.secondarySystemBackground))
+        .foregroundStyle(theme.onHeaderBackground)
+        .background(theme.headerBackground)
         .accessibilityIdentifier("yalo-chat-header")
     }
 }
