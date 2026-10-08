@@ -5,25 +5,30 @@
 /// - `userId`: who the person is in your app. Nil starts an anonymous
 ///   conversation.
 /// - `hideWatermark`: leaves the "By Yalo" line out of the header.
+/// - `hideVoiceButton`: leaves the microphone out of the message input, so
+///   nobody can record a voice message.
 public struct YaloChatClientConfig: Sendable, Equatable {
     public let channelId: String
     public let organizationId: String
     public let channelName: String
     public let userId: String?
     public let hideWatermark: Bool
+    public let hideVoiceButton: Bool
 
     public init(
         channelId: String,
         organizationId: String,
         channelName: String,
         userId: String? = nil,
-        hideWatermark: Bool = false
+        hideWatermark: Bool = false,
+        hideVoiceButton: Bool = false
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
         self.channelName = channelName
         self.userId = userId
         self.hideWatermark = hideWatermark
+        self.hideVoiceButton = hideVoiceButton
     }
 
     /// Scopes what the device keeps for this conversation. Built like the

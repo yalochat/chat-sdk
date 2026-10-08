@@ -97,6 +97,27 @@ struct TokenRepositoryTests {
         #expect(token == "authenticated-2")
     }
 
+    @Test func aRefusedTokenIsReplacedByTheSamePerson() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        let tokens: TokenRepository = repository(auth)
+        _ = try await tokens.token()
+
+        await tokens.invalidate()
+        let token: String = try await tokens.token()
+
+        #expect(token == "refreshed")
+        #expect(await auth.refreshes == ["refresh"])
+    }
+
+    @Test func invalidatingBeforeAnyTokenChangesNothing() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        let tokens: TokenRepository = repository(auth)
+
+        await tokens.invalidate()
+
+        #expect(try await tokens.token() == "authenticated-1")
+    }
+
     @Test func callersAskingAtOnceShareOneExchange() async throws {
         let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
         let tokens: TokenRepository = repository(auth)

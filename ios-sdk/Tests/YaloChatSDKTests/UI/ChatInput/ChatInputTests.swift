@@ -5,7 +5,18 @@ import Testing
 
 @MainActor
 struct ChatInputTests {
-    @Test func inputRenders() {
-        #expect(renders(ChatInput(text: .constant("Hello"), onSend: {})))
+    @Test(arguments: ["", "Hello"])
+    func inputRenders(text: String) {
+        #expect(renders(ChatInput(text: .constant(text), onSend: {})))
+    }
+
+    @Test func inputRendersWithoutTheVoiceButton() {
+        #expect(renders(ChatInput(text: .constant(""), onSend: {}, hideVoiceButton: true)))
+    }
+
+    @Test func inputRendersARecording() {
+        let recording: VoiceRecording = VoiceRecording(elapsed: 65, amplitudes: [0, 0.5, 1])
+
+        #expect(renders(ChatInput(text: .constant(""), onSend: {}, recording: recording)))
     }
 }

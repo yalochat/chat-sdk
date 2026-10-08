@@ -6,7 +6,7 @@ import SQLite3
 /// Keeps messages in a SQLite file. The file is opened, and its schema built
 /// or migrated, on the first call. A nil `fileURL` keeps them in memory.
 actor ChatMessageDatabaseService: ChatMessageService {
-    static let version: Int32 = 1
+    static let version: Int32 = 2
 
     private let fileURL: URL?
     // Only touched from the actor and from deinit, when nothing else can.
@@ -26,8 +26,8 @@ actor ChatMessageDatabaseService: ChatMessageService {
         // Nulls are distinct, so a message with no backend id is always stored.
         try run(database, """
             INSERT INTO chat_message
-            (session_id, wi_id, role, content, type, status, timestamp, header, footer)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (session_id, wi_id) DO NOTHING
             """, [
                 sessionId,
@@ -39,6 +39,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
                 Self.milliseconds(message.timestamp),
                 message.header,
                 message.footer,
+                try message.voice.map { note in
+                    String(decoding: try JSONEncoder().encode(note), as: UTF8.self)
+                },
             ])
         if sqlite3_changes(database) == 0, let wiId = message.wiId {
             let stored: [ChatMessage] = try query(
@@ -140,6 +143,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
                     ON chat_message (session_id, timestamp)
                     """, [])
             }
+            if found < 2 {
+                try run(database, "ALTER TABLE chat_message ADD COLUMN voice TEXT", [])
+            }
             try run(database, "PRAGMA user_version = \(Self.version)", [])
             try run(database, "COMMIT", [])
         } catch {
@@ -239,7 +245,11 @@ actor ChatMessageDatabaseService: ChatMessageService {
             content: text("content") ?? "",
             status: status,
             header: text("header"),
-            footer: text("footer")
+            footer: text("footer"),
+            // A note this version cannot read leaves the message without one rather than unreadable.
+            voice: text("voice").flatMap { stored in
+                try? JSONDecoder().decode(VoiceNote.self, from: Data(stored.utf8))
+            }
         )
     }
 

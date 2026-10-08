@@ -10,11 +10,26 @@ struct ChatViewModelTests {
     private nonisolated static let now: Date = Date(timeIntervalSince1970: 1_700_000_000)
     private let storage: ChatMessageDatabaseService = ChatMessageDatabaseService(fileURL: nil)
     private let channel: FakeYaloMessageRepository = FakeYaloMessageRepository()
+    private let recorder: FakeVoiceRecorder = FakeVoiceRecorder()
+    private let player: FakeVoicePlayer = FakeVoicePlayer()
+    private let mediaService: FakeYaloMediaService = FakeYaloMediaService()
+    private let voice: VoiceRepositoryLocal
+
+    init() {
+        voice = VoiceRepositoryLocal(
+            recorder: recorder,
+            player: player,
+            directory: FileManager.default.temporaryDirectory
+                .appendingPathComponent("yalo-chat-view-model-tests-\(UUID().uuidString)", isDirectory: true)
+        )
+    }
 
     private func viewModel(replyTimeout: TimeInterval = 45) -> ChatViewModel {
         ChatViewModel(
             chatMessages: storage,
             yaloMessages: channel,
+            voice: voice,
+            media: MediaRepository(service: mediaService, tokens: TokenRepository(auth: CountingAuthService())),
             sessionId: "session-1",
             now: { Self.now },
             replyTimeout: replyTimeout
@@ -147,6 +162,117 @@ struct ChatViewModelTests {
         await viewModel.send()
 
         #expect(await eventually { !viewModel.isWaitingForReply })
+    }
+
+    @Test func aRecordingIsShownWhileItRuns() async {
+        let viewModel: ChatViewModel = viewModel()
+
+        await viewModel.startRecording()
+
+        #expect(viewModel.recording?.amplitudes.count == 40)
+    }
+
+    @Test func sendingWhileRecordingStoresUploadsAndSendsTheNote() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        viewModel.draft = "kept for later"
+        await viewModel.startRecording()
+
+        await viewModel.send()
+
+        let shown: ChatMessage = try #require(viewModel.messages.last)
+        let note: VoiceNote = try #require(shown.voice)
+        let uploaded: MediaContent = try #require(await mediaService.uploads.first)
+        let sent: ChatMessage = try #require(channel.sent.first)
+        #expect(viewModel.recording == nil)
+        #expect(viewModel.draft == "kept for later")
+        #expect(shown.type == .voice)
+        #expect(shown.role == .user)
+        #expect(uploaded.fileName == note.fileName)
+        #expect(uploaded.mimeType == "audio/mp4")
+        #expect(sent.id == shown.id)
+        #expect(sent.voice?.mediaURL == "media-1")
+        #expect(viewModel.isWaitingForReply)
+    }
+
+    @Test func aNoteThatFailsToUploadIsShownButNotSent() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.failUploads(with: [MediaServiceError.uploadFailed(status: 500)])
+        await viewModel.startRecording()
+
+        await viewModel.send()
+
+        #expect(viewModel.messages.map(\.type) == [.voice])
+        #expect(channel.sent.isEmpty)
+        #expect(!viewModel.isWaitingForReply)
+    }
+
+    @Test func aCancelledRecordingIsNeitherShownNorSent() async {
+        let viewModel: ChatViewModel = viewModel()
+        await viewModel.startRecording()
+
+        viewModel.cancelRecording()
+        await viewModel.send()
+
+        #expect(viewModel.recording == nil)
+        #expect(viewModel.messages.isEmpty)
+        #expect(channel.sent.isEmpty)
+    }
+
+    @Test func aRecordedNotePlaysFromTheDeviceAndPausesOnASecondTap() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await viewModel.startRecording()
+        await viewModel.send()
+        let shown: ChatMessage = try #require(viewModel.messages.last)
+
+        await viewModel.toggleVoiceMessage(shown)
+        #expect(viewModel.playback?.messageId == shown.id)
+        #expect(viewModel.playback?.isPlaying == true)
+        await viewModel.toggleVoiceMessage(shown)
+
+        #expect(viewModel.playback?.isPlaying == false)
+        #expect(await mediaService.downloads.isEmpty)
+    }
+
+    @Test func aNoteFromTheChannelIsDownloadedBeforePlaying() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        let downloaded: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).ogg")
+        await mediaService.serveDownloads(from: downloaded)
+        let received: ChatMessage = ChatMessage(
+            role: .agent,
+            type: .voice,
+            timestamp: Self.now,
+            id: 5,
+            voice: VoiceNote(duration: 3, mediaURL: "https://cdn/voice.ogg")
+        )
+
+        await viewModel.toggleVoiceMessage(received)
+
+        #expect(await mediaService.downloads == ["https://cdn/voice.ogg"])
+        #expect(player.loaded == downloaded)
+        #expect(viewModel.playback?.messageId == 5)
+    }
+
+    @Test func aNoteThatIsNowhereDoesNotPlay() async {
+        let viewModel: ChatViewModel = viewModel()
+        let unreachable: ChatMessage = ChatMessage(role: .agent, type: .voice, timestamp: Self.now, id: 5, voice: VoiceNote(duration: 3))
+
+        await viewModel.toggleVoiceMessage(unreachable)
+        await viewModel.toggleVoiceMessage(agentMessage("Not a voice note"))
+
+        #expect(viewModel.playback == nil)
+        #expect(await mediaService.downloads.isEmpty)
+    }
+
+    @Test func goingToTheBackgroundStopsTheMicrophoneAndTheSpeaker() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).m4a")
+        await viewModel.startRecording()
+        try voice.play(1, file: file)
+
+        viewModel.onScenePhaseChange(.background)
+
+        #expect(viewModel.recording == nil)
+        #expect(!player.isPlaying)
     }
 
     @Test func theLineFollowsTheAppInAndOutOfTheBackground() {

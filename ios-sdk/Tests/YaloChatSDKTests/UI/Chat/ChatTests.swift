@@ -1,5 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
+import Foundation
 import Testing
 @testable import YaloChatSDK
 
@@ -7,6 +8,7 @@ import Testing
 struct ChatTests {
     private func chat(
         hideWatermark: Bool = false,
+        hideVoiceButton: Bool = false,
         theme: ChatTheme = ChatTheme(),
         onBack: (() -> Void)? = nil
     ) -> Chat {
@@ -14,12 +16,19 @@ struct ChatTests {
             channelId: "channel-1",
             organizationId: "org-1",
             channelName: "Yalo",
-            hideWatermark: hideWatermark
+            hideWatermark: hideWatermark,
+            hideVoiceButton: hideVoiceButton
         ))
         // Kept off the network and the device storage.
         let viewModel: ChatViewModel = ChatViewModel(
             chatMessages: ChatMessageDatabaseService(fileURL: nil),
             yaloMessages: FakeYaloMessageRepository(),
+            voice: VoiceRepositoryLocal(
+                recorder: FakeVoiceRecorder(),
+                player: FakeVoicePlayer(),
+                directory: FileManager.default.temporaryDirectory
+            ),
+            media: MediaRepository(service: FakeYaloMediaService(), tokens: TokenRepository(auth: CountingAuthService())),
             sessionId: client.config.sessionId
         )
         return Chat(client: client, theme: theme, onBack: onBack, viewModel: viewModel)
@@ -28,6 +37,10 @@ struct ChatTests {
     @Test(arguments: [false, true])
     func chatRenders(hideWatermark: Bool) {
         #expect(renders(chat(hideWatermark: hideWatermark)))
+    }
+
+    @Test func chatRendersWithoutTheVoiceButton() {
+        #expect(renders(chat(hideVoiceButton: true)))
     }
 
     @Test func chatRendersWithABackButton() {

@@ -57,6 +57,78 @@ struct ChatMessageDatabaseServiceTests {
         #expect(try await service.messages(sessionId: "session-1", limit: 10) == [stored])
     }
 
+    @Test func readsBackAVoiceNote() async throws {
+        let original: ChatMessage = ChatMessage(
+            role: .user,
+            type: .voice,
+            timestamp: Date(timeIntervalSince1970: 1_700_000_000),
+            voice: VoiceNote(
+                duration: 4.5,
+                amplitudes: [0, 0.5, 1],
+                mediaURL: "media-1",
+                mimeType: "audio/mp4",
+                fileName: "voice-1.m4a",
+                byteCount: 2_048,
+                localFileName: "voice-1.m4a"
+            )
+        )
+
+        let stored: ChatMessage = try await service.insert(original, sessionId: "session-1")
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10) == [stored])
+        #expect(stored.voice == original.voice)
+    }
+
+    @Test func aVoiceNoteThisVersionCannotReadIsLeftOut() async throws {
+        let file: URL = Self.temporaryFile()
+        _ = try await ChatMessageDatabaseService(fileURL: file).insert(message("Hello"), sessionId: "session-1")
+        var database: OpaquePointer?
+        sqlite3_open(file.path, &database)
+        sqlite3_exec(database, "UPDATE chat_message SET voice = 'not json'", nil, nil, nil)
+        sqlite3_close(database)
+
+        let read: [ChatMessage] = try await ChatMessageDatabaseService(fileURL: file).messages(sessionId: "session-1", limit: 10)
+
+        #expect(read.map(\.content) == ["Hello"])
+        #expect(read.first?.voice == nil)
+    }
+
+    @Test func aFileFromTheFirstVersionKeepsItsMessagesAndTakesVoiceNotes() async throws {
+        let file: URL = Self.temporaryFile()
+        try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+        var database: OpaquePointer?
+        sqlite3_open(file.path, &database)
+        sqlite3_exec(database, """
+            CREATE TABLE chat_message (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                wi_id TEXT,
+                role TEXT NOT NULL,
+                content TEXT NOT NULL DEFAULT '',
+                type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                header TEXT,
+                footer TEXT
+            );
+            CREATE UNIQUE INDEX index_chat_message_session_wi_id ON chat_message (session_id, wi_id);
+            INSERT INTO chat_message (session_id, role, content, type, status, timestamp)
+            VALUES ('session-1', 'USER', 'Before', 'text', 'SENT', 1000);
+            PRAGMA user_version = 1;
+            """, nil, nil, nil)
+        sqlite3_close(database)
+        let service: ChatMessageDatabaseService = ChatMessageDatabaseService(fileURL: file)
+
+        _ = try await service.insert(
+            ChatMessage(role: .user, type: .voice, timestamp: Date(timeIntervalSince1970: 2), voice: VoiceNote(duration: 1)),
+            sessionId: "session-1"
+        )
+
+        let read: [ChatMessage] = try await service.messages(sessionId: "session-1", limit: 10)
+        #expect(read.map(\.voice) == [VoiceNote(duration: 1), nil])
+        #expect(read.last?.content == "Before")
+    }
+
     @Test func messagesAreMostRecentFirstAndLimited() async throws {
         _ = try await service.insert(message("first", at: 1_000), sessionId: "session-1")
         _ = try await service.insert(message("third", at: 3_000), sessionId: "session-1")

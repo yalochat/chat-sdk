@@ -18,4 +18,11 @@ struct YaloChatClientConfigTests {
 
         #expect(config.sessionId == expected)
     }
+
+    @Test func showsEverythingUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(!config.hideWatermark)
+        #expect(!config.hideVoiceButton)
+    }
 }

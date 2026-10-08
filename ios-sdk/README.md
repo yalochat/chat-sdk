@@ -10,6 +10,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Installation](#installation)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
+- [Voice messages](#voice-messages)
 - [Theming](#theming)
 - [Translations](#translations)
 
@@ -95,6 +96,20 @@ Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `nil`, which keeps the conversation anonymous.
 - **`hideWatermark`** (`Bool`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it.
+- **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
+
+## Voice messages
+
+The person taps the microphone to record a voice message and the send button to send it. The first time, iOS asks them for the microphone.
+
+Add `NSMicrophoneUsageDescription` to your app's `Info.plist` with a short reason, for example:
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>Lets you record voice messages in the chat.</string>
+```
+
+iOS closes any app that asks for the microphone without it. If you do not want voice messages, set `hideVoiceButton` to `true` instead.
 
 ## Theming
 
