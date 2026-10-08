@@ -21,6 +21,7 @@ public struct ChatTheme: Sendable, Equatable {
     public var onUserMessageBackground: Color
     public var agentMessageBackground: Color
     public var onAgentMessageBackground: Color
+    public var typingIndicatorDotColor: Color
 
     public init(
         background: Color = Color(.systemBackground),
@@ -33,7 +34,8 @@ public struct ChatTheme: Sendable, Equatable {
         onUserMessageBackground: Color = Color(.label),
         // Unbubbled, like the web SDK, so it reads as the conversation itself.
         agentMessageBackground: Color = .clear,
-        onAgentMessageBackground: Color = Color(.label)
+        onAgentMessageBackground: Color = Color(.label),
+        typingIndicatorDotColor: Color = Color(.secondaryLabel)
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -45,6 +47,7 @@ public struct ChatTheme: Sendable, Equatable {
         self.onUserMessageBackground = onUserMessageBackground
         self.agentMessageBackground = agentMessageBackground
         self.onAgentMessageBackground = onAgentMessageBackground
+        self.typingIndicatorDotColor = typingIndicatorDotColor
     }
 }
 

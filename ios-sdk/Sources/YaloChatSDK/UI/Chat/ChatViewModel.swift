@@ -15,22 +15,29 @@ final class ChatViewModel: ObservableObject {
     @Published var draft: String = ""
     /// Oldest first.
     @Published private(set) var messages: [ChatMessage] = []
+    /// A message went out and nothing has come back yet.
+    @Published private(set) var isWaitingForReply: Bool = false
 
     private let chatMessages: ChatMessageService
     private let yaloMessages: YaloMessageRepository
     private let sessionId: String
     private let now: () -> Date
+    /// Seconds the loader waits before deciding no reply is coming.
+    private let replyTimeout: TimeInterval
+    private var replyDeadline: Task<Void, Never>?
 
     init(
         chatMessages: ChatMessageService,
         yaloMessages: YaloMessageRepository,
         sessionId: String,
-        now: @escaping () -> Date = { Date() }
+        now: @escaping () -> Date = { Date() },
+        replyTimeout: TimeInterval = 45
     ) {
         self.chatMessages = chatMessages
         self.yaloMessages = yaloMessages
         self.sessionId = sessionId
         self.now = now
+        self.replyTimeout = replyTimeout
     }
 
     /// Runs the conversation for as long as the calling task lives.
@@ -56,7 +63,11 @@ final class ChatViewModel: ObservableObject {
             return
         }
         await loadMessages()
-        try? await yaloMessages.send(stored)
+        // Nothing is coming back for a message the channel never took.
+        guard (try? await yaloMessages.send(stored)) != nil else {
+            return
+        }
+        waitForReply()
     }
 
     /// The system takes the socket of an app in the background, so the line is
@@ -76,7 +87,29 @@ final class ChatViewModel: ObservableObject {
         guard (try? await chatMessages.insert(message, sessionId: sessionId)) != nil else {
             return
         }
+        stopWaitingForReply()
         await loadMessages()
+    }
+
+    /// Sending again starts the wait over, so the newest message sets the deadline.
+    private func waitForReply() {
+        replyDeadline?.cancel()
+        isWaitingForReply = true
+        let timeout: UInt64 = UInt64(replyTimeout * 1_000_000_000)
+        replyDeadline = Task { [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: timeout)
+            } catch {
+                return
+            }
+            self?.isWaitingForReply = false
+        }
+    }
+
+    private func stopWaitingForReply() {
+        replyDeadline?.cancel()
+        replyDeadline = nil
+        isWaitingForReply = false
     }
 
     private func loadMessages() async {

@@ -11,8 +11,14 @@ struct ChatViewModelTests {
     private let storage: ChatMessageDatabaseService = ChatMessageDatabaseService(fileURL: nil)
     private let channel: FakeYaloMessageRepository = FakeYaloMessageRepository()
 
-    private func viewModel() -> ChatViewModel {
-        ChatViewModel(chatMessages: storage, yaloMessages: channel, sessionId: "session-1", now: { Self.now })
+    private func viewModel(replyTimeout: TimeInterval = 45) -> ChatViewModel {
+        ChatViewModel(
+            chatMessages: storage,
+            yaloMessages: channel,
+            sessionId: "session-1",
+            now: { Self.now },
+            replyTimeout: replyTimeout
+        )
     }
 
     private func agentMessage(_ content: String, wiId: String = "wi-1", at timestamp: Date = Self.now) -> ChatMessage {
@@ -97,6 +103,50 @@ struct ChatViewModelTests {
         let stored: [ChatMessage] = try await storage.messages(sessionId: "session-1", limit: 10)
         #expect(stored.count == 2)
         running.cancel()
+    }
+
+    @Test func waitsForAReplyOnceAMessageIsSent() async {
+        let viewModel: ChatViewModel = viewModel()
+        #expect(!viewModel.isWaitingForReply)
+        viewModel.draft = "Hello"
+
+        await viewModel.send()
+
+        #expect(viewModel.isWaitingForReply)
+    }
+
+    @Test func waitsForNothingWhenTheChannelRefusesTheMessage() async {
+        let viewModel: ChatViewModel = viewModel()
+        channel.sendError = YaloMessageRepositoryError.closed
+        viewModel.draft = "Hello"
+
+        await viewModel.send()
+
+        #expect(!viewModel.isWaitingForReply)
+    }
+
+    @Test func stopsWaitingOnceAReplyArrives() async {
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.isListening })
+        viewModel.draft = "Hello"
+        await viewModel.send()
+
+        channel.emit(agentMessage("Hi there"))
+
+        #expect(await eventually { !viewModel.isWaitingForReply })
+        running.cancel()
+    }
+
+    @Test func givesUpWaitingWhenNoReplyArrivesInTime() async {
+        let viewModel: ChatViewModel = viewModel(replyTimeout: 0.01)
+        viewModel.draft = "Hello"
+
+        await viewModel.send()
+
+        #expect(await eventually { !viewModel.isWaitingForReply })
     }
 
     @Test func theLineFollowsTheAppInAndOutOfTheBackground() {

@@ -73,6 +73,14 @@ Creating a client is cheap, so an app with several conversations can hold one cl
 
 The chat fills whatever space it is given. You decide where it lives: a full screen, a sheet, or a pane in an iPad layout.
 
+When the person should be able to close the chat, pass `onBack`. The header then shows a back button that calls it:
+
+```swift
+Chat(client: client, onBack: {
+    chatIsOpen = false
+})
+```
+
 ## Configuration
 
 `YaloChatClientConfig` takes the details of the conversation.

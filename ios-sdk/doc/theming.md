@@ -65,6 +65,7 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`onUserMessageBackground`** (`Color`): Text color inside those bubbles. Defaults to the system label color.
 - **`agentMessageBackground`** (`Color`): Background for messages the channel sent. Defaults to clear, so what the channel says reads as the conversation itself rather than as a reply.
 - **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the system label color.
+- **`typingIndicatorDotColor`** (`Color`): Color of the three dots shown while the chat waits for a reply. Defaults to the secondary system label color.
 
 ## Light and dark
 
@@ -104,7 +105,8 @@ struct BrandedChat: View {
                 userMessageBackground: brand,
                 onUserMessageBackground: .white,
                 agentMessageBackground: .clear,
-                onAgentMessageBackground: Color(.label)
+                onAgentMessageBackground: Color(.label),
+                typingIndicatorDotColor: brand
             )
         )
     }

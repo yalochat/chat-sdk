@@ -5,7 +5,11 @@ import Testing
 
 @MainActor
 struct ChatTests {
-    private func chat(hideWatermark: Bool = false, theme: ChatTheme = ChatTheme()) -> Chat {
+    private func chat(
+        hideWatermark: Bool = false,
+        theme: ChatTheme = ChatTheme(),
+        onBack: (() -> Void)? = nil
+    ) -> Chat {
         let client: YaloChatClient = YaloChatClient(config: YaloChatClientConfig(
             channelId: "channel-1",
             organizationId: "org-1",
@@ -18,12 +22,16 @@ struct ChatTests {
             yaloMessages: FakeYaloMessageRepository(),
             sessionId: client.config.sessionId
         )
-        return Chat(client: client, theme: theme, viewModel: viewModel)
+        return Chat(client: client, theme: theme, onBack: onBack, viewModel: viewModel)
     }
 
     @Test(arguments: [false, true])
     func chatRenders(hideWatermark: Bool) {
         #expect(renders(chat(hideWatermark: hideWatermark)))
+    }
+
+    @Test func chatRendersWithABackButton() {
+        #expect(renders(chat(onBack: {})))
     }
 
     @Test func chatRendersWithACustomTheme() {
