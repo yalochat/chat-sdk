@@ -5,24 +5,28 @@ import Testing
 
 @MainActor
 struct ChatTests {
-    @Test(arguments: [false, true])
-    func chatRenders(hideWatermark: Bool) {
+    private func chat(hideWatermark: Bool = false, theme: ChatTheme = ChatTheme()) -> Chat {
         let client: YaloChatClient = YaloChatClient(config: YaloChatClientConfig(
             channelId: "channel-1",
             organizationId: "org-1",
             channelName: "Yalo",
             hideWatermark: hideWatermark
         ))
+        // Kept off the network and the device storage.
+        let viewModel: ChatViewModel = ChatViewModel(
+            chatMessages: ChatMessageDatabaseService(fileURL: nil),
+            yaloMessages: FakeYaloMessageRepository(),
+            sessionId: client.config.sessionId
+        )
+        return Chat(client: client, theme: theme, viewModel: viewModel)
+    }
 
-        #expect(renders(Chat(client: client)))
+    @Test(arguments: [false, true])
+    func chatRenders(hideWatermark: Bool) {
+        #expect(renders(chat(hideWatermark: hideWatermark)))
     }
 
     @Test func chatRendersWithACustomTheme() {
-        let client: YaloChatClient = YaloChatClient(config: YaloChatClientConfig(
-            channelId: "channel-1",
-            organizationId: "org-1",
-            channelName: "Yalo"
-        ))
         let theme: ChatTheme = ChatTheme(
             background: .black,
             headerBackground: .indigo,
@@ -30,6 +34,6 @@ struct ChatTests {
             agentMessageBackground: .gray
         )
 
-        #expect(renders(Chat(client: client, theme: theme)))
+        #expect(renders(chat(theme: theme)))
     }
 }

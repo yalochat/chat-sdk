@@ -52,4 +52,21 @@ final class ChatDependencies {
     lazy var voiceRecorder: VoiceRecorderService = VoiceRecorderDeviceService()
 
     lazy var voicePlayer: VoicePlayerService = VoicePlayerDeviceService()
+
+    lazy var tokens: TokenRepository = TokenRepository(auth: auth)
+
+    lazy var yaloMessageService: YaloMessageService = YaloMessageWebSocketService(baseURL: baseURL, session: session)
+
+    lazy var yaloMessages: YaloMessageRepository = YaloMessageRepositoryRemote(
+        service: yaloMessageService,
+        tokens: tokens
+    )
+
+    func chatViewModel() -> ChatViewModel {
+        ChatViewModel(
+            chatMessages: chatMessages,
+            yaloMessages: yaloMessages,
+            sessionId: config.sessionId
+        )
+    }
 }
