@@ -61,19 +61,33 @@ private struct StaticAuthService: YaloMessageAuthService {
 @MainActor
 struct YaloMessageRepositoryRemoteTests {
     private nonisolated static let now: Date = Date(timeIntervalSince1970: 1_700_000_100)
-    private let delays: Recorded<TimeInterval> = Recorded()
+    // A stream rather than a deadline, so a slow machine only makes the tests slower.
+    private let delays: AsyncStream<TimeInterval>
+    private let waited: AsyncStream<TimeInterval>.Continuation
+
+    init() {
+        (delays, waited) = AsyncStream.makeStream()
+    }
 
     private func repository(_ service: FakeYaloMessageService) -> YaloMessageRepositoryRemote {
-        let delays: Recorded<TimeInterval> = delays
+        let waited: AsyncStream<TimeInterval>.Continuation = waited
         return YaloMessageRepositoryRemote(
             service: service,
             tokens: TokenRepository(auth: StaticAuthService()),
             now: { Self.now },
             sleep: { seconds in
-                delays.append(seconds)
+                waited.yield(seconds)
                 try await Task.sleep(nanoseconds: 1_000_000)
             }
         )
+    }
+
+    private func firstDelays(_ count: Int) async -> [TimeInterval] {
+        var first: [TimeInterval] = []
+        for await delay in delays.prefix(count) {
+            first.append(delay)
+        }
+        return first
     }
 
     private static func textItem(
@@ -113,8 +127,7 @@ struct YaloMessageRepositoryRemoteTests {
         repository.connect()
         repository.connect()
 
-        #expect(await eventually { delays.values.count >= 7 })
-        #expect(Array(delays.values.prefix(7)) == [1, 2, 4, 8, 16, 30, 30])
+        #expect(await firstDelays(7) == [1, 2, 4, 8, 16, 30, 30])
         repository.close()
     }
 
@@ -124,8 +137,7 @@ struct YaloMessageRepositoryRemoteTests {
 
         repository.connect()
 
-        #expect(await eventually { delays.values.count >= 3 })
-        #expect(Array(delays.values.prefix(3)) == [1, 1, 1])
+        #expect(await firstDelays(3) == [1, 1, 1])
         repository.close()
     }
 
@@ -136,11 +148,13 @@ struct YaloMessageRepositoryRemoteTests {
         #expect(await eventually { await !service.runs.isEmpty })
 
         repository.pause()
-        // An attempt already on its way may still land.
-        try await Task.sleep(nanoseconds: 20_000_000)
+        // An attempt already on its way may still land, so wait for the count to settle.
+        #expect(await eventually {
+            let before: Int = await service.runs.count
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            return await service.runs.count == before
+        })
         let runsWhenPaused: Int = await service.runs.count
-        try await Task.sleep(nanoseconds: 50_000_000)
-        #expect(await service.runs.count == runsWhenPaused)
 
         repository.resume()
         #expect(await eventually { await service.runs.count > runsWhenPaused })
