@@ -11,6 +11,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [Open context](#open-context)
+- [Session modes](#session-modes)
 - [Voice messages](#voice-messages)
 - [Image messages](#image-messages)
 - [Theming](#theming)
@@ -97,9 +98,10 @@ Required properties:
 
 Optional properties:
 
-- **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `nil`, which keeps the conversation anonymous.
+- **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off on any device. Defaults to `nil`, which keeps the conversation anonymous. An anonymous conversation still picks up where it was left on the same device, until the app is deleted.
 - **`logLevel`** (`LogLevel`): How much the SDK writes to the system log. Defaults to `.warn`, which keeps it quiet outside of warnings and errors. See [Logging](#logging).
 - **`openContext`** (`[String: String]`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
+- **`sessionMode`** (`SessionMode`): How the conversation is scoped, and whether it is remembered between visits. Defaults to `.shared`, which is one conversation per person, remembered. See [Session modes](#session-modes).
 - **`hideWatermark`** (`Bool`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it.
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
@@ -124,7 +126,35 @@ What to expect:
 - The keys and values are yours. The channel decides what to make of them.
 - The loading indicator is shown while the chat waits for the channel to say the first thing.
 
-The context is part of the configuration, so a chat opened from somewhere else needs its own client. Every context shares the same conversation.
+The context is part of the configuration, so a chat opened from somewhere else needs its own client. By default every context shares one conversation. To give each its own, set `sessionMode` to `.perContext`. See [Session modes](#session-modes).
+
+## Session modes
+
+`sessionMode` decides how a conversation is scoped and whether it is remembered.
+
+```swift
+YaloChatClient(config: YaloChatClientConfig(
+    channelId: "your-channel-id",
+    organizationId: "your-organization-id",
+    channelName: "Support",
+    sessionMode: .ephemeral
+))
+```
+
+The modes:
+
+- **`.shared`** (default): one conversation per person, remembered until the app is deleted. What the chat was opened from makes no difference to which conversation is shown.
+- **`.perContext`**: one conversation per `openContext`, remembered the same way. Two chats opened from the same context carry on the same conversation, and a different context starts its own. A chat with no `openContext` behaves like `.shared`.
+- **`.ephemeral`**: a new conversation every time the chat is shown, and nothing left behind once it is closed.
+
+What to expect from `.ephemeral`:
+
+- Closing the chat ends the conversation. Its messages and pictures are deleted.
+- Leaving the chat on screen while the app goes to the background keeps the conversation.
+- Whatever an app closed from the app switcher did not get to delete is deleted the next time a chat is shown.
+- Two chats shown at once are two conversations, even when they were built from the same client.
+
+Each mode is also its own person to the channel, so a conversation scoped by context or by a single visit does not pick up what another one said.
 
 ## Voice messages
 

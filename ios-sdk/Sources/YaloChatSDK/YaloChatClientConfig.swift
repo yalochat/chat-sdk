@@ -8,6 +8,8 @@
 /// - `openContext`: what the chat is being opened from, for example the
 ///   product a person was looking at. Sent to the channel when the chat opens
 ///   on an empty conversation, so it can speak first.
+/// - `sessionMode`: how the conversation is scoped, and whether it is
+///   remembered between visits.
 /// - `hideWatermark`: leaves the "By Yalo" line out of the header.
 /// - `hideVoiceButton`: leaves the microphone out of the message input, so
 ///   nobody can record a voice message.
@@ -20,6 +22,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let userId: String?
     public let logLevel: LogLevel
     public let openContext: [String: String]
+    public let sessionMode: SessionMode
     public let hideWatermark: Bool
     public let hideVoiceButton: Bool
     public let hideAttachmentButton: Bool
@@ -31,6 +34,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         userId: String? = nil,
         logLevel: LogLevel = .warn,
         openContext: [String: String] = [:],
+        sessionMode: SessionMode = .shared,
         hideWatermark: Bool = false,
         hideVoiceButton: Bool = false,
         hideAttachmentButton: Bool = false
@@ -41,14 +45,16 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.userId = userId
         self.logLevel = logLevel
         self.openContext = openContext
+        self.sessionMode = sessionMode
         self.hideWatermark = hideWatermark
         self.hideVoiceButton = hideVoiceButton
         self.hideAttachmentButton = hideAttachmentButton
     }
 
-    /// Scopes what the device keeps for this conversation. Built like the
-    /// Android SDK's, so both agree on what one conversation is.
-    var sessionId: String {
+    /// The conversation before `sessionMode` has had its say: the whole
+    /// session in `shared`, and the start of it in the other modes. Built like
+    /// the other SDKs', so all agree on what one conversation is.
+    var baseSessionId: String {
         "\(organizationId)-\(channelId)-\(userId ?? "anonymous")"
     }
 }
