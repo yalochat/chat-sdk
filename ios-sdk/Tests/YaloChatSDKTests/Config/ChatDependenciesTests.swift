@@ -15,7 +15,8 @@ struct ChatDependenciesTests {
     @Test func mediaIsBuiltOnceAndShared() {
         let dependencies: ChatDependencies = ChatDependencies(config: config)
 
-        #expect(dependencies.media as AnyObject === dependencies.media as AnyObject)
+        #expect(dependencies.mediaService as AnyObject === dependencies.mediaService as AnyObject)
+        #expect(dependencies.media === dependencies.media)
     }
 
     @Test func mediaTalksToTheBaseURLAndCachesUnderTheCacheDirectory() async throws {
@@ -29,7 +30,7 @@ struct ChatDependenciesTests {
             session: server.session
         )
 
-        let file: URL = try await dependencies.media.download(server.baseURL.appendingPathComponent("a.ogg").absoluteString)
+        let file: URL = try await dependencies.mediaService.download(server.baseURL.appendingPathComponent("a.ogg").absoluteString)
 
         #expect(file.deletingLastPathComponent().lastPathComponent == "yalo-chat-media")
         #expect(file.path.hasPrefix(cacheDirectory.path))
@@ -97,6 +98,12 @@ struct ChatDependenciesTests {
         let dependencies: ChatDependencies = ChatDependencies(config: config)
 
         #expect(dependencies.voicePlayer as AnyObject === dependencies.voicePlayer as AnyObject)
+    }
+
+    @Test func voiceIsBuiltOnceAndShared() {
+        let dependencies: ChatDependencies = ChatDependencies(config: config)
+
+        #expect(dependencies.voice === dependencies.voice)
     }
 
     @Test func tokensAreBuiltOnceAndShared() {

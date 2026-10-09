@@ -12,6 +12,9 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
     private let players: (URL) throws -> AVAudioPlayer
     private var player: AVAudioPlayer?
     private var onFinished: (@MainActor () -> Void)?
+    /// Moves on with every play, pause and stop, so a play that was waiting
+    /// for the audio to switch over knows it was overtaken.
+    private var request: Int = 0
 
     init(
         session: AudioSession = AVAudioSession.sharedInstance(),
@@ -38,17 +41,22 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
             throw VoicePlayerServiceError.unplayable
         }
         loaded.delegate = self
-        loaded.prepareToPlay()
         player = loaded
         self.onFinished = onFinished
     }
 
-    func play() {
+    func play() async {
         guard let player else {
             return
         }
-        try? session.setCategory(.playback, mode: .spokenAudio, options: [])
-        try? session.setActive(true, options: [])
+        request += 1
+        let asked: Int = request
+        try? await session.activate(.playback, mode: .spokenAudio, options: []) {
+            player.prepareToPlay()
+        }
+        guard request == asked, self.player === player else {
+            return
+        }
         player.play()
     }
 
@@ -56,24 +64,21 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
         guard let player else {
             return
         }
+        request += 1
         player.pause()
-        deactivate()
+        session.deactivate()
     }
 
     func stop() {
         guard let loaded = player else {
             return
         }
+        request += 1
         player = nil
         onFinished = nil
         loaded.delegate = nil
         loaded.stop()
-        deactivate()
-    }
-
-    /// Lets whatever the note interrupted, like music, carry on.
-    private func deactivate() {
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        session.deactivate()
     }
 
     private func finished(_ finished: ObjectIdentifier) {
@@ -81,7 +86,7 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
         guard let player, ObjectIdentifier(player) == finished else {
             return
         }
-        deactivate()
+        session.deactivate()
         onFinished?()
     }
 }

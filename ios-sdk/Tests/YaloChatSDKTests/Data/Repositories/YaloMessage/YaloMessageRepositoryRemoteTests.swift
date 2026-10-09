@@ -194,6 +194,97 @@ struct YaloMessageRepositoryRemoteTests {
         repository.close()
     }
 
+    @Test func sendsVoiceInTheWireFormat() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        let written: Date = Date(timeIntervalSince1970: 1_700_000_000)
+        repository.connect()
+
+        try await repository.send(ChatMessage(
+            role: .user,
+            type: .voice,
+            timestamp: written,
+            id: 8,
+            voice: VoiceNote(
+                duration: 2.5,
+                amplitudes: [0.25, 1],
+                mediaURL: "media-1",
+                mimeType: "audio/mp4",
+                fileName: "voice-1.m4a",
+                byteCount: 512,
+                localFileName: "voice-1.m4a"
+            )
+        ))
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .voiceNoteMessageRequest(let request) = sent.payload else {
+            Issue.record("expected a voice note message request")
+            return
+        }
+        #expect(sent.correlationID == "8")
+        #expect(request.timestamp.date == Self.now)
+        #expect(request.content.mediaURL == "media-1")
+        #expect(request.content.mediaType == "audio/mp4")
+        #expect(request.content.fileName == "voice-1.m4a")
+        #expect(request.content.byteCount == 512)
+        #expect(request.content.duration == 2.5)
+        #expect(request.content.amplitudesPreview == [0.25, 1])
+        #expect(request.content.timestamp.date == written)
+        #expect(request.content.role == .user)
+        #expect(request.content.status == .inProgress)
+        repository.close()
+    }
+
+    @Test func refusesAVoiceMessageWithNoRecording() async {
+        let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
+        repository.connect()
+
+        await #expect(throws: YaloMessageRepositoryError.unsupported(.voice)) {
+            try await repository.send(ChatMessage(role: .user, type: .voice, timestamp: Self.now))
+        }
+        repository.close()
+    }
+
+    @Test func turnsVoiceFromTheChannelIntoAgentMessages() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        var request: Yalo_ExternalChannel_InApp_Sdk_V2_VoiceNoteMessageRequest = .init()
+        request.content.mediaURL = "https://cdn/voice.ogg"
+        request.content.mediaType = "audio/ogg"
+        request.content.fileName = "voice.ogg"
+        request.content.byteCount = 1_024
+        request.content.duration = 3
+        request.content.amplitudesPreview = [0.5]
+        request.footer = "Footer"
+        var item: PollMessageItem = PollMessageItem()
+        item.id = "wi-9"
+        item.status = "DELIVERED"
+        item.date = Google_Protobuf_Timestamp(date: Self.now)
+        item.message.payload = .voiceNoteMessageRequest(request)
+
+        let messages: AsyncStream<ChatMessage> = repository.messages()
+        #expect(await eventually { await service.listenerCount == 1 })
+        await service.emit(item)
+
+        var iterator: AsyncStream<ChatMessage>.Iterator = messages.makeAsyncIterator()
+        #expect(await iterator.next() == ChatMessage(
+            role: .agent,
+            type: .voice,
+            timestamp: Self.now,
+            wiId: "wi-9",
+            status: .delivered,
+            footer: "Footer",
+            voice: VoiceNote(
+                duration: 3,
+                amplitudes: [0.5],
+                mediaURL: "https://cdn/voice.ogg",
+                mimeType: "audio/ogg",
+                fileName: "voice.ogg",
+                byteCount: 1_024
+            )
+        ))
+    }
+
     @Test func refusesToSendWhileClosed() async {
         let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
 

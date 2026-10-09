@@ -43,6 +43,19 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, isWaitingForReply: isWaitingForReply)))
     }
 
+    @Test(arguments: [nil, VoicePlayback(messageId: 1, position: 1, duration: 3, isPlaying: true)])
+    func messageListRendersVoiceMessages(playback: VoicePlayback?) {
+        let note: VoiceNote = VoiceNote(duration: 3, amplitudes: [0.2, 0.8])
+        let messages: [ChatMessage] = [
+            ChatMessage(role: .agent, type: .voice, timestamp: Date(), id: 1, voice: note),
+            ChatMessage(role: .user, type: .voice, timestamp: Date(), id: 2, voice: note),
+            // Named a voice message but sent nothing to play.
+            ChatMessage(role: .agent, type: .voice, timestamp: Date(), id: 3),
+        ]
+
+        #expect(renders(ChatMessageList(messages: messages, playback: playback)))
+    }
+
     @Test func aLongReplyLeavesTheListScrolledToTheVeryEnd() async throws {
         let conversation: Conversation = Conversation()
         conversation.messages = (1...30).map { id in

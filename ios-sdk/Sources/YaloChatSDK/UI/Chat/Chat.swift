@@ -3,6 +3,9 @@
 import SwiftUI
 
 /// The chat screen: a header, the conversation and the message input.
+///
+/// Voice messages need `NSMicrophoneUsageDescription` in your app's
+/// Info.plist. Set `hideVoiceButton` in the client config to leave them out.
 public struct Chat: View {
     private let client: YaloChatClient
     private let theme: ChatTheme
@@ -40,12 +43,32 @@ public struct Chat: View {
                 hideWatermark: client.config.hideWatermark,
                 onBack: onBack
             )
-            ChatMessageList(messages: viewModel.messages, isWaitingForReply: viewModel.isWaitingForReply)
-            ChatInput(text: $viewModel.draft, onSend: {
-                Task {
-                    await viewModel.send()
+            ChatMessageList(
+                messages: viewModel.messages,
+                isWaitingForReply: viewModel.isWaitingForReply,
+                playback: viewModel.playback,
+                onToggleVoiceMessage: { message in
+                    Task {
+                        await viewModel.toggleVoiceMessage(message)
+                    }
                 }
-            })
+            )
+            ChatInput(
+                text: $viewModel.draft,
+                onSend: {
+                    Task {
+                        await viewModel.send()
+                    }
+                },
+                hideVoiceButton: client.config.hideVoiceButton,
+                recording: viewModel.recording,
+                onStartRecording: {
+                    Task {
+                        await viewModel.startRecording()
+                    }
+                },
+                onCancelRecording: viewModel.cancelRecording
+            )
         }
         .background(theme.background)
         .environment(\.chatTheme, theme)

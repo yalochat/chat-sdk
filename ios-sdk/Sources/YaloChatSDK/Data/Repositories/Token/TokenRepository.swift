@@ -41,4 +41,13 @@ actor TokenRepository {
         held = issued
         return issued.accessToken
     }
+
+    /// Forgets the token the backend refused, so the next caller gets a new one.
+    /// The refresh token is kept, so the person stays the same.
+    func invalidate() {
+        guard let held else {
+            return
+        }
+        self.held = AuthToken(accessToken: held.accessToken, refreshToken: held.refreshToken, expiresAt: .distantPast)
+    }
 }

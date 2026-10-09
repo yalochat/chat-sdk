@@ -10,6 +10,7 @@ final class ChatDependencies {
     private let cacheDirectory: URL
     private let databaseURL: URL?
     private let imagesDirectory: URL
+    private let voiceDirectory: URL
     private let session: URLSession
 
     init(
@@ -21,6 +22,9 @@ final class ChatDependencies {
         // Not the cache: the system may empty it while a sent picture still needs its copy.
         imagesDirectory: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("yalo-chat/images", isDirectory: true),
+        // Not the cache either: a recorded note is the only copy that can be played back.
+        voiceDirectory: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("yalo-chat/voice", isDirectory: true),
         session: URLSession = .shared
     ) {
         self.config = config
@@ -28,10 +32,11 @@ final class ChatDependencies {
         self.cacheDirectory = cacheDirectory
         self.databaseURL = databaseURL
         self.imagesDirectory = imagesDirectory
+        self.voiceDirectory = voiceDirectory
         self.session = session
     }
 
-    lazy var media: YaloMediaService = YaloMediaRemoteService(
+    lazy var mediaService: YaloMediaService = YaloMediaRemoteService(
         baseURL: baseURL,
         cacheDirectory: cacheDirectory.appendingPathComponent("yalo-chat-media", isDirectory: true),
         session: session
@@ -55,6 +60,14 @@ final class ChatDependencies {
 
     lazy var tokens: TokenRepository = TokenRepository(auth: auth)
 
+    lazy var media: MediaRepository = MediaRepository(service: mediaService, tokens: tokens)
+
+    lazy var voice: VoiceRepository = VoiceRepositoryLocal(
+        recorder: voiceRecorder,
+        player: voicePlayer,
+        directory: voiceDirectory
+    )
+
     lazy var yaloMessageService: YaloMessageService = YaloMessageWebSocketService(baseURL: baseURL, session: session)
 
     lazy var yaloMessages: YaloMessageRepository = YaloMessageRepositoryRemote(
@@ -66,6 +79,8 @@ final class ChatDependencies {
         ChatViewModel(
             chatMessages: chatMessages,
             yaloMessages: yaloMessages,
+            voice: voice,
+            media: media,
             sessionId: config.sessionId
         )
     }

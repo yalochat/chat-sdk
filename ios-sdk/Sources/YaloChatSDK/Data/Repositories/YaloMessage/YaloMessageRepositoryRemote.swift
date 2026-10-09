@@ -97,10 +97,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         guard lifecycle != .closed else {
             throw YaloMessageRepositoryError.closed
         }
-        guard message.type == .text else {
-            throw YaloMessageRepositoryError.unsupported(message.type)
-        }
-        try await service.send(Self.textMessage(from: message, sentAt: now()))
+        try await service.send(try Self.sdkMessage(from: message, sentAt: now()))
     }
 
     private func startConnecting() {
@@ -133,38 +130,84 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         }
     }
 
-    private static func textMessage(from message: ChatMessage, sentAt: Date) -> SdkMessage {
-        var content: Yalo_ExternalChannel_InApp_Sdk_V2_TextMessage = .init()
-        content.text = message.content
-        // When it was written, which is not when it goes out.
-        content.timestamp = Google_Protobuf_Timestamp(date: message.timestamp)
-        content.role = .user
-        content.status = .inProgress
-        var request: Yalo_ExternalChannel_InApp_Sdk_V2_TextMessageRequest = .init()
-        request.timestamp = Google_Protobuf_Timestamp(date: sentAt)
-        request.content = content
+    /// A voice message with no recording has nothing for the channel to play,
+    /// so it is refused rather than sent empty.
+    private static func sdkMessage(from message: ChatMessage, sentAt: Date) throws -> SdkMessage {
         var envelope: SdkMessage = SdkMessage()
         // The row id, so an acknowledgement names the row it belongs to.
         envelope.correlationID = message.id.map(String.init) ?? UUID().uuidString
         envelope.timestamp = Google_Protobuf_Timestamp(date: sentAt)
-        envelope.payload = .textMessageRequest(request)
+        switch (message.type, message.voice) {
+        case (.text, _):
+            var content: Yalo_ExternalChannel_InApp_Sdk_V2_TextMessage = .init()
+            content.text = message.content
+            // When it was written, which is not when it goes out.
+            content.timestamp = Google_Protobuf_Timestamp(date: message.timestamp)
+            content.role = .user
+            content.status = .inProgress
+            var request: Yalo_ExternalChannel_InApp_Sdk_V2_TextMessageRequest = .init()
+            request.timestamp = Google_Protobuf_Timestamp(date: sentAt)
+            request.content = content
+            envelope.payload = .textMessageRequest(request)
+        case (.voice, let note?):
+            var content: Yalo_ExternalChannel_InApp_Sdk_V2_VoiceMessage = .init()
+            // The id the upload answered with, which is what the channel expects.
+            content.mediaURL = note.mediaURL
+            content.mediaType = note.mimeType
+            content.fileName = note.fileName
+            content.byteCount = note.byteCount
+            content.duration = note.duration
+            content.amplitudesPreview = note.amplitudes
+            content.timestamp = Google_Protobuf_Timestamp(date: message.timestamp)
+            content.role = .user
+            content.status = .inProgress
+            var request: Yalo_ExternalChannel_InApp_Sdk_V2_VoiceNoteMessageRequest = .init()
+            request.timestamp = Google_Protobuf_Timestamp(date: sentAt)
+            request.content = content
+            envelope.payload = .voiceNoteMessageRequest(request)
+        default:
+            throw YaloMessageRepositoryError.unsupported(message.type)
+        }
         return envelope
     }
 
-    /// Only text so far. Anything else is left out rather than shown empty.
+    /// Text and voice so far. Anything else is left out rather than shown empty.
     private static func chatMessage(from item: PollMessageItem, now: Date) -> ChatMessage? {
-        guard case .textMessageRequest(let request) = item.message.payload else {
+        let timestamp: Date = item.hasDate ? item.date.date : now
+        let status: ChatMessage.Status = ChatMessage.Status(rawValue: item.status) ?? .delivered
+        switch item.message.payload {
+        case .textMessageRequest(let request):
+            return ChatMessage(
+                role: .agent,
+                type: .text,
+                timestamp: timestamp,
+                wiId: item.id,
+                content: request.content.text,
+                status: status,
+                header: request.hasHeader ? request.header : nil,
+                footer: request.hasFooter ? request.footer : nil
+            )
+        case .voiceNoteMessageRequest(let request):
+            // An address to download from, not a file that is already here.
+            return ChatMessage(
+                role: .agent,
+                type: .voice,
+                timestamp: timestamp,
+                wiId: item.id,
+                status: status,
+                header: request.hasHeader ? request.header : nil,
+                footer: request.hasFooter ? request.footer : nil,
+                voice: VoiceNote(
+                    duration: request.content.duration,
+                    amplitudes: request.content.amplitudesPreview,
+                    mediaURL: request.content.mediaURL,
+                    mimeType: request.content.mediaType,
+                    fileName: request.content.fileName,
+                    byteCount: request.content.byteCount
+                )
+            )
+        default:
             return nil
         }
-        return ChatMessage(
-            role: .agent,
-            type: .text,
-            timestamp: item.hasDate ? item.date.date : now,
-            wiId: item.id,
-            content: request.content.text,
-            status: ChatMessage.Status(rawValue: item.status) ?? .delivered,
-            header: request.hasHeader ? request.header : nil,
-            footer: request.hasFooter ? request.footer : nil
-        )
     }
 }

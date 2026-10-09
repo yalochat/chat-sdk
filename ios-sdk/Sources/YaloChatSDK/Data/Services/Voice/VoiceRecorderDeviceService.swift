@@ -40,27 +40,29 @@ final class VoiceRecorderDeviceService: VoiceRecorderService {
         guard await permission() else {
             throw VoiceRecorderServiceError.permissionDenied
         }
-        // Another start may have won while the person was being asked.
-        guard recorder == nil else {
-            throw VoiceRecorderServiceError.alreadyRecording
-        }
+        let started: AVAudioRecorder
         do {
             try FileManager.default.createDirectory(
                 at: target.deletingLastPathComponent(),
                 withIntermediateDirectories: true
             )
-            try session.setCategory(.playAndRecord, mode: .default, options: .defaultToSpeaker)
-            try session.setActive(true, options: [])
-            let started: AVAudioRecorder = try recorders(target, Self.settings)
+            started = try recorders(target, Self.settings)
             started.isMeteringEnabled = true
-            guard started.record() else {
-                throw VoiceRecorderServiceError.unavailable
+            try await session.activate(.playAndRecord, mode: .default, options: .defaultToSpeaker) {
+                guard started.record() else {
+                    throw VoiceRecorderServiceError.unavailable
+                }
             }
-            recorder = started
         } catch {
-            deactivate()
+            session.deactivate()
             throw VoiceRecorderServiceError.unavailable
         }
+        // Another start may have won while the person was asked or the audio switched over.
+        guard recorder == nil else {
+            started.stop()
+            throw VoiceRecorderServiceError.alreadyRecording
+        }
+        recorder = started
     }
 
     func amplitude() -> Float {
@@ -79,12 +81,7 @@ final class VoiceRecorderDeviceService: VoiceRecorderService {
         }
         recorder = nil
         running.stop()
-        deactivate()
-    }
-
-    /// Lets whatever the recording interrupted, like music, carry on.
-    private func deactivate() {
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        session.deactivate()
     }
 
     nonisolated static func askForMicrophone() async -> Bool {

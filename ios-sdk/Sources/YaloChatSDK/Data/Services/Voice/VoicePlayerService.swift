@@ -21,8 +21,9 @@ protocol VoicePlayerService {
     /// when it is paused or replaced.
     func load(_ file: URL, onFinished: @escaping @MainActor () -> Void) throws
 
-    /// Plays from wherever the loaded note is. Nothing loaded, nothing happens.
-    func play()
+    /// Plays from wherever the loaded note is, once the audio has switched
+    /// over. Nothing loaded, nothing happens.
+    func play() async
 
     func pause()
 
