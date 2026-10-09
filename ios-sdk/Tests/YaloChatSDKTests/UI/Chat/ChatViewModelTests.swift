@@ -27,14 +27,29 @@ struct ChatViewModelTests {
         )
     }
 
-    private func viewModel(replyTimeout: TimeInterval = 45, openContext: [String: String] = [:]) -> ChatViewModel {
+    private let ephemeralDirectory: URL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("yalo-chat-view-model-ephemeral-\(UUID().uuidString)", isDirectory: true)
+    private let run: ChatViewModel.Run = ChatViewModel.Run()
+    private let tokenStore: FakeTokenStore = FakeTokenStore()
+
+    private func viewModel(
+        replyTimeout: TimeInterval = 45,
+        openContext: [String: String] = [:],
+        sessionId: String = "session-1",
+        ephemeral: Bool = false,
+        chatMessages: ChatMessageService? = nil
+    ) -> ChatViewModel {
         ChatViewModel(
-            chatMessages: storage,
+            chatMessages: chatMessages ?? storage,
             yaloMessages: channel,
             voice: voice,
             media: MediaRepository(service: mediaService, tokens: TokenRepository(auth: CountingAuthService())),
             images: ImageDeviceService(directory: imagesDirectory),
-            sessionId: "session-1",
+            tokens: TokenRepository(auth: CountingAuthService(), store: tokenStore, sessionId: sessionId, ephemeral: ephemeral),
+            sessionId: sessionId,
+            ephemeral: ephemeral,
+            ephemeralDirectory: ephemeralDirectory,
+            run: run,
             openContext: openContext,
             now: { Self.now },
             replyTimeout: replyTimeout
@@ -70,6 +85,99 @@ struct ChatViewModelTests {
         await running.value
 
         #expect(channel.closes == 1)
+    }
+
+    private func folder(of sessionId: String) -> URL {
+        ephemeralDirectory.appendingPathComponent(sessionId, isDirectory: true)
+    }
+
+    private func stored(_ sessionId: String) async throws -> Int {
+        try await storage.messages(sessionId: sessionId, limit: 10).count
+    }
+
+    /// Everything a conversation leaves on the device: a message, a file and a token.
+    private func leaveBehind(_ sessionId: String, ephemeral: Bool = true) async throws {
+        _ = try await storage.insert(agentMessage("old"), sessionId: sessionId)
+        try FileManager.default.createDirectory(at: folder(of: sessionId), withIntermediateDirectories: true)
+        try tokenStore.save(AuthToken(accessToken: "old", refreshToken: "", expiresAt: .distantFuture), sessionId: sessionId, ephemeral: ephemeral)
+    }
+
+    /// Starts `viewModel` and lets it run until the sweep has had its turn.
+    private func run(_ viewModel: ChatViewModel) async {
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        _ = await eventually { channel.isListening && run.swept }
+        running.cancel()
+        await running.value
+    }
+
+    @Test(arguments: [false, true])
+    func startForgetsWhatEarlierRunsLeftBehind(ephemeral: Bool) async throws {
+        try await leaveBehind("abandoned")
+        try await leaveBehind("remembered", ephemeral: false)
+
+        await run(viewModel(ephemeral: ephemeral))
+
+        #expect(await eventually { tokenStore.stored("abandoned") == nil })
+        #expect(try await stored("abandoned") == 0)
+        #expect(!FileManager.default.fileExists(atPath: folder(of: "abandoned").path))
+        #expect(try await stored("remembered") == 1)
+        #expect(tokenStore.stored("remembered") != nil)
+    }
+
+    @Test func theSweepKeepsTheConversationsOpenNow() async throws {
+        let open: ChatViewModel = viewModel(sessionId: "open", ephemeral: true)
+        try await leaveBehind("open")
+
+        await run(viewModel())
+
+        #expect(try await stored("open") == 1)
+        #expect(tokenStore.stored("open") != nil)
+        withExtendedLifetime(open) {}
+    }
+
+    @Test func theSweepRunsOnceARun() async throws {
+        await run(viewModel())
+        try await leaveBehind("abandoned")
+
+        await run(viewModel())
+
+        #expect(try await stored("abandoned") == 1)
+    }
+
+    @Test func anEphemeralConversationIsForgottenOnceTheChatIsGone() async throws {
+        var viewModel: ChatViewModel? = viewModel(ephemeral: true)
+        try await leaveBehind("session-1")
+        await run(try #require(viewModel))
+
+        viewModel = nil
+
+        #expect(await eventually { tokenStore.stored("session-1") == nil })
+        #expect(try await stored("session-1") == 0)
+        #expect(!FileManager.default.fileExists(atPath: folder(of: "session-1").path))
+    }
+
+    @Test func aRememberedConversationOutlivesItsChat() async throws {
+        var viewModel: ChatViewModel? = viewModel()
+        try await leaveBehind("session-1", ephemeral: false)
+        await run(try #require(viewModel))
+
+        viewModel = nil
+        try await Task.sleep(nanoseconds: 50_000_000)
+
+        #expect(try await stored("session-1") == 1)
+        #expect(tokenStore.stored("session-1") != nil)
+    }
+
+    @Test func aConversationWhoseMessagesCannotBeForgottenIsFoundAgain() async throws {
+        let unreadable: URL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: unreadable, withIntermediateDirectories: true)
+        try tokenStore.save(AuthToken(accessToken: "old", refreshToken: "", expiresAt: .distantFuture), sessionId: "abandoned", ephemeral: true)
+
+        await run(viewModel(chatMessages: ChatMessageDatabaseService(fileURL: unreadable)))
+
+        #expect(tokenStore.stored("abandoned") != nil)
     }
 
     @Test func anEmptyConversationAsksTheChannelToSpeakFirst() async {

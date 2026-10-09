@@ -73,19 +73,65 @@ struct ChatDependenciesTests {
         #expect(dependencies.images as AnyObject === dependencies.images as AnyObject)
     }
 
-    @Test func imagesAreCopiedUnderTheImagesDirectory() async throws {
-        let imagesDirectory: URL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        let picked: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
-        try Data("picture bytes".utf8).write(to: picked)
+    @Test func imagesAreCopiedUnderTheStorageDirectory() async throws {
+        let storageDirectory: URL = Self.temporaryDirectory()
+        let dependencies: ChatDependencies = ChatDependencies(config: config, storageDirectory: storageDirectory)
+
+        let content: MediaContent = try await dependencies.images.content(try Self.pickedPicture())
+
+        #expect(content.fileURL.deletingLastPathComponent().standardizedFileURL
+            == storageDirectory.appendingPathComponent("images").standardizedFileURL)
+    }
+
+    @Test func anEphemeralConversationKeepsItsImagesInItsOwnFolder() async throws {
+        let storageDirectory: URL = Self.temporaryDirectory()
         let dependencies: ChatDependencies = ChatDependencies(
-            config: config,
-            imagesDirectory: imagesDirectory
+            config: YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo", sessionMode: .ephemeral),
+            storageDirectory: storageDirectory
         )
 
-        let content: MediaContent = try await dependencies.images.content(try #require(NSItemProvider(contentsOf: picked)))
+        let content: MediaContent = try await dependencies.images.content(try Self.pickedPicture())
 
-        #expect(content.fileURL.standardizedFileURL.path.hasPrefix(imagesDirectory.standardizedFileURL.path))
+        let expected: URL = storageDirectory
+            .appendingPathComponent("ephemeral/\(dependencies.chatSession.id)/images")
+        #expect(content.fileURL.deletingLastPathComponent().standardizedFileURL == expected.standardizedFileURL)
+    }
+
+    @Test func everyEphemeralChatIsItsOwnConversation() {
+        let ephemeral: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            sessionMode: .ephemeral
+        )
+
+        #expect(ChatDependencies(config: ephemeral).chatSession != ChatDependencies(config: ephemeral).chatSession)
+        #expect(ChatDependencies(config: config).chatSession == ChatDependencies(config: config).chatSession)
+    }
+
+    @Test func authIsToldTheSessionsUser() async throws {
+        let server: StubServer = StubServer(body: Data("""
+        {"access_token": "access", "refresh_token": "refresh", "expires_in": 60}
+        """.utf8))
+        let dependencies: ChatDependencies = ChatDependencies(
+            config: YaloChatClientConfig(
+                channelId: "channel-1",
+                organizationId: "org-1",
+                channelName: "Yalo",
+                userId: "user-1",
+                openContext: ["sku": "37549996"],
+                sessionMode: .perContext
+            ),
+            baseURL: server.baseURL,
+            session: server.session
+        )
+
+        _ = try await dependencies.auth.authenticate()
+
+        let sent: RecordedRequest = try #require(server.requests.first)
+        let body: [String: Any] = try #require(try JSONSerialization.jsonObject(with: sent.body) as? [String: Any])
+        #expect(body["user_id"] as? String == dependencies.chatSession.authUserId)
+        #expect(dependencies.chatSession.authUserId != "user-1")
     }
 
     @Test func voiceRecorderIsBuiltOnceAndShared() {
@@ -116,7 +162,12 @@ struct ChatDependenciesTests {
         let server: StubServer = StubServer(body: Data("""
         {"access_token": "access", "refresh_token": "refresh", "expires_in": 60}
         """.utf8))
-        let dependencies: ChatDependencies = ChatDependencies(config: config, baseURL: server.baseURL, session: server.session)
+        let dependencies: ChatDependencies = ChatDependencies(
+            config: config,
+            baseURL: server.baseURL,
+            session: server.session,
+            tokenStore: FakeTokenStore()
+        )
 
         let token: String = try await dependencies.tokens.token()
 
@@ -137,11 +188,13 @@ struct ChatDependenciesTests {
             config: config,
             baseURL: server.baseURL,
             databaseURL: nil,
-            session: server.session
+            storageDirectory: Self.temporaryDirectory(),
+            session: server.session,
+            tokenStore: FakeTokenStore()
         )
         _ = try await dependencies.chatMessages.insert(
             ChatMessage(role: .agent, type: .text, timestamp: Date(), wiId: "wi-1", content: "Hi"),
-            sessionId: config.sessionId
+            sessionId: dependencies.chatSession.id
         )
         let viewModel: ChatViewModel = dependencies.chatViewModel()
 
@@ -151,5 +204,15 @@ struct ChatDependenciesTests {
 
         #expect(await eventually { viewModel.messages.map(\.content) == ["Hi"] })
         running.cancel()
+    }
+
+    private static func temporaryDirectory() -> URL {
+        FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+    }
+
+    private static func pickedPicture() throws -> NSItemProvider {
+        let picked: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
+        try Data("picture bytes".utf8).write(to: picked)
+        return try #require(NSItemProvider(contentsOf: picked))
     }
 }

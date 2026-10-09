@@ -32,7 +32,11 @@ struct ChatTests {
             ),
             media: MediaRepository(service: FakeYaloMediaService(), tokens: TokenRepository(auth: CountingAuthService())),
             images: ImageDeviceService(directory: FileManager.default.temporaryDirectory),
-            sessionId: client.config.sessionId
+            tokens: TokenRepository(auth: CountingAuthService()),
+            sessionId: client.config.baseSessionId,
+            ephemeralDirectory: FileManager.default.temporaryDirectory
+                .appendingPathComponent("yalo-chat-tests-\(UUID().uuidString)", isDirectory: true),
+            run: ChatViewModel.Run()
         )
         return Chat(client: client, theme: theme, onBack: onBack, viewModel: viewModel)
     }

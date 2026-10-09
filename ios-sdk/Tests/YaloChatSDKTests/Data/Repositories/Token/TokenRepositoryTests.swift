@@ -55,10 +55,11 @@ private final class TestClock: @unchecked Sendable {
 
 struct TokenRepositoryTests {
     private let clock: TestClock = TestClock()
+    private let store: FakeTokenStore = FakeTokenStore()
 
-    private func repository(_ auth: FakeAuthService) -> TokenRepository {
+    private func repository(_ auth: FakeAuthService, ephemeral: Bool = false) -> TokenRepository {
         let clock: TestClock = clock
-        return TokenRepository(auth: auth, now: { clock.now })
+        return TokenRepository(auth: auth, store: store, sessionId: "session-1", ephemeral: ephemeral, now: { clock.now })
     }
 
     @Test func reusesATokenWhileItIsUsable() async throws {
@@ -140,5 +141,82 @@ struct TokenRepositoryTests {
         _ = try? await tokens.token()
 
         #expect(await auth.authentications == 2)
+    }
+
+    @Test func aNewRunPicksUpTheStoredToken() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        _ = try await repository(auth).token()
+
+        let token: String = try await repository(auth).token()
+
+        #expect(token == "authenticated-1")
+        #expect(await auth.authentications == 1)
+    }
+
+    @Test func aNewRunKeepsThePersonWhenTheStoredTokenRanOut() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        _ = try await repository(auth).token()
+        clock.advance(by: 61)
+
+        let token: String = try await repository(auth).token()
+
+        #expect(token == "refreshed")
+        #expect(await auth.authentications == 1)
+        #expect(store.stored("session-1")?.token.accessToken == "refreshed")
+    }
+
+    @Test(arguments: [false, true])
+    func storesWhetherTheSessionIsEphemeral(ephemeral: Bool) async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+
+        _ = try await repository(auth, ephemeral: ephemeral).token()
+
+        #expect(store.stored("session-1")?.ephemeral == ephemeral)
+        #expect(await repository(auth).ephemeralSessions() == (ephemeral ? ["session-1"] : []))
+    }
+
+    @Test func aRefusedTokenIsStoredAsSpent() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        let tokens: TokenRepository = repository(auth)
+        _ = try await tokens.token()
+
+        await tokens.invalidate()
+
+        #expect(store.stored("session-1")?.token.expiresAt == .distantPast)
+    }
+
+    @Test func aStoredTokenThatCannotBeReadIsForgotten() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        try store.save(AuthToken(accessToken: "old", refreshToken: "", expiresAt: .distantFuture), sessionId: "session-1", ephemeral: false)
+        store.fail(with: TokenStoreServiceError.unreadable)
+        let tokens: TokenRepository = repository(auth)
+
+        let token: String = try await tokens.token()
+
+        #expect(token == "authenticated-1")
+    }
+
+    @Test func aStoreThatFailsStillHandsOutTokens() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        store.fail(with: TokenStoreServiceError.keychainFailed(status: -1))
+        let tokens: TokenRepository = repository(auth)
+
+        #expect(try await tokens.token() == "authenticated-1")
+        #expect(try await tokens.token() == "authenticated-1")
+        #expect(await tokens.ephemeralSessions().isEmpty)
+        await #expect(throws: TokenStoreServiceError.keychainFailed(status: -1)) {
+            try await tokens.deleteSessions(["session-1"])
+        }
+    }
+
+    @Test func deletingTheSessionForgetsTheTokenInHand() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        let tokens: TokenRepository = repository(auth)
+        _ = try await tokens.token()
+
+        try await tokens.deleteSessions(["other", "session-1"])
+
+        #expect(store.stored("session-1") == nil)
+        #expect(try await tokens.token() == "authenticated-2")
     }
 }

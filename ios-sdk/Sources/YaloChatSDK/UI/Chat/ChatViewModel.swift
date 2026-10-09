@@ -12,9 +12,22 @@ import SwiftUI
 ///
 /// `recording` and `playback` change many times a second, so only the parts
 /// of the screen that draw a waveform should read them.
+///
+/// An ephemeral conversation is forgotten once its chat is gone. The stored
+/// token is what says a conversation was ephemeral, as in the Android SDK, so
+/// it is forgotten last: one that could not be forgotten whole is found again
+/// by the sweep of the next run.
 @MainActor
 final class ChatViewModel: ObservableObject {
+    /// What one run of the app knows about its ephemeral conversations.
+    @MainActor
+    final class Run {
+        var open: Set<String> = []
+        var swept: Bool = false
+    }
+
     static let pageSize: Int = 50
+    static let run: Run = Run()
 
     @Published var draft: String = ""
     /// Oldest first.
@@ -31,7 +44,12 @@ final class ChatViewModel: ObservableObject {
     private let voice: VoiceRepository
     private let media: MediaRepository
     private let images: ImageService
+    private let tokens: TokenRepository
     private let sessionId: String
+    private let ephemeral: Bool
+    /// Where each ephemeral conversation keeps its files, a folder per session.
+    private let ephemeralDirectory: URL
+    private let run: Run
     private let openContext: [String: String]
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
@@ -52,7 +70,11 @@ final class ChatViewModel: ObservableObject {
         voice: VoiceRepository,
         media: MediaRepository,
         images: ImageService,
+        tokens: TokenRepository,
         sessionId: String,
+        ephemeral: Bool = false,
+        ephemeralDirectory: URL,
+        run: Run,
         openContext: [String: String] = [:],
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
@@ -62,16 +84,42 @@ final class ChatViewModel: ObservableObject {
         self.voice = voice
         self.media = media
         self.images = images
+        self.tokens = tokens
         self.sessionId = sessionId
+        self.ephemeral = ephemeral
+        self.ephemeralDirectory = ephemeralDirectory
+        self.run = run
         self.openContext = openContext
         self.now = now
         self.replyTimeout = replyTimeout
         voice.recording.assign(to: &$recording)
         voice.playback.assign(to: &$playback)
+        if ephemeral {
+            // Said before any sweep reads, so a sweep never takes it.
+            run.open.insert(sessionId)
+        }
+    }
+
+    /// The chat is gone for good rather than off screen, which is what ends
+    /// an ephemeral conversation.
+    deinit {
+        guard ephemeral else {
+            return
+        }
+        let (run, sessionId): (Run, String) = (run, sessionId)
+        let (chatMessages, tokens, directory): (ChatMessageService, TokenRepository, URL) = (chatMessages, tokens, ephemeralDirectory)
+        Task { @MainActor in
+            run.open.remove(sessionId)
+            await Self.forget([sessionId], chatMessages: chatMessages, tokens: tokens, ephemeralDirectory: directory)
+        }
     }
 
     /// Runs the conversation for as long as the calling task lives.
     func start() async {
+        // Not tied to the screen, so leaving it does not cut the sweep short.
+        Task {
+            await sweepAbandoned()
+        }
         // Listening comes first, so nothing said while connecting is missed.
         let incoming: AsyncStream<ChatMessage> = yaloMessages.messages()
         yaloMessages.connect()
@@ -275,6 +323,38 @@ final class ChatViewModel: ObservableObject {
         replyDeadline?.cancel()
         replyDeadline = nil
         isWaitingForReply = false
+    }
+
+    /// Forgets the ephemeral conversations earlier runs of the app left
+    /// behind, once a run. It runs in every mode, since an app that moved off
+    /// ephemeral is the one case where nothing else would reach them.
+    private func sweepAbandoned() async {
+        guard !run.swept else {
+            return
+        }
+        run.swept = true
+        let abandoned: [String] = await tokens.ephemeralSessions().filter { sessionId in
+            !run.open.contains(sessionId)
+        }
+        guard !abandoned.isEmpty else {
+            return
+        }
+        await Self.forget(abandoned, chatMessages: chatMessages, tokens: tokens, ephemeralDirectory: ephemeralDirectory)
+    }
+
+    private static func forget(
+        _ sessionIds: [String],
+        chatMessages: ChatMessageService,
+        tokens: TokenRepository,
+        ephemeralDirectory: URL
+    ) async {
+        guard (try? await chatMessages.deleteSessions(sessionIds)) != nil else {
+            return
+        }
+        for sessionId in sessionIds {
+            try? FileManager.default.removeItem(at: ephemeralDirectory.appendingPathComponent(sessionId, isDirectory: true))
+        }
+        try? await tokens.deleteSessions(sessionIds)
     }
 
     @discardableResult

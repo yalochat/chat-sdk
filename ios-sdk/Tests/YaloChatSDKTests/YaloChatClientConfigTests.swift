@@ -8,7 +8,7 @@ struct YaloChatClientConfigTests {
         (nil, "org-1-channel-1-anonymous"),
         ("user-1", "org-1-channel-1-user-1"),
     ] as [(String?, String)])
-    func sessionIdMatchesTheOtherSDKs(userId: String?, expected: String) {
+    func baseSessionIdMatchesTheOtherSDKs(userId: String?, expected: String) {
         let config: YaloChatClientConfig = YaloChatClientConfig(
             channelId: "channel-1",
             organizationId: "org-1",
@@ -16,7 +16,7 @@ struct YaloChatClientConfigTests {
             userId: userId
         )
 
-        #expect(config.sessionId == expected)
+        #expect(config.baseSessionId == expected)
     }
 
     @Test func showsEverythingUnlessToldOtherwise() {
@@ -32,5 +32,11 @@ struct YaloChatClientConfigTests {
 
         #expect(config.logLevel == .warn)
         #expect(config.openContext.isEmpty)
+    }
+
+    @Test func sharesOneConversationUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.sessionMode == .shared)
     }
 }
