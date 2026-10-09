@@ -13,15 +13,39 @@ struct ChatMessageList: View {
     var isWaitingForReply: Bool = false
     var playback: VoicePlayback?
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
+    var cachedImage: (ChatMessage) -> UIImage? = { _ in nil }
+    var loadImage: (ChatMessage) async -> UIImage? = { _ in nil }
     @Environment(\.chatTheme) private var theme: ChatTheme
+    /// Whether the end of the conversation is on screen. A picture that loads
+    /// grows its row, which would push the end away from someone reading it.
+    @State private var showsEnd: Bool = false
 
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 8) {
                     ForEach(messages) { message in
-                        switch (message.role, message.type == .voice ? message.voice : nil) {
-                        case (.user, let note?):
+                        switch (message.role, message.type, message.type == .voice ? message.voice : nil) {
+                        case (.user, .image, _):
+                            ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
+                                if showsEnd {
+                                    proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                                }
+                            }
+                            .accessibilityIdentifier("yalo-chat-user-message")
+                            .padding(.leading, 48)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        case (.agent, .image, _):
+                            ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
+                                if showsEnd {
+                                    proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                                }
+                            }
+                            .foregroundStyle(theme.onAgentMessageBackground)
+                            .accessibilityIdentifier("yalo-chat-agent-message")
+                            .padding(.trailing, 48)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        case (.user, _, let note?):
                             VoiceMessage(
                                 note: note,
                                 playback: playback?.messageId == message.id ? playback : nil,
@@ -34,7 +58,7 @@ struct ChatMessageList: View {
                             .accessibilityIdentifier("yalo-chat-user-message")
                             .padding(.leading, 48)
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, let note?):
+                        case (.agent, _, let note?):
                             VoiceMessage(
                                 note: note,
                                 playback: playback?.messageId == message.id ? playback : nil,
@@ -44,7 +68,7 @@ struct ChatMessageList: View {
                             .background(theme.agentMessageBackground)
                             .accessibilityIdentifier("yalo-chat-agent-message")
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        case (.user, nil):
+                        case (.user, _, nil):
                             // Verbatim: asterisks the person typed are asterisks they meant.
                             Text(verbatim: message.content)
                                 .padding(.horizontal, 14)
@@ -54,7 +78,7 @@ struct ChatMessageList: View {
                                 .accessibilityIdentifier("yalo-chat-user-message")
                                 .padding(.leading, 48)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, nil):
+                        case (.agent, _, nil):
                             Text(markdown(message.content))
                                 .foregroundStyle(theme.onAgentMessageBackground)
                                 .background(theme.agentMessageBackground)
@@ -72,6 +96,12 @@ struct ChatMessageList: View {
                     Color.clear
                         .frame(height: 4)
                         .id(Self.bottomId)
+                        .onAppear {
+                            showsEnd = true
+                        }
+                        .onDisappear {
+                            showsEnd = false
+                        }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)

@@ -79,6 +79,40 @@ struct ChatMessageDatabaseServiceTests {
         #expect(stored.voice == original.voice)
     }
 
+    @Test func readsBackAnImage() async throws {
+        let original: ChatMessage = ChatMessage(
+            role: .user,
+            type: .image,
+            timestamp: Date(timeIntervalSince1970: 1_700_000_000),
+            image: ImageAttachment(
+                mediaURL: "media-1",
+                mimeType: "image/jpeg",
+                fileName: "holiday.jpeg",
+                byteCount: 4_096,
+                localFileName: "image-1.jpeg"
+            )
+        )
+
+        let stored: ChatMessage = try await service.insert(original, sessionId: "session-1")
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10) == [stored])
+        #expect(stored.image == original.image)
+    }
+
+    @Test func anImageThisVersionCannotReadIsLeftOut() async throws {
+        let file: URL = Self.temporaryFile()
+        _ = try await ChatMessageDatabaseService(fileURL: file).insert(message("Hello"), sessionId: "session-1")
+        var database: OpaquePointer?
+        sqlite3_open(file.path, &database)
+        sqlite3_exec(database, "UPDATE chat_message SET image = 'not json'", nil, nil, nil)
+        sqlite3_close(database)
+
+        let read: [ChatMessage] = try await ChatMessageDatabaseService(fileURL: file).messages(sessionId: "session-1", limit: 10)
+
+        #expect(read.map(\.content) == ["Hello"])
+        #expect(read.first?.image == nil)
+    }
+
     @Test func aVoiceNoteThisVersionCannotReadIsLeftOut() async throws {
         let file: URL = Self.temporaryFile()
         _ = try await ChatMessageDatabaseService(fileURL: file).insert(message("Hello"), sessionId: "session-1")

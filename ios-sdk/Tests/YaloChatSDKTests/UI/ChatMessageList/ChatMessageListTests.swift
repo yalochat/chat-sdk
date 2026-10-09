@@ -15,9 +15,14 @@ struct ChatMessageListTests {
 
     private struct Host: View {
         @ObservedObject var conversation: Conversation
+        var loadImage: (ChatMessage) async -> UIImage? = { _ in nil }
 
         var body: some View {
-            ChatMessageList(messages: conversation.messages, isWaitingForReply: conversation.isWaitingForReply)
+            ChatMessageList(
+                messages: conversation.messages,
+                isWaitingForReply: conversation.isWaitingForReply,
+                loadImage: loadImage
+            )
         }
     }
 
@@ -56,6 +61,74 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, playback: playback)))
     }
 
+    @Test func messageListRendersImageMessages() {
+        let messages: [ChatMessage] = [
+            ChatMessage(role: .agent, type: .image, timestamp: Date(), id: 1, content: "**Look**", image: ImageAttachment()),
+            ChatMessage(role: .user, type: .image, timestamp: Date(), id: 2, image: ImageAttachment()),
+        ]
+
+        #expect(renders(ChatMessageList(messages: messages, loadImage: { _ in nil })))
+    }
+
+    private static func gapBelow(_ list: UIScrollView) -> CGFloat {
+        list.contentSize.height + list.adjustedContentInset.bottom - list.contentOffset.y - list.bounds.height
+    }
+
+    /// The window has to outlive the call, or the list stops being drawn.
+    private func host(_ view: some View) -> UIWindow {
+        let window: UIWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = UIHostingController(rootView: view)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        return window
+    }
+
+    @Test func aChatOpensAtTheVeryEnd() async throws {
+        let messages: [ChatMessage] = (1...40).map { id in
+            message(Int64(id), id.isMultiple(of: 2) ? .user : .agent, String(repeating: "Message \(id) wraps across the width. ", count: id % 5 + 1))
+        }
+        let conversation: Conversation = Conversation()
+        let window: UIWindow = host(Host(conversation: conversation))
+        let list: UIScrollView = try #require(scrollView(in: window))
+        // Stored messages arrive once the list is already on screen.
+        conversation.messages = messages
+
+        #expect(
+            await eventually { list.contentSize.height > list.bounds.height * 2 && abs(Self.gapBelow(list)) < 1 },
+            "content \(list.contentSize.height), offset \(list.contentOffset.y), bounds \(list.bounds.height), gap \(Self.gapBelow(list))"
+        )
+        withExtendedLifetime(window) {}
+    }
+
+    @Test func aChatOpensAtTheVeryEndOncePicturesHaveLoaded() async throws {
+        let picture: UIImage = UIGraphicsImageRenderer(size: CGSize(width: 300, height: 400)).image { context in
+            context.fill(CGRect(x: 0, y: 0, width: 300, height: 400))
+        }
+        let messages: [ChatMessage] = (1...20).map { id in
+            id.isMultiple(of: 3)
+                ? ChatMessage(role: .user, type: .image, timestamp: Date(), id: Int64(id), image: ImageAttachment())
+                : message(Int64(id), id.isMultiple(of: 2) ? .user : .agent, "Message \(id)")
+        }
+        let loaded: Recorded<Int64?> = Recorded()
+        let conversation: Conversation = Conversation()
+        let window: UIWindow = host(Host(conversation: conversation, loadImage: { message in
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            loaded.append(message.id)
+            return picture
+        }))
+        let list: UIScrollView = try #require(scrollView(in: window))
+        // Stored messages arrive once the list is already on screen.
+        conversation.messages = messages
+        #expect(await eventually { !loaded.values.isEmpty })
+        try await Task.sleep(nanoseconds: 300_000_000)
+
+        #expect(
+            await eventually { list.contentSize.height > list.bounds.height * 2 && abs(Self.gapBelow(list)) < 1 },
+            "content \(list.contentSize.height), offset \(list.contentOffset.y), bounds \(list.bounds.height), gap \(Self.gapBelow(list))"
+        )
+        withExtendedLifetime(window) {}
+    }
+
     @Test func aLongReplyLeavesTheListScrolledToTheVeryEnd() async throws {
         let conversation: Conversation = Conversation()
         conversation.messages = (1...30).map { id in
@@ -79,6 +152,6 @@ struct ChatMessageListTests {
             let gap: CGFloat = list.contentSize.height + list.adjustedContentInset.bottom
                 - list.contentOffset.y - list.bounds.height
             return list.contentSize.height > list.bounds.height * 2 && abs(gap) < 1
-        })
+        }, "content \(list.contentSize.height), offset \(list.contentOffset.y), bounds \(list.bounds.height), gap \(Self.gapBelow(list))")
     }
 }

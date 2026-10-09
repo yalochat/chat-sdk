@@ -6,6 +6,10 @@ import SwiftUI
 ///
 /// Voice messages need `NSMicrophoneUsageDescription` in your app's
 /// Info.plist. Set `hideVoiceButton` in the client config to leave them out.
+///
+/// Image messages need no permission: the plus in the message input opens the
+/// system photo picker, which hands over only what the person picked. Set
+/// `hideAttachmentButton` in the client config to leave the plus out.
 public struct Chat: View {
     private let client: YaloChatClient
     private let theme: ChatTheme
@@ -51,7 +55,9 @@ public struct Chat: View {
                     Task {
                         await viewModel.toggleVoiceMessage(message)
                     }
-                }
+                },
+                cachedImage: viewModel.cachedImage(of:),
+                loadImage: viewModel.image(of:)
             )
             ChatInput(
                 text: $viewModel.draft,
@@ -67,7 +73,13 @@ public struct Chat: View {
                         await viewModel.startRecording()
                     }
                 },
-                onCancelRecording: viewModel.cancelRecording
+                onCancelRecording: viewModel.cancelRecording,
+                hideAttachmentButton: client.config.hideAttachmentButton,
+                onPickImage: { picked in
+                    Task {
+                        await viewModel.sendImage(picked)
+                    }
+                }
             )
         }
         .background(theme.background)

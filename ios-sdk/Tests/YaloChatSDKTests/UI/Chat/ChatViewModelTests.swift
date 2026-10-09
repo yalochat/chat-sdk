@@ -3,6 +3,7 @@
 import Foundation
 import SwiftUI
 import Testing
+import UniformTypeIdentifiers
 @testable import YaloChatSDK
 
 @MainActor
@@ -14,6 +15,8 @@ struct ChatViewModelTests {
     private let player: FakeVoicePlayer = FakeVoicePlayer()
     private let mediaService: FakeYaloMediaService = FakeYaloMediaService()
     private let voice: VoiceRepositoryLocal
+    private let imagesDirectory: URL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("yalo-chat-view-model-images-\(UUID().uuidString)", isDirectory: true)
 
     init() {
         voice = VoiceRepositoryLocal(
@@ -30,6 +33,7 @@ struct ChatViewModelTests {
             yaloMessages: channel,
             voice: voice,
             media: MediaRepository(service: mediaService, tokens: TokenRepository(auth: CountingAuthService())),
+            images: ImageDeviceService(directory: imagesDirectory),
             sessionId: "session-1",
             now: { Self.now },
             replyTimeout: replyTimeout
@@ -260,6 +264,134 @@ struct ChatViewModelTests {
         await viewModel.toggleVoiceMessage(agentMessage("Not a voice note"))
 
         #expect(viewModel.playback == nil)
+        #expect(await mediaService.downloads.isEmpty)
+    }
+
+    private static func pickedPicture() throws -> NSItemProvider {
+        let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
+        try Data("picture bytes".utf8).write(to: file)
+        let provider: NSItemProvider = NSItemProvider()
+        provider.suggestedName = "holiday"
+        provider.registerFileRepresentation(forTypeIdentifier: UTType.jpeg.identifier, visibility: .all) { completion in
+            completion(file, false, nil)
+            return nil
+        }
+        return provider
+    }
+
+    @Test func aPickedPictureIsStoredUploadedAndSent() async throws {
+        let viewModel: ChatViewModel = viewModel()
+
+        await viewModel.sendImage(try Self.pickedPicture())
+
+        let shown: ChatMessage = try #require(viewModel.messages.last)
+        let picture: ImageAttachment = try #require(shown.image)
+        let uploaded: MediaContent = try #require(await mediaService.uploads.first)
+        let sent: ChatMessage = try #require(channel.sent.first)
+        #expect(shown.type == .image)
+        #expect(shown.role == .user)
+        #expect(picture.fileName == "holiday.jpeg")
+        #expect(picture.mimeType == "image/jpeg")
+        #expect(picture.byteCount == 13)
+        #expect(picture.localFileName == uploaded.fileURL.lastPathComponent)
+        #expect(uploaded.fileURL.deletingLastPathComponent().standardizedFileURL == imagesDirectory.standardizedFileURL)
+        #expect(sent.id == shown.id)
+        #expect(sent.image?.mediaURL == "media-1")
+        #expect(viewModel.isWaitingForReply)
+    }
+
+    @Test func aPictureThatFailsToUploadIsShownButNotSent() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.failUploads(with: [MediaServiceError.uploadFailed(status: 500)])
+
+        await viewModel.sendImage(try Self.pickedPicture())
+
+        #expect(viewModel.messages.map(\.type) == [.image])
+        #expect(channel.sent.isEmpty)
+        #expect(!viewModel.isWaitingForReply)
+    }
+
+    @Test func somethingThatIsNotAPictureIsNeitherShownNorSent() async {
+        let viewModel: ChatViewModel = viewModel()
+
+        await viewModel.sendImage(NSItemProvider())
+
+        #expect(viewModel.messages.isEmpty)
+        #expect(await mediaService.uploads.isEmpty)
+        #expect(channel.sent.isEmpty)
+    }
+
+    private static func png() throws -> URL {
+        let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).png")
+        let format: UIGraphicsImageRendererFormat = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        try UIGraphicsImageRenderer(size: CGSize(width: 4, height: 3), format: format).pngData { context in
+            context.fill(CGRect(x: 0, y: 0, width: 4, height: 3))
+        }.write(to: file)
+        return file
+    }
+
+    @Test func aSentPictureIsReadFromTheDevice() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        let file: URL = try Self.png()
+        let provider: NSItemProvider = NSItemProvider()
+        provider.registerFileRepresentation(forTypeIdentifier: UTType.png.identifier, visibility: .all) { completion in
+            completion(file, false, nil)
+            return nil
+        }
+        await viewModel.sendImage(provider)
+
+        let shown: ChatMessage = try #require(viewModel.messages.last)
+        let picture: UIImage = try #require(await viewModel.image(of: shown))
+
+        #expect(picture.size == CGSize(width: 4, height: 3))
+        #expect(await mediaService.downloads.isEmpty)
+    }
+
+    @Test func aPictureFromTheChannelIsDownloaded() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.serveDownloads(from: try Self.png())
+        let received: ChatMessage = ChatMessage(
+            role: .agent,
+            type: .image,
+            timestamp: Self.now,
+            id: 5,
+            image: ImageAttachment(mediaURL: "https://cdn/menu.png")
+        )
+
+        let picture: UIImage? = await viewModel.image(of: received)
+
+        #expect(picture != nil)
+        #expect(await mediaService.downloads == ["https://cdn/menu.png"])
+    }
+
+    @Test func aPictureIsReadOnceAndThenKept() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.serveDownloads(from: try Self.png())
+        let received: ChatMessage = ChatMessage(
+            role: .agent,
+            type: .image,
+            timestamp: Self.now,
+            id: 5,
+            image: ImageAttachment(mediaURL: "https://cdn/menu.png")
+        )
+        #expect(viewModel.cachedImage(of: received) == nil)
+
+        let first: UIImage? = await viewModel.image(of: received)
+        let second: UIImage? = await viewModel.image(of: received)
+
+        #expect(first != nil)
+        #expect(second === first)
+        #expect(viewModel.cachedImage(of: received) === first)
+        #expect(await mediaService.downloads == ["https://cdn/menu.png"])
+    }
+
+    @Test func aPictureThatIsNowhereReadsAsNothing() async {
+        let viewModel: ChatViewModel = viewModel()
+        let unreachable: ChatMessage = ChatMessage(role: .agent, type: .image, timestamp: Self.now, id: 5, image: ImageAttachment())
+
+        #expect(await viewModel.image(of: unreachable) == nil)
+        #expect(await viewModel.image(of: agentMessage("Not a picture")) == nil)
         #expect(await mediaService.downloads.isEmpty)
     }
 
