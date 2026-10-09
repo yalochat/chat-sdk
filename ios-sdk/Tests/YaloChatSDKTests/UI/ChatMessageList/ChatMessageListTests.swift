@@ -56,6 +56,15 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, playback: playback)))
     }
 
+    @Test func messageListRendersImageMessages() {
+        let messages: [ChatMessage] = [
+            ChatMessage(role: .agent, type: .image, timestamp: Date(), id: 1, content: "**Look**", image: ImageAttachment()),
+            ChatMessage(role: .user, type: .image, timestamp: Date(), id: 2, image: ImageAttachment()),
+        ]
+
+        #expect(renders(ChatMessageList(messages: messages, loadImage: { _ in nil })))
+    }
+
     @Test func aLongReplyLeavesTheListScrolledToTheVeryEnd() async throws {
         let conversation: Conversation = Conversation()
         conversation.messages = (1...30).map { id in

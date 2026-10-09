@@ -14,6 +14,10 @@ struct ChatInputTests {
         #expect(renders(ChatInput(text: .constant(""), onSend: {}, hideVoiceButton: true)))
     }
 
+    @Test func inputRendersWithoutTheAttachmentButton() {
+        #expect(renders(ChatInput(text: .constant(""), onSend: {}, hideAttachmentButton: true)))
+    }
+
     @Test func inputRendersARecording() {
         let recording: VoiceRecording = VoiceRecording(elapsed: 65, amplitudes: [0, 0.5, 1])
 

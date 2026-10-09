@@ -1,14 +1,44 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
-import Foundation
+import ImageIO
+import UIKit
 import UniformTypeIdentifiers
 
-/// Copies picked pictures into `directory`.
+/// Copies picked pictures into `directory` and reads them back.
 final class ImageDeviceService: ImageService {
     private let directory: URL
 
+    /// Long side, in pixels, of a picture drawn in a bubble. Enough for a
+    /// sharp full width bubble without holding a camera sized bitmap per message.
+    private static let maxPixelSize: Int = 2_048
+
     init(directory: URL) {
         self.directory = directory
+    }
+
+    func file(of picture: ImageAttachment) -> URL? {
+        guard let name = picture.localFileName else {
+            return nil
+        }
+        let file: URL = directory.appendingPathComponent(name)
+        return FileManager.default.fileExists(atPath: file.path) ? file : nil
+    }
+
+    @concurrent
+    func image(at file: URL) async -> UIImage? {
+        guard let source = CGImageSourceCreateWithURL(file as CFURL, nil) else {
+            return nil
+        }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            // Turns the picture the way the camera held it.
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: Self.maxPixelSize,
+        ]
+        guard let picture = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+        return UIImage(cgImage: picture)
     }
 
     func content(_ picked: NSItemProvider) async throws -> MediaContent {
