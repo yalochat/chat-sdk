@@ -73,8 +73,10 @@ jobs:
         run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
 
       - name: Unit tests with coverage
+        # A failure would otherwise collect a sysdiagnose, which takes minutes on a runner.
         run: |
           xcodebuild test \
+            -collect-test-diagnostics never \
             -scheme YaloChatSDK \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -clonedSourcePackagesDirPath "$PACKAGES_DIR" \
