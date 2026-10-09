@@ -21,6 +21,7 @@ final class VoiceRepositoryLocal: VoiceRepository {
     private let directory: URL
     private let now: () -> Date
     private let sleep: @Sendable (TimeInterval) async throws -> Void
+    private let log: YaloLog
     private let recordingSubject: CurrentValueSubject<VoiceRecording?, Never> = CurrentValueSubject(nil)
     private let playbackSubject: CurrentValueSubject<VoicePlayback?, Never> = CurrentValueSubject(nil)
     private var waveform: WaveformCompressor = WaveformCompressor(barCount: barCount)
@@ -39,13 +40,15 @@ final class VoiceRepositoryLocal: VoiceRepository {
         now: @escaping () -> Date = { Date() },
         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { seconds in
             try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
-        }
+        },
+        logLevel: LogLevel = .warn
     ) {
         self.recorder = recorder
         self.player = player
         self.directory = directory
         self.now = now
         self.sleep = sleep
+        self.log = YaloLog("Voice", level: logLevel)
     }
 
     var recording: AnyPublisher<VoiceRecording?, Never> {
@@ -110,9 +113,11 @@ final class VoiceRepositoryLocal: VoiceRepository {
         }
         let size: Int = (try? file.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
         guard size > 0 else {
+            log.debug("nothing worth keeping had been recorded")
             try? FileManager.default.removeItem(at: file)
             throw VoiceRepositoryError.nothingRecorded
         }
+        log.info("recorded \(Int(duration * 1_000))ms into \(file.lastPathComponent)")
         return VoiceNote(
             duration: duration,
             amplitudes: waveform.snapshot(),
@@ -130,6 +135,7 @@ final class VoiceRepositoryLocal: VoiceRepository {
         stopSampling()
         try? recorder.stop()
         try? FileManager.default.removeItem(at: file)
+        log.info("the recording was thrown away")
     }
 
     func file(of note: VoiceNote) -> URL? {

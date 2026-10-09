@@ -7,13 +7,15 @@ import UniformTypeIdentifiers
 /// Copies picked pictures into `directory` and reads them back.
 final class ImageDeviceService: ImageService {
     private let directory: URL
+    private let log: YaloLog
 
     /// Long side, in pixels, of a picture drawn in a bubble. Enough for a
     /// sharp full width bubble without holding a camera sized bitmap per message.
     private static let maxPixelSize: Int = 2_048
 
-    init(directory: URL) {
+    init(directory: URL, logLevel: LogLevel = .warn) {
         self.directory = directory
+        self.log = YaloLog("Images", level: logLevel)
     }
 
     func file(of picture: ImageAttachment) -> URL? {
@@ -47,32 +49,40 @@ final class ImageDeviceService: ImageService {
             .compactMap(UTType.init)
             .first(where: { $0.conforms(to: .image) })
         else {
+            log.warn("what was picked is not a picture")
             throw ImageServiceError.notAnImage
         }
         let directory: URL = directory
-        let copy: URL = try await withCheckedThrowingContinuation { continuation in
-            _ = picked.loadFileRepresentation(forTypeIdentifier: type.identifier) { file, _ in
-                guard let file else {
-                    continuation.resume(throwing: ImageServiceError.unreadable)
-                    return
-                }
-                // Two pictures can share a name, so the copy gets its own.
-                let target: URL = directory
-                    .appendingPathComponent("image-\(UUID().uuidString)")
-                    .appendingPathExtension(type.preferredFilenameExtension ?? file.pathExtension)
-                do {
-                    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-                    try FileManager.default.copyItem(at: file, to: target)
-                    continuation.resume(returning: target)
-                } catch {
-                    continuation.resume(throwing: ImageServiceError.unreadable)
+        let copy: URL
+        do {
+            copy = try await withCheckedThrowingContinuation { continuation in
+                _ = picked.loadFileRepresentation(forTypeIdentifier: type.identifier) { file, _ in
+                    guard let file else {
+                        continuation.resume(throwing: ImageServiceError.unreadable)
+                        return
+                    }
+                    // Two pictures can share a name, so the copy gets its own.
+                    let target: URL = directory
+                        .appendingPathComponent("image-\(UUID().uuidString)")
+                        .appendingPathExtension(type.preferredFilenameExtension ?? file.pathExtension)
+                    do {
+                        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                        try FileManager.default.copyItem(at: file, to: target)
+                        continuation.resume(returning: target)
+                    } catch {
+                        continuation.resume(throwing: ImageServiceError.unreadable)
+                    }
                 }
             }
+        } catch {
+            log.warn("the picture could not be read", error: error)
+            throw error
         }
         var fileName: String = picked.suggestedName ?? "image"
         if (fileName as NSString).pathExtension.isEmpty, !copy.pathExtension.isEmpty {
             fileName += ".\(copy.pathExtension)"
         }
+        log.info("kept a picture as \(copy.lastPathComponent)")
         return MediaContent(
             fileURL: copy,
             fileName: fileName,

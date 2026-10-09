@@ -21,23 +21,28 @@ final class VoiceRecorderDeviceService: VoiceRecorderService {
     private let session: AudioSession
     private let permission: () async -> Bool
     private let recorders: (URL, [String: Any]) throws -> AVAudioRecorder
+    private let log: YaloLog
     private var recorder: AVAudioRecorder?
 
     init(
         session: AudioSession = AVAudioSession.sharedInstance(),
         permission: @escaping () async -> Bool = VoiceRecorderDeviceService.askForMicrophone,
-        recorders: @escaping (URL, [String: Any]) throws -> AVAudioRecorder = AVAudioRecorder.init(url:settings:)
+        recorders: @escaping (URL, [String: Any]) throws -> AVAudioRecorder = AVAudioRecorder.init(url:settings:),
+        logLevel: LogLevel = .warn
     ) {
         self.session = session
         self.permission = permission
         self.recorders = recorders
+        self.log = YaloLog("VoiceRecorder", level: logLevel)
     }
 
     func start(_ target: URL) async throws {
         guard recorder == nil else {
+            log.warn("already recording")
             throw VoiceRecorderServiceError.alreadyRecording
         }
         guard await permission() else {
+            log.warn("the microphone was not allowed")
             throw VoiceRecorderServiceError.permissionDenied
         }
         let started: AVAudioRecorder
@@ -54,6 +59,7 @@ final class VoiceRecorderDeviceService: VoiceRecorderService {
                 }
             }
         } catch {
+            log.warn("the microphone is not available", error: error)
             session.deactivate()
             throw VoiceRecorderServiceError.unavailable
         }
@@ -63,6 +69,7 @@ final class VoiceRecorderDeviceService: VoiceRecorderService {
             throw VoiceRecorderServiceError.alreadyRecording
         }
         recorder = started
+        log.info("recording to \(target.lastPathComponent)")
     }
 
     func amplitude() -> Float {

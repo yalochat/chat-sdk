@@ -10,6 +10,7 @@ import AVFoundation
 final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
     private let session: AudioSession
     private let players: (URL) throws -> AVAudioPlayer
+    private let log: YaloLog
     private var player: AVAudioPlayer?
     private var onFinished: (@MainActor () -> Void)?
     /// Moves on with every play, pause and stop, so a play that was waiting
@@ -18,10 +19,12 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
 
     init(
         session: AudioSession = AVAudioSession.sharedInstance(),
-        players: @escaping (URL) throws -> AVAudioPlayer = AVAudioPlayer.init(contentsOf:)
+        players: @escaping (URL) throws -> AVAudioPlayer = AVAudioPlayer.init(contentsOf:),
+        logLevel: LogLevel = .warn
     ) {
         self.session = session
         self.players = players
+        self.log = YaloLog("VoicePlayer", level: logLevel)
     }
 
     var position: TimeInterval {
@@ -38,10 +41,12 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
         do {
             loaded = try players(file)
         } catch {
+            log.warn("the voice note cannot be played", error: error)
             throw VoicePlayerServiceError.unplayable
         }
         loaded.delegate = self
         player = loaded
+        log.info("playing \(file.lastPathComponent)")
         self.onFinished = onFinished
     }
 
@@ -51,8 +56,12 @@ final class VoicePlayerDeviceService: NSObject, VoicePlayerService {
         }
         request += 1
         let asked: Int = request
-        try? await session.activate(.playback, mode: .spokenAudio, options: []) {
-            player.prepareToPlay()
+        do {
+            try await session.activate(.playback, mode: .spokenAudio, options: []) {
+                player.prepareToPlay()
+            }
+        } catch {
+            log.warn("the speaker is not available", error: error)
         }
         guard request == asked, self.player === player else {
             return

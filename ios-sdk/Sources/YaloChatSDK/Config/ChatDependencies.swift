@@ -39,7 +39,8 @@ final class ChatDependencies {
     lazy var mediaService: YaloMediaService = YaloMediaRemoteService(
         baseURL: baseURL,
         cacheDirectory: cacheDirectory.appendingPathComponent("yalo-chat-media", isDirectory: true),
-        session: session
+        session: session,
+        logLevel: config.logLevel
     )
 
     lazy var auth: YaloMessageAuthService = YaloMessageAuthRemoteService(
@@ -47,32 +48,39 @@ final class ChatDependencies {
         organizationId: config.organizationId,
         authUserId: config.userId,
         baseURL: baseURL,
-        session: session
+        session: session,
+        logLevel: config.logLevel
     )
 
-    lazy var chatMessages: ChatMessageService = ChatMessageDatabaseService(fileURL: databaseURL)
+    lazy var chatMessages: ChatMessageService = ChatMessageDatabaseService(fileURL: databaseURL, logLevel: config.logLevel)
 
-    lazy var images: ImageService = ImageDeviceService(directory: imagesDirectory)
+    lazy var images: ImageService = ImageDeviceService(directory: imagesDirectory, logLevel: config.logLevel)
 
-    lazy var voiceRecorder: VoiceRecorderService = VoiceRecorderDeviceService()
+    lazy var voiceRecorder: VoiceRecorderService = VoiceRecorderDeviceService(logLevel: config.logLevel)
 
-    lazy var voicePlayer: VoicePlayerService = VoicePlayerDeviceService()
+    lazy var voicePlayer: VoicePlayerService = VoicePlayerDeviceService(logLevel: config.logLevel)
 
-    lazy var tokens: TokenRepository = TokenRepository(auth: auth)
+    lazy var tokens: TokenRepository = TokenRepository(auth: auth, logLevel: config.logLevel)
 
     lazy var media: MediaRepository = MediaRepository(service: mediaService, tokens: tokens)
 
     lazy var voice: VoiceRepository = VoiceRepositoryLocal(
         recorder: voiceRecorder,
         player: voicePlayer,
-        directory: voiceDirectory
+        directory: voiceDirectory,
+        logLevel: config.logLevel
     )
 
-    lazy var yaloMessageService: YaloMessageService = YaloMessageWebSocketService(baseURL: baseURL, session: session)
+    lazy var yaloMessageService: YaloMessageService = YaloMessageWebSocketService(
+        baseURL: baseURL,
+        session: session,
+        logLevel: config.logLevel
+    )
 
     lazy var yaloMessages: YaloMessageRepository = YaloMessageRepositoryRemote(
         service: yaloMessageService,
-        tokens: tokens
+        tokens: tokens,
+        logLevel: config.logLevel
     )
 
     func chatViewModel() -> ChatViewModel {
@@ -82,7 +90,8 @@ final class ChatDependencies {
             voice: voice,
             media: media,
             images: images,
-            sessionId: config.sessionId
+            sessionId: config.sessionId,
+            openContext: config.openContext
         )
     }
 }

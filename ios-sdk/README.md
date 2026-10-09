@@ -10,8 +10,11 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Installation](#installation)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
+- [Open context](#open-context)
 - [Voice messages](#voice-messages)
+- [Image messages](#image-messages)
 - [Theming](#theming)
+- [Logging](#logging)
 - [Translations](#translations)
 
 ## Requirements
@@ -95,9 +98,33 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `nil`, which keeps the conversation anonymous.
+- **`logLevel`** (`LogLevel`): How much the SDK writes to the system log. Defaults to `.warn`, which keeps it quiet outside of warnings and errors. See [Logging](#logging).
+- **`openContext`** (`[String: String]`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 - **`hideWatermark`** (`Bool`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it.
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
+
+## Open context
+
+The chat can tell the channel where it was opened from, so the conversation starts with something about what the person is doing rather than a generic greeting.
+
+```swift
+YaloChatClient(config: YaloChatClientConfig(
+    channelId: "your-channel-id",
+    organizationId: "your-organization-id",
+    channelName: "Support",
+    openContext: ["source": "product-page", "sku": "37549996"]
+))
+```
+
+What to expect:
+
+- The context is sent once, when the chat is shown and the conversation has nothing in it yet.
+- A conversation already under way is picked up where it was left and nothing is sent, so nobody is greeted twice.
+- The keys and values are yours. The channel decides what to make of them.
+- The loading indicator is shown while the chat waits for the channel to say the first thing.
+
+The context is part of the configuration, so a chat opened from somewhere else needs its own client. Every context shares the same conversation.
 
 ## Voice messages
 
@@ -130,6 +157,39 @@ Chat(
 ```
 
 See [Theming](doc/theming.md) for every property.
+
+## Logging
+
+The SDK writes to the system log under the subsystem `ai.yalo.chat.sdk`. Every line has a category naming the part of the SDK it came from, such as `Auth`, `MessageSocket`, `Messages`, `Media` or `Database`.
+
+You can read it in the Xcode console, or in the Console app by filtering on `subsystem:ai.yalo.chat.sdk`.
+
+How much it writes follows `logLevel` in the config:
+
+- `.warn`
+  - The default. Only what went wrong, which is what you want in a released app.
+- `.info`
+  - Adds the course of a conversation: connecting, authenticating, reconnecting, uploads and downloads.
+- `.debug`
+  - Adds the full payload of every message sent and received, exactly as it went over the socket.
+  - Meant for working on an integration, not for a released app.
+- `.error`
+  - Only failures the chat could not work around.
+- `.silent`
+  - Nothing at all.
+
+```swift
+YaloChatClient(config: YaloChatClientConfig(
+    channelId: "your-channel-id",
+    organizationId: "your-organization-id",
+    channelName: "Support",
+    logLevel: .debug
+))
+```
+
+No level ever writes an access or refresh token, or a signed media address.
+
+What people actually said is different. Up to `.info` a line says that a message moved, never its content. At `.debug` the whole conversation is written as it goes over the socket. Ship a released app at `.warn`, which is the default.
 
 ## Translations
 

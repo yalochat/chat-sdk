@@ -72,16 +72,11 @@ jobs:
         # stall the tests that wait on a deadline.
         run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
 
-      - name: Cache Swift packages
-        uses: actions/cache@v5
-        with:
-          path: ${{ env.PACKAGES_DIR }}
-          key: ${{ runner.os }}-spm-${{ hashFiles('Package.swift') }}
-          restore-keys: ${{ runner.os }}-spm-
-
       - name: Unit tests with coverage
+        # A failure would otherwise collect a sysdiagnose, which takes minutes on a runner.
         run: |
           xcodebuild test \
+            -collect-test-diagnostics never \
             -scheme YaloChatSDK \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -clonedSourcePackagesDirPath "$PACKAGES_DIR" \
@@ -108,8 +103,9 @@ jobs:
           xcode_archive_path: ${{ env.RESULT_BUNDLE }}
 
       - name: Build release for device
-        # Same configuration integrators compile, so a broken release build
-        # fails on the pull request instead of at release time.
+        # Same configuration integrators compile. Skipped on pull requests to
+        # keep them fast, since a release still waits for this on its tag.
+        if: github.event_name != 'pull_request'
         run: |
           xcodebuild build \
             -scheme YaloChatSDK \

@@ -10,6 +10,7 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
     private(set) var resumes: Int = 0
     private(set) var closes: Int = 0
     private(set) var sent: [ChatMessage] = []
+    private(set) var guidanceCardRequests: [[String: String]] = []
     var sendError: Error?
     private var listener: AsyncStream<ChatMessage>.Continuation?
 
@@ -49,5 +50,12 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
             throw sendError
         }
         sent.append(message)
+    }
+
+    func requestGuidanceCard(openContext: [String: String]) async throws {
+        if let sendError {
+            throw sendError
+        }
+        guidanceCardRequests.append(openContext)
     }
 }

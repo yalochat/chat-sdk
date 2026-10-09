@@ -7,11 +7,13 @@ final class YaloMediaRemoteService: YaloMediaService {
     private let mediaURL: URL
     private let cacheDirectory: URL
     private let session: URLSession
+    private let log: YaloLog
 
-    init(baseURL: URL, cacheDirectory: URL, session: URLSession = .shared) {
+    init(baseURL: URL, cacheDirectory: URL, session: URLSession = .shared, logLevel: LogLevel = .warn) {
         self.mediaURL = baseURL.appendingPathComponent("v1/channels/all/media")
         self.cacheDirectory = cacheDirectory
         self.session = session
+        self.log = YaloLog("Media", level: logLevel)
     }
 
     func upload(_ content: MediaContent, token: String) async throws -> Media {
@@ -30,13 +32,30 @@ final class YaloMediaRemoteService: YaloMediaService {
         // Streamed from disk so a video never has to fit in memory.
         request.httpBodyStream = InputStream(url: body)
 
-        let (data, response): (Data, URLResponse) = try await session.data(for: request)
+        log.info("uploading \(size) bytes of \(content.mimeType)")
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            log.warn("upload failed", error: error)
+            throw error
+        }
         switch (response as? HTTPURLResponse)?.statusCode ?? 0 {
         case 201:
-            return try Self.media(from: data)
+            do {
+                let uploaded: Media = try Self.media(from: data)
+                log.info("uploaded")
+                return uploaded
+            } catch {
+                log.warn("upload failed: the answer cannot be read")
+                throw error
+            }
         case 401:
+            log.info("the token was refused")
             throw MediaServiceError.staleToken
         case let status:
+            log.warn("upload failed: \(status)")
             throw MediaServiceError.uploadFailed(status: status)
         }
     }
@@ -48,20 +67,32 @@ final class YaloMediaRemoteService: YaloMediaService {
             scheme == "http" || scheme == "https",
             let key = Self.cacheKey(address)
         else {
+            log.warn("download failed: not a web address")
             throw MediaServiceError.invalidAddress(url)
         }
         let target: URL = cacheDirectory.appendingPathComponent(key)
         if FileManager.default.fileExists(atPath: target.path) {
+            log.debug("serving \(key) from the cache")
             return target
         }
 
+        log.info("downloading from \(address.host ?? "")")
         // No authorization: the address is already signed.
-        let (temporary, response): (URL, URLResponse) = try await session.download(from: address)
+        let temporary: URL
+        let response: URLResponse
+        do {
+            (temporary, response) = try await session.download(from: address)
+        } catch {
+            log.warn("download failed", error: error)
+            throw error
+        }
         let status: Int = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(status) else {
+            log.warn("download failed: \(status)")
             try? FileManager.default.removeItem(at: temporary)
             throw MediaServiceError.downloadFailed(status: status)
         }
+        log.info("downloaded")
         try FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
         do {
             try FileManager.default.moveItem(at: temporary, to: target)

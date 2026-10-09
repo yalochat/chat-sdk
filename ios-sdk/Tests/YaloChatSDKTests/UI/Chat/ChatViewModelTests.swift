@@ -27,7 +27,7 @@ struct ChatViewModelTests {
         )
     }
 
-    private func viewModel(replyTimeout: TimeInterval = 45) -> ChatViewModel {
+    private func viewModel(replyTimeout: TimeInterval = 45, openContext: [String: String] = [:]) -> ChatViewModel {
         ChatViewModel(
             chatMessages: storage,
             yaloMessages: channel,
@@ -35,6 +35,7 @@ struct ChatViewModelTests {
             media: MediaRepository(service: mediaService, tokens: TokenRepository(auth: CountingAuthService())),
             images: ImageDeviceService(directory: imagesDirectory),
             sessionId: "session-1",
+            openContext: openContext,
             now: { Self.now },
             replyTimeout: replyTimeout
         )
@@ -69,6 +70,45 @@ struct ChatViewModelTests {
         await running.value
 
         #expect(channel.closes == 1)
+    }
+
+    @Test func anEmptyConversationAsksTheChannelToSpeakFirst() async {
+        let viewModel: ChatViewModel = viewModel(openContext: ["sku": "37549996"])
+
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+
+        #expect(await eventually { channel.guidanceCardRequests == [["sku": "37549996"]] })
+        #expect(viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    @Test func aConversationUnderWayIsNotOpenedAgain() async throws {
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(openContext: ["sku": "37549996"])
+
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+
+        #expect(await eventually { viewModel.messages.map(\.content) == ["Hi"] })
+        #expect(channel.guidanceCardRequests.isEmpty)
+        #expect(!viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    @Test func waitsForNothingWhenTheChannelRefusesToOpen() async {
+        channel.sendError = YaloMessageRepositoryError.closed
+        let viewModel: ChatViewModel = viewModel()
+
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+
+        #expect(await eventually { channel.isListening })
+        #expect(!viewModel.isWaitingForReply)
+        running.cancel()
     }
 
     @Test func sendStoresShowsAndSendsTheTrimmedDraft() async throws {
