@@ -13,6 +13,7 @@ struct ChatMessageList: View {
     var isWaitingForReply: Bool = false
     var playback: VoicePlayback?
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
+    var loadImage: (ChatMessage) async -> UIImage? = { _ in nil }
     @Environment(\.chatTheme) private var theme: ChatTheme
 
     var body: some View {
@@ -20,8 +21,19 @@ struct ChatMessageList: View {
             ScrollView {
                 LazyVStack(spacing: 8) {
                     ForEach(messages) { message in
-                        switch (message.role, message.type == .voice ? message.voice : nil) {
-                        case (.user, let note?):
+                        switch (message.role, message.type, message.type == .voice ? message.voice : nil) {
+                        case (.user, .image, _):
+                            ImageMessage(message: message, load: loadImage)
+                                .accessibilityIdentifier("yalo-chat-user-message")
+                                .padding(.leading, 48)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        case (.agent, .image, _):
+                            ImageMessage(message: message, load: loadImage)
+                                .foregroundStyle(theme.onAgentMessageBackground)
+                                .accessibilityIdentifier("yalo-chat-agent-message")
+                                .padding(.trailing, 48)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        case (.user, _, let note?):
                             VoiceMessage(
                                 note: note,
                                 playback: playback?.messageId == message.id ? playback : nil,
@@ -34,7 +46,7 @@ struct ChatMessageList: View {
                             .accessibilityIdentifier("yalo-chat-user-message")
                             .padding(.leading, 48)
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, let note?):
+                        case (.agent, _, let note?):
                             VoiceMessage(
                                 note: note,
                                 playback: playback?.messageId == message.id ? playback : nil,
@@ -44,7 +56,7 @@ struct ChatMessageList: View {
                             .background(theme.agentMessageBackground)
                             .accessibilityIdentifier("yalo-chat-agent-message")
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        case (.user, nil):
+                        case (.user, _, nil):
                             // Verbatim: asterisks the person typed are asterisks they meant.
                             Text(verbatim: message.content)
                                 .padding(.horizontal, 14)
@@ -54,7 +66,7 @@ struct ChatMessageList: View {
                                 .accessibilityIdentifier("yalo-chat-user-message")
                                 .padding(.leading, 48)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, nil):
+                        case (.agent, _, nil):
                             Text(markdown(message.content))
                                 .foregroundStyle(theme.onAgentMessageBackground)
                                 .background(theme.agentMessageBackground)

@@ -30,6 +30,7 @@ final class ChatViewModel: ObservableObject {
     private let yaloMessages: YaloMessageRepository
     private let voice: VoiceRepository
     private let media: MediaRepository
+    private let images: ImageService
     private let sessionId: String
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
@@ -41,6 +42,7 @@ final class ChatViewModel: ObservableObject {
         yaloMessages: YaloMessageRepository,
         voice: VoiceRepository,
         media: MediaRepository,
+        images: ImageService,
         sessionId: String,
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
@@ -49,6 +51,7 @@ final class ChatViewModel: ObservableObject {
         self.yaloMessages = yaloMessages
         self.voice = voice
         self.media = media
+        self.images = images
         self.sessionId = sessionId
         self.now = now
         self.replyTimeout = replyTimeout
@@ -137,6 +140,50 @@ final class ChatViewModel: ObservableObject {
         var sending: ChatMessage = stored
         sending.voice?.mediaURL = uploaded.id
         await deliver(sending)
+    }
+
+    /// Sends the picture the person picked out of the photo library. A copy is
+    /// taken first, so the picture is in the conversation before it has been
+    /// anywhere, and the upload comes before the send for the same reason a
+    /// voice note's does.
+    func sendImage(_ picked: NSItemProvider) async {
+        guard let content = try? await images.content(picked) else {
+            return
+        }
+        let byteCount: Int = (try? content.fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        let picture: ImageAttachment = ImageAttachment(
+            mimeType: content.mimeType,
+            fileName: content.fileName,
+            byteCount: Int64(byteCount),
+            localFileName: content.fileURL.lastPathComponent
+        )
+        let picked: ChatMessage = ChatMessage(role: .user, type: .image, timestamp: now(), image: picture)
+        guard let stored = try? await chatMessages.insert(picked, sessionId: sessionId) else {
+            return
+        }
+        await loadMessages()
+        guard let uploaded = try? await media.upload(content) else {
+            return
+        }
+        var sending: ChatMessage = stored
+        sending.image?.mediaURL = uploaded.id
+        await deliver(sending)
+    }
+
+    /// The picture of `message`, from the device for one the person sent and
+    /// downloaded for one the channel sent, or nil when it is nowhere.
+    func image(of message: ChatMessage) async -> UIImage? {
+        guard let picture = message.image else {
+            return nil
+        }
+        var file: URL? = images.file(of: picture)
+        if file == nil, !picture.mediaURL.isEmpty {
+            file = try? await media.download(picture.mediaURL)
+        }
+        guard let file else {
+            return nil
+        }
+        return await images.image(at: file)
     }
 
     private func deliver(_ message: ChatMessage) async {

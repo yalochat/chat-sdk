@@ -235,6 +235,55 @@ struct YaloMessageRepositoryRemoteTests {
         repository.close()
     }
 
+    @Test func sendsAnImageInTheWireFormat() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        let written: Date = Date(timeIntervalSince1970: 1_700_000_000)
+        repository.connect()
+
+        try await repository.send(ChatMessage(
+            role: .user,
+            type: .image,
+            timestamp: written,
+            id: 9,
+            content: "Look",
+            image: ImageAttachment(
+                mediaURL: "media-1",
+                mimeType: "image/jpeg",
+                fileName: "holiday.jpeg",
+                byteCount: 4_096,
+                localFileName: "image-1.jpeg"
+            )
+        ))
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .imageMessageRequest(let request) = sent.payload else {
+            Issue.record("expected an image message request")
+            return
+        }
+        #expect(sent.correlationID == "9")
+        #expect(request.timestamp.date == Self.now)
+        #expect(request.content.text == "Look")
+        #expect(request.content.mediaURL == "media-1")
+        #expect(request.content.mediaType == "image/jpeg")
+        #expect(request.content.fileName == "holiday.jpeg")
+        #expect(request.content.byteCount == 4_096)
+        #expect(request.content.timestamp.date == written)
+        #expect(request.content.role == .user)
+        #expect(request.content.status == .inProgress)
+        repository.close()
+    }
+
+    @Test func refusesAnImageMessageWithNoPicture() async {
+        let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
+        repository.connect()
+
+        await #expect(throws: YaloMessageRepositoryError.unsupported(.image)) {
+            try await repository.send(ChatMessage(role: .user, type: .image, timestamp: Self.now))
+        }
+        repository.close()
+    }
+
     @Test func refusesAVoiceMessageWithNoRecording() async {
         let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
         repository.connect()
@@ -285,6 +334,44 @@ struct YaloMessageRepositoryRemoteTests {
         ))
     }
 
+    @Test func turnsImagesFromTheChannelIntoAgentMessages() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        var request: Yalo_ExternalChannel_InApp_Sdk_V2_ImageMessageRequest = .init()
+        request.content.text = "Our menu"
+        request.content.mediaURL = "https://cdn/menu.jpg"
+        request.content.mediaType = "image/jpeg"
+        request.content.fileName = "menu.jpg"
+        request.content.byteCount = 2_048
+        request.header = "Header"
+        var item: PollMessageItem = PollMessageItem()
+        item.id = "wi-10"
+        item.status = "DELIVERED"
+        item.date = Google_Protobuf_Timestamp(date: Self.now)
+        item.message.payload = .imageMessageRequest(request)
+
+        let messages: AsyncStream<ChatMessage> = repository.messages()
+        #expect(await eventually { await service.listenerCount == 1 })
+        await service.emit(item)
+
+        var iterator: AsyncStream<ChatMessage>.Iterator = messages.makeAsyncIterator()
+        #expect(await iterator.next() == ChatMessage(
+            role: .agent,
+            type: .image,
+            timestamp: Self.now,
+            wiId: "wi-10",
+            content: "Our menu",
+            status: .delivered,
+            header: "Header",
+            image: ImageAttachment(
+                mediaURL: "https://cdn/menu.jpg",
+                mimeType: "image/jpeg",
+                fileName: "menu.jpg",
+                byteCount: 2_048
+            )
+        ))
+    }
+
     @Test func refusesToSendWhileClosed() async {
         let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
 
@@ -297,8 +384,8 @@ struct YaloMessageRepositoryRemoteTests {
         let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
         repository.connect()
 
-        await #expect(throws: YaloMessageRepositoryError.unsupported(.image)) {
-            try await repository.send(ChatMessage(role: .user, type: .image, timestamp: Self.now))
+        await #expect(throws: YaloMessageRepositoryError.unsupported(.video)) {
+            try await repository.send(ChatMessage(role: .user, type: .video, timestamp: Self.now))
         }
         repository.close()
     }
@@ -306,12 +393,12 @@ struct YaloMessageRepositoryRemoteTests {
     @Test func turnsTextFromTheChannelIntoAgentMessages() async {
         let service: FakeYaloMessageService = FakeYaloMessageService()
         let repository: YaloMessageRepositoryRemote = repository(service)
-        var image: PollMessageItem = PollMessageItem()
-        image.message.payload = .imageMessageRequest(.init())
+        var video: PollMessageItem = PollMessageItem()
+        video.message.payload = .videoMessageRequest(.init())
 
         let messages: AsyncStream<ChatMessage> = repository.messages()
         #expect(await eventually { await service.listenerCount == 1 })
-        await service.emit(image)
+        await service.emit(video)
         await service.emit(Self.textItem())
         await service.emit(Self.textItem(id: "wi-2", date: nil, status: ""))
 

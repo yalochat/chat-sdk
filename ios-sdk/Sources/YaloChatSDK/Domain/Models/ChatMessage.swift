@@ -6,7 +6,8 @@ import Foundation
 ///
 /// `id` is the local row and is nil until the message is stored. `wiId` is the
 /// backend's id and is nil for a message the user has just written.
-/// `voice` is the recording of a voice message and nil for every other kind.
+/// `voice` is the recording of a voice message and `image` the picture of an
+/// image message. Both are nil for every other kind.
 struct ChatMessage: Identifiable, Equatable, Sendable {
     enum Role: String, Equatable, Sendable {
         case user = "USER"
@@ -32,6 +33,7 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
     var header: String?
     var footer: String?
     var voice: VoiceNote?
+    var image: ImageAttachment?
 
     init(
         role: Role,
@@ -43,7 +45,8 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
         status: Status = .inProgress,
         header: String? = nil,
         footer: String? = nil,
-        voice: VoiceNote? = nil
+        voice: VoiceNote? = nil,
+        image: ImageAttachment? = nil
     ) {
         self.role = role
         self.type = type
@@ -55,5 +58,6 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
         self.header = header
         self.footer = footer
         self.voice = voice
+        self.image = image
     }
 }

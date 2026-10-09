@@ -97,6 +97,7 @@ Optional properties:
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `nil`, which keeps the conversation anonymous.
 - **`hideWatermark`** (`Bool`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it.
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
+- **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
 
 ## Voice messages
 
@@ -110,6 +111,12 @@ Add `NSMicrophoneUsageDescription` to your app's `Info.plist` with a short reaso
 ```
 
 iOS closes any app that asks for the microphone without it. If you do not want voice messages, set `hideVoiceButton` to `true` instead.
+
+## Image messages
+
+The person taps the plus in the message input to pick a picture from their photo library and send it. The chat uses the system photo picker, which only hands over the picture the person picked, so your app does not need to ask for photo library access or add anything to its `Info.plist`.
+
+If you do not want image messages, set `hideAttachmentButton` to `true`.
 
 ## Theming
 

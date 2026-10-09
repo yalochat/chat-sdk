@@ -81,6 +81,7 @@ final class ChatDependencies {
             yaloMessages: yaloMessages,
             voice: voice,
             media: media,
+            images: images,
             sessionId: config.sessionId
         )
     }

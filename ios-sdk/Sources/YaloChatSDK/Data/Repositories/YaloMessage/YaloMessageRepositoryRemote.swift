@@ -130,15 +130,15 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         }
     }
 
-    /// A voice message with no recording has nothing for the channel to play,
-    /// so it is refused rather than sent empty.
+    /// A voice message with no recording, or an image message with no picture,
+    /// has nothing for the channel to show, so it is refused rather than sent empty.
     private static func sdkMessage(from message: ChatMessage, sentAt: Date) throws -> SdkMessage {
         var envelope: SdkMessage = SdkMessage()
         // The row id, so an acknowledgement names the row it belongs to.
         envelope.correlationID = message.id.map(String.init) ?? UUID().uuidString
         envelope.timestamp = Google_Protobuf_Timestamp(date: sentAt)
-        switch (message.type, message.voice) {
-        case (.text, _):
+        switch message.type {
+        case .text:
             var content: Yalo_ExternalChannel_InApp_Sdk_V2_TextMessage = .init()
             content.text = message.content
             // When it was written, which is not when it goes out.
@@ -149,7 +149,10 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
             request.timestamp = Google_Protobuf_Timestamp(date: sentAt)
             request.content = content
             envelope.payload = .textMessageRequest(request)
-        case (.voice, let note?):
+        case .voice:
+            guard let note = message.voice else {
+                throw YaloMessageRepositoryError.unsupported(message.type)
+            }
             var content: Yalo_ExternalChannel_InApp_Sdk_V2_VoiceMessage = .init()
             // The id the upload answered with, which is what the channel expects.
             content.mediaURL = note.mediaURL
@@ -165,13 +168,31 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
             request.timestamp = Google_Protobuf_Timestamp(date: sentAt)
             request.content = content
             envelope.payload = .voiceNoteMessageRequest(request)
+        case .image:
+            guard let picture = message.image else {
+                throw YaloMessageRepositoryError.unsupported(message.type)
+            }
+            var content: Yalo_ExternalChannel_InApp_Sdk_V2_ImageMessage = .init()
+            // The caption is the message's own body.
+            content.text = message.content
+            content.mediaURL = picture.mediaURL
+            content.mediaType = picture.mimeType
+            content.fileName = picture.fileName
+            content.byteCount = picture.byteCount
+            content.timestamp = Google_Protobuf_Timestamp(date: message.timestamp)
+            content.role = .user
+            content.status = .inProgress
+            var request: Yalo_ExternalChannel_InApp_Sdk_V2_ImageMessageRequest = .init()
+            request.timestamp = Google_Protobuf_Timestamp(date: sentAt)
+            request.content = content
+            envelope.payload = .imageMessageRequest(request)
         default:
             throw YaloMessageRepositoryError.unsupported(message.type)
         }
         return envelope
     }
 
-    /// Text and voice so far. Anything else is left out rather than shown empty.
+    /// Text, voice and images so far. Anything else is left out rather than shown empty.
     private static func chatMessage(from item: PollMessageItem, now: Date) -> ChatMessage? {
         let timestamp: Date = item.hasDate ? item.date.date : now
         let status: ChatMessage.Status = ChatMessage.Status(rawValue: item.status) ?? .delivered
@@ -200,6 +221,24 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
                 voice: VoiceNote(
                     duration: request.content.duration,
                     amplitudes: request.content.amplitudesPreview,
+                    mediaURL: request.content.mediaURL,
+                    mimeType: request.content.mediaType,
+                    fileName: request.content.fileName,
+                    byteCount: request.content.byteCount
+                )
+            )
+        case .imageMessageRequest(let request):
+            // An address to download from, and the caption as the body.
+            return ChatMessage(
+                role: .agent,
+                type: .image,
+                timestamp: timestamp,
+                wiId: item.id,
+                content: request.content.text,
+                status: status,
+                header: request.hasHeader ? request.header : nil,
+                footer: request.hasFooter ? request.footer : nil,
+                image: ImageAttachment(
                     mediaURL: request.content.mediaURL,
                     mimeType: request.content.mediaType,
                     fileName: request.content.fileName,

@@ -9,6 +9,7 @@ struct ChatTests {
     private func chat(
         hideWatermark: Bool = false,
         hideVoiceButton: Bool = false,
+        hideAttachmentButton: Bool = false,
         theme: ChatTheme = ChatTheme(),
         onBack: (() -> Void)? = nil
     ) -> Chat {
@@ -17,7 +18,8 @@ struct ChatTests {
             organizationId: "org-1",
             channelName: "Yalo",
             hideWatermark: hideWatermark,
-            hideVoiceButton: hideVoiceButton
+            hideVoiceButton: hideVoiceButton,
+            hideAttachmentButton: hideAttachmentButton
         ))
         // Kept off the network and the device storage.
         let viewModel: ChatViewModel = ChatViewModel(
@@ -29,6 +31,7 @@ struct ChatTests {
                 directory: FileManager.default.temporaryDirectory
             ),
             media: MediaRepository(service: FakeYaloMediaService(), tokens: TokenRepository(auth: CountingAuthService())),
+            images: ImageDeviceService(directory: FileManager.default.temporaryDirectory),
             sessionId: client.config.sessionId
         )
         return Chat(client: client, theme: theme, onBack: onBack, viewModel: viewModel)
@@ -41,6 +44,10 @@ struct ChatTests {
 
     @Test func chatRendersWithoutTheVoiceButton() {
         #expect(renders(chat(hideVoiceButton: true)))
+    }
+
+    @Test func chatRendersWithoutTheAttachmentButton() {
+        #expect(renders(chat(hideAttachmentButton: true)))
     }
 
     @Test func chatRendersWithABackButton() {

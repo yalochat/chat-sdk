@@ -2,6 +2,7 @@
 
 import Foundation
 import Testing
+import UIKit
 import UniformTypeIdentifiers
 @testable import YaloChatSDK
 
@@ -41,6 +42,35 @@ struct ImageDeviceServiceTests {
         #expect(content.mimeType == "image/jpeg")
         #expect(content.fileURL.deletingLastPathComponent().standardizedFileURL == directory.standardizedFileURL)
         #expect(try Data(contentsOf: content.fileURL) == Data("picture bytes".utf8))
+    }
+
+    @Test func findsTheCopyAPictureNames() async throws {
+        let picked: NSItemProvider = try #require(NSItemProvider(contentsOf: try Self.picture("holiday.jpg")))
+        let content: MediaContent = try await service.content(picked)
+
+        #expect(service.file(of: ImageAttachment(localFileName: content.fileURL.lastPathComponent)) == content.fileURL)
+        #expect(service.file(of: ImageAttachment(localFileName: "gone.jpg")) == nil)
+        #expect(service.file(of: ImageAttachment()) == nil)
+    }
+
+    @Test func readsAPictureNoBiggerThanABubbleNeeds() async throws {
+        let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).png")
+        let format: UIGraphicsImageRendererFormat = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let png: Data = UIGraphicsImageRenderer(size: CGSize(width: 4_000, height: 1_000), format: format).pngData { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 4_000, height: 1_000))
+        }
+        try png.write(to: file)
+
+        let picture: UIImage = try #require(await service.image(at: file))
+
+        #expect(picture.size == CGSize(width: 2_048, height: 512))
+    }
+
+    @Test func somethingThatIsNotAPictureReadsAsNothing() async throws {
+        #expect(await service.image(at: try Self.picture("holiday.jpg")) == nil)
+        #expect(await service.image(at: directory.appendingPathComponent("missing.jpg")) == nil)
     }
 
     @Test func theCopyOutlivesThePickedFile() async throws {
