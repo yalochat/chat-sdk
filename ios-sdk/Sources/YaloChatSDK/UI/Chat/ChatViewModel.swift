@@ -32,6 +32,7 @@ final class ChatViewModel: ObservableObject {
     private let media: MediaRepository
     private let images: ImageService
     private let sessionId: String
+    private let openContext: [String: String]
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
     private let replyTimeout: TimeInterval
@@ -52,6 +53,7 @@ final class ChatViewModel: ObservableObject {
         media: MediaRepository,
         images: ImageService,
         sessionId: String,
+        openContext: [String: String] = [:],
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
     ) {
@@ -61,6 +63,7 @@ final class ChatViewModel: ObservableObject {
         self.media = media
         self.images = images
         self.sessionId = sessionId
+        self.openContext = openContext
         self.now = now
         self.replyTimeout = replyTimeout
         voice.recording.assign(to: &$recording)
@@ -72,7 +75,11 @@ final class ChatViewModel: ObservableObject {
         // Listening comes first, so nothing said while connecting is missed.
         let incoming: AsyncStream<ChatMessage> = yaloMessages.messages()
         yaloMessages.connect()
-        await loadMessages()
+        // Storage failing says nothing about whether the person has been here
+        // before, and greeting them twice is worse than not greeting them.
+        if let stored = await loadMessages(), stored.isEmpty {
+            await openConversation()
+        }
         for await message in incoming {
             await receive(message)
         }
@@ -208,6 +215,14 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
+    /// Lets the channel speak first, with what the chat was opened from to go on.
+    private func openConversation() async {
+        guard (try? await yaloMessages.requestGuidanceCard(openContext: openContext)) != nil else {
+            return
+        }
+        waitForReply()
+    }
+
     private func deliver(_ message: ChatMessage) async {
         // Nothing is coming back for a message the channel never took.
         guard (try? await yaloMessages.send(message)) != nil else {
@@ -262,10 +277,12 @@ final class ChatViewModel: ObservableObject {
         isWaitingForReply = false
     }
 
-    private func loadMessages() async {
+    @discardableResult
+    private func loadMessages() async -> [ChatMessage]? {
         guard let stored = try? await chatMessages.messages(sessionId: sessionId, limit: Self.pageSize) else {
-            return
+            return nil
         }
         messages = stored.reversed()
+        return stored
     }
 }

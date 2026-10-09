@@ -26,4 +26,11 @@ struct YaloChatClientConfigTests {
         #expect(!config.hideVoiceButton)
         #expect(!config.hideAttachmentButton)
     }
+
+    @Test func warnsAndOpensWithNoContextUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.logLevel == .warn)
+        #expect(config.openContext.isEmpty)
+    }
 }

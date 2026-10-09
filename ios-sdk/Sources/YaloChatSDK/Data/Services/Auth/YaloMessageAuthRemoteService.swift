@@ -11,6 +11,7 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
     private let channelsURL: URL
     private let session: URLSession
     private let now: @Sendable () -> Date
+    private let log: YaloLog
 
     init(
         channelId: String,
@@ -18,7 +19,8 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         authUserId: String?,
         baseURL: URL,
         session: URLSession = .shared,
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        logLevel: LogLevel = .warn
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -26,9 +28,11 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         self.channelsURL = baseURL.appendingPathComponent("v1/channels")
         self.session = session
         self.now = now
+        self.log = YaloLog("Auth", level: logLevel)
     }
 
     func authenticate() async throws -> AuthToken {
+        log.info("authenticating")
         let body: AuthRequest = AuthRequest(
             userType: authUserId == nil ? "anonymous" : "third_party_anonymous",
             userId: authUserId,
@@ -44,6 +48,7 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
     }
 
     func refresh(_ refreshToken: String) async throws -> AuthToken {
+        log.info("refreshing the token")
         var request: URLRequest = URLRequest(url: channelsURL.appendingPathComponent("oauth/token"))
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -57,12 +62,25 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         failure: (Int) -> AuthServiceError,
         heldRefreshToken: String = ""
     ) async throws -> AuthToken {
-        let (data, response): (Data, URLResponse) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            log.warn("the backend could not be reached", error: error)
+            throw error
+        }
         let status: Int = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(status) else {
+            log.warn("the backend answered \(status)")
             throw failure(status)
         }
-        return try token(from: data, heldRefreshToken: heldRefreshToken)
+        do {
+            return try token(from: data, heldRefreshToken: heldRefreshToken)
+        } catch {
+            log.warn("the answer cannot be read")
+            throw error
+        }
     }
 
     // Snake case from the OAuth refresh endpoint, camel case from the auth endpoint's protobuf.

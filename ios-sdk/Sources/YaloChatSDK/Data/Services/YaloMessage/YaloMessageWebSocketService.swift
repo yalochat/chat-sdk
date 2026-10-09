@@ -44,6 +44,7 @@ actor YaloMessageWebSocketService: YaloMessageService {
     private let socketURL: URL
     private let ackTimeout: TimeInterval
     private let sockets: @Sendable (URL) -> WebSocket
+    private let log: YaloLog
     private var live: WebSocket?
     private var pending: [String] = []
     private var listeners: [UUID: AsyncStream<PollMessageItem>.Continuation] = [:]
@@ -52,7 +53,8 @@ actor YaloMessageWebSocketService: YaloMessageService {
         baseURL: URL,
         session: URLSession = .shared,
         ackTimeout: TimeInterval = 10,
-        sockets: (@Sendable (URL) -> WebSocket)? = nil
+        sockets: (@Sendable (URL) -> WebSocket)? = nil,
+        logLevel: LogLevel = .warn
     ) {
         var components: URLComponents = URLComponents(
             url: baseURL.appendingPathComponent("websocket/v1/connect/inapp"),
@@ -61,6 +63,7 @@ actor YaloMessageWebSocketService: YaloMessageService {
         components.scheme = components.scheme == "http" ? "ws" : "wss"
         self.socketURL = components.url!
         self.ackTimeout = ackTimeout
+        self.log = YaloLog("MessageSocket", level: logLevel)
         self.sockets = sockets ?? { url in
             let task: URLSessionWebSocketTask = session.webSocketTask(with: url)
             task.resume()
@@ -82,6 +85,7 @@ actor YaloMessageWebSocketService: YaloMessageService {
     }
 
     func run(token: String) async -> Bool {
+        log.info("opening the socket to \(socketURL.host ?? "")")
         // The backend reads the token from the query, not a header.
         var components: URLComponents = URLComponents(url: socketURL, resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "token", value: token)]
@@ -102,10 +106,17 @@ actor YaloMessageWebSocketService: YaloMessageService {
             }
             return
         }
-        try await live.write(frame)
+        do {
+            try await live.write(frame)
+        } catch {
+            log.warn("the socket would not take a message", error: error)
+            throw error
+        }
+        log.debug("sent \(frame)")
     }
 
     func close() {
+        log.info("forgetting what was waiting to be sent")
         pending.removeAll()
     }
 
@@ -114,17 +125,27 @@ actor YaloMessageWebSocketService: YaloMessageService {
             if live === socket {
                 live = nil
             }
+            log.debug("closing the socket")
             socket.close()
         }
         guard await acknowledged(socket) else {
+            log.warn("the server never acknowledged the connection")
             return false
+        }
+        log.info("the socket is open")
+        if !pending.isEmpty {
+            log.info("sending \(pending.count) held back while the line was down")
         }
         // Emptied before going live, so a send made meanwhile cannot jump the queue.
         while !pending.isEmpty {
-            try? await socket.write(pending.removeFirst())
+            let frame: String = pending.removeFirst()
+            if (try? await socket.write(frame)) != nil {
+                log.debug("sent \(frame)")
+            }
         }
         live = socket
         while let frame = try? await socket.read() {
+            log.debug("received \(frame)")
             guard let item = Self.message(from: frame) else {
                 continue
             }

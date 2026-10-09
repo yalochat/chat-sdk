@@ -9,11 +9,13 @@ actor ChatMessageDatabaseService: ChatMessageService {
     static let version: Int32 = 3
 
     private let fileURL: URL?
+    private let log: YaloLog
     // Only touched from the actor and from deinit, when nothing else can.
     private nonisolated(unsafe) var connection: OpaquePointer?
 
-    init(fileURL: URL?) {
+    init(fileURL: URL?, logLevel: LogLevel = .warn) {
         self.fileURL = fileURL
+        self.log = YaloLog("Database", level: logLevel)
     }
 
     deinit {
@@ -94,6 +96,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
         let code: Int32 = sqlite3_open_v2(path, &database, flags, nil)
         guard code == SQLITE_OK, let database else {
             let error: ChatMessageServiceError = Self.failure(database, code: code)
+            log.error("the message store cannot be opened", error: error)
             sqlite3_close_v2(database)
             throw error
         }
@@ -102,6 +105,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
             sqlite3_busy_timeout(database, 5_000)
             try migrate(database)
         } catch {
+            log.error("the message store cannot be migrated", error: error)
             sqlite3_close_v2(database)
             throw error
         }
@@ -116,6 +120,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
         guard found < Self.version else {
             return
         }
+        log.info("migrating the message store from version \(found) to \(Self.version)")
         try run(database, "BEGIN IMMEDIATE", [])
         do {
             if found < 1 {

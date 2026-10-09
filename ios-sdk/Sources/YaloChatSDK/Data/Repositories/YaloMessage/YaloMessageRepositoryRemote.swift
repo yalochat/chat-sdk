@@ -24,6 +24,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
     private let tokens: TokenRepository
     private let now: @Sendable () -> Date
     private let sleep: @Sendable (TimeInterval) async throws -> Void
+    private let log: YaloLog
     private var lifecycle: Lifecycle = .closed
     private var connecting: Task<Void, Never>?
 
@@ -33,18 +34,21 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         now: @escaping @Sendable () -> Date = { Date() },
         sleep: @escaping @Sendable (TimeInterval) async throws -> Void = { seconds in
             try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
-        }
+        },
+        logLevel: LogLevel = .warn
     ) {
         self.service = service
         self.tokens = tokens
         self.now = now
         self.sleep = sleep
+        self.log = YaloLog("Messages", level: logLevel)
     }
 
     func connect() {
         guard lifecycle == .closed else {
             return
         }
+        log.info("connecting")
         lifecycle = .running
         startConnecting()
     }
@@ -53,6 +57,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         guard lifecycle == .running else {
             return
         }
+        log.info("pausing, the app went away")
         lifecycle = .paused
         connecting?.cancel()
         connecting = nil
@@ -62,11 +67,13 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         guard lifecycle == .paused else {
             return
         }
+        log.info("resuming")
         lifecycle = .running
         startConnecting()
     }
 
     func close() {
+        log.info("closing")
         lifecycle = .closed
         connecting?.cancel()
         connecting = nil
@@ -95,17 +102,39 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
 
     func send(_ message: ChatMessage) async throws {
         guard lifecycle != .closed else {
+            log.warn("a message was written while the chat was closed")
             throw YaloMessageRepositoryError.closed
         }
         try await service.send(try Self.sdkMessage(from: message, sentAt: now()))
+    }
+
+    func requestGuidanceCard(openContext: [String: String]) async throws {
+        guard lifecycle != .closed else {
+            throw YaloMessageRepositoryError.closed
+        }
+        let askedAt: Date = now()
+        var request: Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardRequest = .init()
+        request.timestamp = Google_Protobuf_Timestamp(date: askedAt)
+        // Nothing to go on is said by leaving the field out, not by an empty object.
+        if !openContext.isEmpty {
+            let json: Data = try JSONSerialization.data(withJSONObject: openContext, options: [.sortedKeys])
+            request.context = String(decoding: json, as: UTF8.self)
+        }
+        var envelope: SdkMessage = SdkMessage()
+        envelope.correlationID = UUID().uuidString
+        envelope.timestamp = Google_Protobuf_Timestamp(date: askedAt)
+        envelope.payload = .guidanceCardRequest(request)
+        log.info("asking the channel to open the conversation")
+        try await service.send(envelope)
     }
 
     private func startConnecting() {
         let service: YaloMessageService = service
         let tokens: TokenRepository = tokens
         let sleep: @Sendable (TimeInterval) async throws -> Void = sleep
+        let log: YaloLog = log
         connecting = Task {
-            await Self.connectUntilStopped(service: service, tokens: tokens, sleep: sleep)
+            await Self.connectUntilStopped(service: service, tokens: tokens, sleep: sleep, log: log)
         }
     }
 
@@ -113,16 +142,26 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
     private static func connectUntilStopped(
         service: YaloMessageService,
         tokens: TokenRepository,
-        sleep: @Sendable (TimeInterval) async throws -> Void
+        sleep: @Sendable (TimeInterval) async throws -> Void,
+        log: YaloLog
     ) async {
         var attempt: Int = 0
         while !Task.isCancelled {
-            if let token = try? await tokens.token(), !Task.isCancelled, await service.run(token: token) {
-                // The line worked, so the waits start over.
-                attempt = 0
-            }
             do {
-                try await sleep(min(maxBackoff, pow(2, Double(attempt))))
+                let token: String = try await tokens.token()
+                if !Task.isCancelled, await service.run(token: token) {
+                    // The line worked, so the waits start over.
+                    attempt = 0
+                }
+            } catch where !Task.isCancelled {
+                log.warn("no token, so no socket", error: error)
+            } catch {
+                return
+            }
+            let delay: TimeInterval = min(maxBackoff, pow(2, Double(attempt)))
+            log.info("reconnecting in \(Int(delay))s")
+            do {
+                try await sleep(delay)
             } catch {
                 return
             }

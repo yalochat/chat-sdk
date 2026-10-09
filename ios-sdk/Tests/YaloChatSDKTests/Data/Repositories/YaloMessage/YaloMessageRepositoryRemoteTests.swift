@@ -171,6 +171,53 @@ struct YaloMessageRepositoryRemoteTests {
         #expect(await eventually { await service.closes == 1 })
     }
 
+    @Test func asksForAGuidanceCardWithTheOpenContext() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+
+        try await repository.requestGuidanceCard(openContext: ["source": "product-page", "sku": "37549996"])
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .guidanceCardRequest(let request) = sent.payload else {
+            Issue.record("expected a guidance card request")
+            return
+        }
+        let context: [String: String] = try #require(
+            try JSONSerialization.jsonObject(with: Data(request.context.utf8)) as? [String: String]
+        )
+        #expect(context == ["source": "product-page", "sku": "37549996"])
+        #expect(!sent.correlationID.isEmpty)
+        #expect(sent.timestamp.date == Self.now)
+        #expect(request.timestamp.date == Self.now)
+        repository.close()
+    }
+
+    @Test func leavesTheContextOutWhenThereIsNone() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+
+        try await repository.requestGuidanceCard(openContext: [:])
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .guidanceCardRequest(let request) = sent.payload else {
+            Issue.record("expected a guidance card request")
+            return
+        }
+        #expect(!request.hasContext)
+        repository.close()
+    }
+
+    @Test func refusesAGuidanceCardWhileClosed() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+
+        await #expect(throws: YaloMessageRepositoryError.closed) {
+            try await repository.requestGuidanceCard(openContext: [:])
+        }
+    }
+
     @Test func sendsTextInTheWireFormat() async throws {
         let service: FakeYaloMessageService = FakeYaloMessageService()
         let repository: YaloMessageRepositoryRemote = repository(service)

@@ -32,4 +32,9 @@ protocol YaloMessageRepository: AnyObject {
     /// Hands `message` to the channel. A message sent before the line is up
     /// goes out once it is.
     func send(_ message: ChatMessage) async throws
+
+    /// Tells the channel a chat has been opened on an empty conversation, so
+    /// it can say something first. `openContext` reaches the channel as it is
+    /// given, and what it says back arrives through `messages()`.
+    func requestGuidanceCard(openContext: [String: String]) async throws
 }
