@@ -56,6 +56,7 @@ public struct Chat: View {
                         await viewModel.toggleVoiceMessage(message)
                     }
                 },
+                cachedImage: viewModel.cachedImage(of:),
                 loadImage: viewModel.image(of:)
             )
             ChatInput(

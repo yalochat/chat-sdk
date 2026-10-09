@@ -3,8 +3,9 @@
 import SwiftUI
 
 /// A picture in the conversation, with its caption under it when it has one.
-/// `load` is asked once per message, so scrolling does not read the same
-/// picture over and over.
+/// `cached` is the picture when it has already been read, so a row the list
+/// rebuilt after scrolling away is drawn at once. Otherwise `load` is asked,
+/// and `onLoaded` is called once the picture it answered with has grown the row.
 struct ImageMessage: View {
     /// Room for the spinner while a picture is on its way.
     private static let placeholderSize: CGFloat = 72
@@ -14,8 +15,22 @@ struct ImageMessage: View {
 
     let message: ChatMessage
     let load: (ChatMessage) async -> UIImage?
+    let onLoaded: () -> Void
     @State private var picture: UIImage?
-    @State private var isLoading: Bool = true
+    @State private var isLoading: Bool
+
+    init(
+        message: ChatMessage,
+        cached: UIImage? = nil,
+        load: @escaping (ChatMessage) async -> UIImage?,
+        onLoaded: @escaping () -> Void = {}
+    ) {
+        self.message = message
+        self.load = load
+        self.onLoaded = onLoaded
+        _picture = State(initialValue: cached)
+        _isLoading = State(initialValue: cached == nil)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -61,8 +76,14 @@ struct ImageMessage: View {
         }
         .accessibilityIdentifier("yalo-chat-image-message")
         .task(id: message.id) {
+            guard picture == nil else {
+                return
+            }
             picture = await load(message)
             isLoading = false
+            if picture != nil {
+                onLoaded()
+            }
         }
     }
 }

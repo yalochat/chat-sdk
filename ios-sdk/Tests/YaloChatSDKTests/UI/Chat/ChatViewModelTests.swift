@@ -365,6 +365,27 @@ struct ChatViewModelTests {
         #expect(await mediaService.downloads == ["https://cdn/menu.png"])
     }
 
+    @Test func aPictureIsReadOnceAndThenKept() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.serveDownloads(from: try Self.png())
+        let received: ChatMessage = ChatMessage(
+            role: .agent,
+            type: .image,
+            timestamp: Self.now,
+            id: 5,
+            image: ImageAttachment(mediaURL: "https://cdn/menu.png")
+        )
+        #expect(viewModel.cachedImage(of: received) == nil)
+
+        let first: UIImage? = await viewModel.image(of: received)
+        let second: UIImage? = await viewModel.image(of: received)
+
+        #expect(first != nil)
+        #expect(second === first)
+        #expect(viewModel.cachedImage(of: received) === first)
+        #expect(await mediaService.downloads == ["https://cdn/menu.png"])
+    }
+
     @Test func aPictureThatIsNowhereReadsAsNothing() async {
         let viewModel: ChatViewModel = viewModel()
         let unreachable: ChatMessage = ChatMessage(role: .agent, type: .image, timestamp: Self.now, id: 5, image: ImageAttachment())

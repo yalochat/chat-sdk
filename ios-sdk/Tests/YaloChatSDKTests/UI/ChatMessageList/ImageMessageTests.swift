@@ -34,6 +34,17 @@ struct ImageMessageTests {
         #expect(await rendersOnceLoaded(message, answer: Self.picture))
     }
 
+    @Test func aCachedPictureIsDrawnWithoutLoading() async {
+        let message: ChatMessage = ChatMessage(role: .user, type: .image, timestamp: Date(), id: 3, image: ImageAttachment())
+        let asked: Recorded<Int64?> = Recorded()
+
+        #expect(renders(ImageMessage(message: message, cached: Self.picture) { asking in
+            asked.append(asking.id)
+            return nil
+        }))
+        #expect(!(await eventually(timeout: 0.2) { !asked.values.isEmpty }))
+    }
+
     @Test func showsAStandInForAPictureThatIsNowhere() async {
         let message: ChatMessage = ChatMessage(role: .agent, type: .image, timestamp: Date(), id: 2, image: ImageAttachment())
 

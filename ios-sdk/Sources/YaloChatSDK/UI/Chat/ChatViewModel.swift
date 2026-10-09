@@ -36,6 +36,14 @@ final class ChatViewModel: ObservableObject {
     /// Seconds the loader waits before deciding no reply is coming.
     private let replyTimeout: TimeInterval
     private var replyDeadline: Task<Void, Never>?
+    /// Pictures already read, by message id. The list drops a row that scrolls
+    /// away, so this is what lets it come back drawn instead of loading again.
+    /// Bounded by bytes, and emptied by the system when memory runs low.
+    private let pictures: NSCache<NSNumber, UIImage> = {
+        let cache: NSCache<NSNumber, UIImage> = NSCache()
+        cache.totalCostLimit = 100 * 1_024 * 1_024
+        return cache
+    }()
 
     init(
         chatMessages: ChatMessageService,
@@ -173,6 +181,9 @@ final class ChatViewModel: ObservableObject {
     /// The picture of `message`, from the device for one the person sent and
     /// downloaded for one the channel sent, or nil when it is nowhere.
     func image(of message: ChatMessage) async -> UIImage? {
+        if let cached = cachedImage(of: message) {
+            return cached
+        }
         guard let picture = message.image else {
             return nil
         }
@@ -180,10 +191,21 @@ final class ChatViewModel: ObservableObject {
         if file == nil, !picture.mediaURL.isEmpty {
             file = try? await media.download(picture.mediaURL)
         }
-        guard let file else {
+        guard let file, let read = await images.image(at: file) else {
             return nil
         }
-        return await images.image(at: file)
+        if let id = message.id {
+            let bytes: Int = read.cgImage.map { image in image.bytesPerRow * image.height } ?? 0
+            pictures.setObject(read, forKey: NSNumber(value: id), cost: bytes)
+        }
+        return read
+    }
+
+    /// The picture of `message` when it has already been read, without waiting.
+    func cachedImage(of message: ChatMessage) -> UIImage? {
+        message.id.flatMap { id in
+            pictures.object(forKey: NSNumber(value: id))
+        }
     }
 
     private func deliver(_ message: ChatMessage) async {
