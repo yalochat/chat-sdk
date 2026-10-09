@@ -103,8 +103,9 @@ jobs:
           xcode_archive_path: ${{ env.RESULT_BUNDLE }}
 
       - name: Build release for device
-        # Same configuration integrators compile, so a broken release build
-        # fails on the pull request instead of at release time.
+        # Same configuration integrators compile. Skipped on pull requests to
+        # keep them fast, since a release still waits for this on its tag.
+        if: github.event_name != 'pull_request'
         run: |
           xcodebuild build \
             -scheme YaloChatSDK \
