@@ -67,6 +67,11 @@ jobs:
           fi
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
+      - name: Boot simulator
+        # Waits for the first boot to settle, so its background work does not
+        # stall the tests that wait on a deadline.
+        run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
+
       - name: Cache Swift packages
         uses: actions/cache@v5
         with:
