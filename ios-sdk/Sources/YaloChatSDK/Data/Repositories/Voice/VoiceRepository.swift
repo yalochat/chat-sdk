@@ -48,7 +48,7 @@ protocol VoiceRepository: AnyObject {
 
     /// Plays `file` as the note of `messageId`, carrying on from where it was
     /// paused when that note is the one already loaded.
-    func play(_ messageId: Int64, file: URL) throws
+    func play(_ messageId: Int64, file: URL) async throws
 
     func pausePlayback()
 

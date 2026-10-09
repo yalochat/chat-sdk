@@ -140,21 +140,23 @@ final class VoiceRepositoryLocal: VoiceRepository {
         return FileManager.default.fileExists(atPath: file.path) ? file : nil
     }
 
-    func play(_ messageId: Int64, file: URL) throws {
+    /// Says it is playing before the audio has switched over, so a pause in
+    /// the meantime is what wins.
+    func play(_ messageId: Int64, file: URL) async throws {
         if var loaded = playbackSubject.value, loaded.messageId == messageId {
-            player.play()
             loaded.isPlaying = true
             playbackSubject.send(loaded)
             startTracking()
+            await player.play()
             return
         }
         stopPlayback()
         try player.load(file) { [weak self] in
             self?.finish(messageId)
         }
-        player.play()
         playbackSubject.send(VoicePlayback(messageId: messageId, position: 0, duration: player.duration, isPlaying: true))
         startTracking()
+        await player.play()
     }
 
     func pausePlayback() {

@@ -87,11 +87,11 @@ struct VoicePlayerDeviceServiceTests {
         }
     }
 
-    @Test func saysNothingAboutAudioItWasNeverGiven() {
+    @Test func saysNothingAboutAudioItWasNeverGiven() async {
         let session: StubAudioSession = StubAudioSession()
         let service: VoicePlayerDeviceService = Self.service(session: session)
 
-        service.play()
+        await service.play()
         service.pause()
         service.stop()
 
@@ -100,13 +100,13 @@ struct VoicePlayerDeviceServiceTests {
         #expect(session.category == nil)
     }
 
-    @Test func playsTheLoadedNoteAsSpokenAudio() throws {
+    @Test func playsTheLoadedNoteAsSpokenAudio() async throws {
         let session: StubAudioSession = StubAudioSession()
         var stub: StubPlayer?
         let service: VoicePlayerDeviceService = Self.service(session: session) { stub = $0 }
         try service.load(try Self.note(seconds: 1)) {}
 
-        service.play()
+        await service.play()
 
         #expect(try #require(stub).isStarted)
         #expect(session.category == .playback)
@@ -115,18 +115,38 @@ struct VoicePlayerDeviceServiceTests {
         service.stop()
     }
 
-    @Test func pausingHandsTheAudioBack() throws {
+    @Test func pausingHandsTheAudioBack() async throws {
         let session: StubAudioSession = StubAudioSession()
         var stub: StubPlayer?
         let service: VoicePlayerDeviceService = Self.service(session: session) { stub = $0 }
         try service.load(try Self.note(seconds: 1)) {}
-        service.play()
+        await service.play()
 
         service.pause()
 
         #expect(try #require(stub).isStarted == false)
-        #expect(!session.isActive)
+        #expect(await eventually { !session.isActive })
         #expect(session.deactivationOptions == .notifyOthersOnDeactivation)
+        service.stop()
+    }
+
+    @Test func aPauseWhileTheAudioSwitchesOverWins() async throws {
+        let gate: DispatchSemaphore = DispatchSemaphore(value: 0)
+        let session: StubAudioSession = StubAudioSession(gate: gate)
+        var stub: StubPlayer?
+        let service: VoicePlayerDeviceService = Self.service(session: session) { stub = $0 }
+        try service.load(try Self.note(seconds: 1)) {}
+        let playing: Task<Void, Never> = Task {
+            await service.play()
+        }
+        #expect(await eventually { session.isActivating })
+
+        service.pause()
+        gate.signal()
+        await playing.value
+
+        #expect(try #require(stub).isStarted == false)
+        #expect(await eventually { !session.isActive })
         service.stop()
     }
 
@@ -158,20 +178,18 @@ struct VoicePlayerDeviceServiceTests {
         var stub: StubPlayer?
         let service: VoicePlayerDeviceService = Self.service(session: session) { stub = $0 }
 
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            do {
-                try service.load(try Self.note(seconds: 1)) {
-                    continuation.resume()
-                }
-                service.play()
-                stub?.finish()
-            } catch {
-                Issue.record(error)
-                continuation.resume()
-            }
+        let finished: AsyncStream<Void>.Continuation
+        let ends: AsyncStream<Void>
+        (ends, finished) = AsyncStream.makeStream()
+        try service.load(try Self.note(seconds: 1)) {
+            finished.yield()
         }
+        await service.play()
+        stub?.finish()
 
-        #expect(!session.isActive)
+        var iterator: AsyncStream<Void>.Iterator = ends.makeAsyncIterator()
+        #expect(await iterator.next() != nil)
+        #expect(await eventually { !session.isActive })
         service.stop()
     }
 

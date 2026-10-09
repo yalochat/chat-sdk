@@ -267,7 +267,7 @@ struct ChatViewModelTests {
         let viewModel: ChatViewModel = viewModel()
         let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).m4a")
         await viewModel.startRecording()
-        try voice.play(1, file: file)
+        try await voice.play(1, file: file)
 
         viewModel.onScenePhaseChange(.background)
 

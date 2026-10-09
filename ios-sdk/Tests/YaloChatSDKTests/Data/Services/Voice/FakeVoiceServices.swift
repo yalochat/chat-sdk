@@ -70,7 +70,7 @@ final class FakeVoicePlayer: VoicePlayerService {
         self.onFinished = onFinished
     }
 
-    func play() {
+    func play() async {
         isPlaying = loaded != nil
     }
 

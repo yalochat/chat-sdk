@@ -143,7 +143,7 @@ struct VoiceRecorderDeviceServiceTests {
         #expect(session.isActive)
 
         try service.stop()
-        #expect(!session.isActive)
+        #expect(await eventually { !session.isActive })
         #expect(session.deactivationOptions == .notifyOthersOnDeactivation)
     }
 

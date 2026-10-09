@@ -114,7 +114,7 @@ final class ChatViewModel: ObservableObject {
         guard let file else {
             return
         }
-        try? voice.play(id, file: file)
+        try? await voice.play(id, file: file)
     }
 
     /// The note is shown before it goes anywhere, like a typed message. The

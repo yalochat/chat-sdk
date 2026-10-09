@@ -186,12 +186,12 @@ struct VoiceRepositoryLocalTests {
         #expect(repository.file(of: VoiceNote(duration: 1, localFileName: "gone.m4a")) == nil)
     }
 
-    @Test func playingLoadsTheNoteAndFollowsThePlayhead() throws {
+    @Test func playingLoadsTheNoteAndFollowsThePlayhead() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
         let file: URL = try audioFile()
 
-        try repository.play(1, file: file)
+        try await repository.play(1, file: file)
 
         #expect(player.loaded == file)
         #expect(player.isPlaying)
@@ -201,7 +201,7 @@ struct VoiceRepositoryLocalTests {
     @Test func thePlayheadIsFollowedWhilePlaying() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
 
         player.position = 1.5
 
@@ -209,47 +209,47 @@ struct VoiceRepositoryLocalTests {
         repository.release()
     }
 
-    @Test func pausingAndPlayingAgainCarriesOnWithoutReloading() throws {
+    @Test func pausingAndPlayingAgainCarriesOnWithoutReloading() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
         player.position = 1
 
         repository.pausePlayback()
         #expect(playback.value == VoicePlayback(messageId: 1, position: 1, duration: 3, isPlaying: false))
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
 
         #expect(player.loads.count == 1)
         #expect(player.isPlaying)
         #expect(playback.value??.isPlaying == true)
     }
 
-    @Test func playingAnotherNoteReplacesTheFirst() throws {
+    @Test func playingAnotherNoteReplacesTheFirst() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
 
-        try repository.play(2, file: try audioFile())
+        try await repository.play(2, file: try audioFile())
 
         #expect(player.loads.count == 2)
         #expect(playback.value??.messageId == 2)
     }
 
-    @Test func aNoteTheDeviceCannotPlayLeavesNothingLoaded() throws {
+    @Test func aNoteTheDeviceCannotPlayLeavesNothingLoaded() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
         player.loadError = VoicePlayerServiceError.unplayable
 
-        #expect(throws: VoicePlayerServiceError.unplayable) {
-            try repository.play(1, file: try audioFile())
+        await #expect(throws: VoicePlayerServiceError.unplayable) {
+            try await repository.play(1, file: try audioFile())
         }
         #expect(playback.value == .some(nil))
     }
 
-    @Test func aNoteHeardToTheEndIsRewound() throws {
+    @Test func aNoteHeardToTheEndIsRewound() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
 
         player.finish()
 
@@ -259,7 +259,7 @@ struct VoiceRepositoryLocalTests {
     @Test func recordingStopsWhateverWasPlaying() async throws {
         let repository: VoiceRepositoryLocal = repository()
         let playback: Latest<VoicePlayback?> = Latest(repository.playback)
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
 
         try await repository.startRecording()
 
@@ -270,7 +270,7 @@ struct VoiceRepositoryLocalTests {
 
     @Test func releaseLetsGoOfBoth() async throws {
         let repository: VoiceRepositoryLocal = repository()
-        try repository.play(1, file: try audioFile())
+        try await repository.play(1, file: try audioFile())
         try await repository.startRecording()
 
         repository.release()
