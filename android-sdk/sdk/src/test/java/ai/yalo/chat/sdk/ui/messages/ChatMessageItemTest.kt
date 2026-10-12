@@ -10,6 +10,9 @@ import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_MESSAGE_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_PLAY_BUTTON_TAG
 import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -146,7 +149,7 @@ class ChatMessageItemTest {
 
         composeRule.onNodeWithText("Track order").assertIsDisplayed()
         composeRule.onNodeWithText("Talk to us").assertIsDisplayed()
-        composeRule.onAllNodesWithTag(CHAT_POSTBACK_BUTTON_TAG).assertCountEquals(2)
+        composeRule.onAllNodesWithTag(CHAT_MESSAGE_BUTTON_TAG).assertCountEquals(2)
     }
 
     @Test
@@ -158,7 +161,7 @@ class ChatMessageItemTest {
             )
         }
 
-        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).assertIsDisplayed()
     }
 
     @Test
@@ -167,7 +170,7 @@ class ChatMessageItemTest {
             ChatMessageItem(message(role = MessageRole.Agent, content = "Anything else?"))
         }
 
-        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).assertDoesNotExist()
     }
 
     @Test
@@ -183,8 +186,76 @@ class ChatMessageItemTest {
             )
         }
 
-        composeRule.onAllNodesWithTag(CHAT_POSTBACK_BUTTON_TAG).assertCountEquals(1)
+        composeRule.onAllNodesWithTag(CHAT_MESSAGE_BUTTON_TAG).assertCountEquals(1)
         composeRule.onNodeWithText("Track order").assertIsDisplayed()
+    }
+
+    @Test
+    fun opensTheAddressOfALinkThatWasTapped() {
+        val opened = mutableListOf<String>()
+        val tapped = mutableListOf<String>()
+        composeRule.setContent {
+            CompositionLocalProvider(LocalUriHandler provides uriHandler { uri -> opened.add(uri) }) {
+                ChatMessageItem(
+                    message = messageWithLink("Open the store", url = "https://example.com/store"),
+                    onPostback = { text -> tapped.add(text) },
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Open the store").performClick()
+
+        assertEquals(listOf("https://example.com/store"), opened)
+        assertEquals(emptyList<String>(), tapped)
+    }
+
+    @Test
+    fun marksALinkWithAnArrow() {
+        composeRule.setContent {
+            ChatMessageItem(message = messageWithLink("Open the store", url = "https://example.com/store"))
+        }
+
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_LINK_ICON_TAG, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun leavesTheArrowOffAButtonThatIsNotALink() {
+        composeRule.setContent {
+            ChatMessageItem(message = messageWithButtons("Pick one", "Track order"))
+        }
+
+        composeRule.onNodeWithTag(CHAT_LINK_ICON_TAG, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun saysTheTextOfALinkWithNoAddress() {
+        val tapped = mutableListOf<String>()
+        composeRule.setContent {
+            ChatMessageItem(
+                message = messageWithLink("Open the store", url = null),
+                onPostback = { text -> tapped.add(text) },
+            )
+        }
+
+        composeRule.onNodeWithText("Open the store").performClick()
+
+        assertEquals(listOf("Open the store"), tapped)
+    }
+
+    @Test
+    fun staysOpenWhenNothingCanOpenALink() {
+        composeRule.setContent {
+            CompositionLocalProvider(
+                LocalUriHandler provides uriHandler { throw IllegalArgumentException("no browser") },
+            ) {
+                ChatMessageItem(message = messageWithLink("Open the store", url = "https://example.com/store"))
+            }
+        }
+
+        composeRule.onNodeWithText("Open the store").performClick()
+
+        composeRule.onNodeWithText("Open the store").assertIsDisplayed()
     }
 
     @Test
@@ -289,4 +360,15 @@ class ChatMessageItemTest {
         timestamp = 1_000L,
         content = content,
     )
+
+    private fun messageWithLink(text: String, url: String?) =
+        message(role = MessageRole.Agent, content = "Have a look").copy(
+            buttons = listOf(MessageButton(text = text, type = MessageButtonType.Link, url = url)),
+        )
+
+    private fun uriHandler(open: (String) -> Unit) = object : UriHandler {
+        override fun openUri(uri: String) {
+            open(uri)
+        }
+    }
 }

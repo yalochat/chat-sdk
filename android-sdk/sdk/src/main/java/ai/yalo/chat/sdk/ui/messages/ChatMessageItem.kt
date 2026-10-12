@@ -5,7 +5,7 @@ import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
-import ai.yalo.chat.sdk.domain.models.postbacks
+import ai.yalo.chat.sdk.domain.models.actions
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -159,10 +159,10 @@ private fun AgentMessage(
                 )
             }
         }
-        val postbacks: List<MessageButton> = message.postbacks
-        if (postbacks.isNotEmpty()) {
-            PostbackButtons(
-                buttons = postbacks,
+        val actions: List<MessageButton> = message.actions
+        if (actions.isNotEmpty()) {
+            MessageButtons(
+                buttons = actions,
                 onButtonClick = onPostback,
                 modifier = Modifier.widthAtMost(AGENT_MESSAGE_WIDTH),
             )

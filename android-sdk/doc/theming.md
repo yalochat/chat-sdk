@@ -13,7 +13,7 @@ Every value defaults to your app `MaterialTheme`, so a chat dropped into an app 
   - [Footer and input](#footer-and-input)
   - [Messages](#messages)
   - [Quick replies](#quick-replies)
-  - [Postback buttons](#postback-buttons)
+  - [Message buttons](#message-buttons)
   - [Typing indicator](#typing-indicator)
 - [Light and dark](#light-and-dark)
 - [Full theming example](#full-theming-example)
@@ -78,9 +78,9 @@ These paint the chips the person taps to answer.
 - **`quickReplyBorderColor`** (`Color`): Color of the line around a chip. Defaults to the Material `outline` color.
 - **`quickReplyShape`** (`Shape`): Shape of a chip. Defaults to a fully rounded shape.
 
-### Postback buttons
+### Message buttons
 
-These paint the buttons stacked under a message.
+These paint the buttons stacked under a message, both the ones that answer the channel and the links that open a page. A link also shows an arrow in the text color.
 
 - **`postbackBackground`** (`Color`): Background of a button. Defaults to transparent. Set a color to fill it.
 - **`onPostbackBackground`** (`Color`): Color of the text on a button. Defaults to the Material `onSurface` color.

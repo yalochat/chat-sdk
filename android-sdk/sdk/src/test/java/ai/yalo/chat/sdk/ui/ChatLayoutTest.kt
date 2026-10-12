@@ -7,7 +7,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
-import ai.yalo.chat.sdk.ui.messages.CHAT_POSTBACK_BUTTON_TAG
+import ai.yalo.chat.sdk.ui.messages.CHAT_MESSAGE_BUTTON_TAG
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -254,7 +254,7 @@ class ChatLayoutTest {
         }
 
         composeRule.onNodeWithText("Track order").assertIsDisplayed()
-        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).assertIsDisplayed()
     }
 
     @Test
@@ -271,7 +271,7 @@ class ChatLayoutTest {
             )
         }
 
-        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).performClick()
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).performClick()
 
         assertEquals(listOf("Talk to us"), tapped)
     }

@@ -50,8 +50,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * [theme] follows the host `MaterialTheme` unless you pass one in.
  *
  * Quick replies follow `quickReplyType` in the client config: a bar above the
- * message input, or chips under the message that offered them. Postback buttons
- * always sit under the message that sent them and stay there.
+ * message input, or chips under the message that offered them. Postback and
+ * link buttons always sit under the message that sent them and stay there. A
+ * link opens its address outside the chat.
  *
  * With `welcomeMessageType` set to `VerticalQuickReplies`, the channel's first
  * message is drawn alone and centered with one quick reply per line until the
