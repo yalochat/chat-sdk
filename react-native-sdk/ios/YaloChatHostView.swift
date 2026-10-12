@@ -144,6 +144,7 @@ func chatTheme(of json: String) -> ChatTheme {
   let shapes: [(String, WritableKeyPath<ChatTheme, ChatShape>)] = [
     ("inputShape", \.inputShape),
     ("quickReplyShape", \.quickReplyShape),
+    ("userMessageShape", \.userMessageShape),
     ("agentMessageShape", \.agentMessageShape),
   ]
   for (key, path) in shapes {

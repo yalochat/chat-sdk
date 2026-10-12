@@ -147,4 +147,4 @@ Shapes are corner radii in points. A number rounds every corner. An object round
 Both platforms take the full API. Some options are not drawn on iOS yet and are ignored there until the iOS SDK supports them:
 
 - The theme colors `onBackground`, `linkColor`, `postback*` and `inputFieldBorderColor`.
-- Every theme shape except `inputShape`, `quickReplyShape` and `agentMessageShape`.
+- The theme shapes `imageShape` and `postbackShape`.

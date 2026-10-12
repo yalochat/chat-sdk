@@ -70,6 +70,7 @@ Each color pair works the same way: the `background` value paints a surface and 
 
 - **`userMessageBackground`** (`Color`): Bubble background for messages the person sent. Defaults to the secondary system background color.
 - **`onUserMessageBackground`** (`Color`): Text color inside those bubbles. Defaults to the system label color.
+- **`userMessageShape`** (`ChatShape`): Shape of the person's bubbles. Defaults to every corner rounded by 18 points.
 - **`agentMessageBackground`** (`Color`): Background for messages the channel sent. Defaults to clear, so what the channel says reads as the conversation itself rather than as a reply. Set a color to put them in a box.
 - **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the system label color.
 - **`agentMessageShape`** (`ChatShape`): Shape of the box around those messages. Defaults to square corners, which is invisible while the background is clear. Set it along with `agentMessageBackground` when you want those messages boxed.

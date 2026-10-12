@@ -23,6 +23,7 @@ public struct ChatTheme: Sendable, Equatable {
     public var onSendButtonBackground: Color
     public var userMessageBackground: Color
     public var onUserMessageBackground: Color
+    public var userMessageShape: ChatShape
     public var agentMessageBackground: Color
     public var onAgentMessageBackground: Color
     public var agentMessageShape: ChatShape
@@ -50,6 +51,7 @@ public struct ChatTheme: Sendable, Equatable {
         onSendButtonBackground: Color = .white,
         userMessageBackground: Color = Color(.secondarySystemBackground),
         onUserMessageBackground: Color = Color(.label),
+        userMessageShape: ChatShape = ChatShape(radius: 18),
         // Unbubbled, like the web SDK, so it reads as the conversation itself.
         agentMessageBackground: Color = .clear,
         onAgentMessageBackground: Color = Color(.label),
@@ -79,6 +81,7 @@ public struct ChatTheme: Sendable, Equatable {
         self.onSendButtonBackground = onSendButtonBackground
         self.userMessageBackground = userMessageBackground
         self.onUserMessageBackground = onUserMessageBackground
+        self.userMessageShape = userMessageShape
         self.agentMessageBackground = agentMessageBackground
         self.onAgentMessageBackground = onAgentMessageBackground
         self.agentMessageShape = agentMessageShape
