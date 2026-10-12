@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -116,6 +118,7 @@ internal fun ChatFooter(
                 Row(
                     modifier = Modifier
                         .weight(1f)
+                        .background(color = theme.inputBackground, shape = theme.inputShape)
                         .border(
                             width = INPUT_BORDER_WIDTH,
                             color = theme.inputBorderColor,
@@ -179,6 +182,10 @@ internal fun ChatFooter(
                     .padding(bottom = 4.dp)
                     .testTag(CHAT_SEND_BUTTON_TAG),
                 enabled = canSend || !showsSend,
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = theme.sendButtonBackground,
+                    contentColor = theme.onSendButtonBackground,
+                ),
             ) {
                 // The button offers to record until there is something to send,
                 // then turns into the send button.

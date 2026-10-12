@@ -60,7 +60,7 @@ internal fun VoiceRecordingBar(
     Surface(
         modifier = modifier.testTag(CHAT_RECORDING_BAR_TAG),
         shape = theme.inputShape,
-        color = theme.footerBackground,
+        color = theme.inputBackground,
         contentColor = theme.onFooterBackground,
         border = BorderStroke(INPUT_BORDER_WIDTH, theme.inputBorderColor),
     ) {

@@ -23,6 +23,8 @@ class ThemeOverridesTest {
         onUserMessageBackground = Color.White,
         agentMessageBackground = Color.White,
         onAgentMessageBackground = Color.White,
+        agentMessageBorderColor = Color.White,
+        agentMessagePadding = 0.dp,
         typingIndicatorDotColor = Color.White,
         linkColor = Color.White,
         quickReplyBackground = Color.White,
@@ -33,6 +35,9 @@ class ThemeOverridesTest {
         postbackBorderColor = Color.White,
         inputBorderColor = Color.White,
         inputFieldBorderColor = Color.White,
+        inputBackground = Color.White,
+        sendButtonBackground = Color.White,
+        onSendButtonBackground = Color.White,
         inputShape = RectangleShape,
         userMessageShape = RectangleShape,
         agentMessageShape = RectangleShape,
@@ -58,9 +63,10 @@ class ThemeOverridesTest {
         val keys = listOf(
             "background", "onBackground", "headerBackground", "onHeaderBackground", "footerBackground",
             "onFooterBackground", "userMessageBackground", "onUserMessageBackground", "agentMessageBackground",
-            "onAgentMessageBackground", "typingIndicatorDotColor", "linkColor", "quickReplyBackground",
+            "onAgentMessageBackground", "agentMessageBorderColor", "typingIndicatorDotColor", "linkColor", "quickReplyBackground",
             "onQuickReplyBackground", "quickReplyBorderColor", "postbackBackground", "onPostbackBackground",
             "postbackBorderColor", "inputBorderColor", "inputFieldBorderColor",
+            "inputBackground", "sendButtonBackground", "onSendButtonBackground",
         )
         val json = JSONObject()
         keys.forEach { key -> json.put(key, -16777216) }
@@ -79,6 +85,8 @@ class ThemeOverridesTest {
                 onUserMessageBackground = Color.Black,
                 agentMessageBackground = Color.Black,
                 onAgentMessageBackground = Color.Black,
+                agentMessageBorderColor = Color.Black,
+                agentMessagePadding = 0.dp,
                 typingIndicatorDotColor = Color.Black,
                 linkColor = Color.Black,
                 quickReplyBackground = Color.Black,
@@ -89,6 +97,9 @@ class ThemeOverridesTest {
                 postbackBorderColor = Color.Black,
                 inputBorderColor = Color.Black,
                 inputFieldBorderColor = Color.Black,
+                inputBackground = Color.Black,
+                sendButtonBackground = Color.Black,
+                onSendButtonBackground = Color.Black,
                 inputShape = RectangleShape,
                 userMessageShape = RectangleShape,
                 agentMessageShape = RectangleShape,
@@ -98,6 +109,13 @@ class ThemeOverridesTest {
             ),
             theme,
         )
+    }
+
+    @Test
+    fun `reads sizes as points`() {
+        val theme = base.overriddenBy(JSONObject("""{"agentMessagePadding":12.5}"""))
+
+        assertEquals(base.copy(agentMessagePadding = 12.5.dp), theme)
     }
 
     @Test

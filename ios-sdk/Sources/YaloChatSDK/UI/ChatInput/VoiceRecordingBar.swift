@@ -27,7 +27,8 @@ struct VoiceRecordingBar: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .overlay(Capsule().strokeBorder(theme.inputBorderColor))
+        .background(theme.inputBackground, in: theme.inputShape)
+        .overlay(theme.inputShape.strokeBorder(theme.inputBorderColor))
         .accessibilityIdentifier("yalo-chat-recording-bar")
     }
 }

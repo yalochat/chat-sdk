@@ -24,6 +24,7 @@ struct ChatInput: View {
     var body: some View {
         let canSend: Bool = recording != nil || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let showsSend: Bool = canSend || hideVoiceButton
+        let sendIsDisabled: Bool = showsSend && !canSend
         HStack(alignment: .bottom, spacing: 8) {
             if let recording {
                 VoiceRecordingBar(recording: recording, onCancel: onCancelRecording)
@@ -60,19 +61,22 @@ struct ChatInput: View {
                         .accessibilityIdentifier("yalo-chat-attachment-button")
                     }
                 }
-                .overlay(Capsule().strokeBorder(theme.inputBorderColor))
+                .background(theme.inputBackground, in: theme.inputShape)
+                .overlay(theme.inputShape.strokeBorder(theme.inputBorderColor))
                 .accessibilityIdentifier("yalo-chat-input-box")
             }
             Button(action: showsSend ? onSend : onStartRecording) {
                 Image(systemName: showsSend ? "paperplane.fill" : "mic.fill")
                     .frame(width: 20, height: 20)
                     .padding(10)
-                    .foregroundStyle(.white)
-                    .background(Color.accentColor, in: Circle())
+                    // Faded the way a disabled Material button is, so it reads as off.
+                    .foregroundStyle(sendIsDisabled ? theme.onFooterBackground.opacity(0.38) : theme.onSendButtonBackground)
+                    .background(sendIsDisabled ? theme.onFooterBackground.opacity(0.12) : theme.sendButtonBackground, in: Circle())
                     .transition(.scale.combined(with: .opacity))
                     .id(showsSend)
             }
-            .disabled(showsSend && !canSend)
+            .buttonStyle(.plain)
+            .disabled(sendIsDisabled)
             .animation(.easeOut(duration: 0.15), value: showsSend)
             .accessibilityLabel(showsSend ? Text("Send message", bundle: .module) : Text("Record voice message", bundle: .module))
             .accessibilityIdentifier("yalo-chat-send-button")

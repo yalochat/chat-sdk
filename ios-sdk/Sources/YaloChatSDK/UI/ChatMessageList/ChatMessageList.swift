@@ -73,7 +73,7 @@ struct ChatMessageList: View {
                                     onToggle: { onToggleVoiceMessage(message) }
                                 )
                                 .foregroundStyle(theme.onAgentMessageBackground)
-                                .background(theme.agentMessageBackground)
+                                .agentMessageBox(theme)
                                 .accessibilityIdentifier("yalo-chat-agent-message")
                                 .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                             case (.user, _, nil):
@@ -90,7 +90,7 @@ struct ChatMessageList: View {
                                 Text(markdown(message.content))
                                     .multilineTextAlignment(isWelcome ? .center : .leading)
                                     .foregroundStyle(theme.onAgentMessageBackground)
-                                    .background(theme.agentMessageBackground)
+                                    .agentMessageBox(theme)
                                     .accessibilityIdentifier("yalo-chat-agent-message")
                                     .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                             }
@@ -170,4 +170,12 @@ struct ChatMessageList: View {
             ]
         ),
     ], quickRepliesMessageId: 3)
+}
+
+private extension View {
+    func agentMessageBox(_ theme: ChatTheme) -> some View {
+        padding(theme.agentMessagePadding)
+            .background(theme.agentMessageBackground, in: theme.agentMessageShape)
+            .overlay(theme.agentMessageShape.strokeBorder(theme.agentMessageBorderColor))
+    }
 }
