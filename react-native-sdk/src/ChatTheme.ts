@@ -26,6 +26,9 @@ export type ChatTheme = {
   onUserMessageBackground?: ColorValue;
   agentMessageBackground?: ColorValue;
   onAgentMessageBackground?: ColorValue;
+  agentMessageBorderColor?: ColorValue;
+  /** Room between the box around a message the channel sent and its content, in points. */
+  agentMessagePadding?: number;
   typingIndicatorDotColor?: ColorValue;
   linkColor?: ColorValue;
   quickReplyBackground?: ColorValue;
@@ -36,6 +39,9 @@ export type ChatTheme = {
   postbackBorderColor?: ColorValue;
   inputBorderColor?: ColorValue;
   inputFieldBorderColor?: ColorValue;
+  inputBackground?: ColorValue;
+  sendButtonBackground?: ColorValue;
+  onSendButtonBackground?: ColorValue;
   inputShape?: ChatShape;
   userMessageShape?: ChatShape;
   agentMessageShape?: ChatShape;
@@ -60,6 +66,8 @@ const shapeKeys = new Set<string>([
   'postbackShape',
 ]);
 
+const sizeKeys = new Set<string>(['agentMessagePadding']);
+
 function cornersOf(shape: ChatShape): Corners {
   if (typeof shape === 'number') {
     return {
@@ -77,7 +85,7 @@ function cornersOf(shape: ChatShape): Corners {
   };
 }
 
-/** The theme as the native side reads it: colors as ARGB numbers, shapes as four corners. */
+/** The theme as the native side reads it: colors as ARGB numbers, shapes as four corners, sizes as points. */
 export function serializeTheme(theme: ChatTheme): string {
   const native: Record<string, number | Corners> = {};
   for (const [key, value] of Object.entries(theme)) {
@@ -86,6 +94,10 @@ export function serializeTheme(theme: ChatTheme): string {
     }
     if (shapeKeys.has(key)) {
       native[key] = cornersOf(value as ChatShape);
+      continue;
+    }
+    if (sizeKeys.has(key)) {
+      native[key] = value as number;
       continue;
     }
     const color = processColor(value as ColorValue);

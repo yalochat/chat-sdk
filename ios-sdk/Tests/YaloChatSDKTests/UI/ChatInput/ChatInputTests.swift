@@ -23,4 +23,16 @@ struct ChatInputTests {
 
         #expect(renders(ChatInput(text: .constant(""), onSend: {}, recording: recording)))
     }
+
+    @Test(arguments: ["", "Hello"])
+    func inputRendersWithACustomTheme(text: String) {
+        let theme: ChatTheme = ChatTheme(
+            inputBackground: .white,
+            inputShape: ChatShape(radius: 8),
+            sendButtonBackground: .pink,
+            onSendButtonBackground: .white
+        )
+
+        #expect(renders(ChatInput(text: .constant(text), onSend: {}, hideVoiceButton: true).environment(\.chatTheme, theme)))
+    }
 }

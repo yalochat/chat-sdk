@@ -6,8 +6,11 @@ export type SessionMode = 'shared' | 'perContext' | 'ephemeral';
 /** How much the SDK writes to the device log. Each level includes the ones after it. */
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
-/** Where the chat puts the quick replies a message offers. Android only for now. */
+/** Where the chat puts the quick replies a message offers. */
 export type QuickReplyType = 'modal' | 'inline';
+
+/** How the first message of a conversation is drawn. */
+export type WelcomeMessageType = 'none' | 'verticalQuickReplies';
 
 /** The details of one conversation. */
 export type YaloChatClientConfig = {
@@ -18,6 +21,7 @@ export type YaloChatClientConfig = {
   userId?: string;
   logLevel?: LogLevel;
   quickReplyType?: QuickReplyType;
+  welcomeMessageType?: WelcomeMessageType;
   /** What the chat is opened from, sent to the channel when the conversation is empty. */
   openContext?: Record<string, string>;
   sessionMode?: SessionMode;

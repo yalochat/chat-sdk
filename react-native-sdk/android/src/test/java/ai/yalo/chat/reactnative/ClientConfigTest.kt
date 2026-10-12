@@ -4,6 +4,7 @@ package ai.yalo.chat.reactnative
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
+import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -28,6 +29,7 @@ class ClientConfigTest {
                 {$required,
                  "userId":"user",
                  "quickReplyType":"inline",
+                 "welcomeMessageType":"verticalQuickReplies",
                  "logLevel":"debug",
                  "openContext":{"sku":"123"},
                  "sessionMode":"perContext",
@@ -45,6 +47,7 @@ class ClientConfigTest {
                 channelName = "Support",
                 userId = "user",
                 quickReplyType = QuickReplyType.Inline,
+                welcomeMessageType = WelcomeMessageType.VerticalQuickReplies,
                 logLevel = LogLevel.Debug,
                 openContext = mapOf("sku" to "123"),
                 sessionMode = SessionMode.PerContext,

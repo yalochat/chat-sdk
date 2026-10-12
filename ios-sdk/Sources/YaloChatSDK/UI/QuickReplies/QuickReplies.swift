@@ -45,9 +45,9 @@ struct QuickReplies: View {
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .foregroundStyle(theme.onQuickReplyBackground)
-                    .background(theme.quickReplyBackground, in: Capsule())
-                    .overlay(Capsule().strokeBorder(theme.quickReplyBorderColor))
-                    .contentShape(Capsule())
+                    .background(theme.quickReplyBackground, in: theme.quickReplyShape)
+                    .overlay(theme.quickReplyShape.strokeBorder(theme.quickReplyBorderColor))
+                    .contentShape(theme.quickReplyShape)
             }
             .buttonStyle(.plain)
             .frame(maxWidth: vertical ? 320 : nil)

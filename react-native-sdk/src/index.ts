@@ -6,5 +6,6 @@ export type {
   LogLevel,
   QuickReplyType,
   SessionMode,
+  WelcomeMessageType,
   YaloChatClientConfig,
 } from './YaloChatClientConfig';

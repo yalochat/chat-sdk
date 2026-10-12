@@ -74,6 +74,7 @@ Optional properties:
 - **`userId`** (`string`): Your own user identifier. Leave it out to keep the conversation anonymous.
 - **`logLevel`** (`'debug' | 'info' | 'warn' | 'error' | 'silent'`): How much the SDK writes to the device log. Defaults to `'warn'`.
 - **`quickReplyType`** (`'modal' | 'inline'`): Where the quick replies a message offers are shown. Defaults to `'modal'`, a bar above the message input. `'inline'` puts them under the message that offered them.
+- **`welcomeMessageType`** (`'none' | 'verticalQuickReplies'`): How the first message of a conversation is drawn. Defaults to `'none'`, like any other message. `'verticalQuickReplies'` shows it alone and centered, with one quick reply per line, until the person sends something.
 - **`openContext`** (`Record<string, string>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation.
 - **`sessionMode`** (`'shared' | 'perContext' | 'ephemeral'`): How the conversation is scoped. Defaults to `'shared'`.
   - `'shared'`: one conversation per person, remembered.
@@ -122,12 +123,15 @@ Colors take any React Native color string or number. `PlatformColor` and `Dynami
 - `headerBackground`, `onHeaderBackground`
 - `footerBackground`, `onFooterBackground`
 - `userMessageBackground`, `onUserMessageBackground`
-- `agentMessageBackground`, `onAgentMessageBackground`
+- `agentMessageBackground`, `onAgentMessageBackground`, `agentMessageBorderColor`
 - `typingIndicatorDotColor`
 - `linkColor`
 - `quickReplyBackground`, `onQuickReplyBackground`, `quickReplyBorderColor`
 - `postbackBackground`, `onPostbackBackground`, `postbackBorderColor`
-- `inputBorderColor`, `inputFieldBorderColor`
+- `inputBorderColor`, `inputFieldBorderColor`, `inputBackground`
+- `sendButtonBackground`, `onSendButtonBackground`
+
+`agentMessagePadding` is the room in points between the box around a message the channel sent and its content. It defaults to 0.
 
 Shapes are corner radii in points. A number rounds every corner. An object rounds only the corners it names, and the rest stay square.
 
@@ -142,6 +146,5 @@ Shapes are corner radii in points. A number rounds every corner. An object round
 
 Both platforms take the full API. Some options are not drawn on iOS yet and are ignored there until the iOS SDK supports them:
 
-- `quickReplyType`
-- The theme colors `onBackground`, `linkColor`, `quickReply*`, `postback*` and `inputFieldBorderColor`.
-- Every theme shape.
+- The theme colors `onBackground`, `linkColor`, `postback*` and `inputFieldBorderColor`.
+- The theme shapes `imageShape` and `postbackShape`.

@@ -95,6 +95,8 @@ func clientConfig(of json: String) -> YaloChatClientConfig? {
     organizationId: organizationId,
     channelName: channelName,
     userId: values["userId"] as? String,
+    quickReplyType: quickReplyType(of: values["quickReplyType"] as? String),
+    welcomeMessageType: welcomeMessageType(of: values["welcomeMessageType"] as? String),
     logLevel: logLevel(of: values["logLevel"] as? String),
     openContext: values["openContext"] as? [String: String] ?? [:],
     sessionMode: sessionMode(of: values["sessionMode"] as? String),
@@ -104,8 +106,8 @@ func clientConfig(of json: String) -> YaloChatClientConfig? {
   )
 }
 
-/// The default theme with whatever React Native set laid over it. Colors the
-/// iOS SDK does not draw yet, and every shape, are left for when it does.
+/// The default theme with whatever React Native set laid over it. Colors and
+/// shapes the iOS SDK does not draw yet are left for when it does.
 func chatTheme(of json: String) -> ChatTheme {
   var theme = ChatTheme()
   guard let values = object(of: json) else {
@@ -118,15 +120,36 @@ func chatTheme(of json: String) -> ChatTheme {
     ("footerBackground", \.footerBackground),
     ("onFooterBackground", \.onFooterBackground),
     ("inputBorderColor", \.inputBorderColor),
+    ("inputBackground", \.inputBackground),
+    ("sendButtonBackground", \.sendButtonBackground),
+    ("onSendButtonBackground", \.onSendButtonBackground),
     ("userMessageBackground", \.userMessageBackground),
     ("onUserMessageBackground", \.onUserMessageBackground),
     ("agentMessageBackground", \.agentMessageBackground),
     ("onAgentMessageBackground", \.onAgentMessageBackground),
+    ("agentMessageBorderColor", \.agentMessageBorderColor),
     ("typingIndicatorDotColor", \.typingIndicatorDotColor),
+    ("quickReplyBackground", \.quickReplyBackground),
+    ("onQuickReplyBackground", \.onQuickReplyBackground),
+    ("quickReplyBorderColor", \.quickReplyBorderColor),
   ]
   for (key, path) in colors {
     if let argb = values[key] as? NSNumber {
       theme[keyPath: path] = color(of: argb)
+    }
+  }
+  if let padding = values["agentMessagePadding"] as? NSNumber {
+    theme.agentMessagePadding = CGFloat(padding.doubleValue)
+  }
+  let shapes: [(String, WritableKeyPath<ChatTheme, ChatShape>)] = [
+    ("inputShape", \.inputShape),
+    ("quickReplyShape", \.quickReplyShape),
+    ("userMessageShape", \.userMessageShape),
+    ("agentMessageShape", \.agentMessageShape),
+  ]
+  for (key, path) in shapes {
+    if let corners = values[key] as? [String: NSNumber] {
+      theme[keyPath: path] = shape(of: corners)
     }
   }
   return theme
@@ -148,6 +171,33 @@ private func color(of argb: NSNumber) -> Color {
     blue: Double(value & 0xFF) / 255,
     opacity: Double((value >> 24) & 0xFF) / 255
   )
+}
+
+private func shape(of corners: [String: NSNumber]) -> ChatShape {
+  ChatShape(
+    topLeading: CGFloat(corners["topStart"]?.doubleValue ?? 0),
+    topTrailing: CGFloat(corners["topEnd"]?.doubleValue ?? 0),
+    bottomTrailing: CGFloat(corners["bottomEnd"]?.doubleValue ?? 0),
+    bottomLeading: CGFloat(corners["bottomStart"]?.doubleValue ?? 0)
+  )
+}
+
+private func quickReplyType(of value: String?) -> QuickReplyType {
+  switch value {
+  case "inline":
+    return .inline
+  default:
+    return .modal
+  }
+}
+
+private func welcomeMessageType(of value: String?) -> WelcomeMessageType {
+  switch value {
+  case "verticalQuickReplies":
+    return .verticalQuickReplies
+  default:
+    return .none
+  }
 }
 
 private func logLevel(of value: String?) -> LogLevel {
