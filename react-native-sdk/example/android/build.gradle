@@ -6,6 +6,9 @@ buildscript {
         targetSdkVersion = 36
         ndkVersion = "27.1.12297006"
         kotlinVersion = "2.1.20"
+        // The android-sdk in this repository, published with
+        // ./gradlew :sdk:publishToMavenLocal -PVERSION_NAME=0.0.0-local
+        yaloChatAndroidSdkVersion = findProperty("yaloChatAndroidSdkVersion") ?: "0.0.0-local"
     }
     repositories {
         google()
@@ -15,6 +18,12 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
     }
 }
 

@@ -5,6 +5,9 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# Builds against the ios-sdk in this repository instead of the released one.
+ENV['YALO_CHAT_IOS_SDK_PATH'] ||= File.expand_path('../../..', __dir__)
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 

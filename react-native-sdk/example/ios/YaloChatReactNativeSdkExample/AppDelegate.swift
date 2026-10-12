@@ -1,3 +1,4 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
 import UIKit
 import React
 import React_RCTAppDelegate
@@ -5,8 +6,6 @@ import ReactAppDependencyProvider
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-  var window: UIWindow?
-
   var reactNativeDelegate: ReactNativeDelegate?
   var reactNativeFactory: RCTReactNativeFactory?
 
@@ -20,16 +19,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     reactNativeDelegate = delegate
     reactNativeFactory = factory
+    return true
+  }
+}
 
-    window = UIWindow(frame: UIScreen.main.bounds)
+/// iOS 27 requires the scene lifecycle, so the window is made here rather than in the app delegate.
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  var window: UIWindow?
 
-    factory.startReactNative(
+  func scene(
+    _ scene: UIScene,
+    willConnectTo session: UISceneSession,
+    options connectionOptions: UIScene.ConnectionOptions
+  ) {
+    guard let windowScene = scene as? UIWindowScene,
+          let appDelegate = UIApplication.shared.delegate as? AppDelegate
+    else {
+      return
+    }
+    let window = UIWindow(windowScene: windowScene)
+    self.window = window
+    appDelegate.reactNativeFactory?.startReactNative(
       withModuleName: "YaloChatReactNativeSdkExample",
       in: window,
-      launchOptions: launchOptions
+      launchOptions: nil
     )
-
-    return true
   }
 }
 

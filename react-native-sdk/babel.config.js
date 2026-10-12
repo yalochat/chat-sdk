@@ -1,3 +1,4 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
 module.exports = {
   overrides: [
     {
