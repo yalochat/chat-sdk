@@ -70,6 +70,57 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, loadImage: { _ in nil })))
     }
 
+    @Test(arguments: [(nil, false), (1, false), (1, true)] as [(Int64?, Bool)])
+    func messageListRendersButtons(quickRepliesMessageId: Int64?, isWelcome: Bool) {
+        let messages: [ChatMessage] = [
+            ChatMessage(role: .agent, type: .text, timestamp: Date(), id: 1, content: "Pick one", buttons: [
+                MessageButton(text: "Yes"),
+                MessageButton(text: "Menu", kind: .postback),
+            ]),
+        ]
+
+        #expect(renders(ChatMessageList(messages: messages, quickRepliesMessageId: quickRepliesMessageId, isWelcome: isWelcome)))
+    }
+
+    @MainActor
+    private final class Shrinking: ObservableObject {
+        @Published var messages: [ChatMessage] = []
+        @Published var below: CGFloat = 0
+    }
+
+    private struct ShrinkingHost: View {
+        @ObservedObject var conversation: Shrinking
+
+        var body: some View {
+            VStack(spacing: 0) {
+                ChatMessageList(messages: conversation.messages)
+                Color.red.frame(height: conversation.below)
+            }
+        }
+    }
+
+    @Test func theEndStaysInSightWhenTheListGetsShorter() async throws {
+        let conversation: Shrinking = Shrinking()
+        let window: UIWindow = host(ShrinkingHost(conversation: conversation))
+        let list: UIScrollView = try #require(scrollView(in: window))
+        conversation.messages = (1...30).map { id in
+            message(Int64(id), id.isMultiple(of: 2) ? .user : .agent, "Message \(id)")
+        }
+        #expect(
+            await eventually { list.contentSize.height > list.bounds.height && abs(Self.gapBelow(list)) <= 1 },
+            "content \(list.contentSize.height), bounds \(list.bounds.height), gap \(Self.gapBelow(list))"
+        )
+
+        conversation.messages.append(message(31, .agent, "Pick one"))
+        conversation.below = 120
+
+        #expect(
+            await eventually { list.bounds.height < 844 - 100 && abs(Self.gapBelow(list)) <= 1 },
+            "bounds \(list.bounds.height), gap \(Self.gapBelow(list))"
+        )
+        withExtendedLifetime(window) {}
+    }
+
     private static func gapBelow(_ list: UIScrollView) -> CGFloat {
         list.contentSize.height + list.adjustedContentInset.bottom - list.contentOffset.y - list.bounds.height
     }

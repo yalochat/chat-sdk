@@ -37,7 +37,8 @@ struct ChatViewModelTests {
         openContext: [String: String] = [:],
         sessionId: String = "session-1",
         ephemeral: Bool = false,
-        chatMessages: ChatMessageService? = nil
+        chatMessages: ChatMessageService? = nil,
+        welcomeMessageType: WelcomeMessageType = .none
     ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages ?? storage,
@@ -51,6 +52,7 @@ struct ChatViewModelTests {
             ephemeralDirectory: ephemeralDirectory,
             run: run,
             openContext: openContext,
+            welcomeMessageType: welcomeMessageType,
             now: { Self.now },
             replyTimeout: replyTimeout
         )
@@ -60,9 +62,9 @@ struct ChatViewModelTests {
         ChatMessage(role: .agent, type: .text, timestamp: timestamp, wiId: wiId, content: content)
     }
 
-    @Test func startShowsStoredMessagesOldestFirst() async throws {
-        _ = try await storage.insert(agentMessage("second", wiId: "wi-2", at: Self.now), sessionId: "session-1")
-        _ = try await storage.insert(agentMessage("first", at: Self.now.addingTimeInterval(-60)), sessionId: "session-1")
+    @Test func startShowsStoredMessagesInTheOrderTheyArrived() async throws {
+        _ = try await storage.insert(agentMessage("first", at: Self.now), sessionId: "session-1")
+        _ = try await storage.insert(agentMessage("second", wiId: "wi-2", at: Self.now.addingTimeInterval(-60)), sessionId: "session-1")
         _ = try await storage.insert(agentMessage("elsewhere", wiId: "wi-3"), sessionId: "session-2")
         let viewModel: ChatViewModel = viewModel()
 
@@ -269,6 +271,112 @@ struct ChatViewModelTests {
         #expect(await eventually { viewModel.messages.map(\.content) == ["Hi there", "Anything else?"] })
         let stored: [ChatMessage] = try await storage.messages(sessionId: "session-1", limit: 10)
         #expect(stored.count == 2)
+        running.cancel()
+    }
+
+    private func offering(_ replies: [String], wiId: String, at timestamp: Date = Self.now) -> ChatMessage {
+        ChatMessage(
+            role: .agent,
+            type: .text,
+            timestamp: timestamp,
+            wiId: wiId,
+            content: "Pick one",
+            buttons: replies.map { reply in MessageButton(text: reply) } + [MessageButton(text: "Menu", kind: .postback)]
+        )
+    }
+
+    @Test func offersTheQuickRepliesOfTheNewestMessageThatHasThem() async throws {
+        _ = try await storage.insert(offering(["Old"], wiId: "wi-1", at: Self.now.addingTimeInterval(-60)), sessionId: "session-1")
+        let newest: ChatMessage = try await storage.insert(offering(["Yes", "No"], wiId: "wi-2", at: Self.now.addingTimeInterval(-30)), sessionId: "session-1")
+        _ = try await storage.insert(agentMessage("Anything else?", wiId: "wi-3"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel()
+
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+
+        #expect(await eventually { viewModel.quickReplies.map(\.text) == ["Yes", "No"] })
+        #expect(viewModel.quickRepliesMessageId == newest.id)
+        running.cancel()
+    }
+
+    @Test func offersNothingOnceThePersonHasSpoken() async throws {
+        _ = try await storage.insert(offering(["Yes"], wiId: "wi-1", at: Self.now.addingTimeInterval(-60)), sessionId: "session-1")
+        _ = try await storage.insert(ChatMessage(role: .user, type: .text, timestamp: Self.now, content: "Maybe"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel()
+
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+
+        #expect(await eventually { viewModel.messages.count == 2 })
+        #expect(viewModel.quickReplies.isEmpty)
+        #expect(viewModel.quickRepliesMessageId == nil)
+        running.cancel()
+    }
+
+    @Test func offersTheQuickRepliesOfAReceivedMessage() async {
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.isListening })
+
+        channel.emit(offering(["Yes", "No"], wiId: "wi-1"))
+
+        #expect(await eventually { viewModel.quickReplies.map(\.text) == ["Yes", "No"] })
+        running.cancel()
+    }
+
+    @Test(arguments: [MessageButton(text: "Yes"), MessageButton(text: "Menu", kind: .postback)])
+    func tappingAButtonSaysItsTextAndEndsTheOffer(button: MessageButton) async throws {
+        _ = try await storage.insert(offering(["Yes"], wiId: "wi-1", at: Self.now.addingTimeInterval(-60)), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { !viewModel.quickReplies.isEmpty })
+        viewModel.draft = "kept for later"
+
+        await viewModel.tap(button)
+
+        #expect(channel.sent.map(\.content) == [button.text])
+        #expect(viewModel.messages.last?.content == button.text)
+        #expect(viewModel.quickReplies.isEmpty)
+        #expect(viewModel.draft == "kept for later")
+        #expect(viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    @Test func theChannelsFirstMessageIsAWelcomeUntilThePersonAnswers() async throws {
+        _ = try await storage.insert(offering(["Yes", "No"], wiId: "wi-1"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(welcomeMessageType: .verticalQuickReplies)
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.isWelcome })
+
+        await viewModel.tap(MessageButton(text: "Yes"))
+
+        #expect(!viewModel.isWelcome)
+        running.cancel()
+    }
+
+    @Test(arguments: [
+        (WelcomeMessageType.none, 1),
+        (.verticalQuickReplies, 2),
+    ])
+    func nothingIsAWelcomeUnlessAskedOrOnceTheChannelSaysMore(welcomeMessageType: WelcomeMessageType, said: Int) async throws {
+        for index in 1...said {
+            _ = try await storage.insert(offering(["Yes"], wiId: "wi-\(index)"), sessionId: "session-1")
+        }
+        let viewModel: ChatViewModel = viewModel(welcomeMessageType: welcomeMessageType)
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+
+        #expect(await eventually { viewModel.messages.count == said })
+        #expect(!viewModel.isWelcome)
         running.cancel()
     }
 

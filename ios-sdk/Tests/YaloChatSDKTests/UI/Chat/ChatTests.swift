@@ -10,6 +10,7 @@ struct ChatTests {
         hideWatermark: Bool = false,
         hideVoiceButton: Bool = false,
         hideAttachmentButton: Bool = false,
+        quickReplyType: QuickReplyType = .modal,
         theme: ChatTheme = ChatTheme(),
         onBack: (() -> Void)? = nil
     ) -> Chat {
@@ -17,6 +18,7 @@ struct ChatTests {
             channelId: "channel-1",
             organizationId: "org-1",
             channelName: "Yalo",
+            quickReplyType: quickReplyType,
             hideWatermark: hideWatermark,
             hideVoiceButton: hideVoiceButton,
             hideAttachmentButton: hideAttachmentButton
@@ -52,6 +54,11 @@ struct ChatTests {
 
     @Test func chatRendersWithoutTheAttachmentButton() {
         #expect(renders(chat(hideAttachmentButton: true)))
+    }
+
+    @Test(arguments: [QuickReplyType.modal, .inline])
+    func chatRendersEitherWayOfOfferingQuickReplies(quickReplyType: QuickReplyType) {
+        #expect(renders(chat(quickReplyType: quickReplyType)))
     }
 
     @Test func chatRendersWithABackButton() {

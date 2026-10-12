@@ -117,7 +117,8 @@ final class ChatDependencies {
             ephemeral: config.sessionMode == .ephemeral,
             ephemeralDirectory: ephemeralDirectory,
             run: ChatViewModel.run,
-            openContext: config.openContext
+            openContext: config.openContext,
+            welcomeMessageType: config.welcomeMessageType
         )
     }
 }

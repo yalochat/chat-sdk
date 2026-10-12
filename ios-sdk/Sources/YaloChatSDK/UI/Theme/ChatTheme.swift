@@ -22,6 +22,12 @@ public struct ChatTheme: Sendable, Equatable {
     public var agentMessageBackground: Color
     public var onAgentMessageBackground: Color
     public var typingIndicatorDotColor: Color
+    public var quickReplyBackground: Color
+    public var onQuickReplyBackground: Color
+    public var quickReplyBorderColor: Color
+    public var postbackBackground: Color
+    public var onPostbackBackground: Color
+    public var postbackBorderColor: Color
 
     public init(
         background: Color = Color(.systemBackground),
@@ -35,7 +41,15 @@ public struct ChatTheme: Sendable, Equatable {
         // Unbubbled, like the web SDK, so it reads as the conversation itself.
         agentMessageBackground: Color = .clear,
         onAgentMessageBackground: Color = Color(.label),
-        typingIndicatorDotColor: Color = Color(.secondaryLabel)
+        typingIndicatorDotColor: Color = Color(.secondaryLabel),
+        // Outlined rather than filled, like the web SDK, so a quick reply reads
+        // as an offer rather than as something said.
+        quickReplyBackground: Color = .clear,
+        onQuickReplyBackground: Color = Color(.label),
+        quickReplyBorderColor: Color = Color(.separator),
+        postbackBackground: Color = .clear,
+        onPostbackBackground: Color = Color(.label),
+        postbackBorderColor: Color = Color(.separator)
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -48,6 +62,12 @@ public struct ChatTheme: Sendable, Equatable {
         self.agentMessageBackground = agentMessageBackground
         self.onAgentMessageBackground = onAgentMessageBackground
         self.typingIndicatorDotColor = typingIndicatorDotColor
+        self.quickReplyBackground = quickReplyBackground
+        self.onQuickReplyBackground = onQuickReplyBackground
+        self.quickReplyBorderColor = quickReplyBorderColor
+        self.postbackBackground = postbackBackground
+        self.onPostbackBackground = onPostbackBackground
+        self.postbackBorderColor = postbackBorderColor
     }
 }
 

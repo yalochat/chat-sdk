@@ -103,7 +103,7 @@ internal class ChatMessageRepositoryLocal(
             arrayOf(sessionId),
             null,
             null,
-            "${ChatMessageDatabaseDataSource.COLUMN_TIMESTAMP} DESC, ${ChatMessageDatabaseDataSource.COLUMN_ID} DESC",
+            "${ChatMessageDatabaseDataSource.COLUMN_ID} DESC",
             limit.toString(),
         ).use { cursor ->
             buildList {

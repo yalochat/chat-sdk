@@ -4,6 +4,9 @@
 ///
 /// - `userId`: who the person is in your app. Nil starts an anonymous
 ///   conversation.
+/// - `quickReplyType`: where the answers a message offers are shown, in a
+///   bar above the message input or under the message that offered them.
+/// - `welcomeMessageType`: how the first message of a conversation is drawn.
 /// - `logLevel`: how much the SDK writes to the unified log.
 /// - `openContext`: what the chat is being opened from, for example the
 ///   product a person was looking at. Sent to the channel when the chat opens
@@ -20,6 +23,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let organizationId: String
     public let channelName: String
     public let userId: String?
+    public let quickReplyType: QuickReplyType
+    public let welcomeMessageType: WelcomeMessageType
     public let logLevel: LogLevel
     public let openContext: [String: String]
     public let sessionMode: SessionMode
@@ -32,6 +37,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         organizationId: String,
         channelName: String,
         userId: String? = nil,
+        quickReplyType: QuickReplyType = .modal,
+        welcomeMessageType: WelcomeMessageType = .none,
         logLevel: LogLevel = .warn,
         openContext: [String: String] = [:],
         sessionMode: SessionMode = .shared,
@@ -43,6 +50,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.organizationId = organizationId
         self.channelName = channelName
         self.userId = userId
+        self.quickReplyType = quickReplyType
+        self.welcomeMessageType = welcomeMessageType
         self.logLevel = logLevel
         self.openContext = openContext
         self.sessionMode = sessionMode

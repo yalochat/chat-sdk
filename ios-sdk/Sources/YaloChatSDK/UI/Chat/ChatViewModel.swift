@@ -34,6 +34,13 @@ final class ChatViewModel: ObservableObject {
     @Published private(set) var messages: [ChatMessage] = []
     /// A message went out and nothing has come back yet.
     @Published private(set) var isWaitingForReply: Bool = false
+    /// What the channel is offering as quick replies right now, and the
+    /// message that offered them.
+    @Published private(set) var quickReplies: [MessageButton] = []
+    @Published private(set) var quickRepliesMessageId: Int64?
+    /// The conversation is only the channel's first message and the config
+    /// asks for it to be drawn as a welcome.
+    @Published private(set) var isWelcome: Bool = false
     /// The voice note being recorded, or nil when the microphone is idle.
     @Published private(set) var recording: VoiceRecording?
     /// The voice note being listened to, or nil when nothing is loaded.
@@ -51,6 +58,7 @@ final class ChatViewModel: ObservableObject {
     private let ephemeralDirectory: URL
     private let run: Run
     private let openContext: [String: String]
+    private let welcomeMessageType: WelcomeMessageType
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
     private let replyTimeout: TimeInterval
@@ -76,6 +84,7 @@ final class ChatViewModel: ObservableObject {
         ephemeralDirectory: URL,
         run: Run,
         openContext: [String: String] = [:],
+        welcomeMessageType: WelcomeMessageType = .none,
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
     ) {
@@ -90,6 +99,7 @@ final class ChatViewModel: ObservableObject {
         self.ephemeralDirectory = ephemeralDirectory
         self.run = run
         self.openContext = openContext
+        self.welcomeMessageType = welcomeMessageType
         self.now = now
         self.replyTimeout = replyTimeout
         voice.recording.assign(to: &$recording)
@@ -147,6 +157,16 @@ final class ChatViewModel: ObservableObject {
             return
         }
         draft = ""
+        await sendText(text)
+    }
+
+    /// Says a quick reply or a postback button back to the channel, as if the
+    /// person had typed it. The draft is left alone.
+    func tap(_ button: MessageButton) async {
+        await sendText(button.text)
+    }
+
+    private func sendText(_ text: String) async {
         let written: ChatMessage = ChatMessage(role: .user, type: .text, timestamp: now(), content: text)
         guard let stored = try? await chatMessages.insert(written, sessionId: sessionId) else {
             return
@@ -363,6 +383,13 @@ final class ChatViewModel: ObservableObject {
             return nil
         }
         messages = stored.reversed()
+        // Most recent first, so the offer ends where the person last spoke.
+        let offering: ChatMessage? = stored
+            .prefix { message in message.role != .user }
+            .first { message in !message.quickReplies.isEmpty }
+        quickReplies = offering?.quickReplies ?? []
+        quickRepliesMessageId = offering?.id
+        isWelcome = welcomeMessageType == .verticalQuickReplies && stored.count == 1 && stored.first?.role == .agent
         return stored
     }
 }

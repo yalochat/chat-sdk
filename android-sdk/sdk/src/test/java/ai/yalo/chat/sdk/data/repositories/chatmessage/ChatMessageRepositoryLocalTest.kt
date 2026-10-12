@@ -132,9 +132,10 @@ class ChatMessageRepositoryLocalTest {
     }
 
     @Test
-    fun showsTheNewestMessageFirst() = runBlocking {
+    fun showsTheLastStoredMessageFirst() = runBlocking {
         val repository = repository()
-        repository.insert(userMessage("First", timestamp = 1_000L))
+        repository.insert(userMessage("First", timestamp = 2_400L))
+        // The server rounds down to the second, so a reply can carry an earlier time.
         repository.insert(userMessage("Second", timestamp = 2_000L))
         repository.insert(userMessage("Third", timestamp = 3_000L))
 

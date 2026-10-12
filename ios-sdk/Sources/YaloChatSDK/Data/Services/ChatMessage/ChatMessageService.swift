@@ -16,7 +16,9 @@ protocol ChatMessageService: Sendable {
     /// replayed message does not show up twice.
     func insert(_ message: ChatMessage, sessionId: String) async throws -> ChatMessage
 
-    /// Most recent first.
+    /// Last stored first. Arrival rather than timestamp, like the web SDK,
+    /// since the server rounds its times down to the second and a reply could
+    /// otherwise land before the message it answers.
     func messages(sessionId: String, limit: Int) async throws -> [ChatMessage]
 
     /// Forgets every message of `sessionIds`. Sessions with nothing stored are no error.
