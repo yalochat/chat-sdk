@@ -15,11 +15,13 @@ struct ChatMessageListTests {
 
     private struct Host: View {
         @ObservedObject var conversation: Conversation
+        var loadImage: (ChatMessage) async -> UIImage? = { _ in nil }
 
         var body: some View {
             ChatMessageList(
                 messages: conversation.messages,
-                isWaitingForReply: conversation.isWaitingForReply
+                isWaitingForReply: conversation.isWaitingForReply,
+                loadImage: loadImage
             )
         }
     }
@@ -159,6 +161,35 @@ struct ChatMessageListTests {
         let list: UIScrollView = try #require(scrollView(in: window))
         // Stored messages arrive once the list is already on screen.
         conversation.messages = messages
+
+        #expect(
+            await eventually { list.contentSize.height > list.bounds.height * 2 && abs(Self.gapBelow(list)) < 1 },
+            "content \(list.contentSize.height), offset \(list.contentOffset.y), bounds \(list.bounds.height), gap \(Self.gapBelow(list))"
+        )
+        withExtendedLifetime(window) {}
+    }
+
+    @Test func aChatOpensAtTheVeryEndOncePicturesHaveLoaded() async throws {
+        let picture: UIImage = UIGraphicsImageRenderer(size: CGSize(width: 300, height: 400)).image { context in
+            context.fill(CGRect(x: 0, y: 0, width: 300, height: 400))
+        }
+        let messages: [ChatMessage] = (1...20).map { id in
+            id.isMultiple(of: 3)
+                ? ChatMessage(role: .user, type: .image, timestamp: Date(), id: Int64(id), image: ImageAttachment())
+                : message(Int64(id), id.isMultiple(of: 2) ? .user : .agent, "Message \(id)")
+        }
+        let loaded: Recorded<Int64?> = Recorded()
+        let conversation: Conversation = Conversation()
+        let window: UIWindow = host(Host(conversation: conversation, loadImage: { message in
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            loaded.append(message.id)
+            return picture
+        }))
+        let list: UIScrollView = try #require(scrollView(in: window))
+        // Stored messages arrive once the list is already on screen.
+        conversation.messages = messages
+        #expect(await eventually { !loaded.values.isEmpty })
+        try await Task.sleep(nanoseconds: 300_000_000)
 
         #expect(
             await eventually { list.contentSize.height > list.bounds.height * 2 && abs(Self.gapBelow(list)) < 1 },
