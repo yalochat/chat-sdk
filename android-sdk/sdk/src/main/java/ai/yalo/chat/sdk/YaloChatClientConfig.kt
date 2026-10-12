@@ -23,6 +23,9 @@ package ai.yalo.chat.sdk
  * read alike.
  * @property hideWatermark Whether the "By Yalo" line under the channel name is
  * left out of the header. Everything else in the header stays where it is.
+ * @property welcomeMessageType How the first message of a conversation is
+ * drawn. Defaults to [WelcomeMessageType.None], which draws it like any other.
+ * Named after the same setting in the web SDK so the two read alike.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -36,6 +39,7 @@ public data class YaloChatClientConfig(
     public val hideVoiceButton: Boolean = false,
     public val hideAttachmentButton: Boolean = false,
     public val hideWatermark: Boolean = false,
+    public val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
 ) {
 
     /**

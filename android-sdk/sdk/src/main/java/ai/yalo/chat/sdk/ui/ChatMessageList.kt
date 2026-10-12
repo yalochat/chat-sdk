@@ -40,6 +40,7 @@ private const val MESSAGE_FADE_MILLIS = 220
  *
  * [quickRepliesMessageId] names the message whose answers are drawn under it,
  * and is null when the chat shows them in a bar of their own instead.
+ * [isWelcome] draws the messages centered, with one quick reply per line.
  */
 @Composable
 internal fun ChatMessageList(
@@ -47,6 +48,7 @@ internal fun ChatMessageList(
     modifier: Modifier = Modifier,
     isWaitingForReply: Boolean = false,
     quickRepliesMessageId: Long? = null,
+    isWelcome: Boolean = false,
     onQuickReply: (String) -> Unit = {},
     onPostback: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
@@ -98,6 +100,7 @@ internal fun ChatMessageList(
                     } else {
                         emptyList()
                     },
+                    isWelcome = isWelcome,
                     onQuickReply = onQuickReply,
                     onPostback = onPostback,
                     playback = playback,

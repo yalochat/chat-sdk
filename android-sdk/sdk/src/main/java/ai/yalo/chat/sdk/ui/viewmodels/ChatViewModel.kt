@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.SessionMode
+import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.common.images.decodeImage
@@ -60,6 +61,9 @@ import kotlin.time.Duration.Companion.seconds
  * [quickRepliesMessageId] is the message that offered them. Both are here
  * whatever the chat does with them, because where they are drawn is a matter of
  * configuration and which ones are live is not.
+ *
+ * [isWelcome] is true while the conversation is only the channel's first
+ * message and the client config asks for it to be drawn as a welcome.
  */
 internal data class ChatUiState(
     val title: String,
@@ -69,6 +73,7 @@ internal data class ChatUiState(
     val isWaitingForReply: Boolean = false,
     val quickReplies: List<MessageButton> = emptyList(),
     val quickRepliesMessageId: Long? = null,
+    val isWelcome: Boolean = false,
 )
 
 /**
@@ -111,6 +116,7 @@ internal class ChatViewModel(
     private val sessionScope: CoroutineScope,
     hostMessages: Flow<String> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
+    private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     private val now: () -> Long = System::currentTimeMillis,
 ) : ViewModel() {
 
@@ -521,6 +527,8 @@ internal class ChatViewModel(
                 messages = stored,
                 quickReplies = offering?.quickReplies.orEmpty(),
                 quickRepliesMessageId = offering?.id,
+                isWelcome = welcomeMessageType == WelcomeMessageType.VerticalQuickReplies &&
+                    stored.singleOrNull()?.role == MessageRole.Agent,
             )
         }
 
@@ -570,6 +578,7 @@ internal class ChatViewModel(
                     sessionScope = dependencies.scope,
                     hostMessages = client.outgoingTextMessages,
                     openContext = client.config.openContext,
+                    welcomeMessageType = client.config.welcomeMessageType,
                 )
                 // Once a run of the app, from whichever chat opens first.
                 if (swept.compareAndSet(false, true)) {

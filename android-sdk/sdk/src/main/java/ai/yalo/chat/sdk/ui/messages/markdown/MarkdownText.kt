@@ -11,6 +11,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 
 /** Markdown drawn with the colors the chat was themed with. */
@@ -19,10 +20,11 @@ internal fun MarkdownText(
     text: String,
     modifier: Modifier = Modifier,
     style: TextStyle = MaterialTheme.typography.bodyLarge,
+    textAlign: TextAlign = TextAlign.Unspecified,
 ) {
     val styles = markdownStyles()
     val annotated = remember(text, styles) { markdownToAnnotatedString(text, styles) }
-    Text(text = annotated, modifier = modifier, style = style)
+    Text(text = annotated, modifier = modifier, style = style, textAlign = textAlign)
 }
 
 /**

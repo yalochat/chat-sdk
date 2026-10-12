@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.FakeImageRepository
 import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
@@ -537,6 +538,45 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun welcomesWithTheChannelsFirstMessage() {
+        val viewModel = chatViewModel(welcomeMessageType = WelcomeMessageType.VerticalQuickReplies)
+
+        yaloMessageRepository.answer(answer("Hi there", buttons = listOf(reply("Yes"))))
+
+        assertEquals(true, viewModel.uiState.isWelcome)
+    }
+
+    @Test
+    fun stopsWelcomingOnceThePersonSendsSomething() {
+        val viewModel = chatViewModel(welcomeMessageType = WelcomeMessageType.VerticalQuickReplies)
+        yaloMessageRepository.answer(answer("Hi there", buttons = listOf(reply("Yes"))))
+
+        viewModel.onDraftChange("Hello")
+        viewModel.onSend()
+
+        assertEquals(false, viewModel.uiState.isWelcome)
+    }
+
+    @Test
+    fun stopsWelcomingOnceTheChannelSaysMore() {
+        val viewModel = chatViewModel(welcomeMessageType = WelcomeMessageType.VerticalQuickReplies)
+
+        yaloMessageRepository.answer(answer("Hi there", wiId = "wi-1"))
+        yaloMessageRepository.answer(answer("How can I help?", wiId = "wi-2"))
+
+        assertEquals(false, viewModel.uiState.isWelcome)
+    }
+
+    @Test
+    fun doesNotWelcomeByDefault() {
+        val viewModel = chatViewModel()
+
+        yaloMessageRepository.answer(answer("Hi there", buttons = listOf(reply("Yes"))))
+
+        assertEquals(false, viewModel.uiState.isWelcome)
+    }
+
+    @Test
     fun saysAChosenAnswerBackToTheChannel() {
         val viewModel = chatViewModel()
         yaloMessageRepository.answer(answer("Anything else?", buttons = listOf(reply("Yes"))))
@@ -1030,6 +1070,7 @@ class ChatViewModelTest {
         openContext: Map<String, String> = emptyMap(),
         sessionId: String = "this-chat",
         ephemeral: Boolean = false,
+        welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
@@ -1045,6 +1086,7 @@ class ChatViewModelTest {
         sessionScope = sessionScope,
         hostMessages = hostMessages,
         openContext = openContext,
+        welcomeMessageType = welcomeMessageType,
         now = { SENT_AT },
     )
 

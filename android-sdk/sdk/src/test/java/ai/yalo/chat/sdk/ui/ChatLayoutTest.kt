@@ -7,7 +7,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
-import ai.yalo.chat.sdk.ui.messages.CHAT_POSTBACK_BUTTON_TAG
+import ai.yalo.chat.sdk.ui.messages.CHAT_MESSAGE_BUTTON_TAG
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -141,6 +141,70 @@ class ChatLayoutTest {
     }
 
     @Test
+    fun offersTheWelcomeAnswersUnderTheMessageEvenWithTheBarConfigured() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(agentMessage("Hi there")),
+                quickReplyType = QuickReplyType.Modal,
+                quickReplies = listOf(MessageButton(text = "Yes")),
+                quickRepliesMessageId = 1L,
+                isWelcome = true,
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_QUICK_REPLIES_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText("Yes").assertIsDisplayed()
+    }
+
+    @Test
+    fun stacksTheWelcomeAnswersOnePerLine() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(
+                    agentMessage("Hi there").copy(
+                        buttons = listOf(MessageButton(text = "Yes"), MessageButton(text = "No")),
+                    ),
+                ),
+                quickRepliesMessageId = 1L,
+                isWelcome = true,
+            )
+        }
+
+        val yes = composeRule.onNodeWithText("Yes").fetchSemanticsNode().boundsInRoot
+        val no = composeRule.onNodeWithText("No").fetchSemanticsNode().boundsInRoot
+        assertEquals(true, yes.bottom <= no.top)
+    }
+
+    @Test
+    fun saysTheWelcomeAnswerThatWasTapped() {
+        val chosen = mutableListOf<String>()
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(agentMessage("Hi there")),
+                quickRepliesMessageId = 1L,
+                isWelcome = true,
+                onQuickReply = { chosen.add(it) },
+            )
+        }
+
+        composeRule.onNodeWithText("Yes").performClick()
+
+        assertEquals(listOf("Yes"), chosen)
+    }
+
+    @Test
     fun keepsTheBarAwayWhileNothingIsOnOffer() {
         composeRule.setContent {
             ChatLayout(
@@ -190,7 +254,7 @@ class ChatLayoutTest {
         }
 
         composeRule.onNodeWithText("Track order").assertIsDisplayed()
-        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).assertIsDisplayed()
     }
 
     @Test
@@ -207,7 +271,7 @@ class ChatLayoutTest {
             )
         }
 
-        composeRule.onNodeWithTag(CHAT_POSTBACK_BUTTON_TAG).performClick()
+        composeRule.onNodeWithTag(CHAT_MESSAGE_BUTTON_TAG).performClick()
 
         assertEquals(listOf("Talk to us"), tapped)
     }
