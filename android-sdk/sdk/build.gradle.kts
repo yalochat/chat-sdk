@@ -37,7 +37,7 @@ kotlin {
 android {
     namespace = "ai.yalo.chat.sdk"
     compileSdk {
-        version = release(37)
+        version = release(36)
     }
 
     sourceSets {
