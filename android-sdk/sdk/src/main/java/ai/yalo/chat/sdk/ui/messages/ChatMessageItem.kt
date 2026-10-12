@@ -7,6 +7,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.actions
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -149,9 +150,11 @@ private fun AgentMessage(
                 shape = theme.agentMessageShape,
                 color = theme.agentMessageBackground,
                 contentColor = theme.onAgentMessageBackground,
+                border = BorderStroke(1.dp, theme.agentMessageBorderColor),
             ) {
                 AgentMessageBody(
                     message = message,
+                    modifier = Modifier.padding(theme.agentMessagePadding),
                     playback = playback,
                     onVoiceMessageToggled = { onVoiceMessageToggled(message) },
                     loadImage = loadImage,

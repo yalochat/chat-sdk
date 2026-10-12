@@ -48,6 +48,24 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, isWaitingForReply: isWaitingForReply)))
     }
 
+    @Test func messageListRendersThemedMessageBoxes() {
+        let theme: ChatTheme = ChatTheme(
+            userMessageShape: ChatShape(topLeading: 16, topTrailing: 16, bottomLeading: 16),
+            agentMessageBackground: .white,
+            agentMessageShape: ChatShape(radius: 8),
+            agentMessageBorderColor: .gray,
+            agentMessagePadding: 12
+        )
+        let note: VoiceNote = VoiceNote(duration: 3, amplitudes: [0.2, 0.8])
+        let messages: [ChatMessage] = [
+            message(1, .agent, "Hi"),
+            message(3, .user, "Hello"),
+            ChatMessage(role: .agent, type: .voice, timestamp: Date(), id: 2, voice: note),
+        ]
+
+        #expect(renders(ChatMessageList(messages: messages).environment(\.chatTheme, theme)))
+    }
+
     @Test(arguments: [nil, VoicePlayback(messageId: 1, position: 1, duration: 3, isPlaying: true)])
     func messageListRendersVoiceMessages(playback: VoicePlayback?) {
         let note: VoiceNote = VoiceNote(duration: 3, amplitudes: [0.2, 0.8])

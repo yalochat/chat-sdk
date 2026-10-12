@@ -15,6 +15,12 @@ describe('serializeTheme', () => {
     });
   });
 
+  it('sends sizes as the points they are', () => {
+    const native = JSON.parse(serializeTheme({ agentMessagePadding: 12 }));
+
+    expect(native).toEqual({ agentMessagePadding: 12 });
+  });
+
   it('rounds every corner when a shape is a number', () => {
     const native = JSON.parse(serializeTheme({ inputShape: 12 }));
 

@@ -5,12 +5,13 @@ import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.json.JSONObject
 
 /**
  * This theme with whatever React Native set laid over it. Colors arrive as
- * ARGB numbers and shapes as four corner radii.
+ * ARGB numbers, shapes as four corner radii and sizes as points.
  */
 internal fun ChatTheme.overriddenBy(theme: JSONObject): ChatTheme = copy(
     background = theme.color("background") ?: background,
@@ -23,6 +24,8 @@ internal fun ChatTheme.overriddenBy(theme: JSONObject): ChatTheme = copy(
     onUserMessageBackground = theme.color("onUserMessageBackground") ?: onUserMessageBackground,
     agentMessageBackground = theme.color("agentMessageBackground") ?: agentMessageBackground,
     onAgentMessageBackground = theme.color("onAgentMessageBackground") ?: onAgentMessageBackground,
+    agentMessageBorderColor = theme.color("agentMessageBorderColor") ?: agentMessageBorderColor,
+    agentMessagePadding = theme.size("agentMessagePadding") ?: agentMessagePadding,
     typingIndicatorDotColor = theme.color("typingIndicatorDotColor") ?: typingIndicatorDotColor,
     linkColor = theme.color("linkColor") ?: linkColor,
     quickReplyBackground = theme.color("quickReplyBackground") ?: quickReplyBackground,
@@ -33,6 +36,9 @@ internal fun ChatTheme.overriddenBy(theme: JSONObject): ChatTheme = copy(
     postbackBorderColor = theme.color("postbackBorderColor") ?: postbackBorderColor,
     inputBorderColor = theme.color("inputBorderColor") ?: inputBorderColor,
     inputFieldBorderColor = theme.color("inputFieldBorderColor") ?: inputFieldBorderColor,
+    inputBackground = theme.color("inputBackground") ?: inputBackground,
+    sendButtonBackground = theme.color("sendButtonBackground") ?: sendButtonBackground,
+    onSendButtonBackground = theme.color("onSendButtonBackground") ?: onSendButtonBackground,
     inputShape = theme.shape("inputShape") ?: inputShape,
     userMessageShape = theme.shape("userMessageShape") ?: userMessageShape,
     agentMessageShape = theme.shape("agentMessageShape") ?: agentMessageShape,
@@ -46,6 +52,13 @@ private fun JSONObject.color(key: String): Color? {
         return null
     }
     return Color(getLong(key).toInt())
+}
+
+private fun JSONObject.size(key: String): Dp? {
+    if (!has(key)) {
+        return null
+    }
+    return getDouble(key).dp
 }
 
 private fun JSONObject.shape(key: String): Shape? {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -40,6 +41,8 @@ public data class ChatTheme(
     public val onUserMessageBackground: Color,
     public val agentMessageBackground: Color,
     public val onAgentMessageBackground: Color,
+    public val agentMessageBorderColor: Color,
+    public val agentMessagePadding: Dp,
     public val typingIndicatorDotColor: Color,
     public val linkColor: Color,
     public val quickReplyBackground: Color,
@@ -50,6 +53,9 @@ public data class ChatTheme(
     public val postbackBorderColor: Color,
     public val inputBorderColor: Color,
     public val inputFieldBorderColor: Color,
+    public val inputBackground: Color,
+    public val sendButtonBackground: Color,
+    public val onSendButtonBackground: Color,
     public val inputShape: Shape,
     public val userMessageShape: Shape,
     public val agentMessageShape: Shape,
@@ -82,6 +88,8 @@ public data class ChatTheme(
             // the conversation itself rather than as a reply.
             agentMessageBackground = Color.Transparent,
             onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
+            agentMessageBorderColor = Color.Transparent,
+            agentMessagePadding = 0.dp,
             typingIndicatorDotColor = MaterialTheme.colorScheme.onSurfaceVariant,
             linkColor = MaterialTheme.colorScheme.primary,
             // Outlined rather than filled, the way the web SDK draws them, so a
@@ -98,6 +106,9 @@ public data class ChatTheme(
             // The place text is typed and the plus beside it share the one
             // outline around them, so the field draws none of its own.
             inputFieldBorderColor = Color.Transparent,
+            inputBackground = Color.Transparent,
+            sendButtonBackground = MaterialTheme.colorScheme.primary,
+            onSendButtonBackground = MaterialTheme.colorScheme.onPrimary,
             inputShape = MaterialTheme.shapes.extraLarge,
             userMessageShape = RoundedCornerShape(
                 topStart = BUBBLE_CORNER,

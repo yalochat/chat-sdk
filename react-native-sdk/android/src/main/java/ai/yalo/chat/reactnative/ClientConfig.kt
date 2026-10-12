@@ -4,6 +4,7 @@ package ai.yalo.chat.reactnative
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
+import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import org.json.JSONObject
 
@@ -14,6 +15,7 @@ internal fun clientConfigOf(config: JSONObject): YaloChatClientConfig = YaloChat
     channelName = config.getString("channelName"),
     userId = if (config.isNull("userId")) null else config.getString("userId"),
     quickReplyType = quickReplyTypeOf(config.optString("quickReplyType")),
+    welcomeMessageType = welcomeMessageTypeOf(config.optString("welcomeMessageType")),
     logLevel = logLevelOf(config.optString("logLevel")),
     openContext = openContextOf(config.optJSONObject("openContext")),
     sessionMode = sessionModeOf(config.optString("sessionMode")),
@@ -25,6 +27,11 @@ internal fun clientConfigOf(config: JSONObject): YaloChatClientConfig = YaloChat
 private fun quickReplyTypeOf(value: String): QuickReplyType = when (value) {
     "inline" -> QuickReplyType.Inline
     else -> QuickReplyType.Modal
+}
+
+private fun welcomeMessageTypeOf(value: String): WelcomeMessageType = when (value) {
+    "verticalQuickReplies" -> WelcomeMessageType.VerticalQuickReplies
+    else -> WelcomeMessageType.None
 }
 
 private fun logLevelOf(value: String): LogLevel = when (value) {
