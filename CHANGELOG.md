@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.3.0](https://github.com/yalochat/chat-sdk/tree/0.3.0) (2026-10-12)
+## [0.4.0](https://github.com/yalochat/chat-sdk/tree/0.4.0) (2026-10-12)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v0.2.0...0.3.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v0.2.0...0.4.0)
 
 **Merged pull requests:**
 
