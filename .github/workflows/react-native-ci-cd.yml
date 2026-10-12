@@ -23,7 +23,8 @@ concurrency:
 
 env:
   NODE_VERSION: "24"
-  JAVA_VERSION: "21"
+  # The JDK React Native recommends, which most integrators build with.
+  JAVA_VERSION: "17"
   RUBY_VERSION: "3.3"
 
 jobs:
