@@ -6,7 +6,7 @@ import SQLite3
 /// Keeps messages in a SQLite file. The file is opened, and its schema built
 /// or migrated, on the first call. A nil `fileURL` keeps them in memory.
 actor ChatMessageDatabaseService: ChatMessageService {
-    static let version: Int32 = 3
+    static let version: Int32 = 4
 
     private let fileURL: URL?
     private let log: YaloLog
@@ -28,8 +28,8 @@ actor ChatMessageDatabaseService: ChatMessageService {
         // Nulls are distinct, so a message with no backend id is always stored.
         try run(database, """
             INSERT INTO chat_message
-            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice, image)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice, image, buttons)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (session_id, wi_id) DO NOTHING
             """, [
                 sessionId,
@@ -43,6 +43,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
                 message.footer,
                 try message.voice.map(Self.json),
                 try message.image.map(Self.json),
+                message.buttons.isEmpty ? nil : try Self.json(message.buttons),
             ])
         if sqlite3_changes(database) == 0, let wiId = message.wiId {
             let stored: [ChatMessage] = try query(
@@ -62,7 +63,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
     func messages(sessionId: String, limit: Int) async throws -> [ChatMessage] {
         try query(
             try open(),
-            "SELECT * FROM chat_message WHERE session_id = ? ORDER BY timestamp DESC, id DESC LIMIT ?",
+            "SELECT * FROM chat_message WHERE session_id = ? ORDER BY id DESC LIMIT ?",
             [sessionId, Int64(limit)]
         )
     }
@@ -152,6 +153,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
             }
             if found < 3 {
                 try run(database, "ALTER TABLE chat_message ADD COLUMN image TEXT", [])
+            }
+            if found < 4 {
+                try run(database, "ALTER TABLE chat_message ADD COLUMN buttons TEXT", [])
             }
             try run(database, "PRAGMA user_version = \(Self.version)", [])
             try run(database, "COMMIT", [])
@@ -254,6 +258,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
             header: text("header"),
             footer: text("footer"),
             // What this version cannot read leaves the message without it rather than unreadable.
+            buttons: text("buttons").flatMap { stored in
+                try? JSONDecoder().decode([MessageButton].self, from: Data(stored.utf8))
+            } ?? [],
             voice: text("voice").flatMap { stored in
                 try? JSONDecoder().decode(VoiceNote.self, from: Data(stored.utf8))
             },

@@ -14,6 +14,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Session modes](#session-modes)
 - [Voice messages](#voice-messages)
 - [Image messages](#image-messages)
+- [Quick replies and buttons](#quick-replies-and-buttons)
 - [Theming](#theming)
 - [Logging](#logging)
 - [Translations](#translations)
@@ -99,6 +100,9 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off on any device. Defaults to `nil`, which keeps the conversation anonymous. An anonymous conversation still picks up where it was left on the same device, until the app is deleted.
+- **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `.modal`, which puts them in a bar above the message input. Set `.inline` to put them under the message that offered them. See [Quick replies and buttons](#quick-replies-and-buttons).
+- **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `.none`, which draws it like any other message.
+  - `.verticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the conversation is drawn as usual.
 - **`logLevel`** (`LogLevel`): How much the SDK writes to the system log. Defaults to `.warn`, which keeps it quiet outside of warnings and errors. See [Logging](#logging).
 - **`openContext`** (`[String: String]`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 - **`sessionMode`** (`SessionMode`): How the conversation is scoped, and whether it is remembered between visits. Defaults to `.shared`, which is one conversation per person, remembered. See [Session modes](#session-modes).
@@ -174,6 +178,29 @@ iOS closes any app that asks for the microphone without it. If you do not want v
 The person taps the plus in the message input to pick a picture from their photo library and send it. The chat uses the system photo picker, which only hands over the picture the person picked, so your app does not need to ask for photo library access or add anything to its `Info.plist`.
 
 If you do not want image messages, set `hideAttachmentButton` to `true`.
+
+## Quick replies and buttons
+
+The channel can attach buttons to what it says. Tapping one sends its text as if the person had typed it.
+
+- **Quick replies** are answers to the message.
+  - They are offered until the person says something, typed or tapped, and then they go away.
+  - `quickReplyType` decides where they are shown:
+    - `.modal` (default): in a bar between the conversation and the message input.
+    - `.inline`: under the message that offered them.
+- **Postback buttons** stay under the message that sent them, one per line, and can be tapped again later in the conversation.
+- **Link buttons** sit with the postback buttons and show an arrow. Tapping one opens its address outside the chat instead of sending anything.
+
+```swift
+YaloChatClient(config: YaloChatClientConfig(
+    channelId: "your-channel-id",
+    organizationId: "your-organization-id",
+    channelName: "Support",
+    quickReplyType: .inline
+))
+```
+
+See [Theming](doc/theming.md#quick-replies) to change their colors.
 
 ## Theming
 

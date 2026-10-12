@@ -18,7 +18,11 @@ internal interface ChatMessageRepository {
      */
     suspend fun insert(message: ChatMessage): Result<ChatMessage>
 
-    /** Most recent first. */
+    /**
+     * Last stored first. Arrival rather than timestamp, like the web SDK,
+     * since the server rounds its times down to the second and a reply could
+     * otherwise land before the message it answers.
+     */
     suspend fun messages(limit: Int = DEFAULT_PAGE_SIZE): Result<List<ChatMessage>>
 
     suspend fun clearSession(): Result<Unit>

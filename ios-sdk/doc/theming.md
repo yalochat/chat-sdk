@@ -12,6 +12,8 @@ Every value defaults to a system color, so a chat dropped into an app already fo
   - [Header](#header)
   - [Footer and input](#footer-and-input)
   - [Messages](#messages)
+  - [Quick replies](#quick-replies)
+  - [Message buttons](#message-buttons)
 - [Light and dark](#light-and-dark)
 - [Full theming example](#full-theming-example)
 
@@ -67,6 +69,22 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the system label color.
 - **`typingIndicatorDotColor`** (`Color`): Color of the three dots shown while the chat waits for a reply. Defaults to the secondary system label color.
 
+### Quick replies
+
+These paint the chips the person taps to answer.
+
+- **`quickReplyBackground`** (`Color`): Background of a chip. Defaults to clear. Set a color to fill it.
+- **`onQuickReplyBackground`** (`Color`): Color of the text on a chip. Defaults to the system label color.
+- **`quickReplyBorderColor`** (`Color`): Color of the line around a chip. Defaults to the system separator color.
+
+### Message buttons
+
+These paint the buttons stacked under a message, both the ones that answer the channel and the links that open a page. A link also shows an arrow in the text color.
+
+- **`postbackBackground`** (`Color`): Background of a button. Defaults to clear. Set a color to fill it.
+- **`onPostbackBackground`** (`Color`): Color of the text on a button. Defaults to the system label color.
+- **`postbackBorderColor`** (`Color`): Color of the line around a button. Defaults to the system separator color.
+
 ## Light and dark
 
 The defaults are system colors, so a chat with no theme of its own switches with the device. If you override a value, you own it in both modes. Use colors that already adapt, such as colors from your asset catalog with a dark variant, rather than fixed ones:
@@ -106,7 +124,13 @@ struct BrandedChat: View {
                 onUserMessageBackground: .white,
                 agentMessageBackground: .clear,
                 onAgentMessageBackground: Color(.label),
-                typingIndicatorDotColor: brand
+                typingIndicatorDotColor: brand,
+                quickReplyBackground: .clear,
+                onQuickReplyBackground: brand,
+                quickReplyBorderColor: brand,
+                postbackBackground: .clear,
+                onPostbackBackground: brand,
+                postbackBorderColor: brand
             )
         )
     }

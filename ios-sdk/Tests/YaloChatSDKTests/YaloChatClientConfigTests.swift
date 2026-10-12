@@ -39,4 +39,16 @@ struct YaloChatClientConfigTests {
 
         #expect(config.sessionMode == .shared)
     }
+
+    @Test func offersQuickRepliesInABarUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.quickReplyType == .modal)
+    }
+
+    @Test func drawsTheFirstMessageLikeAnyOtherUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.welcomeMessageType == .none)
+    }
 }

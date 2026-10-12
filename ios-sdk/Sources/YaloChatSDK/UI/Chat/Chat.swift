@@ -4,6 +4,15 @@ import SwiftUI
 
 /// The chat screen: a header, the conversation and the message input.
 ///
+/// Quick replies follow `quickReplyType` in the client config: a bar above the
+/// message input, or chips under the message that offered them. Postback and
+/// link buttons always stay under their message. A link opens its address
+/// outside the chat.
+///
+/// With `welcomeMessageType` set to `.verticalQuickReplies`, the channel's
+/// first message is drawn alone and centered with one quick reply per line
+/// until the person sends something.
+///
 /// Voice messages need `NSMicrophoneUsageDescription` in your app's
 /// Info.plist. Set `hideVoiceButton` in the client config to leave them out.
 ///
@@ -41,6 +50,7 @@ public struct Chat: View {
     }
 
     public var body: some View {
+        let inline: Bool = client.config.quickReplyType == .inline || viewModel.isWelcome
         VStack(spacing: 0) {
             ChatHeader(
                 title: client.config.channelName,
@@ -50,6 +60,13 @@ public struct Chat: View {
             ChatMessageList(
                 messages: viewModel.messages,
                 isWaitingForReply: viewModel.isWaitingForReply,
+                quickRepliesMessageId: inline ? viewModel.quickRepliesMessageId : nil,
+                isWelcome: viewModel.isWelcome,
+                onTapButton: { button in
+                    Task {
+                        await viewModel.tap(button)
+                    }
+                },
                 playback: viewModel.playback,
                 onToggleVoiceMessage: { message in
                     Task {
@@ -59,6 +76,13 @@ public struct Chat: View {
                 cachedImage: viewModel.cachedImage(of:),
                 loadImage: viewModel.image(of:)
             )
+            if !inline, !viewModel.quickReplies.isEmpty {
+                QuickReplyBar(replies: viewModel.quickReplies) { reply in
+                    Task {
+                        await viewModel.tap(reply)
+                    }
+                }
+            }
             ChatInput(
                 text: $viewModel.draft,
                 onSend: {

@@ -245,7 +245,8 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
                 content: request.content.text,
                 status: status,
                 header: request.hasHeader ? request.header : nil,
-                footer: request.hasFooter ? request.footer : nil
+                footer: request.hasFooter ? request.footer : nil,
+                buttons: request.buttons.map(Self.button)
             )
         case .voiceNoteMessageRequest(let request):
             // An address to download from, not a file that is already here.
@@ -257,6 +258,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
                 status: status,
                 header: request.hasHeader ? request.header : nil,
                 footer: request.hasFooter ? request.footer : nil,
+                buttons: request.buttons.map(Self.button),
                 voice: VoiceNote(
                     duration: request.content.duration,
                     amplitudes: request.content.amplitudesPreview,
@@ -277,6 +279,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
                 status: status,
                 header: request.hasHeader ? request.header : nil,
                 footer: request.hasFooter ? request.footer : nil,
+                buttons: request.buttons.map(Self.button),
                 image: ImageAttachment(
                     mediaURL: request.content.mediaURL,
                     mimeType: request.content.mediaType,
@@ -287,5 +290,16 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         default:
             return nil
         }
+    }
+
+    /// A kind this SDK does not know reads back as a reply, the one thing
+    /// every button can do and the one that stays inside the conversation.
+    private static func button(_ wire: Yalo_ExternalChannel_InApp_Sdk_V2_Button) -> MessageButton {
+        let kind: MessageButton.Kind = switch wire.buttonType {
+        case .postback: .postback
+        case .link: .link
+        default: .reply
+        }
+        return MessageButton(text: wire.text, kind: kind, url: wire.hasURL ? wire.url : nil)
     }
 }

@@ -99,6 +99,40 @@ struct ChatMessageDatabaseServiceTests {
         #expect(stored.image == original.image)
     }
 
+    @Test func readsBackButtons() async throws {
+        let original: ChatMessage = ChatMessage(
+            role: .agent,
+            type: .text,
+            timestamp: Date(timeIntervalSince1970: 1_700_000_000),
+            wiId: "wi-1",
+            content: "Pick one",
+            buttons: [
+                MessageButton(text: "Yes"),
+                MessageButton(text: "Menu", kind: .postback),
+                MessageButton(text: "Site", kind: .link, url: "https://yalo.ai"),
+            ]
+        )
+
+        let stored: ChatMessage = try await service.insert(original, sessionId: "session-1")
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10) == [stored])
+        #expect(stored.buttons == original.buttons)
+    }
+
+    @Test func buttonsThisVersionCannotReadAreLeftOut() async throws {
+        let file: URL = Self.temporaryFile()
+        _ = try await ChatMessageDatabaseService(fileURL: file).insert(message("Hello"), sessionId: "session-1")
+        var database: OpaquePointer?
+        sqlite3_open(file.path, &database)
+        sqlite3_exec(database, "UPDATE chat_message SET buttons = 'not json'", nil, nil, nil)
+        sqlite3_close(database)
+
+        let read: [ChatMessage] = try await ChatMessageDatabaseService(fileURL: file).messages(sessionId: "session-1", limit: 10)
+
+        #expect(read.map(\.content) == ["Hello"])
+        #expect(read.first?.buttons == [])
+    }
+
     @Test func anImageThisVersionCannotReadIsLeftOut() async throws {
         let file: URL = Self.temporaryFile()
         _ = try await ChatMessageDatabaseService(fileURL: file).insert(message("Hello"), sessionId: "session-1")
@@ -157,20 +191,26 @@ struct ChatMessageDatabaseServiceTests {
             ChatMessage(role: .user, type: .voice, timestamp: Date(timeIntervalSince1970: 2), voice: VoiceNote(duration: 1)),
             sessionId: "session-1"
         )
+        _ = try await service.insert(
+            ChatMessage(role: .agent, type: .text, timestamp: Date(timeIntervalSince1970: 3), buttons: [MessageButton(text: "Yes")]),
+            sessionId: "session-1"
+        )
 
         let read: [ChatMessage] = try await service.messages(sessionId: "session-1", limit: 10)
-        #expect(read.map(\.voice) == [VoiceNote(duration: 1), nil])
+        #expect(read.map(\.buttons) == [[MessageButton(text: "Yes")], [], []])
+        #expect(read.dropFirst().map(\.voice) == [VoiceNote(duration: 1), nil])
         #expect(read.last?.content == "Before")
     }
 
-    @Test func messagesAreMostRecentFirstAndLimited() async throws {
-        _ = try await service.insert(message("first", at: 1_000), sessionId: "session-1")
-        _ = try await service.insert(message("third", at: 3_000), sessionId: "session-1")
-        _ = try await service.insert(message("second", at: 2_000), sessionId: "session-1")
+    @Test func messagesAreLastStoredFirstAndLimited() async throws {
+        _ = try await service.insert(message("question", at: 2_400), sessionId: "session-1")
+        // The server rounds down to the second, so a reply can carry an earlier time.
+        _ = try await service.insert(message("answer", at: 2_000, role: .agent), sessionId: "session-1")
+        _ = try await service.insert(message("thanks", at: 3_000), sessionId: "session-1")
 
         let read: [ChatMessage] = try await service.messages(sessionId: "session-1", limit: 2)
 
-        #expect(read.map(\.content) == ["third", "second"])
+        #expect(read.map(\.content) == ["thanks", "answer"])
     }
 
     @Test func messagesWrittenAtTheSameTimeKeepTheirOrder() async throws {

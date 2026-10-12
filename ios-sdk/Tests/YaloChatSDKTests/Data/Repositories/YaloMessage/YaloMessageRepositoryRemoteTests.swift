@@ -419,6 +419,66 @@ struct YaloMessageRepositoryRemoteTests {
         ))
     }
 
+    @Test func turnsTheButtonsFromTheChannelIntoMessageButtons() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        let wire: [(String, Yalo_ExternalChannel_InApp_Sdk_V2_ButtonType, String?)] = [
+            ("Yes", .reply, nil),
+            ("Menu", .postback, nil),
+            ("Site", .link, "https://yalo.ai"),
+            ("Later", .UNRECOGNIZED(9), nil),
+        ]
+        var request: Yalo_ExternalChannel_InApp_Sdk_V2_TextMessageRequest = .init()
+        request.content.text = "Pick one"
+        request.buttons = wire.map { text, type, url in
+            var button: Yalo_ExternalChannel_InApp_Sdk_V2_Button = .init()
+            button.text = text
+            button.buttonType = type
+            if let url {
+                button.url = url
+            }
+            return button
+        }
+        var voice: Yalo_ExternalChannel_InApp_Sdk_V2_VoiceNoteMessageRequest = .init()
+        voice.buttons = [request.buttons[0]]
+        var image: Yalo_ExternalChannel_InApp_Sdk_V2_ImageMessageRequest = .init()
+        image.buttons = [request.buttons[1]]
+        let payloads: [SdkMessage.OneOf_Payload] = [
+            .textMessageRequest(request),
+            .voiceNoteMessageRequest(voice),
+            .imageMessageRequest(image),
+        ]
+        let items: [PollMessageItem] = payloads.map { payload in
+            var item: PollMessageItem = PollMessageItem()
+            item.message.payload = payload
+            return item
+        }
+
+        let messages: AsyncStream<ChatMessage> = repository.messages()
+        #expect(await eventually { await service.listenerCount == 1 })
+        for item in items {
+            await service.emit(item)
+        }
+
+        var received: [[MessageButton]] = []
+        for await message in messages {
+            received.append(message.buttons)
+            if received.count == 3 {
+                break
+            }
+        }
+        #expect(received == [
+            [
+                MessageButton(text: "Yes"),
+                MessageButton(text: "Menu", kind: .postback),
+                MessageButton(text: "Site", kind: .link, url: "https://yalo.ai"),
+                MessageButton(text: "Later"),
+            ],
+            [MessageButton(text: "Yes")],
+            [MessageButton(text: "Menu", kind: .postback)],
+        ])
+    }
+
     @Test func refusesToSendWhileClosed() async {
         let repository: YaloMessageRepositoryRemote = repository(FakeYaloMessageService())
 

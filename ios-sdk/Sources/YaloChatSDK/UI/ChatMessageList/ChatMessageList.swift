@@ -2,6 +2,10 @@
 
 import SwiftUI
 
+/// The conversation. Postback and link buttons stay under the message that sent them,
+/// and the quick replies of `quickRepliesMessageId` are drawn under it.
+/// `isWelcome` centers what the channel says and stacks its quick replies one
+/// per line.
 struct ChatMessageList: View {
     /// Short enough that a message never feels held back, long enough that one
     /// arriving is noticed rather than found already there.
@@ -11,6 +15,9 @@ struct ChatMessageList: View {
 
     let messages: [ChatMessage]
     var isWaitingForReply: Bool = false
+    var quickRepliesMessageId: Int64?
+    var isWelcome: Bool = false
+    var onTapButton: (MessageButton) -> Void = { _ in }
     var playback: VoicePlayback?
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
     var cachedImage: (ChatMessage) -> UIImage? = { _ in nil }
@@ -25,52 +32,33 @@ struct ChatMessageList: View {
             ScrollView {
                 LazyVStack(spacing: 8) {
                     ForEach(messages) { message in
-                        switch (message.role, message.type, message.type == .voice ? message.voice : nil) {
-                        case (.user, .image, _):
-                            ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
-                                if showsEnd {
-                                    proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                        VStack(alignment: isWelcome ? .center : .leading, spacing: 8) {
+                            switch (message.role, message.type, message.type == .voice ? message.voice : nil) {
+                            case (.user, .image, _):
+                                ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
+                                    if showsEnd {
+                                        proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                                    }
                                 }
-                            }
-                            .accessibilityIdentifier("yalo-chat-user-message")
-                            .padding(.leading, 48)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, .image, _):
-                            ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
-                                if showsEnd {
-                                    proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                                .accessibilityIdentifier("yalo-chat-user-message")
+                                .padding(.leading, 48)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                            case (.agent, .image, _):
+                                ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
+                                    if showsEnd {
+                                        proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                                    }
                                 }
-                            }
-                            .foregroundStyle(theme.onAgentMessageBackground)
-                            .accessibilityIdentifier("yalo-chat-agent-message")
-                            .padding(.trailing, 48)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        case (.user, _, let note?):
-                            VoiceMessage(
-                                note: note,
-                                playback: playback?.messageId == message.id ? playback : nil,
-                                onToggle: { onToggleVoiceMessage(message) }
-                            )
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .foregroundStyle(theme.onUserMessageBackground)
-                            .background(theme.userMessageBackground, in: RoundedRectangle(cornerRadius: 18))
-                            .accessibilityIdentifier("yalo-chat-user-message")
-                            .padding(.leading, 48)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, _, let note?):
-                            VoiceMessage(
-                                note: note,
-                                playback: playback?.messageId == message.id ? playback : nil,
-                                onToggle: { onToggleVoiceMessage(message) }
-                            )
-                            .foregroundStyle(theme.onAgentMessageBackground)
-                            .background(theme.agentMessageBackground)
-                            .accessibilityIdentifier("yalo-chat-agent-message")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        case (.user, _, nil):
-                            // Verbatim: asterisks the person typed are asterisks they meant.
-                            Text(verbatim: message.content)
+                                .foregroundStyle(theme.onAgentMessageBackground)
+                                .accessibilityIdentifier("yalo-chat-agent-message")
+                                .padding(.trailing, isWelcome ? 0 : 48)
+                                .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
+                            case (.user, _, let note?):
+                                VoiceMessage(
+                                    note: note,
+                                    playback: playback?.messageId == message.id ? playback : nil,
+                                    onToggle: { onToggleVoiceMessage(message) }
+                                )
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 10)
                                 .foregroundStyle(theme.onUserMessageBackground)
@@ -78,12 +66,43 @@ struct ChatMessageList: View {
                                 .accessibilityIdentifier("yalo-chat-user-message")
                                 .padding(.leading, 48)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
-                        case (.agent, _, nil):
-                            Text(markdown(message.content))
+                            case (.agent, _, let note?):
+                                VoiceMessage(
+                                    note: note,
+                                    playback: playback?.messageId == message.id ? playback : nil,
+                                    onToggle: { onToggleVoiceMessage(message) }
+                                )
                                 .foregroundStyle(theme.onAgentMessageBackground)
                                 .background(theme.agentMessageBackground)
                                 .accessibilityIdentifier("yalo-chat-agent-message")
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
+                            case (.user, _, nil):
+                                // Verbatim: asterisks the person typed are asterisks they meant.
+                                Text(verbatim: message.content)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
+                                    .foregroundStyle(theme.onUserMessageBackground)
+                                    .background(theme.userMessageBackground, in: RoundedRectangle(cornerRadius: 18))
+                                    .accessibilityIdentifier("yalo-chat-user-message")
+                                    .padding(.leading, 48)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            case (.agent, _, nil):
+                                Text(markdown(message.content))
+                                    .multilineTextAlignment(isWelcome ? .center : .leading)
+                                    .foregroundStyle(theme.onAgentMessageBackground)
+                                    .background(theme.agentMessageBackground)
+                                    .accessibilityIdentifier("yalo-chat-agent-message")
+                                    .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
+                            }
+                            if message.role == .agent, !message.actions.isEmpty {
+                                MessageButtons(buttons: message.actions, onTap: onTapButton)
+                                    .padding(.horizontal, isWelcome ? 24 : 0)
+                                    .padding(.trailing, isWelcome ? 0 : 48)
+                            }
+                            if let id = message.id, id == quickRepliesMessageId {
+                                QuickReplies(replies: message.quickReplies, onTap: onTapButton, vertical: isWelcome)
+                                    .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
+                            }
                         }
                     }
                     .transition(.opacity)
@@ -109,6 +128,7 @@ struct ChatMessageList: View {
                 // slide up to make room for it.
                 .animation(Self.fade, value: messages.last?.id)
                 .animation(Self.fade, value: isWaitingForReply)
+                .animation(Self.fade, value: quickRepliesMessageId)
             }
             .onAppear {
                 proxy.scrollTo(Self.bottomId, anchor: .bottom)
@@ -137,5 +157,17 @@ struct ChatMessageList: View {
             content: "## Welcome\n\nHi, how can I **help** you?\n\n- Orders\n- Payments"
         ),
         ChatMessage(role: .user, type: .text, timestamp: Date(), id: 2, content: "I want to place an order"),
-    ], isWaitingForReply: true)
+        ChatMessage(
+            role: .agent,
+            type: .text,
+            timestamp: Date(),
+            id: 3,
+            content: "What would you like?",
+            buttons: [
+                MessageButton(text: "See the menu", kind: .postback),
+                MessageButton(text: "Pizza"),
+                MessageButton(text: "Burger"),
+            ]
+        ),
+    ], quickRepliesMessageId: 3)
 }
