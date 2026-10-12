@@ -26,6 +26,9 @@ env:
   # The JDK React Native recommends, which most integrators build with.
   JAVA_VERSION: "17"
   RUBY_VERSION: "3.3"
+  # Matches compileSdkVersion, buildToolsVersion and ndkVersion in
+  # example/android/build.gradle.
+  ANDROID_PACKAGES: "platform-tools platforms/android-36 build-tools/36.0.0 ndk/27.1.12297006 cmake/3.22.1"
 
 jobs:
   quality-gate:
@@ -95,10 +98,15 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          accept-android-sdk-licenses: true
+      - name: Setup Android CLI
+        run: |
+          curl -fsSL https://dl.google.com/android/cli/latest/linux_x86_64/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install Android SDK packages
+        # Installed into the runner's SDK up front, so Gradle never has to
+        # download them mid build.
+        run: android sdk install --sdk="$ANDROID_HOME" ${{ env.ANDROID_PACKAGES }}
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
