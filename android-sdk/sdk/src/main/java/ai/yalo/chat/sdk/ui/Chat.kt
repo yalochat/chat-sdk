@@ -53,6 +53,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * message input, or chips under the message that offered them. Postback buttons
  * always sit under the message that sent them and stay there.
  *
+ * With `welcomeMessageType` set to `VerticalQuickReplies`, the channel's first
+ * message is drawn alone and centered with one quick reply per line until the
+ * person sends something.
+ *
  * [avatar] draws whatever you want beside the channel name, an image loaded
  * with your own library or none at all. [onBack] adds a back button to the
  * header, which is absent unless you give one.
@@ -107,6 +111,7 @@ public fun Chat(
             quickReplyType = client.config.quickReplyType,
             quickReplies = viewModel.uiState.quickReplies,
             quickRepliesMessageId = viewModel.uiState.quickRepliesMessageId,
+            isWelcome = viewModel.uiState.isWelcome,
             onQuickReply = viewModel::onQuickReply,
             onPostback = viewModel::onPostback,
             avatar = avatar,
@@ -213,6 +218,7 @@ internal fun ChatLayout(
     quickReplyType: QuickReplyType = QuickReplyType.Modal,
     quickReplies: List<MessageButton> = emptyList(),
     quickRepliesMessageId: Long? = null,
+    isWelcome: Boolean = false,
     onQuickReply: (String) -> Unit = {},
     onPostback: (String) -> Unit = {},
     avatar: (@Composable () -> Unit)? = null,
@@ -228,7 +234,7 @@ internal fun ChatLayout(
     onPickImage: () -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
 ) {
-    val inline = quickReplyType == QuickReplyType.Inline
+    val inline = quickReplyType == QuickReplyType.Inline || isWelcome
     Surface(
         modifier = modifier.fillMaxSize(),
         color = currentChatTheme.background,
@@ -245,6 +251,7 @@ internal fun ChatLayout(
                 messages = messages,
                 isWaitingForReply = isWaitingForReply,
                 quickRepliesMessageId = quickRepliesMessageId.takeIf { inline },
+                isWelcome = isWelcome,
                 onQuickReply = onQuickReply,
                 onPostback = onPostback,
                 playback = playback,

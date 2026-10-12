@@ -10,6 +10,7 @@ import ai.yalo.chat.sdk.ui.voice.VoiceMessageBody
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.style.TextAlign
 
 /**
  * What the channel answered.
@@ -25,9 +26,10 @@ internal fun AgentMessageBody(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: () -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    textAlign: TextAlign = TextAlign.Unspecified,
 ) {
     when (message.type) {
-        MessageType.Text -> MarkdownText(text = message.content, modifier = modifier)
+        MessageType.Text -> MarkdownText(text = message.content, modifier = modifier, textAlign = textAlign)
 
         MessageType.Voice -> VoiceMessageBody(
             message = message,

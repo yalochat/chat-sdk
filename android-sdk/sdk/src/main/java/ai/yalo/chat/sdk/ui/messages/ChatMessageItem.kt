@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -32,6 +34,9 @@ internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
  * only the chat knows which message that is. The buttons a message keeps are
  * read off it instead, since those never stop being on offer.
  *
+ * [isWelcome] centers an agent message and stacks its quick replies one per
+ * line.
+ *
  * [playback] is a lambda so that a voice note being listened to redraws its own
  * waveform rather than the conversation around it. [loadImage] hands back the
  * file a picture is in, and is asked only for the messages that carry one.
@@ -41,6 +46,7 @@ internal fun ChatMessageItem(
     message: ChatMessage,
     modifier: Modifier = Modifier,
     quickReplies: List<MessageButton> = emptyList(),
+    isWelcome: Boolean = false,
     onQuickReply: (String) -> Unit = {},
     onPostback: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
@@ -59,6 +65,7 @@ internal fun ChatMessageItem(
         MessageRole.Agent -> AgentMessage(
             message = message,
             quickReplies = quickReplies,
+            isWelcome = isWelcome,
             onQuickReply = onQuickReply,
             onPostback = onPostback,
             modifier = modifier,
@@ -117,6 +124,7 @@ private fun UserMessage(
 private fun AgentMessage(
     message: ChatMessage,
     quickReplies: List<MessageButton>,
+    isWelcome: Boolean,
     onQuickReply: (String) -> Unit,
     onPostback: (String) -> Unit,
     modifier: Modifier,
@@ -128,10 +136,11 @@ private fun AgentMessage(
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = if (isWelcome) Alignment.CenterHorizontally else Alignment.Start,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = if (isWelcome) Arrangement.Center else Arrangement.Start,
         ) {
             Surface(
                 modifier = Modifier
@@ -146,6 +155,7 @@ private fun AgentMessage(
                     playback = playback,
                     onVoiceMessageToggled = { onVoiceMessageToggled(message) },
                     loadImage = loadImage,
+                    textAlign = if (isWelcome) TextAlign.Center else TextAlign.Unspecified,
                 )
             }
         }
@@ -158,7 +168,7 @@ private fun AgentMessage(
             )
         }
         if (quickReplies.isNotEmpty()) {
-            QuickReplies(replies = quickReplies, onReplyClick = onQuickReply)
+            QuickReplies(replies = quickReplies, onReplyClick = onQuickReply, vertical = isWelcome)
         }
     }
 }
