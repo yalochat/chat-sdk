@@ -1,3 +1,4 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
 import { fixupConfigRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
@@ -24,6 +25,6 @@ export default defineConfig([
     },
   },
   {
-    ignores: ['node_modules/', 'lib/'],
+    ignores: ['node_modules/', 'lib/', 'coverage/', '**/build/'],
   },
 ]);

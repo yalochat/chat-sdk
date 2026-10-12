@@ -1,3 +1,4 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
 const path = require('path');
 const { getConfig } = require('react-native-builder-bob/babel-config');
 const pkg = require('../package.json');

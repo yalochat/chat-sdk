@@ -1,3 +1,4 @@
+// Copyright (c) Yalochat, Inc. All rights reserved.
 const path = require('path');
 const { getDefaultConfig } = require('@react-native/metro-config');
 const { withMetroConfig } = require('react-native-monorepo-config');

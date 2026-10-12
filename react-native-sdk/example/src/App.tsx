@@ -1,23 +1,36 @@
-import { View, StyleSheet } from 'react-native';
-import { YaloChatReactNativeSdkView } from 'yalo-chat-react-native-sdk';
+// Copyright (c) Yalochat, Inc. All rights reserved.
+import { useState } from 'react';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { Chat, YaloChatClient } from 'yalo-chat-react-native-sdk';
 
+const client = new YaloChatClient({
+  // Fill up with your values
+  channelId: 'your-channel-id',
+  organizationId: 'your-organization-id',
+  channelName: 'Yalo',
+});
+
+/** A host app with nothing in it but a button that opens the chat. */
 export default function App() {
+  const [chatIsOpen, setChatIsOpen] = useState(false);
+
+  if (chatIsOpen) {
+    return <Chat client={client} onBack={() => setChatIsOpen(false)} />;
+  }
+
   return (
-    <View style={styles.container}>
-      <YaloChatReactNativeSdkView color="#32a852" style={styles.box} />
+    <View style={styles.page}>
+      <Text>Example app</Text>
+      <Button title="Open chat" onPress={() => setChatIsOpen(true)} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  page: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+    gap: 16,
   },
 });
