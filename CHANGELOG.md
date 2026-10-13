@@ -1,11 +1,12 @@
 # Changelog
 
-## [0.5.0](https://github.com/yalochat/chat-sdk/tree/0.5.0) (2026-10-13)
+## [0.2.0](https://github.com/yalochat/chat-sdk/tree/0.2.0) (2026-10-13)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.3.1...0.5.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.3.1...0.2.0)
 
 **Merged pull requests:**
 
+- Release react-native-sdk 0.1.0 [\#332](https://github.com/yalochat/chat-sdk/pull/332) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat\(react-native-sdk\): Adds react native ci cd [\#326](https://github.com/yalochat/chat-sdk/pull/326) ([rodrigocusto](https://github.com/rodrigocusto))
 
 ## [ios-sdk/v0.3.1](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v0.3.1) (2026-10-13)
