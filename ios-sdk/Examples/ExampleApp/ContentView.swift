@@ -11,7 +11,6 @@ struct ContentView: View {
     private let client: YaloChatClient = YaloChatClient(config: YaloChatClientConfig(
         channelId: "your-channel-id",
         organizationId: "your-organization-id",
-        channelName: "Yalo"
         channelName: "Yalo",
         quickReplyType: .inline,
         welcomeMessageType: .verticalQuickReplies,
