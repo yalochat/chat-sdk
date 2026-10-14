@@ -12,6 +12,10 @@ struct ContentView: View {
         channelId: "your-channel-id",
         organizationId: "your-organization-id",
         channelName: "Yalo"
+        channelName: "Yalo",
+        quickReplyType: .inline,
+        welcomeMessageType: .verticalQuickReplies,
+        sessionMode: .ephemeral
     ))
 
     @State private var chatIsOpen: Bool = false
@@ -36,11 +40,25 @@ struct ContentView: View {
             if chatIsOpen {
                 Chat(client: client, onBack: {
                     chatIsOpen = false
-                })
+                }) {
+                    ExampleAvatar()
+                }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .animation(.easeInOut, value: chatIsOpen)
+    }
+}
+
+/// A letter in a circle, so the example needs no image. A real app would load
+/// its logo here, for example with `AsyncImage`.
+private struct ExampleAvatar: View {
+    var body: some View {
+        Text(verbatim: "Y")
+            .font(.headline)
+            .foregroundStyle(.white)
+            .frame(width: 40, height: 40)
+            .background(Color.accentColor, in: Circle())
     }
 }
 

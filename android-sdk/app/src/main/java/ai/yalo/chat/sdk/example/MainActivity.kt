@@ -1,6 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.example
 
+import ai.yalo.chat.sdk.LogLevel
+import ai.yalo.chat.sdk.QuickReplyType
+import ai.yalo.chat.sdk.SessionMode
+import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.example.ui.theme.ExampleTheme
@@ -17,11 +21,14 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -36,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 
 private fun exampleChatClient(): YaloChatClient = YaloChatClient(
     YaloChatClientConfig(
@@ -44,6 +52,20 @@ private fun exampleChatClient(): YaloChatClient = YaloChatClient(
         organizationId = "",
         channelName = "Test channel name",
         userId = "test-user-id",
+        // Everything the SDK has to say, which is what an example app wants.
+        logLevel = LogLevel.Debug,
+        // What the chat is being opened from, as if a person had tapped
+        // for help while looking at this product.
+        openContext = mapOf("sku" to "44555697"),
+        // Chips under the message that offered them, rather than in a bar of
+        // their own above the input.
+        quickReplyType = QuickReplyType.Inline,
+        // The channel's first message centered, with one quick reply per line,
+        // until the person answers.
+        welcomeMessageType = WelcomeMessageType.VerticalQuickReplies,
+        // A new conversation every time the app is started, and nothing left
+        // behind once it ends. Turning the device keeps it.
+        sessionMode = SessionMode.Ephemeral,
     ),
 )
 
@@ -125,10 +147,31 @@ fun ExampleApp(client: YaloChatClient) {
                         .padding(innerPadding)
                         .consumeWindowInsets(innerPadding)
                         .imePadding(),
+                    avatar = { ExampleAvatar() },
                     onBack = { chatIsOpen = false },
                 )
             }
         }
+    }
+}
+
+/**
+ * A letter in a circle, so the example needs no image loading library. A real
+ * app would load its logo here with whatever it already uses.
+ */
+@Composable
+private fun ExampleAvatar() {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(MaterialTheme.colorScheme.primary, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "Y",
+            color = MaterialTheme.colorScheme.onPrimary,
+            style = MaterialTheme.typography.titleMedium,
+        )
     }
 }
 
