@@ -9,8 +9,10 @@ import ai.yalo.chat.sdk.ui.messages.TypingIndicator
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyListState
@@ -18,14 +20,17 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
 internal const val CHAT_MESSAGE_LIST_TAG: String = "yalo-chat-message-list"
+internal const val CHAT_WELCOME_AVATAR_TAG: String = "yalo-chat-welcome-avatar"
 
 private const val TYPING_INDICATOR_KEY = "yalo-chat-typing-indicator-item"
+private const val WELCOME_AVATAR_KEY = "yalo-chat-welcome-avatar-item"
 
 /**
  * How long a message takes to fade in, whoever sent it.
@@ -40,7 +45,8 @@ private const val MESSAGE_FADE_MILLIS = 220
  *
  * [quickRepliesMessageId] names the message whose answers are drawn under it,
  * and is null when the chat shows them in a bar of their own instead.
- * [isWelcome] draws the messages centered, with one quick reply per line.
+ * [isWelcome] draws the messages centered, with one quick reply per line, and
+ * [avatar] centered above them.
  */
 @Composable
 internal fun ChatMessageList(
@@ -49,6 +55,7 @@ internal fun ChatMessageList(
     isWaitingForReply: Boolean = false,
     quickRepliesMessageId: Long? = null,
     isWelcome: Boolean = false,
+    avatar: (@Composable () -> Unit)? = null,
     onQuickReply: (String) -> Unit = {},
     onPostback: (String) -> Unit = {},
     playback: () -> VoicePlayback? = { null },
@@ -90,10 +97,12 @@ internal fun ChatMessageList(
             items(items = messages, key = { message -> message.id ?: message.timestamp }) { message ->
                 ChatMessageItem(
                     message = message,
-                    // A message fades in where it lands, and the ones already
-                    // there slide up to make room for it.
+                    // A message fades in where it lands. Rows do not slide: in a
+                    // reversed list pinned to the top, a row that grows, such as
+                    // a picture that finished loading, would slide down from above.
                     modifier = Modifier.animateItem(
                         fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
+                        placementSpec = null,
                     ),
                     quickReplies = if (quickRepliesMessageId != null && message.id == quickRepliesMessageId) {
                         message.quickReplies
@@ -107,6 +116,23 @@ internal fun ChatMessageList(
                     onVoiceMessageToggled = onVoiceMessageToggled,
                     loadImage = loadImage,
                 )
+            }
+            // Last in a reversed list, so it sits above the welcome message.
+            if (isWelcome && avatar != null) {
+                item(key = WELCOME_AVATAR_KEY) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateItem(
+                                fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
+                                placementSpec = null,
+                            )
+                            .testTag(CHAT_WELCOME_AVATAR_TAG),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        avatar()
+                    }
+                }
             }
         }
     }

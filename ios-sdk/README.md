@@ -87,6 +87,22 @@ Chat(client: client, onBack: {
 })
 ```
 
+To show an avatar beside the channel name, pass any view. The SDK does not load the image for you, so use `AsyncImage` or whatever your app already uses:
+
+```swift
+Chat(client: client) {
+    AsyncImage(url: URL(string: "https://example.com/logo.png")) { image in
+        image.resizable()
+    } placeholder: {
+        Color.gray
+    }
+    .frame(width: 40, height: 40)
+    .clipShape(Circle())
+}
+```
+
+With `welcomeMessageType` set to `.verticalQuickReplies`, the avatar is also drawn centered above the welcome message, until the person sends something.
+
 ## Configuration
 
 `YaloChatClientConfig` takes the details of the conversation.
@@ -102,7 +118,7 @@ Optional properties:
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off on any device. Defaults to `nil`, which keeps the conversation anonymous. An anonymous conversation still picks up where it was left on the same device, until the app is deleted.
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `.modal`, which puts them in a bar above the message input. Set `.inline` to put them under the message that offered them. See [Quick replies and buttons](#quick-replies-and-buttons).
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `.none`, which draws it like any other message.
-  - `.verticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the conversation is drawn as usual.
+  - `.verticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with the avatar above it and one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the avatar leaves the conversation and it is drawn as usual.
 - **`logLevel`** (`LogLevel`): How much the SDK writes to the system log. Defaults to `.warn`, which keeps it quiet outside of warnings and errors. See [Logging](#logging).
 - **`openContext`** (`[String: String]`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 - **`sessionMode`** (`SessionMode`): How the conversation is scoped, and whether it is remembered between visits. Defaults to `.shared`, which is one conversation per person, remembered. See [Session modes](#session-modes).

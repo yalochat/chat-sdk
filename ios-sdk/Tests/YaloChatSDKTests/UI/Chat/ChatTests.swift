@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import Foundation
+import SwiftUI
 import Testing
 @testable import YaloChatSDK
 
@@ -12,8 +13,9 @@ struct ChatTests {
         hideAttachmentButton: Bool = false,
         quickReplyType: QuickReplyType = .modal,
         theme: ChatTheme = ChatTheme(),
-        onBack: (() -> Void)? = nil
-    ) -> Chat {
+        onBack: (() -> Void)? = nil,
+        avatar: Text? = nil
+    ) -> Chat<Text> {
         let client: YaloChatClient = YaloChatClient(config: YaloChatClientConfig(
             channelId: "channel-1",
             organizationId: "org-1",
@@ -40,7 +42,7 @@ struct ChatTests {
                 .appendingPathComponent("yalo-chat-tests-\(UUID().uuidString)", isDirectory: true),
             run: ChatViewModel.Run()
         )
-        return Chat(client: client, theme: theme, onBack: onBack, viewModel: viewModel)
+        return Chat(client: client, theme: theme, onBack: onBack, avatar: avatar, viewModel: viewModel)
     }
 
     @Test(arguments: [false, true])
@@ -63,6 +65,10 @@ struct ChatTests {
 
     @Test func chatRendersWithABackButton() {
         #expect(renders(chat(onBack: {})))
+    }
+
+    @Test func chatRendersWithAnAvatar() {
+        #expect(renders(chat(avatar: Text(verbatim: "avatar"))))
     }
 
     @Test func chatRendersWithACustomTheme() {

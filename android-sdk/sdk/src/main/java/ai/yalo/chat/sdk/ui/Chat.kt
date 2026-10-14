@@ -56,7 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  *
  * With `welcomeMessageType` set to `VerticalQuickReplies`, the channel's first
  * message is drawn alone and centered with one quick reply per line until the
- * person sends something.
+ * person sends something. The [avatar] is drawn centered above that message.
  *
  * [avatar] draws whatever you want beside the channel name, an image loaded
  * with your own library or none at all. [onBack] adds a back button to the
@@ -253,6 +253,7 @@ internal fun ChatLayout(
                 isWaitingForReply = isWaitingForReply,
                 quickRepliesMessageId = quickRepliesMessageId.takeIf { inline },
                 isWelcome = isWelcome,
+                avatar = avatar,
                 onQuickReply = onQuickReply,
                 onPostback = onPostback,
                 playback = playback,

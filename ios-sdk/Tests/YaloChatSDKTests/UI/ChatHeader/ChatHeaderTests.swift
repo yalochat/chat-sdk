@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import Foundation
+import SwiftUI
 import Testing
 @testable import YaloChatSDK
 
@@ -8,6 +9,10 @@ import Testing
 struct ChatHeaderTests {
     @Test func headerRendersWithEveryPart() {
         #expect(renders(ChatHeader(title: "Yalo", status: "Online", onBack: {})))
+    }
+
+    @Test func headerRendersWithAnAvatar() {
+        #expect(renders(ChatHeader(title: "Yalo", avatar: AnyView(Text(verbatim: "avatar")))))
     }
 
     @Test func headerRendersWithoutWatermark() {

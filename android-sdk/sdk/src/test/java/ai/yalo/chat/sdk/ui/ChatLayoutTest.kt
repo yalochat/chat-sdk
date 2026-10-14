@@ -8,6 +8,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.ui.messages.CHAT_MESSAGE_BUTTON_TAG
+import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -202,6 +203,57 @@ class ChatLayoutTest {
         composeRule.onNodeWithText("Yes").performClick()
 
         assertEquals(listOf("Yes"), chosen)
+    }
+
+    @Test
+    fun showsTheAvatarAboveTheWelcomeMessage() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(agentMessage("Hi there")),
+                isWelcome = true,
+                avatar = { Text("avatar") },
+            )
+        }
+
+        val avatar = composeRule.onNodeWithTag(CHAT_WELCOME_AVATAR_TAG).fetchSemanticsNode().boundsInRoot
+        val welcome = composeRule.onNodeWithText("Hi there").fetchSemanticsNode().boundsInRoot
+        assertEquals(true, avatar.bottom <= welcome.top)
+    }
+
+    @Test
+    fun leavesTheAvatarOutOfTheConversationOnceTheWelcomeIsOver() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(userMessage("A question"), agentMessage("Hi there")),
+                avatar = { Text("avatar") },
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_WELCOME_AVATAR_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun drawsNoWelcomeAvatarWhenThereIsNone() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(agentMessage("Hi there")),
+                isWelcome = true,
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_WELCOME_AVATAR_TAG).assertDoesNotExist()
     }
 
     @Test
