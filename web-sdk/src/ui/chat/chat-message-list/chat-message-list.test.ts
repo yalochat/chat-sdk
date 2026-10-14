@@ -1799,6 +1799,62 @@ describe('ChatMessageList', () => {
       ).toBeNull();
     });
 
+    it('shows the channel image above the welcome message', async () => {
+      const list = await renderList(
+        [
+          ChatMessage.text({
+            id: 408,
+            role: 'AGENT',
+            timestamp,
+            content: 'Pick one',
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies', image: 'avatar.png' }
+      );
+
+      const image =
+        list.shadowRoot!.querySelector<HTMLImageElement>('.welcome-image img');
+      expect(image?.getAttribute('src')).toBe('avatar.png');
+    });
+
+    it('leaves the channel image out once the user has replied', async () => {
+      const list = await renderList(
+        [
+          ChatMessage.text({
+            id: 409,
+            role: 'USER',
+            timestamp,
+            content: 'Yes',
+          }),
+          ChatMessage.text({
+            id: 410,
+            role: 'AGENT',
+            timestamp,
+            content: 'Pick one',
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies', image: 'avatar.png' }
+      );
+
+      expect(list.shadowRoot!.querySelector('.welcome-image')).toBeNull();
+    });
+
+    it('shows no welcome image when the channel has none', async () => {
+      const list = await renderList(
+        [
+          ChatMessage.text({
+            id: 411,
+            role: 'AGENT',
+            timestamp,
+            content: 'Pick one',
+          }),
+        ],
+        { welcomeMessageType: 'verticalQuickReplies' }
+      );
+
+      expect(list.shadowRoot!.querySelector('.welcome-image')).toBeNull();
+    });
+
     it('renders the full conversation when the welcome mode is not set', async () => {
       const list = await renderList([
         new ChatMessage({

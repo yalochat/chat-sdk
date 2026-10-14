@@ -243,7 +243,7 @@ Required properties:
 
 Optional properties:
 
-- **`image`** (`string`): URL for the channel avatar image.
+- **`image`** (`string`): URL for the channel avatar image. Shown in the header, and above the welcome message when `welcomeMessageType` is `"verticalQuickReplies"`.
 - **`locale`** (`string`): Locale for the chat UI (e.g. `"es"`, `"en"`).
 - **`audioWaveformColor`** (`string`): Color for the audio waveform bars rendered on sent voice messages. Also used as the fallback for the recording waveform when `recordingWaveformColor` is not set.
 - **`recordingWaveformColor`** (`string`): Color for the audio waveform bars shown in the footer while recording a voice message. Lets the live recorder use a different color from the sent voice message playback. Falls back to `audioWaveformColor` when not set.
@@ -259,7 +259,7 @@ Optional properties:
   - `"ephemeral"`: the conversation is not remembered. It starts fresh each time and nothing is left behind once the page is closed.
 - **`logLevel`** (`"debug" | "info" | "warn" | "error" | "silent"`): Controls how verbose the chat is in the browser console. Defaults to `"warn"`, which keeps the console quiet outside of warnings and errors. Raise to `"debug"` or `"info"` when investigating integration issues, or set `"silent"` to suppress all console output, including errors.
 - **`welcomeMessageType`** (`"none" | "verticalQuickReplies"`): Customizes how the first message in the chat renders. Defaults to `"none"`.
-  - `"verticalQuickReplies"`: while the user has not sent a message yet, only the first message is shown, with its header, body and quick replies centered, and one quick reply per line. Once the user sends a message, the full conversation renders normally.
+  - `"verticalQuickReplies"`: while the user has not sent a message yet, only the first message is shown, with the channel `image` above it, its header, body and quick replies centered, and one quick reply per line. Once the user sends a message, the full conversation renders normally.
 - **`quickReplyType`** (`"modal" | "inline"`): Controls how quick replies are presented. Defaults to `"modal"`, which shows them in a modal over the chat footer. Set to `"inline"` to show them inline instead.
 - **`yaloWatermark`** (`"header-left" | "header-right" | "none"`): Controls the "by Yalo" watermark shown under the channel name in the chat header. Defaults to `"header-left"`, which left aligns it under the title. Set to `"header-right"` to right align it under the title, or `"none"` to hide it. The watermark text follows the active `locale`, and its look can be tuned with the `--yalo-chat-header-watermark-*` CSS variables.
 - **`texts`** (`object`): Overrides for built-in text strings. See [Translations](doc/translations.md).
