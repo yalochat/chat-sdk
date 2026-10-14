@@ -97,10 +97,12 @@ internal fun ChatMessageList(
             items(items = messages, key = { message -> message.id ?: message.timestamp }) { message ->
                 ChatMessageItem(
                     message = message,
-                    // A message fades in where it lands, and the ones already
-                    // there slide up to make room for it.
+                    // A message fades in where it lands. Rows do not slide: in a
+                    // reversed list pinned to the top, a row that grows, such as
+                    // a picture that finished loading, would slide down from above.
                     modifier = Modifier.animateItem(
                         fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
+                        placementSpec = null,
                     ),
                     quickReplies = if (quickRepliesMessageId != null && message.id == quickRepliesMessageId) {
                         message.quickReplies
@@ -121,7 +123,10 @@ internal fun ChatMessageList(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateItem(fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS))
+                            .animateItem(
+                                fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
+                                placementSpec = null,
+                            )
                             .testTag(CHAT_WELCOME_AVATAR_TAG),
                         contentAlignment = Alignment.Center,
                     ) {
