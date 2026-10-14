@@ -18,6 +18,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Theming](#theming)
 - [Logging](#logging)
 - [Translations](#translations)
+- [Custom commands](#custom-commands)
 
 ## Requirements
 
@@ -274,3 +275,88 @@ The chat follows the language of the device. It ships with:
 - Spanish (`es`, `es-MX`)
 
 Any other language falls back to English.
+
+## Custom commands
+
+The channel can ask your app to run something and wait for a reply. Register a handler under a command id of your choice. When the channel sends a request with that id, the SDK runs your handler with the request payload and sends what it returns back to the channel.
+
+```swift
+client.registerCommand("refreshCatalog") { payload in
+    // payload: the string the channel sent
+    let region: String = try region(in: payload)
+    try await catalog.reload(region)
+    return #"{"status":"reloaded"}"#
+}
+```
+
+Notes:
+
+- The handler is `async throws`, so it can await other work. The SDK waits for it before replying, and each request runs on its own.
+- You choose the command id. The channel runs your handler by sending a custom command request with the same id.
+- The handler only runs while a chat is open, since that is when the SDK is connected.
+- The string you return becomes the response payload. Return an empty string when there is nothing to send back.
+- If the handler throws, the SDK replies with an error status and an empty payload.
+- When the channel sends a command id with no registered handler, the SDK logs a warning and sends no response.
+- Registering the same id again replaces its handler.
+
+### Returning the cart
+
+`getCart` and `updateCartProduct` are built-in command ids for the cart. You register them with `registerCommand` like any other command, and their payloads are JSON.
+
+`getCart` is sent when the channel asks for the products in the cart. Return the page of the cart as JSON.
+
+```swift
+client.registerCommand("getCart") { payload in
+    // payload: {"cursor":"page-2","pageSize":20}
+    let request: CartRequest = try JSONDecoder().decode(CartRequest.self, from: Data(payload.utf8))
+    let page: CartPage = try await cart.page(after: request.cursor)
+    return String(decoding: try JSONEncoder().encode(page), as: UTF8.self)
+}
+
+client.registerCommand("updateCartProduct") { payload in
+    // payload: {"sku":"WATER-1L","units":2}
+    let change: CartChange = try JSONDecoder().decode(CartChange.self, from: Data(payload.utf8))
+    try await cart.set(change.sku, units: change.units)
+    return ""
+}
+```
+
+`CartRequest`, `CartPage` and `CartChange` stand for your own `Codable` types with the fields below.
+
+The `getCart` payload has these fields:
+
+- `cursor` (string, optional): the page the channel wants. Left out for the first page.
+- `pageSize` (number, optional): the most products the channel wants in the page.
+
+Return a JSON object with these fields:
+
+- `products` (array): the products in the page. Each product has:
+  - `sku` (string): unique product identifier.
+  - `name` (string): product name.
+  - `price` (number): base price.
+  - `imagesUrl` (string array): image URLs for the product.
+  - `salePrice` (number, optional): sale price. Takes precedence over `price`.
+  - `subunits` (number): units contained in one unit, for example bottles inside a case.
+  - `unitStep` (number): increment used when changing the unit quantity.
+  - `unitName` (string): unit name in ICU message format, for example `{amount, plural, one {case} other {cases}}`.
+  - `subunitName` (string, optional): subunit name in the same format.
+  - `subunitStep` (number): increment used when changing the subunit quantity.
+  - `unitsAdded` (number): units currently in the cart.
+  - `subunitsAdded` (number): subunits currently in the cart.
+- `pageInfo` (object, optional): leave it out when your cart is not paginated. It has:
+  - `pageSize` (number): products requested per page.
+  - `cursor` (string, optional): cursor that produced this page.
+  - `nextCursor` (string, optional): cursor for the next page. Left out on the last page.
+  - `prevCursor` (string, optional): cursor for the previous page. Left out on the first page.
+
+If what you return is not valid JSON, the SDK replies with an error status.
+
+### Updating a cart product
+
+`updateCartProduct` is sent when the channel changes how much of a product is in the cart. The payload has these fields:
+
+- `sku` (string): the product to change.
+- `units` (number): units of the product in the cart after the change.
+- `subunits` (number, optional): subunits after the change. Left out when the product has no subunits.
+
+The SDK replies with a success status when your handler returns, and with an error status when it throws. What the handler returns is ignored.

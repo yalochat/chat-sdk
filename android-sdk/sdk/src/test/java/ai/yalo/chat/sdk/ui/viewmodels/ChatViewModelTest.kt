@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.CommandHandler
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.FakeImageRepository
@@ -9,6 +10,7 @@ import ai.yalo.chat.sdk.data.repositories.media.FakeMediaRepository
 import ai.yalo.chat.sdk.data.repositories.voice.FakeVoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.CommandRequest
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -20,6 +22,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.Flow
@@ -1064,6 +1067,48 @@ class ChatViewModelTest {
         assertEquals(emptyList<String>(), tokenRepository.deletedSessions)
     }
 
+    @Test
+    fun runsTheCommandTheChannelAsksForAndAnswersWithItsResult() {
+        chatViewModel(commands = mapOf("getStore" to { payload -> "store for $payload" }))
+
+        yaloMessageRepository.askForCommand(CommandRequest("c-1", "getStore", "42"))
+
+        assertEquals(listOf("c-1" to Result.success("store for 42")), yaloMessageRepository.commandAnswers)
+    }
+
+    @Test
+    fun answersAFailedCommandWhenItsHandlerThrows() {
+        chatViewModel(commands = mapOf("getStore" to { _ -> throw IllegalStateException("closed") }))
+
+        yaloMessageRepository.askForCommand(CommandRequest("c-1", "getStore", ""))
+
+        val (correlationId, result) = yaloMessageRepository.commandAnswers.single()
+        assertEquals("c-1", correlationId)
+        assertEquals("closed", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun leavesACommandNobodyRegisteredUnanswered() {
+        chatViewModel()
+
+        yaloMessageRepository.askForCommand(CommandRequest("c-1", "getStore", ""))
+
+        assertEquals(emptyList<Pair<String, Result<String>>>(), yaloMessageRepository.commandAnswers)
+    }
+
+    @Test
+    fun runsTheNextCommandWhileASlowOneIsStillRunning() {
+        val slow = CompletableDeferred<String>()
+        chatViewModel(commands = mapOf("slow" to { _ -> slow.await() }, "fast" to { _ -> "done" }))
+
+        yaloMessageRepository.askForCommand(CommandRequest("c-1", "slow", ""))
+        yaloMessageRepository.askForCommand(CommandRequest("c-2", "fast", ""))
+
+        assertEquals(listOf("c-2"), yaloMessageRepository.commandAnswers.map { it.first })
+        slow.complete("finally")
+        assertEquals(listOf("c-2", "c-1"), yaloMessageRepository.commandAnswers.map { it.first })
+    }
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
@@ -1071,6 +1116,7 @@ class ChatViewModelTest {
         sessionId: String = "this-chat",
         ephemeral: Boolean = false,
         welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
+        commands: Map<String, CommandHandler> = emptyMap(),
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
@@ -1087,6 +1133,7 @@ class ChatViewModelTest {
         hostMessages = hostMessages,
         openContext = openContext,
         welcomeMessageType = welcomeMessageType,
+        commandHandlers = commands::get,
         now = { SENT_AT },
     )
 
@@ -1165,6 +1212,23 @@ class ChatViewModelTest {
         override suspend fun requestGuidanceCard(openContext: Map<String, String>): Result<Unit> {
             failure?.let { error -> return Result.failure(error) }
             openedWith.add(openContext)
+            return Result.success(Unit)
+        }
+
+        /** Every answer the chat gave a command, by correlation id. */
+        val commandAnswers: MutableList<Pair<String, Result<String>>> = mutableListOf()
+
+        private val commands = MutableSharedFlow<CommandRequest>(extraBufferCapacity = 8)
+
+        override fun commandRequests(): Flow<CommandRequest> = commands
+
+        /** Has the channel ask for [request], the way the socket would. */
+        fun askForCommand(request: CommandRequest) {
+            commands.tryEmit(request)
+        }
+
+        override suspend fun answerCommand(request: CommandRequest, result: Result<String>): Result<Unit> {
+            commandAnswers.add(request.correlationId to result)
             return Result.success(Unit)
         }
 

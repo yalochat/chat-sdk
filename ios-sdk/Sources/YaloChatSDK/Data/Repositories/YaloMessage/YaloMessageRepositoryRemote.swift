@@ -100,6 +100,118 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         }
     }
 
+    func commandRequests() -> AsyncStream<CommandRequest> {
+        let service: YaloMessageService = service
+        return AsyncStream { continuation in
+            let listening: Task<Void, Never> = Task {
+                for await item in await service.messages() {
+                    if let request = Self.commandRequest(from: item.message) {
+                        continuation.yield(request)
+                    }
+                }
+                continuation.finish()
+            }
+            continuation.onTermination = { _ in
+                listening.cancel()
+            }
+        }
+    }
+
+    func answerCommand(_ request: CommandRequest, result: Result<String, Error>) async throws {
+        guard lifecycle != .closed else {
+            throw YaloMessageRepositoryError.closed
+        }
+        let answeredAt: Google_Protobuf_Timestamp = Google_Protobuf_Timestamp(date: now())
+        var envelope: SdkMessage = SdkMessage()
+        envelope.correlationID = request.correlationId
+        envelope.timestamp = answeredAt
+        switch request.kind {
+        case .custom:
+            var response: Yalo_ExternalChannel_InApp_Sdk_V2_CustomCommandResponse = .init()
+            response.timestamp = answeredAt
+            response.status = Self.status(of: result)
+            response.payload = (try? result.get()) ?? ""
+            envelope.payload = .customCommandResponse(response)
+        case .getCart:
+            var response: Yalo_ExternalChannel_InApp_Sdk_V2_GetCartResponse = cartPage(of: result)
+            response.timestamp = answeredAt
+            envelope.payload = .getCartResponse(response)
+        case .updateCartProduct:
+            var response: Yalo_ExternalChannel_InApp_Sdk_V2_UpdateCartProductResponse = .init()
+            response.timestamp = answeredAt
+            response.status = Self.status(of: result)
+            envelope.payload = .updateCartProductResponse(response)
+        }
+        try await service.send(envelope)
+    }
+
+    /// The page the host returned as JSON, or a failed answer when it could not be read.
+    private func cartPage(of result: Result<String, Error>) -> Yalo_ExternalChannel_InApp_Sdk_V2_GetCartResponse {
+        guard case .success(let json) = result else {
+            return Yalo_ExternalChannel_InApp_Sdk_V2_GetCartResponse.with { $0.status = .error }
+        }
+        var options: JSONDecodingOptions = JSONDecodingOptions()
+        options.ignoreUnknownFields = true
+        do {
+            var page: Yalo_ExternalChannel_InApp_Sdk_V2_GetCartResponse = try .init(jsonString: json, options: options)
+            page.status = .success
+            return page
+        } catch {
+            log.warn("the cart the host returned is not valid JSON", error: error)
+            return Yalo_ExternalChannel_InApp_Sdk_V2_GetCartResponse.with { $0.status = .error }
+        }
+    }
+
+    private static func status(of result: Result<String, Error>) -> Yalo_ExternalChannel_InApp_Sdk_V2_ResponseStatus {
+        switch result {
+        case .success:
+            return .success
+        case .failure:
+            return .error
+        }
+    }
+
+    /// A request the host app has to answer, or nil when `message` is not one.
+    /// Cart requests reach the host as JSON, without the channel's timestamp.
+    private static func commandRequest(from message: SdkMessage) -> CommandRequest? {
+        switch message.payload {
+        case .customCommandRequest(let request):
+            return CommandRequest(correlationId: message.correlationID, commandId: request.commandID, payload: request.payload)
+        case .getCartRequest(let request):
+            var fields: [String: Any] = [:]
+            if request.hasCursor {
+                fields["cursor"] = request.cursor
+            }
+            if request.hasPageSize {
+                fields["pageSize"] = request.pageSize
+            }
+            return CommandRequest(
+                correlationId: message.correlationID,
+                commandId: "getCart",
+                payload: json(of: fields),
+                kind: .getCart
+            )
+        case .updateCartProductRequest(let request):
+            var fields: [String: Any] = ["sku": request.sku, "units": request.units]
+            if request.hasSubunits {
+                fields["subunits"] = request.subunits
+            }
+            return CommandRequest(
+                correlationId: message.correlationID,
+                commandId: "updateCartProduct",
+                payload: json(of: fields),
+                kind: .updateCartProduct
+            )
+        default:
+            return nil
+        }
+    }
+
+    private static func json(of fields: [String: Any]) -> String {
+        let data: Data = (try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys])) ?? Data("{}".utf8)
+        return String(decoding: data, as: UTF8.self)
+    }
+
     func send(_ message: ChatMessage) async throws {
         guard lifecycle != .closed else {
             log.warn("a message was written while the chat was closed")

@@ -37,4 +37,12 @@ protocol YaloMessageRepository: AnyObject {
     /// it can say something first. `openContext` reaches the channel as it is
     /// given, and what it says back arrives through `messages()`.
     func requestGuidanceCard(openContext: [String: String]) async throws
+
+    /// Commands the channel asks the host app to run, from now on.
+    func commandRequests() -> AsyncStream<CommandRequest>
+
+    /// Answers `request`: a success carries the payload back, a failure tells
+    /// the channel the command did not run. A cart page that is not the JSON
+    /// the channel expects is answered as a failure.
+    func answerCommand(_ request: CommandRequest, result: Result<String, Error>) async throws
 }
