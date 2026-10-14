@@ -16,6 +16,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Sizing and window insets](#sizing-and-window-insets)
   - [Avatar](#avatar)
   - [Back button](#back-button)
+- [The ChatView view](#the-chatview-view)
 - [Message formatting](#message-formatting)
 - [Voice messages](#voice-messages)
   - [The microphone permission](#the-microphone-permission)
@@ -33,8 +34,11 @@ The chat renders inside the space you give it, follows your app theme out of the
 ## Requirements
 
 - Android 7.0 (API level 24) or newer.
-- Jetpack Compose with Material 3. The chat is a composable, so the host screen has to be a Compose screen.
+- `compileSdk` 35 or newer.
+- Android Gradle Plugin 8.6 or newer.
+- Kotlin 1.9.24 or newer.
 - Java 11 or newer for compilation.
+- The chat is a Jetpack Compose composable. Screens without Compose can use [`ChatView`](#the-chatview-view) instead.
 
 ## Installation
 
@@ -233,6 +237,25 @@ Chat(
 ```
 
 Leave it out when the chat is embedded in a screen that already has a way back, such as a tab or a pane next to your content.
+
+## The ChatView view
+
+`ChatView` is the same chat as a classic Android view, for screens that do not use Compose, such as an XML layout or a React Native bridge.
+
+```kotlin
+val chatView = ChatView(context).apply {
+    client = YaloChatClient(config)
+    theme = { default -> default.copy(headerBackground = Color.Red) }
+    onBack = { finish() }
+}
+setContentView(chatView)
+```
+
+- **`client`**: The client holding the configuration for this conversation. Nothing is drawn until you set it.
+- **`theme`**: Adjusts the default theme, which follows the system light or dark scheme. Leave it out to keep the default. See [Theming](doc/theming.md).
+- **`onBack`**: Adds a back button to the header. The header has no back button unless you set one.
+
+The view finds its lifecycle through the window it is attached to, so place it in a `ComponentActivity`, such as an `AppCompatActivity`.
 
 ## Message formatting
 
