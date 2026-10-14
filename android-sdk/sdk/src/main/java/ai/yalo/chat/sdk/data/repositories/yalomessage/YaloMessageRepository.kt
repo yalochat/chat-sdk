@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.data.repositories.yalomessage
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.CommandRequest
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -49,6 +50,15 @@ internal interface YaloMessageRepository {
      * as it is given. An empty one asks the same question with nothing to go on.
      */
     suspend fun requestGuidanceCard(openContext: Map<String, String> = emptyMap()): Result<Unit>
+
+    /** Commands the channel asks the host app to run. Hot, and nothing is replayed. */
+    fun commandRequests(): Flow<CommandRequest>
+
+    /**
+     * Answers the request with [correlationId]: a success carries the payload
+     * back, a failure tells the channel the command did not run.
+     */
+    suspend fun answerCommand(correlationId: String, result: Result<String>): Result<Unit>
 
     /** Ends the conversation and forgets whatever was waiting to be sent. */
     fun close()

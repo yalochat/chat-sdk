@@ -7,6 +7,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import java.util.concurrent.ConcurrentHashMap
 
 /**
+ * Runs a command the channel asked for. It receives the request payload and
+ * answers with the payload sent back. Throwing reports the command as failed.
+ */
+public typealias CommandHandler = suspend (payload: String) -> String
+
+/**
  * The way into the SDK.
  *
  * Creating one costs nothing: it holds the config and a channel for what the
@@ -16,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 public class YaloChatClient(internal val config: YaloChatClientConfig) {
 
-    private val commands = ConcurrentHashMap<String, Function<*>>()
+    private val commands = ConcurrentHashMap<String, CommandHandler>()
 
     // A queue rather than a broadcast: a message waits here until a chat
     // takes it, and is taken exactly once. A shared flow would drop whatever
@@ -27,9 +33,15 @@ public class YaloChatClient(internal val config: YaloChatClientConfig) {
     /** Text the host asked to send, for an open chat to pick up and store. */
     internal val outgoingTextMessages: Flow<String> = outgoing.receiveAsFlow()
 
-    public fun registerCommand(command: String, handler: Function<*>) {
-	this.commands[command] = handler
+    /**
+     * Runs [handler] whenever the channel asks for [command] while a chat is
+     * open. Registering the same command again replaces its handler.
+     */
+    public fun registerCommand(command: String, handler: CommandHandler) {
+        commands[command] = handler
     }
+
+    internal fun commandHandler(command: String): CommandHandler? = commands[command]
 
     /**
      * Sends [text] as if the person had typed it.

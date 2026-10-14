@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.CommandHandler
+import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClient
@@ -17,11 +19,13 @@ import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.CommandRequest
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.quickReplies
+import ai.yalo.chat.sdk.log.YaloLog
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -36,6 +40,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -117,8 +122,13 @@ internal class ChatViewModel(
     hostMessages: Flow<String> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
+    /** The handler the host registered for a command, or null when it registered none. */
+    private val commandHandlers: (String) -> CommandHandler? = { null },
     private val now: () -> Long = System::currentTimeMillis,
+    logLevel: LogLevel = LogLevel.Warn,
 ) : ViewModel() {
+
+    private val log = YaloLog(LOG_NAME, logLevel)
 
     var uiState: ChatUiState by mutableStateOf(
         ChatUiState(title = title, draft = savedState.get<String>(DRAFT_KEY).orEmpty()),
@@ -158,6 +168,10 @@ internal class ChatViewModel(
         }
         viewModelScope.launch {
             hostMessages.collect { text -> send(text) }
+        }
+        viewModelScope.launch {
+            // Each runs on its own, so a slow command never holds up the next.
+            yaloMessageRepository.commandRequests().collect { request -> launch { runCommand(request) } }
         }
         viewModelScope.launch {
             voiceRepository.recording.collect { value -> recording = value }
@@ -387,6 +401,30 @@ internal class ChatViewModel(
         localPath?.let(::File)?.takeIf { file -> file.exists() }
 
     /** Stores what the channel said and shows it. */
+    /**
+     * Runs the host's handler for [request] and answers the channel with what
+     * it returned. A command the host never registered gets no answer, the
+     * same as on the web.
+     */
+    private suspend fun runCommand(request: CommandRequest) {
+        val handler = commandHandlers(request.commandId)
+        if (handler == null) {
+            log.warn { "no handler registered for command ${request.commandId}" }
+            return
+        }
+        val result = try {
+            Result.success(handler(request.payload))
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: Exception) {
+            log.error(error) { "command ${request.commandId} failed" }
+            Result.failure(error)
+        }
+        yaloMessageRepository.answerCommand(request.correlationId, result).onFailure { error ->
+            log.error(error) { "could not answer command ${request.commandId}" }
+        }
+    }
+
     private suspend fun receive(message: ChatMessage) {
         chatMessageRepository.insert(message).onSuccess {
             stopWaitingForReply()
@@ -548,6 +586,8 @@ internal class ChatViewModel(
 
         private const val DRAFT_KEY = "yalo-chat-draft"
 
+        private const val LOG_NAME = "Chat"
+
         private val swept = AtomicBoolean(false)
 
         /** The ephemeral conversations open in this run of the app. */
@@ -579,6 +619,8 @@ internal class ChatViewModel(
                     hostMessages = client.outgoingTextMessages,
                     openContext = client.config.openContext,
                     welcomeMessageType = client.config.welcomeMessageType,
+                    commandHandlers = client::commandHandler,
+                    logLevel = client.config.logLevel,
                 )
                 // Once a run of the app, from whichever chat opens first.
                 if (swept.compareAndSet(false, true)) {

@@ -100,6 +100,50 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         }
     }
 
+    func commandRequests() -> AsyncStream<CommandRequest> {
+        let service: YaloMessageService = service
+        return AsyncStream { continuation in
+            let listening: Task<Void, Never> = Task {
+                for await item in await service.messages() {
+                    if case .customCommandRequest(let request) = item.message.payload {
+                        continuation.yield(
+                            CommandRequest(
+                                correlationId: item.message.correlationID,
+                                commandId: request.commandID,
+                                payload: request.payload
+                            )
+                        )
+                    }
+                }
+                continuation.finish()
+            }
+            continuation.onTermination = { _ in
+                listening.cancel()
+            }
+        }
+    }
+
+    func answerCommand(correlationId: String, result: Result<String, Error>) async throws {
+        guard lifecycle != .closed else {
+            throw YaloMessageRepositoryError.closed
+        }
+        let answeredAt: Date = now()
+        var response: Yalo_ExternalChannel_InApp_Sdk_V2_CustomCommandResponse = .init()
+        response.timestamp = Google_Protobuf_Timestamp(date: answeredAt)
+        switch result {
+        case .success(let payload):
+            response.status = .success
+            response.payload = payload
+        case .failure:
+            response.status = .error
+        }
+        var envelope: SdkMessage = SdkMessage()
+        envelope.correlationID = correlationId
+        envelope.timestamp = Google_Protobuf_Timestamp(date: answeredAt)
+        envelope.payload = .customCommandResponse(response)
+        try await service.send(envelope)
+    }
+
     func send(_ message: ChatMessage) async throws {
         guard lifecycle != .closed else {
             log.warn("a message was written while the chat was closed")

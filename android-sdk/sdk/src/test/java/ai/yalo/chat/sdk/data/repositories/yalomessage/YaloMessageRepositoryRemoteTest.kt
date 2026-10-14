@@ -7,6 +7,7 @@ import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.CommandRequest
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -16,9 +17,11 @@ import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ChatStatusRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.CustomCommandRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
@@ -364,6 +367,42 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun readsACommandTheChannelAsksFor() = runTest(scheduler) {
+        val requests = commandRequests(pollItem(commandRequest("getStore", """{"id":1}""", correlationId = "c-1")))
+
+        assertEquals(listOf(CommandRequest("c-1", "getStore", """{"id":1}""")), requests)
+    }
+
+    @Test
+    fun keepsCommandsOutOfTheConversation() = runTest(scheduler) {
+        assertEquals(emptyList<ChatMessage>(), received(pollItem(commandRequest("getStore"))))
+    }
+
+    @Test
+    fun keepsMessagesOutOfTheCommands() = runTest(scheduler) {
+        assertEquals(emptyList<CommandRequest>(), commandRequests(pollItem(textMessage())))
+    }
+
+    @Test
+    fun answersACommandThatRan() = runTest(scheduler) {
+        connected().answerCommand("c-1", Result.success("""{"ok":true}"""))
+
+        val answer = source.sent.single()
+        assertEquals("c-1", answer.correlationId)
+        assertEquals(ResponseStatus.RESPONSE_STATUS_SUCCESS, answer.customCommandResponse.status)
+        assertEquals("""{"ok":true}""", answer.customCommandResponse.payload)
+    }
+
+    @Test
+    fun answersACommandThatFailed() = runTest(scheduler) {
+        connected().answerCommand("c-1", Result.failure(IllegalStateException("no store")))
+
+        val answer = source.sent.single().customCommandResponse
+        assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, answer.status)
+        assertEquals("", answer.payload)
+    }
+
+    @Test
     fun opensTheLineToTheChannel() = runTest(scheduler) {
         connected()
 
@@ -696,6 +735,29 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(emptyList<ChatMessage>(), received)
     }
+
+    private fun TestScope.commandRequests(vararg items: PollMessageItem): List<CommandRequest> {
+        val requests = mutableListOf<CommandRequest>()
+        val collector = launch {
+            repository().commandRequests().collect { request -> requests.add(request) }
+        }
+        runCurrent()
+        items.forEach { item -> source.receive(MessageReceived(item)) }
+        runCurrent()
+        collector.cancel()
+        return requests
+    }
+
+    private fun commandRequest(
+        commandId: String,
+        payload: String = "",
+        correlationId: String = "c-1",
+    ): SdkMessage = SdkMessage.newBuilder()
+        .setCorrelationId(correlationId)
+        .setCustomCommandRequest(
+            CustomCommandRequest.newBuilder().setCommandId(commandId).setPayload(payload),
+        )
+        .build()
 
     private fun sentText(): String = source.sent.single().textMessageRequest.content.text
 

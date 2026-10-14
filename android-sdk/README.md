@@ -26,6 +26,7 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Logging](#logging)
 - [Translations](#translations)
 - [Methods](#methods)
+- [Custom commands](#custom-commands)
 
 ## Requirements
 
@@ -374,3 +375,27 @@ The chat ships translated into every supported language and follows the device l
 ## Methods
 
 - **`client.sendTextMessage(text)`**: Sends text as if the person had typed it in the input. Blank text is ignored. You can call it before the chat is on screen: the message waits until a chat opens and is then delivered once.
+- **`client.registerCommand(command, handler)`**: Runs `handler` when the channel asks for `command`. See [Custom commands](#custom-commands).
+
+## Custom commands
+
+The channel can ask your app to run something and wait for a reply. Register a handler under a command id of your choice. When the channel sends a request with that id, the SDK runs your handler with the request payload and sends what it returns back to the channel.
+
+```kotlin
+client.registerCommand("refreshCatalog") { payload ->
+    // payload: the string the channel sent
+    val region = JSONObject(payload).getString("region")
+    catalog.reload(region)
+    """{"status":"reloaded"}"""
+}
+```
+
+Notes:
+
+- The handler is a `suspend` function, so it can call other suspend functions. The SDK waits for it before replying, and each request runs on its own.
+- You choose the command id. The channel runs your handler by sending a custom command request with the same id.
+- The handler only runs while a chat is open, since that is when the SDK is connected.
+- The string you return becomes the response payload. Return an empty string when there is nothing to send back.
+- If the handler throws, the SDK replies with an error status and an empty payload.
+- When the channel sends a command id with no registered handler, the SDK logs a warning and sends no response.
+- Registering the same id again replaces its handler.

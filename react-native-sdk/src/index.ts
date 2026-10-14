@@ -1,7 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 export { Chat, type ChatProps } from './Chat';
 export type { ChatShape, ChatTheme } from './ChatTheme';
-export { YaloChatClient } from './YaloChatClient';
+export { YaloChatClient, type CommandHandler } from './YaloChatClient';
 export type {
   LogLevel,
   QuickReplyType,

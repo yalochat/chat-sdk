@@ -11,6 +11,7 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [The Chat component](#the-chat-component)
+- [Custom commands](#custom-commands)
 - [Theming](#theming)
 - [Platform differences](#platform-differences)
 
@@ -100,6 +101,30 @@ The chat leaves safe areas and the keyboard to your app, so wrap it in whatever 
 ```tsx
 <Chat client={client} onBack={() => navigation.goBack()} />
 ```
+
+## Custom commands
+
+The channel can ask your app to run something and wait for a reply. Register a handler on the client under a command id of your choice. When the channel sends a request with that id, the SDK runs your handler with the request payload and sends what it returns back to the channel.
+
+```tsx
+client.registerCommand('refreshCatalog', async (payload) => {
+  // payload: the string the channel sent
+  const { region } = JSON.parse(payload);
+  await reloadCatalogFor(region);
+  return JSON.stringify({ status: 'reloaded' });
+});
+```
+
+Notes:
+
+- The handler can be synchronous or return a promise. The SDK waits for it before replying.
+- You can register commands before or after the `Chat` is shown.
+- If the handler returns nothing, the response payload is an empty string.
+- You choose the command id. The channel runs your handler by sending a custom command request with the same id.
+- The handler only runs while a chat is open, since that is when the SDK is connected.
+- If the handler throws or rejects, the SDK replies with an error status and an empty payload.
+- When the channel sends a command id with no registered handler, the SDK logs a warning and sends no response.
+- Registering the same id again replaces its handler.
 
 ## Theming
 

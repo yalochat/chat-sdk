@@ -1,7 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
-import { describe, expect, it, jest } from '@jest/globals';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Chat, YaloChatClient } from '../index';
+import { Commands } from '../YaloChatViewNativeComponent';
 
 const client = new YaloChatClient({
   channelId: 'channel',
@@ -46,5 +47,107 @@ describe('Chat', () => {
     expect(chat.props.showsBackButton).toBe(true);
     await fireEvent(chat, 'back');
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Chat commands', () => {
+  const resolveCommand = jest.spyOn(Commands, 'resolveCommand');
+
+  beforeEach(() => {
+    resolveCommand.mockReset();
+  });
+
+  function commandClient(): YaloChatClient {
+    return new YaloChatClient({
+      channelId: 'channel',
+      organizationId: 'organization',
+      channelName: 'Support',
+    });
+  }
+
+  async function askForCommand(command: string, payload = '') {
+    const chat = screen.getByTestId('chat');
+    await fireEvent(chat, 'command', {
+      nativeEvent: { requestId: 'r-1', command, payload },
+    });
+  }
+
+  it('tells the native chat which commands are registered', async () => {
+    const commands = commandClient();
+    commands.registerCommand('getStore', () => 'store');
+    await render(<Chat client={commands} testID="chat" />);
+
+    expect(screen.getByTestId('chat').props.commands).toEqual(['getStore']);
+  });
+
+  it('tells the native chat about a command registered after it is shown', async () => {
+    const commands = commandClient();
+    await render(<Chat client={commands} testID="chat" />);
+
+    await act(() => commands.registerCommand('getStore', () => 'store'));
+
+    expect(screen.getByTestId('chat').props.commands).toEqual(['getStore']);
+  });
+
+  it('answers with what the handler returned', async () => {
+    const commands = commandClient();
+    commands.registerCommand('getStore', async (payload) => `store ${payload}`);
+    await render(<Chat client={commands} testID="chat" />);
+
+    await askForCommand('getStore', '42');
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      'r-1',
+      true,
+      'store 42'
+    );
+  });
+
+  it('answers with an empty payload when the handler returns nothing', async () => {
+    const commands = commandClient();
+    commands.registerCommand('track', () => {});
+    await render(<Chat client={commands} testID="chat" />);
+
+    await askForCommand('track');
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      'r-1',
+      true,
+      ''
+    );
+  });
+
+  it('reports a command whose handler throws as failed', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const commands = commandClient();
+    commands.registerCommand('getStore', () => {
+      throw new Error('closed');
+    });
+    await render(<Chat client={commands} testID="chat" />);
+
+    await askForCommand('getStore');
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      'r-1',
+      false,
+      ''
+    );
+  });
+
+  it('reports a command nobody registered as failed', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    await render(<Chat client={commandClient()} testID="chat" />);
+
+    await askForCommand('getStore');
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      'r-1',
+      false,
+      ''
+    );
   });
 });

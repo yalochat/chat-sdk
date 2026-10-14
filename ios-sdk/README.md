@@ -18,6 +18,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Theming](#theming)
 - [Logging](#logging)
 - [Translations](#translations)
+- [Custom commands](#custom-commands)
 
 ## Requirements
 
@@ -274,3 +275,26 @@ The chat follows the language of the device. It ships with:
 - Spanish (`es`, `es-MX`)
 
 Any other language falls back to English.
+
+## Custom commands
+
+The channel can ask your app to run something and wait for a reply. Register a handler under a command id of your choice. When the channel sends a request with that id, the SDK runs your handler with the request payload and sends what it returns back to the channel.
+
+```swift
+client.registerCommand("refreshCatalog") { payload in
+    // payload: the string the channel sent
+    let region: String = try region(in: payload)
+    try await catalog.reload(region)
+    return #"{"status":"reloaded"}"#
+}
+```
+
+Notes:
+
+- The handler is `async throws`, so it can await other work. The SDK waits for it before replying, and each request runs on its own.
+- You choose the command id. The channel runs your handler by sending a custom command request with the same id.
+- The handler only runs while a chat is open, since that is when the SDK is connected.
+- The string you return becomes the response payload. Return an empty string when there is nothing to send back.
+- If the handler throws, the SDK replies with an error status and an empty payload.
+- When the channel sends a command id with no registered handler, the SDK logs a warning and sends no response.
+- Registering the same id again replaces its handler.

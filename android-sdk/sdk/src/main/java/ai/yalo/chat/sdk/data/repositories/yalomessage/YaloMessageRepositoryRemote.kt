@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.CommandRequest
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -13,11 +14,13 @@ import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.log.YaloLog
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.CustomCommandResponse
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
@@ -30,7 +33,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -181,6 +186,39 @@ internal class YaloMessageRepositoryRemote(
                 .setCorrelationId(correlationIds())
                 .setTimestamp(askedAt)
                 .setGuidanceCardRequest(request)
+                .build(),
+        )
+    }
+
+    override fun commandRequests(): Flow<CommandRequest> = source.messages
+        .filterIsInstance<MessageReceived>()
+        .map { received -> received.item.message }
+        .filter { message -> message.payloadCase == SdkMessage.PayloadCase.CUSTOM_COMMAND_REQUEST }
+        .map { message ->
+            CommandRequest(
+                correlationId = message.correlationId,
+                commandId = message.customCommandRequest.commandId,
+                payload = message.customCommandRequest.payload,
+            )
+        }
+
+    override suspend fun answerCommand(correlationId: String, result: Result<String>): Result<Unit> {
+        val answeredAt: Timestamp = Timestamps.fromMillis(now())
+        val status = if (result.isSuccess) {
+            ResponseStatus.RESPONSE_STATUS_SUCCESS
+        } else {
+            ResponseStatus.RESPONSE_STATUS_ERROR
+        }
+        return write(
+            SdkMessage.newBuilder()
+                .setCorrelationId(correlationId)
+                .setTimestamp(answeredAt)
+                .setCustomCommandResponse(
+                    CustomCommandResponse.newBuilder()
+                        .setStatus(status)
+                        .setPayload(result.getOrDefault(""))
+                        .setTimestamp(answeredAt),
+                )
                 .build(),
         )
     }
