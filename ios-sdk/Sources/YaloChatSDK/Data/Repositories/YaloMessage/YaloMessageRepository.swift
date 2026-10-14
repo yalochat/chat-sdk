@@ -41,7 +41,8 @@ protocol YaloMessageRepository: AnyObject {
     /// Commands the channel asks the host app to run, from now on.
     func commandRequests() -> AsyncStream<CommandRequest>
 
-    /// Answers the request with `correlationId`: a success carries the payload
-    /// back, a failure tells the channel the command did not run.
-    func answerCommand(correlationId: String, result: Result<String, Error>) async throws
+    /// Answers `request`: a success carries the payload back, a failure tells
+    /// the channel the command did not run. A cart page that is not the JSON
+    /// the channel expects is answered as a failure.
+    func answerCommand(_ request: CommandRequest, result: Result<String, Error>) async throws
 }

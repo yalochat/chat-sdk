@@ -15,6 +15,7 @@ import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.CustomCommandResponse
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartResponse
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
@@ -24,18 +25,18 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.UpdateCartProductResponse
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
 import com.google.protobuf.Timestamp
+import com.google.protobuf.util.JsonFormat
 import com.google.protobuf.util.Timestamps
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -192,35 +193,76 @@ internal class YaloMessageRepositoryRemote(
 
     override fun commandRequests(): Flow<CommandRequest> = source.messages
         .filterIsInstance<MessageReceived>()
-        .map { received -> received.item.message }
-        .filter { message -> message.payloadCase == SdkMessage.PayloadCase.CUSTOM_COMMAND_REQUEST }
-        .map { message ->
-            CommandRequest(
-                correlationId = message.correlationId,
-                commandId = message.customCommandRequest.commandId,
-                payload = message.customCommandRequest.payload,
+        .mapNotNull { received -> commandRequestOf(received.item.message) }
+
+    override suspend fun answerCommand(request: CommandRequest, result: Result<String>): Result<Unit> {
+        val answeredAt: Timestamp = Timestamps.fromMillis(now())
+        val envelope: SdkMessage.Builder = SdkMessage.newBuilder()
+            .setCorrelationId(request.correlationId)
+            .setTimestamp(answeredAt)
+        when (request.kind) {
+            CommandRequest.Kind.Custom -> envelope.setCustomCommandResponse(
+                CustomCommandResponse.newBuilder()
+                    .setStatus(statusOf(result))
+                    .setPayload(result.getOrDefault(""))
+                    .setTimestamp(answeredAt),
+            )
+
+            CommandRequest.Kind.GetCart -> envelope.setGetCartResponse(cartPageOf(result).setTimestamp(answeredAt))
+
+            CommandRequest.Kind.UpdateCartProduct -> envelope.setUpdateCartProductResponse(
+                UpdateCartProductResponse.newBuilder()
+                    .setStatus(statusOf(result))
+                    .setTimestamp(answeredAt),
             )
         }
+        return write(envelope.build())
+    }
 
-    override suspend fun answerCommand(correlationId: String, result: Result<String>): Result<Unit> {
-        val answeredAt: Timestamp = Timestamps.fromMillis(now())
-        val status = if (result.isSuccess) {
-            ResponseStatus.RESPONSE_STATUS_SUCCESS
-        } else {
-            ResponseStatus.RESPONSE_STATUS_ERROR
+    private fun statusOf(result: Result<*>): ResponseStatus = if (result.isSuccess) {
+        ResponseStatus.RESPONSE_STATUS_SUCCESS
+    } else {
+        ResponseStatus.RESPONSE_STATUS_ERROR
+    }
+
+    /** The page the host returned as JSON, or a failed answer when it could not be read. */
+    private fun cartPageOf(result: Result<String>): GetCartResponse.Builder {
+        val page: GetCartResponse.Builder = GetCartResponse.newBuilder()
+        val read = result.mapCatching { json -> JSON_PARSER.merge(json, page) }
+        read.exceptionOrNull()?.let { error ->
+            if (result.isSuccess) {
+                log.warn(error) { "the cart the host returned is not valid JSON" }
+            }
+            page.clear()
         }
-        return write(
-            SdkMessage.newBuilder()
-                .setCorrelationId(correlationId)
-                .setTimestamp(answeredAt)
-                .setCustomCommandResponse(
-                    CustomCommandResponse.newBuilder()
-                        .setStatus(status)
-                        .setPayload(result.getOrDefault(""))
-                        .setTimestamp(answeredAt),
-                )
-                .build(),
+        return page.setStatus(statusOf(read))
+    }
+
+    /** A request the host app has to answer, or nothing when [message] is not one. */
+    private fun commandRequestOf(message: SdkMessage): CommandRequest? = when (message.payloadCase) {
+        SdkMessage.PayloadCase.CUSTOM_COMMAND_REQUEST -> CommandRequest(
+            correlationId = message.correlationId,
+            commandId = message.customCommandRequest.commandId,
+            payload = message.customCommandRequest.payload,
         )
+
+        // The timestamp is the channel's own bookkeeping, so the host gets the
+        // fields it acts on.
+        SdkMessage.PayloadCase.GET_CART_REQUEST -> CommandRequest(
+            correlationId = message.correlationId,
+            commandId = GET_CART,
+            payload = JSON_PRINTER.print(message.getCartRequest.toBuilder().clearTimestamp()),
+            kind = CommandRequest.Kind.GetCart,
+        )
+
+        SdkMessage.PayloadCase.UPDATE_CART_PRODUCT_REQUEST -> CommandRequest(
+            correlationId = message.correlationId,
+            commandId = UPDATE_CART_PRODUCT,
+            payload = JSON_PRINTER.print(message.updateCartProductRequest.toBuilder().clearTimestamp()),
+            kind = CommandRequest.Kind.UpdateCartProduct,
+        )
+
+        else -> null
     }
 
     override fun close() {
@@ -475,6 +517,17 @@ internal class YaloMessageRepositoryRemote(
     private companion object {
 
         private const val LOG_NAME = "Messages"
+
+        private const val GET_CART = "getCart"
+        private const val UPDATE_CART_PRODUCT = "updateCartProduct"
+
+        // Every field the channel always sends is printed, so a host reading
+        // `units` never finds it missing because it was zero.
+        private val JSON_PRINTER: JsonFormat.Printer = JsonFormat.printer()
+            .alwaysPrintFieldsWithNoPresence()
+            .omittingInsignificantWhitespace()
+
+        private val JSON_PARSER: JsonFormat.Parser = JsonFormat.parser().ignoringUnknownFields()
 
         private const val INITIAL_BACKOFF_MILLIS = 1_000L
         private const val MAX_BACKOFF_MILLIS = 30_000L

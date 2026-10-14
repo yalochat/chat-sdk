@@ -27,6 +27,8 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Translations](#translations)
 - [Methods](#methods)
 - [Custom commands](#custom-commands)
+  - [Returning the cart](#returning-the-cart)
+  - [Updating a cart product](#updating-a-cart-product)
 
 ## Requirements
 
@@ -399,3 +401,64 @@ Notes:
 - If the handler throws, the SDK replies with an error status and an empty payload.
 - When the channel sends a command id with no registered handler, the SDK logs a warning and sends no response.
 - Registering the same id again replaces its handler.
+
+### Returning the cart
+
+`getCart` and `updateCartProduct` are built-in command ids for the cart. You register them with `registerCommand` like any other command, and their payloads are JSON.
+
+`getCart` is sent when the channel asks for the products in the cart. Return the page of the cart as JSON.
+
+```kotlin
+client.registerCommand("getCart") { payload ->
+    // payload: {"cursor":"page-2","pageSize":20}
+    val request = JSONObject(payload)
+    // Your own cart, turned into the products below as JSON objects.
+    val products: List<JSONObject> = cart.page(request.optString("cursor"))
+    JSONObject().put("products", JSONArray(products)).toString()
+}
+
+client.registerCommand("updateCartProduct") { payload ->
+    // payload: {"sku":"WATER-1L","units":2.0}
+    val change = JSONObject(payload)
+    cart.set(change.getString("sku"), change.getDouble("units"))
+    ""
+}
+```
+
+The `getCart` payload has these fields:
+
+- `cursor` (string, optional): the page the channel wants. Left out for the first page.
+- `pageSize` (number, optional): the most products the channel wants in the page.
+
+Return a JSON object with these fields:
+
+- `products` (array): the products in the page. Each product has:
+  - `sku` (string): unique product identifier.
+  - `name` (string): product name.
+  - `price` (number): base price.
+  - `imagesUrl` (string array): image URLs for the product.
+  - `salePrice` (number, optional): sale price. Takes precedence over `price`.
+  - `subunits` (number): units contained in one unit, for example bottles inside a case.
+  - `unitStep` (number): increment used when changing the unit quantity.
+  - `unitName` (string): unit name in ICU message format, for example `{amount, plural, one {case} other {cases}}`.
+  - `subunitName` (string, optional): subunit name in the same format.
+  - `subunitStep` (number): increment used when changing the subunit quantity.
+  - `unitsAdded` (number): units currently in the cart.
+  - `subunitsAdded` (number): subunits currently in the cart.
+- `pageInfo` (object, optional): leave it out when your cart is not paginated. It has:
+  - `pageSize` (number): products requested per page.
+  - `cursor` (string, optional): cursor that produced this page.
+  - `nextCursor` (string, optional): cursor for the next page. Left out on the last page.
+  - `prevCursor` (string, optional): cursor for the previous page. Left out on the first page.
+
+If what you return is not valid JSON, the SDK replies with an error status.
+
+### Updating a cart product
+
+`updateCartProduct` is sent when the channel changes how much of a product is in the cart. The payload has these fields:
+
+- `sku` (string): the product to change.
+- `units` (number): units of the product in the cart after the change.
+- `subunits` (number, optional): subunits after the change. Left out when the product has no subunits.
+
+The SDK replies with a success status when your handler returns, and with an error status when it throws. What the handler returns is ignored.

@@ -151,3 +151,56 @@ describe('Chat commands', () => {
     );
   });
 });
+
+describe('Chat cart commands', () => {
+  const resolveCommand = jest.spyOn(Commands, 'resolveCommand');
+
+  beforeEach(() => {
+    resolveCommand.mockReset();
+  });
+
+  async function askForCommand(command: string, payload: string) {
+    await fireEvent(screen.getByTestId('chat'), 'command', {
+      nativeEvent: { requestId: 'r-1', command, payload },
+    });
+  }
+
+  it('hands getCart the request and answers with the cart as JSON', async () => {
+    const cart = new YaloChatClient(client.config);
+    const getCart = jest.fn(async () => ({
+      products: [],
+      pageInfo: { pageSize: 20, nextCursor: 'page-2' },
+    }));
+    cart.registerCommand('getCart', getCart);
+    await render(<Chat client={cart} testID="chat" />);
+
+    await askForCommand('getCart', '{"cursor":"page-1","pageSize":20}');
+
+    expect(getCart).toHaveBeenCalledWith({ cursor: 'page-1', pageSize: 20 });
+    const answer = resolveCommand.mock.calls[0]?.[3] as string;
+    expect(JSON.parse(answer)).toEqual({
+      products: [],
+      pageInfo: { pageSize: 20, nextCursor: 'page-2' },
+    });
+  });
+
+  it('hands updateCartProduct the change and answers with an empty payload', async () => {
+    const cart = new YaloChatClient(client.config);
+    const updateCartProduct = jest.fn(() => {});
+    cart.registerCommand('updateCartProduct', updateCartProduct);
+    await render(<Chat client={cart} testID="chat" />);
+
+    await askForCommand('updateCartProduct', '{"sku":"WATER-1L","units":2}');
+
+    expect(updateCartProduct).toHaveBeenCalledWith({
+      sku: 'WATER-1L',
+      units: 2,
+    });
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      'r-1',
+      true,
+      ''
+    );
+  });
+});

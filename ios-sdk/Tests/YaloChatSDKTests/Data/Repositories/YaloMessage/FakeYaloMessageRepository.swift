@@ -69,8 +69,8 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
         return stream
     }
 
-    func answerCommand(correlationId: String, result: Result<String, Error>) async throws {
-        commandAnswers.append((correlationId, result))
+    func answerCommand(_ request: CommandRequest, result: Result<String, Error>) async throws {
+        commandAnswers.append((request.correlationId, result))
     }
 
     func requestGuidanceCard(openContext: [String: String]) async throws {

@@ -126,6 +126,29 @@ Notes:
 - When the channel sends a command id with no registered handler, the SDK logs a warning and sends no response.
 - Registering the same id again replaces its handler.
 
+### Returning the cart
+
+`getCart` and `updateCartProduct` are built-in command ids for the cart. Their handlers get and return typed objects instead of strings.
+
+```tsx
+client.registerCommand('getCart', async ({ cursor, pageSize }) => {
+  const products = await loadCart(cursor, pageSize);
+  return {
+    products,
+    // Optional. Include it to support pagination.
+    pageInfo: { pageSize: 20, nextCursor: 'page-2' },
+  };
+});
+
+client.registerCommand('updateCartProduct', async ({ sku, units, subunits }) => {
+  await setCartQuantity(sku, units, subunits);
+});
+```
+
+- `getCart` receives `{ cursor?, pageSize? }` and returns `{ products, pageInfo? }`. The `CartProduct` and `CartPageInfo` types list every field.
+- `updateCartProduct` receives `{ sku, units, subunits? }`. `units` and `subunits` are the totals after the change.
+- If either handler throws or rejects, the SDK replies with an error status.
+
 ## Theming
 
 Every value is optional. Anything left out keeps the platform default, which follows light and dark mode.

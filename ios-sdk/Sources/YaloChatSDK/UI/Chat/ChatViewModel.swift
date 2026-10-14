@@ -349,7 +349,7 @@ final class ChatViewModel: ObservableObject {
             result = .failure(error)
         }
         do {
-            try await yaloMessages.answerCommand(correlationId: request.correlationId, result: result)
+            try await yaloMessages.answerCommand(request, result: result)
         } catch {
             log.error("could not answer command \(request.commandId)", error: error)
         }

@@ -55,10 +55,11 @@ internal interface YaloMessageRepository {
     fun commandRequests(): Flow<CommandRequest>
 
     /**
-     * Answers the request with [correlationId]: a success carries the payload
-     * back, a failure tells the channel the command did not run.
+     * Answers [request]: a success carries the payload back, a failure tells
+     * the channel the command did not run. A cart page that is not the JSON
+     * the channel expects is answered as a failure.
      */
-    suspend fun answerCommand(correlationId: String, result: Result<String>): Result<Unit>
+    suspend fun answerCommand(request: CommandRequest, result: Result<String>): Result<Unit>
 
     /** Ends the conversation and forgets whatever was waiting to be sent. */
     fun close()

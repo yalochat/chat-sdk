@@ -420,7 +420,7 @@ internal class ChatViewModel(
             log.error(error) { "command ${request.commandId} failed" }
             Result.failure(error)
         }
-        yaloMessageRepository.answerCommand(request.correlationId, result).onFailure { error ->
+        yaloMessageRepository.answerCommand(request, result).onFailure { error ->
             log.error(error) { "could not answer command ${request.commandId}" }
         }
     }

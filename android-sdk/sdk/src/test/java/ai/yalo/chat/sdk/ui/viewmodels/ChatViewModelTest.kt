@@ -1227,8 +1227,8 @@ class ChatViewModelTest {
             commands.tryEmit(request)
         }
 
-        override suspend fun answerCommand(correlationId: String, result: Result<String>): Result<Unit> {
-            commandAnswers.add(correlationId to result)
+        override suspend fun answerCommand(request: CommandRequest, result: Result<String>): Result<Unit> {
+            commandAnswers.add(request.correlationId to result)
             return Result.success(Unit)
         }
 
