@@ -218,6 +218,193 @@ struct YaloMessageRepositoryRemoteTests {
         }
     }
 
+    @Test func readsACommandTheChannelAsksFor() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        let requests: AsyncStream<CommandRequest> = repository.commandRequests()
+        let messages: AsyncStream<ChatMessage> = repository.messages()
+        #expect(await eventually { await service.listenerCount == 2 })
+        var command: Yalo_ExternalChannel_InApp_Sdk_V2_CustomCommandRequest = .init()
+        command.commandID = "getStore"
+        command.payload = "{\"id\":1}"
+        var item: PollMessageItem = PollMessageItem()
+        item.message.correlationID = "c-1"
+        item.message.payload = .customCommandRequest(command)
+
+        await service.emit(item)
+        await service.emit(Self.textItem())
+
+        var iterator: AsyncStream<CommandRequest>.Iterator = requests.makeAsyncIterator()
+        #expect(await iterator.next() == CommandRequest(correlationId: "c-1", commandId: "getStore", payload: "{\"id\":1}"))
+        var messageIterator: AsyncStream<ChatMessage>.Iterator = messages.makeAsyncIterator()
+        #expect(await messageIterator.next()?.content == "Hello")
+    }
+
+    @Test func answersACommandThatRan() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+
+        try await repository.answerCommand(Self.custom, result: .success("{\"ok\":true}"))
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .customCommandResponse(let response) = sent.payload else {
+            Issue.record("expected a custom command response")
+            return
+        }
+        #expect(sent.correlationID == "c-1")
+        #expect(response.status == .success)
+        #expect(response.payload == "{\"ok\":true}")
+        repository.close()
+    }
+
+    @Test func answersACommandThatFailed() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+
+        try await repository.answerCommand(Self.custom, result: .failure(URLError(.badServerResponse)))
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .customCommandResponse(let response) = sent.payload else {
+            Issue.record("expected a custom command response")
+            return
+        }
+        #expect(response.status == .error)
+        #expect(response.payload.isEmpty)
+        repository.close()
+    }
+
+    @Test func refusesToAnswerACommandWhileClosed() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+
+        await #expect(throws: YaloMessageRepositoryError.closed) {
+            try await repository.answerCommand(Self.custom, result: .success(""))
+        }
+    }
+
+    private static let custom: CommandRequest = CommandRequest(correlationId: "c-1", commandId: "getStore", payload: "")
+    private static let cart: CommandRequest = CommandRequest(correlationId: "c-1", commandId: "getCart", payload: "{}", kind: .getCart)
+
+    /// The first command request the repository reads out of `message`.
+    private func commandRequest(from message: SdkMessage) async -> CommandRequest? {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let requests: AsyncStream<CommandRequest> = repository(service).commandRequests()
+        _ = await eventually { await service.listenerCount == 1 }
+        var item: PollMessageItem = PollMessageItem()
+        item.message = message
+        await service.emit(item)
+        var iterator: AsyncStream<CommandRequest>.Iterator = requests.makeAsyncIterator()
+        return await iterator.next()
+    }
+
+    private func object(of json: String?) throws -> NSDictionary {
+        try #require(try JSONSerialization.jsonObject(with: Data((json ?? "").utf8)) as? NSDictionary)
+    }
+
+    @Test func handsACartRequestToTheGetCartCommandAsJson() async throws {
+        var message: SdkMessage = SdkMessage()
+        message.correlationID = "c-1"
+        message.payload = .getCartRequest(.with { request in
+            request.cursor = "page-2"
+            request.pageSize = 20
+            request.timestamp = Google_Protobuf_Timestamp(date: Self.now)
+        })
+
+        let request: CommandRequest = try #require(await commandRequest(from: message))
+
+        #expect(request.correlationId == "c-1")
+        #expect(request.commandId == "getCart")
+        #expect(try object(of: request.payload) == ["cursor": "page-2", "pageSize": 20])
+    }
+
+    @Test func handsTheFirstCartPageRequestAsAnEmptyObject() async throws {
+        var message: SdkMessage = SdkMessage()
+        message.payload = .getCartRequest(.init())
+
+        #expect(await commandRequest(from: message)?.payload == "{}")
+    }
+
+    @Test func handsACartChangeToTheUpdateCartProductCommandAsJson() async throws {
+        var message: SdkMessage = SdkMessage()
+        message.payload = .updateCartProductRequest(.with { request in
+            request.sku = "WATER-1L"
+            request.units = 0
+        })
+
+        let request: CommandRequest = try #require(await commandRequest(from: message))
+
+        #expect(request.commandId == "updateCartProduct")
+        #expect(try object(of: request.payload) == ["sku": "WATER-1L", "units": 0])
+    }
+
+    @Test func answersTheCartWithTheProductsTheHostReturned() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+        let page: String = """
+            {"products":[{"sku":"WATER-1L","name":"Water","price":12.5,"imagesUrl":["https://cdn/w.png"],\
+            "salePrice":10,"unitsAdded":2}],"pageInfo":{"pageSize":20,"nextCursor":"page-2"},"extra":true}
+            """
+
+        try await repository.answerCommand(Self.cart, result: .success(page))
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .getCartResponse(let cart) = sent.payload else {
+            Issue.record("expected a get cart response")
+            return
+        }
+        #expect(sent.correlationID == "c-1")
+        #expect(cart.status == .success)
+        let product = try #require(cart.products.first)
+        #expect(product.sku == "WATER-1L")
+        #expect(product.price == 12.5)
+        #expect(product.salePrice == 10)
+        #expect(product.unitsAdded == 2)
+        #expect(product.imagesURL == ["https://cdn/w.png"])
+        #expect(cart.pageInfo.pageSize == 20)
+        #expect(cart.pageInfo.nextCursor == "page-2")
+        repository.close()
+    }
+
+    @Test(arguments: [Result<String, Error>.success("not json"), .failure(URLError(.cancelled))])
+    func answersTheCartAsFailedWhenThereIsNoPageToSend(result: Result<String, Error>) async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+
+        try await repository.answerCommand(Self.cart, result: result)
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .getCartResponse(let cart) = sent.payload else {
+            Issue.record("expected a get cart response")
+            return
+        }
+        #expect(cart.status == .error)
+        #expect(cart.products.isEmpty)
+        repository.close()
+    }
+
+    @Test func answersACartChangeWithWhetherItWasApplied() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        let change: CommandRequest = CommandRequest(correlationId: "c-1", commandId: "updateCartProduct", payload: "", kind: .updateCartProduct)
+        repository.connect()
+
+        try await repository.answerCommand(change, result: .success(""))
+        try await repository.answerCommand(change, result: .failure(URLError(.cancelled)))
+
+        let statuses = await service.sent.compactMap { message -> Yalo_ExternalChannel_InApp_Sdk_V2_ResponseStatus? in
+            guard case .updateCartProductResponse(let response) = message.payload else {
+                return nil
+            }
+            return response.status
+        }
+        #expect(statuses == [.success, .error])
+        repository.close()
+    }
+
     @Test func sendsTextInTheWireFormat() async throws {
         let service: FakeYaloMessageService = FakeYaloMessageService()
         let repository: YaloMessageRepositoryRemote = repository(service)

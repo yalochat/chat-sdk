@@ -7,6 +7,7 @@ import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.CommandRequest
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -16,13 +17,17 @@ import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ChatStatusRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.CustomCommandRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.UpdateCartProductRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VideoMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
@@ -364,6 +369,130 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun readsACommandTheChannelAsksFor() = runTest(scheduler) {
+        val requests = commandRequests(pollItem(commandRequest("getStore", """{"id":1}""", correlationId = "c-1")))
+
+        assertEquals(listOf(CommandRequest("c-1", "getStore", """{"id":1}""")), requests)
+    }
+
+    @Test
+    fun keepsCommandsOutOfTheConversation() = runTest(scheduler) {
+        assertEquals(emptyList<ChatMessage>(), received(pollItem(commandRequest("getStore"))))
+    }
+
+    @Test
+    fun keepsMessagesOutOfTheCommands() = runTest(scheduler) {
+        assertEquals(emptyList<CommandRequest>(), commandRequests(pollItem(textMessage())))
+    }
+
+    @Test
+    fun answersACommandThatRan() = runTest(scheduler) {
+        connected().answerCommand(CommandRequest("c-1", "getStore", ""), Result.success("""{"ok":true}"""))
+
+        val answer = source.sent.single()
+        assertEquals("c-1", answer.correlationId)
+        assertEquals(ResponseStatus.RESPONSE_STATUS_SUCCESS, answer.customCommandResponse.status)
+        assertEquals("""{"ok":true}""", answer.customCommandResponse.payload)
+    }
+
+    @Test
+    fun answersACommandThatFailed() = runTest(scheduler) {
+        connected().answerCommand(CommandRequest("c-1", "getStore", ""), Result.failure(IllegalStateException("no store")))
+
+        val answer = source.sent.single().customCommandResponse
+        assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, answer.status)
+        assertEquals("", answer.payload)
+    }
+
+    @Test
+    fun handsACartRequestToTheGetCartCommandAsJson() = runTest(scheduler) {
+        val cart = SdkMessage.newBuilder()
+            .setCorrelationId("c-1")
+            .setGetCartRequest(
+                GetCartRequest.newBuilder()
+                    .setCursor("page-2")
+                    .setPageSize(20)
+                    .setTimestamp(Timestamps.fromMillis(SENT_AT)),
+            )
+            .build()
+
+        val request = commandRequests(pollItem(cart)).single()
+
+        assertEquals(listOf("c-1", "getCart"), listOf(request.correlationId, request.commandId))
+        assertEquals("""{"cursor":"page-2","pageSize":20}""", request.payload)
+    }
+
+    @Test
+    fun handsTheFirstCartPageRequestAsAnEmptyObject() = runTest(scheduler) {
+        val cart = SdkMessage.newBuilder().setGetCartRequest(GetCartRequest.getDefaultInstance()).build()
+
+        assertEquals("{}", commandRequests(pollItem(cart)).single().payload)
+    }
+
+    @Test
+    fun handsACartChangeToTheUpdateCartProductCommandAsJson() = runTest(scheduler) {
+        val change = SdkMessage.newBuilder()
+            .setUpdateCartProductRequest(
+                UpdateCartProductRequest.newBuilder().setSku("WATER-1L").setUnits(0.0),
+            )
+            .build()
+
+        val request = commandRequests(pollItem(change)).single()
+
+        assertEquals("updateCartProduct", request.commandId)
+        assertEquals("""{"sku":"WATER-1L","units":0.0}""", request.payload)
+    }
+
+    @Test
+    fun answersTheCartWithTheProductsTheHostReturned() = runTest(scheduler) {
+        val page = """
+            {"products":[{"sku":"WATER-1L","name":"Water","price":12.5,"imagesUrl":["https://cdn/w.png"],
+            "salePrice":10,"unitsAdded":2}],"pageInfo":{"pageSize":20,"nextCursor":"page-2"},"extra":true}
+        """.trimIndent()
+
+        connected().answerCommand(cartRequest(), Result.success(page))
+
+        val answer = source.sent.single()
+        assertEquals("c-1", answer.correlationId)
+        val cart = answer.getCartResponse
+        assertEquals(ResponseStatus.RESPONSE_STATUS_SUCCESS, cart.status)
+        val product = cart.productsList.single()
+        assertEquals(listOf("WATER-1L", "Water", 12.5, 10.0, 2.0), listOf(product.sku, product.name, product.price, product.salePrice, product.unitsAdded))
+        assertEquals(listOf("https://cdn/w.png"), product.imagesUrlList)
+        assertEquals(listOf(20, "page-2"), listOf(cart.pageInfo.pageSize, cart.pageInfo.nextCursor))
+    }
+
+    @Test
+    fun answersTheCartAsFailedWhenTheHostReturnedSomethingThatIsNotJson() = runTest(scheduler) {
+        connected().answerCommand(cartRequest(), Result.success("not json"))
+
+        val cart = source.sent.single().getCartResponse
+        assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, cart.status)
+        assertEquals(0, cart.productsCount)
+    }
+
+    @Test
+    fun answersTheCartAsFailedWhenTheHandlerFailed() = runTest(scheduler) {
+        connected().answerCommand(cartRequest(), Result.failure(IllegalStateException("closed")))
+
+        assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, source.sent.single().getCartResponse.status)
+    }
+
+    @Test
+    fun answersACartChangeWithWhetherItWasApplied() = runTest(scheduler) {
+        val change = CommandRequest("c-1", "updateCartProduct", "", CommandRequest.Kind.UpdateCartProduct)
+        val repository = connected()
+
+        repository.answerCommand(change, Result.success(""))
+        repository.answerCommand(change, Result.failure(IllegalStateException("out of stock")))
+
+        assertEquals(
+            listOf(ResponseStatus.RESPONSE_STATUS_SUCCESS, ResponseStatus.RESPONSE_STATUS_ERROR),
+            source.sent.map { it.updateCartProductResponse.status },
+        )
+    }
+
+    @Test
     fun opensTheLineToTheChannel() = runTest(scheduler) {
         connected()
 
@@ -696,6 +825,32 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(emptyList<ChatMessage>(), received)
     }
+
+    private fun TestScope.commandRequests(vararg items: PollMessageItem): List<CommandRequest> {
+        val requests = mutableListOf<CommandRequest>()
+        val collector = launch {
+            repository().commandRequests().collect { request -> requests.add(request) }
+        }
+        runCurrent()
+        items.forEach { item -> source.receive(MessageReceived(item)) }
+        runCurrent()
+        collector.cancel()
+        return requests
+    }
+
+    private fun cartRequest(): CommandRequest =
+        CommandRequest("c-1", "getCart", "{}", CommandRequest.Kind.GetCart)
+
+    private fun commandRequest(
+        commandId: String,
+        payload: String = "",
+        correlationId: String = "c-1",
+    ): SdkMessage = SdkMessage.newBuilder()
+        .setCorrelationId(correlationId)
+        .setCustomCommandRequest(
+            CustomCommandRequest.newBuilder().setCommandId(commandId).setPayload(payload),
+        )
+        .build()
 
     private fun sentText(): String = source.sent.single().textMessageRequest.content.text
 

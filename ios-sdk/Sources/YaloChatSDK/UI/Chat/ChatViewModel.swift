@@ -59,6 +59,9 @@ final class ChatViewModel: ObservableObject {
     private let run: Run
     private let openContext: [String: String]
     private let welcomeMessageType: WelcomeMessageType
+    /// The handler the host registered for a command, or nil when it registered none.
+    private let commandHandlers: (String) -> CommandHandler?
+    private let log: YaloLog
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
     private let replyTimeout: TimeInterval
@@ -85,6 +88,8 @@ final class ChatViewModel: ObservableObject {
         run: Run,
         openContext: [String: String] = [:],
         welcomeMessageType: WelcomeMessageType = .none,
+        commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil },
+        logLevel: LogLevel = .warn,
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
     ) {
@@ -100,6 +105,8 @@ final class ChatViewModel: ObservableObject {
         self.run = run
         self.openContext = openContext
         self.welcomeMessageType = welcomeMessageType
+        self.commandHandlers = commandHandlers
+        self.log = YaloLog("Chat", level: logLevel)
         self.now = now
         self.replyTimeout = replyTimeout
         voice.recording.assign(to: &$recording)
@@ -132,6 +139,15 @@ final class ChatViewModel: ObservableObject {
         }
         // Listening comes first, so nothing said while connecting is missed.
         let incoming: AsyncStream<ChatMessage> = yaloMessages.messages()
+        let commands: AsyncStream<CommandRequest> = yaloMessages.commandRequests()
+        let runningCommands: Task<Void, Never> = Task { [weak self] in
+            for await request in commands {
+                // Each runs on its own, so a slow command never holds up the next.
+                Task { [weak self] in
+                    await self?.runCommand(request)
+                }
+            }
+        }
         yaloMessages.connect()
         // Storage failing says nothing about whether the person has been here
         // before, and greeting them twice is worse than not greeting them.
@@ -141,6 +157,7 @@ final class ChatViewModel: ObservableObject {
         for await message in incoming {
             await receive(message)
         }
+        runningCommands.cancel()
         yaloMessages.close()
         voice.release()
     }
@@ -313,6 +330,28 @@ final class ChatViewModel: ObservableObject {
             yaloMessages.resume()
         default:
             break
+        }
+    }
+
+    /// Runs the host's handler for `request` and answers the channel with what
+    /// it returned. A command the host never registered gets no answer, the
+    /// same as on the web.
+    private func runCommand(_ request: CommandRequest) async {
+        guard let handler = commandHandlers(request.commandId) else {
+            log.warn("no handler registered for command \(request.commandId)")
+            return
+        }
+        let result: Result<String, Error>
+        do {
+            result = .success(try await handler(request.payload))
+        } catch {
+            log.error("command \(request.commandId) failed", error: error)
+            result = .failure(error)
+        }
+        do {
+            try await yaloMessages.answerCommand(request, result: result)
+        } catch {
+            log.error("could not answer command \(request.commandId)", error: error)
         }
     }
 

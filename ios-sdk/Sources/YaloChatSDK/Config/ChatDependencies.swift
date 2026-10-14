@@ -105,7 +105,7 @@ final class ChatDependencies {
         logLevel: config.logLevel
     )
 
-    func chatViewModel() -> ChatViewModel {
+    func chatViewModel(commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil }) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages,
             yaloMessages: yaloMessages,
@@ -118,7 +118,9 @@ final class ChatDependencies {
             ephemeralDirectory: ephemeralDirectory,
             run: ChatViewModel.run,
             openContext: config.openContext,
-            welcomeMessageType: config.welcomeMessageType
+            welcomeMessageType: config.welcomeMessageType,
+            commandHandlers: commandHandlers,
+            logLevel: config.logLevel
         )
     }
 }

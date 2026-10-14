@@ -12,7 +12,17 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
     private(set) var sent: [ChatMessage] = []
     private(set) var guidanceCardRequests: [[String: String]] = []
     var sendError: Error?
+    private(set) var commandAnswers: [(correlationId: String, result: Result<String, Error>)] = []
     private var listener: AsyncStream<ChatMessage>.Continuation?
+    private var commandListener: AsyncStream<CommandRequest>.Continuation?
+
+    var isListeningForCommands: Bool {
+        commandListener != nil
+    }
+
+    func askForCommand(_ request: CommandRequest) {
+        commandListener?.yield(request)
+    }
 
     var isListening: Bool {
         listener != nil
@@ -50,6 +60,17 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
             throw sendError
         }
         sent.append(message)
+    }
+
+    func commandRequests() -> AsyncStream<CommandRequest> {
+        let (stream, continuation): (AsyncStream<CommandRequest>, AsyncStream<CommandRequest>.Continuation) =
+            AsyncStream.makeStream()
+        commandListener = continuation
+        return stream
+    }
+
+    func answerCommand(_ request: CommandRequest, result: Result<String, Error>) async throws {
+        commandAnswers.append((request.correlationId, result))
     }
 
     func requestGuidanceCard(openContext: [String: String]) async throws {

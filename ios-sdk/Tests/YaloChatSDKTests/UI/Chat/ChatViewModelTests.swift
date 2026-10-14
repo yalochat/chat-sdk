@@ -38,7 +38,8 @@ struct ChatViewModelTests {
         sessionId: String = "session-1",
         ephemeral: Bool = false,
         chatMessages: ChatMessageService? = nil,
-        welcomeMessageType: WelcomeMessageType = .none
+        welcomeMessageType: WelcomeMessageType = .none,
+        commands: [String: CommandHandler] = [:]
     ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages ?? storage,
@@ -53,6 +54,7 @@ struct ChatViewModelTests {
             run: run,
             openContext: openContext,
             welcomeMessageType: welcomeMessageType,
+            commandHandlers: { command in commands[command] },
             now: { Self.now },
             replyTimeout: replyTimeout
         )
@@ -73,6 +75,54 @@ struct ChatViewModelTests {
         }
 
         #expect(await eventually { viewModel.messages.map(\.content) == ["first", "second"] })
+        running.cancel()
+    }
+
+    @Test func runsTheCommandTheChannelAsksForAndAnswersWithItsResult() async throws {
+        let viewModel: ChatViewModel = viewModel(commands: ["getStore": { payload in "store for \(payload)" }])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.isListeningForCommands })
+
+        channel.askForCommand(CommandRequest(correlationId: "c-1", commandId: "getStore", payload: "42"))
+
+        #expect(await eventually { !channel.commandAnswers.isEmpty })
+        let answer = try #require(channel.commandAnswers.first)
+        #expect(answer.correlationId == "c-1")
+        #expect(try answer.result.get() == "store for 42")
+        running.cancel()
+    }
+
+    @Test func answersAFailedCommandWhenItsHandlerThrows() async throws {
+        let viewModel: ChatViewModel = viewModel(commands: ["getStore": { _ in throw URLError(.cancelled) }])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.isListeningForCommands })
+
+        channel.askForCommand(CommandRequest(correlationId: "c-1", commandId: "getStore", payload: ""))
+
+        #expect(await eventually { !channel.commandAnswers.isEmpty })
+        let answer = try #require(channel.commandAnswers.first)
+        #expect(throws: URLError.self) {
+            try answer.result.get()
+        }
+        running.cancel()
+    }
+
+    @Test func leavesACommandNobodyRegisteredUnanswered() async throws {
+        let viewModel: ChatViewModel = viewModel(commands: ["known": { _ in "done" }])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.isListeningForCommands })
+
+        channel.askForCommand(CommandRequest(correlationId: "c-1", commandId: "unknown", payload: ""))
+        channel.askForCommand(CommandRequest(correlationId: "c-2", commandId: "known", payload: ""))
+
+        #expect(await eventually { !channel.commandAnswers.isEmpty })
+        #expect(channel.commandAnswers.map(\.correlationId) == ["c-2"])
         running.cancel()
     }
 
