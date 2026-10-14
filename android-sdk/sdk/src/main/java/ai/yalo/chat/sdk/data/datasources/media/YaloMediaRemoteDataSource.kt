@@ -61,7 +61,7 @@ internal class YaloMediaRemoteDataSource(
                 when (response.code) {
                     HTTP_CREATED -> {
                         log.info { "uploaded" }
-                        Result.success(media(response.body.string()))
+                        Result.success(media(response.body!!.string()))
                     }
                     HTTP_UNAUTHORIZED -> {
                         log.info { "the token was refused" }
@@ -99,7 +99,7 @@ internal class YaloMediaRemoteDataSource(
             execute(request) { response ->
                 when {
                     response.isSuccessful -> {
-                        val file = store(response.body.source(), target)
+                        val file = store(response.body!!.source(), target)
                         log.info { "downloaded ${file.length()} bytes" }
                         Result.success(file)
                     }

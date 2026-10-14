@@ -5,9 +5,9 @@ import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.domain.models.AuthToken
 import kotlinx.coroutines.runBlocking
-import mockwebserver3.MockResponse
-import mockwebserver3.MockWebServer
-import mockwebserver3.RecordedRequest
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.json.JSONObject
@@ -87,7 +87,7 @@ class YaloMessageAuthRemoteDataSourceTest {
 
         val request = server.takeRequest()
         val body = JSONObject(request.text())
-        assertEquals("/v1/channels/auth", request.url.encodedPath)
+        assertEquals("/v1/channels/auth", requireNotNull(request.requestUrl).encodedPath)
         assertEquals(
             listOf("channel-1", "org-1", NOW / 1_000),
             listOf(
@@ -118,7 +118,7 @@ class YaloMessageAuthRemoteDataSourceTest {
 
     @Test
     fun reportsAFailureWhenTheBackendWillNotAuthenticate() = runBlocking {
-        server.enqueue(MockResponse.Builder().code(401).build())
+        server.enqueue(MockResponse().setResponseCode(401))
 
         val result = dataSource().authenticate()
 
@@ -150,7 +150,7 @@ class YaloMessageAuthRemoteDataSourceTest {
         val result = dataSource().refresh("the-refresh-token")
 
         val request = server.takeRequest()
-        assertEquals("/v1/channels/oauth/token", request.url.encodedPath)
+        assertEquals("/v1/channels/oauth/token", requireNotNull(request.requestUrl).encodedPath)
         assertEquals("grant_type=refresh_token&refresh_token=the-refresh-token", request.text())
         assertEquals(AuthToken("refreshed", "the-next-one", NOW + 3_600_000), result.getOrNull())
     }
@@ -166,7 +166,7 @@ class YaloMessageAuthRemoteDataSourceTest {
 
     @Test
     fun reportsAFailureWhenTheBackendWillNotRefresh() = runBlocking {
-        server.enqueue(MockResponse.Builder().code(403).build())
+        server.enqueue(MockResponse().setResponseCode(403))
 
         val result = dataSource().refresh("stale")
 
@@ -174,9 +174,7 @@ class YaloMessageAuthRemoteDataSourceTest {
         assertTrue(result.exceptionOrNull()?.message?.contains("403") == true)
     }
 
-    // The recorded body is nullable because a request need not carry one.
-    // Every request these tests look at does.
-    private fun RecordedRequest.text(): String = requireNotNull(body).utf8()
+    private fun RecordedRequest.text(): String = body.readUtf8()
 
     private fun dataSource(
         config: YaloChatClientConfig = config(),
@@ -205,10 +203,9 @@ class YaloMessageAuthRemoteDataSourceTest {
         """{"access_token":"$accessToken","refresh_token":"$refreshToken","expires_in":$expiresIn}""",
     )
 
-    private fun response(body: String): MockResponse = MockResponse.Builder()
-        .code(200)
-        .body(body)
-        .build()
+    private fun response(body: String): MockResponse = MockResponse()
+        .setResponseCode(200)
+        .setBody(body)
 
     private companion object {
         const val NOW = 1_700_000_000_000L

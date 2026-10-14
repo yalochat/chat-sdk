@@ -30,14 +30,21 @@ val apiBaseUrl: String = providers.environmentVariable("YALO_API_BASE_URL").orNu
 val protoSources = "../../proto/kotlin"
 val generatedProtoClasses = "ai/yalo/chat/sdk/internal/proto/**"
 
+// Apps on React Native 0.76 build with Kotlin 1.9, which reads metadata
+// at most one version ahead, so the SDK and its stdlib stay at 2.0.
 kotlin {
     explicitApi()
+    coreLibrariesVersion = "2.0.21"
+    compilerOptions {
+        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_0)
+    }
 }
 
 android {
     namespace = "ai.yalo.chat.sdk"
     compileSdk {
-        version = release(36)
+        version = release(35)
     }
 
     sourceSets {
@@ -148,7 +155,6 @@ tasks.register<JacocoReport>("sdkCoverageReport") {
 }
 
 dependencies {
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

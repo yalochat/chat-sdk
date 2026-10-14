@@ -4,9 +4,9 @@ package ai.yalo.chat.sdk.data.datasources.media
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.domain.models.MessageType
 import kotlinx.coroutines.runBlocking
-import mockwebserver3.MockResponse
-import mockwebserver3.MockWebServer
-import mockwebserver3.SocketEffect
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
 import okhttp3.OkHttpClient
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -50,7 +50,7 @@ class YaloMediaRemoteDataSourceTest {
         dataSource().upload(content(), TOKEN)
 
         val request = server.takeRequest()
-        assertEquals("/v1/channels/all/media", request.url.encodedPath)
+        assertEquals("/v1/channels/all/media", requireNotNull(request.requestUrl).encodedPath)
         assertEquals("Bearer access", request.headers["Authorization"])
     }
 
@@ -60,7 +60,7 @@ class YaloMediaRemoteDataSourceTest {
 
         dataSource().upload(content(fileName = "holiday.jpg", payload = "the-bytes"), TOKEN)
 
-        val body = requireNotNull(server.takeRequest().body).utf8()
+        val body = server.takeRequest().body.readUtf8()
         assertTrue(body.contains("""name="file"; filename="holiday.jpg""""))
         assertTrue(body.contains("Content-Type: image/jpeg"))
         assertTrue(body.contains("the-bytes"))
@@ -206,11 +206,10 @@ class YaloMediaRemoteDataSourceTest {
     fun leavesNothingBehindWhenADownloadStopsHalfway() = runBlocking {
         repeat(2) {
             server.enqueue(
-                MockResponse.Builder()
-                    .code(200)
-                    .body("a".repeat(1_024))
-                    .onResponseBody(SocketEffect.CloseSocket())
-                    .build(),
+                MockResponse()
+                    .setResponseCode(200)
+                    .setBody("a".repeat(1_024))
+                    .setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY),
             )
         }
 
@@ -287,7 +286,7 @@ class YaloMediaRemoteDataSourceTest {
     )
 
     private fun response(code: Int, body: String = ""): MockResponse =
-        MockResponse.Builder().code(code).body(body).build()
+        MockResponse().setResponseCode(code).setBody(body)
 
     private companion object {
         private const val TOKEN = "access"

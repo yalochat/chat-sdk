@@ -84,7 +84,7 @@ internal class YaloMessageAuthRemoteDataSource(
                     log.warn { "$failure: ${response.code}" }
                     return@use Result.failure(IOException("$failure: ${response.code}"))
                 }
-                Result.success(token(response.body.string(), heldRefreshToken))
+                Result.success(token(response.body!!.string(), heldRefreshToken))
             }
         } catch (error: IOException) {
             log.warn(error) { failure }

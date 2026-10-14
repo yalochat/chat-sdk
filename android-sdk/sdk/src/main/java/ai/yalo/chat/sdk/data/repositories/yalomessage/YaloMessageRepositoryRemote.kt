@@ -135,6 +135,9 @@ internal class YaloMessageRepositoryRemote(
         while (true) {
             val token = auth.token().getOrElse { cause ->
                 log.warn(cause) { "no token, so no socket" }
+                null
+            }
+            if (token == null) {
                 attempt = waitBefore(attempt)
                 continue
             }
