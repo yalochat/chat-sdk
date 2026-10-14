@@ -3,7 +3,7 @@ buildscript {
     kotlinVersion: "1.9.24",
     minSdkVersion: 24,
     compileSdkVersion: 35,
-    yaloChatAndroidSdkVersion: "0.5.0"
+    yaloChatAndroidSdkVersion: "0.6.0"
   ]
 
   ext.getExtOrDefault = { prop ->
