@@ -67,6 +67,17 @@ export default class ChatMessageList extends LitElement {
       display: flow;
     }
 
+    .welcome-image {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-image img {
+      width: var(--yalo-chat-welcome-image-width, 3rem);
+      height: var(--yalo-chat-welcome-image-height, auto);
+    }
+
     .bubble {
       max-width: 70%;
       padding: 0.5rem 0.75rem;
@@ -229,6 +240,11 @@ export default class ChatMessageList extends LitElement {
                   ? 'user-message'
                   : 'agent-message'}"
               >
+                ${showWelcomeOnly && this.config.image != null
+                  ? html`<div class="welcome-image">
+                      <img src=${this.config.image} alt="" />
+                    </div>`
+                  : nothing}
                 ${isUser
                   ? html`<yalo-chat-user-message
                       .message=${chatMessage}

@@ -588,6 +588,13 @@ When `welcomeMessageType` is set to `"verticalQuickReplies"` (see the README con
      set to "verticalQuickReplies". */
   --yalo-chat-vertical-quick-replies-chip-max-width: 20rem;
 
+  /* Width of the channel image shown above the welcome message. */
+  --yalo-chat-welcome-image-width: 3rem;
+
+  /* Height of the channel image shown above the welcome message. Defaults to
+     `auto` so the image keeps its aspect ratio. */
+  --yalo-chat-welcome-image-height: auto;
+
   /* The welcome message rendered with welcomeMessageType set to
      "verticalQuickReplies" has no text bubble by default, so the regular
      assistant message bubble variables do not apply to it. Set the
