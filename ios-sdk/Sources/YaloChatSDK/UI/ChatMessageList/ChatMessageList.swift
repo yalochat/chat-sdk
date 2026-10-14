@@ -4,8 +4,8 @@ import SwiftUI
 
 /// The conversation. Postback and link buttons stay under the message that sent them,
 /// and the quick replies of `quickRepliesMessageId` are drawn under it.
-/// `isWelcome` centers what the channel says and stacks its quick replies one
-/// per line.
+/// `isWelcome` centers what the channel says, draws `avatar` above it and
+/// stacks its quick replies one per line.
 struct ChatMessageList: View {
     /// Short enough that a message never feels held back, long enough that one
     /// arriving is noticed rather than found already there.
@@ -17,6 +17,7 @@ struct ChatMessageList: View {
     var isWaitingForReply: Bool = false
     var quickRepliesMessageId: Int64?
     var isWelcome: Bool = false
+    var avatar: AnyView?
     var onTapButton: (MessageButton) -> Void = { _ in }
     var playback: VoicePlayback?
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
@@ -31,6 +32,12 @@ struct ChatMessageList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 8) {
+                    if isWelcome, let avatar {
+                        avatar
+                            .frame(maxWidth: .infinity)
+                            .accessibilityIdentifier("yalo-chat-welcome-avatar")
+                            .transition(.opacity)
+                    }
                     ForEach(messages) { message in
                         VStack(alignment: isWelcome ? .center : .leading, spacing: 8) {
                             switch (message.role, message.type, message.type == .voice ? message.voice : nil) {
@@ -129,6 +136,7 @@ struct ChatMessageList: View {
                 .animation(Self.fade, value: messages.last?.id)
                 .animation(Self.fade, value: isWaitingForReply)
                 .animation(Self.fade, value: quickRepliesMessageId)
+                .animation(Self.fade, value: isWelcome)
             }
             .onAppear {
                 proxy.scrollTo(Self.bottomId, anchor: .bottom)

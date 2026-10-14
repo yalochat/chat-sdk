@@ -98,7 +98,7 @@ Optional properties:
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them.
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `WelcomeMessageType.None`, which draws it like any other message.
-  - `WelcomeMessageType.VerticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the conversation is drawn as usual.
+  - `WelcomeMessageType.VerticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with the [avatar](#avatar) above it and one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the avatar leaves the conversation and it is drawn as usual.
 - **`openContext`** (`Map<String, String>`): What the chat is being opened from, for example the product the person was looking at. Sent to the channel when the chat opens on an empty conversation, so it can speak first. Defaults to no context. See [Open context](#open-context).
 - **`sessionMode`** (`SessionMode`): How the conversation is scoped, and whether it is remembered between visits. Defaults to `SessionMode.Shared`, which is one conversation per person, remembered. See [Session modes](#session-modes).
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
@@ -178,7 +178,7 @@ public fun Chat(
 - **`client`**: The client holding the configuration for this conversation.
 - **`modifier`**: Applied to the chat surface. Use it for padding, size and insets.
 - **`theme`**: How the chat paints itself. Follows your `MaterialTheme` unless you pass one in. See [Theming](doc/theming.md).
-- **`avatar`**: Drawn beside the channel name in the header. Nothing is drawn when you leave it out.
+- **`avatar`**: Drawn beside the channel name in the header, and centered above the welcome message when `welcomeMessageType` is `VerticalQuickReplies`. Nothing is drawn when you leave it out.
 - **`onBack`**: Adds a back button to the header. The header has no back button unless you give one.
 
 ### Sizing and window insets

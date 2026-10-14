@@ -86,6 +86,17 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, loadImage: { _ in nil })))
     }
 
+    @Test(arguments: [false, true])
+    func messageListRendersTheWelcomeAvatar(isWelcome: Bool) {
+        let messages: [ChatMessage] = [message(1, .agent, "Hi")]
+
+        #expect(renders(ChatMessageList(
+            messages: messages,
+            isWelcome: isWelcome,
+            avatar: AnyView(Text(verbatim: "avatar"))
+        )))
+    }
+
     @Test(arguments: [(nil, false), (1, false), (1, true)] as [(Int64?, Bool)])
     func messageListRendersButtons(quickRepliesMessageId: Int64?, isWelcome: Bool) {
         let messages: [ChatMessage] = [

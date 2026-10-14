@@ -6,6 +6,7 @@ struct ChatHeader: View {
     let title: String
     var status: String? = nil
     var hideWatermark: Bool = false
+    var avatar: AnyView? = nil
     var onBack: (() -> Void)? = nil
     @Environment(\.chatTheme) private var theme: ChatTheme
 
@@ -18,6 +19,9 @@ struct ChatHeader: View {
                 }
                 .accessibilityLabel(Text("Back", bundle: .module))
                 .accessibilityIdentifier("yalo-chat-back-button")
+            }
+            if let avatar {
+                avatar
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -49,7 +53,7 @@ struct ChatHeader: View {
 
 #Preview {
     VStack {
-        ChatHeader(title: "Yalo", status: "Online", onBack: {})
+        ChatHeader(title: "Yalo", status: "Online", avatar: AnyView(Circle().frame(width: 40, height: 40)), onBack: {})
         ChatHeader(title: "Yalo", hideWatermark: true)
     }
 }
