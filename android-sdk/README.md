@@ -36,7 +36,7 @@ The chat renders inside the space you give it, follows your app theme out of the
 - Android 7.0 (API level 24) or newer.
 - `compileSdk` 35 or newer.
 - Android Gradle Plugin 8.6 or newer.
-- Kotlin 1.9.24 or newer.
+- Kotlin 1.9 or newer.
 - Java 11 or newer for compilation.
 - The chat is a Jetpack Compose composable. Screens without Compose can use [`ChatView`](#the-chatview-view) instead.
 

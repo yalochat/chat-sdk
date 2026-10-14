@@ -1,4 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
+#ifdef RCT_NEW_ARCH_ENABLED
 #import "YaloChatView.h"
 
 #import <react/renderer/components/YaloChatViewSpec/ComponentDescriptors.h>
@@ -109,3 +110,5 @@ Class<RCTComponentViewProtocol> YaloChatViewCls(void)
 {
   return YaloChatView.class;
 }
+
+#endif

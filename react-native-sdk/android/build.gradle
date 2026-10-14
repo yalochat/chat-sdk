@@ -1,9 +1,9 @@
 buildscript {
   ext.YaloChatReactNativeSdk = [
-    kotlinVersion: "2.1.20",
+    kotlinVersion: "1.9.24",
     minSdkVersion: 24,
-    compileSdkVersion: 36,
-    yaloChatAndroidSdkVersion: "0.5.0"
+    compileSdkVersion: 35,
+    yaloChatAndroidSdkVersion: "0.6.0"
   ]
 
   ext.getExtOrDefault = { prop ->
@@ -20,10 +20,9 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:8.12.0"
+    classpath "com.android.tools.build:gradle:8.6.0"
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getExtOrDefault('kotlinVersion')}"
-    classpath "org.jetbrains.kotlin:compose-compiler-gradle-plugin:${getExtOrDefault('kotlinVersion')}"
   }
 }
 
@@ -33,7 +32,6 @@ if (project.extensions.findByName("kotlin") == null) {
   apply plugin: "kotlin-android"
 }
 
-apply plugin: "org.jetbrains.kotlin.plugin.compose"
 apply plugin: "com.facebook.react"
 
 android {
@@ -45,10 +43,6 @@ android {
     minSdkVersion getExtOrDefault("minSdkVersion")
   }
 
-  buildFeatures {
-    compose true
-  }
-
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_17
     targetCompatibility JavaVersion.VERSION_17
@@ -58,8 +52,10 @@ android {
 dependencies {
   implementation "com.facebook.react:react-android"
   implementation "ai.yalo.chat:chat-android-sdk:${getExtOrDefault('yaloChatAndroidSdkVersion')}"
-  implementation platform("androidx.compose:compose-bom:2026.02.01")
-  implementation "androidx.compose.material3:material3"
+  // The theme overrides are built from Compose colors, sizes and shapes. The
+  // BOM matches the Android SDK's so it never raises what an app must compile with.
+  implementation platform("androidx.compose:compose-bom:2025.11.00")
+  implementation "androidx.compose.foundation:foundation"
   testImplementation "junit:junit:4.13.2"
   testImplementation "org.json:json:20250517"
 }
