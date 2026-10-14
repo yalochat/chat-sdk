@@ -16,9 +16,6 @@
 
 using namespace facebook::react;
 
-@interface YaloChatView () <RCTYaloChatViewViewProtocol>
-@end
-
 @implementation YaloChatView {
   YaloChatHostView *_chat;
 }
@@ -39,9 +36,6 @@ using namespace facebook::react;
     _chat.onBack = ^{
       [weakSelf emitBack];
     };
-    _chat.onCommand = ^(NSString *requestId, NSString *command, NSString *payload) {
-      [weakSelf emitCommand:requestId command:command payload:payload];
-    };
     self.contentView = _chat;
   }
   return self;
@@ -58,42 +52,11 @@ using namespace facebook::react;
   if (oldChatProps.showsBackButton != newChatProps.showsBackButton) {
     [_chat setShowsBackButton:newChatProps.showsBackButton];
   }
-  if (oldChatProps.commands != newChatProps.commands) {
-    NSMutableArray<NSString *> *commands = [NSMutableArray arrayWithCapacity:newChatProps.commands.size()];
-    for (const auto &command : newChatProps.commands) {
-      [commands addObject:[NSString stringWithUTF8String:command.c_str()]];
-    }
-    [_chat setCommands:commands];
-  }
   if (oldChatProps.config != newChatProps.config) {
     [_chat setConfig:[NSString stringWithUTF8String:newChatProps.config.c_str()]];
   }
 
   [super updateProps:props oldProps:oldProps];
-}
-
-- (void)handleCommand:(const NSString *)commandName args:(const NSArray *)args
-{
-  RCTYaloChatViewHandleCommand(self, commandName, args);
-}
-
-- (void)resolveCommand:(NSString *)requestId succeeded:(BOOL)succeeded payload:(NSString *)payload
-{
-  [_chat resolveCommand:requestId succeeded:succeeded payload:payload];
-}
-
-- (void)emitCommand:(NSString *)requestId command:(NSString *)command payload:(NSString *)payload
-{
-  if (!_eventEmitter) {
-    [_chat resolveCommand:requestId succeeded:NO payload:@""];
-    return;
-  }
-  std::static_pointer_cast<YaloChatViewEventEmitter const>(_eventEmitter)
-      ->onCommand({
-          .requestId = std::string([requestId UTF8String]),
-          .command = std::string([command UTF8String]),
-          .payload = std::string([payload UTF8String]),
-      });
 }
 
 - (void)emitBack

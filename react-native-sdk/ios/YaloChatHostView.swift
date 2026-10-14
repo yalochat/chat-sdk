@@ -7,13 +7,8 @@ import YaloChatSDK
 @objc(YaloChatHostView)
 public final class YaloChatHostView: UIView {
   @objc public var onBack: (() -> Void)?
-  /// Hands a command to JavaScript as its request id, command and payload.
-  @objc public var onCommand: ((String, String, String) -> Void)?
 
-  private var client: YaloChatClient?
-  private var commands: [String] = []
-  // Commands handed to JavaScript, waiting for it to answer.
-  private var pendingCommands: [String: CheckedContinuation<String, Error>] = [:]
+  private var config: YaloChatClientConfig?
   private var configKey: String = ""
   private var theme: ChatTheme = ChatTheme()
   private var showsBackButton: Bool = false
@@ -33,51 +28,8 @@ public final class YaloChatHostView: UIView {
 
   @objc public func setConfig(_ json: String) {
     configKey = json
-    client = clientConfig(of: json).map { config in YaloChatClient(config: config) }
-    registerCommands()
+    config = clientConfig(of: json)
     render()
-  }
-
-  @objc public func setCommands(_ value: [String]) {
-    commands = value
-    registerCommands()
-  }
-
-  /// Answers a command handed to JavaScript with what its handler returned.
-  @objc public func resolveCommand(_ requestId: String, succeeded: Bool, payload: String) {
-    guard let continuation = pendingCommands.removeValue(forKey: requestId) else {
-      return
-    }
-    if succeeded {
-      continuation.resume(returning: payload)
-    } else {
-      continuation.resume(throwing: CommandFailedError())
-    }
-  }
-
-  private func registerCommands() {
-    guard let client else {
-      return
-    }
-    for command in commands {
-      client.registerCommand(command) { [weak self] payload in
-        guard let self else {
-          throw CommandFailedError()
-        }
-        return try await self.runInJavaScript(command: command, payload: payload)
-      }
-    }
-  }
-
-  private func runInJavaScript(command: String, payload: String) async throws -> String {
-    guard let onCommand else {
-      throw CommandFailedError()
-    }
-    let requestId: String = UUID().uuidString
-    return try await withCheckedThrowingContinuation { continuation in
-      pendingCommands[requestId] = continuation
-      onCommand(requestId, command, payload)
-    }
   }
 
   @objc public func setTheme(_ json: String) {
@@ -117,20 +69,17 @@ public final class YaloChatHostView: UIView {
   }
 
   private func render() {
-    guard let client else {
+    guard let config else {
       host.rootView = AnyView(EmptyView())
       return
     }
     let onBack: (() -> Void)? = showsBackButton ? { [weak self] in self?.onBack?() } : nil
     host.rootView = AnyView(
-      Chat(client: client, theme: theme, onBack: onBack)
+      Chat(client: YaloChatClient(config: config), theme: theme, onBack: onBack)
         .id(configKey)
     )
   }
 }
-
-/// The JavaScript handler for a command threw or was missing.
-struct CommandFailedError: Error {}
 
 /// The client config React Native sent, with anything left out at its SDK default.
 func clientConfig(of json: String) -> YaloChatClientConfig? {

@@ -1,7 +1,6 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.reactnative
 
-import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -38,19 +37,8 @@ internal class YaloChatViewManager :
         view.showsBackButton = value
     }
 
-    @ReactProp(name = "commands")
-    override fun setCommands(view: YaloChatView, value: ReadableArray?) {
-        view.commands = value?.toArrayList()?.filterIsInstance<String>().orEmpty()
-    }
-
-    override fun resolveCommand(view: YaloChatView, requestId: String, succeeded: Boolean, payload: String) {
-        view.resolveCommand(requestId, succeeded, payload)
-    }
-
-    override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> = mapOf(
-        BackEvent.NAME to mapOf("registrationName" to "onBack"),
-        CommandEvent.NAME to mapOf("registrationName" to "onCommand"),
-    )
+    override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> =
+        mapOf(BackEvent.NAME to mapOf("registrationName" to "onBack"))
 
     companion object {
         const val NAME: String = "YaloChatView"
