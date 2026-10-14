@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   # which the example app uses to build against the ios-sdk next to it.
   spm_dependency(s,
     url: ENV["YALO_CHAT_IOS_SDK_PATH"] || "https://github.com/yalochat/chat-sdk.git",
-    requirement: { kind: "upToNextMinorVersion", minimumVersion: "0.3.1" },
+    requirement: { kind: "upToNextMinorVersion", minimumVersion: "0.4.0" },
     products: ["YaloChatSDK"]
   )
 
