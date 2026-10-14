@@ -2,7 +2,10 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "yalo-chat-react-native-sdk": ["./src/index"]
+      "yalo-chat-react-native-sdk": ["./src/index"],
+      "react-native/Libraries/Types/CodegenTypes": [
+        "./node_modules/react-native/types_generated/Libraries/Types/CodegenTypes.d.ts"
+      ]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

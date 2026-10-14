@@ -3,10 +3,15 @@ import type * as React from 'react';
 import {
   codegenNativeCommands,
   codegenNativeComponent,
-  type CodegenTypes,
   type HostComponent,
   type ViewProps,
 } from 'react-native';
+// React Native 0.76 codegen only knows these types by name, not through the
+// CodegenTypes namespace.
+import type {
+  DirectEventHandler,
+  WithDefault,
+} from 'react-native/Libraries/Types/CodegenTypes';
 
 export type CommandEvent = Readonly<{
   requestId: string;
@@ -17,10 +22,10 @@ export type CommandEvent = Readonly<{
 interface NativeProps extends ViewProps {
   config: string;
   theme: string;
-  showsBackButton?: CodegenTypes.WithDefault<boolean, false>;
+  showsBackButton?: WithDefault<boolean, false>;
   commands?: ReadonlyArray<string>;
-  onBack?: CodegenTypes.DirectEventHandler<Readonly<{}>>;
-  onCommand?: CodegenTypes.DirectEventHandler<CommandEvent>;
+  onBack?: DirectEventHandler<Readonly<{}>>;
+  onCommand?: DirectEventHandler<CommandEvent>;
 }
 
 interface NativeCommands {

@@ -17,8 +17,12 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 
 ## Requirements
 
-- React Native 0.86 or newer, with the New Architecture on.
+- React Native 0.76 or newer, on the New Architecture or the old one.
 - Android 7.0 (API level 24) or newer.
+- Android builds need:
+  - `compileSdkVersion` 35 or newer.
+  - Android Gradle Plugin 8.6 or newer.
+  - Kotlin 1.9 or newer.
 - iOS 15.1 or newer.
 
 ## Installation

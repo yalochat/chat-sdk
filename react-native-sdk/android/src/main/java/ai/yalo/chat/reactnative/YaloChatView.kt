@@ -3,23 +3,10 @@ package ai.yalo.chat.reactnative
 
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
-import ai.yalo.chat.sdk.ui.Chat
-import ai.yalo.chat.sdk.ui.theme.ChatTheme
+import ai.yalo.chat.sdk.ui.ChatView
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -34,12 +21,22 @@ import java.util.concurrent.ConcurrentHashMap
 /** Hosts the Android SDK chat inside a React Native view. */
 internal class YaloChatView(private val reactContext: ThemedReactContext) : FrameLayout(reactContext) {
 
-    private var config: YaloChatClientConfig? by mutableStateOf(null)
-    private var theme: JSONObject by mutableStateOf(JSONObject())
-    var showsBackButton: Boolean by mutableStateOf(false)
+    private val chat = ChatView(reactContext)
+    private var config: YaloChatClientConfig? = null
+    private var client: YaloChatClient? = null
+
+    var showsBackButton: Boolean = false
+        set(value) {
+            field = value
+            chat.onBack = if (value) ::dispatchBack else null
+        }
 
     /** The commands the JavaScript side registered a handler for. */
-    var commands: List<String> by mutableStateOf(emptyList())
+    var commands: List<String> = emptyList()
+        set(value) {
+            field = value
+            registerCommands()
+        }
 
     // Commands handed to JavaScript, waiting for it to answer.
     private val pendingCommands = ConcurrentHashMap<String, CompletableDeferred<Result<String>>>()
@@ -47,12 +44,7 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
     private var layoutPending: Boolean = false
 
     init {
-        addView(
-            ComposeView(reactContext).apply {
-                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
-                setContent { HostedChat() }
-            },
-        )
+        addView(chat)
     }
 
     // React Native moves its views between parents, so the chat is pointed at
@@ -68,39 +60,35 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
     }
 
     fun setConfig(value: String?) {
-        config = try {
+        val next = try {
             clientConfigOf(JSONObject(value ?: "{}"))
         } catch (error: JSONException) {
             Log.e(TAG, "The chat config could not be read, so the chat is not shown.", error)
             null
         }
+        if (next == config) {
+            return
+        }
+        config = next
+        client = next?.let { YaloChatClient(it) }
+        registerCommands()
+        chat.client = client
     }
 
     fun setTheme(value: String?) {
-        theme = try {
+        val overrides = try {
             JSONObject(value ?: "{}")
         } catch (error: JSONException) {
             Log.e(TAG, "The chat theme could not be read, so the default is used.", error)
             JSONObject()
         }
+        chat.theme = { default -> default.overriddenBy(overrides) }
     }
 
-    @Composable
-    private fun HostedChat() {
-        val current = config ?: return
-        val client = remember(current) { YaloChatClient(current) }
-        SideEffect {
-            for (command in commands) {
-                client.registerCommand(command) { payload -> runInJavaScript(command, payload) }
-            }
-        }
-        val colors = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
-        MaterialTheme(colorScheme = colors) {
-            Chat(
-                client = client,
-                theme = ChatTheme.default().overriddenBy(theme),
-                onBack = if (showsBackButton) ::dispatchBack else null,
-            )
+    private fun registerCommands() {
+        val current = client ?: return
+        for (command in commands) {
+            current.registerCommand(command) { payload -> runInJavaScript(command, payload) }
         }
     }
 
