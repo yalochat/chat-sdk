@@ -3,6 +3,9 @@ package ai.yalo.chat.sdk.data.repositories.yalomessage
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
+import ai.yalo.chat.sdk.data.datasources.message.WireFormat
+import ai.yalo.chat.sdk.data.datasources.message.timestampOf
+import ai.yalo.chat.sdk.data.datasources.message.toEpochMillis
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
@@ -15,24 +18,22 @@ import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.log.YaloLog
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.CustomCommandResponse
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartResponse
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.UpdateCartProductResponse
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
-import com.google.protobuf.Timestamp
-import com.google.protobuf.util.JsonFormat
-import com.google.protobuf.util.Timestamps
+import ai.yalo.chat.sdk.internal.proto.v2.CustomCommandResponse
+import ai.yalo.chat.sdk.internal.proto.v2.GetCartResponse
+import ai.yalo.chat.sdk.internal.proto.v2.GuidanceCardRequest
+import ai.yalo.chat.sdk.internal.proto.v2.ImageMessage
+import ai.yalo.chat.sdk.internal.proto.v2.ImageMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.MessageFeedbackRequest
+import ai.yalo.chat.sdk.internal.proto.v2.MessageStatus
+import ai.yalo.chat.sdk.internal.proto.v2.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.ResponseStatus
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessage
+import ai.yalo.chat.sdk.internal.proto.v2.TextMessage
+import ai.yalo.chat.sdk.internal.proto.v2.TextMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.Timestamp
+import ai.yalo.chat.sdk.internal.proto.v2.UpdateCartProductResponse
+import ai.yalo.chat.sdk.internal.proto.v2.VoiceMessage
+import ai.yalo.chat.sdk.internal.proto.v2.VoiceNoteMessageRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -46,10 +47,9 @@ import kotlinx.coroutines.sync.withLock
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import ai.yalo.chat.sdk.domain.models.MessageStatus as ChatStatus
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button as WireButton
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType as WireButtonType
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating as WireRating
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
+import ai.yalo.chat.sdk.internal.proto.v2.ButtonType as WireButtonType
+import ai.yalo.chat.sdk.internal.proto.v2.FeedbackRating as WireRating
+import ai.yalo.chat.sdk.internal.proto.v2.MessageRole as WireRole
 
 /**
  * Says what the chat means in the wire format, and keeps a line open to say it
@@ -180,20 +180,19 @@ internal class YaloMessageRepositoryRemote(
      * comes back as ordinary messages, the same way anything else it says does.
      */
     override suspend fun requestGuidanceCard(openContext: Map<String, String>): Result<Unit> {
-        val askedAt: Timestamp = Timestamps.fromMillis(now())
-        val request: GuidanceCardRequest.Builder = GuidanceCardRequest.newBuilder()
-            .setTimestamp(askedAt)
-        // Nothing to go on is said by leaving the field out, rather than by
-        // sending an empty object the channel would have to read and discard.
-        if (openContext.isNotEmpty()) {
-            request.setContext(jsonOf(openContext))
-        }
+        val askedAt = timestampOf(now())
         return write(
-            SdkMessage.newBuilder()
-                .setCorrelationId(correlationIds())
-                .setTimestamp(askedAt)
-                .setGuidanceCardRequest(request)
-                .build(),
+            SdkMessage(
+                correlation_id = correlationIds(),
+                timestamp = askedAt,
+                guidance_card_request = GuidanceCardRequest(
+                    timestamp = askedAt,
+                    // Nothing to go on is said by leaving the field out, rather
+                    // than by sending an empty object the channel would have to
+                    // read and discard.
+                    context = jsonOf(openContext).takeIf { openContext.isNotEmpty() },
+                ),
+            ),
         )
     }
 
@@ -202,18 +201,17 @@ internal class YaloMessageRepositoryRemote(
      * a change of mind is just another request.
      */
     override suspend fun sendFeedback(messageId: String, rating: FeedbackRating?): Result<Unit> {
-        val ratedAt: Timestamp = Timestamps.fromMillis(now())
+        val ratedAt = timestampOf(now())
         return write(
-            SdkMessage.newBuilder()
-                .setCorrelationId(correlationIds())
-                .setTimestamp(ratedAt)
-                .setMessageFeedbackRequest(
-                    MessageFeedbackRequest.newBuilder()
-                        .setMessageId(messageId)
-                        .setRating(wireRatingOf(rating))
-                        .setTimestamp(ratedAt),
-                )
-                .build(),
+            SdkMessage(
+                correlation_id = correlationIds(),
+                timestamp = ratedAt,
+                message_feedback_request = MessageFeedbackRequest(
+                    message_id = messageId,
+                    rating = wireRatingOf(rating),
+                    timestamp = ratedAt,
+                ),
+            ),
         )
     }
 
@@ -225,30 +223,33 @@ internal class YaloMessageRepositoryRemote(
 
     override fun commandRequests(): Flow<CommandRequest> = source.messages
         .filterIsInstance<MessageReceived>()
-        .mapNotNull { received -> commandRequestOf(received.item.message) }
+        .mapNotNull { received -> received.item.message?.let(::commandRequestOf) }
 
     override suspend fun answerCommand(request: CommandRequest, result: Result<String>): Result<Unit> {
-        val answeredAt: Timestamp = Timestamps.fromMillis(now())
-        val envelope: SdkMessage.Builder = SdkMessage.newBuilder()
-            .setCorrelationId(request.correlationId)
-            .setTimestamp(answeredAt)
-        when (request.kind) {
-            CommandRequest.Kind.Custom -> envelope.setCustomCommandResponse(
-                CustomCommandResponse.newBuilder()
-                    .setStatus(statusOf(result))
-                    .setPayload(result.getOrDefault(""))
-                    .setTimestamp(answeredAt),
-            )
+        val answeredAt = timestampOf(now())
+        val envelope = SdkMessage(correlation_id = request.correlationId, timestamp = answeredAt)
+        return write(
+            when (request.kind) {
+                CommandRequest.Kind.Custom -> envelope.copy(
+                    custom_command_response = CustomCommandResponse(
+                        status = statusOf(result),
+                        payload = result.getOrDefault(""),
+                        timestamp = answeredAt,
+                    ),
+                )
 
-            CommandRequest.Kind.GetCart -> envelope.setGetCartResponse(cartPageOf(result).setTimestamp(answeredAt))
+                CommandRequest.Kind.GetCart -> envelope.copy(
+                    get_cart_response = cartPageOf(result).copy(timestamp = answeredAt),
+                )
 
-            CommandRequest.Kind.UpdateCartProduct -> envelope.setUpdateCartProductResponse(
-                UpdateCartProductResponse.newBuilder()
-                    .setStatus(statusOf(result))
-                    .setTimestamp(answeredAt),
-            )
-        }
-        return write(envelope.build())
+                CommandRequest.Kind.UpdateCartProduct -> envelope.copy(
+                    update_cart_product_response = UpdateCartProductResponse(
+                        status = statusOf(result),
+                        timestamp = answeredAt,
+                    ),
+                )
+            },
+        )
     }
 
     private fun statusOf(result: Result<*>): ResponseStatus = if (result.isSuccess) {
@@ -258,43 +259,46 @@ internal class YaloMessageRepositoryRemote(
     }
 
     /** The page the host returned as JSON, or a failed answer when it could not be read. */
-    private fun cartPageOf(result: Result<String>): GetCartResponse.Builder {
-        val page: GetCartResponse.Builder = GetCartResponse.newBuilder()
-        val read = result.mapCatching { json -> JSON_PARSER.merge(json, page) }
+    private fun cartPageOf(result: Result<String>): GetCartResponse {
+        val read = result.mapCatching { json -> WireFormat.read(json, GetCartResponse::class.java) }
         read.exceptionOrNull()?.let { error ->
             if (result.isSuccess) {
                 log.warn(error) { "the cart the host returned is not valid JSON" }
             }
-            page.clear()
         }
-        return page.setStatus(statusOf(read))
+        return (read.getOrNull() ?: GetCartResponse()).copy(status = statusOf(read))
     }
 
     /** A request the host app has to answer, or nothing when [message] is not one. */
-    private fun commandRequestOf(message: SdkMessage): CommandRequest? = when (message.payloadCase) {
-        SdkMessage.PayloadCase.CUSTOM_COMMAND_REQUEST -> CommandRequest(
-            correlationId = message.correlationId,
-            commandId = message.customCommandRequest.commandId,
-            payload = message.customCommandRequest.payload,
-        )
+    private fun commandRequestOf(message: SdkMessage): CommandRequest? {
+        val custom = message.custom_command_request
+        val getCart = message.get_cart_request
+        val updateCart = message.update_cart_product_request
+        return when {
+            custom != null -> CommandRequest(
+                correlationId = message.correlation_id,
+                commandId = custom.command_id,
+                payload = custom.payload,
+            )
 
-        // The timestamp is the channel's own bookkeeping, so the host gets the
-        // fields it acts on.
-        SdkMessage.PayloadCase.GET_CART_REQUEST -> CommandRequest(
-            correlationId = message.correlationId,
-            commandId = GET_CART,
-            payload = JSON_PRINTER.print(message.getCartRequest.toBuilder().clearTimestamp()),
-            kind = CommandRequest.Kind.GetCart,
-        )
+            // The timestamp is the channel's own bookkeeping, so the host gets the
+            // fields it acts on.
+            getCart != null -> CommandRequest(
+                correlationId = message.correlation_id,
+                commandId = GET_CART,
+                payload = WireFormat.write(getCart.copy(timestamp = null), everyField = true),
+                kind = CommandRequest.Kind.GetCart,
+            )
 
-        SdkMessage.PayloadCase.UPDATE_CART_PRODUCT_REQUEST -> CommandRequest(
-            correlationId = message.correlationId,
-            commandId = UPDATE_CART_PRODUCT,
-            payload = JSON_PRINTER.print(message.updateCartProductRequest.toBuilder().clearTimestamp()),
-            kind = CommandRequest.Kind.UpdateCartProduct,
-        )
+            updateCart != null -> CommandRequest(
+                correlationId = message.correlation_id,
+                commandId = UPDATE_CART_PRODUCT,
+                payload = WireFormat.write(updateCart.copy(timestamp = null), everyField = true),
+                kind = CommandRequest.Kind.UpdateCartProduct,
+            )
 
-        else -> null
+            else -> null
+        }
     }
 
     override fun close() {
@@ -326,26 +330,26 @@ internal class YaloMessageRepositoryRemote(
      * image's body is its caption.
      */
     private fun chatMessageOf(item: PollMessageItem): ChatMessage? {
-        val message: SdkMessage = item.message
-        val type = INBOUND_TYPES[message.payloadCase] ?: return null
+        val message: SdkMessage = item.message ?: return null
+        val type = inboundTypeOf(message) ?: return null
         return ChatMessage(
             role = MessageRole.Agent,
             type = type,
-            timestamp = if (item.hasDate()) Timestamps.toMillis(item.date) else now(),
+            timestamp = item.date?.toEpochMillis() ?: now(),
             wiId = item.id,
             content = when (type) {
-                MessageType.Text -> message.textMessageRequest.content.text
-                MessageType.Image -> message.imageMessageRequest.content.text
+                MessageType.Text -> message.text_message_request?.content?.text.orEmpty()
+                MessageType.Image -> message.image_message_request?.content?.text.orEmpty()
                 else -> ""
             },
             status = ChatStatus.of(item.status, ChatStatus.Delivered),
             header = headerOf(message),
             footer = footerOf(message),
             buttons = buttonsOf(message),
-            voice = message.takeIf { type == MessageType.Voice }
-                ?.let { request -> voiceNoteOf(request.voiceNoteMessageRequest.content) },
-            image = message.takeIf { type == MessageType.Image }
-                ?.let { request -> imageOf(request.imageMessageRequest.content) },
+            voice = message.voice_note_message_request
+                ?.let { request -> voiceNoteOf(request.content ?: VoiceMessage()) },
+            image = message.image_message_request
+                ?.let { request -> imageOf(request.content ?: ImageMessage()) },
         )
     }
 
@@ -355,25 +359,13 @@ internal class YaloMessageRepositoryRemote(
      * Every payload that can carry them keeps them beside the body rather than
      * inside it, the way the options are, so they are read the same way.
      */
-    private fun headerOf(message: SdkMessage): String? = when (message.payloadCase) {
-        SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST ->
-            message.textMessageRequest.takeIf { it.hasHeader() }?.header
-        SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST ->
-            message.imageMessageRequest.takeIf { it.hasHeader() }?.header
-        SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST ->
-            message.voiceNoteMessageRequest.takeIf { it.hasHeader() }?.header
-        else -> null
-    }
+    private fun headerOf(message: SdkMessage): String? = message.text_message_request?.header_
+        ?: message.image_message_request?.header_
+        ?: message.voice_note_message_request?.header_
 
-    private fun footerOf(message: SdkMessage): String? = when (message.payloadCase) {
-        SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST ->
-            message.textMessageRequest.takeIf { it.hasFooter() }?.footer
-        SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST ->
-            message.imageMessageRequest.takeIf { it.hasFooter() }?.footer
-        SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST ->
-            message.voiceNoteMessageRequest.takeIf { it.hasFooter() }?.footer
-        else -> null
-    }
+    private fun footerOf(message: SdkMessage): String? = message.text_message_request?.footer
+        ?: message.image_message_request?.footer
+        ?: message.voice_note_message_request?.footer
 
     /**
      * The recording the channel sent, which is an address to download rather
@@ -381,11 +373,11 @@ internal class YaloMessageRepositoryRemote(
      */
     private fun voiceNoteOf(content: VoiceMessage): VoiceNote = VoiceNote(
         durationMillis = (content.duration * MILLIS_PER_SECOND).toLong(),
-        amplitudes = content.amplitudesPreviewList.toList(),
-        mediaUrl = content.mediaUrl,
-        mediaType = content.mediaType,
-        fileName = content.fileName,
-        byteCount = content.byteCount,
+        amplitudes = content.amplitudes_preview,
+        mediaUrl = content.media_url,
+        mediaType = content.media_type,
+        fileName = content.file_name,
+        byteCount = content.byte_count,
     )
 
     /**
@@ -393,10 +385,10 @@ internal class YaloMessageRepositoryRemote(
      * a file that is already here.
      */
     private fun imageOf(content: ImageMessage): ImageAttachment = ImageAttachment(
-        mediaUrl = content.mediaUrl,
-        mediaType = content.mediaType,
-        fileName = content.fileName,
-        byteCount = content.byteCount,
+        mediaUrl = content.media_url,
+        mediaType = content.media_type,
+        fileName = content.file_name,
+        byteCount = content.byte_count,
     )
 
     /**
@@ -406,29 +398,28 @@ internal class YaloMessageRepositoryRemote(
      * inside it, so they are read here even for a kind the chat cannot draw yet.
      */
     private fun buttonsOf(message: SdkMessage): List<MessageButton> {
-        val attached: List<WireButton> = when (message.payloadCase) {
-            SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST -> message.textMessageRequest.buttonsList
-            SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST -> message.imageMessageRequest.buttonsList
-            SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST -> message.voiceNoteMessageRequest.buttonsList
-            SdkMessage.PayloadCase.VIDEO_MESSAGE_REQUEST -> message.videoMessageRequest.buttonsList
-            SdkMessage.PayloadCase.ATTACHMENT_MESSAGE_REQUEST -> message.attachmentMessageRequest.buttonsList
-            else -> emptyList()
-        }
+        val attached = message.text_message_request?.buttons
+            ?: message.image_message_request?.buttons
+            ?: message.voice_note_message_request?.buttons
+            ?: message.video_message_request?.buttons
+            ?: message.attachment_message_request?.buttons
+            ?: emptyList()
         return attached.map { button ->
             MessageButton(
                 text = button.text,
-                type = buttonTypeOf(button.buttonType),
-                url = button.url.takeIf { button.hasUrl() },
+                type = buttonTypeOf(button.button_type),
+                url = button.url,
             )
         }
     }
 
-    // A kind this SDK does not know reads back as a reply, which is the one
-    // thing every button can do and the one that stays inside the conversation.
+    // A kind this SDK does not know reads as the zero value, which is a reply:
+    // the one thing every button can do and the one that stays inside the
+    // conversation.
     private fun buttonTypeOf(type: WireButtonType): MessageButtonType = when (type) {
+        WireButtonType.BUTTON_TYPE_REPLY -> MessageButtonType.Reply
         WireButtonType.BUTTON_TYPE_POSTBACK -> MessageButtonType.Postback
         WireButtonType.BUTTON_TYPE_LINK -> MessageButtonType.Link
-        else -> MessageButtonType.Reply
     }
 
     /**
@@ -440,21 +431,17 @@ internal class YaloMessageRepositoryRemote(
      * or to show, so it is turned away rather than sent empty.
      */
     private fun sdkMessageOf(message: ChatMessage): SdkMessage? {
-        val sentAt: Timestamp = Timestamps.fromMillis(now())
-        val envelope: SdkMessage.Builder = SdkMessage.newBuilder()
-            .setCorrelationId(correlationIdOf(message))
-            .setTimestamp(sentAt)
+        val sentAt = timestampOf(now())
+        val envelope = SdkMessage(correlation_id = correlationIdOf(message), timestamp = sentAt)
         return when (message.type) {
-            MessageType.Text -> envelope
-                .setTextMessageRequest(textRequestOf(message, sentAt))
-                .build()
+            MessageType.Text -> envelope.copy(text_message_request = textRequestOf(message, sentAt))
 
             MessageType.Voice -> message.voice?.let { note ->
-                envelope.setVoiceNoteMessageRequest(voiceRequestOf(message, note, sentAt)).build()
+                envelope.copy(voice_note_message_request = voiceRequestOf(message, note, sentAt))
             }
 
             MessageType.Image -> message.image?.let { picture ->
-                envelope.setImageMessageRequest(imageRequestOf(message, picture, sentAt)).build()
+                envelope.copy(image_message_request = imageRequestOf(message, picture, sentAt))
             }
 
             else -> null
@@ -462,21 +449,19 @@ internal class YaloMessageRepositoryRemote(
     }
 
     private fun textRequestOf(message: ChatMessage, sentAt: Timestamp): TextMessageRequest =
-        TextMessageRequest.newBuilder()
-            .setTimestamp(sentAt)
-            .setContent(
-                TextMessage.newBuilder()
-                    .setText(message.content)
-                    // The time the message was written, which is not the time it
-                    // goes out: one written on a plane is sent when the plane
-                    // lands.
-                    .setTimestamp(Timestamps.fromMillis(message.timestamp))
-                    .setRole(wireRoleOf(message.role))
-                    // Whatever the stored row says, what is being sent has not
-                    // arrived anywhere yet.
-                    .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
-            )
-            .build()
+        TextMessageRequest(
+            timestamp = sentAt,
+            content = TextMessage(
+                text = message.content,
+                // The time the message was written, which is not the time it
+                // goes out: one written on a plane is sent when the plane lands.
+                timestamp = timestampOf(message.timestamp),
+                role = wireRoleOf(message.role),
+                // Whatever the stored row says, what is being sent has not
+                // arrived anywhere yet.
+                status = MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+            ),
+        )
 
     /**
      * A voice note in the wire format.
@@ -490,21 +475,20 @@ internal class YaloMessageRepositoryRemote(
         message: ChatMessage,
         note: VoiceNote,
         sentAt: Timestamp,
-    ): VoiceNoteMessageRequest = VoiceNoteMessageRequest.newBuilder()
-        .setTimestamp(sentAt)
-        .setContent(
-            VoiceMessage.newBuilder()
-                .setTimestamp(Timestamps.fromMillis(message.timestamp))
-                .setMediaUrl(note.mediaUrl)
-                .setMediaType(note.mediaType)
-                .setFileName(note.fileName)
-                .setByteCount(note.byteCount)
-                .setDuration(note.durationMillis / MILLIS_PER_SECOND)
-                .addAllAmplitudesPreview(note.amplitudes)
-                .setRole(wireRoleOf(message.role))
-                .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
-        )
-        .build()
+    ): VoiceNoteMessageRequest = VoiceNoteMessageRequest(
+        timestamp = sentAt,
+        content = VoiceMessage(
+            timestamp = timestampOf(message.timestamp),
+            media_url = note.mediaUrl,
+            media_type = note.mediaType,
+            file_name = note.fileName,
+            byte_count = note.byteCount,
+            duration = note.durationMillis / MILLIS_PER_SECOND,
+            amplitudes_preview = note.amplitudes,
+            role = wireRoleOf(message.role),
+            status = MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+        ),
+    )
 
     /**
      * A picture in the wire format.
@@ -517,20 +501,19 @@ internal class YaloMessageRepositoryRemote(
         message: ChatMessage,
         picture: ImageAttachment,
         sentAt: Timestamp,
-    ): ImageMessageRequest = ImageMessageRequest.newBuilder()
-        .setTimestamp(sentAt)
-        .setContent(
-            ImageMessage.newBuilder()
-                .setTimestamp(Timestamps.fromMillis(message.timestamp))
-                .setText(message.content)
-                .setMediaUrl(picture.mediaUrl)
-                .setMediaType(picture.mediaType)
-                .setFileName(picture.fileName)
-                .setByteCount(picture.byteCount)
-                .setRole(wireRoleOf(message.role))
-                .setStatus(MessageStatus.MESSAGE_STATUS_IN_PROGRESS),
-        )
-        .build()
+    ): ImageMessageRequest = ImageMessageRequest(
+        timestamp = sentAt,
+        content = ImageMessage(
+            timestamp = timestampOf(message.timestamp),
+            text = message.content,
+            media_url = picture.mediaUrl,
+            media_type = picture.mediaType,
+            file_name = picture.fileName,
+            byte_count = picture.byteCount,
+            role = wireRoleOf(message.role),
+            status = MessageStatus.MESSAGE_STATUS_IN_PROGRESS,
+        ),
+    )
 
     // The local row id doubles as the correlation id, so an acknowledgement
     // coming back names the row it belongs to. A message that was never stored
@@ -553,14 +536,6 @@ internal class YaloMessageRepositoryRemote(
         private const val GET_CART = "getCart"
         private const val UPDATE_CART_PRODUCT = "updateCartProduct"
 
-        // Every field the channel always sends is printed, so a host reading
-        // `units` never finds it missing because it was zero.
-        private val JSON_PRINTER: JsonFormat.Printer = JsonFormat.printer()
-            .alwaysPrintFieldsWithNoPresence()
-            .omittingInsignificantWhitespace()
-
-        private val JSON_PARSER: JsonFormat.Parser = JsonFormat.parser().ignoringUnknownFields()
-
         private const val INITIAL_BACKOFF_MILLIS = 1_000L
         private const val MAX_BACKOFF_MILLIS = 30_000L
 
@@ -573,21 +548,23 @@ internal class YaloMessageRepositoryRemote(
 }
 
 /**
- * The payloads that belong in the conversation, and what the chat calls each.
+ * What the chat calls the payload, when it is one that belongs in the
+ * conversation.
  *
  * Anything else, a cart answer for instance, is an exchange rather than
  * something anyone said.
  */
-private val INBOUND_TYPES: Map<SdkMessage.PayloadCase, MessageType> = mapOf(
-    SdkMessage.PayloadCase.TEXT_MESSAGE_REQUEST to MessageType.Text,
-    SdkMessage.PayloadCase.IMAGE_MESSAGE_REQUEST to MessageType.Image,
-    SdkMessage.PayloadCase.VOICE_NOTE_MESSAGE_REQUEST to MessageType.Voice,
-    SdkMessage.PayloadCase.VIDEO_MESSAGE_REQUEST to MessageType.Video,
-    SdkMessage.PayloadCase.ATTACHMENT_MESSAGE_REQUEST to MessageType.Attachment,
-    SdkMessage.PayloadCase.PRODUCT_MESSAGE_REQUEST to MessageType.Product,
-    SdkMessage.PayloadCase.PRODUCT_CONFIRMATION_MESSAGE_REQUEST to MessageType.ProductConfirmation,
-    SdkMessage.PayloadCase.PROMOTION_MESSAGE_REQUEST to MessageType.Promotion,
-)
+private fun inboundTypeOf(message: SdkMessage): MessageType? = when {
+    message.text_message_request != null -> MessageType.Text
+    message.image_message_request != null -> MessageType.Image
+    message.voice_note_message_request != null -> MessageType.Voice
+    message.video_message_request != null -> MessageType.Video
+    message.attachment_message_request != null -> MessageType.Attachment
+    message.product_message_request != null -> MessageType.Product
+    message.product_confirmation_message_request != null -> MessageType.ProductConfirmation
+    message.promotion_message_request != null -> MessageType.Promotion
+    else -> null
+}
 
 /** A kind of message the SDK can hold and show, but cannot yet put on the wire. */
 internal class UnsupportedMessageTypeException(type: MessageType) :

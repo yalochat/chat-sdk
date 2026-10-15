@@ -34,15 +34,33 @@ proto_dart:
 	protoc --dart_out=$(flutter_sdk_out_path) `find events -name '*.proto' -print | sort`
 .PHONY: proto_dart
 
-# Android SDK: generate Java sources from the proto. The full runtime is
-# required because the wire format is proto3 JSON and JsonFormat needs the
-# descriptors that the lite runtime strips. The :sdk module reads this output
-# directly as an extra source directory, so it must stay committed.
-proto_kotlin:
-	mkdir -p $(kotlin_out_path)
-	protoc --java_out=$(kotlin_out_path) \
-		   --kotlin_out=$(kotlin_out_path) \
-		   `find events -name '*.proto' -print | sort`
+# Android SDK: generate Kotlin sources with Wire, so the SDK does not ship the
+# protobuf runtime and clash with the one apps get from Firebase. The :sdk
+# module reads this output directly as an extra source directory, so it must
+# stay committed. wire_version has to match `wire` in
+# android-sdk/gradle/libs.versions.toml.
+#
+# Wire always turns google.protobuf.Timestamp into java.time.Instant, which
+# would make every app turn on desugaring. So a copy of the protos is generated
+# instead, with the timestamp swapped for the stand-in in wire/timestamp.proto.
+wire_version = 5.5.1
+wire_jar = .wire/wire-compiler-$(wire_version).jar
+wire_build = .wire/events
+
+$(wire_jar):
+	mkdir -p .wire
+	curl -fsSL -o $@ https://repo1.maven.org/maven2/com/squareup/wire/wire-compiler/$(wire_version)/wire-compiler-$(wire_version)-jar-with-dependencies.jar
+
+proto_kotlin: $(wire_jar)
+	rm -rf $(wire_build) $(kotlin_out_path)
+	mkdir -p $(wire_build) $(kotlin_out_path)
+	cp -R events/. $(wire_build)/
+	cp wire/timestamp.proto $(wire_build)/
+	find $(wire_build) -name '*.proto' -exec sed -i.bak \
+		-e 's|"google/protobuf/timestamp.proto"|"timestamp.proto"|' \
+		-e 's|google\.protobuf\.Timestamp|yalo.wire.Timestamp|g' {} \;
+	java -jar $(wire_jar) --proto_path=$(wire_build) --kotlin_out=$(kotlin_out_path) > /dev/null
+	! grep -rq "Instant" $(kotlin_out_path)
 .PHONY: proto_kotlin
 
 # iOS SDK: the root Package.swift reads this output as the YaloChatProto

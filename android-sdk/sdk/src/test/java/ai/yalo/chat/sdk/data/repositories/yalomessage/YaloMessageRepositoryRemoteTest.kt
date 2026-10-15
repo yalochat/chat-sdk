@@ -5,6 +5,8 @@ import ai.yalo.chat.sdk.data.datasources.message.InboundMessage
 import ai.yalo.chat.sdk.data.datasources.message.MessageAcknowledged
 import ai.yalo.chat.sdk.data.datasources.message.MessageReceived
 import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
+import ai.yalo.chat.sdk.data.datasources.message.timestampOf
+import ai.yalo.chat.sdk.data.datasources.message.toEpochMillis
 import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.CommandRequest
@@ -15,24 +17,23 @@ import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.VoiceNote
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ChatStatusRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.CustomCommandRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.UpdateCartProductRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VideoMessageRequest
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.VoiceNoteMessageRequest
-import com.google.protobuf.util.Timestamps
+import ai.yalo.chat.sdk.internal.proto.v2.Button
+import ai.yalo.chat.sdk.internal.proto.v2.ButtonType
+import ai.yalo.chat.sdk.internal.proto.v2.ChatStatusRequest
+import ai.yalo.chat.sdk.internal.proto.v2.CustomCommandRequest
+import ai.yalo.chat.sdk.internal.proto.v2.GetCartRequest
+import ai.yalo.chat.sdk.internal.proto.v2.ImageMessage
+import ai.yalo.chat.sdk.internal.proto.v2.ImageMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.ResponseStatus
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageAck
+import ai.yalo.chat.sdk.internal.proto.v2.TextMessage
+import ai.yalo.chat.sdk.internal.proto.v2.TextMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.UpdateCartProductRequest
+import ai.yalo.chat.sdk.internal.proto.v2.VoiceMessage
+import ai.yalo.chat.sdk.internal.proto.v2.VideoMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.VoiceNoteMessageRequest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,9 +57,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.IOException
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating as WireRating
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus as WireStatus
+import ai.yalo.chat.sdk.internal.proto.v2.FeedbackRating as WireRating
+import ai.yalo.chat.sdk.internal.proto.v2.MessageRole as WireRole
+import ai.yalo.chat.sdk.internal.proto.v2.MessageStatus as WireStatus
 
 // Robolectric is here for the lines the repository writes about the line it is
 // holding: logcat throws out of a plain JVM test.
@@ -91,14 +92,14 @@ class YaloMessageRepositoryRemoteTest {
     fun sendsAMessageAsComingFromWhoeverWroteIt() = runTest(scheduler) {
         connected().send(message(role = MessageRole.User))
 
-        assertEquals(WireRole.MESSAGE_ROLE_USER, source.sent.single().textMessageRequest.content.role)
+        assertEquals(WireRole.MESSAGE_ROLE_USER, source.sent.single().text_message_request!!.content!!.role)
     }
 
     @Test
     fun sendsAMessageAsComingFromTheChannelWhenThatIsWhoWroteIt() = runTest(scheduler) {
         connected().send(message(role = MessageRole.Agent))
 
-        assertEquals(WireRole.MESSAGE_ROLE_AGENT, source.sent.single().textMessageRequest.content.role)
+        assertEquals(WireRole.MESSAGE_ROLE_AGENT, source.sent.single().text_message_request!!.content!!.role)
     }
 
     // Whatever the stored row says, a message on its way out has not arrived
@@ -109,7 +110,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             WireStatus.MESSAGE_STATUS_IN_PROGRESS,
-            source.sent.single().textMessageRequest.content.status,
+            source.sent.single().text_message_request!!.content!!.status,
         )
     }
 
@@ -119,7 +120,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             WRITTEN_AT,
-            Timestamps.toMillis(source.sent.single().textMessageRequest.content.timestamp),
+            source.sent.single().text_message_request!!.content!!.timestamp?.toEpochMillis(),
         )
     }
 
@@ -127,7 +128,7 @@ class YaloMessageRepositoryRemoteTest {
     fun saysWhenTheMessageWasSentApartFromWhenItWasWritten() = runTest(scheduler) {
         connected().send(message(timestamp = WRITTEN_AT))
 
-        assertEquals(SENT_AT, Timestamps.toMillis(source.sent.single().timestamp))
+        assertEquals(SENT_AT, source.sent.single().timestamp?.toEpochMillis())
     }
 
     // An acknowledgement comes back naming the correlation id, so the row id is
@@ -136,14 +137,14 @@ class YaloMessageRepositoryRemoteTest {
     fun namesTheMessageAfterTheRowItWasStoredAs() = runTest(scheduler) {
         connected().send(message(id = 42L))
 
-        assertEquals("42", source.sent.single().correlationId)
+        assertEquals("42", source.sent.single().correlation_id)
     }
 
     @Test
     fun givesAMessageThatWasNeverStoredAnIdOfItsOwn() = runTest(scheduler) {
         connected().send(message(id = null))
 
-        assertEquals("generated-id", source.sent.single().correlationId)
+        assertEquals("generated-id", source.sent.single().correlation_id)
     }
 
     @Test
@@ -174,18 +175,18 @@ class YaloMessageRepositoryRemoteTest {
     fun sendsAVoiceNoteUnderTheNameTheUploadGaveIt() = runTest(scheduler) {
         connected().send(voiceMessage(note = recorded(mediaUrl = "media-42")))
 
-        val sent = source.sent.single().voiceNoteMessageRequest.content
-        assertEquals("media-42", sent.mediaUrl)
-        assertEquals("audio/mp4", sent.mediaType)
-        assertEquals("voice-1.m4a", sent.fileName)
-        assertEquals(2_048L, sent.byteCount)
+        val sent = source.sent.single().voice_note_message_request!!.content!!
+        assertEquals("media-42", sent.media_url)
+        assertEquals("audio/mp4", sent.media_type)
+        assertEquals("voice-1.m4a", sent.file_name)
+        assertEquals(2_048L, sent.byte_count)
     }
 
     @Test
     fun sendsAVoiceNoteLengthInSeconds() = runTest(scheduler) {
         connected().send(voiceMessage(note = recorded(durationMillis = 4_500)))
 
-        assertEquals(4.5, source.sent.single().voiceNoteMessageRequest.content.duration, TOLERANCE)
+        assertEquals(4.5, source.sent.single().voice_note_message_request!!.content!!.duration, TOLERANCE)
     }
 
     @Test
@@ -194,7 +195,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             listOf(0.25f, 1f),
-            source.sent.single().voiceNoteMessageRequest.content.amplitudesPreviewList,
+            source.sent.single().voice_note_message_request!!.content!!.amplitudes_preview,
         )
     }
 
@@ -202,7 +203,7 @@ class YaloMessageRepositoryRemoteTest {
     fun sendsAVoiceNoteAsNotHavingArrivedAnywhereYet() = runTest(scheduler) {
         connected().send(voiceMessage(note = recorded()))
 
-        val sent = source.sent.single().voiceNoteMessageRequest.content
+        val sent = source.sent.single().voice_note_message_request!!.content!!
         assertEquals(WireStatus.MESSAGE_STATUS_IN_PROGRESS, sent.status)
         assertEquals(WireRole.MESSAGE_ROLE_USER, sent.role)
     }
@@ -245,25 +246,25 @@ class YaloMessageRepositoryRemoteTest {
     fun sendsAPictureUnderTheNameTheUploadGaveIt() = runTest(scheduler) {
         connected().send(pictureMessage(picture = picked(mediaUrl = "media-42")))
 
-        val sent = source.sent.single().imageMessageRequest.content
-        assertEquals("media-42", sent.mediaUrl)
-        assertEquals("image/jpeg", sent.mediaType)
-        assertEquals("holiday.jpg", sent.fileName)
-        assertEquals(4_096L, sent.byteCount)
+        val sent = source.sent.single().image_message_request!!.content!!
+        assertEquals("media-42", sent.media_url)
+        assertEquals("image/jpeg", sent.media_type)
+        assertEquals("holiday.jpg", sent.file_name)
+        assertEquals(4_096L, sent.byte_count)
     }
 
     @Test
     fun sendsTheCaptionWrittenWithAPicture() = runTest(scheduler) {
         connected().send(pictureMessage(picture = picked(), caption = "Look at this"))
 
-        assertEquals("Look at this", source.sent.single().imageMessageRequest.content.text)
+        assertEquals("Look at this", source.sent.single().image_message_request!!.content!!.text)
     }
 
     @Test
     fun sendsAPictureAsNotHavingArrivedAnywhereYet() = runTest(scheduler) {
         connected().send(pictureMessage(picture = picked()))
 
-        val sent = source.sent.single().imageMessageRequest.content
+        val sent = source.sent.single().image_message_request!!.content!!
         assertEquals(WireStatus.MESSAGE_STATUS_IN_PROGRESS, sent.status)
         assertEquals(WireRole.MESSAGE_ROLE_USER, sent.role)
     }
@@ -323,11 +324,7 @@ class YaloMessageRepositoryRemoteTest {
     fun asksTheChannelToOpenTheConversation() = runTest(scheduler) {
         connected().requestGuidanceCard()
 
-        assertEquals(
-            SdkMessage.PayloadCase.GUIDANCE_CARD_REQUEST,
-            source.sent.single().payloadCase,
-        )
-        assertEquals(SENT_AT, Timestamps.toMillis(source.sent.single().guidanceCardRequest.timestamp))
+        assertEquals(SENT_AT, source.sent.single().guidance_card_request?.timestamp?.toEpochMillis())
     }
 
     @Test
@@ -336,7 +333,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             """{"source":"product-page","sku":"123"}""",
-            source.sent.single().guidanceCardRequest.context,
+            source.sent.single().guidance_card_request!!.context,
         )
     }
 
@@ -350,7 +347,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             """{"note":"a \"quoted\" \\ line\r\n\tand a \u0001 of its own"}""",
-            source.sent.single().guidanceCardRequest.context,
+            source.sent.single().guidance_card_request!!.context,
         )
     }
 
@@ -358,7 +355,7 @@ class YaloMessageRepositoryRemoteTest {
     fun leavesTheContextOutWhenTheChatWasOpenedFromNothing() = runTest(scheduler) {
         connected().requestGuidanceCard()
 
-        assertFalse(source.sent.single().guidanceCardRequest.hasContext())
+        assertNull(source.sent.single().guidance_card_request!!.context)
     }
 
     @Test
@@ -374,10 +371,10 @@ class YaloMessageRepositoryRemoteTest {
     fun tellsTheChannelWhatTheMessageWasRated() = runTest(scheduler) {
         connected().sendFeedback("wi-1", FeedbackRating.ThumbsUp)
 
-        val request = source.sent.single().messageFeedbackRequest
+        val request = source.sent.single().message_feedback_request!!
         assertEquals(
             listOf("wi-1", WireRating.FEEDBACK_RATING_THUMBS_UP, SENT_AT),
-            listOf(request.messageId, request.rating, Timestamps.toMillis(request.timestamp)),
+            listOf(request.message_id, request.rating, request.timestamp?.toEpochMillis()),
         )
     }
 
@@ -385,14 +382,14 @@ class YaloMessageRepositoryRemoteTest {
     fun tellsTheChannelAboutAThumbsDown() = runTest(scheduler) {
         connected().sendFeedback("wi-1", FeedbackRating.ThumbsDown)
 
-        assertEquals(WireRating.FEEDBACK_RATING_THUMBS_DOWN, source.sent.single().messageFeedbackRequest.rating)
+        assertEquals(WireRating.FEEDBACK_RATING_THUMBS_DOWN, source.sent.single().message_feedback_request!!.rating)
     }
 
     @Test
     fun takesARatingBackByLeavingItUnspecified() = runTest(scheduler) {
         connected().sendFeedback("wi-1", null)
 
-        assertEquals(WireRating.FEEDBACK_RATING_UNSPECIFIED, source.sent.single().messageFeedbackRequest.rating)
+        assertEquals(WireRating.FEEDBACK_RATING_UNSPECIFIED, source.sent.single().message_feedback_request!!.rating)
     }
 
     @Test
@@ -424,31 +421,30 @@ class YaloMessageRepositoryRemoteTest {
         connected().answerCommand(CommandRequest("c-1", "getStore", ""), Result.success("""{"ok":true}"""))
 
         val answer = source.sent.single()
-        assertEquals("c-1", answer.correlationId)
-        assertEquals(ResponseStatus.RESPONSE_STATUS_SUCCESS, answer.customCommandResponse.status)
-        assertEquals("""{"ok":true}""", answer.customCommandResponse.payload)
+        assertEquals("c-1", answer.correlation_id)
+        assertEquals(ResponseStatus.RESPONSE_STATUS_SUCCESS, answer.custom_command_response!!.status)
+        assertEquals("""{"ok":true}""", answer.custom_command_response!!.payload)
     }
 
     @Test
     fun answersACommandThatFailed() = runTest(scheduler) {
         connected().answerCommand(CommandRequest("c-1", "getStore", ""), Result.failure(IllegalStateException("no store")))
 
-        val answer = source.sent.single().customCommandResponse
+        val answer = source.sent.single().custom_command_response!!
         assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, answer.status)
         assertEquals("", answer.payload)
     }
 
     @Test
     fun handsACartRequestToTheGetCartCommandAsJson() = runTest(scheduler) {
-        val cart = SdkMessage.newBuilder()
-            .setCorrelationId("c-1")
-            .setGetCartRequest(
-                GetCartRequest.newBuilder()
-                    .setCursor("page-2")
-                    .setPageSize(20)
-                    .setTimestamp(Timestamps.fromMillis(SENT_AT)),
-            )
-            .build()
+        val cart = SdkMessage(
+            correlation_id = "c-1",
+            get_cart_request = GetCartRequest(
+                cursor = "page-2",
+                page_size = 20,
+                timestamp = timestampOf(SENT_AT),
+            ),
+        )
 
         val request = commandRequests(pollItem(cart)).single()
 
@@ -458,18 +454,14 @@ class YaloMessageRepositoryRemoteTest {
 
     @Test
     fun handsTheFirstCartPageRequestAsAnEmptyObject() = runTest(scheduler) {
-        val cart = SdkMessage.newBuilder().setGetCartRequest(GetCartRequest.getDefaultInstance()).build()
+        val cart = SdkMessage(get_cart_request = GetCartRequest())
 
         assertEquals("{}", commandRequests(pollItem(cart)).single().payload)
     }
 
     @Test
     fun handsACartChangeToTheUpdateCartProductCommandAsJson() = runTest(scheduler) {
-        val change = SdkMessage.newBuilder()
-            .setUpdateCartProductRequest(
-                UpdateCartProductRequest.newBuilder().setSku("WATER-1L").setUnits(0.0),
-            )
-            .build()
+        val change = SdkMessage(update_cart_product_request = UpdateCartProductRequest(sku = "WATER-1L", units = 0.0))
 
         val request = commandRequests(pollItem(change)).single()
 
@@ -487,29 +479,29 @@ class YaloMessageRepositoryRemoteTest {
         connected().answerCommand(cartRequest(), Result.success(page))
 
         val answer = source.sent.single()
-        assertEquals("c-1", answer.correlationId)
-        val cart = answer.getCartResponse
+        assertEquals("c-1", answer.correlation_id)
+        val cart = answer.get_cart_response!!
         assertEquals(ResponseStatus.RESPONSE_STATUS_SUCCESS, cart.status)
-        val product = cart.productsList.single()
-        assertEquals(listOf("WATER-1L", "Water", 12.5, 10.0, 2.0), listOf(product.sku, product.name, product.price, product.salePrice, product.unitsAdded))
-        assertEquals(listOf("https://cdn/w.png"), product.imagesUrlList)
-        assertEquals(listOf(20, "page-2"), listOf(cart.pageInfo.pageSize, cart.pageInfo.nextCursor))
+        val product = cart.products.single()
+        assertEquals(listOf("WATER-1L", "Water", 12.5, 10.0, 2.0), listOf(product.sku, product.name, product.price, product.sale_price, product.units_added))
+        assertEquals(listOf("https://cdn/w.png"), product.images_url)
+        assertEquals(listOf(20, "page-2"), listOf(cart.page_info?.page_size, cart.page_info?.next_cursor))
     }
 
     @Test
     fun answersTheCartAsFailedWhenTheHostReturnedSomethingThatIsNotJson() = runTest(scheduler) {
         connected().answerCommand(cartRequest(), Result.success("not json"))
 
-        val cart = source.sent.single().getCartResponse
+        val cart = source.sent.single().get_cart_response!!
         assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, cart.status)
-        assertEquals(0, cart.productsCount)
+        assertEquals(0, cart.products.size)
     }
 
     @Test
     fun answersTheCartAsFailedWhenTheHandlerFailed() = runTest(scheduler) {
         connected().answerCommand(cartRequest(), Result.failure(IllegalStateException("closed")))
 
-        assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, source.sent.single().getCartResponse.status)
+        assertEquals(ResponseStatus.RESPONSE_STATUS_ERROR, source.sent.single().get_cart_response!!.status)
     }
 
     @Test
@@ -522,7 +514,7 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals(
             listOf(ResponseStatus.RESPONSE_STATUS_SUCCESS, ResponseStatus.RESPONSE_STATUS_ERROR),
-            source.sent.map { it.updateCartProductResponse.status },
+            source.sent.map { it.update_cart_product_response?.status },
         )
     }
 
@@ -776,9 +768,7 @@ class YaloMessageRepositoryRemoteTest {
 
     @Test
     fun leavesOutWhatIsNotSomethingAnyoneSaid() = runTest(scheduler) {
-        val status = SdkMessage.newBuilder()
-            .setChatStatusRequest(ChatStatusRequest.newBuilder().setStatus("typing"))
-            .build()
+        val status = SdkMessage(chat_status_request = ChatStatusRequest(status = "typing"))
 
         assertEquals(emptyList<ChatMessage>(), received(pollItem(status)))
     }
@@ -828,17 +818,6 @@ class YaloMessageRepositoryRemoteTest {
         assertEquals(null, received.single().buttons.single().url)
     }
 
-    // A button kind only a newer backend knows still has to do something, and
-    // answering is the one thing every button can do.
-    @Test
-    fun readsAButtonKindItDoesNotKnowAsAnAnswer() = runTest(scheduler) {
-        val newerKind = Button.newBuilder().setText("Yes").setButtonTypeValue(99).build()
-
-        val received = received(pollItem(textMessage(buttons = listOf(newerKind))))
-
-        assertEquals(MessageButtonType.Reply, received.single().buttons.single().type)
-    }
-
     @Test
     fun readsTheAnswersOfferedWithAMessageItCannotDrawYet() = runTest(scheduler) {
         val received = received(pollItem(imageMessage(buttons = listOf(button("Yes")))))
@@ -854,8 +833,40 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun leavesOutAnItemThatCarriesNoMessage() = runTest(scheduler) {
+        assertEquals(emptyList<ChatMessage>(), received(PollMessageItem(id = "wi-1")))
+    }
+
+    @Test
+    fun readsAVoiceNoteThatArrivedWithoutItsRecordingAsAnEmptyOne() = runTest(scheduler) {
+        val message = SdkMessage(voice_note_message_request = VoiceNoteMessageRequest())
+
+        val received = received(pollItem(message))
+
+        assertEquals("", received.single().voice?.mediaUrl)
+    }
+
+    @Test
+    fun readsAPictureThatArrivedWithoutItsFileAsAnEmptyOne() = runTest(scheduler) {
+        val message = SdkMessage(image_message_request = ImageMessageRequest())
+
+        val received = received(pollItem(message))
+
+        assertEquals("", received.single().image?.mediaUrl)
+    }
+
+    @Test
+    fun readsTheAnswersOfferedWithAVideo() = runTest(scheduler) {
+        val message = SdkMessage(video_message_request = VideoMessageRequest(buttons = listOf(button("Yes"))))
+
+        val received = received(pollItem(message))
+
+        assertEquals(listOf("Yes"), received.single().buttons.map { it.text })
+    }
+
+    @Test
     fun leavesOutAnAcknowledgement() = runTest(scheduler) {
-        val received = received(MessageAcknowledged(SdkMessageAck.getDefaultInstance()))
+        val received = received(MessageAcknowledged(SdkMessageAck()))
 
         assertEquals(emptyList<ChatMessage>(), received)
     }
@@ -879,14 +890,12 @@ class YaloMessageRepositoryRemoteTest {
         commandId: String,
         payload: String = "",
         correlationId: String = "c-1",
-    ): SdkMessage = SdkMessage.newBuilder()
-        .setCorrelationId(correlationId)
-        .setCustomCommandRequest(
-            CustomCommandRequest.newBuilder().setCommandId(commandId).setPayload(payload),
-        )
-        .build()
+    ): SdkMessage = SdkMessage(
+        correlation_id = correlationId,
+        custom_command_request = CustomCommandRequest(command_id = commandId, payload = payload),
+    )
 
-    private fun sentText(): String = source.sent.single().textMessageRequest.content.text
+    private fun sentText(): String = source.sent.single().text_message_request!!.content!!.text
 
     /** What the repository makes of [inbound], once the channel has sent it. */
     private fun TestScope.received(vararg inbound: InboundMessage): List<ChatMessage> {
@@ -909,52 +918,32 @@ class YaloMessageRepositoryRemoteTest {
         id: String = "wi-1",
         date: Long? = ARRIVED_AT,
         status: String = "DELIVERED",
-    ): PollMessageItem = PollMessageItem.newBuilder()
-        .setId(id)
-        .setMessage(message)
-        .setStatus(status)
-        .also { item ->
-            if (date != null) {
-                item.date = Timestamps.fromMillis(date)
-            }
-        }
-        .build()
+    ): PollMessageItem = PollMessageItem(
+        id = id,
+        message = message,
+        status = status,
+        date = date?.let(::timestampOf),
+    )
 
     private fun button(
         text: String,
         type: ButtonType = ButtonType.BUTTON_TYPE_REPLY,
         url: String? = null,
-    ): Button = Button.newBuilder()
-        .setText(text)
-        .setButtonType(type)
-        .also { button ->
-            if (url != null) {
-                button.url = url
-            }
-        }
-        .build()
+    ): Button = Button(text = text, button_type = type, url = url)
 
     private fun textMessage(
         text: String = "On its way",
         header: String? = null,
         footer: String? = null,
         buttons: List<Button> = emptyList(),
-    ): SdkMessage {
-        val request = TextMessageRequest.newBuilder()
-            .setContent(
-                TextMessage.newBuilder()
-                    .setText(text)
-                    .setRole(WireRole.MESSAGE_ROLE_AGENT),
-            )
-            .addAllButtons(buttons)
-        if (header != null) {
-            request.header = header
-        }
-        if (footer != null) {
-            request.footer = footer
-        }
-        return SdkMessage.newBuilder().setTextMessageRequest(request).build()
-    }
+    ): SdkMessage = SdkMessage(
+        text_message_request = TextMessageRequest(
+            content = TextMessage(text = text, role = WireRole.MESSAGE_ROLE_AGENT),
+            header_ = header,
+            footer = footer,
+            buttons = buttons,
+        ),
+    )
 
     private fun recorded(
         durationMillis: Long = 4_200,
@@ -978,25 +967,21 @@ class YaloMessageRepositoryRemoteTest {
         voice = note,
     )
 
-    private fun wireVoiceMessage(): SdkMessage = SdkMessage.newBuilder()
-        .setVoiceNoteMessageRequest(
-            VoiceNoteMessageRequest.newBuilder()
-                .setContent(
-                    VoiceMessage.newBuilder()
-                        .setMediaUrl("https://media.example.com/note.m4a")
-                        .setMediaType("audio/mp4")
-                        .setFileName("note.m4a")
-                        .setByteCount(4_096)
-                        .setDuration(4.5)
-                        .addAllAmplitudesPreview(listOf(0.25f, 1f))
-                        .setRole(WireRole.MESSAGE_ROLE_AGENT),
-                ),
-        )
-        .build()
+    private fun wireVoiceMessage(): SdkMessage = SdkMessage(
+        voice_note_message_request = VoiceNoteMessageRequest(
+            content = VoiceMessage(
+                media_url = "https://media.example.com/note.m4a",
+                media_type = "audio/mp4",
+                file_name = "note.m4a",
+                byte_count = 4_096,
+                duration = 4.5,
+                amplitudes_preview = listOf(0.25f, 1f),
+                role = WireRole.MESSAGE_ROLE_AGENT,
+            ),
+        ),
+    )
 
-    private fun videoMessage(): SdkMessage = SdkMessage.newBuilder()
-        .setVideoMessageRequest(VideoMessageRequest.newBuilder())
-        .build()
+    private fun videoMessage(): SdkMessage = SdkMessage(video_message_request = VideoMessageRequest())
 
     private fun picked(mediaUrl: String = "media-1"): ImageAttachment = ImageAttachment(
         mediaUrl = mediaUrl,
@@ -1023,27 +1008,21 @@ class YaloMessageRepositoryRemoteTest {
         header: String? = null,
         footer: String? = null,
         buttons: List<Button> = emptyList(),
-    ): SdkMessage {
-        val content = ImageMessage.newBuilder()
-            .setMediaUrl("https://yalo.com/shirt.png")
-            .setMediaType("image/png")
-            .setFileName("shirt.png")
-            .setByteCount(4_096)
-            .setRole(WireRole.MESSAGE_ROLE_AGENT)
-        if (caption != null) {
-            content.text = caption
-        }
-        val request = ImageMessageRequest.newBuilder()
-            .setContent(content)
-            .addAllButtons(buttons)
-        if (header != null) {
-            request.header = header
-        }
-        if (footer != null) {
-            request.footer = footer
-        }
-        return SdkMessage.newBuilder().setImageMessageRequest(request).build()
-    }
+    ): SdkMessage = SdkMessage(
+        image_message_request = ImageMessageRequest(
+            content = ImageMessage(
+                text = caption,
+                media_url = "https://yalo.com/shirt.png",
+                media_type = "image/png",
+                file_name = "shirt.png",
+                byte_count = 4_096,
+                role = WireRole.MESSAGE_ROLE_AGENT,
+            ),
+            header_ = header,
+            footer = footer,
+            buttons = buttons,
+        ),
+    )
 
     /** A chat with its line open, which is what anything is sent from. */
     private fun TestScope.connected(): YaloMessageRepositoryRemote = repository().also { repository ->

@@ -3,14 +3,13 @@ package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.log.YaloLog
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAckType
-import com.google.protobuf.InvalidProtocolBufferException
-import com.google.protobuf.util.JsonFormat
+import ai.yalo.chat.sdk.internal.proto.v2.ConnectionAck
+import ai.yalo.chat.sdk.internal.proto.v2.ConnectionAckType
+import ai.yalo.chat.sdk.internal.proto.v2.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageAck
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageAckType
+import com.squareup.moshi.JsonDataException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -74,7 +73,7 @@ internal class YaloMessageWebsocketDataSource(
     override val messages: Flow<InboundMessage> = incoming.asSharedFlow()
 
     override suspend fun send(message: SdkMessage): Result<Unit> {
-        val frame = frameOf(message).getOrElse { cause -> return Result.failure(cause) }
+        val frame = WireFormat.write(message)
         return mutex.withLock {
             val socket = live
             when {
@@ -235,17 +234,10 @@ internal class YaloMessageWebsocketDataSource(
         }
     }
 
-    private fun frameOf(message: SdkMessage): Result<String> = try {
-        Result.success(PRINTER.print(message))
-    } catch (error: InvalidProtocolBufferException) {
-        log.error(error) { "a message cannot be put on the wire" }
-        Result.failure(error)
-    }
-
     // What reached the chat, as against what arrived on the wire: a frame can be
     // dropped or belong to a socket that has since been replaced.
     private fun nameOf(message: InboundMessage): String = when (message) {
-        is MessageReceived -> "a ${message.item.message.payloadCase.name} message"
+        is MessageReceived -> "a message"
         is MessageAcknowledged -> "an acknowledgement"
     }
 
@@ -256,9 +248,7 @@ internal class YaloMessageWebsocketDataSource(
         val fields = JSONObject(text)
         when {
             !fields.has(FIELD_TYPE) -> SocketFrame.Payload(
-                MessageReceived(
-                    PollMessageItem.newBuilder().also { PARSER.merge(text, it) }.build(),
-                ),
+                MessageReceived(WireFormat.read(text, PollMessageItem::class.java)),
             )
             fields.has(FIELD_CORRELATION_ID) -> messageAck(text)
             else -> connectionAck(text)
@@ -266,13 +256,17 @@ internal class YaloMessageWebsocketDataSource(
     } catch (error: JSONException) {
         log.warn(error) { "a frame that is not JSON was dropped" }
         SocketFrame.Unusable
-    } catch (error: InvalidProtocolBufferException) {
+    } catch (error: JsonDataException) {
+        log.warn(error) { "a frame this SDK cannot read was dropped" }
+        SocketFrame.Unusable
+    } catch (error: IOException) {
+        // org.json accepts JSON that is looser than what the reader takes.
         log.warn(error) { "a frame this SDK cannot read was dropped" }
         SocketFrame.Unusable
     }
 
     private fun connectionAck(text: String): SocketFrame {
-        val ack = ConnectionAck.newBuilder().also { PARSER.merge(text, it) }.build()
+        val ack = WireFormat.read(text, ConnectionAck::class.java)
         if (ack.type != ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK) {
             return SocketFrame.Unusable
         }
@@ -280,7 +274,7 @@ internal class YaloMessageWebsocketDataSource(
     }
 
     private fun messageAck(text: String): SocketFrame {
-        val ack = SdkMessageAck.newBuilder().also { PARSER.merge(text, it) }.build()
+        val ack = WireFormat.read(text, SdkMessageAck::class.java)
         if (ack.type != SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK) {
             return SocketFrame.Unusable
         }
@@ -323,12 +317,5 @@ internal class YaloMessageWebsocketDataSource(
         private const val ACK_TIMEOUT_MILLIS = 10_000L
 
         private const val MAX_PENDING_FRAMES = 128
-
-        // The wire format is proto3 JSON, which is what these produce and accept
-        // by default. Ignoring unknown fields keeps a newer backend from
-        // breaking an older app.
-        private val PRINTER: JsonFormat.Printer =
-            JsonFormat.printer().omittingInsignificantWhitespace()
-        private val PARSER: JsonFormat.Parser = JsonFormat.parser().ignoringUnknownFields()
     }
 }

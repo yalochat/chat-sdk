@@ -3,16 +3,17 @@ package ai.yalo.chat.sdk.data.datasources.message
 
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.log.YaloLog
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAck
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ConnectionAckType
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAckType
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.TextMessageRequest
-import com.google.protobuf.util.JsonFormat
+import ai.yalo.chat.sdk.internal.proto.v2.ButtonType
+import ai.yalo.chat.sdk.internal.proto.v2.ConnectionAck
+import ai.yalo.chat.sdk.internal.proto.v2.ConnectionAckType
+import ai.yalo.chat.sdk.internal.proto.v2.MessageRole
+import ai.yalo.chat.sdk.internal.proto.v2.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageAck
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageAckType
+import ai.yalo.chat.sdk.internal.proto.v2.TextMessage
+import ai.yalo.chat.sdk.internal.proto.v2.TextMessageRequest
+import com.squareup.wire.Message
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -176,7 +177,7 @@ class YaloMessageWebsocketDataSourceTest {
 
         val received = seen.single() as MessageReceived
         assertEquals("wi-1", received.item.id)
-        assertEquals("hello", received.item.message.textMessageRequest.content.text)
+        assertEquals("hello", received.item.message?.text_message_request?.content?.text)
     }
 
     @Test
@@ -188,7 +189,7 @@ class YaloMessageWebsocketDataSourceTest {
         sockets.last().deliver(json(messageAck("cid-1")))
         runCurrent()
 
-        assertEquals("cid-1", (seen.single() as MessageAcknowledged).ack.correlationId)
+        assertEquals("cid-1", (seen.single() as MessageAcknowledged).ack.correlation_id)
     }
 
     @Test
@@ -205,6 +206,18 @@ class YaloMessageWebsocketDataSourceTest {
     }
 
     @Test
+    fun ignoresAFrameInLooseJson() = runTest(scheduler) {
+        val source = dataSource()
+        val seen = collect(source.messages)
+        acknowledgedSession(source)
+
+        sockets.last().deliver("{id: 'wi-1'}")
+        runCurrent()
+
+        assertTrue(seen.isEmpty())
+    }
+
+    @Test
     fun ignoresAFrameCarryingATypeItDoesNotKnow() = runTest(scheduler) {
         val source = dataSource()
         val seen = collect(source.messages)
@@ -214,6 +227,24 @@ class YaloMessageWebsocketDataSourceTest {
         runCurrent()
 
         assertTrue(seen.isEmpty())
+    }
+
+    // A button kind only a newer backend knows still has to do something, and
+    // answering is the one thing every button can do.
+    @Test
+    fun readsAnEnumValueItDoesNotKnowAsTheZeroValue() = runTest(scheduler) {
+        val source = dataSource()
+        val seen = collect(source.messages)
+        acknowledgedSession(source)
+
+        sockets.last().deliver(
+            """{"id":"wi-1","message":{"textMessageRequest":{"content":{"text":"hi"},""" +
+                """"buttons":[{"text":"Yes","buttonType":"BUTTON_TYPE_CAROUSEL"}]}}}""",
+        )
+        runCurrent()
+
+        val button = (seen.single() as MessageReceived).item.message?.text_message_request?.buttons?.single()
+        assertEquals(ButtonType.BUTTON_TYPE_REPLY, button?.button_type)
     }
 
     @Test
@@ -239,7 +270,7 @@ class YaloMessageWebsocketDataSourceTest {
         runCurrent()
 
         assertTrue(result.isSuccess)
-        assertEquals("hi", parsedSdkMessage(sockets.last().sent.single()).textMessageRequest.content.text)
+        assertEquals("hi", parsedSdkMessage(sockets.last().sent.single()).text_message_request?.content?.text)
     }
 
     @Test
@@ -257,7 +288,7 @@ class YaloMessageWebsocketDataSourceTest {
         sockets.last().acknowledge()
         runCurrent()
 
-        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlationId)
+        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlation_id)
     }
 
     @Test
@@ -282,7 +313,7 @@ class YaloMessageWebsocketDataSourceTest {
         acknowledgedSession(source)
 
         assertTrue(result.isSuccess)
-        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlationId)
+        assertEquals("cid-1", parsedSdkMessage(sockets.last().sent.single()).correlation_id)
     }
 
     @Test
@@ -409,7 +440,7 @@ class YaloMessageWebsocketDataSourceTest {
 
         val sent = sockets.last().sent
         assertEquals(MAX_PENDING_FRAMES, sent.size)
-        assertEquals("cid-1", parsedSdkMessage(sent.first()).correlationId)
+        assertEquals("cid-1", parsedSdkMessage(sent.first()).correlation_id)
     }
 
     @Test
@@ -488,33 +519,28 @@ class YaloMessageWebsocketDataSourceTest {
         return seen
     }
 
-    private fun json(message: com.google.protobuf.Message): String = PRINTER.print(message)
+    private fun json(message: Message<*, *>): String = WireFormat.write(message)
 
-    private fun parsedSdkMessage(frame: String): SdkMessage =
-        SdkMessage.newBuilder().also { PARSER.merge(frame, it) }.build()
+    private fun parsedSdkMessage(frame: String): SdkMessage = WireFormat.read(frame, SdkMessage::class.java)
 
-    private fun textMessage(correlationId: String, text: String): SdkMessage = SdkMessage.newBuilder()
-        .setCorrelationId(correlationId)
-        .setTextMessageRequest(
-            TextMessageRequest.newBuilder().setContent(
-                TextMessage.newBuilder()
-                    .setText(text)
-                    .setRole(MessageRole.MESSAGE_ROLE_USER),
-            ),
-        )
-        .build()
+    private fun textMessage(correlationId: String, text: String): SdkMessage = SdkMessage(
+        correlation_id = correlationId,
+        text_message_request = TextMessageRequest(
+            content = TextMessage(text = text, role = MessageRole.MESSAGE_ROLE_USER),
+        ),
+    )
 
-    private fun pollItem(id: String, text: String): PollMessageItem = PollMessageItem.newBuilder()
-        .setId(id)
-        .setUserId("user-1")
-        .setStatus("DELIVERED")
-        .setMessage(textMessage("cid-$id", text))
-        .build()
+    private fun pollItem(id: String, text: String): PollMessageItem = PollMessageItem(
+        id = id,
+        user_id = "user-1",
+        status = "DELIVERED",
+        message = textMessage("cid-$id", text),
+    )
 
-    private fun messageAck(correlationId: String): SdkMessageAck = SdkMessageAck.newBuilder()
-        .setType(SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK)
-        .setCorrelationId(correlationId)
-        .build()
+    private fun messageAck(correlationId: String): SdkMessageAck = SdkMessageAck(
+        type = SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK,
+        correlation_id = correlationId,
+    )
 
     private companion object {
 
@@ -526,13 +552,10 @@ class YaloMessageWebsocketDataSourceTest {
 
         const val NORMAL_CLOSURE = 1_000
 
-        val PRINTER: JsonFormat.Printer = JsonFormat.printer().omittingInsignificantWhitespace()
-        val PARSER: JsonFormat.Parser = JsonFormat.parser().ignoringUnknownFields()
-
-        val CONNECTION_ACK: ConnectionAck = ConnectionAck.newBuilder()
-            .setType(ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK)
-            .setConnectionId("connection-1")
-            .build()
+        val CONNECTION_ACK: ConnectionAck = ConnectionAck(
+            type = ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK,
+            connection_id = "connection-1",
+        )
     }
 
     /**
@@ -575,7 +598,7 @@ class YaloMessageWebsocketDataSourceTest {
         }
 
         fun acknowledge() {
-            deliver(PRINTER.print(CONNECTION_ACK))
+            deliver(WireFormat.write(CONNECTION_ACK))
         }
 
         fun deliver(frame: String) {

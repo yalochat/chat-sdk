@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Wire compiler downloaded by make proto_kotlin
+.wire

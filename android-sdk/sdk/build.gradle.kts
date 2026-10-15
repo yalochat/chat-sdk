@@ -49,7 +49,6 @@ android {
 
     sourceSets {
         getByName("main") {
-            java.directories.add(protoSources)
             kotlin.directories.add(protoSources)
         }
     }
@@ -163,9 +162,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.okhttp)
     implementation(libs.okio)
-    implementation(libs.protobuf.java)
-    implementation(libs.protobuf.kotlin)
-    implementation(libs.protobuf.java.util)
+    implementation(libs.wire.runtime)
+    implementation(libs.wire.moshi.adapter)
+    implementation(libs.moshi)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.jetbrains.markdown)
     implementation(libs.androidx.lifecycle.runtime.compose)
