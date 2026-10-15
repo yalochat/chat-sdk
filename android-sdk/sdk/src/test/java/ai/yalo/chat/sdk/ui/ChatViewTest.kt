@@ -5,6 +5,7 @@ import ai.yalo.chat.sdk.R
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -84,6 +85,24 @@ class ChatViewTest {
         composeRule.onNodeWithContentDescription(backDescription()).performClick()
 
         assertEquals(1, backs)
+    }
+
+    @Test
+    fun drawsTheAvatarInTheHeader() {
+        var avatars = 0
+        show(
+            ChatView(composeRule.activity).apply {
+                client = this@ChatViewTest.client
+                avatar = { context ->
+                    avatars++
+                    View(context)
+                }
+            },
+        )
+
+        composeRule.waitForIdle()
+
+        assertEquals(1, avatars)
     }
 
     private fun show(view: ChatView) {
