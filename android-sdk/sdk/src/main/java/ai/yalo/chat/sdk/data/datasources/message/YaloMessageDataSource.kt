@@ -1,9 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.data.datasources.message
 
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage
-import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageAck
+import ai.yalo.chat.sdk.internal.proto.v2.PollMessageItem
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessage
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageAck
 import kotlinx.coroutines.flow.Flow
 
 /**

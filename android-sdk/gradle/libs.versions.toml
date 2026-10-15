@@ -10,7 +10,8 @@ kotlin = "2.2.10"
 composeBom = "2025.11.00"
 robolectric = "4.16"
 coroutines = "1.9.0"
-protobuf = "4.34.0"
+wire = "5.5.1"
+moshi = "1.15.2"
 mavenPublish = "0.37.0"
 okhttp = "4.12.0"
 okio = "3.9.1"
@@ -42,9 +43,10 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
-protobuf-java = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf" }
-protobuf-kotlin = { group = "com.google.protobuf", name = "protobuf-kotlin", version.ref = "protobuf" }
-protobuf-java-util = { group = "com.google.protobuf", name = "protobuf-java-util", version.ref = "protobuf" }
+wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
+wire-moshi-adapter = { group = "com.squareup.wire", name = "wire-moshi-adapter", version.ref = "wire" }
+moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
+moshi-adapters = { group = "com.squareup.moshi", name = "moshi-adapters", version.ref = "moshi" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 jetbrains-markdown = { group = "org.jetbrains", name = "markdown", version.ref = "markdown" }
 
