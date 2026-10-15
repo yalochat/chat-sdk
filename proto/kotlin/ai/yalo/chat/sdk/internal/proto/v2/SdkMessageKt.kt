@@ -842,6 +842,30 @@ public object SdkMessageKt {
     public fun hasGuidanceCardResponse(): kotlin.Boolean {
       return _builder.hasGuidanceCardResponse()
     }
+
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;`
+     */
+    public var messageFeedbackRequest: ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest
+      @kotlin.jvm.JvmName("getMessageFeedbackRequest")
+        get() = _builder.messageFeedbackRequest
+      @kotlin.jvm.JvmName("setMessageFeedbackRequest")
+        set(value) {
+        _builder.messageFeedbackRequest = value
+      }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;`
+     */
+    public fun clearMessageFeedbackRequest() {
+      _builder.clearMessageFeedbackRequest()
+    }
+    /**
+     * `.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;`
+     * @return Whether the messageFeedbackRequest field is set.
+     */
+    public fun hasMessageFeedbackRequest(): kotlin.Boolean {
+      return _builder.hasMessageFeedbackRequest()
+    }
     public val payloadCase: ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage.PayloadCase
     @kotlin.jvm.JvmName("getPayloadCase")
       get() = _builder.getPayloadCase()
@@ -947,4 +971,7 @@ public val ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageOrB
 
 public val ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageOrBuilder.guidanceCardResponseOrNull: ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardResponse?
   get() = if (hasGuidanceCardResponse()) getGuidanceCardResponse() else null
+
+public val ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessageOrBuilder.messageFeedbackRequestOrNull: ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest?
+  get() = if (hasMessageFeedbackRequest()) getMessageFeedbackRequest() else null
 

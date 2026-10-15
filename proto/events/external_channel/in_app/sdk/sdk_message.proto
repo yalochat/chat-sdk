@@ -55,6 +55,7 @@ message SdkMessage {
     // Client → channel
     GuidanceCardRequest      guidance_card_request       = 26;
     GuidanceCardResponse     guidance_card_response      = 27;
+    MessageFeedbackRequest   message_feedback_request    = 52;
   }
 }
 
@@ -387,6 +388,28 @@ message GuidanceCardResponse {
   string guidance_title = 3;
   string guidance_description = 4;
   repeated string guidance_cards = 5;
+}
+
+// ---------------------------------------------------------------------------
+// Message feedback  (client -> channel)
+// ---------------------------------------------------------------------------
+
+// FeedbackRating is the user's rating for a single agent message.
+enum FeedbackRating {
+  FEEDBACK_RATING_UNSPECIFIED = 0;
+  FEEDBACK_RATING_THUMBS_UP = 1;
+  FEEDBACK_RATING_THUMBS_DOWN = 2;
+}
+
+// MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+// agent message to the channel. The server confirms it with an SdkMessageAck.
+// If the user changes their rating, the client sends a new request for the
+// same message_id and the channel keeps the one with the latest timestamp.
+message MessageFeedbackRequest {
+  // Identifier of the agent message being rated.
+  string message_id = 1;
+  FeedbackRating rating = 2;
+  google.protobuf.Timestamp timestamp = 3;
 }
 
 // ---------------------------------------------------------------------------
