@@ -165,6 +165,7 @@ dependencies {
     implementation(libs.wire.runtime)
     implementation(libs.wire.moshi.adapter)
     implementation(libs.moshi)
+    implementation(libs.moshi.adapters)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.jetbrains.markdown)
     implementation(libs.androidx.lifecycle.runtime.compose)

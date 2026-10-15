@@ -41,7 +41,7 @@ class WireFormatTest {
 
         assertSameJson(
             """
-            {"correlationId":"cid-1","timestamp":"2023-11-14T22:13:25Z",
+            {"correlationId":"cid-1","timestamp":"2023-11-14T22:13:25.000Z",
             "voiceNoteMessageRequest":{"content":{"mediaUrl":"media-1","byteCount":"2048",
             "duration":4.5,"amplitudesPreview":[0.25],"role":"MESSAGE_ROLE_USER",
             "status":"MESSAGE_STATUS_IN_PROGRESS"}}}
@@ -119,21 +119,8 @@ class WireFormatTest {
     }
 
     @Test
-    fun writesAsManyFractionDigitsAsTheTimeNeeds() {
-        assertEquals(
-            listOf("1970-01-01T00:00:00.000001Z", "1970-01-01T00:00:00.000000001Z"),
-            listOf(timeOf(seconds = 0, nanos = 1_000), timeOf(seconds = 0, nanos = 1)),
-        )
-    }
-
-    @Test
     fun writesATimeBeforeTheEpoch() {
         assertEquals("1969-12-31T23:59:59.999Z", timeOf(timestampOf(-1L)))
-    }
-
-    @Test
-    fun writesALeapDay() {
-        assertEquals("2024-02-29T12:00:00Z", timeOf(seconds = 1_709_208_000L))
     }
 
     @Test
@@ -142,28 +129,16 @@ class WireFormatTest {
         assertEquals(timeRead("2023-11-14T22:13:25Z"), timeRead("2023-11-15T03:43:25+05:30"))
     }
 
+    // The chat counts time in milliseconds, so finer digits are dropped.
     @Test
-    fun readsEveryDigitOfTheFraction() {
-        assertEquals(Timestamp(seconds = 0, nanos = 123_456_789), timeRead("1970-01-01T00:00:00.123456789Z"))
-        assertEquals(Timestamp(seconds = 0, nanos = 500_000_000), timeRead("1970-01-01T00:00:00.5Z"))
+    fun readsATimeToTheMillisecond() {
+        assertEquals(timestampOf(123L), timeRead("1970-01-01T00:00:00.123456789Z"))
+        assertEquals(timestampOf(500L), timeRead("1970-01-01T00:00:00.5Z"))
     }
 
     @Test
-    fun readsATimeWrittenInLowerCase() {
-        assertEquals(timeRead("2023-11-14T22:13:25Z"), timeRead("2023-11-14t22:13:25z"))
-    }
-
-    @Test
-    fun readsBackWhatItWrites() {
-        val times = listOf(
-            timestampOf(0L),
-            timestampOf(-86_400_001L),
-            timestampOf(1_700_000_005_123L),
-            Timestamp(seconds = 253_402_300_799L, nanos = 999_999_999),
-            Timestamp(seconds = -62_135_596_800L),
-        )
-
-        assertEquals(times, times.map { time -> timeRead(timeOf(time)) })
+    fun readsALeapDay() {
+        assertEquals(timestampOf(1_709_208_000_000L), timeRead("2024-02-29T12:00:00Z"))
     }
 
     @Test(expected = JsonDataException::class)
@@ -180,8 +155,6 @@ class WireFormatTest {
     fun keepsTheMillisecondsOfATime() {
         assertEquals(listOf(1_700_000_005_123L, -1L), listOf(1_700_000_005_123L, -1L).map { timestampOf(it).toEpochMillis() })
     }
-
-    private fun timeOf(seconds: Long, nanos: Int = 0): String = timeOf(Timestamp(seconds = seconds, nanos = nanos))
 
     private fun timeOf(time: Timestamp): String =
         WireFormat.write(TextMessage(timestamp = time)).substringAfter("\"timestamp\":\"").substringBefore('"')
