@@ -246,6 +246,7 @@ Leave it out when the chat is embedded in a screen that already has a way back, 
 val chatView = ChatView(context).apply {
     client = YaloChatClient(config)
     theme = { default -> default.copy(headerBackground = Color.Red) }
+    avatar = { context -> ImageView(context).apply { setImageResource(R.drawable.logo) } }
     onBack = { finish() }
 }
 setContentView(chatView)
@@ -253,6 +254,7 @@ setContentView(chatView)
 
 - **`client`**: The client holding the configuration for this conversation. Nothing is drawn until you set it.
 - **`theme`**: Adjusts the default theme, which follows the system light or dark scheme. Leave it out to keep the default. See [Theming](doc/theming.md).
+- **`avatar`**: Creates the view drawn beside the channel name in the header, and centered above the welcome message when `welcomeMessageType` is `VerticalQuickReplies`. It is called once for each place the avatar shows, so return a new view every time. Nothing is drawn unless you set one.
 - **`onBack`**: Adds a back button to the header. The header has no back button unless you set one.
 
 The view finds its lifecycle through the window it is attached to, so place it in a `ComponentActivity`, such as an `AppCompatActivity`.
