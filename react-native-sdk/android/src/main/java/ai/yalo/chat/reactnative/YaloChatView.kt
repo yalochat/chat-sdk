@@ -4,12 +4,17 @@ package ai.yalo.chat.reactnative
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.ui.ChatView
+import android.net.Uri
 import android.util.Log
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.facebook.drawee.drawable.ScalingUtils
+import com.facebook.drawee.generic.RoundingParams
+import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
 import kotlinx.coroutines.CompletableDeferred
@@ -73,6 +78,35 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
         client = next?.let { YaloChatClient(it) }
         registerCommands()
         chat.client = client
+    }
+
+    /** Draws the image at [value] as the avatar, or none when it is empty. */
+    fun setAvatar(value: String?) {
+        if (value.isNullOrEmpty()) {
+            chat.avatar = null
+            return
+        }
+        val uri = avatarUriOf(value)
+        chat.avatar = { context ->
+            SimpleDraweeView(context).apply {
+                val size = (AVATAR_SIZE_DP * resources.displayMetrics.density).toInt()
+                layoutParams = ViewGroup.LayoutParams(size, size)
+                hierarchy.roundingParams = RoundingParams.asCircle()
+                hierarchy.setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP)
+                setImageURI(uri, null)
+            }
+        }
+    }
+
+    // Images bundled in a release build arrive as a resource name, not a URL.
+    private fun avatarUriOf(value: String): Uri {
+        val uri = Uri.parse(value)
+        if (uri.scheme != null) {
+            return uri
+        }
+        val name = value.lowercase().replace("-", "_")
+        val id = context.resources.getIdentifier(name, "drawable", context.packageName)
+        return Uri.parse("res:///$id")
     }
 
     fun setTheme(value: String?) {
@@ -141,6 +175,7 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
 
     private companion object {
         const val TAG: String = "YaloChatView"
+        const val AVATAR_SIZE_DP: Float = 40f
     }
 }
 

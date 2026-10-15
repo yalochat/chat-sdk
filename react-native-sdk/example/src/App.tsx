@@ -15,7 +15,13 @@ export default function App() {
   const [chatIsOpen, setChatIsOpen] = useState(false);
 
   if (chatIsOpen) {
-    return <Chat client={client} onBack={() => setChatIsOpen(false)} />;
+    return (
+      <Chat
+        client={client}
+        avatar={{ uri: 'https://github.com/yalochat.png' }}
+        onBack={() => setChatIsOpen(false)}
+      />
+    );
   }
 
   return (

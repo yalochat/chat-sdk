@@ -33,6 +33,11 @@ internal class YaloChatViewManager :
         view.setTheme(value)
     }
 
+    @ReactProp(name = "avatar")
+    override fun setAvatar(view: YaloChatView, value: String?) {
+        view.setAvatar(value)
+    }
+
     @ReactProp(name = "showsBackButton")
     override fun setShowsBackButton(view: YaloChatView, value: Boolean) {
         view.showsBackButton = value

@@ -17,6 +17,7 @@ public final class YaloChatHostView: UIView {
   private var configKey: String = ""
   private var theme: ChatTheme = ChatTheme()
   private var showsBackButton: Bool = false
+  private var avatar: URL?
   private let host: UIHostingController<AnyView> = UIHostingController(rootView: AnyView(EmptyView()))
 
   override public init(frame: CGRect) {
@@ -85,6 +86,12 @@ public final class YaloChatHostView: UIView {
     render()
   }
 
+  /// Draws the image at the URL as the avatar, or none when it is empty.
+  @objc public func setAvatar(_ value: String) {
+    avatar = avatarURL(of: value)
+    render()
+  }
+
   @objc public func setShowsBackButton(_ value: Bool) {
     showsBackButton = value
     render()
@@ -122,11 +129,39 @@ public final class YaloChatHostView: UIView {
       return
     }
     let onBack: (() -> Void)? = showsBackButton ? { [weak self] in self?.onBack?() } : nil
+    guard let avatar else {
+      host.rootView = AnyView(
+        Chat(client: client, theme: theme, onBack: onBack)
+          .id(configKey)
+      )
+      return
+    }
     host.rootView = AnyView(
-      Chat(client: client, theme: theme, onBack: onBack)
-        .id(configKey)
+      Chat(client: client, theme: theme, onBack: onBack) {
+        AsyncImage(url: avatar) { image in
+          image.resizable().scaledToFill()
+        } placeholder: {
+          Color.clear
+        }
+        .frame(width: avatarSize, height: avatarSize)
+        .clipShape(Circle())
+      }
+      .id(configKey)
     )
   }
+}
+
+private let avatarSize: CGFloat = 40
+
+/// Images bundled in a release build can arrive as a path inside the app.
+func avatarURL(of value: String) -> URL? {
+  if value.isEmpty {
+    return nil
+  }
+  if let url = URL(string: value), url.scheme != nil {
+    return url
+  }
+  return Bundle.main.bundleURL.appendingPathComponent(value)
 }
 
 /// The JavaScript handler for a command threw or was missing.

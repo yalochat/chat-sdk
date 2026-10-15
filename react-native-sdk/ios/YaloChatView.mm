@@ -56,6 +56,9 @@ using namespace facebook::react;
   if (oldChatProps.theme != newChatProps.theme) {
     [_chat setTheme:[NSString stringWithUTF8String:newChatProps.theme.c_str()]];
   }
+  if (oldChatProps.avatar != newChatProps.avatar) {
+    [_chat setAvatar:[NSString stringWithUTF8String:newChatProps.avatar.c_str()]];
+  }
   if (oldChatProps.showsBackButton != newChatProps.showsBackButton) {
     [_chat setShowsBackButton:newChatProps.showsBackButton];
   }
