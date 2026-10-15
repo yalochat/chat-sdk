@@ -232,6 +232,45 @@ package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_ButtonType: SwiftProt
 
 }
 
+/// FeedbackRating is the user's rating for a single agent message.
+package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: SwiftProtobuf.Enum, Swift.CaseIterable {
+  package typealias RawValue = Int
+  case unspecified // = 0
+  case thumbsUp // = 1
+  case thumbsDown // = 2
+  case UNRECOGNIZED(Int)
+
+  package init() {
+    self = .unspecified
+  }
+
+  package init?(rawValue: Int) {
+    switch rawValue {
+    case 0: self = .unspecified
+    case 1: self = .thumbsUp
+    case 2: self = .thumbsDown
+    default: self = .UNRECOGNIZED(rawValue)
+    }
+  }
+
+  package var rawValue: Int {
+    switch self {
+    case .unspecified: return 0
+    case .thumbsUp: return 1
+    case .thumbsDown: return 2
+    case .UNRECOGNIZED(let i): return i
+    }
+  }
+
+  // The compiler won't synthesize support with the UNRECOGNIZED case.
+  package static let allCases: [Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating] = [
+    .unspecified,
+    .thumbsUp,
+    .thumbsDown,
+  ]
+
+}
+
 /// ConnectionAckType discriminates the variants of a ConnectionAck frame.
 package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_ConnectionAckType: SwiftProtobuf.Enum, Swift.CaseIterable {
   package typealias RawValue = Int
@@ -573,6 +612,14 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: @unchec
     set {_uniqueStorage()._payload = .guidanceCardResponse(newValue)}
   }
 
+  package var messageFeedbackRequest: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest {
+    get {
+      if case .messageFeedbackRequest(let v)? = _storage._payload {return v}
+      return Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest()
+    }
+    set {_uniqueStorage()._payload = .messageFeedbackRequest(newValue)}
+  }
+
   package var unknownFields = SwiftProtobuf.UnknownStorage()
 
   package nonisolated enum OneOf_Payload: Equatable, Sendable {
@@ -609,6 +656,7 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: @unchec
     /// Client → channel
     case guidanceCardRequest(Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardRequest)
     case guidanceCardResponse(Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardResponse)
+    case messageFeedbackRequest(Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest)
 
   }
 
@@ -1620,6 +1668,36 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardRespons
   fileprivate var _timestamp: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
 }
 
+/// MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+/// agent message to the channel. The server confirms it with an SdkMessageAck.
+/// If the user changes their rating, the client sends a new request for the
+/// same message_id and the channel keeps the one with the latest timestamp.
+package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// Identifier of the agent message being rated.
+  package var messageID: String = String()
+
+  package var rating: Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating = .unspecified
+
+  package var timestamp: SwiftProtobuf.Google_Protobuf_Timestamp {
+    get {_timestamp ?? SwiftProtobuf.Google_Protobuf_Timestamp()}
+    set {_timestamp = newValue}
+  }
+  /// Returns true if `timestamp` has been explicitly set.
+  package var hasTimestamp: Bool {self._timestamp != nil}
+  /// Clears the value of `timestamp`. Subsequent reads from it will return its default value.
+  package mutating func clearTimestamp() {self._timestamp = nil}
+
+  package var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  package init() {}
+
+  fileprivate var _timestamp: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
+}
+
 /// AddPromotionRequest asks the channel to apply a promotion to the active cart.
 package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_AddPromotionRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -2246,6 +2324,10 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_ButtonType: SwiftProtobu
   package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0BUTTON_TYPE_REPLY\0\u{1}BUTTON_TYPE_POSTBACK\0\u{1}BUTTON_TYPE_LINK\0")
 }
 
+nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: SwiftProtobuf._ProtoNameProviding {
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0FEEDBACK_RATING_UNSPECIFIED\0\u{1}FEEDBACK_RATING_THUMBS_UP\0\u{1}FEEDBACK_RATING_THUMBS_DOWN\0")
+}
+
 nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_ConnectionAckType: SwiftProtobuf._ProtoNameProviding {
   package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0CONNECTION_ACK_TYPE_UNSPECIFIED\0\u{1}CONNECTION_ACK_TYPE_CONNECTION_ACK\0")
 }
@@ -2256,7 +2338,7 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessageAckType: Swift
 
 nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   package static let protoMessageName: String = _protobuf_package + ".SdkMessage"
-  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}correlation_id\0\u{1}timestamp\0\u{4}\u{8}text_message_request\0\u{4}\u{2}voice_note_message_request\0\u{4}\u{2}image_message_request\0\u{4}\u{2}message_receipt_request\0\u{4}\u{2}attachment_message_request\0\u{4}\u{2}add_to_cart_request\0\u{3}add_to_cart_response\0\u{3}remove_from_cart_request\0\u{3}remove_from_cart_response\0\u{3}clear_cart_request\0\u{3}clear_cart_response\0\u{3}guidance_card_request\0\u{3}guidance_card_response\0\u{3}add_promotion_request\0\u{3}add_promotion_response\0\u{3}promotion_message_request\0\u{3}promotion_message_response\0\u{3}product_message_request\0\u{3}product_message_response\0\u{3}chat_status_request\0\u{3}chat_status_response\0\u{3}custom_command_request\0\u{3}custom_command_response\0\u{3}video_message_request\0\u{4}\u{8}update_cart_product_request\0\u{3}update_cart_product_response\0\u{3}product_confirmation_message_request\0\u{3}product_confirmation_message_response\0\u{3}get_cart_request\0\u{3}get_cart_response\0")
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}correlation_id\0\u{1}timestamp\0\u{4}\u{8}text_message_request\0\u{4}\u{2}voice_note_message_request\0\u{4}\u{2}image_message_request\0\u{4}\u{2}message_receipt_request\0\u{4}\u{2}attachment_message_request\0\u{4}\u{2}add_to_cart_request\0\u{3}add_to_cart_response\0\u{3}remove_from_cart_request\0\u{3}remove_from_cart_response\0\u{3}clear_cart_request\0\u{3}clear_cart_response\0\u{3}guidance_card_request\0\u{3}guidance_card_response\0\u{3}add_promotion_request\0\u{3}add_promotion_response\0\u{3}promotion_message_request\0\u{3}promotion_message_response\0\u{3}product_message_request\0\u{3}product_message_response\0\u{3}chat_status_request\0\u{3}chat_status_response\0\u{3}custom_command_request\0\u{3}custom_command_response\0\u{3}video_message_request\0\u{4}\u{8}update_cart_product_request\0\u{3}update_cart_product_response\0\u{3}product_confirmation_message_request\0\u{3}product_confirmation_message_response\0\u{3}get_cart_request\0\u{3}get_cart_response\0\u{3}message_feedback_request\0")
 
   fileprivate class _StorageClass {
     var _correlationID: String = String()
@@ -2685,6 +2767,19 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: SwiftProtobu
             _storage._payload = .getCartResponse(v)
           }
         }()
+        case 52: try {
+          var v: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest?
+          var hadOneofValue = false
+          if let current = _storage._payload {
+            hadOneofValue = true
+            if case .messageFeedbackRequest(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._payload = .messageFeedbackRequest(v)
+          }
+        }()
         default: break
         }
       }
@@ -2823,6 +2918,10 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: SwiftProtobu
       case .getCartResponse?: try {
         guard case .getCartResponse(let v)? = _storage._payload else { preconditionFailure() }
         try visitor.visitSingularMessageField(value: v, fieldNumber: 51)
+      }()
+      case .messageFeedbackRequest?: try {
+        guard case .messageFeedbackRequest(let v)? = _storage._payload else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 52)
       }()
       case nil: break
       }
@@ -4127,6 +4226,50 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardResponse: Sw
     if lhs.guidanceTitle != rhs.guidanceTitle {return false}
     if lhs.guidanceDescription != rhs.guidanceDescription {return false}
     if lhs.guidanceCards != rhs.guidanceCards {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  package static let protoMessageName: String = _protobuf_package + ".MessageFeedbackRequest"
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}message_id\0\u{1}rating\0\u{1}timestamp\0")
+
+  package mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.messageID) }()
+      case 2: try { try decoder.decodeSingularEnumField(value: &self.rating) }()
+      case 3: try { try decoder.decodeSingularMessageField(value: &self._timestamp) }()
+      default: break
+      }
+    }
+  }
+
+  package func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    if !self.messageID.isEmpty {
+      try visitor.visitSingularStringField(value: self.messageID, fieldNumber: 1)
+    }
+    if self.rating != .unspecified {
+      try visitor.visitSingularEnumField(value: self.rating, fieldNumber: 2)
+    }
+    try { if let v = self._timestamp {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 3)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  package static func ==(lhs: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest, rhs: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest) -> Bool {
+    if lhs.messageID != rhs.messageID {return false}
+    if lhs.rating != rhs.rating {return false}
+    if lhs._timestamp != rhs._timestamp {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

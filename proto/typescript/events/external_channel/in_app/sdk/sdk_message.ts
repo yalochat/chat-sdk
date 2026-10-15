@@ -286,6 +286,55 @@ export function buttonTypeToJSON(object: ButtonType): string {
   }
 }
 
+/** FeedbackRating is the user's rating for a single agent message. */
+export const FeedbackRating = {
+  FEEDBACK_RATING_UNSPECIFIED: 0,
+  FEEDBACK_RATING_THUMBS_UP: 1,
+  FEEDBACK_RATING_THUMBS_DOWN: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type FeedbackRating = typeof FeedbackRating[keyof typeof FeedbackRating];
+
+export namespace FeedbackRating {
+  export type FEEDBACK_RATING_UNSPECIFIED = typeof FeedbackRating.FEEDBACK_RATING_UNSPECIFIED;
+  export type FEEDBACK_RATING_THUMBS_UP = typeof FeedbackRating.FEEDBACK_RATING_THUMBS_UP;
+  export type FEEDBACK_RATING_THUMBS_DOWN = typeof FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN;
+  export type UNRECOGNIZED = typeof FeedbackRating.UNRECOGNIZED;
+}
+
+export function feedbackRatingFromJSON(object: any): FeedbackRating {
+  switch (object) {
+    case 0:
+    case "FEEDBACK_RATING_UNSPECIFIED":
+      return FeedbackRating.FEEDBACK_RATING_UNSPECIFIED;
+    case 1:
+    case "FEEDBACK_RATING_THUMBS_UP":
+      return FeedbackRating.FEEDBACK_RATING_THUMBS_UP;
+    case 2:
+    case "FEEDBACK_RATING_THUMBS_DOWN":
+      return FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return FeedbackRating.UNRECOGNIZED;
+  }
+}
+
+export function feedbackRatingToJSON(object: FeedbackRating): string {
+  switch (object) {
+    case FeedbackRating.FEEDBACK_RATING_UNSPECIFIED:
+      return "FEEDBACK_RATING_UNSPECIFIED";
+    case FeedbackRating.FEEDBACK_RATING_THUMBS_UP:
+      return "FEEDBACK_RATING_THUMBS_UP";
+    case FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN:
+      return "FEEDBACK_RATING_THUMBS_DOWN";
+    case FeedbackRating.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** ConnectionAckType discriminates the variants of a ConnectionAck frame. */
 export const ConnectionAckType = {
   CONNECTION_ACK_TYPE_UNSPECIFIED: 0,
@@ -418,6 +467,7 @@ export interface SdkMessage {
   /** Client → channel */
   guidanceCardRequest?: GuidanceCardRequest | undefined;
   guidanceCardResponse?: GuidanceCardResponse | undefined;
+  messageFeedbackRequest?: MessageFeedbackRequest | undefined;
 }
 
 /**
@@ -719,6 +769,19 @@ export interface GuidanceCardResponse {
   guidanceCards: string[];
 }
 
+/**
+ * MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+ * agent message to the channel. The server confirms it with an SdkMessageAck.
+ * If the user changes their rating, the client sends a new request for the
+ * same message_id and the channel keeps the one with the latest timestamp.
+ */
+export interface MessageFeedbackRequest {
+  /** Identifier of the agent message being rated. */
+  messageId: string;
+  rating: FeedbackRating;
+  timestamp: Date | undefined;
+}
+
 /** AddPromotionRequest asks the channel to apply a promotion to the active cart. */
 export interface AddPromotionRequest {
   promotionId: string;
@@ -1012,6 +1075,7 @@ function createBaseSdkMessage(): SdkMessage {
     productConfirmationMessageResponse: undefined,
     guidanceCardRequest: undefined,
     guidanceCardResponse: undefined,
+    messageFeedbackRequest: undefined,
   };
 }
 
@@ -1114,6 +1178,9 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.guidanceCardResponse !== undefined) {
       GuidanceCardResponse.encode(message.guidanceCardResponse, writer.uint32(218).fork()).join();
+    }
+    if (message.messageFeedbackRequest !== undefined) {
+      MessageFeedbackRequest.encode(message.messageFeedbackRequest, writer.uint32(418).fork()).join();
     }
     return writer;
   },
@@ -1384,6 +1451,14 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.guidanceCardResponse = GuidanceCardResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 52: {
+          if (tag !== 418) {
+            break;
+          }
+
+          message.messageFeedbackRequest = MessageFeedbackRequest.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1551,6 +1626,11 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.guidance_card_response)
         ? GuidanceCardResponse.fromJSON(object.guidance_card_response)
         : undefined,
+      messageFeedbackRequest: isSet(object.messageFeedbackRequest)
+        ? MessageFeedbackRequest.fromJSON(object.messageFeedbackRequest)
+        : isSet(object.message_feedback_request)
+        ? MessageFeedbackRequest.fromJSON(object.message_feedback_request)
+        : undefined,
     };
   },
 
@@ -1655,6 +1735,9 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.guidanceCardResponse !== undefined) {
       obj.guidanceCardResponse = GuidanceCardResponse.toJSON(message.guidanceCardResponse);
+    }
+    if (message.messageFeedbackRequest !== undefined) {
+      obj.messageFeedbackRequest = MessageFeedbackRequest.toJSON(message.messageFeedbackRequest);
     }
     return obj;
   },
@@ -1770,6 +1853,10 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     message.guidanceCardResponse = (object.guidanceCardResponse !== undefined && object.guidanceCardResponse !== null)
       ? GuidanceCardResponse.fromPartial(object.guidanceCardResponse)
       : undefined;
+    message.messageFeedbackRequest =
+      (object.messageFeedbackRequest !== undefined && object.messageFeedbackRequest !== null)
+        ? MessageFeedbackRequest.fromPartial(object.messageFeedbackRequest)
+        : undefined;
     return message;
   },
 };
@@ -4854,6 +4941,102 @@ export const GuidanceCardResponse: MessageFns<GuidanceCardResponse> = {
     message.guidanceTitle = object.guidanceTitle ?? "";
     message.guidanceDescription = object.guidanceDescription ?? "";
     message.guidanceCards = object.guidanceCards?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseMessageFeedbackRequest(): MessageFeedbackRequest {
+  return { messageId: "", rating: 0, timestamp: undefined };
+}
+
+export const MessageFeedbackRequest: MessageFns<MessageFeedbackRequest> = {
+  encode(message: MessageFeedbackRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.messageId !== "") {
+      writer.uint32(10).string(message.messageId);
+    }
+    if (message.rating !== 0) {
+      writer.uint32(16).int32(message.rating);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MessageFeedbackRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMessageFeedbackRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.messageId = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.rating = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MessageFeedbackRequest {
+    return {
+      messageId: isSet(object.messageId)
+        ? globalThis.String(object.messageId)
+        : isSet(object.message_id)
+        ? globalThis.String(object.message_id)
+        : "",
+      rating: isSet(object.rating) ? feedbackRatingFromJSON(object.rating) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: MessageFeedbackRequest): unknown {
+    const obj: any = {};
+    if (message.messageId !== "") {
+      obj.messageId = message.messageId;
+    }
+    if (message.rating !== 0) {
+      obj.rating = feedbackRatingToJSON(message.rating);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MessageFeedbackRequest>, I>>(base?: I): MessageFeedbackRequest {
+    return MessageFeedbackRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MessageFeedbackRequest>, I>>(object: I): MessageFeedbackRequest {
+    const message = createBaseMessageFeedbackRequest();
+    message.messageId = object.messageId ?? "";
+    message.rating = object.rating ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
     return message;
   },
 };

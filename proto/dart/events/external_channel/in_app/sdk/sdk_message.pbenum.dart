@@ -142,6 +142,29 @@ class ButtonType extends $pb.ProtobufEnum {
   const ButtonType._(super.value, super.name);
 }
 
+/// FeedbackRating is the user's rating for a single agent message.
+class FeedbackRating extends $pb.ProtobufEnum {
+  static const FeedbackRating FEEDBACK_RATING_UNSPECIFIED =
+      FeedbackRating._(0, _omitEnumNames ? '' : 'FEEDBACK_RATING_UNSPECIFIED');
+  static const FeedbackRating FEEDBACK_RATING_THUMBS_UP =
+      FeedbackRating._(1, _omitEnumNames ? '' : 'FEEDBACK_RATING_THUMBS_UP');
+  static const FeedbackRating FEEDBACK_RATING_THUMBS_DOWN =
+      FeedbackRating._(2, _omitEnumNames ? '' : 'FEEDBACK_RATING_THUMBS_DOWN');
+
+  static const $core.List<FeedbackRating> values = <FeedbackRating>[
+    FEEDBACK_RATING_UNSPECIFIED,
+    FEEDBACK_RATING_THUMBS_UP,
+    FEEDBACK_RATING_THUMBS_DOWN,
+  ];
+
+  static final $core.List<FeedbackRating?> _byValue =
+      $pb.ProtobufEnum.$_initByValueList(values, 2);
+  static FeedbackRating? valueOf($core.int value) =>
+      value < 0 || value >= _byValue.length ? null : _byValue[value];
+
+  const FeedbackRating._(super.value, super.name);
+}
+
 /// ConnectionAckType discriminates the variants of a ConnectionAck frame.
 class ConnectionAckType extends $pb.ProtobufEnum {
   static const ConnectionAckType CONNECTION_ACK_TYPE_UNSPECIFIED =

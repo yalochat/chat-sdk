@@ -715,6 +715,136 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
 
   /**
    * <pre>
+   * FeedbackRating is the user's rating for a single agent message.
+   * </pre>
+   *
+   * Protobuf enum {@code yalo.external_channel.in_app.sdk.v2.FeedbackRating}
+   */
+  public enum FeedbackRating
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>FEEDBACK_RATING_UNSPECIFIED = 0;</code>
+     */
+    FEEDBACK_RATING_UNSPECIFIED(0),
+    /**
+     * <code>FEEDBACK_RATING_THUMBS_UP = 1;</code>
+     */
+    FEEDBACK_RATING_THUMBS_UP(1),
+    /**
+     * <code>FEEDBACK_RATING_THUMBS_DOWN = 2;</code>
+     */
+    FEEDBACK_RATING_THUMBS_DOWN(2),
+    UNRECOGNIZED(-1),
+    ;
+
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 34,
+        /* patch= */ 0,
+        /* suffix= */ "",
+        "FeedbackRating");
+    }
+    /**
+     * <code>FEEDBACK_RATING_UNSPECIFIED = 0;</code>
+     */
+    public static final int FEEDBACK_RATING_UNSPECIFIED_VALUE = 0;
+    /**
+     * <code>FEEDBACK_RATING_THUMBS_UP = 1;</code>
+     */
+    public static final int FEEDBACK_RATING_THUMBS_UP_VALUE = 1;
+    /**
+     * <code>FEEDBACK_RATING_THUMBS_DOWN = 2;</code>
+     */
+    public static final int FEEDBACK_RATING_THUMBS_DOWN_VALUE = 2;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static FeedbackRating valueOf(int value) {
+      return forNumber(value);
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     */
+    public static FeedbackRating forNumber(int value) {
+      switch (value) {
+        case 0: return FEEDBACK_RATING_UNSPECIFIED;
+        case 1: return FEEDBACK_RATING_THUMBS_UP;
+        case 2: return FEEDBACK_RATING_THUMBS_DOWN;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<FeedbackRating>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        FeedbackRating> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<FeedbackRating>() {
+            public FeedbackRating findValueByNumber(int number) {
+              return FeedbackRating.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalStateException(
+            "Can't get the descriptor of an unrecognized enum value.");
+      }
+      return getDescriptor().getValue(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.getDescriptor().getEnumType(5);
+    }
+
+    private static final FeedbackRating[] VALUES = values();
+
+    public static FeedbackRating valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private FeedbackRating(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:yalo.external_channel.in_app.sdk.v2.FeedbackRating)
+  }
+
+  /**
+   * <pre>
    * ConnectionAckType discriminates the variants of a ConnectionAck frame.
    * </pre>
    *
@@ -808,7 +938,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
     }
     public static com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.getDescriptor().getEnumType(5);
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.getDescriptor().getEnumType(6);
     }
 
     private static final ConnectionAckType[] VALUES = values();
@@ -929,7 +1059,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
     }
     public static com.google.protobuf.Descriptors.EnumDescriptor
         getDescriptor() {
-      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.getDescriptor().getEnumType(6);
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.getDescriptor().getEnumType(7);
     }
 
     private static final SdkMessageAckType[] VALUES = values();
@@ -1480,6 +1610,21 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
      */
     ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardResponseOrBuilder getGuidanceCardResponseOrBuilder();
 
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+     * @return Whether the messageFeedbackRequest field is set.
+     */
+    boolean hasMessageFeedbackRequest();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+     * @return The messageFeedbackRequest.
+     */
+    ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest getMessageFeedbackRequest();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+     */
+    ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder getMessageFeedbackRequestOrBuilder();
+
     ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage.PayloadCase getPayloadCase();
   }
   /**
@@ -1568,6 +1713,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       PRODUCT_CONFIRMATION_MESSAGE_RESPONSE(49),
       GUIDANCE_CARD_REQUEST(26),
       GUIDANCE_CARD_RESPONSE(27),
+      MESSAGE_FEEDBACK_REQUEST(52),
       PAYLOAD_NOT_SET(0);
       private final int value;
       private PayloadCase(int value) {
@@ -1615,6 +1761,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
           case 49: return PRODUCT_CONFIRMATION_MESSAGE_RESPONSE;
           case 26: return GUIDANCE_CARD_REQUEST;
           case 27: return GUIDANCE_CARD_RESPONSE;
+          case 52: return MESSAGE_FEEDBACK_REQUEST;
           case 0: return PAYLOAD_NOT_SET;
           default: return null;
         }
@@ -2669,6 +2816,37 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardResponse.getDefaultInstance();
     }
 
+    public static final int MESSAGE_FEEDBACK_REQUEST_FIELD_NUMBER = 52;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+     * @return Whether the messageFeedbackRequest field is set.
+     */
+    @java.lang.Override
+    public boolean hasMessageFeedbackRequest() {
+      return payloadCase_ == 52;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+     * @return The messageFeedbackRequest.
+     */
+    @java.lang.Override
+    public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest getMessageFeedbackRequest() {
+      if (payloadCase_ == 52) {
+         return (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_;
+      }
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+     */
+    @java.lang.Override
+    public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder getMessageFeedbackRequestOrBuilder() {
+      if (payloadCase_ == 52) {
+         return (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_;
+      }
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -2778,6 +2956,9 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       }
       if (payloadCase_ == 51) {
         output.writeMessage(51, (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartResponse) payload_);
+      }
+      if (payloadCase_ == 52) {
+        output.writeMessage(52, (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -2914,6 +3095,10 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       if (payloadCase_ == 51) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(51, (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartResponse) payload_);
+      }
+      if (payloadCase_ == 52) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(52, (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
@@ -3059,6 +3244,10 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
           if (!getGuidanceCardResponse()
               .equals(other.getGuidanceCardResponse())) return false;
           break;
+        case 52:
+          if (!getMessageFeedbackRequest()
+              .equals(other.getMessageFeedbackRequest())) return false;
+          break;
         case 0:
         default:
       }
@@ -3199,6 +3388,10 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
         case 27:
           hash = (37 * hash) + GUIDANCE_CARD_RESPONSE_FIELD_NUMBER;
           hash = (53 * hash) + getGuidanceCardResponse().hashCode();
+          break;
+        case 52:
+          hash = (37 * hash) + MESSAGE_FEEDBACK_REQUEST_FIELD_NUMBER;
+          hash = (53 * hash) + getMessageFeedbackRequest().hashCode();
           break;
         case 0:
         default:
@@ -3346,6 +3539,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       public Builder clear() {
         super.clear();
         bitField0_ = 0;
+        bitField1_ = 0;
         correlationId_ = "";
         timestamp_ = null;
         if (timestampBuilder_ != null) {
@@ -3442,6 +3636,9 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
         if (guidanceCardResponseBuilder_ != null) {
           guidanceCardResponseBuilder_.clear();
         }
+        if (messageFeedbackRequestBuilder_ != null) {
+          messageFeedbackRequestBuilder_.clear();
+        }
         payloadCase_ = 0;
         payload_ = null;
         return this;
@@ -3471,6 +3668,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage buildPartial() {
         ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage result = new ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage(this);
         if (bitField0_ != 0) { buildPartial0(result); }
+        if (bitField1_ != 0) { buildPartial1(result); }
         buildPartialOneofs(result);
         onBuilt();
         return result;
@@ -3489,6 +3687,10 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
           to_bitField0_ |= 0x00000001;
         }
         result.bitField0_ |= to_bitField0_;
+      }
+
+      private void buildPartial1(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage result) {
+        int from_bitField1_ = bitField1_;
       }
 
       private void buildPartialOneofs(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.SdkMessage result) {
@@ -3613,6 +3815,10 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
         if (payloadCase_ == 27 &&
             guidanceCardResponseBuilder_ != null) {
           result.payload_ = guidanceCardResponseBuilder_.build();
+        }
+        if (payloadCase_ == 52 &&
+            messageFeedbackRequestBuilder_ != null) {
+          result.payload_ = messageFeedbackRequestBuilder_.build();
         }
       }
 
@@ -3755,6 +3961,10 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
           }
           case GUIDANCE_CARD_RESPONSE: {
             mergeGuidanceCardResponse(other.getGuidanceCardResponse());
+            break;
+          }
+          case MESSAGE_FEEDBACK_REQUEST: {
+            mergeMessageFeedbackRequest(other.getMessageFeedbackRequest());
             break;
           }
           case PAYLOAD_NOT_SET: {
@@ -4009,6 +4219,13 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
                 payloadCase_ = 51;
                 break;
               } // case 410
+              case 418: {
+                input.readMessage(
+                    internalGetMessageFeedbackRequestFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                payloadCase_ = 52;
+                break;
+              } // case 418
               default: {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                   done = true; // was an endgroup tag
@@ -4040,6 +4257,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       }
 
       private int bitField0_;
+      private int bitField1_;
 
       private java.lang.Object correlationId_ = "";
       /**
@@ -8620,6 +8838,148 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
         payloadCase_ = 27;
         onChanged();
         return guidanceCardResponseBuilder_;
+      }
+
+      private com.google.protobuf.SingleFieldBuilder<
+          ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder> messageFeedbackRequestBuilder_;
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       * @return Whether the messageFeedbackRequest field is set.
+       */
+      @java.lang.Override
+      public boolean hasMessageFeedbackRequest() {
+        return payloadCase_ == 52;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       * @return The messageFeedbackRequest.
+       */
+      @java.lang.Override
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest getMessageFeedbackRequest() {
+        if (messageFeedbackRequestBuilder_ == null) {
+          if (payloadCase_ == 52) {
+            return (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_;
+          }
+          return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+        } else {
+          if (payloadCase_ == 52) {
+            return messageFeedbackRequestBuilder_.getMessage();
+          }
+          return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      public Builder setMessageFeedbackRequest(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest value) {
+        if (messageFeedbackRequestBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          payload_ = value;
+          onChanged();
+        } else {
+          messageFeedbackRequestBuilder_.setMessage(value);
+        }
+        payloadCase_ = 52;
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      public Builder setMessageFeedbackRequest(
+          ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder builderForValue) {
+        if (messageFeedbackRequestBuilder_ == null) {
+          payload_ = builderForValue.build();
+          onChanged();
+        } else {
+          messageFeedbackRequestBuilder_.setMessage(builderForValue.build());
+        }
+        payloadCase_ = 52;
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      public Builder mergeMessageFeedbackRequest(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest value) {
+        if (messageFeedbackRequestBuilder_ == null) {
+          if (payloadCase_ == 52 &&
+              payload_ != ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance()) {
+            payload_ = ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.newBuilder((ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_)
+                .mergeFrom(value).buildPartial();
+          } else {
+            payload_ = value;
+          }
+          onChanged();
+        } else {
+          if (payloadCase_ == 52) {
+            messageFeedbackRequestBuilder_.mergeFrom(value);
+          } else {
+            messageFeedbackRequestBuilder_.setMessage(value);
+          }
+        }
+        payloadCase_ = 52;
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      public Builder clearMessageFeedbackRequest() {
+        if (messageFeedbackRequestBuilder_ == null) {
+          if (payloadCase_ == 52) {
+            payloadCase_ = 0;
+            payload_ = null;
+            onChanged();
+          }
+        } else {
+          if (payloadCase_ == 52) {
+            payloadCase_ = 0;
+            payload_ = null;
+          }
+          messageFeedbackRequestBuilder_.clear();
+        }
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder getMessageFeedbackRequestBuilder() {
+        return internalGetMessageFeedbackRequestFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      @java.lang.Override
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder getMessageFeedbackRequestOrBuilder() {
+        if ((payloadCase_ == 52) && (messageFeedbackRequestBuilder_ != null)) {
+          return messageFeedbackRequestBuilder_.getMessageOrBuilder();
+        } else {
+          if (payloadCase_ == 52) {
+            return (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_;
+          }
+          return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+        }
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest message_feedback_request = 52;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder> 
+          internalGetMessageFeedbackRequestFieldBuilder() {
+        if (messageFeedbackRequestBuilder_ == null) {
+          if (!(payloadCase_ == 52)) {
+            payload_ = ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+          }
+          messageFeedbackRequestBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder>(
+                  (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) payload_,
+                  getParentForChildren(),
+                  isClean());
+          payload_ = null;
+        }
+        payloadCase_ = 52;
+        onChanged();
+        return messageFeedbackRequestBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.SdkMessage)
@@ -37438,6 +37798,883 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
 
   }
 
+  public interface MessageFeedbackRequestOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <pre>
+     * Identifier of the agent message being rated.
+     * </pre>
+     *
+     * <code>string message_id = 1;</code>
+     * @return The messageId.
+     */
+    java.lang.String getMessageId();
+    /**
+     * <pre>
+     * Identifier of the agent message being rated.
+     * </pre>
+     *
+     * <code>string message_id = 1;</code>
+     * @return The bytes for messageId.
+     */
+    com.google.protobuf.ByteString
+        getMessageIdBytes();
+
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+     * @return The enum numeric value on the wire for rating.
+     */
+    int getRatingValue();
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+     * @return The rating.
+     */
+    ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating getRating();
+
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return Whether the timestamp field is set.
+     */
+    boolean hasTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return The timestamp.
+     */
+    com.google.protobuf.Timestamp getTimestamp();
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder();
+  }
+  /**
+   * <pre>
+   * MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+   * agent message to the channel. The server confirms it with an SdkMessageAck.
+   * If the user changes their rating, the client sends a new request for the
+   * same message_id and the channel keeps the one with the latest timestamp.
+   * </pre>
+   *
+   * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest}
+   */
+  public static final class MessageFeedbackRequest extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest)
+      MessageFeedbackRequestOrBuilder {
+  private static final long serialVersionUID = 0L;
+    static {
+      com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
+        com.google.protobuf.RuntimeVersion.RuntimeDomain.PUBLIC,
+        /* major= */ 4,
+        /* minor= */ 34,
+        /* patch= */ 0,
+        /* suffix= */ "",
+        "MessageFeedbackRequest");
+    }
+    // Use MessageFeedbackRequest.newBuilder() to construct.
+    private MessageFeedbackRequest(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+    }
+    private MessageFeedbackRequest() {
+      messageId_ = "";
+      rating_ = 0;
+    }
+
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor;
+    }
+
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.class, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder.class);
+    }
+
+    private int bitField0_;
+    public static final int MESSAGE_ID_FIELD_NUMBER = 1;
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object messageId_ = "";
+    /**
+     * <pre>
+     * Identifier of the agent message being rated.
+     * </pre>
+     *
+     * <code>string message_id = 1;</code>
+     * @return The messageId.
+     */
+    @java.lang.Override
+    public java.lang.String getMessageId() {
+      java.lang.Object ref = messageId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        messageId_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * Identifier of the agent message being rated.
+     * </pre>
+     *
+     * <code>string message_id = 1;</code>
+     * @return The bytes for messageId.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getMessageIdBytes() {
+      java.lang.Object ref = messageId_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        messageId_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int RATING_FIELD_NUMBER = 2;
+    private int rating_ = 0;
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+     * @return The enum numeric value on the wire for rating.
+     */
+    @java.lang.Override public int getRatingValue() {
+      return rating_;
+    }
+    /**
+     * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+     * @return The rating.
+     */
+    @java.lang.Override public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating getRating() {
+      ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating result = ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating.forNumber(rating_);
+      return result == null ? ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating.UNRECOGNIZED : result;
+    }
+
+    public static final int TIMESTAMP_FIELD_NUMBER = 3;
+    private com.google.protobuf.Timestamp timestamp_;
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return Whether the timestamp field is set.
+     */
+    @java.lang.Override
+    public boolean hasTimestamp() {
+      return ((bitField0_ & 0x00000001) != 0);
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     * @return The timestamp.
+     */
+    @java.lang.Override
+    public com.google.protobuf.Timestamp getTimestamp() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+    /**
+     * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+     */
+    @java.lang.Override
+    public com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder() {
+      return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+    }
+
+    private byte memoizedIsInitialized = -1;
+    @java.lang.Override
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    @java.lang.Override
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(messageId_)) {
+        com.google.protobuf.GeneratedMessage.writeString(output, 1, messageId_);
+      }
+      if (rating_ != ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating.FEEDBACK_RATING_UNSPECIFIED.getNumber()) {
+        output.writeEnum(2, rating_);
+      }
+      if (((bitField0_ & 0x00000001) != 0)) {
+        output.writeMessage(3, getTimestamp());
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    @java.lang.Override
+    public int getSerializedSize() {
+      int size = memoizedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (!com.google.protobuf.GeneratedMessage.isStringEmpty(messageId_)) {
+        size += com.google.protobuf.GeneratedMessage.computeStringSize(1, messageId_);
+      }
+      if (rating_ != ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating.FEEDBACK_RATING_UNSPECIFIED.getNumber()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(2, rating_);
+      }
+      if (((bitField0_ & 0x00000001) != 0)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getTimestamp());
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSize = size;
+      return size;
+    }
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+      if (obj == this) {
+       return true;
+      }
+      if (!(obj instanceof ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest)) {
+        return super.equals(obj);
+      }
+      ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest other = (ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) obj;
+
+      if (!getMessageId()
+          .equals(other.getMessageId())) return false;
+      if (rating_ != other.rating_) return false;
+      if (hasTimestamp() != other.hasTimestamp()) return false;
+      if (hasTimestamp()) {
+        if (!getTimestamp()
+            .equals(other.getTimestamp())) return false;
+      }
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
+      return true;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+      if (memoizedHashCode != 0) {
+        return memoizedHashCode;
+      }
+      int hash = 41;
+      hash = (19 * hash) + getDescriptor().hashCode();
+      hash = (37 * hash) + MESSAGE_ID_FIELD_NUMBER;
+      hash = (53 * hash) + getMessageId().hashCode();
+      hash = (37 * hash) + RATING_FIELD_NUMBER;
+      hash = (53 * hash) + rating_;
+      if (hasTimestamp()) {
+        hash = (37 * hash) + TIMESTAMP_FIELD_NUMBER;
+        hash = (53 * hash) + getTimestamp().hashCode();
+      }
+      hash = (29 * hash) + getUnknownFields().hashCode();
+      memoizedHashCode = hash;
+      return hash;
+    }
+
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        java.nio.ByteBuffer data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        java.nio.ByteBuffer data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input);
+    }
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return com.google.protobuf.GeneratedMessage
+          .parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    @java.lang.Override
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder() {
+      return DEFAULT_INSTANCE.toBuilder();
+    }
+    public static Builder newBuilder(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest prototype) {
+      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+    @java.lang.Override
+    public Builder toBuilder() {
+      return this == DEFAULT_INSTANCE
+          ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * <pre>
+     * MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+     * agent message to the channel. The server confirms it with an SdkMessageAck.
+     * If the user changes their rating, the client sends a new request for the
+     * same message_id and the channel keeps the one with the latest timestamp.
+     * </pre>
+     *
+     * Protobuf type {@code yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest)
+        ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequestOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor;
+      }
+
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.class, ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.Builder.class);
+      }
+
+      // Construct using ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage
+                .alwaysUseFieldBuilders) {
+          internalGetTimestampFieldBuilder();
+        }
+      }
+      @java.lang.Override
+      public Builder clear() {
+        super.clear();
+        bitField0_ = 0;
+        messageId_ = "";
+        rating_ = 0;
+        timestamp_ = null;
+        if (timestampBuilder_ != null) {
+          timestampBuilder_.dispose();
+          timestampBuilder_ = null;
+        }
+        return this;
+      }
+
+      @java.lang.Override
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor;
+      }
+
+      @java.lang.Override
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest getDefaultInstanceForType() {
+        return ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance();
+      }
+
+      @java.lang.Override
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest build() {
+        ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      @java.lang.Override
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest buildPartial() {
+        ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest result = new ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest(this);
+        if (bitField0_ != 0) { buildPartial0(result); }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartial0(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.messageId_ = messageId_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.rating_ = rating_;
+        }
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.timestamp_ = timestampBuilder_ == null
+              ? timestamp_
+              : timestampBuilder_.build();
+          to_bitField0_ |= 0x00000001;
+        }
+        result.bitField0_ |= to_bitField0_;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest) {
+          return mergeFrom((ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest other) {
+        if (other == ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest.getDefaultInstance()) return this;
+        if (!other.getMessageId().isEmpty()) {
+          messageId_ = other.messageId_;
+          bitField0_ |= 0x00000001;
+          onChanged();
+        }
+        if (other.rating_ != 0) {
+          setRatingValue(other.getRatingValue());
+        }
+        if (other.hasTimestamp()) {
+          mergeTimestamp(other.getTimestamp());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        onChanged();
+        return this;
+      }
+
+      @java.lang.Override
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      @java.lang.Override
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
+        try {
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10: {
+                messageId_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+              case 16: {
+                rating_ = input.readEnum();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 16
+              case 26: {
+                input.readMessage(
+                    internalGetTimestampFieldBuilder().getBuilder(),
+                    extensionRegistry);
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+              default: {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+            } // switch (tag)
+          } // while (!done)
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.unwrapIOException();
+        } finally {
+          onChanged();
+        } // finally
+        return this;
+      }
+      private int bitField0_;
+
+      private java.lang.Object messageId_ = "";
+      /**
+       * <pre>
+       * Identifier of the agent message being rated.
+       * </pre>
+       *
+       * <code>string message_id = 1;</code>
+       * @return The messageId.
+       */
+      public java.lang.String getMessageId() {
+        java.lang.Object ref = messageId_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          messageId_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * Identifier of the agent message being rated.
+       * </pre>
+       *
+       * <code>string message_id = 1;</code>
+       * @return The bytes for messageId.
+       */
+      public com.google.protobuf.ByteString
+          getMessageIdBytes() {
+        java.lang.Object ref = messageId_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          messageId_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * Identifier of the agent message being rated.
+       * </pre>
+       *
+       * <code>string message_id = 1;</code>
+       * @param value The messageId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMessageId(
+          java.lang.String value) {
+        if (value == null) { throw new NullPointerException(); }
+        messageId_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Identifier of the agent message being rated.
+       * </pre>
+       *
+       * <code>string message_id = 1;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearMessageId() {
+        messageId_ = getDefaultInstance().getMessageId();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Identifier of the agent message being rated.
+       * </pre>
+       *
+       * <code>string message_id = 1;</code>
+       * @param value The bytes for messageId to set.
+       * @return This builder for chaining.
+       */
+      public Builder setMessageIdBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) { throw new NullPointerException(); }
+        checkByteStringIsUtf8(value);
+        messageId_ = value;
+        bitField0_ |= 0x00000001;
+        onChanged();
+        return this;
+      }
+
+      private int rating_ = 0;
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+       * @return The enum numeric value on the wire for rating.
+       */
+      @java.lang.Override public int getRatingValue() {
+        return rating_;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+       * @param value The enum numeric value on the wire for rating to set.
+       * @throws IllegalArgumentException if UNRECOGNIZED is provided.
+       * @return This builder for chaining.
+       */
+      public Builder setRatingValue(int value) {
+        rating_ = value;
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+       * @return The rating.
+       */
+      @java.lang.Override
+      public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating getRating() {
+        ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating result = ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating.forNumber(rating_);
+        return result == null ? ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating.UNRECOGNIZED : result;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+       * @param value The rating to set.
+       * @return This builder for chaining.
+       */
+      public Builder setRating(ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating value) {
+        if (value == null) { throw new NullPointerException(); }
+        bitField0_ |= 0x00000002;
+        rating_ = value.getNumber();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.yalo.external_channel.in_app.sdk.v2.FeedbackRating rating = 2;</code>
+       * @return This builder for chaining.
+       */
+      public Builder clearRating() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        rating_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.Timestamp timestamp_;
+      private com.google.protobuf.SingleFieldBuilder<
+          com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> timestampBuilder_;
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       * @return Whether the timestamp field is set.
+       */
+      public boolean hasTimestamp() {
+        return ((bitField0_ & 0x00000004) != 0);
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       * @return The timestamp.
+       */
+      public com.google.protobuf.Timestamp getTimestamp() {
+        if (timestampBuilder_ == null) {
+          return timestamp_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+        } else {
+          return timestampBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder setTimestamp(com.google.protobuf.Timestamp value) {
+        if (timestampBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          timestamp_ = value;
+        } else {
+          timestampBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder setTimestamp(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        if (timestampBuilder_ == null) {
+          timestamp_ = builderForValue.build();
+        } else {
+          timestampBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder mergeTimestamp(com.google.protobuf.Timestamp value) {
+        if (timestampBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) != 0) &&
+            timestamp_ != null &&
+            timestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+            getTimestampBuilder().mergeFrom(value);
+          } else {
+            timestamp_ = value;
+          }
+        } else {
+          timestampBuilder_.mergeFrom(value);
+        }
+        if (timestamp_ != null) {
+          bitField0_ |= 0x00000004;
+          onChanged();
+        }
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public Builder clearTimestamp() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        timestamp_ = null;
+        if (timestampBuilder_ != null) {
+          timestampBuilder_.dispose();
+          timestampBuilder_ = null;
+        }
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public com.google.protobuf.Timestamp.Builder getTimestampBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return internalGetTimestampFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      public com.google.protobuf.TimestampOrBuilder getTimestampOrBuilder() {
+        if (timestampBuilder_ != null) {
+          return timestampBuilder_.getMessageOrBuilder();
+        } else {
+          return timestamp_ == null ?
+              com.google.protobuf.Timestamp.getDefaultInstance() : timestamp_;
+        }
+      }
+      /**
+       * <code>.google.protobuf.Timestamp timestamp = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
+          internalGetTimestampFieldBuilder() {
+        if (timestampBuilder_ == null) {
+          timestampBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+                  getTimestamp(),
+                  getParentForChildren(),
+                  isClean());
+          timestamp_ = null;
+        }
+        return timestampBuilder_;
+      }
+
+      // @@protoc_insertion_point(builder_scope:yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest)
+    }
+
+    // @@protoc_insertion_point(class_scope:yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest)
+    private static final ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest DEFAULT_INSTANCE;
+    static {
+      DEFAULT_INSTANCE = new ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest();
+    }
+
+    public static ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest getDefaultInstance() {
+      return DEFAULT_INSTANCE;
+    }
+
+    private static final com.google.protobuf.Parser<MessageFeedbackRequest>
+        PARSER = new com.google.protobuf.AbstractParser<MessageFeedbackRequest>() {
+      @java.lang.Override
+      public MessageFeedbackRequest parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        Builder builder = newBuilder();
+        try {
+          builder.mergeFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          throw e.setUnfinishedMessage(builder.buildPartial());
+        } catch (com.google.protobuf.UninitializedMessageException e) {
+          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+        } catch (java.io.IOException e) {
+          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+              .setUnfinishedMessage(builder.buildPartial());
+        }
+        return builder.buildPartial();
+      }
+    };
+
+    public static com.google.protobuf.Parser<MessageFeedbackRequest> parser() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<MessageFeedbackRequest> getParserForType() {
+      return PARSER;
+    }
+
+    @java.lang.Override
+    public ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest getDefaultInstanceForType() {
+      return DEFAULT_INSTANCE;
+    }
+
+  }
+
   public interface AddPromotionRequestOrBuilder extends
       // @@protoc_insertion_point(interface_extends:yalo.external_channel.in_app.sdk.v2.AddPromotionRequest)
       com.google.protobuf.MessageOrBuilder {
@@ -56417,6 +57654,11 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_yalo_external_channel_in_app_sdk_v2_GuidanceCardResponse_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor;
+  private static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionRequest_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -56523,7 +57765,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       "\n4events/external_channel/in_app/sdk/sdk" +
       "_message.proto\022#yalo.external_channel.in" +
       "_app.sdk.v2\032\037google/protobuf/timestamp.p" +
-      "roto\"\371\026\n\nSdkMessage\022\026\n\016correlation_id\030\001 " +
+      "roto\"\332\027\n\nSdkMessage\022\026\n\016correlation_id\030\001 " +
       "\001(\t\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf" +
       ".Timestamp\022W\n\024text_message_request\030\n \001(\013" +
       "27.yalo.external_channel.in_app.sdk.v2.T" +
@@ -56596,235 +57838,244 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       "nnel.in_app.sdk.v2.GuidanceCardRequestH\000" +
       "\022[\n\026guidance_card_response\030\033 \001(\01329.yalo." +
       "external_channel.in_app.sdk.v2.GuidanceC" +
-      "ardResponseH\000B\t\n\007payload\"v\n\006Button\022\014\n\004te" +
-      "xt\030\001 \001(\t\022D\n\013button_type\030\002 \001(\0162/.yalo.ext" +
-      "ernal_channel.in_app.sdk.v2.ButtonType\022\020" +
-      "\n\003url\030\003 \001(\tH\000\210\001\001B\006\n\004_url\"\316\001\n\013TextMessage" +
-      "\022-\n\ttimestamp\030\001 \001(\0132\032.google.protobuf.Ti" +
-      "mestamp\022\014\n\004text\030\002 \001(\t\022B\n\006status\030\003 \001(\01622." +
-      "yalo.external_channel.in_app.sdk.v2.Mess" +
-      "ageStatus\022>\n\004role\030\004 \001(\01620.yalo.external_" +
-      "channel.in_app.sdk.v2.MessageRole\"\204\002\n\022Te" +
-      "xtMessageRequest\022A\n\007content\030\001 \001(\01320.yalo" +
-      ".external_channel.in_app.sdk.v2.TextMess" +
-      "age\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf" +
-      ".Timestamp\022<\n\007buttons\030\003 \003(\0132+.yalo.exter" +
-      "nal_channel.in_app.sdk.v2.Button\022\023\n\006head" +
-      "er\030\004 \001(\tH\000\210\001\001\022\023\n\006footer\030\005 \001(\tH\001\210\001\001B\t\n\007_h" +
-      "eaderB\t\n\007_footer\"\275\002\n\014VoiceMessage\022-\n\ttim" +
-      "estamp\030\001 \001(\0132\032.google.protobuf.Timestamp" +
-      "\022\021\n\tmedia_url\030\002 \001(\t\022\032\n\022amplitudes_previe" +
-      "w\030\003 \003(\002\022\020\n\010duration\030\004 \001(\001\022\022\n\nmedia_type\030" +
-      "\005 \001(\t\022B\n\006status\030\006 \001(\01622.yalo.external_ch" +
-      "annel.in_app.sdk.v2.MessageStatus\022>\n\004rol" +
-      "e\030\007 \001(\01620.yalo.external_channel.in_app.s" +
-      "dk.v2.MessageRole\022\022\n\nbyte_count\030\010 \001(\003\022\021\n" +
-      "\tfile_name\030\t \001(\t\"\212\002\n\027VoiceNoteMessageReq" +
-      "uest\022B\n\007content\030\001 \001(\01321.yalo.external_ch" +
-      "annel.in_app.sdk.v2.VoiceMessage\022-\n\ttime" +
-      "stamp\030\002 \001(\0132\032.google.protobuf.Timestamp\022" +
-      "<\n\007buttons\030\003 \003(\0132+.yalo.external_channel" +
-      ".in_app.sdk.v2.Button\022\023\n\006header\030\004 \001(\tH\000\210" +
-      "\001\001\022\023\n\006footer\030\005 \001(\tH\001\210\001\001B\t\n\007_headerB\t\n\007_f" +
-      "ooter\"\253\002\n\014ImageMessage\022-\n\ttimestamp\030\001 \001(" +
-      "\0132\032.google.protobuf.Timestamp\022\021\n\004text\030\002 " +
-      "\001(\tH\000\210\001\001\022\021\n\tmedia_url\030\003 \001(\t\022\022\n\nmedia_typ" +
-      "e\030\004 \001(\t\022B\n\006status\030\005 \001(\01622.yalo.external_" +
-      "channel.in_app.sdk.v2.MessageStatus\022>\n\004r" +
-      "ole\030\006 \001(\01620.yalo.external_channel.in_app" +
-      ".sdk.v2.MessageRole\022\022\n\nbyte_count\030\007 \001(\003\022" +
-      "\021\n\tfile_name\030\010 \001(\tB\007\n\005_text\"\206\002\n\023ImageMes" +
-      "sageRequest\022B\n\007content\030\001 \001(\01321.yalo.exte" +
-      "rnal_channel.in_app.sdk.v2.ImageMessage\022" +
-      "-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf.Tim" +
-      "estamp\022<\n\007buttons\030\003 \003(\0132+.yalo.external_" +
-      "channel.in_app.sdk.v2.Button\022\023\n\006header\030\004" +
-      " \001(\tH\000\210\001\001\022\023\n\006footer\030\005 \001(\tH\001\210\001\001B\t\n\007_heade" +
-      "rB\t\n\007_footer\"\260\002\n\021AttachmentMessage\022-\n\tti" +
-      "mestamp\030\001 \001(\0132\032.google.protobuf.Timestam" +
-      "p\022\021\n\004text\030\002 \001(\tH\000\210\001\001\022\021\n\tmedia_url\030\003 \001(\t\022" +
-      "\022\n\nmedia_type\030\004 \001(\t\022B\n\006status\030\005 \001(\01622.ya" +
-      "lo.external_channel.in_app.sdk.v2.Messag" +
-      "eStatus\022>\n\004role\030\006 \001(\01620.yalo.external_ch" +
-      "annel.in_app.sdk.v2.MessageRole\022\022\n\nbyte_" +
-      "count\030\007 \001(\003\022\021\n\tfile_name\030\010 \001(\tB\007\n\005_text\"" +
-      "\220\002\n\030AttachmentMessageRequest\022G\n\007content\030" +
-      "\001 \001(\01326.yalo.external_channel.in_app.sdk" +
-      ".v2.AttachmentMessage\022-\n\ttimestamp\030\002 \001(\013" +
-      "2\032.google.protobuf.Timestamp\022<\n\007buttons\030" +
-      "\003 \003(\0132+.yalo.external_channel.in_app.sdk" +
-      ".v2.Button\022\023\n\006header\030\004 \001(\tH\000\210\001\001\022\023\n\006foote" +
-      "r\030\005 \001(\tH\001\210\001\001B\t\n\007_headerB\t\n\007_footer\"\275\002\n\014V" +
-      "ideoMessage\022-\n\ttimestamp\030\001 \001(\0132\032.google." +
+      "ardResponseH\000\022_\n\030message_feedback_reques" +
+      "t\0304 \001(\0132;.yalo.external_channel.in_app.s" +
+      "dk.v2.MessageFeedbackRequestH\000B\t\n\007payloa" +
+      "d\"v\n\006Button\022\014\n\004text\030\001 \001(\t\022D\n\013button_type" +
+      "\030\002 \001(\0162/.yalo.external_channel.in_app.sd" +
+      "k.v2.ButtonType\022\020\n\003url\030\003 \001(\tH\000\210\001\001B\006\n\004_ur" +
+      "l\"\316\001\n\013TextMessage\022-\n\ttimestamp\030\001 \001(\0132\032.g" +
+      "oogle.protobuf.Timestamp\022\014\n\004text\030\002 \001(\t\022B" +
+      "\n\006status\030\003 \001(\01622.yalo.external_channel.i" +
+      "n_app.sdk.v2.MessageStatus\022>\n\004role\030\004 \001(\016" +
+      "20.yalo.external_channel.in_app.sdk.v2.M" +
+      "essageRole\"\204\002\n\022TextMessageRequest\022A\n\007con" +
+      "tent\030\001 \001(\01320.yalo.external_channel.in_ap" +
+      "p.sdk.v2.TextMessage\022-\n\ttimestamp\030\002 \001(\0132" +
+      "\032.google.protobuf.Timestamp\022<\n\007buttons\030\003" +
+      " \003(\0132+.yalo.external_channel.in_app.sdk." +
+      "v2.Button\022\023\n\006header\030\004 \001(\tH\000\210\001\001\022\023\n\006footer" +
+      "\030\005 \001(\tH\001\210\001\001B\t\n\007_headerB\t\n\007_footer\"\275\002\n\014Vo" +
+      "iceMessage\022-\n\ttimestamp\030\001 \001(\0132\032.google.p" +
+      "rotobuf.Timestamp\022\021\n\tmedia_url\030\002 \001(\t\022\032\n\022" +
+      "amplitudes_preview\030\003 \003(\002\022\020\n\010duration\030\004 \001" +
+      "(\001\022\022\n\nmedia_type\030\005 \001(\t\022B\n\006status\030\006 \001(\01622" +
+      ".yalo.external_channel.in_app.sdk.v2.Mes" +
+      "sageStatus\022>\n\004role\030\007 \001(\01620.yalo.external" +
+      "_channel.in_app.sdk.v2.MessageRole\022\022\n\nby" +
+      "te_count\030\010 \001(\003\022\021\n\tfile_name\030\t \001(\t\"\212\002\n\027Vo" +
+      "iceNoteMessageRequest\022B\n\007content\030\001 \001(\01321" +
+      ".yalo.external_channel.in_app.sdk.v2.Voi" +
+      "ceMessage\022-\n\ttimestamp\030\002 \001(\0132\032.google.pr" +
+      "otobuf.Timestamp\022<\n\007buttons\030\003 \003(\0132+.yalo" +
+      ".external_channel.in_app.sdk.v2.Button\022\023" +
+      "\n\006header\030\004 \001(\tH\000\210\001\001\022\023\n\006footer\030\005 \001(\tH\001\210\001\001" +
+      "B\t\n\007_headerB\t\n\007_footer\"\253\002\n\014ImageMessage\022" +
+      "-\n\ttimestamp\030\001 \001(\0132\032.google.protobuf.Tim" +
+      "estamp\022\021\n\004text\030\002 \001(\tH\000\210\001\001\022\021\n\tmedia_url\030\003" +
+      " \001(\t\022\022\n\nmedia_type\030\004 \001(\t\022B\n\006status\030\005 \001(\016" +
+      "22.yalo.external_channel.in_app.sdk.v2.M" +
+      "essageStatus\022>\n\004role\030\006 \001(\01620.yalo.extern" +
+      "al_channel.in_app.sdk.v2.MessageRole\022\022\n\n" +
+      "byte_count\030\007 \001(\003\022\021\n\tfile_name\030\010 \001(\tB\007\n\005_" +
+      "text\"\206\002\n\023ImageMessageRequest\022B\n\007content\030" +
+      "\001 \001(\01321.yalo.external_channel.in_app.sdk" +
+      ".v2.ImageMessage\022-\n\ttimestamp\030\002 \001(\0132\032.go" +
+      "ogle.protobuf.Timestamp\022<\n\007buttons\030\003 \003(\013" +
+      "2+.yalo.external_channel.in_app.sdk.v2.B" +
+      "utton\022\023\n\006header\030\004 \001(\tH\000\210\001\001\022\023\n\006footer\030\005 \001" +
+      "(\tH\001\210\001\001B\t\n\007_headerB\t\n\007_footer\"\260\002\n\021Attach" +
+      "mentMessage\022-\n\ttimestamp\030\001 \001(\0132\032.google." +
       "protobuf.Timestamp\022\021\n\004text\030\002 \001(\tH\000\210\001\001\022\021\n" +
       "\tmedia_url\030\003 \001(\t\022\022\n\nmedia_type\030\004 \001(\t\022B\n\006" +
       "status\030\005 \001(\01622.yalo.external_channel.in_" +
       "app.sdk.v2.MessageStatus\022>\n\004role\030\006 \001(\01620" +
       ".yalo.external_channel.in_app.sdk.v2.Mes" +
       "sageRole\022\022\n\nbyte_count\030\007 \001(\003\022\021\n\tfile_nam" +
-      "e\030\010 \001(\t\022\020\n\010duration\030\t \001(\001B\007\n\005_text\"\206\002\n\023V" +
-      "ideoMessageRequest\022B\n\007content\030\001 \001(\01321.ya" +
-      "lo.external_channel.in_app.sdk.v2.VideoM" +
-      "essage\022-\n\ttimestamp\030\002 \001(\0132\032.google.proto" +
-      "buf.Timestamp\022<\n\007buttons\030\003 \003(\0132+.yalo.ex" +
-      "ternal_channel.in_app.sdk.v2.Button\022\023\n\006h" +
-      "eader\030\004 \001(\tH\000\210\001\001\022\023\n\006footer\030\005 \001(\tH\001\210\001\001B\t\n" +
-      "\007_headerB\t\n\007_footer\"\236\001\n\025MessageReceiptRe" +
-      "quest\022B\n\006status\030\001 \001(\01622.yalo.external_ch" +
-      "annel.in_app.sdk.v2.MessageStatus\022\022\n\nmes" +
-      "sage_id\030\002 \001(\t\022-\n\ttimestamp\030\003 \001(\0132\032.googl" +
-      "e.protobuf.Timestamp\"\242\001\n\020AddToCartReques" +
-      "t\022\013\n\003sku\030\001 \001(\t\022-\n\ttimestamp\030\002 \001(\0132\032.goog" +
-      "le.protobuf.Timestamp\022\020\n\010quantity\030\003 \001(\001\022" +
-      "@\n\tunit_type\030\004 \001(\0162-.yalo.external_chann" +
-      "el.in_app.sdk.v2.UnitType\"\207\001\n\021AddToCartR" +
+      "e\030\010 \001(\tB\007\n\005_text\"\220\002\n\030AttachmentMessageRe" +
+      "quest\022G\n\007content\030\001 \001(\01326.yalo.external_c" +
+      "hannel.in_app.sdk.v2.AttachmentMessage\022-" +
+      "\n\ttimestamp\030\002 \001(\0132\032.google.protobuf.Time" +
+      "stamp\022<\n\007buttons\030\003 \003(\0132+.yalo.external_c" +
+      "hannel.in_app.sdk.v2.Button\022\023\n\006header\030\004 " +
+      "\001(\tH\000\210\001\001\022\023\n\006footer\030\005 \001(\tH\001\210\001\001B\t\n\007_header" +
+      "B\t\n\007_footer\"\275\002\n\014VideoMessage\022-\n\ttimestam" +
+      "p\030\001 \001(\0132\032.google.protobuf.Timestamp\022\021\n\004t" +
+      "ext\030\002 \001(\tH\000\210\001\001\022\021\n\tmedia_url\030\003 \001(\t\022\022\n\nmed" +
+      "ia_type\030\004 \001(\t\022B\n\006status\030\005 \001(\01622.yalo.ext" +
+      "ernal_channel.in_app.sdk.v2.MessageStatu" +
+      "s\022>\n\004role\030\006 \001(\01620.yalo.external_channel." +
+      "in_app.sdk.v2.MessageRole\022\022\n\nbyte_count\030" +
+      "\007 \001(\003\022\021\n\tfile_name\030\010 \001(\t\022\020\n\010duration\030\t \001" +
+      "(\001B\007\n\005_text\"\206\002\n\023VideoMessageRequest\022B\n\007c" +
+      "ontent\030\001 \001(\01321.yalo.external_channel.in_" +
+      "app.sdk.v2.VideoMessage\022-\n\ttimestamp\030\002 \001" +
+      "(\0132\032.google.protobuf.Timestamp\022<\n\007button" +
+      "s\030\003 \003(\0132+.yalo.external_channel.in_app.s" +
+      "dk.v2.Button\022\023\n\006header\030\004 \001(\tH\000\210\001\001\022\023\n\006foo" +
+      "ter\030\005 \001(\tH\001\210\001\001B\t\n\007_headerB\t\n\007_footer\"\236\001\n" +
+      "\025MessageReceiptRequest\022B\n\006status\030\001 \001(\01622" +
+      ".yalo.external_channel.in_app.sdk.v2.Mes" +
+      "sageStatus\022\022\n\nmessage_id\030\002 \001(\t\022-\n\ttimest" +
+      "amp\030\003 \001(\0132\032.google.protobuf.Timestamp\"\242\001" +
+      "\n\020AddToCartRequest\022\013\n\003sku\030\001 \001(\t\022-\n\ttimes" +
+      "tamp\030\002 \001(\0132\032.google.protobuf.Timestamp\022\020" +
+      "\n\010quantity\030\003 \001(\001\022@\n\tunit_type\030\004 \001(\0162-.ya" +
+      "lo.external_channel.in_app.sdk.v2.UnitTy" +
+      "pe\"\207\001\n\021AddToCartResponse\022C\n\006status\030\001 \001(\016" +
+      "23.yalo.external_channel.in_app.sdk.v2.R" +
+      "esponseStatus\022-\n\ttimestamp\030\002 \001(\0132\032.googl" +
+      "e.protobuf.Timestamp\"\271\001\n\025RemoveFromCartR" +
+      "equest\022\013\n\003sku\030\001 \001(\t\022-\n\ttimestamp\030\002 \001(\0132\032" +
+      ".google.protobuf.Timestamp\022\025\n\010quantity\030\003" +
+      " \001(\001H\000\210\001\001\022@\n\tunit_type\030\004 \001(\0162-.yalo.exte" +
+      "rnal_channel.in_app.sdk.v2.UnitTypeB\013\n\t_" +
+      "quantity\"\214\001\n\026RemoveFromCartResponse\022C\n\006s" +
+      "tatus\030\001 \001(\01623.yalo.external_channel.in_a" +
+      "pp.sdk.v2.ResponseStatus\022-\n\ttimestamp\030\002 " +
+      "\001(\0132\032.google.protobuf.Timestamp\"A\n\020Clear" +
+      "CartRequest\022-\n\ttimestamp\030\001 \001(\0132\032.google." +
+      "protobuf.Timestamp\"\207\001\n\021ClearCartResponse" +
+      "\022C\n\006status\030\001 \001(\01623.yalo.external_channel" +
+      ".in_app.sdk.v2.ResponseStatus\022-\n\ttimesta" +
+      "mp\030\002 \001(\0132\032.google.protobuf.Timestamp\"\211\001\n" +
+      "\030UpdateCartProductRequest\022\013\n\003sku\030\001 \001(\t\022-" +
+      "\n\ttimestamp\030\002 \001(\0132\032.google.protobuf.Time" +
+      "stamp\022\r\n\005units\030\003 \001(\001\022\025\n\010subunits\030\004 \001(\001H\000" +
+      "\210\001\001B\013\n\t_subunits\"\217\001\n\031UpdateCartProductRe" +
+      "sponse\022C\n\006status\030\001 \001(\01623.yalo.external_c" +
+      "hannel.in_app.sdk.v2.ResponseStatus\022-\n\tt" +
+      "imestamp\030\002 \001(\0132\032.google.protobuf.Timesta" +
+      "mp\"\365\001\n\010PageInfo\022\022\n\005total\030\001 \001(\005H\000\210\001\001\022\030\n\013t" +
+      "otal_pages\030\002 \001(\005H\001\210\001\001\022\021\n\004page\030\003 \001(\005H\002\210\001\001" +
+      "\022\023\n\006cursor\030\004 \001(\tH\003\210\001\001\022\030\n\013next_cursor\030\005 \001" +
+      "(\tH\004\210\001\001\022\030\n\013prev_cursor\030\006 \001(\tH\005\210\001\001\022\021\n\tpag" +
+      "e_size\030\007 \001(\005B\010\n\006_totalB\016\n\014_total_pagesB\007" +
+      "\n\005_pageB\t\n\007_cursorB\016\n\014_next_cursorB\016\n\014_p" +
+      "rev_cursor\"\205\001\n\016GetCartRequest\022-\n\ttimesta" +
+      "mp\030\001 \001(\0132\032.google.protobuf.Timestamp\022\023\n\006" +
+      "cursor\030\002 \001(\tH\000\210\001\001\022\026\n\tpage_size\030\003 \001(\005H\001\210\001" +
+      "\001B\t\n\007_cursorB\014\n\n_page_size\"\207\002\n\017GetCartRe" +
+      "sponse\022C\n\006status\030\001 \001(\01623.yalo.external_c" +
+      "hannel.in_app.sdk.v2.ResponseStatus\022-\n\tt" +
+      "imestamp\030\002 \001(\0132\032.google.protobuf.Timesta" +
+      "mp\022>\n\010products\030\003 \003(\0132,.yalo.external_cha" +
+      "nnel.in_app.sdk.v2.Product\022@\n\tpage_info\030" +
+      "\004 \001(\0132-.yalo.external_channel.in_app.sdk" +
+      ".v2.PageInfo\"\214\001\n\023GuidanceCardRequest\022-\n\t" +
+      "timestamp\030\001 \001(\0132\032.google.protobuf.Timest" +
+      "amp\022\026\n\ttarget_id\030\002 \001(\tH\000\210\001\001\022\024\n\007context\030\003" +
+      " \001(\tH\001\210\001\001B\014\n\n_target_idB\n\n\010_context\"\330\001\n\024" +
+      "GuidanceCardResponse\022C\n\006status\030\001 \001(\01623.y" +
+      "alo.external_channel.in_app.sdk.v2.Respo" +
+      "nseStatus\022-\n\ttimestamp\030\002 \001(\0132\032.google.pr" +
+      "otobuf.Timestamp\022\026\n\016guidance_title\030\003 \001(\t" +
+      "\022\034\n\024guidance_description\030\004 \001(\t\022\026\n\016guidan" +
+      "ce_cards\030\005 \003(\t\"\240\001\n\026MessageFeedbackReques" +
+      "t\022\022\n\nmessage_id\030\001 \001(\t\022C\n\006rating\030\002 \001(\01623." +
+      "yalo.external_channel.in_app.sdk.v2.Feed" +
+      "backRating\022-\n\ttimestamp\030\003 \001(\0132\032.google.p" +
+      "rotobuf.Timestamp\"Z\n\023AddPromotionRequest" +
+      "\022\024\n\014promotion_id\030\001 \001(\t\022-\n\ttimestamp\030\002 \001(" +
+      "\0132\032.google.protobuf.Timestamp\"\212\001\n\024AddPro" +
+      "motionResponse\022C\n\006status\030\001 \001(\01623.yalo.ex" +
+      "ternal_channel.in_app.sdk.v2.ResponseSta" +
+      "tus\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf" +
+      ".Timestamp\"\263\001\n\027PromotionMessageRequest\022\024" +
+      "\n\014promotion_id\030\001 \001(\t\022\r\n\005title\030\002 \001(\t\022\014\n\004g" +
+      "ain\030\003 \001(\t\022\023\n\013description\030\004 \001(\t\022\021\n\timage_" +
+      "url\030\005 \001(\t\022\016\n\006footer\030\006 \001(\t\022-\n\ttimestamp\030\007" +
+      " \001(\0132\032.google.protobuf.Timestamp\"\216\001\n\030Pro" +
+      "motionMessageResponse\022C\n\006status\030\001 \001(\01623." +
+      "yalo.external_channel.in_app.sdk.v2.Resp" +
+      "onseStatus\022-\n\ttimestamp\030\002 \001(\0132\032.google.p" +
+      "rotobuf.Timestamp\"\226\002\n\007Product\022\013\n\003sku\030\001 \001" +
+      "(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005price\030\003 \001(\001\022\022\n\nimage" +
+      "s_url\030\004 \003(\t\022\027\n\nsale_price\030\005 \001(\001H\000\210\001\001\022\020\n\010" +
+      "subunits\030\006 \001(\001\022\021\n\tunit_step\030\007 \001(\001\022\021\n\tuni" +
+      "t_name\030\010 \001(\t\022\031\n\014subunit_name\030\t \001(\tH\001\210\001\001\022" +
+      "\024\n\014subunit_step\030\n \001(\001\022\023\n\013units_added\030\013 \001" +
+      "(\001\022\026\n\016subunits_added\030\014 \001(\001B\r\n\013_sale_pric" +
+      "eB\017\n\r_subunit_name\"\305\002\n\025ProductMessageReq" +
+      "uest\022>\n\010products\030\001 \003(\0132,.yalo.external_c" +
+      "hannel.in_app.sdk.v2.Product\022[\n\013orientat" +
+      "ion\030\002 \001(\0162F.yalo.external_channel.in_app" +
+      ".sdk.v2.ProductMessageRequest.Orientatio" +
+      "n\022-\n\ttimestamp\030\003 \001(\0132\032.google.protobuf.T" +
+      "imestamp\"`\n\013Orientation\022\033\n\027ORIENTATION_U" +
+      "NSPECIFIED\020\000\022\030\n\024ORIENTATION_VERTICAL\020\001\022\032" +
+      "\n\026ORIENTATION_HORIZONTAL\020\002\"\214\001\n\026ProductMe" +
+      "ssageResponse\022C\n\006status\030\001 \001(\01623.yalo.ext" +
+      "ernal_channel.in_app.sdk.v2.ResponseStat" +
+      "us\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf." +
+      "Timestamp\"\375\001\n!ProductConfirmationMessage" +
+      "Request\022\013\n\003sku\030\001 \001(\t\022-\n\ttimestamp\030\002 \001(\0132" +
+      "\032.google.protobuf.Timestamp\022\r\n\005units\030\003 \001" +
+      "(\001\022\025\n\010subunits\030\004 \001(\001H\000\210\001\001\022\016\n\006header\030\005 \001(" +
+      "\t\022\014\n\004body\030\006 \001(\t\022;\n\006button\030\007 \001(\0132+.yalo.e" +
+      "xternal_channel.in_app.sdk.v2.Button\022\016\n\006" +
+      "footer\030\010 \001(\tB\013\n\t_subunits\"\230\001\n\"ProductCon" +
+      "firmationMessageResponse\022C\n\006status\030\001 \001(\016" +
+      "23.yalo.external_channel.in_app.sdk.v2.R" +
+      "esponseStatus\022-\n\ttimestamp\030\002 \001(\0132\032.googl" +
+      "e.protobuf.Timestamp\"R\n\021ChatStatusReques" +
+      "t\022\016\n\006status\030\001 \001(\t\022-\n\ttimestamp\030\002 \001(\0132\032.g" +
+      "oogle.protobuf.Timestamp\"\210\001\n\022ChatStatusR" +
       "esponse\022C\n\006status\030\001 \001(\01623.yalo.external_" +
       "channel.in_app.sdk.v2.ResponseStatus\022-\n\t" +
       "timestamp\030\002 \001(\0132\032.google.protobuf.Timest" +
-      "amp\"\271\001\n\025RemoveFromCartRequest\022\013\n\003sku\030\001 \001" +
-      "(\t\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf." +
-      "Timestamp\022\025\n\010quantity\030\003 \001(\001H\000\210\001\001\022@\n\tunit" +
-      "_type\030\004 \001(\0162-.yalo.external_channel.in_a" +
-      "pp.sdk.v2.UnitTypeB\013\n\t_quantity\"\214\001\n\026Remo" +
-      "veFromCartResponse\022C\n\006status\030\001 \001(\01623.yal" +
-      "o.external_channel.in_app.sdk.v2.Respons" +
-      "eStatus\022-\n\ttimestamp\030\002 \001(\0132\032.google.prot" +
-      "obuf.Timestamp\"A\n\020ClearCartRequest\022-\n\tti" +
-      "mestamp\030\001 \001(\0132\032.google.protobuf.Timestam" +
-      "p\"\207\001\n\021ClearCartResponse\022C\n\006status\030\001 \001(\0162" +
-      "3.yalo.external_channel.in_app.sdk.v2.Re" +
-      "sponseStatus\022-\n\ttimestamp\030\002 \001(\0132\032.google" +
-      ".protobuf.Timestamp\"\211\001\n\030UpdateCartProduc" +
-      "tRequest\022\013\n\003sku\030\001 \001(\t\022-\n\ttimestamp\030\002 \001(\013" +
-      "2\032.google.protobuf.Timestamp\022\r\n\005units\030\003 " +
-      "\001(\001\022\025\n\010subunits\030\004 \001(\001H\000\210\001\001B\013\n\t_subunits\"" +
-      "\217\001\n\031UpdateCartProductResponse\022C\n\006status\030" +
-      "\001 \001(\01623.yalo.external_channel.in_app.sdk" +
-      ".v2.ResponseStatus\022-\n\ttimestamp\030\002 \001(\0132\032." +
-      "google.protobuf.Timestamp\"\365\001\n\010PageInfo\022\022" +
-      "\n\005total\030\001 \001(\005H\000\210\001\001\022\030\n\013total_pages\030\002 \001(\005H" +
-      "\001\210\001\001\022\021\n\004page\030\003 \001(\005H\002\210\001\001\022\023\n\006cursor\030\004 \001(\tH" +
-      "\003\210\001\001\022\030\n\013next_cursor\030\005 \001(\tH\004\210\001\001\022\030\n\013prev_c" +
-      "ursor\030\006 \001(\tH\005\210\001\001\022\021\n\tpage_size\030\007 \001(\005B\010\n\006_" +
-      "totalB\016\n\014_total_pagesB\007\n\005_pageB\t\n\007_curso" +
-      "rB\016\n\014_next_cursorB\016\n\014_prev_cursor\"\205\001\n\016Ge" +
-      "tCartRequest\022-\n\ttimestamp\030\001 \001(\0132\032.google" +
-      ".protobuf.Timestamp\022\023\n\006cursor\030\002 \001(\tH\000\210\001\001" +
-      "\022\026\n\tpage_size\030\003 \001(\005H\001\210\001\001B\t\n\007_cursorB\014\n\n_" +
-      "page_size\"\207\002\n\017GetCartResponse\022C\n\006status\030" +
-      "\001 \001(\01623.yalo.external_channel.in_app.sdk" +
-      ".v2.ResponseStatus\022-\n\ttimestamp\030\002 \001(\0132\032." +
-      "google.protobuf.Timestamp\022>\n\010products\030\003 " +
-      "\003(\0132,.yalo.external_channel.in_app.sdk.v" +
-      "2.Product\022@\n\tpage_info\030\004 \001(\0132-.yalo.exte" +
-      "rnal_channel.in_app.sdk.v2.PageInfo\"\214\001\n\023" +
-      "GuidanceCardRequest\022-\n\ttimestamp\030\001 \001(\0132\032" +
-      ".google.protobuf.Timestamp\022\026\n\ttarget_id\030" +
-      "\002 \001(\tH\000\210\001\001\022\024\n\007context\030\003 \001(\tH\001\210\001\001B\014\n\n_tar" +
-      "get_idB\n\n\010_context\"\330\001\n\024GuidanceCardRespo" +
-      "nse\022C\n\006status\030\001 \001(\01623.yalo.external_chan" +
-      "nel.in_app.sdk.v2.ResponseStatus\022-\n\ttime" +
-      "stamp\030\002 \001(\0132\032.google.protobuf.Timestamp\022" +
-      "\026\n\016guidance_title\030\003 \001(\t\022\034\n\024guidance_desc" +
-      "ription\030\004 \001(\t\022\026\n\016guidance_cards\030\005 \003(\t\"Z\n" +
-      "\023AddPromotionRequest\022\024\n\014promotion_id\030\001 \001" +
-      "(\t\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf." +
-      "Timestamp\"\212\001\n\024AddPromotionResponse\022C\n\006st" +
-      "atus\030\001 \001(\01623.yalo.external_channel.in_ap" +
-      "p.sdk.v2.ResponseStatus\022-\n\ttimestamp\030\002 \001" +
-      "(\0132\032.google.protobuf.Timestamp\"\263\001\n\027Promo" +
-      "tionMessageRequest\022\024\n\014promotion_id\030\001 \001(\t" +
-      "\022\r\n\005title\030\002 \001(\t\022\014\n\004gain\030\003 \001(\t\022\023\n\013descrip" +
-      "tion\030\004 \001(\t\022\021\n\timage_url\030\005 \001(\t\022\016\n\006footer\030" +
-      "\006 \001(\t\022-\n\ttimestamp\030\007 \001(\0132\032.google.protob" +
-      "uf.Timestamp\"\216\001\n\030PromotionMessageRespons" +
-      "e\022C\n\006status\030\001 \001(\01623.yalo.external_channe" +
-      "l.in_app.sdk.v2.ResponseStatus\022-\n\ttimest" +
-      "amp\030\002 \001(\0132\032.google.protobuf.Timestamp\"\226\002" +
-      "\n\007Product\022\013\n\003sku\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\r\n\005" +
-      "price\030\003 \001(\001\022\022\n\nimages_url\030\004 \003(\t\022\027\n\nsale_" +
-      "price\030\005 \001(\001H\000\210\001\001\022\020\n\010subunits\030\006 \001(\001\022\021\n\tun" +
-      "it_step\030\007 \001(\001\022\021\n\tunit_name\030\010 \001(\t\022\031\n\014subu" +
-      "nit_name\030\t \001(\tH\001\210\001\001\022\024\n\014subunit_step\030\n \001(" +
-      "\001\022\023\n\013units_added\030\013 \001(\001\022\026\n\016subunits_added" +
-      "\030\014 \001(\001B\r\n\013_sale_priceB\017\n\r_subunit_name\"\305" +
-      "\002\n\025ProductMessageRequest\022>\n\010products\030\001 \003" +
-      "(\0132,.yalo.external_channel.in_app.sdk.v2" +
-      ".Product\022[\n\013orientation\030\002 \001(\0162F.yalo.ext" +
-      "ernal_channel.in_app.sdk.v2.ProductMessa" +
-      "geRequest.Orientation\022-\n\ttimestamp\030\003 \001(\013" +
-      "2\032.google.protobuf.Timestamp\"`\n\013Orientat" +
-      "ion\022\033\n\027ORIENTATION_UNSPECIFIED\020\000\022\030\n\024ORIE" +
-      "NTATION_VERTICAL\020\001\022\032\n\026ORIENTATION_HORIZO" +
-      "NTAL\020\002\"\214\001\n\026ProductMessageResponse\022C\n\006sta" +
-      "tus\030\001 \001(\01623.yalo.external_channel.in_app" +
-      ".sdk.v2.ResponseStatus\022-\n\ttimestamp\030\002 \001(" +
-      "\0132\032.google.protobuf.Timestamp\"\375\001\n!Produc" +
-      "tConfirmationMessageRequest\022\013\n\003sku\030\001 \001(\t" +
-      "\022-\n\ttimestamp\030\002 \001(\0132\032.google.protobuf.Ti" +
-      "mestamp\022\r\n\005units\030\003 \001(\001\022\025\n\010subunits\030\004 \001(\001" +
-      "H\000\210\001\001\022\016\n\006header\030\005 \001(\t\022\014\n\004body\030\006 \001(\t\022;\n\006b" +
-      "utton\030\007 \001(\0132+.yalo.external_channel.in_a" +
-      "pp.sdk.v2.Button\022\016\n\006footer\030\010 \001(\tB\013\n\t_sub" +
-      "units\"\230\001\n\"ProductConfirmationMessageResp" +
-      "onse\022C\n\006status\030\001 \001(\01623.yalo.external_cha" +
-      "nnel.in_app.sdk.v2.ResponseStatus\022-\n\ttim" +
-      "estamp\030\002 \001(\0132\032.google.protobuf.Timestamp" +
-      "\"R\n\021ChatStatusRequest\022\016\n\006status\030\001 \001(\t\022-\n" +
-      "\ttimestamp\030\002 \001(\0132\032.google.protobuf.Times" +
-      "tamp\"\210\001\n\022ChatStatusResponse\022C\n\006status\030\001 " +
-      "\001(\01623.yalo.external_channel.in_app.sdk.v" +
-      "2.ResponseStatus\022-\n\ttimestamp\030\002 \001(\0132\032.go" +
-      "ogle.protobuf.Timestamp\"j\n\024CustomCommand" +
-      "Request\022\022\n\ncommand_id\030\001 \001(\t\022\017\n\007payload\030\002" +
-      " \001(\t\022-\n\ttimestamp\030\003 \001(\0132\032.google.protobu" +
-      "f.Timestamp\"\234\001\n\025CustomCommandResponse\022C\n" +
-      "\006status\030\001 \001(\01623.yalo.external_channel.in" +
-      "_app.sdk.v2.ResponseStatus\022\017\n\007payload\030\002 " +
-      "\001(\t\022-\n\ttimestamp\030\003 \001(\0132\032.google.protobuf" +
-      ".Timestamp\"`\n\013AuthRequest\022\021\n\tuser_type\030\001" +
-      " \001(\t\022\022\n\nchannel_id\030\002 \001(\t\022\027\n\017organization" +
-      "_id\030\003 \001(\t\022\021\n\ttimestamp\030\004 \001(\003\"@\n\023RefreshT" +
-      "okenRequest\022\022\n\ngrant_type\030\001 \001(\t\022\025\n\rrefre" +
-      "sh_token\030\002 \001(\t\"v\n\014AuthResponse\022\024\n\014access" +
-      "_token\030\001 \001(\t\022\022\n\ntoken_type\030\002 \001(\t\022\022\n\nexpi" +
-      "res_in\030\003 \001(\003\022\025\n\rrefresh_token\030\004 \001(\t\022\021\n\tc" +
-      "lient_id\030\005 \001(\t\"\233\001\n\rConnectionAck\022D\n\004type" +
-      "\030\001 \001(\01626.yalo.external_channel.in_app.sd" +
-      "k.v2.ConnectionAckType\022\025\n\rconnection_id\030" +
-      "\002 \001(\t\022-\n\ttimestamp\030\003 \001(\0132\032.google.protob" +
-      "uf.Timestamp\"\234\001\n\rSdkMessageAck\022D\n\004type\030\001" +
-      " \001(\01626.yalo.external_channel.in_app.sdk." +
-      "v2.SdkMessageAckType\022\026\n\016correlation_id\030\002" +
-      " \001(\t\022-\n\ttimestamp\030\003 \001(\0132\032.google.protobu" +
-      "f.Timestamp\"\252\001\n\017PollMessageItem\022\n\n\002id\030\001 " +
-      "\001(\t\022@\n\007message\030\002 \001(\0132/.yalo.external_cha" +
-      "nnel.in_app.sdk.v2.SdkMessage\022(\n\004date\030\003 " +
-      "\001(\0132\032.google.protobuf.Timestamp\022\017\n\007user_" +
-      "id\030\004 \001(\t\022\016\n\006status\030\005 \001(\t*i\n\016ResponseStat" +
-      "us\022\037\n\033RESPONSE_STATUS_UNSPECIFIED\020\000\022\033\n\027R" +
-      "ESPONSE_STATUS_SUCCESS\020\001\022\031\n\025RESPONSE_STA" +
-      "TUS_ERROR\020\002*Z\n\013MessageRole\022\034\n\030MESSAGE_RO" +
-      "LE_UNSPECIFIED\020\000\022\025\n\021MESSAGE_ROLE_USER\020\001\022" +
-      "\026\n\022MESSAGE_ROLE_AGENT\020\002*P\n\010UnitType\022\031\n\025U" +
-      "NIT_TYPE_UNSPECIFIED\020\000\022\022\n\016UNIT_TYPE_UNIT" +
-      "\020\001\022\025\n\021UNIT_TYPE_SUBUNIT\020\002*\331\001\n\rMessageSta" +
-      "tus\022\036\n\032MESSAGE_STATUS_UNSPECIFIED\020\000\022\034\n\030M" +
-      "ESSAGE_STATUS_DELIVERED\020\001\022\036\n\032MESSAGE_STA" +
-      "TUS_IN_PROGRESS\020\002\022\027\n\023MESSAGE_STATUS_READ" +
-      "\020\003\022\030\n\024MESSAGE_STATUS_ERROR\020\004\022\027\n\023MESSAGE_" +
-      "STATUS_SENT\020\005\022\036\n\032MESSAGE_STATUS_IN_DELIV" +
-      "ERY\020\006*S\n\nButtonType\022\025\n\021BUTTON_TYPE_REPLY" +
-      "\020\000\022\030\n\024BUTTON_TYPE_POSTBACK\020\001\022\024\n\020BUTTON_T" +
-      "YPE_LINK\020\002*`\n\021ConnectionAckType\022#\n\037CONNE" +
-      "CTION_ACK_TYPE_UNSPECIFIED\020\000\022&\n\"CONNECTI" +
-      "ON_ACK_TYPE_CONNECTION_ACK\020\001*_\n\021SdkMessa" +
-      "geAckType\022$\n SDK_MESSAGE_ACK_TYPE_UNSPEC" +
-      "IFIED\020\000\022$\n SDK_MESSAGE_ACK_TYPE_MESSAGE_" +
-      "ACK\020\001Bx\n\"ai.yalo.chat.sdk.internal.proto" +
-      ".v2ZRgithub.com/yalochat/chat-sdk/proto/" +
-      "v2/golang/events/external_channel/in_app" +
-      "/sdk/v2b\006proto3"
+      "amp\"j\n\024CustomCommandRequest\022\022\n\ncommand_i" +
+      "d\030\001 \001(\t\022\017\n\007payload\030\002 \001(\t\022-\n\ttimestamp\030\003 " +
+      "\001(\0132\032.google.protobuf.Timestamp\"\234\001\n\025Cust" +
+      "omCommandResponse\022C\n\006status\030\001 \001(\01623.yalo" +
+      ".external_channel.in_app.sdk.v2.Response" +
+      "Status\022\017\n\007payload\030\002 \001(\t\022-\n\ttimestamp\030\003 \001" +
+      "(\0132\032.google.protobuf.Timestamp\"`\n\013AuthRe" +
+      "quest\022\021\n\tuser_type\030\001 \001(\t\022\022\n\nchannel_id\030\002" +
+      " \001(\t\022\027\n\017organization_id\030\003 \001(\t\022\021\n\ttimesta" +
+      "mp\030\004 \001(\003\"@\n\023RefreshTokenRequest\022\022\n\ngrant" +
+      "_type\030\001 \001(\t\022\025\n\rrefresh_token\030\002 \001(\t\"v\n\014Au" +
+      "thResponse\022\024\n\014access_token\030\001 \001(\t\022\022\n\ntoke" +
+      "n_type\030\002 \001(\t\022\022\n\nexpires_in\030\003 \001(\003\022\025\n\rrefr" +
+      "esh_token\030\004 \001(\t\022\021\n\tclient_id\030\005 \001(\t\"\233\001\n\rC" +
+      "onnectionAck\022D\n\004type\030\001 \001(\01626.yalo.extern" +
+      "al_channel.in_app.sdk.v2.ConnectionAckTy" +
+      "pe\022\025\n\rconnection_id\030\002 \001(\t\022-\n\ttimestamp\030\003" +
+      " \001(\0132\032.google.protobuf.Timestamp\"\234\001\n\rSdk" +
+      "MessageAck\022D\n\004type\030\001 \001(\01626.yalo.external" +
+      "_channel.in_app.sdk.v2.SdkMessageAckType" +
+      "\022\026\n\016correlation_id\030\002 \001(\t\022-\n\ttimestamp\030\003 " +
+      "\001(\0132\032.google.protobuf.Timestamp\"\252\001\n\017Poll" +
+      "MessageItem\022\n\n\002id\030\001 \001(\t\022@\n\007message\030\002 \001(\013" +
+      "2/.yalo.external_channel.in_app.sdk.v2.S" +
+      "dkMessage\022(\n\004date\030\003 \001(\0132\032.google.protobu" +
+      "f.Timestamp\022\017\n\007user_id\030\004 \001(\t\022\016\n\006status\030\005" +
+      " \001(\t*i\n\016ResponseStatus\022\037\n\033RESPONSE_STATU" +
+      "S_UNSPECIFIED\020\000\022\033\n\027RESPONSE_STATUS_SUCCE" +
+      "SS\020\001\022\031\n\025RESPONSE_STATUS_ERROR\020\002*Z\n\013Messa" +
+      "geRole\022\034\n\030MESSAGE_ROLE_UNSPECIFIED\020\000\022\025\n\021" +
+      "MESSAGE_ROLE_USER\020\001\022\026\n\022MESSAGE_ROLE_AGEN" +
+      "T\020\002*P\n\010UnitType\022\031\n\025UNIT_TYPE_UNSPECIFIED" +
+      "\020\000\022\022\n\016UNIT_TYPE_UNIT\020\001\022\025\n\021UNIT_TYPE_SUBU" +
+      "NIT\020\002*\331\001\n\rMessageStatus\022\036\n\032MESSAGE_STATU" +
+      "S_UNSPECIFIED\020\000\022\034\n\030MESSAGE_STATUS_DELIVE" +
+      "RED\020\001\022\036\n\032MESSAGE_STATUS_IN_PROGRESS\020\002\022\027\n" +
+      "\023MESSAGE_STATUS_READ\020\003\022\030\n\024MESSAGE_STATUS" +
+      "_ERROR\020\004\022\027\n\023MESSAGE_STATUS_SENT\020\005\022\036\n\032MES" +
+      "SAGE_STATUS_IN_DELIVERY\020\006*S\n\nButtonType\022" +
+      "\025\n\021BUTTON_TYPE_REPLY\020\000\022\030\n\024BUTTON_TYPE_PO" +
+      "STBACK\020\001\022\024\n\020BUTTON_TYPE_LINK\020\002*q\n\016Feedba" +
+      "ckRating\022\037\n\033FEEDBACK_RATING_UNSPECIFIED\020" +
+      "\000\022\035\n\031FEEDBACK_RATING_THUMBS_UP\020\001\022\037\n\033FEED" +
+      "BACK_RATING_THUMBS_DOWN\020\002*`\n\021ConnectionA" +
+      "ckType\022#\n\037CONNECTION_ACK_TYPE_UNSPECIFIE" +
+      "D\020\000\022&\n\"CONNECTION_ACK_TYPE_CONNECTION_AC" +
+      "K\020\001*_\n\021SdkMessageAckType\022$\n SDK_MESSAGE_" +
+      "ACK_TYPE_UNSPECIFIED\020\000\022$\n SDK_MESSAGE_AC" +
+      "K_TYPE_MESSAGE_ACK\020\001Bx\n\"ai.yalo.chat.sdk" +
+      ".internal.proto.v2ZRgithub.com/yalochat/" +
+      "chat-sdk/proto/v2/golang/events/external" +
+      "_channel/in_app/sdk/v2b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -56836,7 +58087,7 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
     internal_static_yalo_external_channel_in_app_sdk_v2_SdkMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_SdkMessage_descriptor,
-        new java.lang.String[] { "CorrelationId", "Timestamp", "TextMessageRequest", "VoiceNoteMessageRequest", "ImageMessageRequest", "MessageReceiptRequest", "AttachmentMessageRequest", "VideoMessageRequest", "AddToCartRequest", "AddToCartResponse", "RemoveFromCartRequest", "RemoveFromCartResponse", "ClearCartRequest", "ClearCartResponse", "AddPromotionRequest", "AddPromotionResponse", "UpdateCartProductRequest", "UpdateCartProductResponse", "GetCartRequest", "GetCartResponse", "PromotionMessageRequest", "PromotionMessageResponse", "ProductMessageRequest", "ProductMessageResponse", "ChatStatusRequest", "ChatStatusResponse", "CustomCommandRequest", "CustomCommandResponse", "ProductConfirmationMessageRequest", "ProductConfirmationMessageResponse", "GuidanceCardRequest", "GuidanceCardResponse", "Payload", });
+        new java.lang.String[] { "CorrelationId", "Timestamp", "TextMessageRequest", "VoiceNoteMessageRequest", "ImageMessageRequest", "MessageReceiptRequest", "AttachmentMessageRequest", "VideoMessageRequest", "AddToCartRequest", "AddToCartResponse", "RemoveFromCartRequest", "RemoveFromCartResponse", "ClearCartRequest", "ClearCartResponse", "AddPromotionRequest", "AddPromotionResponse", "UpdateCartProductRequest", "UpdateCartProductResponse", "GetCartRequest", "GetCartResponse", "PromotionMessageRequest", "PromotionMessageResponse", "ProductMessageRequest", "ProductMessageResponse", "ChatStatusRequest", "ChatStatusResponse", "CustomCommandRequest", "CustomCommandResponse", "ProductConfirmationMessageRequest", "ProductConfirmationMessageResponse", "GuidanceCardRequest", "GuidanceCardResponse", "MessageFeedbackRequest", "Payload", });
     internal_static_yalo_external_channel_in_app_sdk_v2_Button_descriptor =
       getDescriptor().getMessageType(1);
     internal_static_yalo_external_channel_in_app_sdk_v2_Button_fieldAccessorTable = new
@@ -56987,116 +58238,122 @@ public final class SdkMessageOuterClass extends com.google.protobuf.GeneratedFil
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_GuidanceCardResponse_descriptor,
         new java.lang.String[] { "Status", "Timestamp", "GuidanceTitle", "GuidanceDescription", "GuidanceCards", });
-    internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionRequest_descriptor =
+    internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor =
       getDescriptor().getMessageType(26);
+    internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_yalo_external_channel_in_app_sdk_v2_MessageFeedbackRequest_descriptor,
+        new java.lang.String[] { "MessageId", "Rating", "Timestamp", });
+    internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionRequest_descriptor =
+      getDescriptor().getMessageType(27);
     internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionRequest_descriptor,
         new java.lang.String[] { "PromotionId", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionResponse_descriptor =
-      getDescriptor().getMessageType(27);
+      getDescriptor().getMessageType(28);
     internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_AddPromotionResponse_descriptor,
         new java.lang.String[] { "Status", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_PromotionMessageRequest_descriptor =
-      getDescriptor().getMessageType(28);
+      getDescriptor().getMessageType(29);
     internal_static_yalo_external_channel_in_app_sdk_v2_PromotionMessageRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_PromotionMessageRequest_descriptor,
         new java.lang.String[] { "PromotionId", "Title", "Gain", "Description", "ImageUrl", "Footer", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_PromotionMessageResponse_descriptor =
-      getDescriptor().getMessageType(29);
+      getDescriptor().getMessageType(30);
     internal_static_yalo_external_channel_in_app_sdk_v2_PromotionMessageResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_PromotionMessageResponse_descriptor,
         new java.lang.String[] { "Status", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_Product_descriptor =
-      getDescriptor().getMessageType(30);
+      getDescriptor().getMessageType(31);
     internal_static_yalo_external_channel_in_app_sdk_v2_Product_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_Product_descriptor,
         new java.lang.String[] { "Sku", "Name", "Price", "ImagesUrl", "SalePrice", "Subunits", "UnitStep", "UnitName", "SubunitName", "SubunitStep", "UnitsAdded", "SubunitsAdded", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductMessageRequest_descriptor =
-      getDescriptor().getMessageType(31);
+      getDescriptor().getMessageType(32);
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductMessageRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ProductMessageRequest_descriptor,
         new java.lang.String[] { "Products", "Orientation", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductMessageResponse_descriptor =
-      getDescriptor().getMessageType(32);
+      getDescriptor().getMessageType(33);
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductMessageResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ProductMessageResponse_descriptor,
         new java.lang.String[] { "Status", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductConfirmationMessageRequest_descriptor =
-      getDescriptor().getMessageType(33);
+      getDescriptor().getMessageType(34);
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductConfirmationMessageRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ProductConfirmationMessageRequest_descriptor,
         new java.lang.String[] { "Sku", "Timestamp", "Units", "Subunits", "Header", "Body", "Button", "Footer", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductConfirmationMessageResponse_descriptor =
-      getDescriptor().getMessageType(34);
+      getDescriptor().getMessageType(35);
     internal_static_yalo_external_channel_in_app_sdk_v2_ProductConfirmationMessageResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ProductConfirmationMessageResponse_descriptor,
         new java.lang.String[] { "Status", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ChatStatusRequest_descriptor =
-      getDescriptor().getMessageType(35);
+      getDescriptor().getMessageType(36);
     internal_static_yalo_external_channel_in_app_sdk_v2_ChatStatusRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ChatStatusRequest_descriptor,
         new java.lang.String[] { "Status", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ChatStatusResponse_descriptor =
-      getDescriptor().getMessageType(36);
+      getDescriptor().getMessageType(37);
     internal_static_yalo_external_channel_in_app_sdk_v2_ChatStatusResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ChatStatusResponse_descriptor,
         new java.lang.String[] { "Status", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_CustomCommandRequest_descriptor =
-      getDescriptor().getMessageType(37);
+      getDescriptor().getMessageType(38);
     internal_static_yalo_external_channel_in_app_sdk_v2_CustomCommandRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_CustomCommandRequest_descriptor,
         new java.lang.String[] { "CommandId", "Payload", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_CustomCommandResponse_descriptor =
-      getDescriptor().getMessageType(38);
+      getDescriptor().getMessageType(39);
     internal_static_yalo_external_channel_in_app_sdk_v2_CustomCommandResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_CustomCommandResponse_descriptor,
         new java.lang.String[] { "Status", "Payload", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_AuthRequest_descriptor =
-      getDescriptor().getMessageType(39);
+      getDescriptor().getMessageType(40);
     internal_static_yalo_external_channel_in_app_sdk_v2_AuthRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_AuthRequest_descriptor,
         new java.lang.String[] { "UserType", "ChannelId", "OrganizationId", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_RefreshTokenRequest_descriptor =
-      getDescriptor().getMessageType(40);
+      getDescriptor().getMessageType(41);
     internal_static_yalo_external_channel_in_app_sdk_v2_RefreshTokenRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_RefreshTokenRequest_descriptor,
         new java.lang.String[] { "GrantType", "RefreshToken", });
     internal_static_yalo_external_channel_in_app_sdk_v2_AuthResponse_descriptor =
-      getDescriptor().getMessageType(41);
+      getDescriptor().getMessageType(42);
     internal_static_yalo_external_channel_in_app_sdk_v2_AuthResponse_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_AuthResponse_descriptor,
         new java.lang.String[] { "AccessToken", "TokenType", "ExpiresIn", "RefreshToken", "ClientId", });
     internal_static_yalo_external_channel_in_app_sdk_v2_ConnectionAck_descriptor =
-      getDescriptor().getMessageType(42);
+      getDescriptor().getMessageType(43);
     internal_static_yalo_external_channel_in_app_sdk_v2_ConnectionAck_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_ConnectionAck_descriptor,
         new java.lang.String[] { "Type", "ConnectionId", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_SdkMessageAck_descriptor =
-      getDescriptor().getMessageType(43);
+      getDescriptor().getMessageType(44);
     internal_static_yalo_external_channel_in_app_sdk_v2_SdkMessageAck_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_SdkMessageAck_descriptor,
         new java.lang.String[] { "Type", "CorrelationId", "Timestamp", });
     internal_static_yalo_external_channel_in_app_sdk_v2_PollMessageItem_descriptor =
-      getDescriptor().getMessageType(44);
+      getDescriptor().getMessageType(45);
     internal_static_yalo_external_channel_in_app_sdk_v2_PollMessageItem_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_yalo_external_channel_in_app_sdk_v2_PollMessageItem_descriptor,

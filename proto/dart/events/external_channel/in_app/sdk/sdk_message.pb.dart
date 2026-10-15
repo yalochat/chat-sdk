@@ -54,6 +54,7 @@ enum SdkMessage_Payload {
   productConfirmationMessageResponse,
   getCartRequest,
   getCartResponse,
+  messageFeedbackRequest,
   notSet
 }
 
@@ -94,6 +95,7 @@ class SdkMessage extends $pb.GeneratedMessage {
     ProductConfirmationMessageResponse? productConfirmationMessageResponse,
     GetCartRequest? getCartRequest,
     GetCartResponse? getCartResponse,
+    MessageFeedbackRequest? messageFeedbackRequest,
   }) {
     final result = SdkMessage._();
     if (correlationId != null) result.correlationId = correlationId;
@@ -153,6 +155,8 @@ class SdkMessage extends $pb.GeneratedMessage {
           productConfirmationMessageResponse;
     if (getCartRequest != null) result.getCartRequest = getCartRequest;
     if (getCartResponse != null) result.getCartResponse = getCartResponse;
+    if (messageFeedbackRequest != null)
+      result.messageFeedbackRequest = messageFeedbackRequest;
     return result;
   }
 
@@ -197,6 +201,7 @@ class SdkMessage extends $pb.GeneratedMessage {
     49: SdkMessage_Payload.productConfirmationMessageResponse,
     50: SdkMessage_Payload.getCartRequest,
     51: SdkMessage_Payload.getCartResponse,
+    52: SdkMessage_Payload.messageFeedbackRequest,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -234,7 +239,8 @@ class SdkMessage extends $pb.GeneratedMessage {
       48,
       49,
       50,
-      51
+      51,
+      52
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -316,6 +322,9 @@ class SdkMessage extends $pb.GeneratedMessage {
         subBuilder: GetCartRequest.$_createMessage)
     ..aOM<GetCartResponse>(51, _omitFieldNames ? '' : 'getCartResponse',
         subBuilder: GetCartResponse.$_createMessage)
+    ..aOM<MessageFeedbackRequest>(
+        52, _omitFieldNames ? '' : 'messageFeedbackRequest',
+        subBuilder: MessageFeedbackRequest.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -368,6 +377,7 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(49)
   @$pb.TagNumber(50)
   @$pb.TagNumber(51)
+  @$pb.TagNumber(52)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -400,6 +410,7 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(49)
   @$pb.TagNumber(50)
   @$pb.TagNumber(51)
+  @$pb.TagNumber(52)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -775,6 +786,18 @@ class SdkMessage extends $pb.GeneratedMessage {
   void clearGetCartResponse() => $_clearField(51);
   @$pb.TagNumber(51)
   GetCartResponse ensureGetCartResponse() => $_ensure(31);
+
+  @$pb.TagNumber(52)
+  MessageFeedbackRequest get messageFeedbackRequest => $_getN(32);
+  @$pb.TagNumber(52)
+  set messageFeedbackRequest(MessageFeedbackRequest value) =>
+      $_setField(52, value);
+  @$pb.TagNumber(52)
+  $core.bool hasMessageFeedbackRequest() => $_has(32);
+  @$pb.TagNumber(52)
+  void clearMessageFeedbackRequest() => $_clearField(52);
+  @$pb.TagNumber(52)
+  MessageFeedbackRequest ensureMessageFeedbackRequest() => $_ensure(32);
 }
 
 /// Button represents a single tappable option attached to a message.
@@ -3419,6 +3442,99 @@ class GuidanceCardResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(5)
   $pb.PbList<$core.String> get guidanceCards => $_getList(4);
+}
+
+/// MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+/// agent message to the channel. The server confirms it with an SdkMessageAck.
+/// If the user changes their rating, the client sends a new request for the
+/// same message_id and the channel keeps the one with the latest timestamp.
+class MessageFeedbackRequest extends $pb.GeneratedMessage {
+  factory MessageFeedbackRequest({
+    $core.String? messageId,
+    FeedbackRating? rating,
+    $0.Timestamp? timestamp,
+  }) {
+    final result = MessageFeedbackRequest._();
+    if (messageId != null) result.messageId = messageId;
+    if (rating != null) result.rating = rating;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  MessageFeedbackRequest._();
+
+  factory MessageFeedbackRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      MessageFeedbackRequest()..mergeFromBuffer(data, registry);
+  factory MessageFeedbackRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      MessageFeedbackRequest()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MessageFeedbackRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: MessageFeedbackRequest.$_createMessage)
+    ..aOS(1, _omitFieldNames ? '' : 'messageId')
+    ..aE<FeedbackRating>(2, _omitFieldNames ? '' : 'rating',
+        enumValues: FeedbackRating.values)
+    ..aOM<$0.Timestamp>(3, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.$_createMessage)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MessageFeedbackRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MessageFeedbackRequest copyWith(
+          void Function(MessageFeedbackRequest) updates) =>
+      super.copyWith((message) => updates(message as MessageFeedbackRequest))
+          as MessageFeedbackRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  @$core.Deprecated(
+      'Use MessageFeedbackRequest() / MessageFeedbackRequest.new instead')
+  static MessageFeedbackRequest create() => MessageFeedbackRequest._();
+  static $pb.GeneratedMessage $_createMessage() => MessageFeedbackRequest._();
+  @$core.override
+  MessageFeedbackRequest createEmptyInstance() => MessageFeedbackRequest._();
+  @$core.pragma('dart2js:noInline')
+  static MessageFeedbackRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MessageFeedbackRequest>(
+          MessageFeedbackRequest.$_createMessage);
+  static MessageFeedbackRequest? _defaultInstance;
+
+  /// Identifier of the agent message being rated.
+  @$pb.TagNumber(1)
+  $core.String get messageId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set messageId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessageId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessageId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  FeedbackRating get rating => $_getN(1);
+  @$pb.TagNumber(2)
+  set rating(FeedbackRating value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasRating() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRating() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $0.Timestamp get timestamp => $_getN(2);
+  @$pb.TagNumber(3)
+  set timestamp($0.Timestamp value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTimestamp() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTimestamp() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $0.Timestamp ensureTimestamp() => $_ensure(2);
 }
 
 /// AddPromotionRequest asks the channel to apply a promotion to the active cart.

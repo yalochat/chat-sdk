@@ -96,6 +96,22 @@ final $typed_data.Uint8List buttonTypeDescriptor = $convert.base64Decode(
     'CgpCdXR0b25UeXBlEhUKEUJVVFRPTl9UWVBFX1JFUExZEAASGAoUQlVUVE9OX1RZUEVfUE9TVE'
     'JBQ0sQARIUChBCVVRUT05fVFlQRV9MSU5LEAI=');
 
+@$core.Deprecated('Use feedbackRatingDescriptor instead')
+const FeedbackRating$json = {
+  '1': 'FeedbackRating',
+  '2': [
+    {'1': 'FEEDBACK_RATING_UNSPECIFIED', '2': 0},
+    {'1': 'FEEDBACK_RATING_THUMBS_UP', '2': 1},
+    {'1': 'FEEDBACK_RATING_THUMBS_DOWN', '2': 2},
+  ],
+};
+
+/// Descriptor for `FeedbackRating`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List feedbackRatingDescriptor = $convert.base64Decode(
+    'Cg5GZWVkYmFja1JhdGluZxIfChtGRUVEQkFDS19SQVRJTkdfVU5TUEVDSUZJRUQQABIdChlGRU'
+    'VEQkFDS19SQVRJTkdfVEhVTUJTX1VQEAESHwobRkVFREJBQ0tfUkFUSU5HX1RIVU1CU19ET1dO'
+    'EAI=');
+
 @$core.Deprecated('Use connectionAckTypeDescriptor instead')
 const ConnectionAckType$json = {
   '1': 'ConnectionAckType',
@@ -409,6 +425,15 @@ const SdkMessage$json = {
       '9': 0,
       '10': 'guidanceCardResponse'
     },
+    {
+      '1': 'message_feedback_request',
+      '3': 52,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest',
+      '9': 0,
+      '10': 'messageFeedbackRequest'
+    },
   ],
   '8': [
     {'1': 'payload'},
@@ -482,7 +507,9 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'MjgueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuR3VpZGFuY2VDYXJkUmVxdW'
     'VzdEgAUhNndWlkYW5jZUNhcmRSZXF1ZXN0EnEKFmd1aWRhbmNlX2NhcmRfcmVzcG9uc2UYGyAB'
     'KAsyOS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HdWlkYW5jZUNhcmRSZX'
-    'Nwb25zZUgAUhRndWlkYW5jZUNhcmRSZXNwb25zZUIJCgdwYXlsb2Fk');
+    'Nwb25zZUgAUhRndWlkYW5jZUNhcmRSZXNwb25zZRJ3ChhtZXNzYWdlX2ZlZWRiYWNrX3JlcXVl'
+    'c3QYNCABKAsyOy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5NZXNzYWdlRm'
+    'VlZGJhY2tSZXF1ZXN0SABSFm1lc3NhZ2VGZWVkYmFja1JlcXVlc3RCCQoHcGF5bG9hZA==');
 
 @$core.Deprecated('Use buttonDescriptor instead')
 const Button$json = {
@@ -1483,6 +1510,37 @@ final $typed_data.Uint8List guidanceCardResponseDescriptor = $convert.base64Deco
     '5jZV90aXRsZRgDIAEoCVINZ3VpZGFuY2VUaXRsZRIxChRndWlkYW5jZV9kZXNjcmlwdGlvbhgE'
     'IAEoCVITZ3VpZGFuY2VEZXNjcmlwdGlvbhIlCg5ndWlkYW5jZV9jYXJkcxgFIAMoCVINZ3VpZG'
     'FuY2VDYXJkcw==');
+
+@$core.Deprecated('Use messageFeedbackRequestDescriptor instead')
+const MessageFeedbackRequest$json = {
+  '1': 'MessageFeedbackRequest',
+  '2': [
+    {'1': 'message_id', '3': 1, '4': 1, '5': 9, '10': 'messageId'},
+    {
+      '1': 'rating',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.FeedbackRating',
+      '10': 'rating'
+    },
+    {
+      '1': 'timestamp',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `MessageFeedbackRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List messageFeedbackRequestDescriptor = $convert.base64Decode(
+    'ChZNZXNzYWdlRmVlZGJhY2tSZXF1ZXN0Eh0KCm1lc3NhZ2VfaWQYASABKAlSCW1lc3NhZ2VJZB'
+    'JLCgZyYXRpbmcYAiABKA4yMy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5G'
+    'ZWVkYmFja1JhdGluZ1IGcmF0aW5nEjgKCXRpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2'
+    'J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
 
 @$core.Deprecated('Use addPromotionRequestDescriptor instead')
 const AddPromotionRequest$json = {

@@ -285,6 +285,56 @@ func (ButtonType) EnumDescriptor() ([]byte, []int) {
 	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{4}
 }
 
+// FeedbackRating is the user's rating for a single agent message.
+type FeedbackRating int32
+
+const (
+	FeedbackRating_FEEDBACK_RATING_UNSPECIFIED FeedbackRating = 0
+	FeedbackRating_FEEDBACK_RATING_THUMBS_UP   FeedbackRating = 1
+	FeedbackRating_FEEDBACK_RATING_THUMBS_DOWN FeedbackRating = 2
+)
+
+// Enum value maps for FeedbackRating.
+var (
+	FeedbackRating_name = map[int32]string{
+		0: "FEEDBACK_RATING_UNSPECIFIED",
+		1: "FEEDBACK_RATING_THUMBS_UP",
+		2: "FEEDBACK_RATING_THUMBS_DOWN",
+	}
+	FeedbackRating_value = map[string]int32{
+		"FEEDBACK_RATING_UNSPECIFIED": 0,
+		"FEEDBACK_RATING_THUMBS_UP":   1,
+		"FEEDBACK_RATING_THUMBS_DOWN": 2,
+	}
+)
+
+func (x FeedbackRating) Enum() *FeedbackRating {
+	p := new(FeedbackRating)
+	*p = x
+	return p
+}
+
+func (x FeedbackRating) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FeedbackRating) Descriptor() protoreflect.EnumDescriptor {
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[5].Descriptor()
+}
+
+func (FeedbackRating) Type() protoreflect.EnumType {
+	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[5]
+}
+
+func (x FeedbackRating) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use FeedbackRating.Descriptor instead.
+func (FeedbackRating) EnumDescriptor() ([]byte, []int) {
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{5}
+}
+
 // ConnectionAckType discriminates the variants of a ConnectionAck frame.
 type ConnectionAckType int32
 
@@ -316,11 +366,11 @@ func (x ConnectionAckType) String() string {
 }
 
 func (ConnectionAckType) Descriptor() protoreflect.EnumDescriptor {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[5].Descriptor()
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[6].Descriptor()
 }
 
 func (ConnectionAckType) Type() protoreflect.EnumType {
-	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[5]
+	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[6]
 }
 
 func (x ConnectionAckType) Number() protoreflect.EnumNumber {
@@ -329,7 +379,7 @@ func (x ConnectionAckType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ConnectionAckType.Descriptor instead.
 func (ConnectionAckType) EnumDescriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{5}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{6}
 }
 
 // SdkMessageAckType discriminates the variants of an SdkMessageAck frame.
@@ -363,11 +413,11 @@ func (x SdkMessageAckType) String() string {
 }
 
 func (SdkMessageAckType) Descriptor() protoreflect.EnumDescriptor {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[6].Descriptor()
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[7].Descriptor()
 }
 
 func (SdkMessageAckType) Type() protoreflect.EnumType {
-	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[6]
+	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[7]
 }
 
 func (x SdkMessageAckType) Number() protoreflect.EnumNumber {
@@ -376,7 +426,7 @@ func (x SdkMessageAckType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SdkMessageAckType.Descriptor instead.
 func (SdkMessageAckType) EnumDescriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{6}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{7}
 }
 
 // Orientation controls how the product list is rendered in the client UI.
@@ -413,11 +463,11 @@ func (x ProductMessageRequest_Orientation) String() string {
 }
 
 func (ProductMessageRequest_Orientation) Descriptor() protoreflect.EnumDescriptor {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[7].Descriptor()
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[8].Descriptor()
 }
 
 func (ProductMessageRequest_Orientation) Type() protoreflect.EnumType {
-	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[7]
+	return &file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes[8]
 }
 
 func (x ProductMessageRequest_Orientation) Number() protoreflect.EnumNumber {
@@ -426,7 +476,7 @@ func (x ProductMessageRequest_Orientation) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProductMessageRequest_Orientation.Descriptor instead.
 func (ProductMessageRequest_Orientation) EnumDescriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{31, 0}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{32, 0}
 }
 
 // SdkMessage is the top-level wrapper sent over the bidirectional stream.
@@ -469,6 +519,7 @@ type SdkMessage struct {
 	//	*SdkMessage_ProductConfirmationMessageResponse
 	//	*SdkMessage_GuidanceCardRequest
 	//	*SdkMessage_GuidanceCardResponse
+	//	*SdkMessage_MessageFeedbackRequest
 	Payload       isSdkMessage_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -795,6 +846,15 @@ func (x *SdkMessage) GetGuidanceCardResponse() *GuidanceCardResponse {
 	return nil
 }
 
+func (x *SdkMessage) GetMessageFeedbackRequest() *MessageFeedbackRequest {
+	if x != nil {
+		if x, ok := x.Payload.(*SdkMessage_MessageFeedbackRequest); ok {
+			return x.MessageFeedbackRequest
+		}
+	}
+	return nil
+}
+
 type isSdkMessage_Payload interface {
 	isSdkMessage_Payload()
 }
@@ -922,6 +982,10 @@ type SdkMessage_GuidanceCardResponse struct {
 	GuidanceCardResponse *GuidanceCardResponse `protobuf:"bytes,27,opt,name=guidance_card_response,json=guidanceCardResponse,proto3,oneof"`
 }
 
+type SdkMessage_MessageFeedbackRequest struct {
+	MessageFeedbackRequest *MessageFeedbackRequest `protobuf:"bytes,52,opt,name=message_feedback_request,json=messageFeedbackRequest,proto3,oneof"`
+}
+
 func (*SdkMessage_TextMessageRequest) isSdkMessage_Payload() {}
 
 func (*SdkMessage_VoiceNoteMessageRequest) isSdkMessage_Payload() {}
@@ -981,6 +1045,8 @@ func (*SdkMessage_ProductConfirmationMessageResponse) isSdkMessage_Payload() {}
 func (*SdkMessage_GuidanceCardRequest) isSdkMessage_Payload() {}
 
 func (*SdkMessage_GuidanceCardResponse) isSdkMessage_Payload() {}
+
+func (*SdkMessage_MessageFeedbackRequest) isSdkMessage_Payload() {}
 
 // Button represents a single tappable option attached to a message.
 // url is required when button_type is BUTTON_TYPE_LINK and ignored otherwise.
@@ -2842,6 +2908,71 @@ func (x *GuidanceCardResponse) GetGuidanceCards() []string {
 	return nil
 }
 
+// MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
+// agent message to the channel. The server confirms it with an SdkMessageAck.
+// If the user changes their rating, the client sends a new request for the
+// same message_id and the channel keeps the one with the latest timestamp.
+type MessageFeedbackRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifier of the agent message being rated.
+	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	Rating        FeedbackRating         `protobuf:"varint,2,opt,name=rating,proto3,enum=yalo.external_channel.in_app.sdk.v2.FeedbackRating" json:"rating,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageFeedbackRequest) Reset() {
+	*x = MessageFeedbackRequest{}
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageFeedbackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageFeedbackRequest) ProtoMessage() {}
+
+func (x *MessageFeedbackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageFeedbackRequest.ProtoReflect.Descriptor instead.
+func (*MessageFeedbackRequest) Descriptor() ([]byte, []int) {
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *MessageFeedbackRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *MessageFeedbackRequest) GetRating() FeedbackRating {
+	if x != nil {
+		return x.Rating
+	}
+	return FeedbackRating_FEEDBACK_RATING_UNSPECIFIED
+}
+
+func (x *MessageFeedbackRequest) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
 // AddPromotionRequest asks the channel to apply a promotion to the active cart.
 type AddPromotionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2853,7 +2984,7 @@ type AddPromotionRequest struct {
 
 func (x *AddPromotionRequest) Reset() {
 	*x = AddPromotionRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[26]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2865,7 +2996,7 @@ func (x *AddPromotionRequest) String() string {
 func (*AddPromotionRequest) ProtoMessage() {}
 
 func (x *AddPromotionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[26]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2878,7 +3009,7 @@ func (x *AddPromotionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPromotionRequest.ProtoReflect.Descriptor instead.
 func (*AddPromotionRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{26}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AddPromotionRequest) GetPromotionId() string {
@@ -2906,7 +3037,7 @@ type AddPromotionResponse struct {
 
 func (x *AddPromotionResponse) Reset() {
 	*x = AddPromotionResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[27]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2918,7 +3049,7 @@ func (x *AddPromotionResponse) String() string {
 func (*AddPromotionResponse) ProtoMessage() {}
 
 func (x *AddPromotionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[27]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2931,7 +3062,7 @@ func (x *AddPromotionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddPromotionResponse.ProtoReflect.Descriptor instead.
 func (*AddPromotionResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{27}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *AddPromotionResponse) GetStatus() ResponseStatus {
@@ -2964,7 +3095,7 @@ type PromotionMessageRequest struct {
 
 func (x *PromotionMessageRequest) Reset() {
 	*x = PromotionMessageRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[28]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2976,7 +3107,7 @@ func (x *PromotionMessageRequest) String() string {
 func (*PromotionMessageRequest) ProtoMessage() {}
 
 func (x *PromotionMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[28]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2989,7 +3120,7 @@ func (x *PromotionMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromotionMessageRequest.ProtoReflect.Descriptor instead.
 func (*PromotionMessageRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{28}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *PromotionMessageRequest) GetPromotionId() string {
@@ -3052,7 +3183,7 @@ type PromotionMessageResponse struct {
 
 func (x *PromotionMessageResponse) Reset() {
 	*x = PromotionMessageResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[29]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3064,7 +3195,7 @@ func (x *PromotionMessageResponse) String() string {
 func (*PromotionMessageResponse) ProtoMessage() {}
 
 func (x *PromotionMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[29]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3077,7 +3208,7 @@ func (x *PromotionMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PromotionMessageResponse.ProtoReflect.Descriptor instead.
 func (*PromotionMessageResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{29}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *PromotionMessageResponse) GetStatus() ResponseStatus {
@@ -3122,7 +3253,7 @@ type Product struct {
 
 func (x *Product) Reset() {
 	*x = Product{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[30]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3134,7 +3265,7 @@ func (x *Product) String() string {
 func (*Product) ProtoMessage() {}
 
 func (x *Product) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[30]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3147,7 +3278,7 @@ func (x *Product) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Product.ProtoReflect.Descriptor instead.
 func (*Product) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{30}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *Product) GetSku() string {
@@ -3246,7 +3377,7 @@ type ProductMessageRequest struct {
 
 func (x *ProductMessageRequest) Reset() {
 	*x = ProductMessageRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[31]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3258,7 +3389,7 @@ func (x *ProductMessageRequest) String() string {
 func (*ProductMessageRequest) ProtoMessage() {}
 
 func (x *ProductMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[31]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3271,7 +3402,7 @@ func (x *ProductMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProductMessageRequest.ProtoReflect.Descriptor instead.
 func (*ProductMessageRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{31}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ProductMessageRequest) GetProducts() []*Product {
@@ -3306,7 +3437,7 @@ type ProductMessageResponse struct {
 
 func (x *ProductMessageResponse) Reset() {
 	*x = ProductMessageResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[32]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3318,7 +3449,7 @@ func (x *ProductMessageResponse) String() string {
 func (*ProductMessageResponse) ProtoMessage() {}
 
 func (x *ProductMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[32]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3331,7 +3462,7 @@ func (x *ProductMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProductMessageResponse.ProtoReflect.Descriptor instead.
 func (*ProductMessageResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{32}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ProductMessageResponse) GetStatus() ResponseStatus {
@@ -3375,7 +3506,7 @@ type ProductConfirmationMessageRequest struct {
 
 func (x *ProductConfirmationMessageRequest) Reset() {
 	*x = ProductConfirmationMessageRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[33]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3387,7 +3518,7 @@ func (x *ProductConfirmationMessageRequest) String() string {
 func (*ProductConfirmationMessageRequest) ProtoMessage() {}
 
 func (x *ProductConfirmationMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[33]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3400,7 +3531,7 @@ func (x *ProductConfirmationMessageRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ProductConfirmationMessageRequest.ProtoReflect.Descriptor instead.
 func (*ProductConfirmationMessageRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{33}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ProductConfirmationMessageRequest) GetSku() string {
@@ -3470,7 +3601,7 @@ type ProductConfirmationMessageResponse struct {
 
 func (x *ProductConfirmationMessageResponse) Reset() {
 	*x = ProductConfirmationMessageResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[34]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3482,7 +3613,7 @@ func (x *ProductConfirmationMessageResponse) String() string {
 func (*ProductConfirmationMessageResponse) ProtoMessage() {}
 
 func (x *ProductConfirmationMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[34]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3495,7 +3626,7 @@ func (x *ProductConfirmationMessageResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ProductConfirmationMessageResponse.ProtoReflect.Descriptor instead.
 func (*ProductConfirmationMessageResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{34}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ProductConfirmationMessageResponse) GetStatus() ResponseStatus {
@@ -3523,7 +3654,7 @@ type ChatStatusRequest struct {
 
 func (x *ChatStatusRequest) Reset() {
 	*x = ChatStatusRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[35]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3535,7 +3666,7 @@ func (x *ChatStatusRequest) String() string {
 func (*ChatStatusRequest) ProtoMessage() {}
 
 func (x *ChatStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[35]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3548,7 +3679,7 @@ func (x *ChatStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatStatusRequest.ProtoReflect.Descriptor instead.
 func (*ChatStatusRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{35}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *ChatStatusRequest) GetStatus() string {
@@ -3576,7 +3707,7 @@ type ChatStatusResponse struct {
 
 func (x *ChatStatusResponse) Reset() {
 	*x = ChatStatusResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[36]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3588,7 +3719,7 @@ func (x *ChatStatusResponse) String() string {
 func (*ChatStatusResponse) ProtoMessage() {}
 
 func (x *ChatStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[36]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3601,7 +3732,7 @@ func (x *ChatStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatStatusResponse.ProtoReflect.Descriptor instead.
 func (*ChatStatusResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{36}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *ChatStatusResponse) GetStatus() ResponseStatus {
@@ -3630,7 +3761,7 @@ type CustomCommandRequest struct {
 
 func (x *CustomCommandRequest) Reset() {
 	*x = CustomCommandRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[37]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3642,7 +3773,7 @@ func (x *CustomCommandRequest) String() string {
 func (*CustomCommandRequest) ProtoMessage() {}
 
 func (x *CustomCommandRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[37]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3655,7 +3786,7 @@ func (x *CustomCommandRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CustomCommandRequest.ProtoReflect.Descriptor instead.
 func (*CustomCommandRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{37}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *CustomCommandRequest) GetCommandId() string {
@@ -3691,7 +3822,7 @@ type CustomCommandResponse struct {
 
 func (x *CustomCommandResponse) Reset() {
 	*x = CustomCommandResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[38]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3703,7 +3834,7 @@ func (x *CustomCommandResponse) String() string {
 func (*CustomCommandResponse) ProtoMessage() {}
 
 func (x *CustomCommandResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[38]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3716,7 +3847,7 @@ func (x *CustomCommandResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CustomCommandResponse.ProtoReflect.Descriptor instead.
 func (*CustomCommandResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{38}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *CustomCommandResponse) GetStatus() ResponseStatus {
@@ -3754,7 +3885,7 @@ type AuthRequest struct {
 
 func (x *AuthRequest) Reset() {
 	*x = AuthRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[39]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3766,7 +3897,7 @@ func (x *AuthRequest) String() string {
 func (*AuthRequest) ProtoMessage() {}
 
 func (x *AuthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[39]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3779,7 +3910,7 @@ func (x *AuthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthRequest.ProtoReflect.Descriptor instead.
 func (*AuthRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{39}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *AuthRequest) GetUserType() string {
@@ -3822,7 +3953,7 @@ type RefreshTokenRequest struct {
 
 func (x *RefreshTokenRequest) Reset() {
 	*x = RefreshTokenRequest{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[40]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3834,7 +3965,7 @@ func (x *RefreshTokenRequest) String() string {
 func (*RefreshTokenRequest) ProtoMessage() {}
 
 func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[40]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3847,7 +3978,7 @@ func (x *RefreshTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshTokenRequest.ProtoReflect.Descriptor instead.
 func (*RefreshTokenRequest) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{40}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *RefreshTokenRequest) GetGrantType() string {
@@ -3878,7 +4009,7 @@ type AuthResponse struct {
 
 func (x *AuthResponse) Reset() {
 	*x = AuthResponse{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[41]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3890,7 +4021,7 @@ func (x *AuthResponse) String() string {
 func (*AuthResponse) ProtoMessage() {}
 
 func (x *AuthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[41]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3903,7 +4034,7 @@ func (x *AuthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthResponse.ProtoReflect.Descriptor instead.
 func (*AuthResponse) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{41}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *AuthResponse) GetAccessToken() string {
@@ -3956,7 +4087,7 @@ type ConnectionAck struct {
 
 func (x *ConnectionAck) Reset() {
 	*x = ConnectionAck{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[42]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3968,7 +4099,7 @@ func (x *ConnectionAck) String() string {
 func (*ConnectionAck) ProtoMessage() {}
 
 func (x *ConnectionAck) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[42]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3981,7 +4112,7 @@ func (x *ConnectionAck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectionAck.ProtoReflect.Descriptor instead.
 func (*ConnectionAck) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{42}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *ConnectionAck) GetType() ConnectionAckType {
@@ -4020,7 +4151,7 @@ type SdkMessageAck struct {
 
 func (x *SdkMessageAck) Reset() {
 	*x = SdkMessageAck{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[43]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4032,7 +4163,7 @@ func (x *SdkMessageAck) String() string {
 func (*SdkMessageAck) ProtoMessage() {}
 
 func (x *SdkMessageAck) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[43]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4045,7 +4176,7 @@ func (x *SdkMessageAck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SdkMessageAck.ProtoReflect.Descriptor instead.
 func (*SdkMessageAck) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{43}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *SdkMessageAck) GetType() SdkMessageAckType {
@@ -4090,7 +4221,7 @@ type PollMessageItem struct {
 
 func (x *PollMessageItem) Reset() {
 	*x = PollMessageItem{}
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[44]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4102,7 +4233,7 @@ func (x *PollMessageItem) String() string {
 func (*PollMessageItem) ProtoMessage() {}
 
 func (x *PollMessageItem) ProtoReflect() protoreflect.Message {
-	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[44]
+	mi := &file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4115,7 +4246,7 @@ func (x *PollMessageItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollMessageItem.ProtoReflect.Descriptor instead.
 func (*PollMessageItem) Descriptor() ([]byte, []int) {
-	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{44}
+	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *PollMessageItem) GetId() string {
@@ -4157,7 +4288,7 @@ var File_events_external_channel_in_app_sdk_sdk_message_proto protoreflect.FileD
 
 const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\n" +
-	"4events/external_channel/in_app/sdk/sdk_message.proto\x12#yalo.external_channel.in_app.sdk.v2\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc0\x1c\n" +
+	"4events/external_channel/in_app/sdk/sdk_message.proto\x12#yalo.external_channel.in_app.sdk.v2\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\x1d\n" +
 	"\n" +
 	"SdkMessage\x12%\n" +
 	"\x0ecorrelation_id\x18\x01 \x01(\tR\rcorrelationId\x128\n" +
@@ -4192,7 +4323,8 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"$product_confirmation_message_request\x180 \x01(\v2F.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequestH\x00R!productConfirmationMessageRequest\x12\x9c\x01\n" +
 	"%product_confirmation_message_response\x181 \x01(\v2G.yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponseH\x00R\"productConfirmationMessageResponse\x12n\n" +
 	"\x15guidance_card_request\x18\x1a \x01(\v28.yalo.external_channel.in_app.sdk.v2.GuidanceCardRequestH\x00R\x13guidanceCardRequest\x12q\n" +
-	"\x16guidance_card_response\x18\x1b \x01(\v29.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponseH\x00R\x14guidanceCardResponseB\t\n" +
+	"\x16guidance_card_response\x18\x1b \x01(\v29.yalo.external_channel.in_app.sdk.v2.GuidanceCardResponseH\x00R\x14guidanceCardResponse\x12w\n" +
+	"\x18message_feedback_request\x184 \x01(\v2;.yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequestH\x00R\x16messageFeedbackRequestB\t\n" +
 	"\apayload\"\x8d\x01\n" +
 	"\x06Button\x12\x12\n" +
 	"\x04text\x18\x01 \x01(\tR\x04text\x12P\n" +
@@ -4372,7 +4504,12 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12%\n" +
 	"\x0eguidance_title\x18\x03 \x01(\tR\rguidanceTitle\x121\n" +
 	"\x14guidance_description\x18\x04 \x01(\tR\x13guidanceDescription\x12%\n" +
-	"\x0eguidance_cards\x18\x05 \x03(\tR\rguidanceCards\"r\n" +
+	"\x0eguidance_cards\x18\x05 \x03(\tR\rguidanceCards\"\xbe\x01\n" +
+	"\x16MessageFeedbackRequest\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x12K\n" +
+	"\x06rating\x18\x02 \x01(\x0e23.yalo.external_channel.in_app.sdk.v2.FeedbackRatingR\x06rating\x128\n" +
+	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"r\n" +
 	"\x13AddPromotionRequest\x12!\n" +
 	"\fpromotion_id\x18\x01 \x01(\tR\vpromotionId\x128\n" +
 	"\ttimestamp\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x9d\x01\n" +
@@ -4504,7 +4641,11 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"ButtonType\x12\x15\n" +
 	"\x11BUTTON_TYPE_REPLY\x10\x00\x12\x18\n" +
 	"\x14BUTTON_TYPE_POSTBACK\x10\x01\x12\x14\n" +
-	"\x10BUTTON_TYPE_LINK\x10\x02*`\n" +
+	"\x10BUTTON_TYPE_LINK\x10\x02*q\n" +
+	"\x0eFeedbackRating\x12\x1f\n" +
+	"\x1bFEEDBACK_RATING_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19FEEDBACK_RATING_THUMBS_UP\x10\x01\x12\x1f\n" +
+	"\x1bFEEDBACK_RATING_THUMBS_DOWN\x10\x02*`\n" +
 	"\x11ConnectionAckType\x12#\n" +
 	"\x1fCONNECTION_ACK_TYPE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"CONNECTION_ACK_TYPE_CONNECTION_ACK\x10\x01*_\n" +
@@ -4525,183 +4666,188 @@ func file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescGZIP() []b
 	return file_events_external_channel_in_app_sdk_sdk_message_proto_rawDescData
 }
 
-var file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-var file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes = make([]protoimpl.MessageInfo, 45)
+var file_events_external_channel_in_app_sdk_sdk_message_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
+var file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
 var file_events_external_channel_in_app_sdk_sdk_message_proto_goTypes = []any{
 	(ResponseStatus)(0),                        // 0: yalo.external_channel.in_app.sdk.v2.ResponseStatus
 	(MessageRole)(0),                           // 1: yalo.external_channel.in_app.sdk.v2.MessageRole
 	(UnitType)(0),                              // 2: yalo.external_channel.in_app.sdk.v2.UnitType
 	(MessageStatus)(0),                         // 3: yalo.external_channel.in_app.sdk.v2.MessageStatus
 	(ButtonType)(0),                            // 4: yalo.external_channel.in_app.sdk.v2.ButtonType
-	(ConnectionAckType)(0),                     // 5: yalo.external_channel.in_app.sdk.v2.ConnectionAckType
-	(SdkMessageAckType)(0),                     // 6: yalo.external_channel.in_app.sdk.v2.SdkMessageAckType
-	(ProductMessageRequest_Orientation)(0),     // 7: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.Orientation
-	(*SdkMessage)(nil),                         // 8: yalo.external_channel.in_app.sdk.v2.SdkMessage
-	(*Button)(nil),                             // 9: yalo.external_channel.in_app.sdk.v2.Button
-	(*TextMessage)(nil),                        // 10: yalo.external_channel.in_app.sdk.v2.TextMessage
-	(*TextMessageRequest)(nil),                 // 11: yalo.external_channel.in_app.sdk.v2.TextMessageRequest
-	(*VoiceMessage)(nil),                       // 12: yalo.external_channel.in_app.sdk.v2.VoiceMessage
-	(*VoiceNoteMessageRequest)(nil),            // 13: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest
-	(*ImageMessage)(nil),                       // 14: yalo.external_channel.in_app.sdk.v2.ImageMessage
-	(*ImageMessageRequest)(nil),                // 15: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest
-	(*AttachmentMessage)(nil),                  // 16: yalo.external_channel.in_app.sdk.v2.AttachmentMessage
-	(*AttachmentMessageRequest)(nil),           // 17: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest
-	(*VideoMessage)(nil),                       // 18: yalo.external_channel.in_app.sdk.v2.VideoMessage
-	(*VideoMessageRequest)(nil),                // 19: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest
-	(*MessageReceiptRequest)(nil),              // 20: yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest
-	(*AddToCartRequest)(nil),                   // 21: yalo.external_channel.in_app.sdk.v2.AddToCartRequest
-	(*AddToCartResponse)(nil),                  // 22: yalo.external_channel.in_app.sdk.v2.AddToCartResponse
-	(*RemoveFromCartRequest)(nil),              // 23: yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest
-	(*RemoveFromCartResponse)(nil),             // 24: yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse
-	(*ClearCartRequest)(nil),                   // 25: yalo.external_channel.in_app.sdk.v2.ClearCartRequest
-	(*ClearCartResponse)(nil),                  // 26: yalo.external_channel.in_app.sdk.v2.ClearCartResponse
-	(*UpdateCartProductRequest)(nil),           // 27: yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest
-	(*UpdateCartProductResponse)(nil),          // 28: yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse
-	(*PageInfo)(nil),                           // 29: yalo.external_channel.in_app.sdk.v2.PageInfo
-	(*GetCartRequest)(nil),                     // 30: yalo.external_channel.in_app.sdk.v2.GetCartRequest
-	(*GetCartResponse)(nil),                    // 31: yalo.external_channel.in_app.sdk.v2.GetCartResponse
-	(*GuidanceCardRequest)(nil),                // 32: yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest
-	(*GuidanceCardResponse)(nil),               // 33: yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse
-	(*AddPromotionRequest)(nil),                // 34: yalo.external_channel.in_app.sdk.v2.AddPromotionRequest
-	(*AddPromotionResponse)(nil),               // 35: yalo.external_channel.in_app.sdk.v2.AddPromotionResponse
-	(*PromotionMessageRequest)(nil),            // 36: yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest
-	(*PromotionMessageResponse)(nil),           // 37: yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse
-	(*Product)(nil),                            // 38: yalo.external_channel.in_app.sdk.v2.Product
-	(*ProductMessageRequest)(nil),              // 39: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest
-	(*ProductMessageResponse)(nil),             // 40: yalo.external_channel.in_app.sdk.v2.ProductMessageResponse
-	(*ProductConfirmationMessageRequest)(nil),  // 41: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest
-	(*ProductConfirmationMessageResponse)(nil), // 42: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse
-	(*ChatStatusRequest)(nil),                  // 43: yalo.external_channel.in_app.sdk.v2.ChatStatusRequest
-	(*ChatStatusResponse)(nil),                 // 44: yalo.external_channel.in_app.sdk.v2.ChatStatusResponse
-	(*CustomCommandRequest)(nil),               // 45: yalo.external_channel.in_app.sdk.v2.CustomCommandRequest
-	(*CustomCommandResponse)(nil),              // 46: yalo.external_channel.in_app.sdk.v2.CustomCommandResponse
-	(*AuthRequest)(nil),                        // 47: yalo.external_channel.in_app.sdk.v2.AuthRequest
-	(*RefreshTokenRequest)(nil),                // 48: yalo.external_channel.in_app.sdk.v2.RefreshTokenRequest
-	(*AuthResponse)(nil),                       // 49: yalo.external_channel.in_app.sdk.v2.AuthResponse
-	(*ConnectionAck)(nil),                      // 50: yalo.external_channel.in_app.sdk.v2.ConnectionAck
-	(*SdkMessageAck)(nil),                      // 51: yalo.external_channel.in_app.sdk.v2.SdkMessageAck
-	(*PollMessageItem)(nil),                    // 52: yalo.external_channel.in_app.sdk.v2.PollMessageItem
-	(*timestamppb.Timestamp)(nil),              // 53: google.protobuf.Timestamp
+	(FeedbackRating)(0),                        // 5: yalo.external_channel.in_app.sdk.v2.FeedbackRating
+	(ConnectionAckType)(0),                     // 6: yalo.external_channel.in_app.sdk.v2.ConnectionAckType
+	(SdkMessageAckType)(0),                     // 7: yalo.external_channel.in_app.sdk.v2.SdkMessageAckType
+	(ProductMessageRequest_Orientation)(0),     // 8: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.Orientation
+	(*SdkMessage)(nil),                         // 9: yalo.external_channel.in_app.sdk.v2.SdkMessage
+	(*Button)(nil),                             // 10: yalo.external_channel.in_app.sdk.v2.Button
+	(*TextMessage)(nil),                        // 11: yalo.external_channel.in_app.sdk.v2.TextMessage
+	(*TextMessageRequest)(nil),                 // 12: yalo.external_channel.in_app.sdk.v2.TextMessageRequest
+	(*VoiceMessage)(nil),                       // 13: yalo.external_channel.in_app.sdk.v2.VoiceMessage
+	(*VoiceNoteMessageRequest)(nil),            // 14: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest
+	(*ImageMessage)(nil),                       // 15: yalo.external_channel.in_app.sdk.v2.ImageMessage
+	(*ImageMessageRequest)(nil),                // 16: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest
+	(*AttachmentMessage)(nil),                  // 17: yalo.external_channel.in_app.sdk.v2.AttachmentMessage
+	(*AttachmentMessageRequest)(nil),           // 18: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest
+	(*VideoMessage)(nil),                       // 19: yalo.external_channel.in_app.sdk.v2.VideoMessage
+	(*VideoMessageRequest)(nil),                // 20: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest
+	(*MessageReceiptRequest)(nil),              // 21: yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest
+	(*AddToCartRequest)(nil),                   // 22: yalo.external_channel.in_app.sdk.v2.AddToCartRequest
+	(*AddToCartResponse)(nil),                  // 23: yalo.external_channel.in_app.sdk.v2.AddToCartResponse
+	(*RemoveFromCartRequest)(nil),              // 24: yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest
+	(*RemoveFromCartResponse)(nil),             // 25: yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse
+	(*ClearCartRequest)(nil),                   // 26: yalo.external_channel.in_app.sdk.v2.ClearCartRequest
+	(*ClearCartResponse)(nil),                  // 27: yalo.external_channel.in_app.sdk.v2.ClearCartResponse
+	(*UpdateCartProductRequest)(nil),           // 28: yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest
+	(*UpdateCartProductResponse)(nil),          // 29: yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse
+	(*PageInfo)(nil),                           // 30: yalo.external_channel.in_app.sdk.v2.PageInfo
+	(*GetCartRequest)(nil),                     // 31: yalo.external_channel.in_app.sdk.v2.GetCartRequest
+	(*GetCartResponse)(nil),                    // 32: yalo.external_channel.in_app.sdk.v2.GetCartResponse
+	(*GuidanceCardRequest)(nil),                // 33: yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest
+	(*GuidanceCardResponse)(nil),               // 34: yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse
+	(*MessageFeedbackRequest)(nil),             // 35: yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest
+	(*AddPromotionRequest)(nil),                // 36: yalo.external_channel.in_app.sdk.v2.AddPromotionRequest
+	(*AddPromotionResponse)(nil),               // 37: yalo.external_channel.in_app.sdk.v2.AddPromotionResponse
+	(*PromotionMessageRequest)(nil),            // 38: yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest
+	(*PromotionMessageResponse)(nil),           // 39: yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse
+	(*Product)(nil),                            // 40: yalo.external_channel.in_app.sdk.v2.Product
+	(*ProductMessageRequest)(nil),              // 41: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest
+	(*ProductMessageResponse)(nil),             // 42: yalo.external_channel.in_app.sdk.v2.ProductMessageResponse
+	(*ProductConfirmationMessageRequest)(nil),  // 43: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest
+	(*ProductConfirmationMessageResponse)(nil), // 44: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse
+	(*ChatStatusRequest)(nil),                  // 45: yalo.external_channel.in_app.sdk.v2.ChatStatusRequest
+	(*ChatStatusResponse)(nil),                 // 46: yalo.external_channel.in_app.sdk.v2.ChatStatusResponse
+	(*CustomCommandRequest)(nil),               // 47: yalo.external_channel.in_app.sdk.v2.CustomCommandRequest
+	(*CustomCommandResponse)(nil),              // 48: yalo.external_channel.in_app.sdk.v2.CustomCommandResponse
+	(*AuthRequest)(nil),                        // 49: yalo.external_channel.in_app.sdk.v2.AuthRequest
+	(*RefreshTokenRequest)(nil),                // 50: yalo.external_channel.in_app.sdk.v2.RefreshTokenRequest
+	(*AuthResponse)(nil),                       // 51: yalo.external_channel.in_app.sdk.v2.AuthResponse
+	(*ConnectionAck)(nil),                      // 52: yalo.external_channel.in_app.sdk.v2.ConnectionAck
+	(*SdkMessageAck)(nil),                      // 53: yalo.external_channel.in_app.sdk.v2.SdkMessageAck
+	(*PollMessageItem)(nil),                    // 54: yalo.external_channel.in_app.sdk.v2.PollMessageItem
+	(*timestamppb.Timestamp)(nil),              // 55: google.protobuf.Timestamp
 }
 var file_events_external_channel_in_app_sdk_sdk_message_proto_depIdxs = []int32{
-	53,  // 0: yalo.external_channel.in_app.sdk.v2.SdkMessage.timestamp:type_name -> google.protobuf.Timestamp
-	11,  // 1: yalo.external_channel.in_app.sdk.v2.SdkMessage.text_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.TextMessageRequest
-	13,  // 2: yalo.external_channel.in_app.sdk.v2.SdkMessage.voice_note_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest
-	15,  // 3: yalo.external_channel.in_app.sdk.v2.SdkMessage.image_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.ImageMessageRequest
-	20,  // 4: yalo.external_channel.in_app.sdk.v2.SdkMessage.message_receipt_request:type_name -> yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest
-	17,  // 5: yalo.external_channel.in_app.sdk.v2.SdkMessage.attachment_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest
-	19,  // 6: yalo.external_channel.in_app.sdk.v2.SdkMessage.video_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.VideoMessageRequest
-	21,  // 7: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_to_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.AddToCartRequest
-	22,  // 8: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_to_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.AddToCartResponse
-	23,  // 9: yalo.external_channel.in_app.sdk.v2.SdkMessage.remove_from_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest
-	24,  // 10: yalo.external_channel.in_app.sdk.v2.SdkMessage.remove_from_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse
-	25,  // 11: yalo.external_channel.in_app.sdk.v2.SdkMessage.clear_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.ClearCartRequest
-	26,  // 12: yalo.external_channel.in_app.sdk.v2.SdkMessage.clear_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.ClearCartResponse
-	34,  // 13: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_promotion_request:type_name -> yalo.external_channel.in_app.sdk.v2.AddPromotionRequest
-	35,  // 14: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_promotion_response:type_name -> yalo.external_channel.in_app.sdk.v2.AddPromotionResponse
-	27,  // 15: yalo.external_channel.in_app.sdk.v2.SdkMessage.update_cart_product_request:type_name -> yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest
-	28,  // 16: yalo.external_channel.in_app.sdk.v2.SdkMessage.update_cart_product_response:type_name -> yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse
-	30,  // 17: yalo.external_channel.in_app.sdk.v2.SdkMessage.get_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.GetCartRequest
-	31,  // 18: yalo.external_channel.in_app.sdk.v2.SdkMessage.get_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.GetCartResponse
-	36,  // 19: yalo.external_channel.in_app.sdk.v2.SdkMessage.promotion_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest
-	37,  // 20: yalo.external_channel.in_app.sdk.v2.SdkMessage.promotion_message_response:type_name -> yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse
-	39,  // 21: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.ProductMessageRequest
-	40,  // 22: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_message_response:type_name -> yalo.external_channel.in_app.sdk.v2.ProductMessageResponse
-	43,  // 23: yalo.external_channel.in_app.sdk.v2.SdkMessage.chat_status_request:type_name -> yalo.external_channel.in_app.sdk.v2.ChatStatusRequest
-	44,  // 24: yalo.external_channel.in_app.sdk.v2.SdkMessage.chat_status_response:type_name -> yalo.external_channel.in_app.sdk.v2.ChatStatusResponse
-	45,  // 25: yalo.external_channel.in_app.sdk.v2.SdkMessage.custom_command_request:type_name -> yalo.external_channel.in_app.sdk.v2.CustomCommandRequest
-	46,  // 26: yalo.external_channel.in_app.sdk.v2.SdkMessage.custom_command_response:type_name -> yalo.external_channel.in_app.sdk.v2.CustomCommandResponse
-	41,  // 27: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_confirmation_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest
-	42,  // 28: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_confirmation_message_response:type_name -> yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse
-	32,  // 29: yalo.external_channel.in_app.sdk.v2.SdkMessage.guidance_card_request:type_name -> yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest
-	33,  // 30: yalo.external_channel.in_app.sdk.v2.SdkMessage.guidance_card_response:type_name -> yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse
-	4,   // 31: yalo.external_channel.in_app.sdk.v2.Button.button_type:type_name -> yalo.external_channel.in_app.sdk.v2.ButtonType
-	53,  // 32: yalo.external_channel.in_app.sdk.v2.TextMessage.timestamp:type_name -> google.protobuf.Timestamp
-	3,   // 33: yalo.external_channel.in_app.sdk.v2.TextMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
-	1,   // 34: yalo.external_channel.in_app.sdk.v2.TextMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
-	10,  // 35: yalo.external_channel.in_app.sdk.v2.TextMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.TextMessage
-	53,  // 36: yalo.external_channel.in_app.sdk.v2.TextMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	9,   // 37: yalo.external_channel.in_app.sdk.v2.TextMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
-	53,  // 38: yalo.external_channel.in_app.sdk.v2.VoiceMessage.timestamp:type_name -> google.protobuf.Timestamp
-	3,   // 39: yalo.external_channel.in_app.sdk.v2.VoiceMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
-	1,   // 40: yalo.external_channel.in_app.sdk.v2.VoiceMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
-	12,  // 41: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.VoiceMessage
-	53,  // 42: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	9,   // 43: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
-	53,  // 44: yalo.external_channel.in_app.sdk.v2.ImageMessage.timestamp:type_name -> google.protobuf.Timestamp
-	3,   // 45: yalo.external_channel.in_app.sdk.v2.ImageMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
-	1,   // 46: yalo.external_channel.in_app.sdk.v2.ImageMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
-	14,  // 47: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.ImageMessage
-	53,  // 48: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	9,   // 49: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
-	53,  // 50: yalo.external_channel.in_app.sdk.v2.AttachmentMessage.timestamp:type_name -> google.protobuf.Timestamp
-	3,   // 51: yalo.external_channel.in_app.sdk.v2.AttachmentMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
-	1,   // 52: yalo.external_channel.in_app.sdk.v2.AttachmentMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
-	16,  // 53: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.AttachmentMessage
-	53,  // 54: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	9,   // 55: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
-	53,  // 56: yalo.external_channel.in_app.sdk.v2.VideoMessage.timestamp:type_name -> google.protobuf.Timestamp
-	3,   // 57: yalo.external_channel.in_app.sdk.v2.VideoMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
-	1,   // 58: yalo.external_channel.in_app.sdk.v2.VideoMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
-	18,  // 59: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.VideoMessage
-	53,  // 60: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	9,   // 61: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
-	3,   // 62: yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
-	53,  // 63: yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 64: yalo.external_channel.in_app.sdk.v2.AddToCartRequest.timestamp:type_name -> google.protobuf.Timestamp
-	2,   // 65: yalo.external_channel.in_app.sdk.v2.AddToCartRequest.unit_type:type_name -> yalo.external_channel.in_app.sdk.v2.UnitType
-	0,   // 66: yalo.external_channel.in_app.sdk.v2.AddToCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 67: yalo.external_channel.in_app.sdk.v2.AddToCartResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 68: yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest.timestamp:type_name -> google.protobuf.Timestamp
-	2,   // 69: yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest.unit_type:type_name -> yalo.external_channel.in_app.sdk.v2.UnitType
-	0,   // 70: yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 71: yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 72: yalo.external_channel.in_app.sdk.v2.ClearCartRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 73: yalo.external_channel.in_app.sdk.v2.ClearCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 74: yalo.external_channel.in_app.sdk.v2.ClearCartResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 75: yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 76: yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 77: yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 78: yalo.external_channel.in_app.sdk.v2.GetCartRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 79: yalo.external_channel.in_app.sdk.v2.GetCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 80: yalo.external_channel.in_app.sdk.v2.GetCartResponse.timestamp:type_name -> google.protobuf.Timestamp
-	38,  // 81: yalo.external_channel.in_app.sdk.v2.GetCartResponse.products:type_name -> yalo.external_channel.in_app.sdk.v2.Product
-	29,  // 82: yalo.external_channel.in_app.sdk.v2.GetCartResponse.page_info:type_name -> yalo.external_channel.in_app.sdk.v2.PageInfo
-	53,  // 83: yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 84: yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 85: yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 86: yalo.external_channel.in_app.sdk.v2.AddPromotionRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 87: yalo.external_channel.in_app.sdk.v2.AddPromotionResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 88: yalo.external_channel.in_app.sdk.v2.AddPromotionResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 89: yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 90: yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 91: yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
-	38,  // 92: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.products:type_name -> yalo.external_channel.in_app.sdk.v2.Product
-	7,   // 93: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.orientation:type_name -> yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.Orientation
-	53,  // 94: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 95: yalo.external_channel.in_app.sdk.v2.ProductMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 96: yalo.external_channel.in_app.sdk.v2.ProductMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 97: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
-	9,   // 98: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest.button:type_name -> yalo.external_channel.in_app.sdk.v2.Button
-	0,   // 99: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 100: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 101: yalo.external_channel.in_app.sdk.v2.ChatStatusRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 102: yalo.external_channel.in_app.sdk.v2.ChatStatusResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 103: yalo.external_channel.in_app.sdk.v2.ChatStatusResponse.timestamp:type_name -> google.protobuf.Timestamp
-	53,  // 104: yalo.external_channel.in_app.sdk.v2.CustomCommandRequest.timestamp:type_name -> google.protobuf.Timestamp
-	0,   // 105: yalo.external_channel.in_app.sdk.v2.CustomCommandResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
-	53,  // 106: yalo.external_channel.in_app.sdk.v2.CustomCommandResponse.timestamp:type_name -> google.protobuf.Timestamp
-	5,   // 107: yalo.external_channel.in_app.sdk.v2.ConnectionAck.type:type_name -> yalo.external_channel.in_app.sdk.v2.ConnectionAckType
-	53,  // 108: yalo.external_channel.in_app.sdk.v2.ConnectionAck.timestamp:type_name -> google.protobuf.Timestamp
-	6,   // 109: yalo.external_channel.in_app.sdk.v2.SdkMessageAck.type:type_name -> yalo.external_channel.in_app.sdk.v2.SdkMessageAckType
-	53,  // 110: yalo.external_channel.in_app.sdk.v2.SdkMessageAck.timestamp:type_name -> google.protobuf.Timestamp
-	8,   // 111: yalo.external_channel.in_app.sdk.v2.PollMessageItem.message:type_name -> yalo.external_channel.in_app.sdk.v2.SdkMessage
-	53,  // 112: yalo.external_channel.in_app.sdk.v2.PollMessageItem.date:type_name -> google.protobuf.Timestamp
-	113, // [113:113] is the sub-list for method output_type
-	113, // [113:113] is the sub-list for method input_type
-	113, // [113:113] is the sub-list for extension type_name
-	113, // [113:113] is the sub-list for extension extendee
-	0,   // [0:113] is the sub-list for field type_name
+	55,  // 0: yalo.external_channel.in_app.sdk.v2.SdkMessage.timestamp:type_name -> google.protobuf.Timestamp
+	12,  // 1: yalo.external_channel.in_app.sdk.v2.SdkMessage.text_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.TextMessageRequest
+	14,  // 2: yalo.external_channel.in_app.sdk.v2.SdkMessage.voice_note_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest
+	16,  // 3: yalo.external_channel.in_app.sdk.v2.SdkMessage.image_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.ImageMessageRequest
+	21,  // 4: yalo.external_channel.in_app.sdk.v2.SdkMessage.message_receipt_request:type_name -> yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest
+	18,  // 5: yalo.external_channel.in_app.sdk.v2.SdkMessage.attachment_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest
+	20,  // 6: yalo.external_channel.in_app.sdk.v2.SdkMessage.video_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.VideoMessageRequest
+	22,  // 7: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_to_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.AddToCartRequest
+	23,  // 8: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_to_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.AddToCartResponse
+	24,  // 9: yalo.external_channel.in_app.sdk.v2.SdkMessage.remove_from_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest
+	25,  // 10: yalo.external_channel.in_app.sdk.v2.SdkMessage.remove_from_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse
+	26,  // 11: yalo.external_channel.in_app.sdk.v2.SdkMessage.clear_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.ClearCartRequest
+	27,  // 12: yalo.external_channel.in_app.sdk.v2.SdkMessage.clear_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.ClearCartResponse
+	36,  // 13: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_promotion_request:type_name -> yalo.external_channel.in_app.sdk.v2.AddPromotionRequest
+	37,  // 14: yalo.external_channel.in_app.sdk.v2.SdkMessage.add_promotion_response:type_name -> yalo.external_channel.in_app.sdk.v2.AddPromotionResponse
+	28,  // 15: yalo.external_channel.in_app.sdk.v2.SdkMessage.update_cart_product_request:type_name -> yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest
+	29,  // 16: yalo.external_channel.in_app.sdk.v2.SdkMessage.update_cart_product_response:type_name -> yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse
+	31,  // 17: yalo.external_channel.in_app.sdk.v2.SdkMessage.get_cart_request:type_name -> yalo.external_channel.in_app.sdk.v2.GetCartRequest
+	32,  // 18: yalo.external_channel.in_app.sdk.v2.SdkMessage.get_cart_response:type_name -> yalo.external_channel.in_app.sdk.v2.GetCartResponse
+	38,  // 19: yalo.external_channel.in_app.sdk.v2.SdkMessage.promotion_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest
+	39,  // 20: yalo.external_channel.in_app.sdk.v2.SdkMessage.promotion_message_response:type_name -> yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse
+	41,  // 21: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.ProductMessageRequest
+	42,  // 22: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_message_response:type_name -> yalo.external_channel.in_app.sdk.v2.ProductMessageResponse
+	45,  // 23: yalo.external_channel.in_app.sdk.v2.SdkMessage.chat_status_request:type_name -> yalo.external_channel.in_app.sdk.v2.ChatStatusRequest
+	46,  // 24: yalo.external_channel.in_app.sdk.v2.SdkMessage.chat_status_response:type_name -> yalo.external_channel.in_app.sdk.v2.ChatStatusResponse
+	47,  // 25: yalo.external_channel.in_app.sdk.v2.SdkMessage.custom_command_request:type_name -> yalo.external_channel.in_app.sdk.v2.CustomCommandRequest
+	48,  // 26: yalo.external_channel.in_app.sdk.v2.SdkMessage.custom_command_response:type_name -> yalo.external_channel.in_app.sdk.v2.CustomCommandResponse
+	43,  // 27: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_confirmation_message_request:type_name -> yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest
+	44,  // 28: yalo.external_channel.in_app.sdk.v2.SdkMessage.product_confirmation_message_response:type_name -> yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse
+	33,  // 29: yalo.external_channel.in_app.sdk.v2.SdkMessage.guidance_card_request:type_name -> yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest
+	34,  // 30: yalo.external_channel.in_app.sdk.v2.SdkMessage.guidance_card_response:type_name -> yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse
+	35,  // 31: yalo.external_channel.in_app.sdk.v2.SdkMessage.message_feedback_request:type_name -> yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest
+	4,   // 32: yalo.external_channel.in_app.sdk.v2.Button.button_type:type_name -> yalo.external_channel.in_app.sdk.v2.ButtonType
+	55,  // 33: yalo.external_channel.in_app.sdk.v2.TextMessage.timestamp:type_name -> google.protobuf.Timestamp
+	3,   // 34: yalo.external_channel.in_app.sdk.v2.TextMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
+	1,   // 35: yalo.external_channel.in_app.sdk.v2.TextMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
+	11,  // 36: yalo.external_channel.in_app.sdk.v2.TextMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.TextMessage
+	55,  // 37: yalo.external_channel.in_app.sdk.v2.TextMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	10,  // 38: yalo.external_channel.in_app.sdk.v2.TextMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
+	55,  // 39: yalo.external_channel.in_app.sdk.v2.VoiceMessage.timestamp:type_name -> google.protobuf.Timestamp
+	3,   // 40: yalo.external_channel.in_app.sdk.v2.VoiceMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
+	1,   // 41: yalo.external_channel.in_app.sdk.v2.VoiceMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
+	13,  // 42: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.VoiceMessage
+	55,  // 43: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	10,  // 44: yalo.external_channel.in_app.sdk.v2.VoiceNoteMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
+	55,  // 45: yalo.external_channel.in_app.sdk.v2.ImageMessage.timestamp:type_name -> google.protobuf.Timestamp
+	3,   // 46: yalo.external_channel.in_app.sdk.v2.ImageMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
+	1,   // 47: yalo.external_channel.in_app.sdk.v2.ImageMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
+	15,  // 48: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.ImageMessage
+	55,  // 49: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	10,  // 50: yalo.external_channel.in_app.sdk.v2.ImageMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
+	55,  // 51: yalo.external_channel.in_app.sdk.v2.AttachmentMessage.timestamp:type_name -> google.protobuf.Timestamp
+	3,   // 52: yalo.external_channel.in_app.sdk.v2.AttachmentMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
+	1,   // 53: yalo.external_channel.in_app.sdk.v2.AttachmentMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
+	17,  // 54: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.AttachmentMessage
+	55,  // 55: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	10,  // 56: yalo.external_channel.in_app.sdk.v2.AttachmentMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
+	55,  // 57: yalo.external_channel.in_app.sdk.v2.VideoMessage.timestamp:type_name -> google.protobuf.Timestamp
+	3,   // 58: yalo.external_channel.in_app.sdk.v2.VideoMessage.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
+	1,   // 59: yalo.external_channel.in_app.sdk.v2.VideoMessage.role:type_name -> yalo.external_channel.in_app.sdk.v2.MessageRole
+	19,  // 60: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest.content:type_name -> yalo.external_channel.in_app.sdk.v2.VideoMessage
+	55,  // 61: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	10,  // 62: yalo.external_channel.in_app.sdk.v2.VideoMessageRequest.buttons:type_name -> yalo.external_channel.in_app.sdk.v2.Button
+	3,   // 63: yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest.status:type_name -> yalo.external_channel.in_app.sdk.v2.MessageStatus
+	55,  // 64: yalo.external_channel.in_app.sdk.v2.MessageReceiptRequest.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 65: yalo.external_channel.in_app.sdk.v2.AddToCartRequest.timestamp:type_name -> google.protobuf.Timestamp
+	2,   // 66: yalo.external_channel.in_app.sdk.v2.AddToCartRequest.unit_type:type_name -> yalo.external_channel.in_app.sdk.v2.UnitType
+	0,   // 67: yalo.external_channel.in_app.sdk.v2.AddToCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 68: yalo.external_channel.in_app.sdk.v2.AddToCartResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 69: yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest.timestamp:type_name -> google.protobuf.Timestamp
+	2,   // 70: yalo.external_channel.in_app.sdk.v2.RemoveFromCartRequest.unit_type:type_name -> yalo.external_channel.in_app.sdk.v2.UnitType
+	0,   // 71: yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 72: yalo.external_channel.in_app.sdk.v2.RemoveFromCartResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 73: yalo.external_channel.in_app.sdk.v2.ClearCartRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 74: yalo.external_channel.in_app.sdk.v2.ClearCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 75: yalo.external_channel.in_app.sdk.v2.ClearCartResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 76: yalo.external_channel.in_app.sdk.v2.UpdateCartProductRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 77: yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 78: yalo.external_channel.in_app.sdk.v2.UpdateCartProductResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 79: yalo.external_channel.in_app.sdk.v2.GetCartRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 80: yalo.external_channel.in_app.sdk.v2.GetCartResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 81: yalo.external_channel.in_app.sdk.v2.GetCartResponse.timestamp:type_name -> google.protobuf.Timestamp
+	40,  // 82: yalo.external_channel.in_app.sdk.v2.GetCartResponse.products:type_name -> yalo.external_channel.in_app.sdk.v2.Product
+	30,  // 83: yalo.external_channel.in_app.sdk.v2.GetCartResponse.page_info:type_name -> yalo.external_channel.in_app.sdk.v2.PageInfo
+	55,  // 84: yalo.external_channel.in_app.sdk.v2.GuidanceCardRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 85: yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 86: yalo.external_channel.in_app.sdk.v2.GuidanceCardResponse.timestamp:type_name -> google.protobuf.Timestamp
+	5,   // 87: yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest.rating:type_name -> yalo.external_channel.in_app.sdk.v2.FeedbackRating
+	55,  // 88: yalo.external_channel.in_app.sdk.v2.MessageFeedbackRequest.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 89: yalo.external_channel.in_app.sdk.v2.AddPromotionRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 90: yalo.external_channel.in_app.sdk.v2.AddPromotionResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 91: yalo.external_channel.in_app.sdk.v2.AddPromotionResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 92: yalo.external_channel.in_app.sdk.v2.PromotionMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 93: yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 94: yalo.external_channel.in_app.sdk.v2.PromotionMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
+	40,  // 95: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.products:type_name -> yalo.external_channel.in_app.sdk.v2.Product
+	8,   // 96: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.orientation:type_name -> yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.Orientation
+	55,  // 97: yalo.external_channel.in_app.sdk.v2.ProductMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 98: yalo.external_channel.in_app.sdk.v2.ProductMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 99: yalo.external_channel.in_app.sdk.v2.ProductMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 100: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest.timestamp:type_name -> google.protobuf.Timestamp
+	10,  // 101: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageRequest.button:type_name -> yalo.external_channel.in_app.sdk.v2.Button
+	0,   // 102: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 103: yalo.external_channel.in_app.sdk.v2.ProductConfirmationMessageResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 104: yalo.external_channel.in_app.sdk.v2.ChatStatusRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 105: yalo.external_channel.in_app.sdk.v2.ChatStatusResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 106: yalo.external_channel.in_app.sdk.v2.ChatStatusResponse.timestamp:type_name -> google.protobuf.Timestamp
+	55,  // 107: yalo.external_channel.in_app.sdk.v2.CustomCommandRequest.timestamp:type_name -> google.protobuf.Timestamp
+	0,   // 108: yalo.external_channel.in_app.sdk.v2.CustomCommandResponse.status:type_name -> yalo.external_channel.in_app.sdk.v2.ResponseStatus
+	55,  // 109: yalo.external_channel.in_app.sdk.v2.CustomCommandResponse.timestamp:type_name -> google.protobuf.Timestamp
+	6,   // 110: yalo.external_channel.in_app.sdk.v2.ConnectionAck.type:type_name -> yalo.external_channel.in_app.sdk.v2.ConnectionAckType
+	55,  // 111: yalo.external_channel.in_app.sdk.v2.ConnectionAck.timestamp:type_name -> google.protobuf.Timestamp
+	7,   // 112: yalo.external_channel.in_app.sdk.v2.SdkMessageAck.type:type_name -> yalo.external_channel.in_app.sdk.v2.SdkMessageAckType
+	55,  // 113: yalo.external_channel.in_app.sdk.v2.SdkMessageAck.timestamp:type_name -> google.protobuf.Timestamp
+	9,   // 114: yalo.external_channel.in_app.sdk.v2.PollMessageItem.message:type_name -> yalo.external_channel.in_app.sdk.v2.SdkMessage
+	55,  // 115: yalo.external_channel.in_app.sdk.v2.PollMessageItem.date:type_name -> google.protobuf.Timestamp
+	116, // [116:116] is the sub-list for method output_type
+	116, // [116:116] is the sub-list for method input_type
+	116, // [116:116] is the sub-list for extension type_name
+	116, // [116:116] is the sub-list for extension extendee
+	0,   // [0:116] is the sub-list for field type_name
 }
 
 func init() { file_events_external_channel_in_app_sdk_sdk_message_proto_init() }
@@ -4740,6 +4886,7 @@ func file_events_external_channel_in_app_sdk_sdk_message_proto_init() {
 		(*SdkMessage_ProductConfirmationMessageResponse)(nil),
 		(*SdkMessage_GuidanceCardRequest)(nil),
 		(*SdkMessage_GuidanceCardResponse)(nil),
+		(*SdkMessage_MessageFeedbackRequest)(nil),
 	}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[1].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[3].OneofWrappers = []any{}
@@ -4755,15 +4902,15 @@ func file_events_external_channel_in_app_sdk_sdk_message_proto_init() {
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[21].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[22].OneofWrappers = []any{}
 	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[24].OneofWrappers = []any{}
-	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[30].OneofWrappers = []any{}
-	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[33].OneofWrappers = []any{}
+	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[31].OneofWrappers = []any{}
+	file_events_external_channel_in_app_sdk_sdk_message_proto_msgTypes[34].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc), len(file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc)),
-			NumEnums:      8,
-			NumMessages:   45,
+			NumEnums:      9,
+			NumMessages:   46,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
