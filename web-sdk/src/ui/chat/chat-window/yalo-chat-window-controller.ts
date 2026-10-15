@@ -6,6 +6,7 @@ import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { AddToCart } from '@domain/models/chat-events/add-to-cart';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { ProductConfirmationClicked } from '@domain/models/chat-events/product-confirmation-clicked';
+import type { MessageFeedbackChanged } from '@domain/models/chat-events/message-feedback-changed';
 import type { PageInfo } from '@domain/common/page';
 import type {
   CustomCommandRequest,
@@ -687,6 +688,55 @@ export default class YaloChatWindowController implements ReactiveController {
       this.host.requestUpdate();
     }
     return true;
+  }
+
+  // Shows the new rating right away and puts the previous one back when the
+  // channel cannot be reached, unless the user has rated again meanwhile.
+  async sendMessageFeedback(e: CustomEvent): Promise<void> {
+    const { message, feedback } = e.detail as MessageFeedbackChanged;
+    if (message.id === undefined || message.wiId === undefined) {
+      return;
+    }
+    const previous = message.feedback;
+    await this._setMessageFeedback(message.id, feedback);
+
+    const result = await this.host.yaloMessageRepository.sendMessageFeedback(
+      message.wiId,
+      feedback
+    );
+    if (result.ok) {
+      return;
+    }
+    this.host.logger.error('Unable to send message feedback', {
+      error: result.error,
+    });
+    const current = this.chatMessages.find((m) => m.id === message.id);
+    if (current?.feedback !== feedback) {
+      return;
+    }
+    await this._setMessageFeedback(message.id, previous);
+  }
+
+  private async _setMessageFeedback(
+    id: number,
+    feedback: ChatMessage['feedback']
+  ): Promise<void> {
+    const index = this.chatMessages.findIndex((m) => m.id === id);
+    if (index === -1) {
+      return;
+    }
+    const updated = new ChatMessage({ ...this.chatMessages[index], feedback });
+    this.chatMessages = [...this.chatMessages];
+    this.chatMessages[index] = updated;
+    this.host.requestUpdate();
+
+    const result =
+      await this.host.chatMessageRepository.replaceChatMessage(updated);
+    if (!result.ok) {
+      this.host.logger.error('Unable to persist message feedback locally', {
+        error: result.error,
+      });
+    }
   }
 
   private async _setMessageStatus(

@@ -202,6 +202,27 @@ struct ChatMessageDatabaseServiceTests {
         #expect(read.last?.content == "Before")
     }
 
+    @Test func storesAndClearsTheRatingOfAMessage() async throws {
+        let stored: ChatMessage = try await service.insert(message("Hi", role: .agent, wiId: "wi-1"), sessionId: "session-1")
+        let id: Int64 = try #require(stored.id)
+
+        try await service.setFeedback(.thumbsDown, id: id)
+        #expect(try await service.messages(sessionId: "session-1", limit: 10).first?.feedback == .thumbsDown)
+
+        try await service.setFeedback(nil, id: id)
+        #expect(try await service.messages(sessionId: "session-1", limit: 10).first?.feedback == nil)
+    }
+
+    @Test func readsBackARatingGivenOnInsert() async throws {
+        var rated: ChatMessage = message("Hi", role: .agent, wiId: "wi-1")
+        rated.feedback = .thumbsUp
+
+        let stored: ChatMessage = try await service.insert(rated, sessionId: "session-1")
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10) == [stored])
+        #expect(stored.feedback == .thumbsUp)
+    }
+
     @Test func messagesAreLastStoredFirstAndLimited() async throws {
         _ = try await service.insert(message("question", at: 2_400), sessionId: "session-1")
         // The server rounds down to the second, so a reply can carry an earlier time.

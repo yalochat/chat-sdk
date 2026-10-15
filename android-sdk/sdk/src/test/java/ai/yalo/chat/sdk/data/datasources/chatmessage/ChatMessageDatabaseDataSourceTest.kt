@@ -52,6 +52,23 @@ class ChatMessageDatabaseDataSourceTest {
         database.close()
     }
 
+    @Test
+    fun givesAnOlderConversationSomewhereToKeepItsFeedback() {
+        val database = versionOneDatabase()
+
+        dataSource.onUpgrade(database, 1, ChatMessageDatabaseDataSource.VERSION)
+
+        database.insertOrThrow(
+            ChatMessageDatabaseDataSource.MESSAGE_TABLE,
+            null,
+            row("Glad to help").apply {
+                put(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK, "thumbs_up")
+            },
+        )
+        assertEquals(listOf("Hello", "Glad to help"), storedContent(database))
+        database.close()
+    }
+
     /** The schema as it was before messages could carry buttons. */
     private fun versionOneDatabase(): SQLiteDatabase = SQLiteDatabase.create(null).apply {
         execSQL(

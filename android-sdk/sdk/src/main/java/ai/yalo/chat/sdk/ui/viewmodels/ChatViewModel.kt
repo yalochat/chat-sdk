@@ -20,6 +20,7 @@ import ai.yalo.chat.sdk.data.repositories.voice.VoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.CommandRequest
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -311,6 +312,32 @@ internal class ChatViewModel(
             send(text)
         }
     }
+
+    /**
+     * Rates [message] with [rating], or takes the rating back when it is the
+     * one already given.
+     *
+     * The rating is stored before it is sent, so the screen shows it at once,
+     * and is put back as it was when the channel does not take it.
+     */
+    fun onFeedback(message: ChatMessage, rating: FeedbackRating) {
+        val id = message.id ?: return
+        val wiId = message.wiId ?: return
+        val previous = message.feedback
+        val next = rating.takeUnless { rating == previous }
+        viewModelScope.launch {
+            if (rate(id, next).isFailure) {
+                return@launch
+            }
+            yaloMessageRepository.sendFeedback(wiId, next).onFailure { error ->
+                log.warn(error) { "the channel did not take the feedback on $wiId" }
+                rate(id, previous)
+            }
+        }
+    }
+
+    private suspend fun rate(id: Long, feedback: FeedbackRating?): Result<Unit> =
+        chatMessageRepository.updateFeedback(id, feedback).onSuccess { loadMessages() }
 
     /**
      * Stores [text] as the person's own message, whether they typed it or the

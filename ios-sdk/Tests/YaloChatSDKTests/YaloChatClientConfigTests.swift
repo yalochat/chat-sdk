@@ -25,6 +25,7 @@ struct YaloChatClientConfigTests {
         #expect(!config.hideWatermark)
         #expect(!config.hideVoiceButton)
         #expect(!config.hideAttachmentButton)
+        #expect(!config.hideFeedbackButtons)
     }
 
     @Test func warnsAndOpensWithNoContextUnlessToldOtherwise() {

@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.data.repositories.chatmessage
 
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
@@ -36,6 +37,23 @@ internal class ChatMessageRepositoryLocal(
     override suspend fun messages(limit: Int): Result<List<ChatMessage>> = withContext(dispatcher) {
         try {
             Result.success(read(limit))
+        } catch (error: SQLException) {
+            Result.failure(error)
+        }
+    }
+
+    override suspend fun updateFeedback(id: Long, feedback: FeedbackRating?): Result<Unit> = withContext(dispatcher) {
+        try {
+            val values = ContentValues().apply {
+                put(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK, feedback?.wireName)
+            }
+            database.writableDatabase.update(
+                ChatMessageDatabaseDataSource.MESSAGE_TABLE,
+                values,
+                "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ? AND ${ChatMessageDatabaseDataSource.COLUMN_ID} = ?",
+                arrayOf(sessionId, id.toString()),
+            )
+            Result.success(Unit)
         } catch (error: SQLException) {
             Result.failure(error)
         }
@@ -90,6 +108,7 @@ internal class ChatMessageRepositoryLocal(
             put(ChatMessageDatabaseDataSource.COLUMN_BUTTONS, MessageButtonsColumn.encode(message.buttons))
             put(ChatMessageDatabaseDataSource.COLUMN_VOICE, VoiceNoteColumn.encode(message.voice))
             put(ChatMessageDatabaseDataSource.COLUMN_IMAGE, ImageAttachmentColumn.encode(message.image))
+            put(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK, message.feedback?.wireName)
         }
         val id = database.writableDatabase.insertOrThrow(ChatMessageDatabaseDataSource.MESSAGE_TABLE, null, values)
         return message.copy(id = id)
@@ -144,6 +163,7 @@ internal class ChatMessageRepositoryLocal(
         buttons = MessageButtonsColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_BUTTONS)),
         voice = VoiceNoteColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_VOICE)),
         image = ImageAttachmentColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_IMAGE)),
+        feedback = FeedbackRating.of(optionalText(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK)),
     )
 
     private fun Cursor.text(column: String): String = getString(getColumnIndexOrThrow(column))

@@ -21,6 +21,9 @@ protocol ChatMessageService: Sendable {
     /// otherwise land before the message it answers.
     func messages(sessionId: String, limit: Int) async throws -> [ChatMessage]
 
+    /// Stores how the person rated the message of row `id`. Nil clears it.
+    func setFeedback(_ feedback: ChatMessage.Feedback?, id: Int64) async throws
+
     /// Forgets every message of `sessionIds`. Sessions with nothing stored are no error.
     func deleteSessions(_ sessionIds: [String]) async throws
 }

@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.data.repositories.chatmessage
 
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -325,6 +326,45 @@ class ChatMessageRepositoryLocalTest {
         repository.insert(userMessage("Hello"))
 
         assertNull(repository.messages().getOrThrow().single().image)
+    }
+
+    @Test
+    fun readsBackTheRatingAMessageWasGiven() = runBlocking {
+        val repository = repository()
+        val stored = repository.insert(agentMessage("How can I help?", wiId = "wi-1")).getOrThrow()
+
+        repository.updateFeedback(stored.id!!, FeedbackRating.ThumbsDown).getOrThrow()
+
+        assertEquals(FeedbackRating.ThumbsDown, repository.messages().getOrThrow().single().feedback)
+    }
+
+    @Test
+    fun forgetsARatingThatWasTakenBack() = runBlocking {
+        val repository = repository()
+        val stored = repository.insert(agentMessage("How can I help?", wiId = "wi-1")).getOrThrow()
+        repository.updateFeedback(stored.id!!, FeedbackRating.ThumbsUp).getOrThrow()
+
+        repository.updateFeedback(stored.id!!, null).getOrThrow()
+
+        assertNull(repository.messages().getOrThrow().single().feedback)
+    }
+
+    @Test
+    fun leavesTheRatingsOfAnotherConversationAlone() = runBlocking {
+        val other = repository(sessionId = "other-session")
+        val stored = other.insert(agentMessage("How can I help?", wiId = "wi-1")).getOrThrow()
+
+        repository().updateFeedback(stored.id!!, FeedbackRating.ThumbsUp).getOrThrow()
+
+        assertNull(other.messages().getOrThrow().single().feedback)
+    }
+
+    @Test
+    fun reportsARatingStorageCouldNotKeep() = runBlocking {
+        val repository = repository()
+        database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseDataSource.MESSAGE_TABLE}")
+
+        assertTrue(repository.updateFeedback(1L, FeedbackRating.ThumbsUp).isFailure)
     }
 
     @Test

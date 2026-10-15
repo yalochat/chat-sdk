@@ -11,6 +11,7 @@ import ai.yalo.chat.sdk.data.repositories.voice.FakeVoiceRepository
 import ai.yalo.chat.sdk.data.repositories.yalomessage.YaloMessageRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.CommandRequest
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -989,6 +990,91 @@ class ChatViewModelTest {
     private fun postback(text: String): MessageButton =
         MessageButton(text = text, type = MessageButtonType.Postback)
 
+    @Test
+    fun keepsTheRatingThePersonGaveAReply() {
+        alreadyStored(answer("How can I help?"))
+        val viewModel = chatViewModel()
+
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsUp)
+
+        assertEquals(FeedbackRating.ThumbsUp, viewModel.uiState.messages.single().feedback)
+        assertEquals(listOf("wi-1" to FeedbackRating.ThumbsUp), yaloMessageRepository.feedback)
+    }
+
+    @Test
+    fun remembersARatingAfterTheChatIsOpenedAgain() {
+        alreadyStored(answer("How can I help?"))
+        val viewModel = chatViewModel()
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsDown)
+
+        val reopened = chatViewModel()
+
+        assertEquals(FeedbackRating.ThumbsDown, reopened.uiState.messages.single().feedback)
+    }
+
+    @Test
+    fun takesARatingBackWhenThePersonPicksItAgain() {
+        alreadyStored(answer("How can I help?"))
+        val viewModel = chatViewModel()
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsUp)
+
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsUp)
+
+        assertNull(viewModel.uiState.messages.single().feedback)
+        assertEquals(
+            listOf("wi-1" to FeedbackRating.ThumbsUp, "wi-1" to null),
+            yaloMessageRepository.feedback,
+        )
+    }
+
+    @Test
+    fun switchesARatingToTheOtherThumb() {
+        alreadyStored(answer("How can I help?"))
+        val viewModel = chatViewModel()
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsUp)
+
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsDown)
+
+        assertEquals(FeedbackRating.ThumbsDown, viewModel.uiState.messages.single().feedback)
+        assertEquals("wi-1" to FeedbackRating.ThumbsDown, yaloMessageRepository.feedback.last())
+    }
+
+    @Test
+    fun putsTheRatingBackWhenTheChannelDoesNotTakeIt() {
+        alreadyStored(answer("How can I help?"))
+        val viewModel = chatViewModel()
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsUp)
+        yaloMessageRepository.feedbackFailure = IOException("the line is down")
+
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsDown)
+
+        assertEquals(FeedbackRating.ThumbsUp, viewModel.uiState.messages.single().feedback)
+    }
+
+    @Test
+    fun sendsNoRatingStorageCouldNotKeep() {
+        alreadyStored(answer("How can I help?"))
+        val viewModel = chatViewModel()
+        val message = viewModel.uiState.messages.single()
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
+
+        viewModel.onFeedback(message, FeedbackRating.ThumbsUp)
+
+        assertEquals(emptyList<Pair<String, FeedbackRating?>>(), yaloMessageRepository.feedback)
+    }
+
+    @Test
+    fun ratesNothingTheChannelDoesNotKnow() {
+        val viewModel = chatViewModel()
+        viewModel.onDraftChange("Hello")
+        viewModel.onSend()
+
+        viewModel.onFeedback(viewModel.uiState.messages.single(), FeedbackRating.ThumbsUp)
+
+        assertNull(viewModel.uiState.messages.single().feedback)
+        assertEquals(emptyList<Pair<String, FeedbackRating?>>(), yaloMessageRepository.feedback)
+    }
+
     private fun answer(
         content: String,
         wiId: String = "wi-1",
@@ -1212,6 +1298,18 @@ class ChatViewModelTest {
         override suspend fun requestGuidanceCard(openContext: Map<String, String>): Result<Unit> {
             failure?.let { error -> return Result.failure(error) }
             openedWith.add(openContext)
+            return Result.success(Unit)
+        }
+
+        /** Every rating the chat sent, as the channel's message id and the rating. */
+        val feedback: MutableList<Pair<String, FeedbackRating?>> = mutableListOf()
+
+        /** Set to make only ratings come back failed. */
+        var feedbackFailure: Throwable? = null
+
+        override suspend fun sendFeedback(messageId: String, rating: FeedbackRating?): Result<Unit> {
+            feedbackFailure?.let { error -> return Result.failure(error) }
+            feedback.add(messageId to rating)
             return Result.success(Unit)
         }
 

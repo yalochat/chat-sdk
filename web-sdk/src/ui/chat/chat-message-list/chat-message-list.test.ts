@@ -15,6 +15,7 @@ import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { Product } from '@domain/models/product/product';
 import './chat-message-list';
 import type ChatMessageList from './chat-message-list';
+import type { AssistantMessage } from './assistant-message';
 
 const config: YaloChatClientConfig = {
   channelId: 'ch-1',
@@ -979,6 +980,148 @@ describe('ChatMessageList', () => {
       const user = list.shadowRoot!.querySelector('yalo-chat-user-message')!;
       await (user as LitElement).updateComplete;
       expect(user.shadowRoot!.textContent).toContain('Yes');
+    });
+  });
+
+  describe('feedback buttons', () => {
+    const agentText = (
+      overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}
+    ) =>
+      new ChatMessage({
+        id: 1,
+        wiId: 'wi-1',
+        role: 'AGENT',
+        type: 'text',
+        timestamp,
+        content: 'Hello',
+        ...overrides,
+      });
+
+    // Newest first: the reply, then the person's first message.
+    const afterUserMessage = (reply: ChatMessage) => [
+      reply,
+      new ChatMessage({
+        id: 0,
+        role: 'USER',
+        type: 'text',
+        timestamp,
+        content: 'Hi',
+      }),
+    ];
+
+    const feedbackGroup = (list: ChatMessageList) =>
+      list
+        .shadowRoot!.querySelector('yalo-chat-assistant-message')
+        ?.shadowRoot!.querySelector('.feedback') ?? null;
+
+    it('shows thumbs up and thumbs down under assistant text messages', async () => {
+      const list = await renderList(afterUserMessage(agentText()));
+
+      const buttons = feedbackGroup(list)!.querySelectorAll('button');
+      expect(
+        Array.from(buttons).map((b) => ({
+          label: b.getAttribute('aria-label'),
+          pressed: b.getAttribute('aria-pressed'),
+        }))
+      ).toMatchObject([
+        { label: 'Good response', pressed: 'false' },
+        { label: 'Bad response', pressed: 'false' },
+      ]);
+    });
+
+    it('marks the stored rating as selected', async () => {
+      const list = await renderList(
+        afterUserMessage(agentText({ feedback: 'thumbsDown' }))
+      );
+
+      const pressed = feedbackGroup(list)!.querySelector(
+        'button[aria-pressed="true"]'
+      );
+      expect(pressed!.getAttribute('aria-label')).toBe('Bad response');
+    });
+
+    it('hides the buttons when hideFeedbackButtons is set', async () => {
+      const list = await renderList(afterUserMessage(agentText()), {
+        hideFeedbackButtons: true,
+      });
+
+      expect(feedbackGroup(list)).toBeNull();
+    });
+
+    it('does not show the buttons on user messages', async () => {
+      const list = await renderList([agentText({ role: 'USER' })]);
+
+      const user = list.shadowRoot!.querySelector('yalo-chat-user-message');
+      expect(user!.shadowRoot!.querySelector('.feedback')).toBeNull();
+    });
+
+    it('does not show the buttons on non text assistant messages', async () => {
+      const list = await renderList(
+        afterUserMessage(
+          ChatMessage.image({
+            id: 1,
+            wiId: 'wi-1',
+            role: 'AGENT',
+            timestamp,
+            fileName: 'photo.png',
+          })
+        )
+      );
+
+      expect(feedbackGroup(list)).toBeNull();
+    });
+
+    it('does not show the buttons on messages the server has not identified', async () => {
+      const list = await renderList(
+        afterUserMessage(agentText({ wiId: undefined }))
+      );
+
+      expect(feedbackGroup(list)).toBeNull();
+    });
+
+    it('only shows the buttons on replies after the first user message', async () => {
+      const list = await renderList([
+        agentText({ id: 2, wiId: 'wi-2', content: 'Sure' }),
+        ...afterUserMessage(agentText({ content: 'Welcome' })).reverse(),
+      ]);
+
+      const rated = Array.from(
+        list.shadowRoot!.querySelectorAll<AssistantMessage>(
+          'yalo-chat-assistant-message'
+        )
+      ).map((message) => ({
+        content: message.message.content,
+        rated: message.shadowRoot!.querySelector('.feedback') !== null,
+      }));
+      expect(rated).toMatchObject([
+        { content: 'Sure', rated: true },
+        { content: 'Welcome', rated: false },
+      ]);
+    });
+
+    it('does not show the buttons on the vertical welcome message', async () => {
+      const list = await renderList([agentText()], {
+        welcomeMessageType: 'verticalQuickReplies',
+      });
+
+      expect(feedbackGroup(list)).toBeNull();
+    });
+
+    it('asks to clear the rating when the selected button is clicked', async () => {
+      const list = await renderList(
+        afterUserMessage(agentText({ feedback: 'thumbsUp' }))
+      );
+      const handler = vi.fn();
+      list.addEventListener('yalo-chat-message-feedback', handler);
+
+      feedbackGroup(list)!
+        .querySelector<HTMLButtonElement>('button[aria-label="Good response"]')!
+        .click();
+
+      expect(handler.mock.calls[0][0].detail).toMatchObject({
+        message: { wiId: 'wi-1' },
+        feedback: undefined,
+      });
     });
   });
 

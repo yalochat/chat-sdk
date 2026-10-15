@@ -7,6 +7,7 @@ import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.TokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.CommandRequest
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
@@ -19,6 +20,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GetCartResponse
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.GuidanceCardRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessage
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ImageMessageRequest
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageFeedbackRequest
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.PollMessageItem
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ResponseStatus
@@ -46,6 +48,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import ai.yalo.chat.sdk.domain.models.MessageStatus as ChatStatus
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.Button as WireButton
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.ButtonType as WireButtonType
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating as WireRating
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
 
 /**
@@ -192,6 +195,32 @@ internal class YaloMessageRepositoryRemote(
                 .setGuidanceCardRequest(request)
                 .build(),
         )
+    }
+
+    /**
+     * The channel keeps the rating with the latest timestamp for a message, so
+     * a change of mind is just another request.
+     */
+    override suspend fun sendFeedback(messageId: String, rating: FeedbackRating?): Result<Unit> {
+        val ratedAt: Timestamp = Timestamps.fromMillis(now())
+        return write(
+            SdkMessage.newBuilder()
+                .setCorrelationId(correlationIds())
+                .setTimestamp(ratedAt)
+                .setMessageFeedbackRequest(
+                    MessageFeedbackRequest.newBuilder()
+                        .setMessageId(messageId)
+                        .setRating(wireRatingOf(rating))
+                        .setTimestamp(ratedAt),
+                )
+                .build(),
+        )
+    }
+
+    private fun wireRatingOf(rating: FeedbackRating?): WireRating = when (rating) {
+        FeedbackRating.ThumbsUp -> WireRating.FEEDBACK_RATING_THUMBS_UP
+        FeedbackRating.ThumbsDown -> WireRating.FEEDBACK_RATING_THUMBS_DOWN
+        null -> WireRating.FEEDBACK_RATING_UNSPECIFIED
     }
 
     override fun commandRequests(): Flow<CommandRequest> = source.messages

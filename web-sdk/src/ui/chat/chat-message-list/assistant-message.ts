@@ -4,6 +4,7 @@ import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { consume } from '@lit/context';
+import { localized, msg } from '@lit/localize';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import AssistantMessageController from './assistant-message-controller';
@@ -15,6 +16,7 @@ import './product-message';
 import './video-message';
 import './voice-message';
 
+@localized()
 @customElement('yalo-chat-assistant-message')
 export class AssistantMessage extends LitElement {
   static styles = css`
@@ -142,6 +144,44 @@ export class AssistantMessage extends LitElement {
       content: var(--yalo-chat-icon-arrow-forward, 'arrow_forward');
     }
 
+    .yalo-icon[data-icon='thumb-up']::before {
+      content: var(--yalo-chat-icon-thumb-up, 'thumb_up');
+    }
+
+    .yalo-icon[data-icon='thumb-down']::before {
+      content: var(--yalo-chat-icon-thumb-down, 'thumb_down');
+    }
+
+    .feedback {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+
+    .feedback button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem;
+      border: none;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--yalo-chat-feedback-button-color, #7c8086);
+      cursor: pointer;
+    }
+
+    .feedback button:hover {
+      background: var(--yalo-chat-feedback-button-hover-background, #dde4ec);
+    }
+
+    .feedback button[aria-pressed='true'] {
+      color: var(--yalo-chat-feedback-button-selected-color, #181818);
+    }
+
+    .feedback button[aria-pressed='true'] .yalo-icon {
+      font-variation-settings: 'FILL' 1;
+    }
+
     .yalo-icon-img {
       width: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
       height: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
@@ -262,6 +302,9 @@ export class AssistantMessage extends LitElement {
   @property({ type: Boolean, reflect: true })
   centered = false;
 
+  @property({ type: Boolean })
+  showFeedback = false;
+
   render() {
     let body;
     switch (this.message.type) {
@@ -362,6 +405,41 @@ export class AssistantMessage extends LitElement {
                     ${button.text}
                   </button>`
             )}
+          </div>`
+        : null}
+      ${this.message.type === 'text' &&
+      this.message.wiId !== undefined &&
+      this.showFeedback &&
+      !this.config.hideFeedbackButtons
+        ? html`<div
+            class="feedback"
+            role="group"
+            aria-label=${msg('Rate this response')}
+          >
+            <button
+              type="button"
+              aria-label=${msg('Good response')}
+              aria-pressed=${this.message.feedback === 'thumbsUp'}
+              @click=${() => this._controller.onFeedbackClick('thumbsUp')}
+            >
+              <span
+                class="yalo-icon"
+                data-icon="thumb-up"
+                aria-hidden="true"
+              ></span>
+            </button>
+            <button
+              type="button"
+              aria-label=${msg('Bad response')}
+              aria-pressed=${this.message.feedback === 'thumbsDown'}
+              @click=${() => this._controller.onFeedbackClick('thumbsDown')}
+            >
+              <span
+                class="yalo-icon"
+                data-icon="thumb-down"
+                aria-hidden="true"
+              ></span>
+            </button>
           </div>`
         : null}
       ${replies.length > 0

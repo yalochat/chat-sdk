@@ -8,6 +8,7 @@ import ai.yalo.chat.sdk.data.datasources.message.YaloMessageDataSource
 import ai.yalo.chat.sdk.data.repositories.token.FakeTokenRepository
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.CommandRequest
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -55,6 +56,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.IOException
+import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.FeedbackRating as WireRating
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageRole as WireRole
 import ai.yalo.chat.sdk.internal.proto.v2.SdkMessageOuterClass.MessageStatus as WireStatus
 
@@ -366,6 +368,38 @@ class YaloMessageRepositoryRemoteTest {
         val result = connected().requestGuidanceCard()
 
         assertEquals("the line is down", result.exceptionOrNull()?.message)
+    }
+
+    @Test
+    fun tellsTheChannelWhatTheMessageWasRated() = runTest(scheduler) {
+        connected().sendFeedback("wi-1", FeedbackRating.ThumbsUp)
+
+        val request = source.sent.single().messageFeedbackRequest
+        assertEquals(
+            listOf("wi-1", WireRating.FEEDBACK_RATING_THUMBS_UP, SENT_AT),
+            listOf(request.messageId, request.rating, Timestamps.toMillis(request.timestamp)),
+        )
+    }
+
+    @Test
+    fun tellsTheChannelAboutAThumbsDown() = runTest(scheduler) {
+        connected().sendFeedback("wi-1", FeedbackRating.ThumbsDown)
+
+        assertEquals(WireRating.FEEDBACK_RATING_THUMBS_DOWN, source.sent.single().messageFeedbackRequest.rating)
+    }
+
+    @Test
+    fun takesARatingBackByLeavingItUnspecified() = runTest(scheduler) {
+        connected().sendFeedback("wi-1", null)
+
+        assertEquals(WireRating.FEEDBACK_RATING_UNSPECIFIED, source.sent.single().messageFeedbackRequest.rating)
+    }
+
+    @Test
+    fun reportsARatingTheChannelWouldNotTake() = runTest(scheduler) {
+        source.failure = IOException("the line is down")
+
+        assertTrue(connected().sendFeedback("wi-1", FeedbackRating.ThumbsUp).isFailure)
     }
 
     @Test

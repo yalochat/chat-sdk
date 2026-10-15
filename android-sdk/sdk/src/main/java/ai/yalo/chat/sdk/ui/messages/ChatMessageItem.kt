@@ -3,8 +3,10 @@ package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
+import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.actions
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.foundation.BorderStroke
@@ -41,6 +43,9 @@ internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
  * [playback] is a lambda so that a voice note being listened to redraws its own
  * waveform rather than the conversation around it. [loadImage] hands back the
  * file a picture is in, and is asked only for the messages that carry one.
+ *
+ * [onFeedback] adds the thumbs up and thumbs down under an agent text message
+ * the channel knows, and is null when the chat leaves them out.
  */
 @Composable
 internal fun ChatMessageItem(
@@ -53,6 +58,7 @@ internal fun ChatMessageItem(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    onFeedback: ((ChatMessage, FeedbackRating) -> Unit)? = null,
 ) {
     when (message.role) {
         MessageRole.User -> UserMessage(
@@ -73,6 +79,7 @@ internal fun ChatMessageItem(
             playback = playback,
             onVoiceMessageToggled = onVoiceMessageToggled,
             loadImage = loadImage,
+            onFeedback = onFeedback,
         )
     }
 }
@@ -132,6 +139,7 @@ private fun AgentMessage(
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
     loadImage: suspend (ChatMessage) -> ImageBitmap?,
+    onFeedback: ((ChatMessage, FeedbackRating) -> Unit)?,
 ) {
     val theme = currentChatTheme
     Column(
@@ -168,6 +176,12 @@ private fun AgentMessage(
                 buttons = actions,
                 onButtonClick = onPostback,
                 modifier = Modifier.widthAtMost(AGENT_MESSAGE_WIDTH),
+            )
+        }
+        if (onFeedback != null && message.type == MessageType.Text && message.wiId != null) {
+            FeedbackButtons(
+                selected = message.feedback,
+                onRate = { rating -> onFeedback(message, rating) },
             )
         }
         if (quickReplies.isNotEmpty()) {

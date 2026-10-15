@@ -42,6 +42,18 @@
   <source>By <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></source>
   <target>Por <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></target>
 </trans-unit>
+<trans-unit id="sd434e9c69417f3a0">
+  <source>Rate this response</source>
+  <target>Califica esta respuesta</target>
+</trans-unit>
+<trans-unit id="s510df80ecd8f51a7">
+  <source>Good response</source>
+  <target>Buena respuesta</target>
+</trans-unit>
+<trans-unit id="s10d1e89ece01e6c7">
+  <source>Bad response</source>
+  <target>Mala respuesta</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

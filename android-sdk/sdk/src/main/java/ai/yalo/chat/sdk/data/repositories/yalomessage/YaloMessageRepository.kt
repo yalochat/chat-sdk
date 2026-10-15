@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.data.repositories.yalomessage
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.CommandRequest
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -50,6 +51,12 @@ internal interface YaloMessageRepository {
      * as it is given. An empty one asks the same question with nothing to go on.
      */
     suspend fun requestGuidanceCard(openContext: Map<String, String> = emptyMap()): Result<Unit>
+
+    /**
+     * Tells the channel what the person thought of the message it knows as
+     * [messageId]. A null [rating] takes back the one given before.
+     */
+    suspend fun sendFeedback(messageId: String, rating: FeedbackRating?): Result<Unit>
 
     /** Commands the channel asks the host app to run. Hot, and nothing is replayed. */
     fun commandRequests(): Flow<CommandRequest>

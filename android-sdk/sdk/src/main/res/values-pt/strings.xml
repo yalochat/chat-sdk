@@ -11,4 +11,6 @@
     <string name="yalo_chat_pause_voice_message_description">Pausar mensagem de voz</string>
     <string name="yalo_chat_attachment_button_description">Enviar uma imagem</string>
     <string name="yalo_chat_image_message_description">Imagem</string>
+    <string name="yalo_chat_thumbs_up_description">Boa resposta</string>
+    <string name="yalo_chat_thumbs_down_description">Resposta ruim</string>
 </resources>

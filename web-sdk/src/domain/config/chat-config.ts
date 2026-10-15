@@ -51,6 +51,7 @@ export interface YaloChatClientConfig {
   yaloWatermark?: YaloWatermarkPosition;
   hideAttachmentButton?: boolean;
   hideVoiceButton?: boolean;
+  hideFeedbackButtons?: boolean;
   sessionMode?: SessionMode;
   logLevel?: LogLevel;
   welcomeMessageType?: WelcomeMessageType;

@@ -21,7 +21,7 @@ The SDK uses [Material Symbols Outlined](https://fonts.google.com/icons) for its
 
 ```html
 <link
-  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,check,close,description,error,mic,pause,play_arrow,send,stop"
+  href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,check,close,description,error,mic,pause,play_arrow,send,stop,thumb_down,thumb_up"
   rel="stylesheet"
 />
 ```
@@ -40,7 +40,7 @@ Add the icon font, place a sized container on your page, and initialize the clie
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Website</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,check,close,description,error,mic,pause,play_arrow,send,stop"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,arrow_forward,check,close,description,error,mic,pause,play_arrow,send,stop,thumb_down,thumb_up"
       rel="stylesheet"
     />
     <style>
@@ -253,6 +253,7 @@ Optional properties:
 - **`hideHeader`** (`boolean`): When `true`, the chat header is not rendered. Use this when the surrounding page already shows the channel name and avatar, or when embedding the chat in a layout that supplies its own header. You can also hide it from CSS with the `--yalo-chat-header-display: none` variable.
 - **`hideAttachmentButton`** (`boolean`): When `true`, the file attachment button is not rendered in the footer. Users cannot send images or files from the chat.
 - **`hideVoiceButton`** (`boolean`): When `true`, the microphone affordance is removed: the action button always shows the send icon and only sends text. Users cannot record or send voice messages.
+- **`hideFeedbackButtons`** (`boolean`): When `true`, the thumbs up and thumbs down buttons are not rendered under assistant messages. Defaults to `false`, so users can rate each answer after they send their first message. The welcome message has none. Tapping the selected rating again clears it.
 - **`sessionMode`** (`"shared" | "perContext" | "ephemeral"`): Controls how the conversation is scoped and whether it is remembered between visits.
   - `"shared"` (default): the conversation is remembered across visits on the same browser, and `openContext` does not affect which conversation is shown.
   - `"perContext"`: the conversation is remembered but scoped by `openContext`. Two tabs opened with the same `openContext` share a conversation, while different `openContext` values start a fresh conversation.

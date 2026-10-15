@@ -26,6 +26,10 @@ package ai.yalo.chat.sdk
  * @property welcomeMessageType How the first message of a conversation is
  * drawn. Defaults to [WelcomeMessageType.None], which draws it like any other.
  * Named after the same setting in the web SDK so the two read alike.
+ * @property hideFeedbackButtons Whether the thumbs up and thumbs down under the
+ * channel's messages are left out. With it off, the default, a person can rate
+ * a reply and tap their rating again to take it back. Named after the same
+ * setting in the web SDK so the two read alike.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -40,6 +44,7 @@ public data class YaloChatClientConfig(
     public val hideAttachmentButton: Boolean = false,
     public val hideWatermark: Boolean = false,
     public val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
+    public val hideFeedbackButtons: Boolean = false,
 ) {
 
     /**

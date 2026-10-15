@@ -18,6 +18,8 @@
 ///   nobody can record a voice message.
 /// - `hideAttachmentButton`: leaves the plus out of the message input, so
 ///   nobody can pick a picture to send.
+/// - `hideFeedbackButtons`: leaves the thumbs up and thumbs down out from
+///   under the channel's messages, so nobody can rate them.
 public struct YaloChatClientConfig: Sendable, Equatable {
     public let channelId: String
     public let organizationId: String
@@ -31,6 +33,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let hideWatermark: Bool
     public let hideVoiceButton: Bool
     public let hideAttachmentButton: Bool
+    public let hideFeedbackButtons: Bool
 
     public init(
         channelId: String,
@@ -44,7 +47,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         sessionMode: SessionMode = .shared,
         hideWatermark: Bool = false,
         hideVoiceButton: Bool = false,
-        hideAttachmentButton: Bool = false
+        hideAttachmentButton: Bool = false,
+        hideFeedbackButtons: Bool = false
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -58,6 +62,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.hideWatermark = hideWatermark
         self.hideVoiceButton = hideVoiceButton
         self.hideAttachmentButton = hideAttachmentButton
+        self.hideFeedbackButtons = hideFeedbackButtons
     }
 
     /// The conversation before `sessionMode` has had its say: the whole

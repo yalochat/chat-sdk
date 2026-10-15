@@ -5,7 +5,9 @@ import SwiftUI
 /// The conversation. Postback and link buttons stay under the message that sent them,
 /// and the quick replies of `quickRepliesMessageId` are drawn under it.
 /// `isWelcome` centers what the channel says, draws `avatar` above it and
-/// stacks its quick replies one per line.
+/// stacks its quick replies one per line. With `showsFeedback`, text from the
+/// channel can be rated with a thumbs up or down through `onRate`, once the
+/// person has said something, so the welcome message never is.
 struct ChatMessageList: View {
     /// Short enough that a message never feels held back, long enough that one
     /// arriving is noticed rather than found already there.
@@ -23,12 +25,20 @@ struct ChatMessageList: View {
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
     var cachedImage: (ChatMessage) -> UIImage? = { _ in nil }
     var loadImage: (ChatMessage) async -> UIImage? = { _ in nil }
+    var showsFeedback: Bool = false
+    var onRate: (ChatMessage, ChatMessage.Feedback) -> Void = { _, _ in }
     @Environment(\.chatTheme) private var theme: ChatTheme
     /// Whether the end of the conversation is on screen. A picture that loads
     /// grows its row, which would push the end away from someone reading it.
     @State private var showsEnd: Bool = false
 
+    /// The replies after the person's first message, the only ones that can be rated.
+    var rateableIds: Set<Int64> {
+        Set(messages.drop { $0.role != .user }.filter { $0.role == .agent }.compactMap(\.id))
+    }
+
     var body: some View {
+        let rateable: Set<Int64> = showsFeedback ? rateableIds : []
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 8) {
@@ -105,6 +115,12 @@ struct ChatMessageList: View {
                                 MessageButtons(buttons: message.actions, onTap: onTapButton)
                                     .padding(.horizontal, isWelcome ? 24 : 0)
                                     .padding(.trailing, isWelcome ? 0 : 48)
+                            }
+                            if let id = message.id, rateable.contains(id), message.type == .text, message.wiId != nil {
+                                FeedbackButtons(feedback: message.feedback) { feedback in
+                                    onRate(message, feedback)
+                                }
+                                .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                             }
                             if let id = message.id, id == quickRepliesMessageId {
                                 QuickReplies(replies: message.quickReplies, onTap: onTapButton, vertical: isWelcome)

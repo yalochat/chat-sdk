@@ -206,6 +206,12 @@ export default class ChatMessageList extends LitElement {
       !hasUserMessage &&
       this.chatMessages.length === 1;
 
+    // Newest first, so this is the person's first message. Only replies after
+    // it can be rated, which keeps the welcome message free of feedback.
+    const firstUserMessageIndex = this.chatMessages.findLastIndex(
+      (message) => message.role === 'USER'
+    );
+
     let quickReplies: MessageButton[] = [];
     let latestReplyMessageId: ChatMessage['id'];
     for (const message of this.chatMessages) {
@@ -232,7 +238,7 @@ export default class ChatMessageList extends LitElement {
         ${repeat(
           this.chatMessages,
           (chatMessage) => chatMessage.id,
-          (chatMessage) => {
+          (chatMessage, index) => {
             const isUser = chatMessage.role === 'USER';
             return html`
               <li
@@ -254,6 +260,7 @@ export default class ChatMessageList extends LitElement {
                       .showInlineReplies=${showWelcomeOnly ||
                       chatMessage.id === latestReplyMessageId}
                       .centered=${showWelcomeOnly}
+                      .showFeedback=${index < firstUserMessageIndex}
                     ></yalo-chat-assistant-message>`}
               </li>
             `;

@@ -3,11 +3,14 @@ package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.ui.messages.CHAT_MESSAGE_BUTTON_TAG
+import ai.yalo.chat.sdk.ui.messages.CHAT_THUMBS_DOWN_TAG
+import ai.yalo.chat.sdk.ui.messages.CHAT_THUMBS_UP_TAG
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
@@ -349,6 +352,69 @@ class ChatLayoutTest {
 
         composeRule.onNodeWithText("A question").assertIsDisplayed()
     }
+
+    @Test
+    fun saysWhichReplyWasRated() {
+        val message = reply("How can I help?")
+        val rated = mutableListOf<Pair<ChatMessage, FeedbackRating>>()
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(message, userMessage("Hi")),
+                onFeedback = { tapped, rating -> rated.add(tapped to rating) },
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_DOWN_TAG).performClick()
+
+        assertEquals(listOf(message to FeedbackRating.ThumbsDown), rated)
+    }
+
+    @Test
+    fun leavesTheRatingOutWhenTheClientTurnsItOff() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(reply("How can I help?"), userMessage("Hi")),
+                hideFeedbackButtons = true,
+            )
+        }
+
+        composeRule.onNodeWithText("How can I help?").assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(CHAT_THUMBS_DOWN_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun leavesTheRatingOutOfTheWelcomeMessage() {
+        composeRule.setContent {
+            ChatLayout(
+                title = "Support",
+                text = "",
+                onTextChange = {},
+                onSend = {},
+                messages = listOf(agentMessage("Welcome").copy(wiId = "wi-1")),
+                onFeedback = { _, _ -> },
+            )
+        }
+
+        composeRule.onNodeWithText("Welcome").assertIsDisplayed()
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertDoesNotExist()
+    }
+
+    /** An agent text message sent after the person's first message. */
+    private fun reply(content: String) = agentMessage(content).copy(
+        id = 3L,
+        timestamp = 3_000L,
+        wiId = "wi-3",
+        buttons = emptyList(),
+    )
 
     private fun userMessage(content: String) = ChatMessage(
         role = MessageRole.User,
