@@ -2834,3 +2834,227 @@ describe('YaloChatWindow icon overrides', () => {
     expect(collectIconImgSrcs(win.shadowRoot!).has(icons.send)).toBe(true);
   });
 });
+
+describe('YaloChatWindow message feedback', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+
+  const mockSubscription = (): void => {
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    ).mockReturnValue();
+  };
+
+  // Replies can only be rated after the person has said something.
+  const receiveAgentMessage = async (): Promise<void> => {
+    subscribeCallback!([
+      ChatMessage.text({
+        role: 'USER',
+        timestamp: new Date(Date.now() - 1000),
+        content: 'Hi',
+        wiId: 'wi-0',
+      }),
+    ]);
+    await vi.waitUntil(() => getMessageList(el).chatMessages.length === 1);
+    subscribeCallback!([
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date(),
+        content: 'How can I help?',
+        wiId: 'wi-1',
+      }),
+    ]);
+    await vi.waitUntil(() => getMessageList(el).chatMessages.length === 2);
+  };
+
+  const getFeedbackButton = async (
+    label: 'Good response' | 'Bad response'
+  ): Promise<HTMLButtonElement> => {
+    const list = el.shadowRoot!.querySelector(
+      'yalo-chat-message-list'
+    ) as LitElement;
+    await list.updateComplete;
+    const assistant = list.shadowRoot!.querySelector(
+      'yalo-chat-assistant-message'
+    ) as LitElement;
+    await assistant.updateComplete;
+    return assistant.shadowRoot!.querySelector(
+      `button[aria-label="${label}"]`
+    ) as HTMLButtonElement;
+  };
+
+  const storedFeedback = (): Promise<unknown> =>
+    readAll('chatMessage', (store) => store.getAll()).then(
+      (records) =>
+        (records as ChatMessage[]).find((record) => record.wiId === 'wi-1')
+          ?.feedback
+    );
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    mockSubscription();
+    el = await createElement();
+    await receiveAgentMessage();
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('selects thumbs up, sends it for the server message id and stores it', async () => {
+    const send = vi
+      .spyOn(el.yaloMessageRepository, 'sendMessageFeedback')
+      .mockResolvedValue(new Ok(undefined));
+
+    (await getFeedbackButton('Good response')).click();
+
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === 'thumbsUp'
+    );
+    expect(send).toHaveBeenCalledWith('wi-1', 'thumbsUp');
+    await vi.waitUntil(async () => (await storedFeedback()) === 'thumbsUp');
+    expect((await getFeedbackButton('Good response')).ariaPressed).toBe('true');
+    expect((await getFeedbackButton('Bad response')).ariaPressed).toBe('false');
+  });
+
+  it('switches from thumbs up to thumbs down', async () => {
+    const send = vi
+      .spyOn(el.yaloMessageRepository, 'sendMessageFeedback')
+      .mockResolvedValue(new Ok(undefined));
+
+    (await getFeedbackButton('Good response')).click();
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === 'thumbsUp'
+    );
+    (await getFeedbackButton('Bad response')).click();
+
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === 'thumbsDown'
+    );
+    expect(send).toHaveBeenLastCalledWith('wi-1', 'thumbsDown');
+  });
+
+  it('clears the rating when the selected button is clicked again', async () => {
+    const send = vi
+      .spyOn(el.yaloMessageRepository, 'sendMessageFeedback')
+      .mockResolvedValue(new Ok(undefined));
+
+    (await getFeedbackButton('Bad response')).click();
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === 'thumbsDown'
+    );
+    (await getFeedbackButton('Bad response')).click();
+
+    await vi.waitUntil(() => send.mock.calls.length === 2);
+    expect(send).toHaveBeenLastCalledWith('wi-1', undefined);
+    expect(getMessageList(el).chatMessages[0].feedback).toBeUndefined();
+    await vi.waitUntil(async () => (await storedFeedback()) === undefined);
+  });
+
+  it('puts the previous rating back when sending fails', async () => {
+    const errorSpy = vi.spyOn(el.logger, 'error');
+    vi.spyOn(el.yaloMessageRepository, 'sendMessageFeedback').mockResolvedValue(
+      new Err(new Error('offline'))
+    );
+
+    (await getFeedbackButton('Good response')).click();
+
+    await vi.waitUntil(() =>
+      errorSpy.mock.calls.some(
+        ([message]) => message === 'Unable to send message feedback'
+      )
+    );
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === undefined
+    );
+    await vi.waitUntil(async () => (await storedFeedback()) === undefined);
+  });
+
+  it('keeps a newer rating when an older one fails to send', async () => {
+    let failFirst: (error: Error) => void = () => {};
+    vi.spyOn(el.yaloMessageRepository, 'sendMessageFeedback')
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            failFirst = (error) => resolve(new Err(error));
+          })
+      )
+      .mockResolvedValue(new Ok(undefined));
+
+    (await getFeedbackButton('Good response')).click();
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === 'thumbsUp'
+    );
+    (await getFeedbackButton('Bad response')).click();
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0].feedback === 'thumbsDown'
+    );
+    failFirst(new Error('offline'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(getMessageList(el).chatMessages[0].feedback).toBe('thumbsDown');
+  });
+
+  it('keeps the rating in the conversation after a reload', async () => {
+    vi.spyOn(el.yaloMessageRepository, 'sendMessageFeedback').mockResolvedValue(
+      new Ok(undefined)
+    );
+    (await getFeedbackButton('Good response')).click();
+    await vi.waitUntil(async () => (await storedFeedback()) === 'thumbsUp');
+
+    document.body.innerHTML = '';
+    el = await createElement();
+
+    await vi.waitUntil(
+      () => getMessageList(el).chatMessages[0]?.feedback === 'thumbsUp'
+    );
+  });
+
+  it('logs when the rating cannot be stored locally but still sends it', async () => {
+    const errorSpy = vi.spyOn(el.logger, 'error');
+    vi.spyOn(el.chatMessageRepository, 'replaceChatMessage').mockResolvedValue(
+      new Err(new Error('quota'))
+    );
+    const send = vi
+      .spyOn(el.yaloMessageRepository, 'sendMessageFeedback')
+      .mockResolvedValue(new Ok(undefined));
+
+    (await getFeedbackButton('Good response')).click();
+
+    await vi.waitUntil(() => send.mock.calls.length === 1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Unable to persist message feedback locally',
+      expect.anything()
+    );
+    expect(getMessageList(el).chatMessages[0].feedback).toBe('thumbsUp');
+  });
+
+  it('ignores feedback for a message that has no server id', async () => {
+    const send = vi.spyOn(el.yaloMessageRepository, 'sendMessageFeedback');
+
+    dispatchFromList(el, 'yalo-chat-message-feedback', {
+      message: ChatMessage.text({
+        id: 99,
+        role: 'AGENT',
+        timestamp: new Date(),
+        content: 'local only',
+      }),
+      feedback: 'thumbsUp',
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(send).not.toHaveBeenCalled();
+  });
+});

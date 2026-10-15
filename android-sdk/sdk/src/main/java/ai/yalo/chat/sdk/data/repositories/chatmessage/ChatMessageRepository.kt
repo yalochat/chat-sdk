@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.data.repositories.chatmessage
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 
 /**
  * The messages of one conversation, bound to a single session when it is built.
@@ -24,6 +25,9 @@ internal interface ChatMessageRepository {
      * otherwise land before the message it answers.
      */
     suspend fun messages(limit: Int = DEFAULT_PAGE_SIZE): Result<List<ChatMessage>>
+
+    /** Stores what the person rated the message with row [id], or clears it when [feedback] is null. */
+    suspend fun updateFeedback(id: Long, feedback: FeedbackRating?): Result<Unit>
 
     suspend fun clearSession(): Result<Unit>
 

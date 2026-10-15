@@ -192,6 +192,36 @@ final class ChatViewModel: ObservableObject {
         await deliver(stored)
     }
 
+    /// Rates a message from the channel, or takes the rating back when the
+    /// person picks the one they already gave. It shows at once, and goes back
+    /// to what it was when the channel could not be told.
+    func rate(_ message: ChatMessage, _ feedback: ChatMessage.Feedback) async {
+        guard
+            let id = message.id,
+            let wiId = message.wiId,
+            let current = messages.first(where: { stored in stored.id == id })
+        else {
+            return
+        }
+        let previous: ChatMessage.Feedback? = current.feedback
+        let picked: ChatMessage.Feedback? = previous == feedback ? nil : feedback
+        guard (try? await chatMessages.setFeedback(picked, id: id)) != nil else {
+            return
+        }
+        await loadMessages()
+        do {
+            try await yaloMessages.sendFeedback(picked, wiId: wiId)
+        } catch {
+            log.warn("could not send the rating of message \(wiId)", error: error)
+            // A later tap owns the rating now, so it is left alone.
+            guard messages.first(where: { stored in stored.id == id })?.feedback == picked else {
+                return
+            }
+            try? await chatMessages.setFeedback(previous, id: id)
+            await loadMessages()
+        }
+    }
+
     func startRecording() async {
         try? await voice.startRecording()
     }

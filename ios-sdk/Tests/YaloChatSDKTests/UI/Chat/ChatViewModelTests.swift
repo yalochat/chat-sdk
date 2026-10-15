@@ -78,6 +78,75 @@ struct ChatViewModelTests {
         running.cancel()
     }
 
+    /// A started view model showing one stored message from the channel.
+    private func ratingViewModel(_ stored: ChatMessage) async -> (ChatViewModel, Task<Void, Never>) {
+        _ = try? await storage.insert(stored, sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        _ = await eventually { viewModel.messages.count == 1 }
+        return (viewModel, running)
+    }
+
+    @Test func ratesAMessageAndKeepsTheRating() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(agentMessage("Hi"))
+
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsUp)
+
+        #expect(viewModel.messages.first?.feedback == .thumbsUp)
+        #expect(try await storage.messages(sessionId: "session-1", limit: 10).first?.feedback == .thumbsUp)
+        #expect(channel.feedbackSent.map(\.feedback) == [.thumbsUp])
+        #expect(channel.feedbackSent.map(\.wiId) == ["wi-1"])
+        running.cancel()
+    }
+
+    @Test func switchesToTheOtherRating() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(agentMessage("Hi"))
+
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsUp)
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsDown)
+
+        #expect(viewModel.messages.first?.feedback == .thumbsDown)
+        #expect(channel.feedbackSent.map(\.feedback) == [.thumbsUp, .thumbsDown])
+        running.cancel()
+    }
+
+    @Test func pickingTheSameRatingAgainTakesItBack() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(agentMessage("Hi"))
+
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsDown)
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsDown)
+
+        #expect(viewModel.messages.first?.feedback == nil)
+        #expect(channel.feedbackSent.map(\.feedback) == [.thumbsDown, nil])
+        running.cancel()
+    }
+
+    @Test func aRatingTheChannelCouldNotGetGoesBack() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(agentMessage("Hi"))
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsUp)
+        channel.sendError = YaloMessageRepositoryError.closed
+
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsDown)
+
+        #expect(viewModel.messages.first?.feedback == .thumbsUp)
+        #expect(try await storage.messages(sessionId: "session-1", limit: 10).first?.feedback == .thumbsUp)
+        running.cancel()
+    }
+
+    @Test func aMessageTheChannelDoesNotKnowCannotBeRated() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(
+            ChatMessage(role: .agent, type: .text, timestamp: Self.now, content: "Hi")
+        )
+
+        await viewModel.rate(try #require(viewModel.messages.first), .thumbsUp)
+
+        #expect(viewModel.messages.first?.feedback == nil)
+        #expect(channel.feedbackSent.isEmpty)
+        running.cancel()
+    }
+
     @Test func runsTheCommandTheChannelAsksForAndAnswersWithItsResult() async throws {
         let viewModel: ChatViewModel = viewModel(commands: ["getStore": { payload in "store for \(payload)" }])
         let running: Task<Void, Never> = Task {

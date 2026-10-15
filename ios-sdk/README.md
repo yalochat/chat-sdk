@@ -126,6 +126,7 @@ Optional properties:
 - **`hideWatermark`** (`Bool`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it.
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
+- **`hideFeedbackButtons`** (`Bool`): Leaves the thumbs up and thumbs down out from under the channel's messages, so nobody can rate them. Defaults to `false`, which shows them once the person has sent their first message, so the welcome message has none. A picked rating stays selected, and tapping it again takes it back.
 
 ## Open context
 

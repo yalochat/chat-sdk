@@ -8,7 +8,8 @@ import Foundation
 /// backend's id and is nil for a message the user has just written.
 /// `voice` is the recording of a voice message and `image` the picture of an
 /// image message. Both are nil for every other kind. `buttons` are the options
-/// the channel attached to the message.
+/// the channel attached to the message. `feedback` is how the person rated a
+/// message from the channel, nil while they have not.
 struct ChatMessage: Identifiable, Equatable, Sendable {
     enum Role: String, Equatable, Sendable {
         case user = "USER"
@@ -24,6 +25,11 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
         case clicked = "CLICKED"
     }
 
+    enum Feedback: String, Equatable, Sendable {
+        case thumbsUp = "THUMBS_UP"
+        case thumbsDown = "THUMBS_DOWN"
+    }
+
     var id: Int64?
     let role: Role
     let type: MessageType
@@ -36,6 +42,7 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
     var buttons: [MessageButton]
     var voice: VoiceNote?
     var image: ImageAttachment?
+    var feedback: Feedback?
 
     init(
         role: Role,
@@ -49,7 +56,8 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
         footer: String? = nil,
         buttons: [MessageButton] = [],
         voice: VoiceNote? = nil,
-        image: ImageAttachment? = nil
+        image: ImageAttachment? = nil,
+        feedback: Feedback? = nil
     ) {
         self.role = role
         self.type = type
@@ -63,5 +71,6 @@ struct ChatMessage: Identifiable, Equatable, Sendable {
         self.buttons = buttons
         self.voice = voice
         self.image = image
+        self.feedback = feedback
     }
 }

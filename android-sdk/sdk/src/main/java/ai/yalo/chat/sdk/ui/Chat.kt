@@ -12,6 +12,7 @@ import ai.yalo.chat.sdk.common.session.sessionOf
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import ai.yalo.chat.sdk.ui.theme.ProvideChatTheme
@@ -73,6 +74,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  *
  * The header credits Yalo under the channel name. Set `hideWatermark` in the
  * client config to leave that line out.
+ *
+ * Each reply from the channel carries a thumbs up and a thumbs down. The one
+ * picked stays selected, and tapping it again takes the rating back. Set
+ * `hideFeedbackButtons` in the client config to leave them out.
  */
 @Composable
 public fun Chat(
@@ -127,6 +132,8 @@ public fun Chat(
             hideWatermark = client.config.hideWatermark,
             onPickImage = pickImage,
             loadImage = viewModel::imageOf,
+            hideFeedbackButtons = client.config.hideFeedbackButtons,
+            onFeedback = viewModel::onFeedback,
         )
     }
 }
@@ -234,6 +241,8 @@ internal fun ChatLayout(
     hideWatermark: Boolean = false,
     onPickImage: () -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    hideFeedbackButtons: Boolean = false,
+    onFeedback: (ChatMessage, FeedbackRating) -> Unit = { _, _ -> },
 ) {
     val inline = quickReplyType == QuickReplyType.Inline || isWelcome
     Surface(
@@ -259,6 +268,7 @@ internal fun ChatLayout(
                 playback = playback,
                 onVoiceMessageToggled = onVoiceMessageToggled,
                 loadImage = loadImage,
+                onFeedback = onFeedback.takeUnless { hideFeedbackButtons },
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),

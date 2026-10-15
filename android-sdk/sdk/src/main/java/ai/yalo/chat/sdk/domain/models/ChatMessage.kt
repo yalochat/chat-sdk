@@ -72,6 +72,18 @@ internal enum class MessageButtonType(val wireName: String) {
     }
 }
 
+/** What the person thought of something the channel said. */
+internal enum class FeedbackRating(val wireName: String) {
+    ThumbsUp("THUMBS_UP"),
+    ThumbsDown("THUMBS_DOWN"),
+    ;
+
+    companion object {
+        /** What [wireName] means, or nothing when there is no rating or one this SDK does not know. */
+        fun of(wireName: String?): FeedbackRating? = entries.firstOrNull { rating -> rating.wireName == wireName }
+    }
+}
+
 /**
  * A tappable option the channel attached to a message.
  *
@@ -97,6 +109,8 @@ internal data class MessageButton(
  * [voice] is the recording a [MessageType.Voice] message carries, and [image]
  * the picture a [MessageType.Image] message carries. Each is null for every
  * other kind.
+ *
+ * [feedback] is what the person rated an agent message, null until they do.
  */
 internal data class ChatMessage(
     val role: MessageRole,
@@ -111,6 +125,7 @@ internal data class ChatMessage(
     val buttons: List<MessageButton> = emptyList(),
     val voice: VoiceNote? = null,
     val image: ImageAttachment? = null,
+    val feedback: FeedbackRating? = null,
 )
 
 /**

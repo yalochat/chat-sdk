@@ -19,6 +19,7 @@ The Webchat SDK exposes CSS custom properties (variables) that let you customize
   - [Image and video messages](#image-and-video-messages)
   - [Assistant messages](#assistant-messages)
   - [Message buttons](#message-buttons)
+  - [Feedback buttons](#feedback-buttons)
   - [Quick replies](#quick-replies)
   - [Product messages](#product-messages)
   - [Product cards](#product-cards)
@@ -118,6 +119,12 @@ To replace an icon with your own SVG image instead of a font glyph, use the `ico
   /* Glyph rendered after adding a product to the cart
      or confirming a product confirmation card. */
   --yalo-chat-icon-check: 'check';
+
+  /* Glyph rendered on the thumbs up feedback button. */
+  --yalo-chat-icon-thumb-up: 'thumb_up';
+
+  /* Glyph rendered on the thumbs down feedback button. */
+  --yalo-chat-icon-thumb-down: 'thumb_down';
 }
 ```
 
@@ -535,6 +542,27 @@ Buttons attached to assistant messages, rendered below the body.
 
   /* Font size for button text. */
   --yalo-chat-buttons-font-size: 0.875rem;
+}
+```
+
+### Feedback buttons
+
+Thumbs up and thumbs down buttons rendered under assistant text messages. Hide them with the `hideFeedbackButtons` config option. Their size follows `--yalo-chat-assistant-message-icon-font-size`.
+
+```css
+:root {
+  /* Icon color of a feedback button that is not selected. */
+  --yalo-chat-feedback-button-color: #7c8086;
+
+  /* Icon color of the selected feedback button. */
+  --yalo-chat-feedback-button-selected-color: #181818;
+
+  /* Background color of a feedback button on hover. */
+  --yalo-chat-feedback-button-hover-background: #dde4ec;
+
+  /* Background color of the selected feedback button when its icon is
+     replaced with an image through the icons config. */
+  --yalo-chat-feedback-button-selected-background: #dde4ec;
 }
 ```
 

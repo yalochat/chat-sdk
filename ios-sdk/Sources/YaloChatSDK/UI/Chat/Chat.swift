@@ -19,6 +19,10 @@ import SwiftUI
 /// Image messages need no permission: the plus in the message input opens the
 /// system photo picker, which hands over only what the person picked. Set
 /// `hideAttachmentButton` in the client config to leave the plus out.
+///
+/// Text from the channel carries a thumbs up and a thumbs down. Picking the
+/// one already picked takes the rating back. Set `hideFeedbackButtons` in the
+/// client config to leave them out.
 public struct Chat<Avatar: View>: View {
     private let client: YaloChatClient
     private let theme: ChatTheme
@@ -88,7 +92,13 @@ public struct Chat<Avatar: View>: View {
                     }
                 },
                 cachedImage: viewModel.cachedImage(of:),
-                loadImage: viewModel.image(of:)
+                loadImage: viewModel.image(of:),
+                showsFeedback: !client.config.hideFeedbackButtons,
+                onRate: { message, feedback in
+                    Task {
+                        await viewModel.rate(message, feedback)
+                    }
+                }
             )
             if !inline, !viewModel.quickReplies.isEmpty {
                 QuickReplyBar(replies: viewModel.quickReplies) { reply in

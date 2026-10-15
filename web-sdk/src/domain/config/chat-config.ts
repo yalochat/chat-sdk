@@ -33,6 +33,8 @@ export interface YaloChatIcons {
   arrowForward?: string;
   check?: string;
   error?: string;
+  thumbUp?: string;
+  thumbDown?: string;
 }
 
 export interface YaloChatClientConfig {
@@ -51,6 +53,7 @@ export interface YaloChatClientConfig {
   yaloWatermark?: YaloWatermarkPosition;
   hideAttachmentButton?: boolean;
   hideVoiceButton?: boolean;
+  hideFeedbackButtons?: boolean;
   sessionMode?: SessionMode;
   logLevel?: LogLevel;
   welcomeMessageType?: WelcomeMessageType;

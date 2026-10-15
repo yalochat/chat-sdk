@@ -39,6 +39,9 @@ export const MessageStatuses = [
 ] as const;
 export type MessageStatus = (typeof MessageStatuses)[number];
 
+export const MessageFeedbacks = ['thumbsUp', 'thumbsDown'] as const;
+export type MessageFeedback = (typeof MessageFeedbacks)[number];
+
 export class ChatMessage {
   readonly id?: number;
   readonly wiId?: string;
@@ -58,6 +61,7 @@ export class ChatMessage {
   readonly buttons: MessageButton[];
   readonly products: Product[];
   readonly expand: boolean;
+  readonly feedback?: MessageFeedback;
 
   constructor(params: {
     role: MessageRole;
@@ -78,6 +82,7 @@ export class ChatMessage {
     buttons?: MessageButton[];
     products?: Product[];
     expand?: boolean;
+    feedback?: MessageFeedback;
   }) {
     this.id = params.id;
     this.wiId = params.wiId;
@@ -97,6 +102,7 @@ export class ChatMessage {
     this.buttons = params.buttons ?? [];
     this.products = params.products ?? [];
     this.expand = params.expand ?? false;
+    this.feedback = params.feedback;
   }
 
   static text(params: {

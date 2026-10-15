@@ -6,7 +6,7 @@ import SQLite3
 /// Keeps messages in a SQLite file. The file is opened, and its schema built
 /// or migrated, on the first call. A nil `fileURL` keeps them in memory.
 actor ChatMessageDatabaseService: ChatMessageService {
-    static let version: Int32 = 4
+    static let version: Int32 = 5
 
     private let fileURL: URL?
     private let log: YaloLog
@@ -28,8 +28,8 @@ actor ChatMessageDatabaseService: ChatMessageService {
         // Nulls are distinct, so a message with no backend id is always stored.
         try run(database, """
             INSERT INTO chat_message
-            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice, image, buttons)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice, image, buttons, feedback)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (session_id, wi_id) DO NOTHING
             """, [
                 sessionId,
@@ -44,6 +44,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
                 try message.voice.map(Self.json),
                 try message.image.map(Self.json),
                 message.buttons.isEmpty ? nil : try Self.json(message.buttons),
+                message.feedback?.rawValue,
             ])
         if sqlite3_changes(database) == 0, let wiId = message.wiId {
             let stored: [ChatMessage] = try query(
@@ -66,6 +67,10 @@ actor ChatMessageDatabaseService: ChatMessageService {
             "SELECT * FROM chat_message WHERE session_id = ? ORDER BY id DESC LIMIT ?",
             [sessionId, Int64(limit)]
         )
+    }
+
+    func setFeedback(_ feedback: ChatMessage.Feedback?, id: Int64) async throws {
+        try run(try open(), "UPDATE chat_message SET feedback = ? WHERE id = ?", [feedback?.rawValue, id])
     }
 
     func deleteSessions(_ sessionIds: [String]) async throws {
@@ -156,6 +161,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
             }
             if found < 4 {
                 try run(database, "ALTER TABLE chat_message ADD COLUMN buttons TEXT", [])
+            }
+            if found < 5 {
+                try run(database, "ALTER TABLE chat_message ADD COLUMN feedback TEXT", [])
             }
             try run(database, "PRAGMA user_version = \(Self.version)", [])
             try run(database, "COMMIT", [])
@@ -266,7 +274,8 @@ actor ChatMessageDatabaseService: ChatMessageService {
             },
             image: text("image").flatMap { stored in
                 try? JSONDecoder().decode(ImageAttachment.self, from: Data(stored.utf8))
-            }
+            },
+            feedback: text("feedback").flatMap(ChatMessage.Feedback.init(rawValue:))
         )
     }
 

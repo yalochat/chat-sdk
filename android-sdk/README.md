@@ -23,6 +23,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Turning voice messages off](#turning-voice-messages-off)
 - [Image messages](#image-messages)
   - [Turning image messages off](#turning-image-messages-off)
+- [Feedback buttons](#feedback-buttons)
 - [Theming](#theming)
 - [Logging](#logging)
 - [Translations](#translations)
@@ -111,6 +112,7 @@ Optional properties:
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
+- **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
 
 In the default `SessionMode.Shared`, two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages. The other modes narrow that further. See [Session modes](#session-modes).
 
@@ -351,6 +353,31 @@ YaloChatClient(
 ```
 
 Pictures the channel sends are still shown, because showing one picks nothing.
+
+## Feedback buttons
+
+Each text reply from the channel has a thumbs up and a thumbs down under it, so the person can rate it. They show only after the person sends their first message, so the welcome message has none.
+
+How they work:
+
+- Tapping one rates the reply and leaves that thumb selected.
+- Tapping the other one changes the rating.
+- Tapping the selected one again takes the rating back.
+
+The rating is sent to the channel and remembered with the conversation, so it is still there when the chat is opened again.
+
+Set `hideFeedbackButtons` to leave them out:
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        hideFeedbackButtons = true,
+    ),
+)
+```
 
 ## Theming
 

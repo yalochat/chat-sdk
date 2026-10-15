@@ -240,6 +240,26 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         try await service.send(envelope)
     }
 
+    func sendFeedback(_ feedback: ChatMessage.Feedback?, wiId: String) async throws {
+        guard lifecycle != .closed else {
+            throw YaloMessageRepositoryError.closed
+        }
+        let ratedAt: Google_Protobuf_Timestamp = Google_Protobuf_Timestamp(date: now())
+        var request: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest = .init()
+        request.messageID = wiId
+        request.rating = switch feedback {
+        case .thumbsUp: .thumbsUp
+        case .thumbsDown: .thumbsDown
+        case nil: .unspecified
+        }
+        request.timestamp = ratedAt
+        var envelope: SdkMessage = SdkMessage()
+        envelope.correlationID = UUID().uuidString
+        envelope.timestamp = ratedAt
+        envelope.payload = .messageFeedbackRequest(request)
+        try await service.send(envelope)
+    }
+
     private func startConnecting() {
         let service: YaloMessageService = service
         let tokens: TokenRepository = tokens

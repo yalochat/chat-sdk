@@ -10,13 +10,16 @@
 
     export const templates = {
       'h6d222a138907d6d6': html`Por <b>Yalo</b>`,
+'s10d1e89ece01e6c7': `Mala respuesta`,
 's20dfc2658b5ed207': `Actualizar el carrito`,
 's2c8189544e3ea679': `Reintentar`,
 's317b6c4a03e34c5d': `En el carrito`,
 's32bad8884f0b1be7': `Cerrar chat`,
+'s510df80ecd8f51a7': `Buena respuesta`,
 'sa50a6326530d8a0d': `Mostrar menos`,
 'sb2c57b2d347203dd': `Mostrar más`,
 'sc876da507d6d97c4': `No entregado.`,
+'sd434e9c69417f3a0': `Califica esta respuesta`,
 'sf5d501d58546bff9': `Agregar al carrito`,
 'sf900fe612519e672': `Escribe un mensaje...`,
     };

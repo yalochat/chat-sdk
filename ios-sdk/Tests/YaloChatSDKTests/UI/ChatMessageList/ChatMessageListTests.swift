@@ -46,6 +46,28 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, isWaitingForReply: isWaitingForReply)))
     }
 
+    @Test func messageListRendersFeedbackUnderTextFromTheChannel() {
+        var rated: ChatMessage = message(1, .agent, "Hi")
+        rated.wiId = "wi-1"
+        rated.feedback = .thumbsUp
+        #expect(renders(ChatMessageList(messages: [rated, message(2, .user, "Hello")], showsFeedback: true)))
+    }
+
+    @Test func messageListOnlyRatesRepliesAfterTheFirstUserMessage() {
+        let messages: [ChatMessage] = [
+            message(1, .agent, "Welcome"),
+            message(2, .user, "Hello"),
+            message(3, .agent, "Sure"),
+            message(4, .user, "Thanks"),
+            message(5, .agent, "Anytime"),
+        ]
+        #expect(ChatMessageList(messages: messages).rateableIds == [3, 5])
+    }
+
+    @Test func messageListRatesNothingBeforeTheUserSpeaks() {
+        #expect(ChatMessageList(messages: [message(1, .agent, "Welcome")]).rateableIds.isEmpty)
+    }
+
     @Test func messageListRendersThemedMessageBoxes() {
         let theme: ChatTheme = ChatTheme(
             userMessageShape: ChatShape(topLeading: 16, topTrailing: 16, bottomLeading: 16),

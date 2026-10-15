@@ -1,9 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import { Err, Ok, type Result } from '@domain/common/result';
-import { ChatMessage } from '@domain/models/chat-message/chat-message';
+import {
+  ChatMessage,
+  type MessageFeedback,
+} from '@domain/models/chat-message/chat-message';
 import type { CommandResponseStatus } from '@domain/models/command/channel-command';
 import {
+  FeedbackRating,
   ResponseStatus,
   type PageInfo,
   type PollMessageItem,
@@ -22,6 +26,11 @@ import {
 } from './sdk-message-mapper';
 
 const DEFAULT_CHAT_STATUS_TIMEOUT_MS = 15000;
+
+const FEEDBACK_RATINGS: Record<MessageFeedback, FeedbackRating> = {
+  thumbsUp: FeedbackRating.FEEDBACK_RATING_THUMBS_UP,
+  thumbsDown: FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN,
+};
 
 export class YaloMessageRepositoryRemote implements YaloMessageRepository {
   private readonly _service: YaloMessageService;
@@ -112,6 +121,24 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     return this._service.sendMessage({
       correlationId: `guidance-card-${Date.now()}`,
       guidanceCardRequest: { timestamp, targetId, context },
+      timestamp,
+    });
+  }
+
+  async sendMessageFeedback(
+    messageId: string,
+    feedback?: MessageFeedback
+  ): Promise<Result<void>> {
+    const timestamp = new Date();
+    return this._service.sendMessage({
+      correlationId: `message-feedback-${messageId}-${Date.now()}`,
+      messageFeedbackRequest: {
+        messageId,
+        rating: feedback
+          ? FEEDBACK_RATINGS[feedback]
+          : FeedbackRating.FEEDBACK_RATING_UNSPECIFIED,
+        timestamp,
+      },
       timestamp,
     });
   }

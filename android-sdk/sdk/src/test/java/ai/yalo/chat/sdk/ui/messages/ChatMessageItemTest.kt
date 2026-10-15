@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
@@ -15,6 +16,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -346,6 +349,81 @@ class ChatMessageItemTest {
         id = 7L,
         voice = VoiceNote(durationMillis = 4_000, amplitudes = listOf(0.2f, 0.9f)),
     )
+
+    @Test
+    fun offersARatingUnderAReplyFromTheChannel() {
+        composeRule.setContent {
+            ChatMessageItem(rateable(), onFeedback = { _, _ -> })
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertIsDisplayed().assertIsOff()
+        composeRule.onNodeWithTag(CHAT_THUMBS_DOWN_TAG).assertIsDisplayed().assertIsOff()
+    }
+
+    @Test
+    fun showsTheRatingThePersonPicked() {
+        composeRule.setContent {
+            ChatMessageItem(rateable().copy(feedback = FeedbackRating.ThumbsDown), onFeedback = { _, _ -> })
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_DOWN_TAG).assertIsOn()
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertIsOff()
+    }
+
+    @Test
+    fun saysWhichThumbWasTappedOnWhichMessage() {
+        val message = rateable().copy(feedback = FeedbackRating.ThumbsUp)
+        val rated = mutableListOf<Pair<ChatMessage, FeedbackRating>>()
+        composeRule.setContent {
+            ChatMessageItem(message, onFeedback = { tapped, rating -> rated.add(tapped to rating) })
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).performClick()
+        composeRule.onNodeWithTag(CHAT_THUMBS_DOWN_TAG).performClick()
+
+        assertEquals(
+            listOf(message to FeedbackRating.ThumbsUp, message to FeedbackRating.ThumbsDown),
+            rated,
+        )
+    }
+
+    @Test
+    fun offersNoRatingWhenTheChatLeavesItOut() {
+        composeRule.setContent {
+            ChatMessageItem(rateable())
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun offersNoRatingOnWhatThePersonWrote() {
+        composeRule.setContent {
+            ChatMessageItem(rateable().copy(role = MessageRole.User), onFeedback = { _, _ -> })
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun offersNoRatingOnAMessageThatIsNotText() {
+        composeRule.setContent {
+            ChatMessageItem(rateable().copy(type = MessageType.Voice), onFeedback = { _, _ -> })
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun offersNoRatingOnAMessageTheChannelDoesNotKnow() {
+        composeRule.setContent {
+            ChatMessageItem(rateable().copy(wiId = null), onFeedback = { _, _ -> })
+        }
+
+        composeRule.onNodeWithTag(CHAT_THUMBS_UP_TAG).assertDoesNotExist()
+    }
+
+    private fun rateable() = message(role = MessageRole.Agent, content = "How can I help?").copy(id = 1L, wiId = "wi-1")
 
     private fun messageWithButtons(content: String, vararg buttons: String) =
         message(role = MessageRole.Agent, content = content).copy(

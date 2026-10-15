@@ -3,6 +3,8 @@ package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
+import ai.yalo.chat.sdk.domain.models.FeedbackRating
+import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
 import ai.yalo.chat.sdk.ui.messages.TypingIndicator
@@ -14,7 +16,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Surface
@@ -46,7 +48,9 @@ private const val MESSAGE_FADE_MILLIS = 220
  * [quickRepliesMessageId] names the message whose answers are drawn under it,
  * and is null when the chat shows them in a bar of their own instead.
  * [isWelcome] draws the messages centered, with one quick reply per line, and
- * [avatar] centered above them.
+ * [avatar] centered above them. [onFeedback] is null when the chat leaves the
+ * thumbs up and thumbs down out. Only replies after the person's first message
+ * can be rated, so the welcome message never is.
  */
 @Composable
 internal fun ChatMessageList(
@@ -61,6 +65,7 @@ internal fun ChatMessageList(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    onFeedback: ((ChatMessage, FeedbackRating) -> Unit)? = null,
     listState: LazyListState = rememberLazyListState(),
 ) {
     val theme = currentChatTheme
@@ -69,6 +74,7 @@ internal fun ChatMessageList(
     // means the jump happens when the conversation actually gains a message,
     // not on every recomposition.
     val newest: Long? = messages.firstOrNull()?.id
+    val firstUserMessageIndex = messages.indexOfLast { it.role == MessageRole.User }
     LaunchedEffect(newest) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(0)
@@ -94,7 +100,10 @@ internal fun ChatMessageList(
                     TypingIndicator()
                 }
             }
-            items(items = messages, key = { message -> message.id ?: message.timestamp }) { message ->
+            itemsIndexed(
+                items = messages,
+                key = { _, message -> message.id ?: message.timestamp },
+            ) { index, message ->
                 ChatMessageItem(
                     message = message,
                     // A message fades in where it lands. Rows do not slide: in a
@@ -115,6 +124,7 @@ internal fun ChatMessageList(
                     playback = playback,
                     onVoiceMessageToggled = onVoiceMessageToggled,
                     loadImage = loadImage,
+                    onFeedback = onFeedback.takeIf { index < firstUserMessageIndex },
                 )
             }
             // Last in a reversed list, so it sits above the welcome message.

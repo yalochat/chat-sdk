@@ -11,6 +11,7 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
     private(set) var closes: Int = 0
     private(set) var sent: [ChatMessage] = []
     private(set) var guidanceCardRequests: [[String: String]] = []
+    private(set) var feedbackSent: [(feedback: ChatMessage.Feedback?, wiId: String)] = []
     var sendError: Error?
     private(set) var commandAnswers: [(correlationId: String, result: Result<String, Error>)] = []
     private var listener: AsyncStream<ChatMessage>.Continuation?
@@ -78,5 +79,12 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
             throw sendError
         }
         guidanceCardRequests.append(openContext)
+    }
+
+    func sendFeedback(_ feedback: ChatMessage.Feedback?, wiId: String) async throws {
+        if let sendError {
+            throw sendError
+        }
+        feedbackSent.append((feedback, wiId))
     }
 }

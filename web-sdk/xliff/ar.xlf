@@ -48,6 +48,18 @@
   <source>By <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></source>
   <target>من <x id="0" equiv-text="&lt;b&gt;"/>Yalo<x id="1" equiv-text="&lt;/b&gt;"/></target>
 </trans-unit>
+<trans-unit id="sd434e9c69417f3a0">
+  <source>Rate this response</source>
+  <target>قيّم هذه الإجابة</target>
+</trans-unit>
+<trans-unit id="s510df80ecd8f51a7">
+  <source>Good response</source>
+  <target>إجابة جيدة</target>
+</trans-unit>
+<trans-unit id="s10d1e89ece01e6c7">
+  <source>Bad response</source>
+  <target>إجابة سيئة</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

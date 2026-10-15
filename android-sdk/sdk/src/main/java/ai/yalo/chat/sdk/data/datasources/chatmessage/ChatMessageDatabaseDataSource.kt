@@ -43,6 +43,9 @@ internal class ChatMessageDatabaseDataSource(
         if (oldVersion < 4) {
             db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_IMAGE TEXT")
         }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE $MESSAGE_TABLE ADD COLUMN $COLUMN_FEEDBACK TEXT")
+        }
     }
 
     companion object {
@@ -78,7 +81,7 @@ internal class ChatMessageDatabaseDataSource(
         private const val LOG_NAME = "Database"
 
         const val NAME: String = "yalo_chat.db"
-        const val VERSION: Int = 4
+        const val VERSION: Int = 5
 
         const val MESSAGE_TABLE: String = "chat_message"
 
@@ -95,6 +98,7 @@ internal class ChatMessageDatabaseDataSource(
         const val COLUMN_BUTTONS: String = "buttons"
         const val COLUMN_VOICE: String = "voice"
         const val COLUMN_IMAGE: String = "image"
+        const val COLUMN_FEEDBACK: String = "feedback"
 
         private const val CREATE_MESSAGE_TABLE = """
             CREATE TABLE $MESSAGE_TABLE (
@@ -110,7 +114,8 @@ internal class ChatMessageDatabaseDataSource(
                 $COLUMN_FOOTER TEXT,
                 $COLUMN_BUTTONS TEXT,
                 $COLUMN_VOICE TEXT,
-                $COLUMN_IMAGE TEXT
+                $COLUMN_IMAGE TEXT,
+                $COLUMN_FEEDBACK TEXT
             )
         """
 

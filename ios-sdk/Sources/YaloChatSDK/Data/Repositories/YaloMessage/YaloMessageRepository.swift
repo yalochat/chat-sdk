@@ -38,6 +38,10 @@ protocol YaloMessageRepository: AnyObject {
     /// given, and what it says back arrives through `messages()`.
     func requestGuidanceCard(openContext: [String: String]) async throws
 
+    /// Tells the channel how the person rated its message `wiId`. Nil says
+    /// they took their rating back.
+    func sendFeedback(_ feedback: ChatMessage.Feedback?, wiId: String) async throws
+
     /// Commands the channel asks the host app to run, from now on.
     func commandRequests() -> AsyncStream<CommandRequest>
 

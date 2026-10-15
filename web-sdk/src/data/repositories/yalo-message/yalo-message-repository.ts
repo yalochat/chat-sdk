@@ -1,7 +1,10 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { Result } from '@domain/common/result';
-import type { ChatMessage } from '@domain/models/chat-message/chat-message';
+import type {
+  ChatMessage,
+  MessageFeedback,
+} from '@domain/models/chat-message/chat-message';
 import type { CommandResponseStatus } from '@domain/models/command/channel-command';
 import type {
   PageInfo,
@@ -38,6 +41,13 @@ export abstract class YaloMessageRepository {
   abstract requestGuidanceCard(
     targetId?: string,
     context?: string
+  ): Promise<Result<void>>;
+
+  // Sends the user's rating for an agent message. An undefined feedback clears
+  // the rating the user gave before.
+  abstract sendMessageFeedback(
+    messageId: string,
+    feedback?: MessageFeedback
   ): Promise<Result<void>>;
 
   // Replies to a custom command request from the channel. The correlationId

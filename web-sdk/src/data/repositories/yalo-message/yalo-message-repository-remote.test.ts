@@ -5,6 +5,7 @@ import { Err, Ok } from '@domain/common/result';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import {
   ButtonType,
+  FeedbackRating,
   MessageRole,
   MessageStatus,
   ProductMessageRequest_Orientation,
@@ -420,6 +421,40 @@ describe('YaloMessageRepositoryRemote', () => {
         .calls[0][0];
       expect(sent.guidanceCardRequest.targetId).toBeUndefined();
       expect(sent.guidanceCardRequest.context).toBeUndefined();
+    });
+
+    it.each([
+      ['thumbsUp', FeedbackRating.FEEDBACK_RATING_THUMBS_UP],
+      ['thumbsDown', FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN],
+      [undefined, FeedbackRating.FEEDBACK_RATING_UNSPECIFIED],
+    ] as const)(
+      'sends a messageFeedbackRequest for %s feedback',
+      async (feedback, rating) => {
+        const { service } = okService();
+        const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+        const result = await repo.sendMessageFeedback('wi-1', feedback);
+
+        expect(result.ok).toBe(true);
+        const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+          .calls[0][0];
+        expect(sent).toMatchObject({
+          correlationId: expect.stringMatching(/^message-feedback-wi-1-/),
+          messageFeedbackRequest: {
+            messageId: 'wi-1',
+            rating,
+            timestamp: expect.any(Date),
+          },
+        });
+      }
+    );
+
+    it('returns the error when sending the message feedback fails', async () => {
+      const repo = new YaloMessageRepositoryRemote(failingService(), okMedia());
+
+      const result = await repo.sendMessageFeedback('wi-1', 'thumbsUp');
+
+      expect(result.ok).toBe(false);
     });
 
     it('sends an addPromotionRequest with the promotion id', async () => {
