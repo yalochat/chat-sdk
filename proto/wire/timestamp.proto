@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+// Stands in for google.protobuf.Timestamp in the Android SDK's Kotlin output
+// only, so Wire does not map it to java.time.Instant, which needs desugaring
+// below API 26. Same field numbers and types, so the binary encoding is
+// identical. The JSON stays an RFC 3339 string through the SDK's own adapter.
+package yalo.wire;
+
+option java_package = "ai.yalo.chat.sdk.internal.proto.v2";
+
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}
