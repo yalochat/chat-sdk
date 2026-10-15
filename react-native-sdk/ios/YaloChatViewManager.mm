@@ -49,6 +49,11 @@
   [_chat setTheme:theme ?: @""];
 }
 
+- (void)setAvatar:(NSString *)avatar
+{
+  [_chat setAvatar:avatar ?: @""];
+}
+
 - (void)setShowsBackButton:(BOOL)showsBackButton
 {
   [_chat setShowsBackButton:showsBackButton];
@@ -96,6 +101,7 @@ RCT_EXPORT_MODULE(YaloChatView)
 
 RCT_EXPORT_VIEW_PROPERTY(config, NSString)
 RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
+RCT_EXPORT_VIEW_PROPERTY(avatar, NSString)
 RCT_EXPORT_VIEW_PROPERTY(showsBackButton, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(commands, NSArray)
 RCT_EXPORT_VIEW_PROPERTY(onBack, RCTDirectEventBlock)

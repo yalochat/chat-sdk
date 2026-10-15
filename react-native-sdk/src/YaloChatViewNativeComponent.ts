@@ -22,6 +22,7 @@ export type CommandEvent = Readonly<{
 interface NativeProps extends ViewProps {
   config: string;
   theme: string;
+  avatar?: string;
   showsBackButton?: WithDefault<boolean, false>;
   commands?: ReadonlyArray<string>;
   onBack?: DirectEventHandler<Readonly<{}>>;

@@ -97,13 +97,24 @@ Props:
 
 - **`client`** (`YaloChatClient`): The conversation to show.
 - **`theme`** (`ChatTheme`): Colors and shapes. See [Theming](#theming).
+- **`avatar`** (`ImageURISource | ImageRequireSource`): An image drawn as a circle beside the channel name. With `welcomeMessageType` set to `verticalQuickReplies`, it is also drawn centered above the welcome message, until the person sends something. Takes the same sources as `Image`, a remote URL or a bundled image. Nothing is drawn when you leave it out.
 - **`onBack`** (`() => void`): Shows a back button in the header that calls it. Leave it out when the chat is not something the person closes.
 - **`style`**: The chat fills the space it is given, `flex: 1` by default.
 
 The chat leaves safe areas and the keyboard to your app, so wrap it in whatever your app already uses for them.
 
 ```tsx
-<Chat client={client} onBack={() => navigation.goBack()} />
+<Chat
+  client={client}
+  avatar={{ uri: 'https://example.com/logo.png' }}
+  onBack={() => navigation.goBack()}
+/>
+```
+
+A bundled image works too:
+
+```tsx
+<Chat client={client} avatar={require('./logo.png')} />
 ```
 
 ## Custom commands

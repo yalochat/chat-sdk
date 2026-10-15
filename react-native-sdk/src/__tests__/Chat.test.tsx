@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { Image } from 'react-native';
 import { Chat, YaloChatClient } from '../index';
 import { Commands } from '../YaloChatViewNativeComponent';
 
@@ -29,6 +30,52 @@ describe('Chat', () => {
     expect(JSON.parse(chat.props.theme)).toMatchObject({
       inputShape: { topStart: 8 },
     });
+  });
+
+  it('hands a remote avatar to the native chat', async () => {
+    await render(
+      <Chat
+        client={client}
+        avatar={{ uri: 'https://example.com/logo.png' }}
+        testID="chat"
+      />
+    );
+
+    const chat = screen.getByTestId('chat');
+    expect(chat.props.avatar).toBe('https://example.com/logo.png');
+  });
+
+  it('hands a bundled avatar to the native chat', async () => {
+    const resolve = jest.spyOn(Image, 'resolveAssetSource').mockReturnValue({
+      uri: 'asset:/logo.png',
+      width: 40,
+      height: 40,
+      scale: 1,
+    });
+    await render(<Chat client={client} avatar={7} testID="chat" />);
+
+    const chat = screen.getByTestId('chat');
+    expect(resolve).toHaveBeenCalledWith(7);
+    expect(chat.props.avatar).toBe('asset:/logo.png');
+    resolve.mockRestore();
+  });
+
+  it('draws no avatar when the bundled image is missing', async () => {
+    const resolve = jest
+      .spyOn(Image, 'resolveAssetSource')
+      .mockReturnValue(null as never);
+    await render(<Chat client={client} avatar={7} testID="chat" />);
+
+    const chat = screen.getByTestId('chat');
+    expect(chat.props.avatar).toBe('');
+    resolve.mockRestore();
+  });
+
+  it('draws no avatar when there is none', async () => {
+    await render(<Chat client={client} testID="chat" />);
+
+    const chat = screen.getByTestId('chat');
+    expect(chat.props.avatar).toBe('');
   });
 
   it('hides the back button when there is no onBack', async () => {
