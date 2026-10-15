@@ -52,13 +52,7 @@ internal fun timestampOf(epochMillis: Long): Timestamp = Timestamp(
 
 internal fun Timestamp.toEpochMillis(): Long = seconds * MILLIS_PER_SECOND + nanos / NANOS_PER_MILLI
 
-/**
- * A timestamp as proto3 JSON writes it, an RFC 3339 string such as
- * `2023-11-14T22:13:25.123Z`, to the millisecond.
- *
- * Goes through `java.util.Date` rather than `java.time`, which Android only
- * has from API 26 unless the app turns on desugaring.
- */
+// RFC 3339 to the millisecond, through java.util.Date because java.time needs API 26.
 private object TimestampAdapter : JsonAdapter<Timestamp>() {
 
     private val dates = Rfc3339DateJsonAdapter()
