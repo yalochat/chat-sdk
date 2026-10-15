@@ -33,6 +33,8 @@ export interface YaloChatIcons {
   arrowForward?: string;
   check?: string;
   error?: string;
+  thumbUp?: string;
+  thumbDown?: string;
 }
 
 export interface YaloChatClientConfig {

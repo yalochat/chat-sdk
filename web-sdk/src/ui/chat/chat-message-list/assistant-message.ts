@@ -182,6 +182,13 @@ export class AssistantMessage extends LitElement {
       font-variation-settings: 'FILL' 1;
     }
 
+    .feedback button.image[aria-pressed='true'] {
+      background: var(
+        --yalo-chat-feedback-button-selected-background,
+        #dde4ec
+      );
+    }
+
     .yalo-icon-img {
       width: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
       height: var(--yalo-chat-assistant-message-icon-font-size, 1rem);
@@ -418,27 +425,43 @@ export class AssistantMessage extends LitElement {
           >
             <button
               type="button"
+              class=${this.config?.icons?.thumbUp ? 'image' : ''}
               aria-label=${msg('Good response')}
               aria-pressed=${this.message.feedback === 'thumbsUp'}
               @click=${() => this._controller.onFeedbackClick('thumbsUp')}
             >
-              <span
-                class="yalo-icon"
-                data-icon="thumb-up"
-                aria-hidden="true"
-              ></span>
+              ${this.config?.icons?.thumbUp
+                ? html`<img
+                    class="yalo-icon-img"
+                    src=${this.config.icons.thumbUp}
+                    alt=""
+                    aria-hidden="true"
+                  />`
+                : html`<span
+                    class="yalo-icon"
+                    data-icon="thumb-up"
+                    aria-hidden="true"
+                  ></span>`}
             </button>
             <button
               type="button"
+              class=${this.config?.icons?.thumbDown ? 'image' : ''}
               aria-label=${msg('Bad response')}
               aria-pressed=${this.message.feedback === 'thumbsDown'}
               @click=${() => this._controller.onFeedbackClick('thumbsDown')}
             >
-              <span
-                class="yalo-icon"
-                data-icon="thumb-down"
-                aria-hidden="true"
-              ></span>
+              ${this.config?.icons?.thumbDown
+                ? html`<img
+                    class="yalo-icon-img"
+                    src=${this.config.icons.thumbDown}
+                    alt=""
+                    aria-hidden="true"
+                  />`
+                : html`<span
+                    class="yalo-icon"
+                    data-icon="thumb-down"
+                    aria-hidden="true"
+                  ></span>`}
             </button>
           </div>`
         : null}

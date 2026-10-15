@@ -559,6 +559,10 @@ Thumbs up and thumbs down buttons rendered under assistant text messages. Hide t
 
   /* Background color of a feedback button on hover. */
   --yalo-chat-feedback-button-hover-background: #dde4ec;
+
+  /* Background color of the selected feedback button when its icon is
+     replaced with an image through the icons config. */
+  --yalo-chat-feedback-button-selected-background: #dde4ec;
 }
 ```
 

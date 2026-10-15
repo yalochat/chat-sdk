@@ -1107,6 +1107,41 @@ describe('ChatMessageList', () => {
       expect(feedbackGroup(list)).toBeNull();
     });
 
+    it('uses the icons config images for the thumbs', async () => {
+      const list = await renderList(
+        afterUserMessage(agentText({ feedback: 'thumbsUp' })),
+        {
+          icons: {
+            thumbUp: 'https://cdn.example.com/up.svg',
+            thumbDown: 'https://cdn.example.com/down.svg',
+          },
+        }
+      );
+
+      const buttons = Array.from(
+        feedbackGroup(list)!.querySelectorAll('button')
+      ).map((button) => ({
+        pressed: button.getAttribute('aria-pressed'),
+        image: button.classList.contains('image'),
+        src: button.querySelector('img')?.getAttribute('src'),
+        glyph: button.querySelector('.yalo-icon') !== null,
+      }));
+      expect(buttons).toMatchObject([
+        {
+          pressed: 'true',
+          image: true,
+          src: 'https://cdn.example.com/up.svg',
+          glyph: false,
+        },
+        {
+          pressed: 'false',
+          image: true,
+          src: 'https://cdn.example.com/down.svg',
+          glyph: false,
+        },
+      ]);
+    });
+
     it('asks to clear the rating when the selected button is clicked', async () => {
       const list = await renderList(
         afterUserMessage(agentText({ feedback: 'thumbsUp' }))

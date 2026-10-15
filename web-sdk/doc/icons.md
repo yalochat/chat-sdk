@@ -50,6 +50,8 @@ When an icon is omitted, the SDK keeps its built-in font glyph, which does follo
 - **`arrowForward`** (`string`): Arrow inside assistant link buttons.
 - **`check`** (`string`): Confirmation icon shown after adding a product to the cart or confirming a product card.
 - **`error`** (`string`): Icon shown next to messages that failed to send.
+- **`thumbUp`** (`string`): Thumbs up button under assistant messages. When it is selected, the button gets the `--yalo-chat-feedback-button-selected-background` background, since an image cannot switch to a filled look.
+- **`thumbDown`** (`string`): Thumbs down button under assistant messages. Selected the same way as `thumbUp`.
 
 ## Notes
 
