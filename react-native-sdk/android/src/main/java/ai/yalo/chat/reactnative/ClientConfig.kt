@@ -22,6 +22,7 @@ internal fun clientConfigOf(config: JSONObject): YaloChatClientConfig = YaloChat
     hideVoiceButton = config.optBoolean("hideVoiceButton"),
     hideAttachmentButton = config.optBoolean("hideAttachmentButton"),
     hideWatermark = config.optBoolean("hideWatermark"),
+    hideFeedbackButtons = config.optBoolean("hideFeedbackButtons"),
 )
 
 private fun quickReplyTypeOf(value: String): QuickReplyType = when (value) {

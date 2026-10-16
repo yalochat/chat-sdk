@@ -88,6 +88,7 @@ Optional properties:
 - **`hideVoiceButton`** (`boolean`): Leaves the microphone out of the message input. Defaults to `false`.
 - **`hideAttachmentButton`** (`boolean`): Leaves the plus out of the message input, so nobody can pick a picture to send. Defaults to `false`.
 - **`hideWatermark`** (`boolean`): Leaves the "By Yalo" line out of the header. Defaults to `false`.
+- **`hideFeedbackButtons`** (`boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies, so nobody can rate them. Defaults to `false`, which shows them.
 
 The config is read when the chat is shown. To change it, create a new client.
 
