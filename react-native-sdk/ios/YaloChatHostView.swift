@@ -188,7 +188,8 @@ func clientConfig(of json: String) -> YaloChatClientConfig? {
     sessionMode: sessionMode(of: values["sessionMode"] as? String),
     hideWatermark: values["hideWatermark"] as? Bool ?? false,
     hideVoiceButton: values["hideVoiceButton"] as? Bool ?? false,
-    hideAttachmentButton: values["hideAttachmentButton"] as? Bool ?? false
+    hideAttachmentButton: values["hideAttachmentButton"] as? Bool ?? false,
+    hideFeedbackButtons: values["hideFeedbackButtons"] as? Bool ?? false
   )
 }
 

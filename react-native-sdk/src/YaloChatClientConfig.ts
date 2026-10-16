@@ -28,4 +28,5 @@ export type YaloChatClientConfig = {
   hideWatermark?: boolean;
   hideVoiceButton?: boolean;
   hideAttachmentButton?: boolean;
+  hideFeedbackButtons?: boolean;
 };

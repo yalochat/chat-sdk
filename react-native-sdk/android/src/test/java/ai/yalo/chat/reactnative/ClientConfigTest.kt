@@ -35,7 +35,8 @@ class ClientConfigTest {
                  "sessionMode":"perContext",
                  "hideVoiceButton":true,
                  "hideAttachmentButton":true,
-                 "hideWatermark":true}
+                 "hideWatermark":true,
+                 "hideFeedbackButtons":true}
                 """,
             ),
         )
@@ -54,6 +55,7 @@ class ClientConfigTest {
                 hideVoiceButton = true,
                 hideAttachmentButton = true,
                 hideWatermark = true,
+                hideFeedbackButtons = true,
             ),
             config,
         )

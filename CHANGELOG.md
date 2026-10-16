@@ -1,16 +1,21 @@
 # Changelog
 
-## [0.8.1](https://github.com/yalochat/chat-sdk/tree/0.8.1) (2026-10-16)
+## [react-native-sdk/v0.4.0](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/v0.4.0) (2026-10-16)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/0.5.0...0.8.1)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.8.1...react-native-sdk/v0.4.0)
+
+**Changes:**
+
+- Uses android-sdk 0.8.1 and ios-sdk 0.5.0
+- Adds the `hideFeedbackButtons` option to hide the thumbs up and thumbs down under the channel's replies
+
+## [android-sdk/v0.8.1](https://github.com/yalochat/chat-sdk/tree/android-sdk/v0.8.1) (2026-10-16)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.5.0...android-sdk/v0.8.1)
 
 **Merged pull requests:**
 
 - fix\(android-sdk\): Keep wire hole [\#357](https://github.com/yalochat/chat-sdk/pull/357) ([rodrigocusto](https://github.com/rodrigocusto))
-
-## [0.5.0](https://github.com/yalochat/chat-sdk/tree/0.5.0) (2026-10-15)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.5.0...0.5.0)
 
 ## [ios-sdk/v0.5.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v0.5.0) (2026-10-15)
 
