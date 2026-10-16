@@ -116,15 +116,15 @@ struct ChatMessageList: View {
                                     .padding(.horizontal, isWelcome ? 24 : 0)
                                     .padding(.trailing, isWelcome ? 0 : 48)
                             }
+                            if let id = message.id, id == quickRepliesMessageId {
+                                QuickReplies(replies: message.quickReplies, onTap: onTapButton, vertical: isWelcome)
+                                    .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
+                            }
                             if let id = message.id, rateable.contains(id), message.type == .text, message.wiId != nil {
                                 FeedbackButtons(feedback: message.feedback) { feedback in
                                     onRate(message, feedback)
                                 }
                                 .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
-                            }
-                            if let id = message.id, id == quickRepliesMessageId {
-                                QuickReplies(replies: message.quickReplies, onTap: onTapButton, vertical: isWelcome)
-                                    .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                             }
                         }
                     }
