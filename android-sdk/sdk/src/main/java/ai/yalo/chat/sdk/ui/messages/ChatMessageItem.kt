@@ -178,14 +178,14 @@ private fun AgentMessage(
                 modifier = Modifier.widthAtMost(AGENT_MESSAGE_WIDTH),
             )
         }
+        if (quickReplies.isNotEmpty()) {
+            QuickReplies(replies = quickReplies, onReplyClick = onQuickReply, vertical = isWelcome)
+        }
         if (onFeedback != null && message.type == MessageType.Text && message.wiId != null) {
             FeedbackButtons(
                 selected = message.feedback,
                 onRate = { rating -> onFeedback(message, rating) },
             )
-        }
-        if (quickReplies.isNotEmpty()) {
-            QuickReplies(replies = quickReplies, onReplyClick = onQuickReply, vertical = isWelcome)
         }
     }
 }

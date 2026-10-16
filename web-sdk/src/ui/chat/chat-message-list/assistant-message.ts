@@ -414,6 +414,25 @@ export class AssistantMessage extends LitElement {
             )}
           </div>`
         : null}
+      ${replies.length > 0
+        ? html`<div
+            class="chips-container ${showReplies ? 'open' : ''}"
+            aria-hidden=${!showReplies}
+          >
+            <div class="chips-inner">
+              <div class="chips">
+                ${replies.map(
+                  (reply) => html`<button
+                    type="button"
+                    @click=${() => this._controller.onReplyClick(reply.text)}
+                  >
+                    ${reply.text}
+                  </button>`
+                )}
+              </div>
+            </div>
+          </div>`
+        : null}
       ${this.message.type === 'text' &&
       this.message.wiId !== undefined &&
       this.showFeedback &&
@@ -463,25 +482,6 @@ export class AssistantMessage extends LitElement {
                     aria-hidden="true"
                   ></span>`}
             </button>
-          </div>`
-        : null}
-      ${replies.length > 0
-        ? html`<div
-            class="chips-container ${showReplies ? 'open' : ''}"
-            aria-hidden=${!showReplies}
-          >
-            <div class="chips-inner">
-              <div class="chips">
-                ${replies.map(
-                  (reply) => html`<button
-                    type="button"
-                    @click=${() => this._controller.onReplyClick(reply.text)}
-                  >
-                    ${reply.text}
-                  </button>`
-                )}
-              </div>
-            </div>
           </div>`
         : null}
     `;
