@@ -10,8 +10,6 @@
 -keep class ai.yalo.chat.sdk.internal.proto.v2.** { *; }
 -keepattributes Signature, RuntimeVisibleAnnotations, AnnotationDefault
 
-# Each field names its adapter as a string, such as
-# com.squareup.wire.ProtoAdapter#STRING, which is looked up by name.
--keep class com.squareup.wire.ProtoAdapter {
-    public static final com.squareup.wire.ProtoAdapter *;
-}
+# Wire's runtime also reflects on itself, for example reading each field's
+# @WireField annotation, so it is kept whole as Wire's own docs recommend.
+-keep class com.squareup.wire.** { *; }
