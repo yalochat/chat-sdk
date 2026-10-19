@@ -39,7 +39,8 @@ struct ChatViewModelTests {
         ephemeral: Bool = false,
         chatMessages: ChatMessageService? = nil,
         welcomeMessageType: WelcomeMessageType = .none,
-        commands: [String: CommandHandler] = [:]
+        commands: [String: CommandHandler] = [:],
+        clearRequests: @escaping () -> AsyncStream<Void> = { AsyncStream { continuation in continuation.finish() } }
     ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages ?? storage,
@@ -55,6 +56,7 @@ struct ChatViewModelTests {
             openContext: openContext,
             welcomeMessageType: welcomeMessageType,
             commandHandlers: { command in commands[command] },
+            clearRequests: clearRequests,
             now: { Self.now },
             replyTimeout: replyTimeout
         )
@@ -324,6 +326,64 @@ struct ChatViewModelTests {
         #expect(await eventually { viewModel.messages.map(\.content) == ["Hi"] })
         #expect(channel.guidanceCardRequests.isEmpty)
         #expect(!viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    @Test func clearingEmptiesTheConversationAndOpensItAgain() async throws {
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(openContext: ["sku": "37549996"])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await viewModel.clearMessages()
+
+        #expect(viewModel.messages.isEmpty)
+        #expect(try await stored("session-1") == 0)
+        #expect(channel.guidanceCardRequests == [["sku": "37549996"]])
+        #expect(viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    @Test func clearingAnEmptyConversationDoesNotGreetTwice() async {
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.guidanceCardRequests.count == 1 })
+
+        await viewModel.clearMessages()
+
+        #expect(channel.guidanceCardRequests.count == 1)
+        running.cancel()
+    }
+
+    @Test func clearingKeepsTheConversationWhenStorageFails() async throws {
+        let unreadable: URL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: unreadable, withIntermediateDirectories: true)
+        let viewModel: ChatViewModel = viewModel(chatMessages: ChatMessageDatabaseService(fileURL: unreadable))
+
+        await viewModel.clearMessages()
+
+        #expect(channel.guidanceCardRequests.isEmpty)
+    }
+
+    @Test func aRunningChatClearsWhenTheHostAsks() async throws {
+        let client: YaloChatClient = YaloChatClient(
+            config: YaloChatClientConfig(channelId: "channel", organizationId: "organization", channelName: "Support"),
+            chatMessages: storage
+        )
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(clearRequests: client.clearRequests)
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await client.clearMessages()
+
+        #expect(await eventually { viewModel.messages.isEmpty })
         running.cancel()
     }
 

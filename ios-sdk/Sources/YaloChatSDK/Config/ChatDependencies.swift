@@ -5,6 +5,10 @@ import Foundation
 /// Everything one conversation needs, built the first time it is asked for.
 @MainActor
 final class ChatDependencies {
+    nonisolated static let databaseURL: URL? = FileManager.default
+        .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("yalo-chat/yalo_chat.sqlite")
+
     private let config: YaloChatClientConfig
     let chatSession: ChatSession
     private let baseURL: URL
@@ -18,8 +22,7 @@ final class ChatDependencies {
         config: YaloChatClientConfig,
         baseURL: URL = YaloAPI.baseURL,
         cacheDirectory: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0],
-        databaseURL: URL? = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("yalo-chat/yalo_chat.sqlite"),
+        databaseURL: URL? = ChatDependencies.databaseURL,
         // Not the cache: the system may empty it while a sent picture or a
         // recorded note still needs its only copy.
         storageDirectory: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -105,7 +108,10 @@ final class ChatDependencies {
         logLevel: config.logLevel
     )
 
-    func chatViewModel(commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil }) -> ChatViewModel {
+    func chatViewModel(
+        commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil },
+        clearRequests: @escaping () -> AsyncStream<Void> = { AsyncStream { continuation in continuation.finish() } }
+    ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages,
             yaloMessages: yaloMessages,
@@ -120,6 +126,7 @@ final class ChatDependencies {
             openContext: config.openContext,
             welcomeMessageType: config.welcomeMessageType,
             commandHandlers: commandHandlers,
+            clearRequests: clearRequests,
             logLevel: config.logLevel
         )
     }

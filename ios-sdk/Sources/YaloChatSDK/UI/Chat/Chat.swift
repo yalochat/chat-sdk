@@ -47,7 +47,10 @@ public struct Chat<Avatar: View>: View {
             theme: theme,
             onBack: onBack,
             avatar: avatar(),
-            viewModel: ChatDependencies(config: client.config).chatViewModel(commandHandlers: client.commandHandler(for:))
+            viewModel: ChatDependencies(config: client.config).chatViewModel(
+                commandHandlers: client.commandHandler(for:),
+                clearRequests: client.clearRequests
+            )
         )
     }
 
@@ -150,7 +153,10 @@ public extension Chat where Avatar == EmptyView {
             theme: theme,
             onBack: onBack,
             avatar: nil,
-            viewModel: ChatDependencies(config: client.config).chatViewModel(commandHandlers: client.commandHandler(for:))
+            viewModel: ChatDependencies(config: client.config).chatViewModel(
+                commandHandlers: client.commandHandler(for:),
+                clearRequests: client.clearRequests
+            )
         )
     }
 }

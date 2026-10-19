@@ -121,6 +121,8 @@ internal class ChatViewModel(
      */
     private val sessionScope: CoroutineScope,
     hostMessages: Flow<String> = emptyFlow(),
+    /** Emits every time the host asks to clear the messages. */
+    clearRequests: Flow<Unit> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     /** The handler the host registered for a command, or null when it registered none. */
@@ -169,6 +171,9 @@ internal class ChatViewModel(
         }
         viewModelScope.launch {
             hostMessages.collect { text -> send(text) }
+        }
+        viewModelScope.launch {
+            clearRequests.collect { clearMessages() }
         }
         viewModelScope.launch {
             // Each runs on its own, so a slow command never holds up the next.
@@ -332,6 +337,25 @@ internal class ChatViewModel(
             yaloMessageRepository.sendFeedback(wiId, next).onFailure { error ->
                 log.warn(error) { "the channel did not take the feedback on $wiId" }
                 rate(id, previous)
+            }
+        }
+    }
+
+    /**
+     * Forgets every message of the conversation and lets the channel speak
+     * first again, as in a new chat. A chat that was already empty has been
+     * greeted, so it is not greeted twice.
+     */
+    private suspend fun clearMessages() {
+        val hadMessages = uiState.messages.isNotEmpty()
+        chatMessageRepository.clearSession().onFailure { error ->
+            log.error(error) { "could not clear the messages" }
+            return
+        }
+        stopWaitingForReply()
+        loadMessages().onSuccess { stored ->
+            if (hadMessages && stored.isEmpty()) {
+                openConversation()
             }
         }
     }
@@ -644,6 +668,7 @@ internal class ChatViewModel(
                     sessionFiles = dependencies.sessionFiles,
                     sessionScope = dependencies.scope,
                     hostMessages = client.outgoingTextMessages,
+                    clearRequests = client.clearRequests,
                     openContext = client.config.openContext,
                     welcomeMessageType = client.config.welcomeMessageType,
                     commandHandlers = client::commandHandler,
