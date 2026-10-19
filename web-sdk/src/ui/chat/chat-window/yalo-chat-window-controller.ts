@@ -32,6 +32,7 @@ import { YaloMessageServiceWebSocket } from '@data/services/yalo-message/yalo-me
 import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
 import { YaloMediaServiceRemote } from '@data/services/yalo-media/yalo-media-service-remote';
 import { Product } from '@domain/models/product/product';
+import type { YaloChatClientConfig } from '@domain/config/chat-config';
 
 export default class YaloChatWindowController implements ReactiveController {
   host: YaloChatWindow;
@@ -55,11 +56,41 @@ export default class YaloChatWindowController implements ReactiveController {
   private _isReady = false;
   private _pendingUserTexts: string[] = [];
   private _pendingAckTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private _resolveConnected!: () => void;
+  private _connected = this._newConnected();
 
   private static readonly _DB_NAME = 'YaloChatMessages';
   private static readonly _DB_VERSION = 1;
 
-  private _openDb(): Promise<IDBDatabase> {
+  private _newConnected(): Promise<void> {
+    return new Promise((resolve) => {
+      this._resolveConnected = resolve;
+    });
+  }
+
+  // Deletes the stored messages of the session a config points to, for when
+  // no chat window is around to do it. Ephemeral sessions never outlive their
+  // window, so there is nothing stored to delete for them.
+  static async clearStoredMessages(
+    config: YaloChatClientConfig
+  ): Promise<void> {
+    if (config.sessionMode === 'ephemeral') {
+      return;
+    }
+    const db = await YaloChatWindowController._openDb();
+    try {
+      const result = await ChatMessageRepositoryLocal.clearSessions(db, [
+        computeSessionId(config),
+      ]);
+      if (!result.ok) {
+        console.error('Unable to clear messages', result.error);
+      }
+    } finally {
+      db.close();
+    }
+  }
+
+  private static _openDb(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(
         YaloChatWindowController._DB_NAME,
@@ -255,7 +286,7 @@ export default class YaloChatWindowController implements ReactiveController {
         ? crypto.randomUUID()
         : undefined;
     const sessionId = computeSessionId(this.host.config, ephemeralToken);
-    const db = await this._openDb();
+    const db = await YaloChatWindowController._openDb();
     this.host.chatMessageRepository = new ChatMessageRepositoryLocal(
       db,
       sessionId
@@ -328,6 +359,38 @@ export default class YaloChatWindowController implements ReactiveController {
       await this.sendUserText(text);
     }
 
+    if (this.host.open) {
+      await this.requestGuidanceCardIfEmpty();
+    }
+    this._resolveConnected();
+  }
+
+  // Deletes every message of this session and starts the conversation over,
+  // greeting the user again the same way a brand new chat does. Calls made
+  // before the window has finished connecting run once it has.
+  async clearMessages(): Promise<void> {
+    await this._connected;
+    const result = await this.host.chatMessageRepository.clearSession();
+    if (!result.ok) {
+      this.host.logger.error('Unable to clear messages', {
+        error: result.error,
+      });
+      return;
+    }
+    for (const timer of this._pendingAckTimers.values()) {
+      clearTimeout(timer);
+    }
+    this._pendingAckTimers.clear();
+    clearTimeout(this._writingTimeout);
+    this.isWriting = false;
+    // An empty chat already got its greeting, asking again would repeat it.
+    if (this.chatMessages.length > 0) {
+      this._guidanceCardRequested = false;
+    }
+    this.chatMessages = [];
+    this.pageInfo = undefined;
+    this.host.requestUpdate();
+    this.host.logger.debug('Cleared messages');
     if (this.host.open) {
       await this.requestGuidanceCardIfEmpty();
     }
@@ -1091,6 +1154,7 @@ export default class YaloChatWindowController implements ReactiveController {
 
   hostDisconnected() {
     this._isReady = false;
+    this._connected = this._newConnected();
     this._pendingUserTexts = [];
     clearTimeout(this._writingTimeout);
     for (const timer of this._pendingAckTimers.values()) {

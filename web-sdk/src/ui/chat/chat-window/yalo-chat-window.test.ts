@@ -2566,6 +2566,119 @@ describe('YaloChatWindow guidance card on first open', () => {
   });
 });
 
+describe('YaloChatWindow clearing messages', () => {
+  const sessionId = 'org-1-channel-1-anonymous';
+
+  const seedMessage = async (content: string): Promise<void> => {
+    const db = await openDb();
+    try {
+      await new ChatMessageRepositoryLocal(db, sessionId).insertChatMessage(
+        ChatMessage.text({ role: 'AGENT', timestamp: new Date(), content })
+      );
+    } finally {
+      db.close();
+    }
+  };
+
+  const createWith = async (open: boolean): Promise<YaloChatWindow> => {
+    const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+    window.config = baseConfig;
+    window.open = open;
+    document.body.appendChild(window);
+    await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+    return window;
+  };
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('removes the shown and the stored messages', async () => {
+    await seedMessage('old');
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await window.clearMessages();
+    await window.updateComplete;
+
+    expect(getMessageList(window).chatMessages).toHaveLength(0);
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('greets the user again when the open chat is cleared', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    await seedMessage('old');
+    const window = await createWith(true);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await window.clearMessages();
+
+    expect(requestSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('greets the user on the next open when a closed chat is cleared', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    await seedMessage('old');
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await window.clearMessages();
+    expect(requestSpy).not.toHaveBeenCalled();
+    window.open = true;
+
+    await vi.waitUntil(() => requestSpy.mock.calls.length === 1);
+  });
+
+  it('does not greet twice when the chat was already empty', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    const window = await createWith(true);
+    await vi.waitUntil(() => requestSpy.mock.calls.length === 1);
+
+    await window.clearMessages();
+
+    expect(requestSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for the window to finish connecting before clearing', async () => {
+    await seedMessage('old');
+    const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+    window.config = baseConfig;
+    document.body.appendChild(window);
+
+    await window.clearMessages();
+    await window.updateComplete;
+
+    expect(getMessageList(window).chatMessages).toHaveLength(0);
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('keeps the messages and logs an error when storage fails', async () => {
+    await seedMessage('old');
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+    const errorSpy = vi.spyOn(window.logger, 'error');
+    vi.spyOn(window.chatMessageRepository, 'clearSession').mockResolvedValue(
+      new Err(new Error('storage failed'))
+    );
+
+    await window.clearMessages();
+
+    expect(getMessageList(window).chatMessages).toHaveLength(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Unable to clear messages',
+      expect.anything()
+    );
+  });
+});
+
 describe('YaloChatWindow logLevel config', () => {
   afterEach(async () => {
     document.body.innerHTML = '';

@@ -68,6 +68,7 @@ class ChatViewModelTest {
     @get:Rule
     val folder = TemporaryFolder()
     private val hostMessages = MutableSharedFlow<String>(extraBufferCapacity = 8)
+    private val clearRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
 
     @Before
     fun useATestDispatcher() {
@@ -1195,6 +1196,39 @@ class ChatViewModelTest {
         assertEquals(listOf("c-2", "c-1"), yaloMessageRepository.commandAnswers.map { it.first })
     }
 
+    @Test
+    fun clearingEmptiesTheConversationAndOpensItAgain() {
+        alreadyStored(answer("Where were we?"))
+        val viewModel = chatViewModel(openContext = mapOf("sku" to "37549996"))
+
+        clearRequests.tryEmit(Unit)
+
+        assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
+        assertEquals(listOf(mapOf("sku" to "37549996")), yaloMessageRepository.openedWith)
+        assertTrue(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun clearingAnEmptyConversationDoesNotGreetTwice() {
+        chatViewModel()
+
+        clearRequests.tryEmit(Unit)
+
+        assertEquals(1, yaloMessageRepository.openedWith.size)
+    }
+
+    @Test
+    fun clearingKeepsTheConversationWhenStorageFails() {
+        alreadyStored(answer("Where were we?"))
+        val viewModel = chatViewModel()
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
+
+        clearRequests.tryEmit(Unit)
+
+        assertEquals(listOf("Where were we?"), viewModel.uiState.messages.map { it.content })
+        assertEquals(emptyList<Map<String, String>>(), yaloMessageRepository.openedWith)
+    }
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
@@ -1217,6 +1251,7 @@ class ChatViewModelTest {
         sessionFiles = { id -> File(sessionsDir, id) },
         sessionScope = sessionScope,
         hostMessages = hostMessages,
+        clearRequests = clearRequests,
         openContext = openContext,
         welcomeMessageType = welcomeMessageType,
         commandHandlers = commands::get,

@@ -2,6 +2,7 @@
 
 import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
 import '@ui/chat/chat-window/yalo-chat-window';
+import YaloChatWindowController from '@ui/chat/chat-window/yalo-chat-window-controller';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type {
   ChatCommand,
@@ -80,6 +81,17 @@ export default class YaloChatClient {
       return;
     }
     this.chatWindowEl.sendTextMessage(text);
+  }
+
+  // Deletes every stored message of this client's conversation. An initialized
+  // chat empties and greets the user again, as a brand new chat does. Before
+  // init() or after dispose() the stored messages are deleted all the same.
+  async clearMessages(): Promise<void> {
+    if (this.chatWindowEl) {
+      await this.chatWindowEl.clearMessages();
+      return;
+    }
+    await YaloChatWindowController.clearStoredMessages(this.config);
   }
 
   // Registers a handler the chat can invoke on the host, keyed by command id.

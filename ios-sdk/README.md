@@ -12,6 +12,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Configuration](#configuration)
 - [Open context](#open-context)
 - [Session modes](#session-modes)
+- [Clearing messages](#clearing-messages)
 - [Voice messages](#voice-messages)
 - [Image messages](#image-messages)
 - [Quick replies and buttons](#quick-replies-and-buttons)
@@ -177,6 +178,21 @@ What to expect from `.ephemeral`:
 - Two chats shown at once are two conversations, even when they were built from the same client.
 
 Each mode is also its own person to the channel, so a conversation scoped by context or by a single visit does not pick up what another one said.
+
+## Clearing messages
+
+Call `clearMessages()` to delete every message of the client's conversation, for example when the person logs out.
+
+```swift
+await client.clearMessages()
+```
+
+Notes:
+
+- It works whether or not a chat is on screen. The messages are deleted by the time it returns.
+- A chat on screen empties and the channel greets the person again, as in a new conversation.
+- With `.perContext`, it clears the conversation of the client's `openContext`.
+- With `.ephemeral`, nothing is kept once the chat is closed, so it only clears a chat on screen.
 
 ## Voice messages
 

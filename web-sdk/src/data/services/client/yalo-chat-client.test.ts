@@ -308,6 +308,58 @@ describe('YaloChatClient', () => {
     });
   });
 
+  describe('clearMessages', () => {
+    const spyInsertMessage = () =>
+      vi
+        .spyOn(YaloMessageRepositoryRemote.prototype, 'insertMessage')
+        .mockImplementation((message: ChatMessage) =>
+          Promise.resolve(new Ok(message))
+        );
+
+    const shownMessages = (client: YaloChatClient): ChatMessage[] =>
+      (
+        client.chatWindowEl?.shadowRoot?.querySelector(
+          'yalo-chat-message-list'
+        ) as unknown as { chatMessages: ChatMessage[] } | null
+      )?.chatMessages ?? [];
+
+    const initWithMessage = async (client: YaloChatClient) => {
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.sendTextMessage('hello');
+      await vi.waitUntil(() => shownMessages(client).length > 0);
+    };
+
+    it('empties an initialized chat', async () => {
+      spyInsertMessage();
+      const client = new YaloChatClient(baseConfig);
+      await initWithMessage(client);
+
+      await client.clearMessages();
+      await client.chatWindowEl?.updateComplete;
+
+      expect(shownMessages(client)).toHaveLength(0);
+    });
+
+    it('deletes the stored messages when the chat is not initialized', async () => {
+      spyInsertMessage();
+      const client = new YaloChatClient(baseConfig);
+      await initWithMessage(client);
+      client.dispose();
+
+      await client.clearMessages();
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      await client.chatWindowEl?.updateComplete;
+
+      expect(shownMessages(client)).toHaveLength(0);
+    });
+  });
+
   describe('close', async () => {
     it('sets open to false on the chat window', async () => {
       const client = new YaloChatClient(baseConfig);

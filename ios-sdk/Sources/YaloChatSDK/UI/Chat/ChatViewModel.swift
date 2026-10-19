@@ -61,6 +61,8 @@ final class ChatViewModel: ObservableObject {
     private let welcomeMessageType: WelcomeMessageType
     /// The handler the host registered for a command, or nil when it registered none.
     private let commandHandlers: (String) -> CommandHandler?
+    /// Yields every time the host asks to clear the messages.
+    private let clearRequests: () -> AsyncStream<Void>
     private let log: YaloLog
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
@@ -89,6 +91,7 @@ final class ChatViewModel: ObservableObject {
         openContext: [String: String] = [:],
         welcomeMessageType: WelcomeMessageType = .none,
         commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil },
+        clearRequests: @escaping () -> AsyncStream<Void> = { AsyncStream { continuation in continuation.finish() } },
         logLevel: LogLevel = .warn,
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
@@ -106,6 +109,7 @@ final class ChatViewModel: ObservableObject {
         self.openContext = openContext
         self.welcomeMessageType = welcomeMessageType
         self.commandHandlers = commandHandlers
+        self.clearRequests = clearRequests
         self.log = YaloLog("Chat", level: logLevel)
         self.now = now
         self.replyTimeout = replyTimeout
@@ -140,6 +144,12 @@ final class ChatViewModel: ObservableObject {
         // Listening comes first, so nothing said while connecting is missed.
         let incoming: AsyncStream<ChatMessage> = yaloMessages.messages()
         let commands: AsyncStream<CommandRequest> = yaloMessages.commandRequests()
+        let clears: AsyncStream<Void> = clearRequests()
+        let clearing: Task<Void, Never> = Task { [weak self] in
+            for await _ in clears {
+                await self?.clearMessages()
+            }
+        }
         let runningCommands: Task<Void, Never> = Task { [weak self] in
             for await request in commands {
                 // Each runs on its own, so a slow command never holds up the next.
@@ -158,6 +168,7 @@ final class ChatViewModel: ObservableObject {
             await receive(message)
         }
         runningCommands.cancel()
+        clearing.cancel()
         yaloMessages.close()
         voice.release()
     }
@@ -190,6 +201,25 @@ final class ChatViewModel: ObservableObject {
         }
         await loadMessages()
         await deliver(stored)
+    }
+
+    /// Forgets every message of the conversation and lets the channel speak
+    /// first again, as in a new chat. A chat that was already empty has been
+    /// greeted, so it is not greeted twice.
+    func clearMessages() async {
+        let hadMessages: Bool = !messages.isEmpty
+        do {
+            try await chatMessages.deleteSessions([sessionId])
+        } catch {
+            log.error("could not clear the messages", error: error)
+            return
+        }
+        stopWaitingForReply()
+        pictures.removeAllObjects()
+        await loadMessages()
+        if hadMessages, messages.isEmpty {
+            await openConversation()
+        }
     }
 
     /// Rates a message from the channel, or takes the rating back when the
