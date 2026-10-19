@@ -9,7 +9,10 @@ import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
 import ai.yalo.chat.sdk.ui.messages.TypingIndicator
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import android.view.View
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +28,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
@@ -69,6 +75,7 @@ internal fun ChatMessageList(
     listState: LazyListState = rememberLazyListState(),
 ) {
     val theme = currentChatTheme
+    val view = LocalView.current
 
     // Index 0 is the newest message, since the layout is reversed. Keying on it
     // means the jump happens when the conversation actually gains a message,
@@ -89,7 +96,9 @@ internal fun ChatMessageList(
         // The newest message comes first and the layout is reversed, so the
         // conversation sits at the bottom and stays there as it grows.
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .claimDrags(view),
             state = listState,
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -147,3 +156,15 @@ internal fun ChatMessageList(
         }
     }
 }
+
+/**
+ * Keeps every drag on the list away from a parent that drags too, such as a
+ * bottom sheet, which would otherwise take it before the list scrolls.
+ */
+private fun Modifier.claimDrags(view: View): Modifier =
+    pointerInput(view) {
+        awaitEachGesture {
+            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+            view.parent?.requestDisallowInterceptTouchEvent(true)
+        }
+    }
