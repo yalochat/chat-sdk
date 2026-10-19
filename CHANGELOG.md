@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0](https://github.com/yalochat/chat-sdk/tree/1.0.0) (2026-10-19)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/0.6.0...1.0.0)
+
+**Merged pull requests:**
+
+- Release android-sdk 1.0.0 [\#368](https://github.com/yalochat/chat-sdk/pull/368) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
+
 ## [0.6.0](https://github.com/yalochat/chat-sdk/tree/0.6.0) (2026-10-19)
 
 [Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v0.6.0...0.6.0)
