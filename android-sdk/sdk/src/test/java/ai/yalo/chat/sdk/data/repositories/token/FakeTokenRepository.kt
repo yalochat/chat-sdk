@@ -24,7 +24,19 @@ internal class FakeTokenRepository : TokenRepository {
         current = "refreshed"
     }
 
-    override suspend fun clearSession(): Unit = Unit
+    var clears: Int = 0
+    var deletedAll: Boolean = false
+
+    override suspend fun clearSession() {
+        clears++
+    }
+
+    override suspend fun deleteAll(): Result<Unit> {
+        failure?.let { cause -> return Result.failure(cause) }
+        deletedAll = true
+        ephemeralSessions.clear()
+        return Result.success(Unit)
+    }
 
     override suspend fun deleteSessions(sessionIds: List<String>): Result<Unit> {
         failure?.let { cause -> return Result.failure(cause) }

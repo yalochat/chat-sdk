@@ -55,6 +55,20 @@ struct TokenKeychainServiceTests {
         #expect(try service().token(sessionId: "session-2") == token)
     }
 
+    @Test func deleteAllForgetsEverySession() throws {
+        try service().save(token, sessionId: "session-1", ephemeral: false)
+        try service().save(token, sessionId: "session-2", ephemeral: true)
+
+        try service().deleteAll()
+
+        #expect(try service().token(sessionId: "session-1") == nil)
+        #expect(try service().token(sessionId: "session-2") == nil)
+    }
+
+    @Test func deleteAllWithNothingStoredIsNoError() throws {
+        try service().deleteAll()
+    }
+
     @Test func aNewInstallForgetsWhatAnEarlierOneLeft() throws {
         try service().save(token, sessionId: "session-1", ephemeral: false)
 

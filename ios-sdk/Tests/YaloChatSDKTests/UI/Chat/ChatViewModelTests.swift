@@ -40,7 +40,7 @@ struct ChatViewModelTests {
         chatMessages: ChatMessageService? = nil,
         welcomeMessageType: WelcomeMessageType = .none,
         commands: [String: CommandHandler] = [:],
-        clearRequests: @escaping () -> AsyncStream<Void> = { AsyncStream { continuation in continuation.finish() } }
+        clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } }
     ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages ?? storage,
@@ -384,6 +384,62 @@ struct ChatViewModelTests {
         await client.clearMessages()
 
         #expect(await eventually { viewModel.messages.isEmpty })
+        running.cancel()
+    }
+
+    @Test func loggingOutStartsOverAsANewPerson() async throws {
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        try tokenStore.save(
+            AuthToken(accessToken: "access", refreshToken: "refresh", expiresAt: .distantFuture),
+            sessionId: "session-1",
+            ephemeral: false
+        )
+        let viewModel: ChatViewModel = viewModel(openContext: ["sku": "37549996"])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await viewModel.logout()
+
+        #expect(viewModel.messages.isEmpty)
+        #expect(try await stored("session-1") == 0)
+        #expect(tokenStore.stored("session-1") == nil)
+        #expect(channel.restarts == 1)
+        #expect(channel.guidanceCardRequests == [["sku": "37549996"]])
+        running.cancel()
+    }
+
+    @Test func loggingOutGreetsTheNewPersonEvenWhenTheChatWasEmpty() async {
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.guidanceCardRequests.count == 1 })
+
+        await viewModel.logout()
+
+        #expect(channel.guidanceCardRequests.count == 2)
+        running.cancel()
+    }
+
+    @Test func aRunningChatStartsOverWhenTheHostLogsOut() async throws {
+        let client: YaloChatClient = YaloChatClient(
+            config: YaloChatClientConfig(channelId: "channel", organizationId: "organization", channelName: "Support"),
+            chatMessages: storage,
+            tokenStore: tokenStore
+        )
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(clearRequests: client.clearRequests)
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await client.logout()
+
+        #expect(await eventually { channel.restarts == 1 })
+        #expect(viewModel.messages.isEmpty)
         running.cancel()
     }
 

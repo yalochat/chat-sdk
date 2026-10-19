@@ -59,13 +59,9 @@ internal class ChatMessageRepositoryLocal(
         }
     }
 
-    override suspend fun clearSession(): Result<Unit> = withContext(dispatcher) {
+    override suspend fun deleteAll(): Result<Unit> = withContext(dispatcher) {
         try {
-            database.writableDatabase.delete(
-                ChatMessageDatabaseDataSource.MESSAGE_TABLE,
-                "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ?",
-                arrayOf(sessionId),
-            )
+            database.writableDatabase.delete(ChatMessageDatabaseDataSource.MESSAGE_TABLE, null, null)
             Result.success(Unit)
         } catch (error: SQLException) {
             Result.failure(error)

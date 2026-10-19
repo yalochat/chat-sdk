@@ -83,15 +83,18 @@ export default class YaloChatClient {
     this.chatWindowEl.sendTextMessage(text);
   }
 
-  // Deletes every stored message of this client's conversation. An initialized
-  // chat empties and greets the user again, as a brand new chat does. Before
-  // init() or after dispose() the stored messages are deleted all the same.
+  // Deletes every stored message, of every conversation on this browser.
+  // Every initialized chat empties and greets the user again, as a brand new
+  // chat does. Works before init() and after dispose() too.
   async clearMessages(): Promise<void> {
-    if (this.chatWindowEl) {
-      await this.chatWindowEl.clearMessages();
-      return;
-    }
-    await YaloChatWindowController.clearStoredMessages(this.config);
+    await YaloChatWindowController.clearAllMessages();
+  }
+
+  // Deletes every stored message and token, so the next chat is a new person
+  // to the backend. Every initialized chat empties, reconnects and greets the
+  // user again. Works before init() and after dispose() too.
+  async logout(): Promise<void> {
+    await YaloChatWindowController.logout();
   }
 
   // Registers a handler the chat can invoke on the host, keyed by command id.

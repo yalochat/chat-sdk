@@ -13,21 +13,35 @@ public typealias CommandHandler = @Sendable (_ payload: String) async throws -> 
 public final class YaloChatClient: @unchecked Sendable {
     let config: YaloChatClientConfig
     private let chatMessages: ChatMessageService
+    private let tokenStore: TokenStoreService
+    private let messageFiles: [URL]
+    private let resets: ChatResets
     private let log: YaloLog
     private let lock: NSLock = NSLock()
     private var commands: [String: CommandHandler] = [:]
-    private var clearListeners: [UUID: AsyncStream<Void>.Continuation] = [:]
 
     public convenience init(config: YaloChatClientConfig) {
         self.init(
             config: config,
-            chatMessages: ChatMessageDatabaseService(fileURL: ChatDependencies.databaseURL, logLevel: config.logLevel)
+            chatMessages: ChatMessageDatabaseService(fileURL: ChatDependencies.databaseURL, logLevel: config.logLevel),
+            tokenStore: TokenKeychainService(),
+            messageFiles: ChatDependencies.messageFiles(in: ChatDependencies.storageDirectory),
+            resets: .shared
         )
     }
 
-    init(config: YaloChatClientConfig, chatMessages: ChatMessageService) {
+    init(
+        config: YaloChatClientConfig,
+        chatMessages: ChatMessageService,
+        tokenStore: TokenStoreService = TokenKeychainService(),
+        messageFiles: [URL] = [],
+        resets: ChatResets = ChatResets()
+    ) {
         self.config = config
         self.chatMessages = chatMessages
+        self.tokenStore = tokenStore
+        self.messageFiles = messageFiles
+        self.resets = resets
         self.log = YaloLog("Client", level: config.logLevel)
     }
 
@@ -45,39 +59,78 @@ public final class YaloChatClient: @unchecked Sendable {
         }
     }
 
-    /// Deletes every message of the conversation, whether a chat is showing it
-    /// or not, for example when the person logs out. A chat showing it empties
-    /// and the channel greets the person again, as in a new conversation.
+    /// Deletes every message stored on the device, of every conversation,
+    /// whether a chat is showing it or not. Every chat on screen empties and
+    /// the channel greets the person again, as in a new conversation.
     public func clearMessages() async {
-        // An ephemeral conversation is forgotten with its chat, so only a chat
-        // showing one has anything to delete.
-        if config.sessionMode != .ephemeral {
-            do {
-                try await chatMessages.deleteSessions([ChatSession(config: config).id])
-            } catch {
-                log.error("could not clear the messages", error: error)
-            }
-        }
-        let listeners: [AsyncStream<Void>.Continuation] = lock.withLock {
-            Array(clearListeners.values)
-        }
-        for listener in listeners {
-            listener.yield()
-        }
+        await deleteMessages()
+        resets.send(.messages)
     }
 
-    /// Yields every time the host asks to clear the messages.
-    func clearRequests() -> AsyncStream<Void> {
+    /// Deletes every message and every token stored on the device, for
+    /// example when the person logs out. Every chat on screen empties and
+    /// connects again as a new person, who the channel greets.
+    public func logout() async {
+        await deleteMessages()
+        do {
+            try tokenStore.deleteAll()
+        } catch {
+            log.error("could not forget the tokens", error: error)
+        }
+        resets.send(.logout)
+    }
+
+    /// Yields every time the host asks to clear the messages or to log out.
+    func clearRequests() -> AsyncStream<ChatReset> {
+        resets.listen()
+    }
+
+    private func deleteMessages() async {
+        do {
+            try await chatMessages.deleteAll()
+        } catch {
+            log.error("could not clear the messages", error: error)
+        }
+        for directory in messageFiles {
+            try? FileManager.default.removeItem(at: directory)
+        }
+    }
+}
+
+/// What the host asked every open chat to forget.
+enum ChatReset: Sendable {
+    case messages
+    case logout
+}
+
+/// Tells every open chat in the app what the host asked to forget, whichever
+/// client asked, since what is forgotten is shared by all of them.
+final class ChatResets: @unchecked Sendable {
+    static let shared: ChatResets = ChatResets()
+
+    private let lock: NSLock = NSLock()
+    private var listeners: [UUID: AsyncStream<ChatReset>.Continuation] = [:]
+
+    func listen() -> AsyncStream<ChatReset> {
         let id: UUID = UUID()
-        let (stream, continuation): (AsyncStream<Void>, AsyncStream<Void>.Continuation) = AsyncStream.makeStream()
+        let (stream, continuation): (AsyncStream<ChatReset>, AsyncStream<ChatReset>.Continuation) = AsyncStream.makeStream()
         continuation.onTermination = { [weak self] _ in
             self?.lock.withLock {
-                self?.clearListeners[id] = nil
+                self?.listeners[id] = nil
             }
         }
         lock.withLock {
-            clearListeners[id] = continuation
+            listeners[id] = continuation
         }
         return stream
+    }
+
+    func send(_ reset: ChatReset) {
+        let listeners: [AsyncStream<ChatReset>.Continuation] = lock.withLock {
+            Array(self.listeners.values)
+        }
+        for listener in listeners {
+            listener.yield(reset)
+        }
     }
 }

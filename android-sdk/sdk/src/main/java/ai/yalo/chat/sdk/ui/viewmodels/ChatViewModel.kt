@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.ClearRequest
 import ai.yalo.chat.sdk.CommandHandler
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.SessionMode
@@ -121,8 +122,8 @@ internal class ChatViewModel(
      */
     private val sessionScope: CoroutineScope,
     hostMessages: Flow<String> = emptyFlow(),
-    /** Emits every time the host asks to clear the messages. */
-    clearRequests: Flow<Unit> = emptyFlow(),
+    /** Emits every time the host empties the storage. */
+    clearRequests: Flow<ClearRequest> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     /** The handler the host registered for a command, or null when it registered none. */
@@ -173,7 +174,7 @@ internal class ChatViewModel(
             hostMessages.collect { text -> send(text) }
         }
         viewModelScope.launch {
-            clearRequests.collect { clearMessages() }
+            clearRequests.collect { request -> startOver(request) }
         }
         viewModelScope.launch {
             // Each runs on its own, so a slow command never holds up the next.
@@ -342,19 +343,20 @@ internal class ChatViewModel(
     }
 
     /**
-     * Forgets every message of the conversation and lets the channel speak
-     * first again, as in a new chat. A chat that was already empty has been
-     * greeted, so it is not greeted twice.
+     * Shows the storage the host just emptied and lets the channel speak first
+     * again, as in a new chat. A chat that was already empty has been greeted,
+     * so it is not greeted twice, unless the person logged out: whoever comes
+     * next has never been greeted.
      */
-    private suspend fun clearMessages() {
+    private suspend fun startOver(request: ClearRequest) {
         val hadMessages = uiState.messages.isNotEmpty()
-        chatMessageRepository.clearSession().onFailure { error ->
-            log.error(error) { "could not clear the messages" }
-            return
-        }
         stopWaitingForReply()
+        if (request == ClearRequest.Logout) {
+            tokenRepository.clearSession()
+            yaloMessageRepository.reconnect()
+        }
         loadMessages().onSuccess { stored ->
-            if (hadMessages && stored.isEmpty()) {
+            if (stored.isEmpty() && (hadMessages || request == ClearRequest.Logout)) {
                 openConversation()
             }
         }

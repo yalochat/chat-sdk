@@ -189,16 +189,17 @@ class ChatMessageRepositoryLocalTest {
     }
 
     @Test
-    fun forgetsOnlyTheConversationItWasAskedAbout() = runBlocking {
+    fun forgetsEveryConversationWhenAskedToDeleteAll() = runBlocking {
         val support = repository("support-session")
         val sales = repository("sales-session")
         support.insert(userMessage("Support draft"))
         sales.insert(userMessage("Sales draft"))
 
-        support.clearSession()
+        val forgotten = support.deleteAll()
 
+        assertTrue(forgotten.isSuccess)
         assertEquals(emptyList<String>(), support.messages().getOrThrow().map { it.content })
-        assertEquals(listOf("Sales draft"), sales.messages().getOrThrow().map { it.content })
+        assertEquals(emptyList<String>(), sales.messages().getOrThrow().map { it.content })
     }
 
     @Test

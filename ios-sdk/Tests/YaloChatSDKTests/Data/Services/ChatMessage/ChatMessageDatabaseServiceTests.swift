@@ -304,6 +304,16 @@ struct ChatMessageDatabaseServiceTests {
         #expect(try await service.messages(sessionId: "session-1", limit: 10).count == 1)
     }
 
+    @Test func deleteAllForgetsEverySession() async throws {
+        _ = try await service.insert(message("one"), sessionId: "session-1")
+        _ = try await service.insert(message("two"), sessionId: "session-2")
+
+        try await service.deleteAll()
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10).isEmpty)
+        #expect(try await service.messages(sessionId: "session-2", limit: 10).isEmpty)
+    }
+
     @Test func messagesOutliveTheServiceThatStoredThem() async throws {
         let file: URL = Self.temporaryFile()
         let stored: ChatMessage = try await ChatMessageDatabaseService(fileURL: file)

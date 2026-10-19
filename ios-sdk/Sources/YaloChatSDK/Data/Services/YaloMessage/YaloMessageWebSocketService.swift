@@ -118,6 +118,8 @@ actor YaloMessageWebSocketService: YaloMessageService {
     func close() {
         log.info("forgetting what was waiting to be sent")
         pending.removeAll()
+        // A socket on its way out must not take what is sent next.
+        live = nil
     }
 
     private func session(on socket: WebSocket) async -> Bool {

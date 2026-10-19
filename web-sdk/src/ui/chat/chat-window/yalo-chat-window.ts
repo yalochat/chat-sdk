@@ -106,11 +106,6 @@ export class YaloChatWindow extends LitElement {
     this._chatWindowController.sendUserText(text);
   }
 
-  // Deletes every message of this chat and starts the conversation over.
-  clearMessages(): Promise<void> {
-    return this._chatWindowController.clearMessages();
-  }
-
   private _handleClose = () => {
     this.open = false;
     this.dispatchEvent(

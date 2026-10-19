@@ -28,51 +28,111 @@ struct YaloChatClientTests {
         #expect(client.commandHandler(for: "getStore") == nil)
     }
 
-    private func clearingClient(sessionMode: SessionMode = .shared) -> (YaloChatClient, ChatMessageDatabaseService, String) {
-        let config: YaloChatClientConfig = YaloChatClientConfig(
-            channelId: "channel",
-            organizationId: "organization",
-            channelName: "Support",
-            sessionMode: sessionMode
+    private let storage: ChatMessageDatabaseService = ChatMessageDatabaseService(fileURL: nil)
+    private let tokenStore: FakeTokenStore = FakeTokenStore()
+    private let resets: ChatResets = ChatResets()
+    private let files: URL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("yalo-chat-client-tests-\(UUID().uuidString)", isDirectory: true)
+
+    private func clearingClient(sessionMode: SessionMode = .shared) -> YaloChatClient {
+        YaloChatClient(
+            config: YaloChatClientConfig(
+                channelId: "channel",
+                organizationId: "organization",
+                channelName: "Support",
+                sessionMode: sessionMode
+            ),
+            chatMessages: storage,
+            tokenStore: tokenStore,
+            messageFiles: [files],
+            resets: resets
         )
-        let storage: ChatMessageDatabaseService = ChatMessageDatabaseService(fileURL: nil)
-        return (YaloChatClient(config: config, chatMessages: storage), storage, ChatSession(config: config).id)
     }
 
     private func message(_ content: String) -> ChatMessage {
         ChatMessage(role: .agent, type: .text, timestamp: Date(), content: content)
     }
 
-    @Test func clearingDeletesTheStoredMessagesOfTheConversation() async throws {
-        let (client, storage, sessionId): (YaloChatClient, ChatMessageDatabaseService, String) = clearingClient()
-        _ = try await storage.insert(message("mine"), sessionId: sessionId)
-        _ = try await storage.insert(message("elsewhere"), sessionId: "other")
-
-        await client.clearMessages()
-
-        #expect(try await storage.messages(sessionId: sessionId, limit: 10).isEmpty)
-        #expect(try await storage.messages(sessionId: "other", limit: 10).count == 1)
+    private func token() -> AuthToken {
+        AuthToken(accessToken: "access", refreshToken: "refresh", expiresAt: .distantFuture)
     }
 
-    @Test func clearingTellsEveryChatListening() async {
-        let (client, _, _): (YaloChatClient, ChatMessageDatabaseService, String) = clearingClient()
-        var first: AsyncStream<Void>.Iterator = client.clearRequests().makeAsyncIterator()
-        var second: AsyncStream<Void>.Iterator = client.clearRequests().makeAsyncIterator()
-
-        await client.clearMessages()
-
-        #expect(await first.next() != nil)
-        #expect(await second.next() != nil)
+    private func storeEverything() async throws {
+        _ = try await storage.insert(message("mine"), sessionId: "session-1")
+        _ = try await storage.insert(message("elsewhere"), sessionId: "other")
+        try tokenStore.save(token(), sessionId: "session-1", ephemeral: false)
+        try FileManager.default.createDirectory(at: files, withIntermediateDirectories: true)
     }
 
-    @Test func clearingAnEphemeralConversationLeavesItToItsChat() async throws {
-        let (client, storage, _): (YaloChatClient, ChatMessageDatabaseService, String) = clearingClient(sessionMode: .ephemeral)
-        var requests: AsyncStream<Void>.Iterator = client.clearRequests().makeAsyncIterator()
-        _ = try await storage.insert(message("elsewhere"), sessionId: "other")
+    private func storedMessages() async throws -> Int {
+        try await storage.messages(sessionId: "session-1", limit: 10).count
+            + storage.messages(sessionId: "other", limit: 10).count
+    }
+
+    @Test(arguments: [SessionMode.shared, .ephemeral])
+    func clearingDeletesEveryStoredMessageAndKeepsTheTokens(sessionMode: SessionMode) async throws {
+        try await storeEverything()
+
+        await clearingClient(sessionMode: sessionMode).clearMessages()
+
+        #expect(try await storedMessages() == 0)
+        #expect(!FileManager.default.fileExists(atPath: files.path))
+        #expect(tokenStore.stored("session-1") != nil)
+    }
+
+    @Test func loggingOutDeletesEveryMessageAndEveryToken() async throws {
+        try await storeEverything()
+        try tokenStore.save(token(), sessionId: "other", ephemeral: true)
+
+        await clearingClient().logout()
+
+        #expect(try await storedMessages() == 0)
+        #expect(!FileManager.default.fileExists(atPath: files.path))
+        #expect(tokenStore.stored("session-1") == nil)
+        #expect(tokenStore.stored("other") == nil)
+    }
+
+    @Test func loggingOutDeletesTheMessagesWhenTheTokensCannotBeForgotten() async throws {
+        try await storeEverything()
+        tokenStore.fail(with: TokenStoreServiceError.keychainFailed(status: -1))
+        var requests: AsyncStream<ChatReset>.Iterator = clearingClient().clearRequests().makeAsyncIterator()
+
+        await clearingClient().logout()
+
+        #expect(try await storedMessages() == 0)
+        #expect(await requests.next() == .logout)
+    }
+
+    @Test func clearingTellsEveryChatListeningWhicheverClientAsked() async {
+        var first: AsyncStream<ChatReset>.Iterator = clearingClient().clearRequests().makeAsyncIterator()
+        var second: AsyncStream<ChatReset>.Iterator = clearingClient().clearRequests().makeAsyncIterator()
+
+        await clearingClient().clearMessages()
+
+        #expect(await first.next() == .messages)
+        #expect(await second.next() == .messages)
+    }
+
+    @Test func loggingOutTellsEveryChatListening() async {
+        var requests: AsyncStream<ChatReset>.Iterator = clearingClient().clearRequests().makeAsyncIterator()
+
+        await clearingClient().logout()
+
+        #expect(await requests.next() == .logout)
+    }
+
+    @Test func clearingWhenStorageFailsStillTellsTheChats() async throws {
+        let unreadable: URL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: unreadable, withIntermediateDirectories: true)
+        let client: YaloChatClient = YaloChatClient(
+            config: YaloChatClientConfig(channelId: "channel", organizationId: "organization", channelName: "Support"),
+            chatMessages: ChatMessageDatabaseService(fileURL: unreadable),
+            resets: resets
+        )
+        var requests: AsyncStream<ChatReset>.Iterator = client.clearRequests().makeAsyncIterator()
 
         await client.clearMessages()
 
-        #expect(await requests.next() != nil)
-        #expect(try await storage.messages(sessionId: "other", limit: 10).count == 1)
+        #expect(await requests.next() == .messages)
     }
 }

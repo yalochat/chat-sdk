@@ -647,6 +647,43 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
+    fun opensANewLineWithTheTokenAskedForWhenReconnecting() = runTest(scheduler) {
+        val repository = connected()
+        auth.current = "for-somebody-new"
+
+        repository.reconnect()
+        runCurrent()
+
+        assertEquals(listOf("access", "for-somebody-new"), source.tokens)
+        assertTrue(source.hasSession)
+        assertTrue(source.isForgotten)
+    }
+
+    @Test
+    fun waitsForTheAppToComeBackBeforeReconnectingAPausedLine() = runTest(scheduler) {
+        val repository = connected()
+        repository.pause()
+        runCurrent()
+
+        repository.reconnect()
+        runCurrent()
+        assertEquals(1, source.tokens.size)
+
+        repository.resume()
+        runCurrent()
+        assertEquals(2, source.tokens.size)
+    }
+
+    @Test
+    fun opensNoLineWhenReconnectingAClosedChat() = runTest(scheduler) {
+        repository().reconnect()
+        runCurrent()
+
+        assertTrue(source.tokens.isEmpty())
+        assertFalse(source.isForgotten)
+    }
+
+    @Test
     fun ignoresGoingAwayWhenTheChatWasNeverOpened() = runTest(scheduler) {
         repository().pause()
         runCurrent()

@@ -21,6 +21,9 @@ protocol TokenStoreService: Sendable {
     /// Sessions with nothing stored are no error.
     func delete(sessionIds: [String]) throws
 
+    /// Forgets the token of every session.
+    func deleteAll() throws
+
     /// The sessions whose token was saved as ephemeral.
     func ephemeralSessionIds() throws -> Set<String>
 }

@@ -429,7 +429,8 @@ The chat ships translated into every supported language and follows the device l
 ## Methods
 
 - **`client.sendTextMessage(text)`**: Sends text as if the person had typed it in the input. Blank text is ignored. You can call it before the chat is on screen: the message waits until a chat opens and is then delivered once.
-- **`client.clearMessages(context)`**: Deletes every message of the conversation, whether a chat is on screen or not, for example when the person logs out. It is a `suspend` function and the messages are gone once it returns. A chat on screen empties and the channel greets the person again, as in a new conversation. With `SessionMode.Ephemeral` nothing is kept once the chat is closed, so it only clears a chat on screen.
+- **`client.clearMessages(context)`**: Deletes every message stored on the device, of every conversation, whether a chat is on screen or not. It is a `suspend` function and the messages are gone once it returns. Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- **`client.logout(context)`**: Deletes every message and every session stored on the device, for example when the person logs out. It is a `suspend` function and everything is gone once it returns. Every chat on screen empties, connects again as a new person and the channel greets them, as in a new conversation.
 - **`client.registerCommand(command, handler)`**: Runs `handler` when the channel asks for `command`. See [Custom commands](#custom-commands).
 
 ## Custom commands
