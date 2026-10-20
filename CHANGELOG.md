@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Release android-sdk 1.1.0 [\#371](https://github.com/yalochat/chat-sdk/pull/371) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat\(android/ios/web\): Adds logout method [\#370](https://github.com/yalochat/chat-sdk/pull/370) ([rodrigocusto](https://github.com/rodrigocusto))
 
 ## [1.0.0](https://github.com/yalochat/chat-sdk/tree/1.0.0) (2026-10-19)
