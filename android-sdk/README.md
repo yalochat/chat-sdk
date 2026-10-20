@@ -12,6 +12,9 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Configuration](#configuration)
 - [Open context](#open-context)
 - [Session modes](#session-modes)
+- [Clearing messages](#clearing-messages)
+- [Logging out](#logging-out)
+- [Data on the device](#data-on-the-device)
 - [The Chat composable](#the-chat-composable)
   - [Sizing and window insets](#sizing-and-window-insets)
   - [Avatar](#avatar)
@@ -170,6 +173,45 @@ What to expect from `Ephemeral`:
 - An ephemeral chat written inside a loop or a list needs a `key(...)` around it, so two of them are not restored as one.
 
 Each mode is also its own person to the channel, so a conversation scoped by context or by a single visit does not pick up what another one said.
+
+## Clearing messages
+
+Call `clearMessages(context)` to delete every message stored on the device. It is a `suspend` function, and any `Context` will do.
+
+```kotlin
+lifecycleScope.launch {
+    client.clearMessages(context)
+}
+```
+
+Notes:
+
+- It deletes the messages of every conversation, whatever client or `sessionMode` they came from, along with the pictures and voice notes they kept on disk.
+- It works whether or not a chat is on screen. The messages are deleted by the time it returns.
+- Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- The person stays the same to the channel. To start over as a new person, use `logout(context)`.
+
+## Logging out
+
+Call `logout(context)` when the person logs out of your app. It is a `suspend` function, and any `Context` will do.
+
+```kotlin
+lifecycleScope.launch {
+    client.logout(context)
+}
+```
+
+Notes:
+
+- It deletes every message and every session stored on the device, of every conversation.
+- It works whether or not a chat is on screen. Everything is deleted by the time it returns.
+- Every chat on screen empties and connects again as a new person, and the channel greets them.
+
+## Data on the device
+
+- Messages, pictures and voice notes are kept in the app's private storage.
+- The access and refresh tokens are encrypted before they are stored, with a key kept in the Android Keystore that never leaves the device.
+- `clearMessages(context)` and `logout(context)` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
 
 ## The Chat composable
 
@@ -429,8 +471,8 @@ The chat ships translated into every supported language and follows the device l
 ## Methods
 
 - **`client.sendTextMessage(text)`**: Sends text as if the person had typed it in the input. Blank text is ignored. You can call it before the chat is on screen: the message waits until a chat opens and is then delivered once.
-- **`client.clearMessages(context)`**: Deletes every message stored on the device, of every conversation, whether a chat is on screen or not. It is a `suspend` function and the messages are gone once it returns. Every chat on screen empties and the channel greets the person again, as in a new conversation.
-- **`client.logout(context)`**: Deletes every message and every session stored on the device, for example when the person logs out. It is a `suspend` function and everything is gone once it returns. Every chat on screen empties, connects again as a new person and the channel greets them, as in a new conversation.
+- **`client.clearMessages(context)`**: See [Clearing messages](#clearing-messages).
+- **`client.logout(context)`**: See [Logging out](#logging-out).
 - **`client.registerCommand(command, handler)`**: Runs `handler` when the channel asks for `command`. See [Custom commands](#custom-commands).
 
 ## Custom commands

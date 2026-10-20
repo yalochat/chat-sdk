@@ -106,7 +106,7 @@
   },
   "codegenConfig": {
     "name": "YaloChatViewSpec",
-    "type": "components",
+    "type": "all",
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "ai.yalo.chat.reactnative"
@@ -116,6 +116,9 @@
         "YaloChatView": {
           "className": "YaloChatView"
         }
+      },
+      "modulesProvider": {
+        "YaloChat": "YaloChatModule"
       }
     }
   },
@@ -128,6 +131,9 @@
   },
   "jest": {
     "preset": "@react-native/jest-preset",
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ],
     "testEnvironmentOptions": {
       "customExportConditions": [
         "require",
@@ -141,7 +147,8 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
-      "!src/**/*NativeComponent.ts"
+      "!src/**/*NativeComponent.ts",
+      "!src/**/Native*.ts"
     ],
     "coverageThreshold": {
       "global": {

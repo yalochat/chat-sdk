@@ -3,7 +3,7 @@ buildscript {
     kotlinVersion: "1.9.24",
     minSdkVersion: 24,
     compileSdkVersion: 35,
-    yaloChatAndroidSdkVersion: "0.8.2"
+    yaloChatAndroidSdkVersion: "1.1.0"
   ]
 
   ext.getExtOrDefault = { prop ->
@@ -26,6 +26,10 @@ buildscript {
   }
 }
 
+def isNewArchitectureEnabled() {
+  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+}
+
 apply plugin: "com.android.library"
 
 if (project.extensions.findByName("kotlin") == null) {
@@ -41,6 +45,11 @@ android {
 
   defaultConfig {
     minSdkVersion getExtOrDefault("minSdkVersion")
+    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+  }
+
+  buildFeatures {
+    buildConfig true
   }
 
   compileOptions {
@@ -52,6 +61,7 @@ android {
 dependencies {
   implementation "com.facebook.react:react-android"
   implementation "ai.yalo.chat:chat-android-sdk:${getExtOrDefault('yaloChatAndroidSdkVersion')}"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
   // The theme overrides are built from Compose colors, sizes and shapes. The
   // BOM matches the Android SDK's so it never raises what an app must compile with.
   implementation platform("androidx.compose:compose-bom:2025.11.00")

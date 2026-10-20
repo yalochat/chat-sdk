@@ -13,6 +13,8 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Open context](#open-context)
 - [Session modes](#session-modes)
 - [Clearing messages](#clearing-messages)
+- [Logging out](#logging-out)
+- [Data on the device](#data-on-the-device)
 - [Voice messages](#voice-messages)
 - [Image messages](#image-messages)
 - [Quick replies and buttons](#quick-replies-and-buttons)
@@ -207,6 +209,12 @@ Notes:
 - It deletes every message and every session stored on the device, of every conversation.
 - It works whether or not a chat is on screen. Everything is deleted by the time it returns.
 - Every chat on screen empties and connects again as a new person, and the channel greets them.
+
+## Data on the device
+
+- Messages, pictures and voice notes are kept in the app's own storage.
+- The access and refresh tokens are kept in the Keychain, which stores them encrypted. They can only be read once the device has been unlocked after a restart, and they never leave the device, not even in a backup.
+- `clearMessages()` and `logout()` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
 
 ## Voice messages
 

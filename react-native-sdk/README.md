@@ -11,6 +11,9 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [The Chat component](#the-chat-component)
+- [Clearing messages](#clearing-messages)
+- [Logging out](#logging-out)
+- [Data on the device](#data-on-the-device)
 - [Custom commands](#custom-commands)
 - [Theming](#theming)
 - [Platform differences](#platform-differences)
@@ -117,6 +120,43 @@ A bundled image works too:
 ```tsx
 <Chat client={client} avatar={require('./logo.png')} />
 ```
+
+## Clearing messages
+
+Call `clearMessages()` to delete every message stored on the device.
+
+```tsx
+await client.clearMessages();
+```
+
+Notes:
+
+- It deletes the messages of every conversation, whatever client or `sessionMode` they came from.
+- It works whether or not a chat is on screen. The messages are deleted by the time the promise resolves.
+- Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- The person stays the same to the channel. To start over as a new person, use `logout()`.
+
+## Logging out
+
+Call `logout()` when the person logs out of your app.
+
+```tsx
+await client.logout();
+```
+
+Notes:
+
+- It deletes every message and every session stored on the device, of every conversation.
+- It works whether or not a chat is on screen. Everything is deleted by the time the promise resolves.
+- Every chat on screen empties and connects again as a new person, and the channel greets them.
+
+## Data on the device
+
+- Messages, pictures and voice notes are kept in the app's own storage.
+- The access and refresh tokens are always stored encrypted:
+  - On Android, with a key kept in the Android Keystore that never leaves the device.
+  - On iOS, in the Keychain. They can only be read once the device has been unlocked after a restart, and they never leave the device, not even in a backup.
+- `clearMessages()` and `logout()` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
 
 ## Custom commands
 
