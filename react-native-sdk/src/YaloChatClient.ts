@@ -1,4 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
+import NativeYaloChat from './NativeYaloChat';
 import type { YaloChatClientConfig } from './YaloChatClientConfig';
 
 /**
@@ -103,6 +104,24 @@ export class YaloChatClient {
     for (const listener of this.listeners) {
       listener();
     }
+  }
+
+  /**
+   * Deletes every message stored on the device, of every conversation,
+   * whether a chat is on screen or not. Every chat on screen empties and the
+   * channel greets the person again, as in a new conversation.
+   */
+  clearMessages(): Promise<void> {
+    return NativeYaloChat.clearMessages(JSON.stringify(this.config));
+  }
+
+  /**
+   * Deletes every message and every session stored on the device, for
+   * example when the person logs out. Every chat on screen empties, connects
+   * again as a new person and the channel greets them.
+   */
+  logout(): Promise<void> {
+    return NativeYaloChat.logout(JSON.stringify(this.config));
   }
 
   /** @internal */
