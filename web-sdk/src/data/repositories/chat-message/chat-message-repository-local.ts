@@ -22,6 +22,25 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
     }
   }
 
+  // Deletes every stored message, whatever session it belongs to.
+  static clearAll(db: IDBDatabase): Promise<Result<boolean>> {
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(
+          ChatMessageRepositoryLocal._STORE_NAME,
+          'readwrite'
+        );
+        tx.oncomplete = () => resolve(new Ok(true));
+        tx.onerror = () => {
+          resolve(new Err(tx.error ?? new Error('Unable to clear the store')));
+        };
+        tx.objectStore(ChatMessageRepositoryLocal._STORE_NAME).clear();
+      } catch (e) {
+        resolve(new Err(e instanceof Error ? e : new Error(String(e))));
+      }
+    });
+  }
+
   // Deletes every message belonging to the given sessions. Used to drop the
   // messages of ephemeral sessions that were reclaimed by the token sweep.
   static clearSessions(

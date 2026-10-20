@@ -50,6 +50,15 @@ final class FakeTokenStore: TokenStoreService, @unchecked Sendable {
         }
     }
 
+    func deleteAll() throws {
+        try lock.withLock {
+            if let failing {
+                throw failing
+            }
+            tokens.removeAll()
+        }
+    }
+
     func ephemeralSessionIds() throws -> Set<String> {
         try lock.withLock {
             if let failing {

@@ -29,7 +29,8 @@ internal interface ChatMessageRepository {
     /** Stores what the person rated the message with row [id], or clears it when [feedback] is null. */
     suspend fun updateFeedback(id: Long, feedback: FeedbackRating?): Result<Unit>
 
-    suspend fun clearSession(): Result<Unit>
+    /** Forgets every stored message, whichever session it belongs to. */
+    suspend fun deleteAll(): Result<Unit>
 
     /**
      * Forgets the messages of [sessionIds], which do not have to include the

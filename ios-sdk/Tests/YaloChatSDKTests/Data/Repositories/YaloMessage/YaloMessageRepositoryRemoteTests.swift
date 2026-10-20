@@ -171,6 +171,39 @@ struct YaloMessageRepositoryRemoteTests {
         #expect(await eventually { await service.closes == 1 })
     }
 
+    @Test func restartForgetsWhatWasWaitingAndConnectsAgain() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+        #expect(await eventually { await !service.runs.isEmpty })
+
+        await repository.restart()
+        let runsWhenRestarted: Int = await service.runs.count
+
+        #expect(await service.closes == 1)
+        #expect(await eventually { await service.runs.count > runsWhenRestarted })
+        repository.close()
+    }
+
+    @Test func restartingAPausedLineWaitsForResume() async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+        #expect(await eventually { await !service.runs.isEmpty })
+        repository.pause()
+
+        await repository.restart()
+
+        #expect(await service.closes == 1)
+        // An attempt already on its way may still land, so wait for the count to settle.
+        #expect(await eventually {
+            let before: Int = await service.runs.count
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            return await service.runs.count == before
+        })
+        repository.close()
+    }
+
     @Test func asksForAGuidanceCardWithTheOpenContext() async throws {
         let service: FakeYaloMessageService = FakeYaloMessageService()
         let repository: YaloMessageRepositoryRemote = repository(service)

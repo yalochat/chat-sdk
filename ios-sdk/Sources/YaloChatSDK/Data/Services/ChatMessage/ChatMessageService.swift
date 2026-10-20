@@ -26,4 +26,7 @@ protocol ChatMessageService: Sendable {
 
     /// Forgets every message of `sessionIds`. Sessions with nothing stored are no error.
     func deleteSessions(_ sessionIds: [String]) async throws
+
+    /// Forgets every message of every session.
+    func deleteAll() async throws
 }

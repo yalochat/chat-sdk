@@ -29,6 +29,9 @@ internal interface TokenRepository {
      */
     suspend fun deleteSessions(sessionIds: List<String>): Result<Unit>
 
+    /** Forgets every stored token, whichever session it belongs to. */
+    suspend fun deleteAll(): Result<Unit>
+
     /**
      * The sessions whose stored token says they are to leave nothing behind.
      *

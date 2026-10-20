@@ -9,6 +9,7 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
     private(set) var pauses: Int = 0
     private(set) var resumes: Int = 0
     private(set) var closes: Int = 0
+    private(set) var restarts: Int = 0
     private(set) var sent: [ChatMessage] = []
     private(set) var guidanceCardRequests: [[String: String]] = []
     private(set) var feedbackSent: [(feedback: ChatMessage.Feedback?, wiId: String)] = []
@@ -47,6 +48,10 @@ final class FakeYaloMessageRepository: YaloMessageRepository {
 
     func close() {
         closes += 1
+    }
+
+    func restart() async {
+        restarts += 1
     }
 
     func messages() -> AsyncStream<ChatMessage> {

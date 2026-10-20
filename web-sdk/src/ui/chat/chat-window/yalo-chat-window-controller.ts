@@ -32,7 +32,6 @@ import { YaloMessageServiceWebSocket } from '@data/services/yalo-message/yalo-me
 import { TokenRepositoryLocal } from '@data/repositories/token/token-repository-local';
 import { YaloMediaServiceRemote } from '@data/services/yalo-media/yalo-media-service-remote';
 import { Product } from '@domain/models/product/product';
-import type { YaloChatClientConfig } from '@domain/config/chat-config';
 
 export default class YaloChatWindowController implements ReactiveController {
   host: YaloChatWindow;
@@ -56,38 +55,66 @@ export default class YaloChatWindowController implements ReactiveController {
   private _isReady = false;
   private _pendingUserTexts: string[] = [];
   private _pendingAckTimers = new Map<string, ReturnType<typeof setTimeout>>();
-  private _resolveConnected!: () => void;
+  // Resolves true once connected, or false if the chat is removed first, so
+  // nothing waiting on a chat that is gone waits forever.
+  private _resolveConnected!: (connected: boolean) => void;
   private _connected = this._newConnected();
 
   private static readonly _DB_NAME = 'YaloChatMessages';
   private static readonly _DB_VERSION = 1;
 
-  private _newConnected(): Promise<void> {
+  private _newConnected(): Promise<boolean> {
     return new Promise((resolve) => {
       this._resolveConnected = resolve;
     });
   }
 
-  // Deletes the stored messages of the session a config points to, for when
-  // no chat window is around to do it. Ephemeral sessions never outlive their
-  // window, so there is nothing stored to delete for them.
-  static async clearStoredMessages(
-    config: YaloChatClientConfig
-  ): Promise<void> {
-    if (config.sessionMode === 'ephemeral') {
-      return;
-    }
+  // Every controller on the page, so wiping storage can reach all of them
+  // and not only the chat of the client that asked.
+  private static readonly _controllers = new Set<YaloChatWindowController>();
+
+  // Deletes every stored message, whatever session it belongs to, then
+  // empties every chat on the page.
+  static async clearAllMessages(): Promise<void> {
     const db = await YaloChatWindowController._openDb();
     try {
-      const result = await ChatMessageRepositoryLocal.clearSessions(db, [
-        computeSessionId(config),
-      ]);
+      const result = await ChatMessageRepositoryLocal.clearAll(db);
       if (!result.ok) {
         console.error('Unable to clear messages', result.error);
+        return;
       }
     } finally {
       db.close();
     }
+    await Promise.all(
+      [...YaloChatWindowController._controllers].map((controller) =>
+        controller._messagesCleared()
+      )
+    );
+  }
+
+  // Deletes every stored message and token, then has every chat on the page
+  // start over as a new person.
+  static async logout(): Promise<void> {
+    const db = await YaloChatWindowController._openDb();
+    try {
+      const [messages, tokens] = await Promise.all([
+        ChatMessageRepositoryLocal.clearAll(db),
+        TokenRepositoryLocal.clearAll(db),
+      ]);
+      const failed = [messages, tokens].find((result) => !result.ok);
+      if (failed && !failed.ok) {
+        console.error('Unable to log out', failed.error);
+        return;
+      }
+    } finally {
+      db.close();
+    }
+    await Promise.all(
+      [...YaloChatWindowController._controllers].map((controller) =>
+        controller._loggedOut()
+      )
+    );
   }
 
   private static _openDb(): Promise<IDBDatabase> {
@@ -278,6 +305,7 @@ export default class YaloChatWindowController implements ReactiveController {
 
   // Method used to create all new dependencies to be injected to all components
   async hostConnected() {
+    YaloChatWindowController._controllers.add(this);
     if (this.host.config.logLevel) {
       this.host.logger.currentLevel = this.host.config.logLevel;
     }
@@ -362,31 +390,44 @@ export default class YaloChatWindowController implements ReactiveController {
     if (this.host.open) {
       await this.requestGuidanceCardIfEmpty();
     }
-    this._resolveConnected();
+    this._resolveConnected(true);
   }
 
-  // Deletes every message of this session and starts the conversation over,
-  // greeting the user again the same way a brand new chat does. Calls made
-  // before the window has finished connecting run once it has.
-  async clearMessages(): Promise<void> {
-    await this._connected;
-    const result = await this.host.chatMessageRepository.clearSession();
-    if (!result.ok) {
-      this.host.logger.error('Unable to clear messages', {
-        error: result.error,
-      });
+  // Empties the chat once storage has been wiped, greeting the user again the
+  // same way a brand new chat does. A chat still connecting does it once it
+  // has, and one removed before that reads the wiped storage if it comes back.
+  private async _messagesCleared(): Promise<void> {
+    if (!(await this._connected)) {
       return;
     }
+    // An empty chat already got its greeting, asking again would repeat it.
+    if (this.chatMessages.length > 0) {
+      this._guidanceCardRequested = false;
+    }
+    await this._startOver();
+  }
+
+  // Reconnects with a new token once storage has been wiped, so the backend
+  // talks to a new person, and greets them as a brand new chat does.
+  private async _loggedOut(): Promise<void> {
+    if (!(await this._connected)) {
+      return;
+    }
+    this.host.yaloMessageRepository.unsubscribeMessages();
+    // A token issued while storage was being wiped belongs to the old person.
+    await this._tokenRepository?.clearSession();
+    this.host.yaloMessageRepository.subscribeToMessages(this.onMessageReceived);
+    this._guidanceCardRequested = false;
+    await this._startOver();
+  }
+
+  private async _startOver(): Promise<void> {
     for (const timer of this._pendingAckTimers.values()) {
       clearTimeout(timer);
     }
     this._pendingAckTimers.clear();
     clearTimeout(this._writingTimeout);
     this.isWriting = false;
-    // An empty chat already got its greeting, asking again would repeat it.
-    if (this.chatMessages.length > 0) {
-      this._guidanceCardRequested = false;
-    }
     this.chatMessages = [];
     this.pageInfo = undefined;
     this.host.requestUpdate();
@@ -1153,7 +1194,9 @@ export default class YaloChatWindowController implements ReactiveController {
   }
 
   hostDisconnected() {
+    YaloChatWindowController._controllers.delete(this);
     this._isReady = false;
+    this._resolveConnected(false);
     this._connected = this._newConnected();
     this._pendingUserTexts = [];
     clearTimeout(this._writingTimeout);

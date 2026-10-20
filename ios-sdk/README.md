@@ -181,7 +181,7 @@ Each mode is also its own person to the channel, so a conversation scoped by con
 
 ## Clearing messages
 
-Call `clearMessages()` to delete every message of the client's conversation, for example when the person logs out.
+Call `clearMessages()` to delete every message stored on the device.
 
 ```swift
 await client.clearMessages()
@@ -189,10 +189,24 @@ await client.clearMessages()
 
 Notes:
 
+- It deletes the messages of every conversation, whatever client or `sessionMode` they came from.
 - It works whether or not a chat is on screen. The messages are deleted by the time it returns.
-- A chat on screen empties and the channel greets the person again, as in a new conversation.
-- With `.perContext`, it clears the conversation of the client's `openContext`.
-- With `.ephemeral`, nothing is kept once the chat is closed, so it only clears a chat on screen.
+- Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- The person stays the same to the channel. To start over as a new person, use `logout()`.
+
+## Logging out
+
+Call `logout()` when the person logs out of your app.
+
+```swift
+await client.logout()
+```
+
+Notes:
+
+- It deletes every message and every session stored on the device, of every conversation.
+- It works whether or not a chat is on screen. Everything is deleted by the time it returns.
+- Every chat on screen empties and connects again as a new person, and the channel greets them.
 
 ## Voice messages
 

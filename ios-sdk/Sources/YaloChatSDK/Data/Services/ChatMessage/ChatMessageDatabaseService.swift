@@ -83,6 +83,10 @@ actor ChatMessageDatabaseService: ChatMessageService {
         }
     }
 
+    func deleteAll() async throws {
+        try run(try open(), "DELETE FROM chat_message", [])
+    }
+
     private static let deleteBatch: Int = 900
 
     private func open() throws -> OpaquePointer {

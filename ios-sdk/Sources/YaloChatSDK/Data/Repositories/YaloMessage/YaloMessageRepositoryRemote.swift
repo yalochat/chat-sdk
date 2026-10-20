@@ -82,6 +82,17 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         }
     }
 
+    func restart() async {
+        log.info("starting the line over")
+        connecting?.cancel()
+        connecting = nil
+        await service.close()
+        guard lifecycle == .running, connecting == nil else {
+            return
+        }
+        startConnecting()
+    }
+
     func messages() -> AsyncStream<ChatMessage> {
         let service: YaloMessageService = service
         let now: @Sendable () -> Date = now

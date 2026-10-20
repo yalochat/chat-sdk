@@ -209,6 +209,17 @@ struct TokenRepositoryTests {
         }
     }
 
+    @Test func deletingTheSessionForgetsTheTokenInHandEvenWhenTheStoreFails() async throws {
+        let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
+        let tokens: TokenRepository = repository(auth)
+        _ = try await tokens.token()
+        store.fail(with: TokenStoreServiceError.keychainFailed(status: -1))
+
+        try? await tokens.deleteSessions(["session-1"])
+
+        #expect(try await tokens.token() == "authenticated-2")
+    }
+
     @Test func deletingTheSessionForgetsTheTokenInHand() async throws {
         let auth: FakeAuthService = FakeAuthService(expiresAt: clock.now.addingTimeInterval(60))
         let tokens: TokenRepository = repository(auth)

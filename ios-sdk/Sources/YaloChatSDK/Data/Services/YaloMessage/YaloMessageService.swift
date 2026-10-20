@@ -21,6 +21,7 @@ protocol YaloMessageService: Sendable {
     /// waits for the next one.
     func send(_ message: SdkMessage) async throws
 
-    /// Forgets whatever was waiting to be sent.
+    /// Forgets whatever was waiting to be sent, and stops sending on the
+    /// connection that is up.
     func close() async
 }

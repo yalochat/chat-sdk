@@ -44,7 +44,7 @@ internal class FakeChatMessageRepository(
         return Result.success(Unit)
     }
 
-    override suspend fun clearSession(): Result<Unit> {
+    override suspend fun deleteAll(): Result<Unit> {
         failure?.let { error -> return Result.failure(error) }
         stored.clear()
         return Result.success(Unit)

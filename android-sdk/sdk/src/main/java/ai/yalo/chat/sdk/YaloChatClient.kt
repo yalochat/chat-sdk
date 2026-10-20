@@ -5,12 +5,14 @@ import ai.yalo.chat.sdk.common.session.sessionOf
 import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.log.YaloLog
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -18,6 +20,9 @@ import java.util.concurrent.ConcurrentHashMap
  * answers with the payload sent back. Throwing reports the command as failed.
  */
 public typealias CommandHandler = suspend (payload: String) -> String
+
+/** What the host emptied the storage for, as every open chat hears it. */
+internal enum class ClearRequest { Messages, Logout }
 
 /**
  * The way into the SDK.
@@ -40,15 +45,8 @@ public class YaloChatClient(internal val config: YaloChatClientConfig) {
     /** Text the host asked to send, for an open chat to pick up and store. */
     internal val outgoingTextMessages: Flow<String> = outgoing.receiveAsFlow()
 
-    // A broadcast rather than a queue: every open chat has to empty, and a
-    // chat opened later reads storage that is already empty.
-    private val clears = MutableSharedFlow<Unit>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
-
-    /** Emits every time the host asks to clear the messages. */
-    internal val clearRequests: Flow<Unit> = clears.asSharedFlow()
+    /** Emits every time any client empties the storage. */
+    internal val clearRequests: Flow<ClearRequest> = clears.asSharedFlow()
 
     private val log = YaloLog(LOG_NAME, config.logLevel)
 
@@ -74,24 +72,50 @@ public class YaloChatClient(internal val config: YaloChatClientConfig) {
     }
 
     /**
-     * Deletes every message of the conversation, whether a chat is showing it
-     * or not, for example when the person logs out. A chat showing it empties
-     * and the channel greets the person again, as in a new conversation.
+     * Deletes every message stored on the device, of every conversation,
+     * whether a chat is showing it or not. Every open chat empties and the
+     * channel greets the person again, as in a new conversation.
      *
      * [context] is only used to reach the storage, so any one will do.
      */
     public suspend fun clearMessages(context: Context) {
-        // An ephemeral conversation is forgotten with its chat, so only a chat
-        // showing one has anything to delete.
-        if (config.sessionMode != SessionMode.Ephemeral) {
-            ChatDependencies(context, config, sessionOf(config)).chatMessages.clearSession()
-                .onFailure { error -> log.error(error) { "could not clear the messages" } }
+        deleteMessages(ChatDependencies(context, config, sessionOf(config)))
+        clears.tryEmit(ClearRequest.Messages)
+    }
+
+    /**
+     * Deletes every message and every token stored on the device, for example
+     * when the person logs out. Every open chat empties and reconnects as a
+     * new person, and the channel greets them as in a new conversation.
+     *
+     * [context] is only used to reach the storage, so any one will do.
+     */
+    public suspend fun logout(context: Context) {
+        val dependencies = ChatDependencies(context, config, sessionOf(config))
+        deleteMessages(dependencies)
+        dependencies.auth.deleteAll()
+            .onFailure { error -> log.error(error) { "could not clear the tokens" } }
+        clears.tryEmit(ClearRequest.Logout)
+    }
+
+    private suspend fun deleteMessages(dependencies: ChatDependencies) {
+        dependencies.chatMessages.deleteAll()
+            .onFailure { error -> log.error(error) { "could not clear the messages" } }
+        withContext(Dispatchers.IO) {
+            dependencies.sessionsDir.deleteRecursively()
         }
-        clears.tryEmit(Unit)
     }
 
     private companion object {
         const val OUTGOING_BUFFER = 64
         const val LOG_NAME = "Client"
+
+        // A broadcast rather than a queue: every open chat has to empty, and
+        // a chat opened later reads storage that is already empty. Shared by
+        // every client because the storage is.
+        val clears = MutableSharedFlow<ClearRequest>(
+            extraBufferCapacity = 1,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST,
+        )
     }
 }
