@@ -55,13 +55,15 @@ export default class YaloChatWindowController implements ReactiveController {
   private _isReady = false;
   private _pendingUserTexts: string[] = [];
   private _pendingAckTimers = new Map<string, ReturnType<typeof setTimeout>>();
-  private _resolveConnected!: () => void;
+  // Resolves true once connected, or false if the chat is removed first, so
+  // nothing waiting on a chat that is gone waits forever.
+  private _resolveConnected!: (connected: boolean) => void;
   private _connected = this._newConnected();
 
   private static readonly _DB_NAME = 'YaloChatMessages';
   private static readonly _DB_VERSION = 1;
 
-  private _newConnected(): Promise<void> {
+  private _newConnected(): Promise<boolean> {
     return new Promise((resolve) => {
       this._resolveConnected = resolve;
     });
@@ -388,14 +390,16 @@ export default class YaloChatWindowController implements ReactiveController {
     if (this.host.open) {
       await this.requestGuidanceCardIfEmpty();
     }
-    this._resolveConnected();
+    this._resolveConnected(true);
   }
 
   // Empties the chat once storage has been wiped, greeting the user again the
   // same way a brand new chat does. A chat still connecting does it once it
-  // has.
+  // has, and one removed before that reads the wiped storage if it comes back.
   private async _messagesCleared(): Promise<void> {
-    await this._connected;
+    if (!(await this._connected)) {
+      return;
+    }
     // An empty chat already got its greeting, asking again would repeat it.
     if (this.chatMessages.length > 0) {
       this._guidanceCardRequested = false;
@@ -406,7 +410,9 @@ export default class YaloChatWindowController implements ReactiveController {
   // Reconnects with a new token once storage has been wiped, so the backend
   // talks to a new person, and greets them as a brand new chat does.
   private async _loggedOut(): Promise<void> {
-    await this._connected;
+    if (!(await this._connected)) {
+      return;
+    }
     this.host.yaloMessageRepository.unsubscribeMessages();
     // A token issued while storage was being wiped belongs to the old person.
     await this._tokenRepository?.clearSession();
@@ -1190,6 +1196,7 @@ export default class YaloChatWindowController implements ReactiveController {
   hostDisconnected() {
     YaloChatWindowController._controllers.delete(this);
     this._isReady = false;
+    this._resolveConnected(false);
     this._connected = this._newConnected();
     this._pendingUserTexts = [];
     clearTimeout(this._writingTimeout);

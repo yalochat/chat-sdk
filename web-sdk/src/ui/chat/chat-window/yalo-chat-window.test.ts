@@ -2567,6 +2567,20 @@ describe('YaloChatWindow guidance card on first open', () => {
   });
 });
 
+// A chat that has its repositories but never finishes connecting, because
+// reading the stored messages never answers.
+const stalledWhileConnecting = async (): Promise<YaloChatWindow> => {
+  vi.spyOn(
+    ChatMessageRepositoryLocal.prototype,
+    'getChatMessagePageDesc'
+  ).mockReturnValue(new Promise(() => {}));
+  const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+  window.config = baseConfig;
+  document.body.appendChild(window);
+  await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+  return window;
+};
+
 describe('YaloChatWindow clearing messages', () => {
   const sessionId = 'org-1-channel-1-anonymous';
 
@@ -2699,6 +2713,18 @@ describe('YaloChatWindow clearing messages', () => {
     expect(await countStoredMessages()).toBe(0);
   });
 
+  it('does not wait for a chat removed before it finished connecting', async () => {
+    const window = await stalledWhileConnecting();
+    const wiped = vi.spyOn(ChatMessageRepositoryLocal, 'clearAll');
+
+    const clearing = YaloChatWindowController.clearAllMessages();
+    await vi.waitUntil(() => wiped.mock.results.length === 1);
+    await new Promise((resolve) => setTimeout(resolve));
+    window.remove();
+
+    await expect(clearing).resolves.toBeUndefined();
+  });
+
   it('keeps the messages and logs an error when storage fails', async () => {
     await seedMessage('old');
     const window = await createWith(false);
@@ -2762,6 +2788,18 @@ describe('YaloChatWindow logging out', () => {
     document.body.innerHTML = '';
     vi.restoreAllMocks();
     await clearDb();
+  });
+
+  it('does not wait for a chat removed before it finished connecting', async () => {
+    const window = await stalledWhileConnecting();
+    const wiped = vi.spyOn(TokenRepositoryLocal, 'clearAll');
+
+    const loggingOut = YaloChatWindowController.logout();
+    await vi.waitUntil(() => wiped.mock.results.length === 1);
+    await new Promise((resolve) => setTimeout(resolve));
+    window.remove();
+
+    await expect(loggingOut).resolves.toBeUndefined();
   });
 
   it('removes every stored message and token', async () => {
