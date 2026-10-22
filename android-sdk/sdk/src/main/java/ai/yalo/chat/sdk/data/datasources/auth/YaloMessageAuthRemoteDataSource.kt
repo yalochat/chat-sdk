@@ -39,12 +39,22 @@ internal class YaloMessageAuthRemoteDataSource(
 
     override suspend fun authenticate(): Result<AuthToken> {
         log.info { "authenticating" }
+        val userAuthToken = config.userAuthTokenProvider?.let { provider ->
+            val token = provider()
+            if (token.isNullOrBlank()) {
+                log.warn { "$AUTH_FAILED: the user auth token provider gave nothing" }
+                return Result.failure(IOException("$AUTH_FAILED: the user auth token provider gave nothing"))
+            }
+            token
+        }
+
         val body = JSONObject()
-            .put(FIELD_USER_TYPE, if (authUserId == null) USER_ANONYMOUS else USER_THIRD_PARTY)
+            .put(FIELD_USER_TYPE, userType(userAuthToken))
             .put(FIELD_CHANNEL_ID, config.channelId)
             .put(FIELD_ORGANIZATION_ID, config.organizationId)
             .put(FIELD_TIMESTAMP, now() / MILLIS_PER_SECOND)
         authUserId?.let { userId -> body.put(FIELD_USER_ID, userId) }
+        userAuthToken?.let { token -> body.put(FIELD_TOKEN, token) }
 
         return call(
             Request.Builder()
@@ -71,6 +81,16 @@ internal class YaloMessageAuthRemoteDataSource(
             // An answer carrying no new refresh token leaves the old one in place.
             heldRefreshToken = refreshToken,
         )
+    }
+
+    /**
+     * A verified token makes the person an external user whatever else is set;
+     * without one the session's user id decides, as it always has.
+     */
+    private fun userType(userAuthToken: String?): String = when {
+        userAuthToken != null -> USER_EXTERNAL
+        authUserId == null -> USER_ANONYMOUS
+        else -> USER_THIRD_PARTY
     }
 
     private suspend fun call(
@@ -129,10 +149,12 @@ internal class YaloMessageAuthRemoteDataSource(
 
         private const val USER_ANONYMOUS = "anonymous"
         private const val USER_THIRD_PARTY = "third_party_anonymous"
+        private const val USER_EXTERNAL = "external_user"
         private const val GRANT_REFRESH_TOKEN = "refresh_token"
 
         private const val FIELD_USER_TYPE = "user_type"
         private const val FIELD_USER_ID = "user_id"
+        private const val FIELD_TOKEN = "token"
         private const val FIELD_CHANNEL_ID = "channel_id"
         private const val FIELD_ORGANIZATION_ID = "organization_id"
         private const val FIELD_TIMESTAMP = "timestamp"
