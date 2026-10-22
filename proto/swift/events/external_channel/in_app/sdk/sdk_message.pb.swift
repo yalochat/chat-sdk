@@ -620,6 +620,22 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: @unchec
     set {_uniqueStorage()._payload = .messageFeedbackRequest(newValue)}
   }
 
+  package var clientAuthRequest: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest {
+    get {
+      if case .clientAuthRequest(let v)? = _storage._payload {return v}
+      return Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest()
+    }
+    set {_uniqueStorage()._payload = .clientAuthRequest(newValue)}
+  }
+
+  package var clientAuthResponse: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse {
+    get {
+      if case .clientAuthResponse(let v)? = _storage._payload {return v}
+      return Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse()
+    }
+    set {_uniqueStorage()._payload = .clientAuthResponse(newValue)}
+  }
+
   package var unknownFields = SwiftProtobuf.UnknownStorage()
 
   package nonisolated enum OneOf_Payload: Equatable, Sendable {
@@ -657,6 +673,8 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: @unchec
     case guidanceCardRequest(Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardRequest)
     case guidanceCardResponse(Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardResponse)
     case messageFeedbackRequest(Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest)
+    case clientAuthRequest(Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest)
+    case clientAuthResponse(Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse)
 
   }
 
@@ -1698,6 +1716,46 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequ
   fileprivate var _timestamp: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
 }
 
+/// ClientAuthRequest carries a token provided by the host app. The SDK
+/// forwards it as is so the backend can run business logic with it.
+package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  package var authToken: String = String()
+
+  package var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  package init() {}
+}
+
+/// ClientAuthResponse tells the client whether the backend accepted the token.
+/// The client waits for a successful response before sending requests that
+/// depend on the user, such as GuidanceCardRequest.
+package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  package var status: Yalo_ExternalChannel_InApp_Sdk_V2_ResponseStatus = .unspecified
+
+  package var timestamp: SwiftProtobuf.Google_Protobuf_Timestamp {
+    get {_timestamp ?? SwiftProtobuf.Google_Protobuf_Timestamp()}
+    set {_timestamp = newValue}
+  }
+  /// Returns true if `timestamp` has been explicitly set.
+  package var hasTimestamp: Bool {self._timestamp != nil}
+  /// Clears the value of `timestamp`. Subsequent reads from it will return its default value.
+  package mutating func clearTimestamp() {self._timestamp = nil}
+
+  package var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  package init() {}
+
+  fileprivate var _timestamp: SwiftProtobuf.Google_Protobuf_Timestamp? = nil
+}
+
 /// AddPromotionRequest asks the channel to apply a promotion to the active cart.
 package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_AddPromotionRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -2338,7 +2396,7 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessageAckType: Swift
 
 nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   package static let protoMessageName: String = _protobuf_package + ".SdkMessage"
-  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}correlation_id\0\u{1}timestamp\0\u{4}\u{8}text_message_request\0\u{4}\u{2}voice_note_message_request\0\u{4}\u{2}image_message_request\0\u{4}\u{2}message_receipt_request\0\u{4}\u{2}attachment_message_request\0\u{4}\u{2}add_to_cart_request\0\u{3}add_to_cart_response\0\u{3}remove_from_cart_request\0\u{3}remove_from_cart_response\0\u{3}clear_cart_request\0\u{3}clear_cart_response\0\u{3}guidance_card_request\0\u{3}guidance_card_response\0\u{3}add_promotion_request\0\u{3}add_promotion_response\0\u{3}promotion_message_request\0\u{3}promotion_message_response\0\u{3}product_message_request\0\u{3}product_message_response\0\u{3}chat_status_request\0\u{3}chat_status_response\0\u{3}custom_command_request\0\u{3}custom_command_response\0\u{3}video_message_request\0\u{4}\u{8}update_cart_product_request\0\u{3}update_cart_product_response\0\u{3}product_confirmation_message_request\0\u{3}product_confirmation_message_response\0\u{3}get_cart_request\0\u{3}get_cart_response\0\u{3}message_feedback_request\0")
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}correlation_id\0\u{1}timestamp\0\u{4}\u{8}text_message_request\0\u{4}\u{2}voice_note_message_request\0\u{4}\u{2}image_message_request\0\u{4}\u{2}message_receipt_request\0\u{4}\u{2}attachment_message_request\0\u{4}\u{2}add_to_cart_request\0\u{3}add_to_cart_response\0\u{3}remove_from_cart_request\0\u{3}remove_from_cart_response\0\u{3}clear_cart_request\0\u{3}clear_cart_response\0\u{3}guidance_card_request\0\u{3}guidance_card_response\0\u{3}add_promotion_request\0\u{3}add_promotion_response\0\u{3}promotion_message_request\0\u{3}promotion_message_response\0\u{3}product_message_request\0\u{3}product_message_response\0\u{3}chat_status_request\0\u{3}chat_status_response\0\u{3}custom_command_request\0\u{3}custom_command_response\0\u{3}video_message_request\0\u{4}\u{8}update_cart_product_request\0\u{3}update_cart_product_response\0\u{3}product_confirmation_message_request\0\u{3}product_confirmation_message_response\0\u{3}get_cart_request\0\u{3}get_cart_response\0\u{3}message_feedback_request\0\u{4}\u{2}client_auth_request\0\u{3}client_auth_response\0")
 
   fileprivate class _StorageClass {
     var _correlationID: String = String()
@@ -2780,6 +2838,32 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: SwiftProtobu
             _storage._payload = .messageFeedbackRequest(v)
           }
         }()
+        case 54: try {
+          var v: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest?
+          var hadOneofValue = false
+          if let current = _storage._payload {
+            hadOneofValue = true
+            if case .clientAuthRequest(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._payload = .clientAuthRequest(v)
+          }
+        }()
+        case 55: try {
+          var v: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse?
+          var hadOneofValue = false
+          if let current = _storage._payload {
+            hadOneofValue = true
+            if case .clientAuthResponse(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._payload = .clientAuthResponse(v)
+          }
+        }()
         default: break
         }
       }
@@ -2922,6 +3006,14 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_SdkMessage: SwiftProtobu
       case .messageFeedbackRequest?: try {
         guard case .messageFeedbackRequest(let v)? = _storage._payload else { preconditionFailure() }
         try visitor.visitSingularMessageField(value: v, fieldNumber: 52)
+      }()
+      case .clientAuthRequest?: try {
+        guard case .clientAuthRequest(let v)? = _storage._payload else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 54)
+      }()
+      case .clientAuthResponse?: try {
+        guard case .clientAuthResponse(let v)? = _storage._payload else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 55)
       }()
       case nil: break
       }
@@ -4269,6 +4361,75 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest: 
   package static func ==(lhs: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest, rhs: Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest) -> Bool {
     if lhs.messageID != rhs.messageID {return false}
     if lhs.rating != rhs.rating {return false}
+    if lhs._timestamp != rhs._timestamp {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  package static let protoMessageName: String = _protobuf_package + ".ClientAuthRequest"
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}auth_token\0")
+
+  package mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.authToken) }()
+      default: break
+      }
+    }
+  }
+
+  package func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.authToken.isEmpty {
+      try visitor.visitSingularStringField(value: self.authToken, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  package static func ==(lhs: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest, rhs: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthRequest) -> Bool {
+    if lhs.authToken != rhs.authToken {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  package static let protoMessageName: String = _protobuf_package + ".ClientAuthResponse"
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}status\0\u{1}timestamp\0")
+
+  package mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularEnumField(value: &self.status) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._timestamp) }()
+      default: break
+      }
+    }
+  }
+
+  package func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    if self.status != .unspecified {
+      try visitor.visitSingularEnumField(value: self.status, fieldNumber: 1)
+    }
+    try { if let v = self._timestamp {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  package static func ==(lhs: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse, rhs: Yalo_ExternalChannel_InApp_Sdk_V2_ClientAuthResponse) -> Bool {
+    if lhs.status != rhs.status {return false}
     if lhs._timestamp != rhs._timestamp {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true

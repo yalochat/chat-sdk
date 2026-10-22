@@ -434,6 +434,24 @@ const SdkMessage$json = {
       '9': 0,
       '10': 'messageFeedbackRequest'
     },
+    {
+      '1': 'client_auth_request',
+      '3': 54,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ClientAuthRequest',
+      '9': 0,
+      '10': 'clientAuthRequest'
+    },
+    {
+      '1': 'client_auth_response',
+      '3': 55,
+      '4': 1,
+      '5': 11,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ClientAuthResponse',
+      '9': 0,
+      '10': 'clientAuthResponse'
+    },
   ],
   '8': [
     {'1': 'payload'},
@@ -509,7 +527,11 @@ final $typed_data.Uint8List sdkMessageDescriptor = $convert.base64Decode(
     'KAsyOS55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5HdWlkYW5jZUNhcmRSZX'
     'Nwb25zZUgAUhRndWlkYW5jZUNhcmRSZXNwb25zZRJ3ChhtZXNzYWdlX2ZlZWRiYWNrX3JlcXVl'
     'c3QYNCABKAsyOy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5NZXNzYWdlRm'
-    'VlZGJhY2tSZXF1ZXN0SABSFm1lc3NhZ2VGZWVkYmFja1JlcXVlc3RCCQoHcGF5bG9hZA==');
+    'VlZGJhY2tSZXF1ZXN0SABSFm1lc3NhZ2VGZWVkYmFja1JlcXVlc3QSaAoTY2xpZW50X2F1dGhf'
+    'cmVxdWVzdBg2IAEoCzI2LnlhbG8uZXh0ZXJuYWxfY2hhbm5lbC5pbl9hcHAuc2RrLnYyLkNsaW'
+    'VudEF1dGhSZXF1ZXN0SABSEWNsaWVudEF1dGhSZXF1ZXN0EmsKFGNsaWVudF9hdXRoX3Jlc3Bv'
+    'bnNlGDcgASgLMjcueWFsby5leHRlcm5hbF9jaGFubmVsLmluX2FwcC5zZGsudjIuQ2xpZW50QX'
+    'V0aFJlc3BvbnNlSABSEmNsaWVudEF1dGhSZXNwb25zZUIJCgdwYXlsb2Fk');
 
 @$core.Deprecated('Use buttonDescriptor instead')
 const Button$json = {
@@ -1541,6 +1563,47 @@ final $typed_data.Uint8List messageFeedbackRequestDescriptor = $convert.base64De
     'JLCgZyYXRpbmcYAiABKA4yMy55YWxvLmV4dGVybmFsX2NoYW5uZWwuaW5fYXBwLnNkay52Mi5G'
     'ZWVkYmFja1JhdGluZ1IGcmF0aW5nEjgKCXRpbWVzdGFtcBgDIAEoCzIaLmdvb2dsZS5wcm90b2'
     'J1Zi5UaW1lc3RhbXBSCXRpbWVzdGFtcA==');
+
+@$core.Deprecated('Use clientAuthRequestDescriptor instead')
+const ClientAuthRequest$json = {
+  '1': 'ClientAuthRequest',
+  '2': [
+    {'1': 'auth_token', '3': 1, '4': 1, '5': 9, '10': 'authToken'},
+  ],
+};
+
+/// Descriptor for `ClientAuthRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientAuthRequestDescriptor = $convert.base64Decode(
+    'ChFDbGllbnRBdXRoUmVxdWVzdBIdCgphdXRoX3Rva2VuGAEgASgJUglhdXRoVG9rZW4=');
+
+@$core.Deprecated('Use clientAuthResponseDescriptor instead')
+const ClientAuthResponse$json = {
+  '1': 'ClientAuthResponse',
+  '2': [
+    {
+      '1': 'status',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.yalo.external_channel.in_app.sdk.v2.ResponseStatus',
+      '10': 'status'
+    },
+    {
+      '1': 'timestamp',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.google.protobuf.Timestamp',
+      '10': 'timestamp'
+    },
+  ],
+};
+
+/// Descriptor for `ClientAuthResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List clientAuthResponseDescriptor = $convert.base64Decode(
+    'ChJDbGllbnRBdXRoUmVzcG9uc2USSwoGc3RhdHVzGAEgASgOMjMueWFsby5leHRlcm5hbF9jaG'
+    'FubmVsLmluX2FwcC5zZGsudjIuUmVzcG9uc2VTdGF0dXNSBnN0YXR1cxI4Cgl0aW1lc3RhbXAY'
+    'AiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wUgl0aW1lc3RhbXA=');
 
 @$core.Deprecated('Use addPromotionRequestDescriptor instead')
 const AddPromotionRequest$json = {

@@ -314,11 +314,27 @@ public class SdkMessage(
     schemaIndex = 32,
   )
   public val message_feedback_request: MessageFeedbackRequest? = null,
+  @field:WireField(
+    tag = 54,
+    adapter = "ai.yalo.chat.sdk.internal.proto.v2.ClientAuthRequest#ADAPTER",
+    jsonName = "clientAuthRequest",
+    oneofName = "payload",
+    schemaIndex = 33,
+  )
+  public val client_auth_request: ClientAuthRequest? = null,
+  @field:WireField(
+    tag = 55,
+    adapter = "ai.yalo.chat.sdk.internal.proto.v2.ClientAuthResponse#ADAPTER",
+    jsonName = "clientAuthResponse",
+    oneofName = "payload",
+    schemaIndex = 34,
+  )
+  public val client_auth_response: ClientAuthResponse? = null,
   unknownFields: ByteString = ByteString.EMPTY,
 ) : Message<SdkMessage, Nothing>(ADAPTER, unknownFields) {
   init {
-    require(countNonNull(text_message_request, voice_note_message_request, image_message_request, message_receipt_request, attachment_message_request, video_message_request, add_to_cart_request, add_to_cart_response, remove_from_cart_request, remove_from_cart_response, clear_cart_request, clear_cart_response, add_promotion_request, add_promotion_response, update_cart_product_request, update_cart_product_response, get_cart_request, get_cart_response, promotion_message_request, promotion_message_response, product_message_request, product_message_response, chat_status_request, chat_status_response, custom_command_request, custom_command_response, product_confirmation_message_request, product_confirmation_message_response, guidance_card_request, guidance_card_response, message_feedback_request) <= 1) {
-      "At most one of text_message_request, voice_note_message_request, image_message_request, message_receipt_request, attachment_message_request, video_message_request, add_to_cart_request, add_to_cart_response, remove_from_cart_request, remove_from_cart_response, clear_cart_request, clear_cart_response, add_promotion_request, add_promotion_response, update_cart_product_request, update_cart_product_response, get_cart_request, get_cart_response, promotion_message_request, promotion_message_response, product_message_request, product_message_response, chat_status_request, chat_status_response, custom_command_request, custom_command_response, product_confirmation_message_request, product_confirmation_message_response, guidance_card_request, guidance_card_response, message_feedback_request may be non-null"
+    require(countNonNull(text_message_request, voice_note_message_request, image_message_request, message_receipt_request, attachment_message_request, video_message_request, add_to_cart_request, add_to_cart_response, remove_from_cart_request, remove_from_cart_response, clear_cart_request, clear_cart_response, add_promotion_request, add_promotion_response, update_cart_product_request, update_cart_product_response, get_cart_request, get_cart_response, promotion_message_request, promotion_message_response, product_message_request, product_message_response, chat_status_request, chat_status_response, custom_command_request, custom_command_response, product_confirmation_message_request, product_confirmation_message_response, guidance_card_request, guidance_card_response, message_feedback_request, client_auth_request, client_auth_response) <= 1) {
+      "At most one of text_message_request, voice_note_message_request, image_message_request, message_receipt_request, attachment_message_request, video_message_request, add_to_cart_request, add_to_cart_response, remove_from_cart_request, remove_from_cart_response, clear_cart_request, clear_cart_response, add_promotion_request, add_promotion_response, update_cart_product_request, update_cart_product_response, get_cart_request, get_cart_response, promotion_message_request, promotion_message_response, product_message_request, product_message_response, chat_status_request, chat_status_response, custom_command_request, custom_command_response, product_confirmation_message_request, product_confirmation_message_response, guidance_card_request, guidance_card_response, message_feedback_request, client_auth_request, client_auth_response may be non-null"
     }
   }
 
@@ -365,6 +381,8 @@ public class SdkMessage(
     if (guidance_card_request != other.guidance_card_request) return false
     if (guidance_card_response != other.guidance_card_response) return false
     if (message_feedback_request != other.message_feedback_request) return false
+    if (client_auth_request != other.client_auth_request) return false
+    if (client_auth_response != other.client_auth_response) return false
     return true
   }
 
@@ -405,6 +423,8 @@ public class SdkMessage(
       result = result * 37 + (guidance_card_request?.hashCode() ?: 0)
       result = result * 37 + (guidance_card_response?.hashCode() ?: 0)
       result = result * 37 + (message_feedback_request?.hashCode() ?: 0)
+      result = result * 37 + (client_auth_request?.hashCode() ?: 0)
+      result = result * 37 + (client_auth_response?.hashCode() ?: 0)
       super.hashCode = result
     }
     return result
@@ -445,6 +465,8 @@ public class SdkMessage(
     if (guidance_card_request != null) result += """guidance_card_request=$guidance_card_request"""
     if (guidance_card_response != null) result += """guidance_card_response=$guidance_card_response"""
     if (message_feedback_request != null) result += """message_feedback_request=$message_feedback_request"""
+    if (client_auth_request != null) result += """client_auth_request=$client_auth_request"""
+    if (client_auth_response != null) result += """client_auth_response=$client_auth_response"""
     return result.joinToString(prefix = "SdkMessage{", separator = ", ", postfix = "}")
   }
 
@@ -482,8 +504,10 @@ public class SdkMessage(
     guidance_card_request: GuidanceCardRequest? = this.guidance_card_request,
     guidance_card_response: GuidanceCardResponse? = this.guidance_card_response,
     message_feedback_request: MessageFeedbackRequest? = this.message_feedback_request,
+    client_auth_request: ClientAuthRequest? = this.client_auth_request,
+    client_auth_response: ClientAuthResponse? = this.client_auth_response,
     unknownFields: ByteString = this.unknownFields,
-  ): SdkMessage = SdkMessage(correlation_id, timestamp, text_message_request, voice_note_message_request, image_message_request, message_receipt_request, attachment_message_request, video_message_request, add_to_cart_request, add_to_cart_response, remove_from_cart_request, remove_from_cart_response, clear_cart_request, clear_cart_response, add_promotion_request, add_promotion_response, update_cart_product_request, update_cart_product_response, get_cart_request, get_cart_response, promotion_message_request, promotion_message_response, product_message_request, product_message_response, chat_status_request, chat_status_response, custom_command_request, custom_command_response, product_confirmation_message_request, product_confirmation_message_response, guidance_card_request, guidance_card_response, message_feedback_request, unknownFields)
+  ): SdkMessage = SdkMessage(correlation_id, timestamp, text_message_request, voice_note_message_request, image_message_request, message_receipt_request, attachment_message_request, video_message_request, add_to_cart_request, add_to_cart_response, remove_from_cart_request, remove_from_cart_response, clear_cart_request, clear_cart_response, add_promotion_request, add_promotion_response, update_cart_product_request, update_cart_product_response, get_cart_request, get_cart_response, promotion_message_request, promotion_message_response, product_message_request, product_message_response, chat_status_request, chat_status_response, custom_command_request, custom_command_response, product_confirmation_message_request, product_confirmation_message_response, guidance_card_request, guidance_card_response, message_feedback_request, client_auth_request, client_auth_response, unknownFields)
 
   public companion object {
     @JvmField
@@ -534,6 +558,8 @@ public class SdkMessage(
         size += GuidanceCardRequest.ADAPTER.encodedSizeWithTag(26, value.guidance_card_request)
         size += GuidanceCardResponse.ADAPTER.encodedSizeWithTag(27, value.guidance_card_response)
         size += MessageFeedbackRequest.ADAPTER.encodedSizeWithTag(52, value.message_feedback_request)
+        size += ClientAuthRequest.ADAPTER.encodedSizeWithTag(54, value.client_auth_request)
+        size += ClientAuthResponse.ADAPTER.encodedSizeWithTag(55, value.client_auth_response)
         return size
       }
 
@@ -575,11 +601,15 @@ public class SdkMessage(
         GuidanceCardRequest.ADAPTER.encodeWithTag(writer, 26, value.guidance_card_request)
         GuidanceCardResponse.ADAPTER.encodeWithTag(writer, 27, value.guidance_card_response)
         MessageFeedbackRequest.ADAPTER.encodeWithTag(writer, 52, value.message_feedback_request)
+        ClientAuthRequest.ADAPTER.encodeWithTag(writer, 54, value.client_auth_request)
+        ClientAuthResponse.ADAPTER.encodeWithTag(writer, 55, value.client_auth_response)
         writer.writeBytes(value.unknownFields)
       }
 
       override fun encode(writer: ReverseProtoWriter, `value`: SdkMessage) {
         writer.writeBytes(value.unknownFields)
+        ClientAuthResponse.ADAPTER.encodeWithTag(writer, 55, value.client_auth_response)
+        ClientAuthRequest.ADAPTER.encodeWithTag(writer, 54, value.client_auth_request)
         MessageFeedbackRequest.ADAPTER.encodeWithTag(writer, 52, value.message_feedback_request)
         GuidanceCardResponse.ADAPTER.encodeWithTag(writer, 27, value.guidance_card_response)
         GuidanceCardRequest.ADAPTER.encodeWithTag(writer, 26, value.guidance_card_request)
@@ -653,6 +683,8 @@ public class SdkMessage(
         var guidance_card_request: GuidanceCardRequest? = null
         var guidance_card_response: GuidanceCardResponse? = null
         var message_feedback_request: MessageFeedbackRequest? = null
+        var client_auth_request: ClientAuthRequest? = null
+        var client_auth_response: ClientAuthResponse? = null
         val unknownFields = reader.forEachTag { tag ->
           when (tag) {
             1 -> correlation_id = ProtoAdapter.STRING.decode(reader)
@@ -688,6 +720,8 @@ public class SdkMessage(
             26 -> guidance_card_request = GuidanceCardRequest.ADAPTER.decode(reader)
             27 -> guidance_card_response = GuidanceCardResponse.ADAPTER.decode(reader)
             52 -> message_feedback_request = MessageFeedbackRequest.ADAPTER.decode(reader)
+            54 -> client_auth_request = ClientAuthRequest.ADAPTER.decode(reader)
+            55 -> client_auth_response = ClientAuthResponse.ADAPTER.decode(reader)
             else -> reader.readUnknownField(tag)
           }
         }
@@ -725,6 +759,8 @@ public class SdkMessage(
           guidance_card_request = guidance_card_request,
           guidance_card_response = guidance_card_response,
           message_feedback_request = message_feedback_request,
+          client_auth_request = client_auth_request,
+          client_auth_response = client_auth_response,
           unknownFields = unknownFields
         )
       }
@@ -762,6 +798,8 @@ public class SdkMessage(
         guidance_card_request = value.guidance_card_request?.let(GuidanceCardRequest.ADAPTER::redact),
         guidance_card_response = value.guidance_card_response?.let(GuidanceCardResponse.ADAPTER::redact),
         message_feedback_request = value.message_feedback_request?.let(MessageFeedbackRequest.ADAPTER::redact),
+        client_auth_request = value.client_auth_request?.let(ClientAuthRequest.ADAPTER::redact),
+        client_auth_response = value.client_auth_response?.let(ClientAuthResponse.ADAPTER::redact),
         unknownFields = ByteString.EMPTY
       )
     }

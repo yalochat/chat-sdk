@@ -468,6 +468,8 @@ export interface SdkMessage {
   guidanceCardRequest?: GuidanceCardRequest | undefined;
   guidanceCardResponse?: GuidanceCardResponse | undefined;
   messageFeedbackRequest?: MessageFeedbackRequest | undefined;
+  clientAuthRequest?: ClientAuthRequest | undefined;
+  clientAuthResponse?: ClientAuthResponse | undefined;
 }
 
 /**
@@ -782,6 +784,24 @@ export interface MessageFeedbackRequest {
   timestamp: Date | undefined;
 }
 
+/**
+ * ClientAuthRequest carries a token provided by the host app. The SDK
+ * forwards it as is so the backend can run business logic with it.
+ */
+export interface ClientAuthRequest {
+  authToken: string;
+}
+
+/**
+ * ClientAuthResponse tells the client whether the backend accepted the token.
+ * The client waits for a successful response before sending requests that
+ * depend on the user, such as GuidanceCardRequest.
+ */
+export interface ClientAuthResponse {
+  status: ResponseStatus;
+  timestamp: Date | undefined;
+}
+
 /** AddPromotionRequest asks the channel to apply a promotion to the active cart. */
 export interface AddPromotionRequest {
   promotionId: string;
@@ -1076,6 +1096,8 @@ function createBaseSdkMessage(): SdkMessage {
     guidanceCardRequest: undefined,
     guidanceCardResponse: undefined,
     messageFeedbackRequest: undefined,
+    clientAuthRequest: undefined,
+    clientAuthResponse: undefined,
   };
 }
 
@@ -1181,6 +1203,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.messageFeedbackRequest !== undefined) {
       MessageFeedbackRequest.encode(message.messageFeedbackRequest, writer.uint32(418).fork()).join();
+    }
+    if (message.clientAuthRequest !== undefined) {
+      ClientAuthRequest.encode(message.clientAuthRequest, writer.uint32(434).fork()).join();
+    }
+    if (message.clientAuthResponse !== undefined) {
+      ClientAuthResponse.encode(message.clientAuthResponse, writer.uint32(442).fork()).join();
     }
     return writer;
   },
@@ -1459,6 +1487,22 @@ export const SdkMessage: MessageFns<SdkMessage> = {
           message.messageFeedbackRequest = MessageFeedbackRequest.decode(reader, reader.uint32());
           continue;
         }
+        case 54: {
+          if (tag !== 434) {
+            break;
+          }
+
+          message.clientAuthRequest = ClientAuthRequest.decode(reader, reader.uint32());
+          continue;
+        }
+        case 55: {
+          if (tag !== 442) {
+            break;
+          }
+
+          message.clientAuthResponse = ClientAuthResponse.decode(reader, reader.uint32());
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1631,6 +1675,16 @@ export const SdkMessage: MessageFns<SdkMessage> = {
         : isSet(object.message_feedback_request)
         ? MessageFeedbackRequest.fromJSON(object.message_feedback_request)
         : undefined,
+      clientAuthRequest: isSet(object.clientAuthRequest)
+        ? ClientAuthRequest.fromJSON(object.clientAuthRequest)
+        : isSet(object.client_auth_request)
+        ? ClientAuthRequest.fromJSON(object.client_auth_request)
+        : undefined,
+      clientAuthResponse: isSet(object.clientAuthResponse)
+        ? ClientAuthResponse.fromJSON(object.clientAuthResponse)
+        : isSet(object.client_auth_response)
+        ? ClientAuthResponse.fromJSON(object.client_auth_response)
+        : undefined,
     };
   },
 
@@ -1738,6 +1792,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
     }
     if (message.messageFeedbackRequest !== undefined) {
       obj.messageFeedbackRequest = MessageFeedbackRequest.toJSON(message.messageFeedbackRequest);
+    }
+    if (message.clientAuthRequest !== undefined) {
+      obj.clientAuthRequest = ClientAuthRequest.toJSON(message.clientAuthRequest);
+    }
+    if (message.clientAuthResponse !== undefined) {
+      obj.clientAuthResponse = ClientAuthResponse.toJSON(message.clientAuthResponse);
     }
     return obj;
   },
@@ -1857,6 +1917,12 @@ export const SdkMessage: MessageFns<SdkMessage> = {
       (object.messageFeedbackRequest !== undefined && object.messageFeedbackRequest !== null)
         ? MessageFeedbackRequest.fromPartial(object.messageFeedbackRequest)
         : undefined;
+    message.clientAuthRequest = (object.clientAuthRequest !== undefined && object.clientAuthRequest !== null)
+      ? ClientAuthRequest.fromPartial(object.clientAuthRequest)
+      : undefined;
+    message.clientAuthResponse = (object.clientAuthResponse !== undefined && object.clientAuthResponse !== null)
+      ? ClientAuthResponse.fromPartial(object.clientAuthResponse)
+      : undefined;
     return message;
   },
 };
@@ -5036,6 +5102,146 @@ export const MessageFeedbackRequest: MessageFns<MessageFeedbackRequest> = {
     const message = createBaseMessageFeedbackRequest();
     message.messageId = object.messageId ?? "";
     message.rating = object.rating ?? 0;
+    message.timestamp = object.timestamp ?? undefined;
+    return message;
+  },
+};
+
+function createBaseClientAuthRequest(): ClientAuthRequest {
+  return { authToken: "" };
+}
+
+export const ClientAuthRequest: MessageFns<ClientAuthRequest> = {
+  encode(message: ClientAuthRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.authToken !== "") {
+      writer.uint32(10).string(message.authToken);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ClientAuthRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseClientAuthRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.authToken = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ClientAuthRequest {
+    return {
+      authToken: isSet(object.authToken)
+        ? globalThis.String(object.authToken)
+        : isSet(object.auth_token)
+        ? globalThis.String(object.auth_token)
+        : "",
+    };
+  },
+
+  toJSON(message: ClientAuthRequest): unknown {
+    const obj: any = {};
+    if (message.authToken !== "") {
+      obj.authToken = message.authToken;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ClientAuthRequest>, I>>(base?: I): ClientAuthRequest {
+    return ClientAuthRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ClientAuthRequest>, I>>(object: I): ClientAuthRequest {
+    const message = createBaseClientAuthRequest();
+    message.authToken = object.authToken ?? "";
+    return message;
+  },
+};
+
+function createBaseClientAuthResponse(): ClientAuthResponse {
+  return { status: 0, timestamp: undefined };
+}
+
+export const ClientAuthResponse: MessageFns<ClientAuthResponse> = {
+  encode(message: ClientAuthResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      Timestamp.encode(toTimestamp(message.timestamp), writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ClientAuthResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseClientAuthResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.status = reader.int32() as any;
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.timestamp = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ClientAuthResponse {
+    return {
+      status: isSet(object.status) ? responseStatusFromJSON(object.status) : 0,
+      timestamp: isSet(object.timestamp) ? fromJsonTimestamp(object.timestamp) : undefined,
+    };
+  },
+
+  toJSON(message: ClientAuthResponse): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = responseStatusToJSON(message.status);
+    }
+    if (message.timestamp !== undefined) {
+      obj.timestamp = message.timestamp.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ClientAuthResponse>, I>>(base?: I): ClientAuthResponse {
+    return ClientAuthResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ClientAuthResponse>, I>>(object: I): ClientAuthResponse {
+    const message = createBaseClientAuthResponse();
+    message.status = object.status ?? 0;
     message.timestamp = object.timestamp ?? undefined;
     return message;
   },

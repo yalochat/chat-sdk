@@ -55,6 +55,8 @@ enum SdkMessage_Payload {
   getCartRequest,
   getCartResponse,
   messageFeedbackRequest,
+  clientAuthRequest,
+  clientAuthResponse,
   notSet
 }
 
@@ -96,6 +98,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     GetCartRequest? getCartRequest,
     GetCartResponse? getCartResponse,
     MessageFeedbackRequest? messageFeedbackRequest,
+    ClientAuthRequest? clientAuthRequest,
+    ClientAuthResponse? clientAuthResponse,
   }) {
     final result = SdkMessage._();
     if (correlationId != null) result.correlationId = correlationId;
@@ -157,6 +161,9 @@ class SdkMessage extends $pb.GeneratedMessage {
     if (getCartResponse != null) result.getCartResponse = getCartResponse;
     if (messageFeedbackRequest != null)
       result.messageFeedbackRequest = messageFeedbackRequest;
+    if (clientAuthRequest != null) result.clientAuthRequest = clientAuthRequest;
+    if (clientAuthResponse != null)
+      result.clientAuthResponse = clientAuthResponse;
     return result;
   }
 
@@ -202,6 +209,8 @@ class SdkMessage extends $pb.GeneratedMessage {
     50: SdkMessage_Payload.getCartRequest,
     51: SdkMessage_Payload.getCartResponse,
     52: SdkMessage_Payload.messageFeedbackRequest,
+    54: SdkMessage_Payload.clientAuthRequest,
+    55: SdkMessage_Payload.clientAuthResponse,
     0: SdkMessage_Payload.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
@@ -240,7 +249,9 @@ class SdkMessage extends $pb.GeneratedMessage {
       49,
       50,
       51,
-      52
+      52,
+      54,
+      55
     ])
     ..aOS(1, _omitFieldNames ? '' : 'correlationId')
     ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
@@ -325,6 +336,10 @@ class SdkMessage extends $pb.GeneratedMessage {
     ..aOM<MessageFeedbackRequest>(
         52, _omitFieldNames ? '' : 'messageFeedbackRequest',
         subBuilder: MessageFeedbackRequest.$_createMessage)
+    ..aOM<ClientAuthRequest>(54, _omitFieldNames ? '' : 'clientAuthRequest',
+        subBuilder: ClientAuthRequest.$_createMessage)
+    ..aOM<ClientAuthResponse>(55, _omitFieldNames ? '' : 'clientAuthResponse',
+        subBuilder: ClientAuthResponse.$_createMessage)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -378,6 +393,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(50)
   @$pb.TagNumber(51)
   @$pb.TagNumber(52)
+  @$pb.TagNumber(54)
+  @$pb.TagNumber(55)
   SdkMessage_Payload whichPayload() =>
       _SdkMessage_PayloadByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(10)
@@ -411,6 +428,8 @@ class SdkMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(50)
   @$pb.TagNumber(51)
   @$pb.TagNumber(52)
+  @$pb.TagNumber(54)
+  @$pb.TagNumber(55)
   void clearPayload() => $_clearField($_whichOneof(0));
 
   /// A client-generated id that can be used to correlate requests with responses.
@@ -798,6 +817,28 @@ class SdkMessage extends $pb.GeneratedMessage {
   void clearMessageFeedbackRequest() => $_clearField(52);
   @$pb.TagNumber(52)
   MessageFeedbackRequest ensureMessageFeedbackRequest() => $_ensure(32);
+
+  @$pb.TagNumber(54)
+  ClientAuthRequest get clientAuthRequest => $_getN(33);
+  @$pb.TagNumber(54)
+  set clientAuthRequest(ClientAuthRequest value) => $_setField(54, value);
+  @$pb.TagNumber(54)
+  $core.bool hasClientAuthRequest() => $_has(33);
+  @$pb.TagNumber(54)
+  void clearClientAuthRequest() => $_clearField(54);
+  @$pb.TagNumber(54)
+  ClientAuthRequest ensureClientAuthRequest() => $_ensure(33);
+
+  @$pb.TagNumber(55)
+  ClientAuthResponse get clientAuthResponse => $_getN(34);
+  @$pb.TagNumber(55)
+  set clientAuthResponse(ClientAuthResponse value) => $_setField(55, value);
+  @$pb.TagNumber(55)
+  $core.bool hasClientAuthResponse() => $_has(34);
+  @$pb.TagNumber(55)
+  void clearClientAuthResponse() => $_clearField(55);
+  @$pb.TagNumber(55)
+  ClientAuthResponse ensureClientAuthResponse() => $_ensure(34);
 }
 
 /// Button represents a single tappable option attached to a message.
@@ -3535,6 +3576,143 @@ class MessageFeedbackRequest extends $pb.GeneratedMessage {
   void clearTimestamp() => $_clearField(3);
   @$pb.TagNumber(3)
   $0.Timestamp ensureTimestamp() => $_ensure(2);
+}
+
+/// ClientAuthRequest carries a token provided by the host app. The SDK
+/// forwards it as is so the backend can run business logic with it.
+class ClientAuthRequest extends $pb.GeneratedMessage {
+  factory ClientAuthRequest({
+    $core.String? authToken,
+  }) {
+    final result = ClientAuthRequest._();
+    if (authToken != null) result.authToken = authToken;
+    return result;
+  }
+
+  ClientAuthRequest._();
+
+  factory ClientAuthRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      ClientAuthRequest()..mergeFromBuffer(data, registry);
+  factory ClientAuthRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      ClientAuthRequest()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ClientAuthRequest',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: ClientAuthRequest.$_createMessage)
+    ..aOS(1, _omitFieldNames ? '' : 'authToken')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ClientAuthRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ClientAuthRequest copyWith(void Function(ClientAuthRequest) updates) =>
+      super.copyWith((message) => updates(message as ClientAuthRequest))
+          as ClientAuthRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ClientAuthRequest() / ClientAuthRequest.new instead')
+  static ClientAuthRequest create() => ClientAuthRequest._();
+  static $pb.GeneratedMessage $_createMessage() => ClientAuthRequest._();
+  @$core.override
+  ClientAuthRequest createEmptyInstance() => ClientAuthRequest._();
+  @$core.pragma('dart2js:noInline')
+  static ClientAuthRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ClientAuthRequest>(
+          ClientAuthRequest.$_createMessage);
+  static ClientAuthRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get authToken => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set authToken($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasAuthToken() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearAuthToken() => $_clearField(1);
+}
+
+/// ClientAuthResponse tells the client whether the backend accepted the token.
+/// The client waits for a successful response before sending requests that
+/// depend on the user, such as GuidanceCardRequest.
+class ClientAuthResponse extends $pb.GeneratedMessage {
+  factory ClientAuthResponse({
+    ResponseStatus? status,
+    $0.Timestamp? timestamp,
+  }) {
+    final result = ClientAuthResponse._();
+    if (status != null) result.status = status;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  ClientAuthResponse._();
+
+  factory ClientAuthResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      ClientAuthResponse()..mergeFromBuffer(data, registry);
+  factory ClientAuthResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      ClientAuthResponse()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ClientAuthResponse',
+      package: const $pb.PackageName(
+          _omitMessageNames ? '' : 'yalo.external_channel.in_app.sdk.v2'),
+      createEmptyInstance: ClientAuthResponse.$_createMessage)
+    ..aE<ResponseStatus>(1, _omitFieldNames ? '' : 'status',
+        enumValues: ResponseStatus.values)
+    ..aOM<$0.Timestamp>(2, _omitFieldNames ? '' : 'timestamp',
+        subBuilder: $0.Timestamp.$_createMessage)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ClientAuthResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ClientAuthResponse copyWith(void Function(ClientAuthResponse) updates) =>
+      super.copyWith((message) => updates(message as ClientAuthResponse))
+          as ClientAuthResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  @$core.Deprecated('Use ClientAuthResponse() / ClientAuthResponse.new instead')
+  static ClientAuthResponse create() => ClientAuthResponse._();
+  static $pb.GeneratedMessage $_createMessage() => ClientAuthResponse._();
+  @$core.override
+  ClientAuthResponse createEmptyInstance() => ClientAuthResponse._();
+  @$core.pragma('dart2js:noInline')
+  static ClientAuthResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ClientAuthResponse>(
+          ClientAuthResponse.$_createMessage);
+  static ClientAuthResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ResponseStatus get status => $_getN(0);
+  @$pb.TagNumber(1)
+  set status(ResponseStatus value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStatus() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStatus() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $0.Timestamp get timestamp => $_getN(1);
+  @$pb.TagNumber(2)
+  set timestamp($0.Timestamp value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTimestamp() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTimestamp() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $0.Timestamp ensureTimestamp() => $_ensure(1);
 }
 
 /// AddPromotionRequest asks the channel to apply a promotion to the active cart.
