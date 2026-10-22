@@ -56,6 +56,8 @@ message SdkMessage {
     GuidanceCardRequest      guidance_card_request       = 26;
     GuidanceCardResponse     guidance_card_response      = 27;
     MessageFeedbackRequest   message_feedback_request    = 52;
+    ClientAuthRequest        client_auth_request         = 54;
+    ClientAuthResponse       client_auth_response        = 55;
   }
 }
 
@@ -413,6 +415,24 @@ message MessageFeedbackRequest {
 }
 
 // ---------------------------------------------------------------------------
+// Client auth  (client -> channel)
+// ---------------------------------------------------------------------------
+
+// ClientAuthRequest carries a token provided by the host app. The SDK
+// forwards it as is so the backend can run business logic with it.
+message ClientAuthRequest {
+  string auth_token = 1;
+}
+
+// ClientAuthResponse tells the client whether the backend accepted the token.
+// The client waits for a successful response before sending requests that
+// depend on the user, such as GuidanceCardRequest.
+message ClientAuthResponse {
+  ResponseStatus status = 1;
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// ---------------------------------------------------------------------------
 // Promotions  (bi-directional)
 // ---------------------------------------------------------------------------
 
@@ -588,12 +608,6 @@ message AuthResponse {
   int64 expires_in = 3;
   string refresh_token = 4;
   string client_id = 5;
-}
-
-// ClientAuthRequest carries a token provided by the host app. The SDK
-// forwards it as is so the backend can run business logic with it.
-message ClientAuthRequest {
-  string auth_token = 1;
 }
 
 // ---------------------------------------------------------------------------
