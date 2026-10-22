@@ -590,6 +590,12 @@ message AuthResponse {
   string client_id = 5;
 }
 
+// ClientAuthRequest carries a token provided by the host app. The SDK
+// forwards it as is so the backend can run business logic with it.
+message ClientAuthRequest {
+  string auth_token = 1;
+}
+
 // ---------------------------------------------------------------------------
 // Connection control  (server -> client)
 // ---------------------------------------------------------------------------
