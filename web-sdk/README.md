@@ -248,9 +248,9 @@ Optional properties:
 - **`audioWaveformColor`** (`string`): Color for the audio waveform bars rendered on sent voice messages. Also used as the fallback for the recording waveform when `recordingWaveformColor` is not set.
 - **`recordingWaveformColor`** (`string`): Color for the audio waveform bars shown in the footer while recording a voice message. Lets the live recorder use a different color from the sent voice message playback. Falls back to `audioWaveformColor` when not set.
 - **`userId`** (`string`): Your own user identifier. When provided, the chat session is linked to your user.
-- **`userAuthTokenProvider`** (`() => Promise<string | null | undefined>`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in user is. Use it with channels set up to verify your users. The chat calls it every time it authenticates, so return a fresh token each time. When set, the user comes from the token and `userId` no longer decides who the person is. If it returns nothing, the chat does not connect.
+- **`userAuthTokenProvider`** (`() => Promise<string | null | undefined>`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in user is. Use it with channels set up to verify your users. The chat calls it every time it authenticates, so return a fresh token each time. When set, the backend takes the user from the token. You must also set `userId` to the same value as the token's `sub` claim, so each signed-in user keeps their own conversation in the browser. If it returns nothing, the chat does not connect.
   - The token should use the claim names from RFC 7519:
-    - `sub`: your own id for the user. Keep it stable and unique.
+    - `sub`: your own id for the user. Keep it stable and unique, and pass the same value as `userId`.
     - `iss`: who issued the token, your backend.
     - `aud`: who the token is for, Yalo.
     - `exp`: when the token expires. Keep it short, a few minutes is enough, since a new one is asked for every time.
@@ -260,6 +260,7 @@ Optional properties:
   ```js
   new YaloChatClient({
     // ...
+    userId: signedInUser.id, // same value as the token's sub
     userAuthTokenProvider: async () => {
       const response = await fetch('/my-backend/yalo-token');
       return (await response.json()).token;

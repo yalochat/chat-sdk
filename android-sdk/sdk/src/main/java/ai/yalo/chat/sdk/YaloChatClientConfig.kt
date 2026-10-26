@@ -34,8 +34,9 @@ package ai.yalo.chat.sdk
  * from, for channels set up to verify it. Called each time the SDK
  * authenticates, so it should hand back a token that is fresh at that moment,
  * a JWT (RFC 7519) signed by the app's backend. With it set the backend
- * verifies the token and takes the user's identity from it, and [userId] no longer decides who the
- * person is. Null, the default, keeps the anonymous behaviour.
+ * verifies the token and takes the user's identity from it. Set [userId] to
+ * the token's `sub` as well, since it keeps each person's conversation apart
+ * on the device. Null, the default, keeps the anonymous behaviour.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,

@@ -7,9 +7,10 @@
 /// - `userAuthTokenProvider`: hands back a JWT (RFC 7519) signed by your
 ///   backend that proves who the signed-in person is, for channels set up
 ///   to verify it. Called each time the SDK authenticates, so it should
-///   return a fresh token. With it set the person comes from the token and `userId` no
-///   longer decides who they are. Left out of `==`, since closures cannot be
-///   compared.
+///   return a fresh token. With it set the backend takes the person from
+///   the token. Set `userId` to the token's `sub` as well, since it keeps
+///   each person's conversation apart on the device. Left out of `==`,
+///   since closures cannot be compared.
 /// - `quickReplyType`: where the answers a message offers are shown, in a
 ///   bar above the message input or under the message that offered them.
 /// - `welcomeMessageType`: how the first message of a conversation is drawn.

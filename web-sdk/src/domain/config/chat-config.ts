@@ -51,7 +51,8 @@ export interface YaloChatClientConfig {
    * Gives the app's own signed-in identity, for channels set up to verify it.
    * Called each time the SDK authenticates, so it should resolve to a fresh
    * JWT (RFC 7519) signed by the app's backend. When set, the backend takes
-   * the user from the token and `userId` no longer decides who the person is.
+   * the user from the token. Set `userId` to the token's `sub` as well, since
+   * it keeps each user's conversation apart in the browser.
    */
   userAuthTokenProvider?: () => Promise<string | null | undefined>;
   openContext?: Record<string, unknown>;
