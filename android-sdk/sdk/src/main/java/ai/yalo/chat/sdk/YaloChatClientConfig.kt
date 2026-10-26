@@ -30,12 +30,20 @@ package ai.yalo.chat.sdk
  * channel's messages are left out. With it off, the default, a person can rate
  * a reply and tap their rating again to take it back. Named after the same
  * setting in the web SDK so the two read alike.
+ * @property userAuthTokenProvider Where the app's own signed-in identity comes
+ * from, for channels set up to verify it. Called each time the SDK
+ * authenticates, so it should hand back a token that is fresh at that moment,
+ * a JWT (RFC 7519) signed by the app's backend. With it set the backend
+ * verifies the token and takes the user's identity from it. Set [userId] to
+ * the token's `sub` as well, since it keeps each person's conversation apart
+ * on the device. Null, the default, keeps the anonymous behaviour.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
     public val organizationId: String,
     public val channelName: String,
     public val userId: String? = null,
+    public val userAuthTokenProvider: (suspend () -> String?)? = null,
     public val quickReplyType: QuickReplyType = QuickReplyType.Modal,
     public val logLevel: LogLevel = LogLevel.Warn,
     public val openContext: Map<String, String> = emptyMap(),

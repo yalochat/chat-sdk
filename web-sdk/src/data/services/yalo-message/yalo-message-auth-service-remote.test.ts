@@ -125,6 +125,64 @@ describe('YaloMessageAuthServiceRemote', () => {
       expect(body).not.toHaveProperty('user_id');
     });
 
+    it('sends the user auth token as an external user when a provider is set', async () => {
+      const fetchSpy = mockFetch(makeAuthResponse());
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const config = {
+        ...baseConfig,
+        userId: 'custom-user-123',
+        userAuthTokenProvider: async () => 'signed-by-the-app',
+      };
+      const service = new YaloMessageAuthServiceRemote('api.example.com', config);
+      await service.fetchToken();
+
+      const [, init] = fetchSpy.mock.calls[0];
+      expect(JSON.parse(init.body)).toMatchObject({
+        user_type: 'external_user',
+        token: 'signed-by-the-app',
+      });
+    });
+
+    it('asks the provider for a fresh token on every authentication', async () => {
+      vi.stubGlobal('fetch', mockFetch(makeAuthResponse()));
+      const provider = vi.fn().mockResolvedValue('signed-by-the-app');
+
+      const config = { ...baseConfig, userAuthTokenProvider: provider };
+      const service = new YaloMessageAuthServiceRemote('api.example.com', config);
+      await service.fetchToken();
+      await service.fetchToken();
+
+      expect(provider).toHaveBeenCalledTimes(2);
+    });
+
+    it('returns Err without calling the backend when the provider gives nothing', async () => {
+      const fetchSpy = mockFetch(makeAuthResponse());
+      vi.stubGlobal('fetch', fetchSpy);
+
+      const config = { ...baseConfig, userAuthTokenProvider: async () => null };
+      const service = new YaloMessageAuthServiceRemote('api.example.com', config);
+      const result = await service.fetchToken();
+
+      expect(result.ok).toBe(false);
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it('returns Err when the provider throws', async () => {
+      vi.stubGlobal('fetch', mockFetch(makeAuthResponse()));
+
+      const config = {
+        ...baseConfig,
+        userAuthTokenProvider: async () => {
+          throw new Error('Not signed in');
+        },
+      };
+      const service = new YaloMessageAuthServiceRemote('api.example.com', config);
+      const result = await service.fetchToken();
+
+      expect(result).toMatchObject({ ok: false, error: { message: 'Not signed in' } });
+    });
+
     it('wraps non-Error thrown values in an Error', async () => {
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue('string error'));
 

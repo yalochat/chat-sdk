@@ -4,6 +4,13 @@
 ///
 /// - `userId`: who the person is in your app. Nil starts an anonymous
 ///   conversation.
+/// - `userAuthTokenProvider`: hands back a JWT (RFC 7519) signed by your
+///   backend that proves who the signed-in person is, for channels set up
+///   to verify it. Called each time the SDK authenticates, so it should
+///   return a fresh token. With it set the backend takes the person from
+///   the token. Set `userId` to the token's `sub` as well, since it keeps
+///   each person's conversation apart on the device. Left out of `==`,
+///   since closures cannot be compared.
 /// - `quickReplyType`: where the answers a message offers are shown, in a
 ///   bar above the message input or under the message that offered them.
 /// - `welcomeMessageType`: how the first message of a conversation is drawn.
@@ -25,6 +32,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let organizationId: String
     public let channelName: String
     public let userId: String?
+    public let userAuthTokenProvider: (@Sendable () async throws -> String?)?
     public let quickReplyType: QuickReplyType
     public let welcomeMessageType: WelcomeMessageType
     public let logLevel: LogLevel
@@ -40,6 +48,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         organizationId: String,
         channelName: String,
         userId: String? = nil,
+        userAuthTokenProvider: (@Sendable () async throws -> String?)? = nil,
         quickReplyType: QuickReplyType = .modal,
         welcomeMessageType: WelcomeMessageType = .none,
         logLevel: LogLevel = .warn,
@@ -54,6 +63,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.organizationId = organizationId
         self.channelName = channelName
         self.userId = userId
+        self.userAuthTokenProvider = userAuthTokenProvider
         self.quickReplyType = quickReplyType
         self.welcomeMessageType = welcomeMessageType
         self.logLevel = logLevel
@@ -63,6 +73,22 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.hideVoiceButton = hideVoiceButton
         self.hideAttachmentButton = hideAttachmentButton
         self.hideFeedbackButtons = hideFeedbackButtons
+    }
+
+    public static func == (lhs: YaloChatClientConfig, rhs: YaloChatClientConfig) -> Bool {
+        lhs.channelId == rhs.channelId
+            && lhs.organizationId == rhs.organizationId
+            && lhs.channelName == rhs.channelName
+            && lhs.userId == rhs.userId
+            && lhs.quickReplyType == rhs.quickReplyType
+            && lhs.welcomeMessageType == rhs.welcomeMessageType
+            && lhs.logLevel == rhs.logLevel
+            && lhs.openContext == rhs.openContext
+            && lhs.sessionMode == rhs.sessionMode
+            && lhs.hideWatermark == rhs.hideWatermark
+            && lhs.hideVoiceButton == rhs.hideVoiceButton
+            && lhs.hideAttachmentButton == rhs.hideAttachmentButton
+            && lhs.hideFeedbackButtons == rhs.hideFeedbackButtons
     }
 
     /// The conversation before `sessionMode` has had its say: the whole

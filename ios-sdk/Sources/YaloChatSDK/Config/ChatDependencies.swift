@@ -75,6 +75,7 @@ final class ChatDependencies {
         channelId: config.channelId,
         organizationId: config.organizationId,
         authUserId: chatSession.authUserId,
+        userAuthTokenProvider: config.userAuthTokenProvider,
         baseURL: baseURL,
         session: urlSession,
         logLevel: config.logLevel

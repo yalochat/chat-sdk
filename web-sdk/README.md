@@ -248,6 +248,25 @@ Optional properties:
 - **`audioWaveformColor`** (`string`): Color for the audio waveform bars rendered on sent voice messages. Also used as the fallback for the recording waveform when `recordingWaveformColor` is not set.
 - **`recordingWaveformColor`** (`string`): Color for the audio waveform bars shown in the footer while recording a voice message. Lets the live recorder use a different color from the sent voice message playback. Falls back to `audioWaveformColor` when not set.
 - **`userId`** (`string`): Your own user identifier. When provided, the chat session is linked to your user.
+- **`userAuthTokenProvider`** (`() => Promise<string | null | undefined>`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in user is. Use it with channels set up to verify your users. The chat calls it every time it authenticates, so return a fresh token each time. When set, the backend takes the user from the token. You must also set `userId` to the same value as the token's `sub` claim, so each signed-in user keeps their own conversation in the browser. If it returns nothing, the chat does not connect.
+  - The token should use the claim names from RFC 7519:
+    - `sub`: your own id for the user. Keep it stable and unique, and pass the same value as `userId`.
+    - `iss`: who issued the token, your backend.
+    - `aud`: who the token is for, Yalo.
+    - `exp`: when the token expires. Keep it short, a few minutes is enough, since a new one is asked for every time.
+    - `iat` (optional): when the token was issued.
+    - `jti` (recommended): a unique id for the token. With it, each token can be used only once, so a token that leaks cannot be used again.
+  - For profile details such as name, email or phone, use the standard claim names `name`, `email` and `phone_number`.
+  ```js
+  new YaloChatClient({
+    // ...
+    userId: signedInUser.id, // same value as the token's sub
+    userAuthTokenProvider: async () => {
+      const response = await fetch('/my-backend/yalo-token');
+      return (await response.json()).token;
+    },
+  });
+  ```
 - **`openContext`** (`object`): Context describing where the chat is being opened from. Provide any key/value pairs you want the channel to receive, for example `{ source: 'product-page', sku: '123' }`. Fixed for the lifetime of the chat instance.
 - **`hideCloseButton`** (`boolean`): When `true`, the close button is not rendered in the chat header. Useful when the chat is embedded full-screen or hosted in a surface that already provides its own close affordance. You can also hide it from CSS with the `--yalo-chat-close-btn-display: none` variable.
 - **`hideHeader`** (`boolean`): When `true`, the chat header is not rendered. Use this when the surrounding page already shows the channel name and avatar, or when embedding the chat in a layout that supplies its own header. You can also hide it from CSS with the `--yalo-chat-header-display: none` variable.
