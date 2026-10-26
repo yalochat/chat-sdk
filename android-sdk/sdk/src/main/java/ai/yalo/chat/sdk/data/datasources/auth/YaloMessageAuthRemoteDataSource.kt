@@ -57,7 +57,7 @@ internal class YaloMessageAuthRemoteDataSource(
         }
 
         val body = JSONObject()
-            .put(FIELD_USER_TYPE, userType(userAuthToken))
+            .put(FIELD_USER_TYPE, userType(userAuthToken).wireName)
             .put(FIELD_CHANNEL_ID, config.channelId)
             .put(FIELD_ORGANIZATION_ID, config.organizationId)
             .put(FIELD_TIMESTAMP, now() / MILLIS_PER_SECOND)
@@ -95,10 +95,10 @@ internal class YaloMessageAuthRemoteDataSource(
      * A verified token makes the person an external user whatever else is set;
      * without one the session's user id decides, as it always has.
      */
-    private fun userType(userAuthToken: String?): String = when {
-        userAuthToken != null -> USER_EXTERNAL
-        authUserId == null -> USER_ANONYMOUS
-        else -> USER_THIRD_PARTY
+    private fun userType(userAuthToken: String?): UserType = when {
+        userAuthToken != null -> UserType.ExternalUser
+        authUserId == null -> UserType.Anonymous
+        else -> UserType.ThirdPartyAnonymous
     }
 
     private suspend fun call(
@@ -155,9 +155,6 @@ internal class YaloMessageAuthRemoteDataSource(
         private const val AUTH_FAILED = "Auth failed"
         private const val REFRESH_FAILED = "Refresh failed"
 
-        private const val USER_ANONYMOUS = "anonymous"
-        private const val USER_THIRD_PARTY = "third_party_anonymous"
-        private const val USER_EXTERNAL = "external_user"
         private const val GRANT_REFRESH_TOKEN = "refresh_token"
 
         private const val FIELD_USER_TYPE = "user_type"
@@ -174,4 +171,11 @@ internal class YaloMessageAuthRemoteDataSource(
         private const val MILLIS_PER_SECOND = 1_000L
         private val JSON_MEDIA_TYPE = "application/json".toMediaType()
     }
+}
+
+/** Who the backend is told it is talking to, with the name `/auth` expects. */
+private enum class UserType(val wireName: String) {
+    Anonymous("anonymous"),
+    ThirdPartyAnonymous("third_party_anonymous"),
+    ExternalUser("external_user"),
 }

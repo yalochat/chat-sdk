@@ -64,11 +64,11 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         return token
     }
 
-    private func userType(_ userAuthToken: String?) -> String {
+    private func userType(_ userAuthToken: String?) -> UserType {
         if userAuthToken != nil {
-            return "external_user"
+            return .externalUser
         }
-        return authUserId == nil ? "anonymous" : "third_party_anonymous"
+        return authUserId == nil ? .anonymous : .thirdPartyAnonymous
     }
 
     func refresh(_ refreshToken: String) async throws -> AuthToken {
@@ -135,8 +135,15 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
     }
 }
 
+/// Who the backend is told it is talking to, with the name `/auth` expects.
+private enum UserType: String, Encodable {
+    case anonymous
+    case thirdPartyAnonymous = "third_party_anonymous"
+    case externalUser = "external_user"
+}
+
 private struct AuthRequest: Encodable {
-    let userType: String
+    let userType: UserType
     let userId: String?
     let token: String?
     let channelId: String

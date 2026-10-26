@@ -5,6 +5,14 @@ import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import type { YaloMessageAuthService } from './yalo-message-auth-service';
 import { AuthResponse } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
 
+// Who the backend is told it is talking to, with the name `/auth` expects.
+const UserType = {
+  anonymous: 'anonymous',
+  thirdPartyAnonymous: 'third_party_anonymous',
+  externalUser: 'external_user',
+} as const;
+type UserType = (typeof UserType)[keyof typeof UserType];
+
 export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
   private readonly _baseUrl: string;
   private readonly _config: YaloChatClientConfig;
@@ -69,10 +77,12 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
   }
 
   // A verified token makes the person an external user whatever else is set.
-  private _userType(userAuthToken: string | null | undefined): string {
+  private _userType(userAuthToken: string | null | undefined): UserType {
     if (userAuthToken) {
-      return 'external_user';
+      return UserType.externalUser;
     }
-    return this._config.userId ? 'third_party_anonymous' : 'anonymous';
+    return this._config.userId
+      ? UserType.thirdPartyAnonymous
+      : UserType.anonymous;
   }
 }
