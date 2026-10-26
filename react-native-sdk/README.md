@@ -80,6 +80,27 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`string`): Your own user identifier. Leave it out to keep the conversation anonymous.
+- **`userAuthTokenProvider`** (`() => Promise<string | null | undefined>`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in person is. Use it with channels set up to verify your users. The chat calls it every time it authenticates, so return a fresh token each time. When set, the backend takes the person from the token. You must also set `userId` to the same value as the token's `sub` claim, so each signed-in person keeps their own conversation on the device. If it returns nothing or throws, the chat does not connect.
+  - The token should use the claim names from RFC 7519:
+    - `sub`: your own id for the user. Keep it stable and unique, and pass the same value as `userId`.
+    - `iss`: who issued the token, your backend.
+    - `aud`: who the token is for, Yalo.
+    - `exp`: when the token expires. Keep it short, a few minutes is enough, since a new one is asked for every time.
+    - `iat` (optional): when the token was issued.
+    - `jti` (recommended): a unique id for the token. With it, each token can be used only once, so a token that leaks cannot be used again.
+  - For profile details such as name, email or phone, use the standard claim names `name`, `email` and `phone_number`.
+  ```tsx
+  const client = new YaloChatClient({
+    channelId: 'your-channel-id',
+    organizationId: 'your-organization-id',
+    channelName: 'Yalo',
+    userId: signedInUser.id, // same value as the token's sub
+    userAuthTokenProvider: async () => {
+      const response = await fetch('https://my-backend.example.com/yalo-token');
+      return (await response.json()).token;
+    },
+  });
+  ```
 - **`logLevel`** (`'debug' | 'info' | 'warn' | 'error' | 'silent'`): How much the SDK writes to the device log. Defaults to `'warn'`.
 - **`quickReplyType`** (`'modal' | 'inline'`): Where the quick replies a message offers are shown. Defaults to `'modal'`, a bar above the message input. `'inline'` puts them under the message that offered them.
 - **`welcomeMessageType`** (`'none' | 'verticalQuickReplies'`): How the first message of a conversation is drawn. Defaults to `'none'`, like any other message. `'verticalQuickReplies'` shows it alone and centered, with one quick reply per line, until the person sends something.

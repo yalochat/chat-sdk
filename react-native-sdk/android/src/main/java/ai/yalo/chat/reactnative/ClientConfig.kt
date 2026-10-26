@@ -8,12 +8,19 @@ import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import org.json.JSONObject
 
-/** The client config React Native sent, with anything left out at its SDK default. */
-internal fun clientConfigOf(config: JSONObject): YaloChatClientConfig = YaloChatClientConfig(
+/**
+ * The client config React Native sent, with anything left out at its SDK
+ * default. [userAuthTokenProvider] is only used when JavaScript has one.
+ */
+internal fun clientConfigOf(
+    config: JSONObject,
+    userAuthTokenProvider: (suspend () -> String?)? = null,
+): YaloChatClientConfig = YaloChatClientConfig(
     channelId = config.getString("channelId"),
     organizationId = config.getString("organizationId"),
     channelName = config.getString("channelName"),
     userId = if (config.isNull("userId")) null else config.getString("userId"),
+    userAuthTokenProvider = userAuthTokenProvider.takeIf { config.optBoolean("hasUserAuthTokenProvider") },
     quickReplyType = quickReplyTypeOf(config.optString("quickReplyType")),
     welcomeMessageType = welcomeMessageTypeOf(config.optString("welcomeMessageType")),
     logLevel = logLevelOf(config.optString("logLevel")),

@@ -55,6 +55,7 @@ internal class YaloChatViewManager :
     override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> = mapOf(
         BackEvent.NAME to mapOf("registrationName" to "onBack"),
         CommandEvent.NAME to mapOf("registrationName" to "onCommand"),
+        UserAuthTokenRequestEvent.NAME to mapOf("registrationName" to "onUserAuthTokenRequest"),
     )
 
     companion object {

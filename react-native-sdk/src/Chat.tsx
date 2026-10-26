@@ -20,6 +20,7 @@ import type { YaloChatClient } from './YaloChatClient';
 import YaloChatView, {
   Commands,
   type CommandEvent,
+  type UserAuthTokenRequestEvent,
 } from './YaloChatViewNativeComponent';
 
 export type ChatProps = {
@@ -49,7 +50,7 @@ export function Chat({
   testID,
 }: ChatProps) {
   const chat = useRef<ComponentRef<typeof YaloChatView>>(null);
-  const config = useMemo(() => JSON.stringify(client.config), [client]);
+  const config = useMemo(() => nativeConfigOf(client), [client]);
   const nativeTheme = useMemo(() => serializeTheme(theme ?? {}), [theme]);
   const avatarUri = useMemo(() => avatarUriOf(avatar), [avatar]);
   const commands = useSyncExternalStore(
@@ -79,6 +80,30 @@ export function Chat({
     [client]
   );
 
+  const onUserAuthTokenRequest = useCallback(
+    async ({
+      nativeEvent,
+    }: NativeSyntheticEvent<UserAuthTokenRequestEvent>) => {
+      let succeeded = true;
+      let token = '';
+      try {
+        token = (await client.config.userAuthTokenProvider?.()) ?? '';
+      } catch (error) {
+        console.error('[YaloChat] userAuthTokenProvider failed', error);
+        succeeded = false;
+      }
+      if (chat.current) {
+        Commands.resolveCommand(
+          chat.current,
+          nativeEvent.requestId,
+          succeeded,
+          token
+        );
+      }
+    },
+    [client]
+  );
+
   return (
     <YaloChatView
       ref={chat}
@@ -91,8 +116,19 @@ export function Chat({
       commands={commands}
       onBack={() => onBack?.()}
       onCommand={onCommand}
+      onUserAuthTokenRequest={onUserAuthTokenRequest}
     />
   );
+}
+
+// The provider stays in JavaScript, so the native chat is only told there is
+// one and asks for a token when it needs it.
+function nativeConfigOf(client: YaloChatClient): string {
+  const { userAuthTokenProvider, ...config } = client.config;
+  if (!userAuthTokenProvider) {
+    return JSON.stringify(config);
+  }
+  return JSON.stringify({ ...config, hasUserAuthTokenProvider: true });
 }
 
 // Bundled images resolve to a URL in development and to an app asset in a
