@@ -97,6 +97,103 @@ describe('Chat', () => {
   });
 });
 
+describe('Chat user auth token', () => {
+  const resolveCommand = jest.spyOn(Commands, 'resolveCommand');
+
+  beforeEach(() => {
+    resolveCommand.mockReset();
+  });
+
+  function tokenClient(
+    userAuthTokenProvider?: () => Promise<string | null | undefined>
+  ): YaloChatClient {
+    return new YaloChatClient({
+      channelId: 'channel',
+      organizationId: 'organization',
+      channelName: 'Support',
+      userId: 'TEST123',
+      userAuthTokenProvider,
+    });
+  }
+
+  async function askForToken() {
+    await fireEvent(screen.getByTestId('chat'), 'userAuthTokenRequest', {
+      nativeEvent: { requestId: 't-1' },
+    });
+  }
+
+  it('tells the native chat there is a provider', async () => {
+    await render(
+      <Chat client={tokenClient(async () => 'token')} testID="chat" />
+    );
+
+    expect(JSON.parse(screen.getByTestId('chat').props.config)).toMatchObject({
+      userId: 'TEST123',
+      hasUserAuthTokenProvider: true,
+    });
+  });
+
+  it('says nothing about a provider when there is none', async () => {
+    await render(<Chat client={tokenClient()} testID="chat" />);
+
+    expect(
+      JSON.parse(screen.getByTestId('chat').props.config)
+    ).not.toHaveProperty('hasUserAuthTokenProvider');
+  });
+
+  it('answers with the token the provider returned', async () => {
+    await render(
+      <Chat
+        client={tokenClient(async () => 'signed-by-the-app')}
+        testID="chat"
+      />
+    );
+
+    await askForToken();
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      't-1',
+      true,
+      'signed-by-the-app'
+    );
+  });
+
+  it('answers with an empty token when the provider gives nothing', async () => {
+    await render(<Chat client={tokenClient(async () => null)} testID="chat" />);
+
+    await askForToken();
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      't-1',
+      true,
+      ''
+    );
+  });
+
+  it('reports a provider that throws as failed', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    await render(
+      <Chat
+        client={tokenClient(async () => {
+          throw new Error('not signed in');
+        })}
+        testID="chat"
+      />
+    );
+
+    await askForToken();
+
+    expect(resolveCommand).toHaveBeenCalledWith(
+      expect.anything(),
+      't-1',
+      false,
+      ''
+    );
+  });
+});
+
 describe('Chat commands', () => {
   const resolveCommand = jest.spyOn(Commands, 'resolveCommand');
 

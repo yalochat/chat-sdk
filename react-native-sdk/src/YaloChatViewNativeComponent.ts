@@ -13,6 +13,10 @@ import type {
   WithDefault,
 } from 'react-native/Libraries/Types/CodegenTypes';
 
+export type UserAuthTokenRequestEvent = Readonly<{
+  requestId: string;
+}>;
+
 export type CommandEvent = Readonly<{
   requestId: string;
   command: string;
@@ -27,6 +31,7 @@ interface NativeProps extends ViewProps {
   commands?: ReadonlyArray<string>;
   onBack?: DirectEventHandler<Readonly<{}>>;
   onCommand?: DirectEventHandler<CommandEvent>;
+  onUserAuthTokenRequest?: DirectEventHandler<UserAuthTokenRequestEvent>;
 }
 
 interface NativeCommands {

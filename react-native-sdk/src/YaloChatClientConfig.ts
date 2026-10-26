@@ -19,6 +19,12 @@ export type YaloChatClientConfig = {
   channelName: string;
   /** Who the person is in your app. Leave it out for an anonymous conversation. */
   userId?: string;
+  /**
+   * Returns a JWT (RFC 7519) signed by your backend that proves who the
+   * signed-in person is. Called each time the chat authenticates. Set
+   * `userId` to the token's `sub` as well.
+   */
+  userAuthTokenProvider?: () => Promise<string | null | undefined>;
   logLevel?: LogLevel;
   quickReplyType?: QuickReplyType;
   welcomeMessageType?: WelcomeMessageType;

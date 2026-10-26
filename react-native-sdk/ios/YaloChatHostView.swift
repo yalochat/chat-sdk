@@ -9,6 +9,8 @@ public final class YaloChatHostView: UIView {
   @objc public var onBack: (() -> Void)?
   /// Hands a command to JavaScript as its request id, command and payload.
   @objc public var onCommand: ((String, String, String) -> Void)?
+  /// Asks JavaScript for a user auth token, by request id.
+  @objc public var onUserAuthTokenRequest: ((String) -> Void)?
 
   private var client: YaloChatClient?
   private var commands: [String] = []
@@ -34,7 +36,10 @@ public final class YaloChatHostView: UIView {
 
   @objc public func setConfig(_ json: String) {
     configKey = json
-    client = clientConfig(of: json).map { config in YaloChatClient(config: config) }
+    let provider: @Sendable () async throws -> String? = { [weak self] in
+      try await self?.requestUserAuthToken()
+    }
+    client = clientConfig(of: json, userAuthTokenProvider: provider).map { config in YaloChatClient(config: config) }
     registerCommands()
     render()
   }
@@ -74,10 +79,22 @@ public final class YaloChatHostView: UIView {
     guard let onCommand else {
       throw CommandFailedError()
     }
+    return try await askJavaScript { requestId in onCommand(requestId, command, payload) }
+  }
+
+  private func requestUserAuthToken() async throws -> String {
+    guard let onUserAuthTokenRequest else {
+      throw CommandFailedError()
+    }
+    return try await askJavaScript(onUserAuthTokenRequest)
+  }
+
+  /// Sends a request to JavaScript and waits for it to be resolved.
+  private func askJavaScript(_ send: (String) -> Void) async throws -> String {
     let requestId: String = UUID().uuidString
     return try await withCheckedThrowingContinuation { continuation in
       pendingCommands[requestId] = continuation
-      onCommand(requestId, command, payload)
+      send(requestId)
     }
   }
 
@@ -167,8 +184,12 @@ func avatarURL(of value: String) -> URL? {
 /// The JavaScript handler for a command threw or was missing.
 struct CommandFailedError: Error {}
 
-/// The client config React Native sent, with anything left out at its SDK default.
-func clientConfig(of json: String) -> YaloChatClientConfig? {
+/// The client config React Native sent, with anything left out at its SDK
+/// default. `userAuthTokenProvider` is only used when JavaScript has one.
+func clientConfig(
+  of json: String,
+  userAuthTokenProvider: (@Sendable () async throws -> String?)? = nil
+) -> YaloChatClientConfig? {
   guard let values = object(of: json),
         let channelId = values["channelId"] as? String,
         let organizationId = values["organizationId"] as? String,
@@ -176,11 +197,15 @@ func clientConfig(of json: String) -> YaloChatClientConfig? {
   else {
     return nil
   }
+  // Typed apart from the initializer call, which the type checker cannot solve inline.
+  let provider: (@Sendable () async throws -> String?)? =
+    values["hasUserAuthTokenProvider"] as? Bool == true ? userAuthTokenProvider : nil
   return YaloChatClientConfig(
     channelId: channelId,
     organizationId: organizationId,
     channelName: channelName,
     userId: values["userId"] as? String,
+    userAuthTokenProvider: provider,
     quickReplyType: quickReplyType(of: values["quickReplyType"] as? String),
     welcomeMessageType: welcomeMessageType(of: values["welcomeMessageType"] as? String),
     logLevel: logLevel(of: values["logLevel"] as? String),

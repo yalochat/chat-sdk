@@ -8,6 +8,8 @@ import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Test
 
 class ClientConfigTest {
@@ -87,5 +89,21 @@ class ClientConfigTest {
         modes.forEach { (name, mode) ->
             assertEquals(mode, clientConfigOf(JSONObject("""{$required,"sessionMode":"$name"}""")).sessionMode)
         }
+    }
+
+    @Test
+    fun `uses the token provider when JavaScript has one`() {
+        val provider: suspend () -> String? = { "token" }
+
+        val config = clientConfigOf(JSONObject("{$required,\"hasUserAuthTokenProvider\":true}"), provider)
+
+        assertSame(provider, config.userAuthTokenProvider)
+    }
+
+    @Test
+    fun `leaves the token provider out when JavaScript has none`() {
+        val config = clientConfigOf(JSONObject("{$required}")) { "token" }
+
+        assertNull(config.userAuthTokenProvider)
     }
 }
