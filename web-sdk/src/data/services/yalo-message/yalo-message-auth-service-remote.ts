@@ -16,15 +16,24 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
 
   async fetchToken(): Promise<Result<AuthResponse>> {
     try {
+      const provider = this._config.userAuthTokenProvider;
+      const userAuthToken = provider ? await provider() : undefined;
+      if (provider && !userAuthToken?.trim()) {
+        return new Err(
+          new Error('Auth failed: the user auth token provider gave nothing')
+        );
+      }
+
       const response = await fetch(`${this._baseUrl}/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          user_type: this._config.userId ? 'third_party_anonymous' : 'anonymous',
+          user_type: this._userType(userAuthToken),
           channel_id: this._config.channelId,
           organization_id: this._config.organizationId,
           timestamp: Math.floor(Date.now() / 1000),
           ...(this._config.userId && { user_id: this._config.userId }),
+          ...(userAuthToken && { token: userAuthToken }),
         }),
       });
 
@@ -57,5 +66,13 @@ export class YaloMessageAuthServiceRemote implements YaloMessageAuthService {
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
     }
+  }
+
+  // A verified token makes the person an external user whatever else is set.
+  private _userType(userAuthToken: string | null | undefined): string {
+    if (userAuthToken) {
+      return 'external_user';
+    }
+    return this._config.userId ? 'third_party_anonymous' : 'anonymous';
   }
 }

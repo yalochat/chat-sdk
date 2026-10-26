@@ -19,6 +19,20 @@ struct YaloChatClientConfigTests {
         #expect(config.baseSessionId == expected)
     }
 
+    @Test func comparesEverythingButTheUserAuthTokenProvider() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+        let withProvider: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            userAuthTokenProvider: { "token" }
+        )
+        let otherChannel: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-2", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config == withProvider)
+        #expect(config != otherChannel)
+    }
+
     @Test func showsEverythingUnlessToldOtherwise() {
         let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
 

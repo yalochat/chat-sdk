@@ -3,11 +3,13 @@
 import Foundation
 
 /// `authUserId` is who the backend is told it is talking to. Nil asks for a
-/// fresh anonymous one.
+/// fresh anonymous one. A `userAuthTokenProvider` outranks it: the backend
+/// verifies the token and takes the person from it.
 final class YaloMessageAuthRemoteService: YaloMessageAuthService {
     private let channelId: String
     private let organizationId: String
     private let authUserId: String?
+    private let userAuthTokenProvider: (@Sendable () async throws -> String?)?
     private let channelsURL: URL
     private let session: URLSession
     private let now: @Sendable () -> Date
@@ -17,6 +19,7 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         channelId: String,
         organizationId: String,
         authUserId: String?,
+        userAuthTokenProvider: (@Sendable () async throws -> String?)? = nil,
         baseURL: URL,
         session: URLSession = .shared,
         now: @escaping @Sendable () -> Date = { Date() },
@@ -25,6 +28,7 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         self.channelId = channelId
         self.organizationId = organizationId
         self.authUserId = authUserId
+        self.userAuthTokenProvider = userAuthTokenProvider
         self.channelsURL = baseURL.appendingPathComponent("v1/channels")
         self.session = session
         self.now = now
@@ -33,9 +37,11 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
 
     func authenticate() async throws -> AuthToken {
         log.info("authenticating")
+        let userAuthToken: String? = try await self.userAuthToken()
         let body: AuthRequest = AuthRequest(
-            userType: authUserId == nil ? "anonymous" : "third_party_anonymous",
+            userType: userType(userAuthToken),
             userId: authUserId,
+            token: userAuthToken,
             channelId: channelId,
             organizationId: organizationId,
             timestamp: Int64(now().timeIntervalSince1970)
@@ -45,6 +51,24 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(body)
         return try await call(request, failure: AuthServiceError.authenticateFailed)
+    }
+
+    private func userAuthToken() async throws -> String? {
+        guard let userAuthTokenProvider else {
+            return nil
+        }
+        guard let token = try await userAuthTokenProvider(), !token.trimmingCharacters(in: .whitespaces).isEmpty else {
+            log.warn("the user auth token provider gave nothing")
+            throw AuthServiceError.missingUserAuthToken
+        }
+        return token
+    }
+
+    private func userType(_ userAuthToken: String?) -> String {
+        if userAuthToken != nil {
+            return "external_user"
+        }
+        return authUserId == nil ? "anonymous" : "third_party_anonymous"
     }
 
     func refresh(_ refreshToken: String) async throws -> AuthToken {
@@ -114,6 +138,7 @@ final class YaloMessageAuthRemoteService: YaloMessageAuthService {
 private struct AuthRequest: Encodable {
     let userType: String
     let userId: String?
+    let token: String?
     let channelId: String
     let organizationId: String
     let timestamp: Int64
@@ -121,6 +146,7 @@ private struct AuthRequest: Encodable {
     enum CodingKeys: String, CodingKey {
         case userType = "user_type"
         case userId = "user_id"
+        case token
         case channelId = "channel_id"
         case organizationId = "organization_id"
         case timestamp

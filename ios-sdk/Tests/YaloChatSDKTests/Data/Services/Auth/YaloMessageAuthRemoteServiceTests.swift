@@ -7,11 +7,16 @@ import Testing
 struct YaloMessageAuthRemoteServiceTests {
     private static let now: Date = Date(timeIntervalSince1970: 1_700_000_000)
 
-    private func service(_ server: StubServer, authUserId: String? = nil) -> YaloMessageAuthRemoteService {
+    private func service(
+        _ server: StubServer,
+        authUserId: String? = nil,
+        userAuthTokenProvider: (@Sendable () async throws -> String?)? = nil
+    ) -> YaloMessageAuthRemoteService {
         YaloMessageAuthRemoteService(
             channelId: "channel-1",
             organizationId: "org-1",
             authUserId: authUserId,
+            userAuthTokenProvider: userAuthTokenProvider,
             baseURL: server.baseURL,
             session: server.session,
             now: { Self.now }
@@ -51,6 +56,33 @@ struct YaloMessageAuthRemoteServiceTests {
         let body: [String: Any] = try sentJSON(server)
         #expect(body["user_type"] as? String == "third_party_anonymous")
         #expect(body["user_id"] as? String == "user-1")
+    }
+
+    @Test func presentsTheUserAuthTokenWhenAProviderIsConfigured() async throws {
+        let server: StubServer = StubServer(body: Self.tokenResponse())
+
+        _ = try await service(server, authUserId: "user-1", userAuthTokenProvider: { "signed-by-the-app" }).authenticate()
+
+        let body: [String: Any] = try sentJSON(server)
+        #expect(body["user_type"] as? String == "external_user")
+        #expect(body["token"] as? String == "signed-by-the-app")
+    }
+
+    @Test func leavesTheTokenOutWithoutAProvider() async throws {
+        let server: StubServer = StubServer(body: Self.tokenResponse())
+
+        _ = try await service(server).authenticate()
+
+        #expect(try sentJSON(server)["token"] == nil)
+    }
+
+    @Test func failsWithoutCallingTheBackendWhenTheProviderGivesNothing() async throws {
+        let server: StubServer = StubServer(body: Self.tokenResponse())
+
+        await #expect(throws: AuthServiceError.missingUserAuthToken) {
+            try await service(server, userAuthTokenProvider: { nil }).authenticate()
+        }
+        #expect(server.requests.isEmpty)
     }
 
     @Test func sendsTheChannelItIsAuthenticatingFor() async throws {

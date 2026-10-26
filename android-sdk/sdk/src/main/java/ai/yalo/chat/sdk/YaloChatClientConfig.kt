@@ -33,8 +33,8 @@ package ai.yalo.chat.sdk
  * @property userAuthTokenProvider Where the app's own signed-in identity comes
  * from, for channels set up to verify it. Called each time the SDK
  * authenticates, so it should hand back a token that is fresh at that moment,
- * signed by the app's backend. With it set the backend verifies the token and
- * takes the user's identity from it, and [userId] no longer decides who the
+ * a JWT (RFC 7519) signed by the app's backend. With it set the backend
+ * verifies the token and takes the user's identity from it, and [userId] no longer decides who the
  * person is. Null, the default, keeps the anonymous behaviour.
  */
 public data class YaloChatClientConfig(

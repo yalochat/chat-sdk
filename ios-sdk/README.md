@@ -120,6 +120,15 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off on any device. Defaults to `nil`, which keeps the conversation anonymous. An anonymous conversation still picks up where it was left on the same device, until the app is deleted.
+- **`userAuthTokenProvider`** (`(@Sendable () async throws -> String?)?`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in person is. Use it with channels set up to verify your users. The SDK calls it every time it authenticates, so return a fresh token each time. When set, the person comes from the token and `userId` no longer decides who they are. If it returns `nil` or throws, the chat does not connect. Defaults to `nil`. It is not taken into account when comparing two configs.
+  ```swift
+  YaloChatClientConfig(
+      channelId: "your-channel-id",
+      organizationId: "your-organization-id",
+      channelName: "Yalo",
+      userAuthTokenProvider: { try await myBackend.yaloToken() }
+  )
+  ```
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `.modal`, which puts them in a bar above the message input. Set `.inline` to put them under the message that offered them. See [Quick replies and buttons](#quick-replies-and-buttons).
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `.none`, which draws it like any other message.
   - `.verticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with the avatar above it and one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the avatar leaves the conversation and it is drawn as usual.

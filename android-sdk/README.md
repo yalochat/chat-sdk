@@ -106,6 +106,15 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `null`, which keeps the conversation anonymous on the device.
+- **`userAuthTokenProvider`** (`(suspend () -> String?)?`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in person is. Use it with channels set up to verify your users. The SDK calls it every time it authenticates, so return a fresh token each time. When set, the person comes from the token and `userId` no longer decides who they are. If it returns `null`, a blank string or throws, the chat does not connect. Defaults to `null`.
+  ```kotlin
+  YaloChatClientConfig(
+      channelId = "your-channel-id",
+      organizationId = "your-organization-id",
+      channelName = "Yalo",
+      userAuthTokenProvider = { myBackend.yaloToken() },
+  )
+  ```
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them.
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `WelcomeMessageType.None`, which draws it like any other message.

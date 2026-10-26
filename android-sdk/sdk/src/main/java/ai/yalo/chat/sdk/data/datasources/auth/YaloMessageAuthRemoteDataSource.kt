@@ -5,6 +5,7 @@ import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.domain.models.AuthToken
 import ai.yalo.chat.sdk.log.YaloLog
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
@@ -40,7 +41,14 @@ internal class YaloMessageAuthRemoteDataSource(
     override suspend fun authenticate(): Result<AuthToken> {
         log.info { "authenticating" }
         val userAuthToken = config.userAuthTokenProvider?.let { provider ->
-            val token = provider()
+            val token = try {
+                provider()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                log.warn(error) { "$AUTH_FAILED: the user auth token provider failed" }
+                return Result.failure(error)
+            }
             if (token.isNullOrBlank()) {
                 log.warn { "$AUTH_FAILED: the user auth token provider gave nothing" }
                 return Result.failure(IOException("$AUTH_FAILED: the user auth token provider gave nothing"))

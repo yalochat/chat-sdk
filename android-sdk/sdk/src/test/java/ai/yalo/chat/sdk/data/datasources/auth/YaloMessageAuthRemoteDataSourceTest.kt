@@ -111,6 +111,14 @@ class YaloMessageAuthRemoteDataSourceTest {
     }
 
     @Test
+    fun reportsAFailureWhenTheProviderThrows() = runBlocking {
+        val result = dataSource(config(userAuthTokenProvider = { error("not signed in") })).authenticate()
+
+        assertEquals("not signed in", result.exceptionOrNull()?.message)
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
     fun sendsTheChannelItIsAuthenticatingFor() = runBlocking {
         server.enqueue(tokenResponse())
 
