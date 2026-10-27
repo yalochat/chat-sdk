@@ -134,6 +134,7 @@ Optional properties:
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 - **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 In the default `SessionMode.Shared`, two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages. The other modes narrow that further. See [Session modes](#session-modes).
 

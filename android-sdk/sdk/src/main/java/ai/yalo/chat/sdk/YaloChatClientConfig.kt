@@ -37,6 +37,8 @@ package ai.yalo.chat.sdk
  * verifies the token and takes the user's identity from it. Set [userId] to
  * the token's `sub` as well, since it keeps each person's conversation apart
  * on the device. Null, the default, keeps the anonymous behaviour.
+ * @property texts Your own copy for strings the chat would otherwise show in
+ * its built-in translations. See [YaloChatTexts].
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -53,6 +55,7 @@ public data class YaloChatClientConfig(
     public val hideWatermark: Boolean = false,
     public val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     public val hideFeedbackButtons: Boolean = false,
+    public val texts: YaloChatTexts = YaloChatTexts(),
 ) {
 
     /**

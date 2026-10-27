@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.R
+import ai.yalo.chat.sdk.YaloChatTexts
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.ui.voice.CHAT_CANCEL_RECORDING_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_RECORDING_BAR_TAG
@@ -17,6 +18,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import org.junit.Assert.assertEquals
@@ -210,6 +212,24 @@ class ChatFooterTest {
         composeRule.onNodeWithTag(CHAT_INPUT_BOX_TAG).assertDoesNotExist()
     }
 
+    @Test
+    fun showsTheBuiltInPlaceholderByDefault() {
+        setFooter(text = "")
+
+        composeRule.onNodeWithText(placeholder()).assertIsDisplayed()
+    }
+
+    @Test
+    fun showsThePlaceholderTheAppGives() {
+        setFooter(text = "", texts = YaloChatTexts(inputPlaceholder = "Ask us anything"))
+
+        composeRule.onNodeWithText("Ask us anything").assertIsDisplayed()
+        composeRule.onNodeWithText(placeholder()).assertDoesNotExist()
+    }
+
+    private fun placeholder(): String =
+        RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_input_placeholder)
+
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
 
@@ -226,6 +246,7 @@ class ChatFooterTest {
         recording: () -> VoiceRecording? = { null },
         onStartRecording: () -> Unit = {},
         onCancelRecording: () -> Unit = {},
+        texts: YaloChatTexts = YaloChatTexts(),
     ) {
         composeRule.setContent {
             ChatFooter(
@@ -238,6 +259,7 @@ class ChatFooterTest {
                 recording = recording,
                 onStartRecording = onStartRecording,
                 onCancelRecording = onCancelRecording,
+                texts = texts,
             )
         }
     }

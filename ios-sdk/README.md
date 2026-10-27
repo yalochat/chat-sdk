@@ -148,6 +148,7 @@ Optional properties:
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideFeedbackButtons`** (`Bool`): Leaves the thumbs up and thumbs down out from under the channel's messages, so nobody can rate them. Defaults to `false`, which shows them once the person has sent their first message, so the welcome message has none. A picked rating stays selected, and tapping it again takes it back.
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 ## Open context
 
@@ -324,14 +325,7 @@ What people actually said is different. Up to `.info` a line says that a message
 
 ## Translations
 
-The chat follows the language of the device. It ships with:
-
-- Arabic (`ar`)
-- Chinese (`zh`, `zh-Hans`)
-- Portuguese (`pt`, `pt-BR`)
-- Spanish (`es`, `es-MX`)
-
-Any other language falls back to English.
+The chat ships translated into every supported language and follows the device language. See [Translations](doc/translations.md) for the list and for how to replace a string with your own copy.
 
 ## Custom commands
 

@@ -6,6 +6,8 @@ The chat ships with built-in translations for its interface strings. The languag
 
 - [Supported languages](#supported-languages)
 - [Overriding text](#overriding-text)
+  - [From the client config](#from-the-client-config)
+  - [With string resources](#with-string-resources)
 - [Localization is your responsibility when overriding](#localization-is-your-responsibility-when-overriding)
 
 ## Supported languages
@@ -19,6 +21,33 @@ The chat ships with built-in translations for its interface strings. The languag
 Nothing has to be configured for this. Android picks the closest match to the device language on its own.
 
 ## Overriding text
+
+There are two ways to replace a built-in string with your own copy.
+
+### From the client config
+
+The `texts` field of `YaloChatClientConfig` takes a `YaloChatTexts`. It works like `texts` in the web SDK, so apps that ship both can share the copy.
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        texts = YaloChatTexts(
+            inputPlaceholder = "Type here to reach us",
+        ),
+    ),
+)
+```
+
+The value is shown exactly as given for every language. Fields left `null` keep their built-in translations, and a field set here wins over a string resource with the same purpose.
+
+Available fields:
+
+- **`inputPlaceholder`** (`String?`): Placeholder shown in the message input while it is empty.
+
+### With string resources
 
 Every built-in string is an Android string resource. Declaring a resource with the same name in your app replaces the one the SDK ships.
 
@@ -50,6 +79,7 @@ Available strings:
 
 An overridden string opts that string out of the built-in translations, so translating it becomes your app's job.
 
+- With `texts`, read your app language, pick the matching copy, and pass it in the config.
 - If your app supports a single language, declare the string in `res/values/strings.xml` and you are done.
 - If your app supports several languages, declare the string in each of your language folders, such as `res/values-es/strings.xml` and `res/values-ar/strings.xml`. A string declared only in `res/values` is used for every language.
 

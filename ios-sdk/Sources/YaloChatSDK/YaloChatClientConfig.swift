@@ -27,6 +27,8 @@
 ///   nobody can pick a picture to send.
 /// - `hideFeedbackButtons`: leaves the thumbs up and thumbs down out from
 ///   under the channel's messages, so nobody can rate them.
+/// - `texts`: your own copy for strings the chat would otherwise show in its
+///   built-in translations. See `YaloChatTexts`.
 public struct YaloChatClientConfig: Sendable, Equatable {
     public let channelId: String
     public let organizationId: String
@@ -42,6 +44,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let hideVoiceButton: Bool
     public let hideAttachmentButton: Bool
     public let hideFeedbackButtons: Bool
+    public let texts: YaloChatTexts
 
     public init(
         channelId: String,
@@ -57,7 +60,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         hideWatermark: Bool = false,
         hideVoiceButton: Bool = false,
         hideAttachmentButton: Bool = false,
-        hideFeedbackButtons: Bool = false
+        hideFeedbackButtons: Bool = false,
+        texts: YaloChatTexts = YaloChatTexts()
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -73,6 +77,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.hideVoiceButton = hideVoiceButton
         self.hideAttachmentButton = hideAttachmentButton
         self.hideFeedbackButtons = hideFeedbackButtons
+        self.texts = texts
     }
 
     public static func == (lhs: YaloChatClientConfig, rhs: YaloChatClientConfig) -> Bool {
@@ -89,6 +94,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
             && lhs.hideVoiceButton == rhs.hideVoiceButton
             && lhs.hideAttachmentButton == rhs.hideAttachmentButton
             && lhs.hideFeedbackButtons == rhs.hideFeedbackButtons
+            && lhs.texts == rhs.texts
     }
 
     /// The conversation before `sessionMode` has had its say: the whole

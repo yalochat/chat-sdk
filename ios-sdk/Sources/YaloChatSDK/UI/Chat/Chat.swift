@@ -135,7 +135,8 @@ public struct Chat<Avatar: View>: View {
                     Task {
                         await viewModel.sendImage(picked)
                     }
-                }
+                },
+                texts: client.config.texts
             )
         }
         .background(theme.background)

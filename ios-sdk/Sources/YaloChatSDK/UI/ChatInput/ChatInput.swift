@@ -18,6 +18,7 @@ struct ChatInput: View {
     var onCancelRecording: () -> Void = {}
     var hideAttachmentButton: Bool = false
     var onPickImage: (NSItemProvider) -> Void = { _ in }
+    var texts: YaloChatTexts = YaloChatTexts()
     @State private var isPickingImage: Bool = false
     @Environment(\.chatTheme) private var theme: ChatTheme
 
@@ -25,6 +26,8 @@ struct ChatInput: View {
         let canSend: Bool = recording != nil || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let showsSend: Bool = canSend || hideVoiceButton
         let sendIsDisabled: Bool = showsSend && !canSend
+        let placeholder: Text = texts.inputPlaceholder.map { custom in Text(verbatim: custom) }
+            ?? Text("Type a message", bundle: .module)
         HStack(alignment: .bottom, spacing: 8) {
             if let recording {
                 VoiceRecordingBar(recording: recording, onCancel: onCancelRecording)
@@ -33,12 +36,12 @@ struct ChatInput: View {
                     Group {
                         if #available(iOS 16.0, *) {
                             TextField(text: $text, axis: .vertical) {
-                                Text("Type a message", bundle: .module)
+                                placeholder
                             }
                             .lineLimit(1...4)
                         } else {
                             TextField(text: $text) {
-                                Text("Type a message", bundle: .module)
+                                placeholder
                             }
                         }
                     }

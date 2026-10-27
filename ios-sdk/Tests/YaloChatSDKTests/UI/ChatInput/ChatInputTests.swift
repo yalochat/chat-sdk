@@ -18,6 +18,12 @@ struct ChatInputTests {
         #expect(renders(ChatInput(text: .constant(""), onSend: {}, hideAttachmentButton: true)))
     }
 
+    @Test func inputRendersThePlaceholderTheAppGives() {
+        let texts: YaloChatTexts = YaloChatTexts(inputPlaceholder: "Ask us anything")
+
+        #expect(renders(ChatInput(text: .constant(""), onSend: {}, texts: texts)))
+    }
+
     @Test func inputRendersARecording() {
         let recording: VoiceRecording = VoiceRecording(elapsed: 65, amplitudes: [0, 0.5, 1])
 
