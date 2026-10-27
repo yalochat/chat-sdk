@@ -66,4 +66,22 @@ struct YaloChatClientConfigTests {
 
         #expect(config.welcomeMessageType == .none)
     }
+
+    @Test func keepsTheBuiltInTextsUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.texts.inputPlaceholder == nil)
+    }
+
+    @Test func comparesTheTexts() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+        let withTexts: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            texts: YaloChatTexts(inputPlaceholder: "Ask us anything")
+        )
+
+        #expect(config != withTexts)
+    }
 }

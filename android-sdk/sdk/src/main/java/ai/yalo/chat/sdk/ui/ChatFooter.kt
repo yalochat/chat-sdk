@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.R
+import ai.yalo.chat.sdk.YaloChatTexts
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import ai.yalo.chat.sdk.ui.voice.VoiceRecordingBar
@@ -78,6 +79,7 @@ internal fun ChatFooter(
     recording: () -> VoiceRecording? = { null },
     onStartRecording: () -> Unit = {},
     onCancelRecording: () -> Unit = {},
+    texts: YaloChatTexts = YaloChatTexts(),
 ) {
     val isRecording: Boolean by remember(recording) {
         derivedStateOf { recording() != null }
@@ -134,7 +136,10 @@ internal fun ChatFooter(
                             .weight(1f)
                             .testTag(CHAT_INPUT_TAG),
                         placeholder = {
-                            Text(text = stringResource(R.string.yalo_chat_input_placeholder))
+                            Text(
+                                text = texts.inputPlaceholder
+                                    ?: stringResource(R.string.yalo_chat_input_placeholder),
+                            )
                         },
                         maxLines = 4,
                         shape = theme.inputShape,

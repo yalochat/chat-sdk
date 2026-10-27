@@ -5,6 +5,7 @@ import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.YaloChatTexts
 import ai.yalo.chat.sdk.common.session.ChatSession
 import ai.yalo.chat.sdk.common.session.ephemeralIdOf
 import ai.yalo.chat.sdk.common.session.newEphemeralStamp
@@ -134,6 +135,7 @@ public fun Chat(
             loadImage = viewModel::imageOf,
             hideFeedbackButtons = client.config.hideFeedbackButtons,
             onFeedback = viewModel::onFeedback,
+            texts = client.config.texts,
         )
     }
 }
@@ -243,6 +245,7 @@ internal fun ChatLayout(
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
     hideFeedbackButtons: Boolean = false,
     onFeedback: (ChatMessage, FeedbackRating) -> Unit = { _, _ -> },
+    texts: YaloChatTexts = YaloChatTexts(),
 ) {
     val inline = quickReplyType == QuickReplyType.Inline || isWelcome
     Surface(
@@ -286,6 +289,7 @@ internal fun ChatLayout(
                 recording = recording,
                 onStartRecording = onStartRecording,
                 onCancelRecording = onCancelRecording,
+                texts = texts,
             )
         }
     }
