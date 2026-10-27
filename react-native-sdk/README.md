@@ -123,7 +123,7 @@ The config is read when the chat is shown. To change it, create a new client.
 Props:
 
 - **`client`** (`YaloChatClient`): The conversation to show.
-- **`theme`** (`ChatTheme`): Colors and shapes. See [Theming](#theming).
+- **`theme`** (`ChatTheme`): Colors and shapes. Leave it out to keep the platform default. See [Theming](doc/theming.md).
 - **`avatar`** (`ImageURISource | ImageRequireSource`): An image drawn as a circle beside the channel name. With `welcomeMessageType` set to `verticalQuickReplies`, it is also drawn centered above the welcome message, until the person sends something. Takes the same sources as `Image`, a remote URL or a bundled image. Nothing is drawn when you leave it out.
 - **`onBack`** (`() => void`): Shows a back button in the header that calls it. Leave it out when the chat is not something the person closes.
 - **`style`**: The chat fills the space it is given, `flex: 1` by default.
@@ -230,7 +230,7 @@ client.registerCommand('updateCartProduct', async ({ sku, units, subunits }) => 
 
 ## Theming
 
-Every value is optional. Anything left out keeps the platform default, which follows light and dark mode.
+The chat follows the platform colors and the device light and dark mode with no setup. Pass a `theme` to `Chat` to override only what you need. Every value is optional.
 
 ```tsx
 <Chat
@@ -244,31 +244,7 @@ Every value is optional. Anything left out keeps the platform default, which fol
 />
 ```
 
-Colors take any React Native color string or number. `PlatformColor` and `DynamicColorIOS` are not supported yet and are ignored with a warning.
-
-- `background`, `onBackground`
-- `headerBackground`, `onHeaderBackground`
-- `footerBackground`, `onFooterBackground`
-- `userMessageBackground`, `onUserMessageBackground`
-- `agentMessageBackground`, `onAgentMessageBackground`, `agentMessageBorderColor`
-- `typingIndicatorDotColor`
-- `linkColor`
-- `quickReplyBackground`, `onQuickReplyBackground`, `quickReplyBorderColor`
-- `postbackBackground`, `onPostbackBackground`, `postbackBorderColor`
-- `selectedPostbackBackground`, `onSelectedPostbackBackground`: the button the person tapped last on a message, which stays highlighted. Links are never highlighted.
-- `inputBorderColor`, `inputFieldBorderColor`, `inputBackground`
-- `sendButtonBackground`, `onSendButtonBackground`
-
-`agentMessagePadding` is the room in points between the box around a message the channel sent and its content. It defaults to 0.
-
-Shapes are corner radii in points. A number rounds every corner. An object rounds only the corners it names, and the rest stay square.
-
-- `inputShape`
-- `userMessageShape`
-- `agentMessageShape`
-- `imageShape`
-- `quickReplyShape`
-- `postbackShape`
+See [Theming](doc/theming.md) for every property, its default on each platform, and a full example.
 
 ## Translations
 
