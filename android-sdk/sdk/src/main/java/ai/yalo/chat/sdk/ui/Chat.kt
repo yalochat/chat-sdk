@@ -228,7 +228,7 @@ internal fun ChatLayout(
     quickRepliesMessageId: Long? = null,
     isWelcome: Boolean = false,
     onQuickReply: (String) -> Unit = {},
-    onPostback: (String) -> Unit = {},
+    onPostback: (ChatMessage, MessageButton) -> Unit = { _, _ -> },
     avatar: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
     hideVoiceButton: Boolean = false,

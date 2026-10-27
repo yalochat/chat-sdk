@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,12 +38,13 @@ internal const val CHAT_LINK_ICON_TAG: String = "yalo-chat-link-icon"
  *
  * A link opens its address outside the chat and carries an arrow to say so.
  * Every other button, a link with no address included, says its text back to
- * the channel through [onButtonClick].
+ * the channel through [onButtonClick]. The one the person picked last is drawn
+ * highlighted.
  */
 @Composable
 internal fun MessageButtons(
     buttons: List<MessageButton>,
-    onButtonClick: (String) -> Unit,
+    onButtonClick: (MessageButton) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val theme = currentChatTheme
@@ -52,6 +55,7 @@ internal fun MessageButtons(
     ) {
         buttons.forEach { button ->
             val url: String? = button.url.takeIf { button.type == MessageButtonType.Link }
+            val isSelected = url == null && button.selected
             Surface(
                 onClick = {
                     if (url != null) {
@@ -61,15 +65,16 @@ internal fun MessageButtons(
                             // Nothing on the device can open it.
                         }
                     } else {
-                        onButtonClick(button.text)
+                        onButtonClick(button)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .semantics { this.selected = isSelected }
                     .testTag(CHAT_MESSAGE_BUTTON_TAG),
                 shape = theme.postbackShape,
-                color = theme.postbackBackground,
-                contentColor = theme.onPostbackBackground,
+                color = if (isSelected) theme.selectedPostbackBackground else theme.postbackBackground,
+                contentColor = if (isSelected) theme.onSelectedPostbackBackground else theme.onPostbackBackground,
                 border = BorderStroke(1.dp, theme.postbackBorderColor),
             ) {
                 Row(

@@ -583,6 +583,70 @@ struct ChatViewModelTests {
         running.cancel()
     }
 
+    private func postbacks(_ texts: [String], wiId: String = "wi-1") -> ChatMessage {
+        ChatMessage(
+            role: .agent,
+            type: .text,
+            timestamp: Self.now.addingTimeInterval(-60),
+            wiId: wiId,
+            content: "Pick one",
+            buttons: texts.map { text in MessageButton(text: text, kind: .postback) }
+                + [MessageButton(text: "Our site", kind: .link)]
+        )
+    }
+
+    /// The buttons of the stored message, in storage and on screen.
+    private func selected(_ viewModel: ChatViewModel) async throws -> (stored: [String], shown: [String]) {
+        let stored: ChatMessage = try #require(try await storage.messages(sessionId: "session-1", limit: 10).last)
+        let shown: ChatMessage = try #require(viewModel.messages.first)
+        return (
+            stored.buttons.filter(\.selected).map(\.text),
+            shown.buttons.filter(\.selected).map(\.text)
+        )
+    }
+
+    @Test func tappingAPostbackKeepsItSelectedAndSaysItsText() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(postbacks(["Menu", "Help"]))
+        let message: ChatMessage = try #require(viewModel.messages.first)
+
+        await viewModel.tap(message.actions[0], on: message)
+
+        let picked: (stored: [String], shown: [String]) = try await selected(viewModel)
+        #expect(picked.stored == ["Menu"])
+        #expect(picked.shown == ["Menu"])
+        #expect(channel.sent.map(\.content) == ["Menu"])
+        running.cancel()
+    }
+
+    @Test(arguments: [(1, "Help"), (0, "Menu")])
+    func tappingAgainMovesOrKeepsTheSelection(second: Int, expected: String) async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(postbacks(["Menu", "Help"]))
+
+        let first: ChatMessage = try #require(viewModel.messages.first)
+        await viewModel.tap(first.actions[0], on: first)
+        let again: ChatMessage = try #require(viewModel.messages.first)
+        await viewModel.tap(again.actions[second], on: again)
+
+        let picked: (stored: [String], shown: [String]) = try await selected(viewModel)
+        #expect(picked.stored == [expected])
+        #expect(picked.shown == [expected])
+        #expect(channel.sent.map(\.content) == ["Menu", expected])
+        running.cancel()
+    }
+
+    @Test(arguments: [MessageButton(text: "Our site", kind: .link), MessageButton(text: "Yes")])
+    func tappingAnythingButAPostbackSelectsNothing(button: MessageButton) async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(postbacks(["Menu"]))
+
+        await viewModel.tap(button, on: try #require(viewModel.messages.first))
+
+        let picked: (stored: [String], shown: [String]) = try await selected(viewModel)
+        #expect(picked.stored.isEmpty)
+        #expect(picked.shown.isEmpty)
+        #expect(channel.sent.map(\.content) == [button.text])
+        running.cancel()
+    }
+
     @Test func theChannelsFirstMessageIsAWelcomeUntilThePersonAnswers() async throws {
         _ = try await storage.insert(offering(["Yes", "No"], wiId: "wi-1"), sessionId: "session-1")
         let viewModel: ChatViewModel = viewModel(welcomeMessageType: .verticalQuickReplies)

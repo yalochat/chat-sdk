@@ -15,4 +15,14 @@ struct MessageButtonsTests {
 
         #expect(renders(MessageButtons(buttons: buttons)))
     }
+
+    @Test func messageButtonsRenderASelectedPostbackAndASelectedLink() {
+        let buttons: [MessageButton] = [
+            MessageButton(text: "Menu", kind: .postback, selected: true),
+            MessageButton(text: "Help", kind: .postback),
+            MessageButton(text: "Our site", kind: .link, url: "https://yalo.ai", selected: true),
+        ]
+
+        #expect(renders(MessageButtons(buttons: buttons)))
+    }
 }

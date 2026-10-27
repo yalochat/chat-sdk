@@ -12,6 +12,8 @@ export type MessageButton = {
   readonly text: string;
   readonly type?: MessageButtonType;
   readonly url?: string;
+  // True for the postback button the person clicked last on its message.
+  readonly selected?: boolean;
 };
 
 export const MessageTypes = [

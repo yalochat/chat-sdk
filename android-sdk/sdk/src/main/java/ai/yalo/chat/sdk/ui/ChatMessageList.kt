@@ -4,6 +4,7 @@ package ai.yalo.chat.sdk.ui
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
+import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
@@ -67,7 +68,7 @@ internal fun ChatMessageList(
     isWelcome: Boolean = false,
     avatar: (@Composable () -> Unit)? = null,
     onQuickReply: (String) -> Unit = {},
-    onPostback: (String) -> Unit = {},
+    onPostback: (ChatMessage, MessageButton) -> Unit = { _, _ -> },
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },

@@ -194,8 +194,28 @@ final class ChatViewModel: ObservableObject {
     }
 
     /// Says a quick reply or a postback button back to the channel, as if the
-    /// person had typed it. The draft is left alone.
-    func tap(_ button: MessageButton) async {
+    /// person had typed it. The draft is left alone. A postback tapped under
+    /// `message` stays selected there.
+    func tap(_ button: MessageButton, on message: ChatMessage? = nil) async {
+        if
+            button.kind == .postback,
+            let id = message?.id,
+            let index = messages.firstIndex(where: { stored in stored.id == id })
+        {
+            let buttons: [MessageButton] = messages[index].buttons.map { candidate in
+                var marked: MessageButton = candidate
+                marked.selected = candidate == button
+                return marked
+            }
+            if buttons != messages[index].buttons {
+                messages[index].buttons = buttons
+                do {
+                    try await chatMessages.setButtons(buttons, id: id)
+                } catch {
+                    log.error("could not keep the tapped button", error: error)
+                }
+            }
+        }
         await sendText(button.text)
     }
 

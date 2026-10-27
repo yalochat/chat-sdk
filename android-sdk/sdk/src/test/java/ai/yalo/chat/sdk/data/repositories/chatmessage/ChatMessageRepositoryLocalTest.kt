@@ -369,6 +369,25 @@ class ChatMessageRepositoryLocalTest {
     }
 
     @Test
+    fun readsBackTheButtonsAMessageWasGivenLater() = runBlocking {
+        val repository = repository()
+        val stored = repository.insert(agentMessage("Pick one", wiId = "wi-1")).getOrThrow()
+        val buttons = listOf(MessageButton(text = "Track order", type = MessageButtonType.Postback, selected = true))
+
+        repository.updateButtons(stored.id!!, buttons).getOrThrow()
+
+        assertEquals(buttons, repository.messages().getOrThrow().single().buttons)
+    }
+
+    @Test
+    fun reportsButtonsStorageCouldNotKeep() = runBlocking {
+        val repository = repository()
+        database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseDataSource.MESSAGE_TABLE}")
+
+        assertTrue(repository.updateButtons(1L, emptyList()).isFailure)
+    }
+
+    @Test
     fun reportsStorageBreakingInsteadOfThrowing() = runBlocking {
         val repository = repository()
         database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseDataSource.MESSAGE_TABLE}")

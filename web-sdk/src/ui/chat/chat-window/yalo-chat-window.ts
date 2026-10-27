@@ -149,6 +149,8 @@ export class YaloChatWindow extends LitElement {
             @yalo-chat-go-to-cart=${() => this._chatWindowController.goToCart()}
             @yalo-chat-message-feedback=${(e: CustomEvent) =>
               this._chatWindowController.sendMessageFeedback(e)}
+            @yalo-chat-message-button-selected=${(e: CustomEvent) =>
+              this._chatWindowController.selectMessageButton(e)}
           >
           </yalo-chat-message-list>
         </main>

@@ -1160,6 +1160,87 @@ describe('ChatMessageList', () => {
     });
   });
 
+  describe('postback button selection', () => {
+    // Marks the button with the given text as selected.
+    const agentWithButtons = (selected?: string) =>
+      new ChatMessage({
+        id: 7,
+        role: 'AGENT',
+        type: 'text',
+        timestamp,
+        content: 'Pick one',
+        buttons: [
+          { text: 'Yes', type: 'postback' as const },
+          { text: 'No', type: 'postback' as const },
+          { text: 'Docs', type: 'link' as const, url: 'https://example.com' },
+        ].map((button) => ({ ...button, selected: button.text === selected })),
+      });
+
+    const assistantOf = (list: ChatMessageList) =>
+      list.shadowRoot!.querySelector('yalo-chat-assistant-message')!;
+
+    const postbackStates = (list: ChatMessageList) =>
+      Array.from(
+        assistantOf(list).shadowRoot!.querySelectorAll('.buttons button')
+      ).map((button) => ({
+        text: button.textContent?.trim(),
+        pressed: button.getAttribute('aria-pressed'),
+      }));
+
+    it('marks only the selected postback as pressed', async () => {
+      const list = await renderList([agentWithButtons('No')]);
+
+      expect(postbackStates(list)).toMatchObject([
+        { text: 'Yes', pressed: 'false' },
+        { text: 'No', pressed: 'true' },
+      ]);
+    });
+
+    it('marks no postback as pressed when nothing was selected', async () => {
+      const list = await renderList([agentWithButtons()]);
+
+      expect(postbackStates(list)).toMatchObject([
+        { text: 'Yes', pressed: 'false' },
+        { text: 'No', pressed: 'false' },
+      ]);
+    });
+
+    it('never marks link buttons as pressed', async () => {
+      const list = await renderList([agentWithButtons('Docs')]);
+
+      const link = assistantOf(list).shadowRoot!.querySelector('.buttons a')!;
+      expect(link.hasAttribute('aria-pressed')).toBe(false);
+    });
+
+    it('announces the selection and then sends the button text', async () => {
+      const list = await renderList([agentWithButtons()]);
+      const events: { type: string; detail: unknown }[] = [];
+      const record = (e: Event) => {
+        events.push({ type: e.type, detail: (e as CustomEvent).detail });
+      };
+      list.addEventListener('yalo-chat-message-button-selected', record);
+      list.addEventListener('yalo-chat-send-text-message', record);
+
+      assistantOf(list)
+        .shadowRoot!.querySelectorAll<HTMLButtonElement>('.buttons button')[1]
+        .click();
+
+      expect(events).toMatchObject([
+        {
+          type: 'yalo-chat-message-button-selected',
+          detail: {
+            message: { id: 7 },
+            button: { text: 'No', type: 'postback' },
+          },
+        },
+        {
+          type: 'yalo-chat-send-text-message',
+          detail: { role: 'USER', type: 'text', content: 'No' },
+        },
+      ]);
+    });
+  });
+
   describe('product confirmation messages', () => {
     const confirmation = (
       overrides: Partial<ConstructorParameters<typeof ChatMessage>[0]> = {}

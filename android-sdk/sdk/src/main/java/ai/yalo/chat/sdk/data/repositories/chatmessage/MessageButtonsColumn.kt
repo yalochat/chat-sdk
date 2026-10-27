@@ -19,6 +19,7 @@ internal object MessageButtonsColumn {
     private const val TEXT = "text"
     private const val TYPE = "type"
     private const val URL = "url"
+    private const val SELECTED = "selected"
 
     /** Null for a message with no buttons, so the column stays empty. */
     fun encode(buttons: List<MessageButton>): String? {
@@ -31,7 +32,8 @@ internal object MessageButtonsColumn {
                 JSONObject()
                     .put(TEXT, button.text)
                     .put(TYPE, button.type.wireName)
-                    .put(URL, button.url),
+                    .put(URL, button.url)
+                    .put(SELECTED, button.selected),
             )
         }
         return array.toString()
@@ -60,6 +62,7 @@ internal object MessageButtonsColumn {
             text = text,
             type = MessageButtonType.of(stored.optString(TYPE)),
             url = stored.optString(URL).takeIf { url -> url.isNotEmpty() },
+            selected = stored.optBoolean(SELECTED),
         )
     }
 }

@@ -307,15 +307,20 @@ internal class ChatViewModel(
     }
 
     /**
-     * Says a postback button back to the channel, as if the person had typed
-     * it.
+     * Says a postback button of [message] back to the channel, as if the
+     * person had typed it.
      *
-     * The button stays on its message afterwards, so the same one can be tapped
-     * again later in the conversation.
+     * The button stays on its message afterwards, highlighted as the one picked,
+     * so the same one can be tapped again later in the conversation.
      */
-    fun onPostback(text: String) {
+    fun onPostback(message: ChatMessage, button: MessageButton) {
         viewModelScope.launch {
-            send(text)
+            val id = message.id
+            val buttons = message.buttons.map { other -> other.copy(selected = other == button) }
+            if (id != null && buttons != message.buttons) {
+                chatMessageRepository.updateButtons(id, buttons).onSuccess { loadMessages() }
+            }
+            send(button.text)
         }
     }
 

@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.data.repositories.chatmessage
 
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
+import ai.yalo.chat.sdk.domain.models.MessageButton
 
 /**
  * Stands in for storage so a test can say what it does without a database.
@@ -40,6 +41,15 @@ internal class FakeChatMessageRepository(
         val index = stored.indexOfFirst { message -> message.id == id }
         if (index >= 0) {
             stored[index] = stored[index].copy(feedback = feedback)
+        }
+        return Result.success(Unit)
+    }
+
+    override suspend fun updateButtons(id: Long, buttons: List<MessageButton>): Result<Unit> {
+        failure?.let { error -> return Result.failure(error) }
+        val index = stored.indexOfFirst { message -> message.id == id }
+        if (index >= 0) {
+            stored[index] = stored[index].copy(buttons = buttons)
         }
         return Result.success(Unit)
     }

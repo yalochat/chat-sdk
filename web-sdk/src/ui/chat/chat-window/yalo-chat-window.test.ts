@@ -3360,3 +3360,144 @@ describe('YaloChatWindow message feedback', () => {
     expect(send).not.toHaveBeenCalled();
   });
 });
+
+describe('YaloChatWindow postback button selection', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+
+  const mockSubscription = (): void => {
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    ).mockReturnValue();
+  };
+
+  const agentMessage = (): ChatMessage | undefined =>
+    getMessageList(el).chatMessages.find((m) => m.wiId === 'wi-buttons');
+
+  // Texts of the buttons marked as selected, in order.
+  const selectedTexts = (message?: ChatMessage): string[] =>
+    (message?.buttons ?? [])
+      .filter((button) => button.selected === true)
+      .map((button) => button.text);
+
+  const shownSelection = (): string =>
+    selectedTexts(agentMessage()).join(',');
+
+  const clickPostback = async (text: string): Promise<void> => {
+    const list = el.shadowRoot!.querySelector(
+      'yalo-chat-message-list'
+    ) as LitElement;
+    await list.updateComplete;
+    const assistant = list.shadowRoot!.querySelector(
+      'yalo-chat-assistant-message'
+    ) as LitElement;
+    await assistant.updateComplete;
+    const button = Array.from(
+      assistant.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+        '.buttons button'
+      )
+    ).find((b) => b.textContent?.trim() === text);
+    button!.click();
+  };
+
+  const storedSelection = (): Promise<unknown> =>
+    readAll('chatMessage', (store) => store.getAll()).then(
+      (records) =>
+        selectedTexts(
+          (records as ChatMessage[]).find(
+            (record) => record.wiId === 'wi-buttons'
+          )
+        ).join(',')
+    );
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    mockSubscription();
+    el = await createElement();
+    vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockImplementation(
+      async (message) => new Ok(message)
+    );
+    subscribeCallback!([
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date(),
+        content: 'Pick one',
+        wiId: 'wi-buttons',
+        buttons: [
+          { text: 'Yes', type: 'postback' },
+          { text: 'No', type: 'postback' },
+        ],
+      }),
+    ]);
+    await vi.waitUntil(() => agentMessage() !== undefined);
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('selects the clicked postback, stores it and sends its text', async () => {
+    await clickPostback('Yes');
+
+    await vi.waitUntil(() => shownSelection() === 'Yes');
+    await vi.waitUntil(async () => (await storedSelection()) === 'Yes');
+    await vi.waitUntil(() =>
+      getMessageList(el).chatMessages.some(
+        (m) => m.role === 'USER' && m.content === 'Yes'
+      )
+    );
+  });
+
+  it('moves the selection when another postback is clicked', async () => {
+    await clickPostback('Yes');
+    await vi.waitUntil(() => shownSelection() === 'Yes');
+
+    await clickPostback('No');
+
+    await vi.waitUntil(() => shownSelection() === 'No');
+    await vi.waitUntil(async () => (await storedSelection()) === 'No');
+  });
+
+  it('keeps the selection after a reload', async () => {
+    await clickPostback('No');
+    await vi.waitUntil(async () => (await storedSelection()) === 'No');
+
+    document.body.innerHTML = '';
+    el = await createElement();
+
+    await vi.waitUntil(() => shownSelection() === 'No');
+  });
+
+  it('logs when the selection cannot be stored locally but still shows it', async () => {
+    const errorSpy = vi.spyOn(el.logger, 'error');
+    vi.spyOn(el.chatMessageRepository, 'replaceChatMessage').mockResolvedValue(
+      new Err(new Error('quota'))
+    );
+
+    await clickPostback('Yes');
+
+    await vi.waitUntil(() =>
+      errorSpy.mock.calls.some(
+        ([message]) => message === 'Unable to persist selected button locally'
+      )
+    );
+    expect(agentMessage()).toMatchObject({
+      buttons: [
+        { text: 'Yes', selected: true },
+        { text: 'No', selected: false },
+      ],
+    });
+  });
+});

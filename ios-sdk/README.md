@@ -262,7 +262,7 @@ The channel can attach buttons to what it says. Tapping one sends its text as if
   - `quickReplyType` decides where they are shown:
     - `.modal` (default): in a bar between the conversation and the message input.
     - `.inline`: under the message that offered them.
-- **Postback buttons** stay under the message that sent them, one per line, and can be tapped again later in the conversation.
+- **Postback buttons** stay under the message that sent them, one per line, and can be tapped again later in the conversation. The one the person tapped last stays highlighted.
 - **Link buttons** sit with the postback buttons and show an arrow. Tapping one opens its address outside the chat instead of sending anything.
 
 ```swift
