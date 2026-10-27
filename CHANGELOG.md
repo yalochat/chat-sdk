@@ -1,21 +1,26 @@
 # Changelog
 
-## [1.3.0](https://github.com/yalochat/chat-sdk/tree/1.3.0) (2026-10-27)
+## [android-sdk/bindings/go/v1.3.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v1.3.0) (2026-10-27)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/v0.6.0...1.3.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.3.0...android-sdk/bindings/go/v1.3.0)
+
+## [android-sdk/v1.3.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v1.3.0) (2026-10-27)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/bindings/go/v0.6.0...android-sdk/v1.3.0)
 
 **Merged pull requests:**
 
+- Release android-sdk 1.3.0 [\#383](https://github.com/yalochat/chat-sdk/pull/383) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat\(android-sdk,ios-sdk\): Adds translations overrides [\#382](https://github.com/yalochat/chat-sdk/pull/382) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(android-sdk,ios-sdk,web-sdk\): Highlight last button selected [\#381](https://github.com/yalochat/chat-sdk/pull/381) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [react-native-sdk/v0.6.0](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/v0.6.0) (2026-10-26)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/bindings/go/v0.6.0...react-native-sdk/v0.6.0)
-
 ## [react-native-sdk/bindings/go/v0.6.0](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/bindings/go/v0.6.0) (2026-10-26)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v1.2.0...react-native-sdk/bindings/go/v0.6.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/v0.6.0...react-native-sdk/bindings/go/v0.6.0)
+
+## [react-native-sdk/v0.6.0](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/v0.6.0) (2026-10-26)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v1.2.0...react-native-sdk/v0.6.0)
 
 **Merged pull requests:**
 
@@ -24,27 +29,27 @@
 
 ## [ios-sdk/v1.2.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v1.2.0) (2026-10-26)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v1.2.0...ios-sdk/v1.2.0)
-
-## [ios-sdk/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/bindings/go/v1.2.0) (2026-10-26)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/1.2.0...ios-sdk/bindings/go/v1.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/1.2.0...ios-sdk/v1.2.0)
 
 ## [1.2.0](https://github.com/yalochat/chat-sdk/tree/1.2.0) (2026-10-26)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.2.0...1.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v1.2.0...1.2.0)
+
+## [ios-sdk/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/bindings/go/v1.2.0) (2026-10-26)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v1.2.0...ios-sdk/bindings/go/v1.2.0)
 
 **Merged pull requests:**
 
 - Release ios-sdk 1.2.0 [\#378](https://github.com/yalochat/chat-sdk/pull/378) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 
-## [android-sdk/v1.2.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v1.2.0) (2026-10-26)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v1.2.0...android-sdk/v1.2.0)
-
 ## [android-sdk/bindings/go/v1.2.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v1.2.0) (2026-10-26)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/v0.5.0...android-sdk/bindings/go/v1.2.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.2.0...android-sdk/bindings/go/v1.2.0)
+
+## [android-sdk/v1.2.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v1.2.0) (2026-10-26)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/v0.5.0...android-sdk/v1.2.0)
 
 **Merged pull requests:**
 
@@ -57,15 +62,11 @@
 
 ## [react-native-sdk/bindings/go/v0.5.0](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/bindings/go/v0.5.0) (2026-10-20)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/1.1.0...react-native-sdk/bindings/go/v0.5.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v1.1.0...react-native-sdk/bindings/go/v0.5.0)
 
 **Merged pull requests:**
 
 - Release react-native-sdk 0.5.0 [\#373](https://github.com/yalochat/chat-sdk/pull/373) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
-
-## [1.1.0](https://github.com/yalochat/chat-sdk/tree/1.1.0) (2026-10-20)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v1.1.0...1.1.0)
 
 ## [ios-sdk/v1.1.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v1.1.0) (2026-10-20)
 
@@ -73,48 +74,52 @@
 
 ## [ios-sdk/bindings/go/v1.1.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/bindings/go/v1.1.0) (2026-10-20)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.1.0...ios-sdk/bindings/go/v1.1.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/1.1.0...ios-sdk/bindings/go/v1.1.0)
+
+## [1.1.0](https://github.com/yalochat/chat-sdk/tree/1.1.0) (2026-10-20)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v1.1.0...1.1.0)
 
 **Merged pull requests:**
 
 - Release ios-sdk 1.1.0 [\#372](https://github.com/yalochat/chat-sdk/pull/372) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 
-## [android-sdk/v1.1.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v1.1.0) (2026-10-20)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v1.1.0...android-sdk/v1.1.0)
-
 ## [android-sdk/bindings/go/v1.1.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v1.1.0) (2026-10-20)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/1.0.0...android-sdk/bindings/go/v1.1.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.1.0...android-sdk/bindings/go/v1.1.0)
+
+## [android-sdk/v1.1.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v1.1.0) (2026-10-20)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v1.0.0...android-sdk/v1.1.0)
 
 **Merged pull requests:**
 
 - Release android-sdk 1.1.0 [\#371](https://github.com/yalochat/chat-sdk/pull/371) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat\(android/ios/web\): Adds logout method [\#370](https://github.com/yalochat/chat-sdk/pull/370) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [1.0.0](https://github.com/yalochat/chat-sdk/tree/1.0.0) (2026-10-19)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v1.0.0...1.0.0)
-
 ## [ios-sdk/v1.0.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v1.0.0) (2026-10-19)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v1.0.0...ios-sdk/v1.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/1.0.0...ios-sdk/v1.0.0)
+
+## [1.0.0](https://github.com/yalochat/chat-sdk/tree/1.0.0) (2026-10-19)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v1.0.0...1.0.0)
 
 ## [ios-sdk/bindings/go/v1.0.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/bindings/go/v1.0.0) (2026-10-19)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v1.0.0...ios-sdk/bindings/go/v1.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.0.0...ios-sdk/bindings/go/v1.0.0)
 
 **Merged pull requests:**
 
 - Release ios-sdk 1.0.0 [\#369](https://github.com/yalochat/chat-sdk/pull/369) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 
-## [android-sdk/bindings/go/v1.0.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v1.0.0) (2026-10-19)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v1.0.0...android-sdk/bindings/go/v1.0.0)
-
 ## [android-sdk/v1.0.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v1.0.0) (2026-10-19)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.6.0...android-sdk/v1.0.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v1.0.0...android-sdk/v1.0.0)
+
+## [android-sdk/bindings/go/v1.0.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v1.0.0) (2026-10-19)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.6.0...android-sdk/bindings/go/v1.0.0)
 
 **Merged pull requests:**
 
@@ -122,15 +127,15 @@
 
 ## [ios-sdk/v0.6.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v0.6.0) (2026-10-19)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/0.6.0...ios-sdk/v0.6.0)
-
-## [0.6.0](https://github.com/yalochat/chat-sdk/tree/0.6.0) (2026-10-19)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v0.6.0...0.6.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/bindings/go/v0.6.0...ios-sdk/v0.6.0)
 
 ## [ios-sdk/bindings/go/v0.6.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/bindings/go/v0.6.0) (2026-10-19)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.9.0...ios-sdk/bindings/go/v0.6.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/0.6.0...ios-sdk/bindings/go/v0.6.0)
+
+## [0.6.0](https://github.com/yalochat/chat-sdk/tree/0.6.0) (2026-10-19)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.9.0...0.6.0)
 
 **Merged pull requests:**
 
@@ -142,7 +147,7 @@
 
 ## [android-sdk/bindings/go/v0.9.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v0.9.0) (2026-10-19)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/v0.4.1...android-sdk/bindings/go/v0.9.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/bindings/go/v0.4.1...android-sdk/bindings/go/v0.9.0)
 
 **Merged pull requests:**
 
@@ -150,13 +155,13 @@
 - fix\(android-sdk\): adds requestDisallowInterceptTouchEvent to message list [\#365](https://github.com/yalochat/chat-sdk/pull/365) ([rodrigocusto](https://github.com/rodrigocusto))
 - feat\(ios-sdk/android-sdk/web-sdk\): Adds clear messages method [\#364](https://github.com/yalochat/chat-sdk/pull/364) ([rodrigocusto](https://github.com/rodrigocusto))
 
-## [react-native-sdk/v0.4.1](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/v0.4.1) (2026-10-16)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/bindings/go/v0.4.1...react-native-sdk/v0.4.1)
-
 ## [react-native-sdk/bindings/go/v0.4.1](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/bindings/go/v0.4.1) (2026-10-16)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.5.1...react-native-sdk/bindings/go/v0.4.1)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/v0.4.1...react-native-sdk/bindings/go/v0.4.1)
+
+## [react-native-sdk/v0.4.1](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/v0.4.1) (2026-10-16)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.5.1...react-native-sdk/v0.4.1)
 
 **Merged pull requests:**
 
@@ -172,19 +177,19 @@
 
 ## [0.5.1](https://github.com/yalochat/chat-sdk/tree/0.5.1) (2026-10-16)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.8.2...0.5.1)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v0.8.2...0.5.1)
 
 **Merged pull requests:**
 
 - Release ios-sdk 0.5.1 [\#361](https://github.com/yalochat/chat-sdk/pull/361) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 
-## [android-sdk/v0.8.2](https://github.com/yalochat/chat-sdk/tree/android-sdk/v0.8.2) (2026-10-16)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v0.8.2...android-sdk/v0.8.2)
-
 ## [android-sdk/bindings/go/v0.8.2](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v0.8.2) (2026-10-16)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/bindings/go/v0.4.0...android-sdk/bindings/go/v0.8.2)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.8.2...android-sdk/bindings/go/v0.8.2)
+
+## [android-sdk/v0.8.2](https://github.com/yalochat/chat-sdk/tree/android-sdk/v0.8.2) (2026-10-16)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/react-native-sdk/bindings/go/v0.4.0...android-sdk/v0.8.2)
 
 **Closed issues:**
 
@@ -222,27 +227,27 @@
 
 ## [ios-sdk/bindings/go/v0.5.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/bindings/go/v0.5.0) (2026-10-15)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/0.5.0...ios-sdk/bindings/go/v0.5.0)
-
-## [0.5.0](https://github.com/yalochat/chat-sdk/tree/0.5.0) (2026-10-15)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.5.0...0.5.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/ios-sdk/v0.5.0...ios-sdk/bindings/go/v0.5.0)
 
 ## [ios-sdk/v0.5.0](https://github.com/yalochat/chat-sdk/tree/ios-sdk/v0.5.0) (2026-10-15)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v0.8.0...ios-sdk/v0.5.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/0.5.0...ios-sdk/v0.5.0)
+
+## [0.5.0](https://github.com/yalochat/chat-sdk/tree/0.5.0) (2026-10-15)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.8.0...0.5.0)
 
 **Merged pull requests:**
 
 - Release ios-sdk 0.5.0 [\#355](https://github.com/yalochat/chat-sdk/pull/355) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 
-## [android-sdk/bindings/go/v0.8.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v0.8.0) (2026-10-15)
-
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/v0.8.0...android-sdk/bindings/go/v0.8.0)
-
 ## [android-sdk/v0.8.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/v0.8.0) (2026-10-15)
 
-[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.6.0...android-sdk/v0.8.0)
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/android-sdk/bindings/go/v0.8.0...android-sdk/v0.8.0)
+
+## [android-sdk/bindings/go/v0.8.0](https://github.com/yalochat/chat-sdk/tree/android-sdk/bindings/go/v0.8.0) (2026-10-15)
+
+[Full Changelog](https://github.com/yalochat/chat-sdk/compare/proto/v2.6.0...android-sdk/bindings/go/v0.8.0)
 
 **Merged pull requests:**
 
