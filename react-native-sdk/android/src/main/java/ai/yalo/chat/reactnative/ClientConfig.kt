@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.YaloChatTexts
 import org.json.JSONObject
 
 /**
@@ -30,6 +31,7 @@ internal fun clientConfigOf(
     hideAttachmentButton = config.optBoolean("hideAttachmentButton"),
     hideWatermark = config.optBoolean("hideWatermark"),
     hideFeedbackButtons = config.optBoolean("hideFeedbackButtons"),
+    texts = textsOf(config.optJSONObject("texts")),
 )
 
 private fun quickReplyTypeOf(value: String): QuickReplyType = when (value) {
@@ -54,6 +56,15 @@ private fun sessionModeOf(value: String): SessionMode = when (value) {
     "perContext" -> SessionMode.PerContext
     "ephemeral" -> SessionMode.Ephemeral
     else -> SessionMode.Shared
+}
+
+private fun textsOf(texts: JSONObject?): YaloChatTexts {
+    if (texts == null) {
+        return YaloChatTexts()
+    }
+    return YaloChatTexts(
+        inputPlaceholder = if (texts.isNull("inputPlaceholder")) null else texts.getString("inputPlaceholder"),
+    )
 }
 
 private fun openContextOf(context: JSONObject?): Map<String, String> {

@@ -12,6 +12,16 @@ export type QuickReplyType = 'modal' | 'inline';
 /** How the first message of a conversation is drawn. */
 export type WelcomeMessageType = 'none' | 'verticalQuickReplies';
 
+/**
+ * Your own copy for strings the chat would otherwise show in its built-in
+ * translations. A string given here is shown as given whatever the device
+ * language. Leave a field out to keep the built-in translation.
+ */
+export type YaloChatTexts = {
+  /** What the message input shows while it is empty. */
+  inputPlaceholder?: string;
+};
+
 /** The details of one conversation. */
 export type YaloChatClientConfig = {
   channelId: string;
@@ -35,4 +45,5 @@ export type YaloChatClientConfig = {
   hideVoiceButton?: boolean;
   hideAttachmentButton?: boolean;
   hideFeedbackButtons?: boolean;
+  texts?: YaloChatTexts;
 };

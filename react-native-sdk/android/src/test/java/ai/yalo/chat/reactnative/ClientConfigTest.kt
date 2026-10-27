@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.YaloChatTexts
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -38,7 +39,8 @@ class ClientConfigTest {
                  "hideVoiceButton":true,
                  "hideAttachmentButton":true,
                  "hideWatermark":true,
-                 "hideFeedbackButtons":true}
+                 "hideFeedbackButtons":true,
+                 "texts":{"inputPlaceholder":"Ask us anything"}}
                 """,
             ),
         )
@@ -58,6 +60,7 @@ class ClientConfigTest {
                 hideAttachmentButton = true,
                 hideWatermark = true,
                 hideFeedbackButtons = true,
+                texts = YaloChatTexts(inputPlaceholder = "Ask us anything"),
             ),
             config,
         )
@@ -89,6 +92,13 @@ class ClientConfigTest {
         modes.forEach { (name, mode) ->
             assertEquals(mode, clientConfigOf(JSONObject("""{$required,"sessionMode":"$name"}""")).sessionMode)
         }
+    }
+
+    @Test
+    fun `keeps the built-in texts for what was left out`() {
+        val config = clientConfigOf(JSONObject("""{$required,"texts":{}}"""))
+
+        assertEquals(YaloChatTexts(), config.texts)
     }
 
     @Test

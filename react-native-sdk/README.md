@@ -16,6 +16,7 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 - [Data on the device](#data-on-the-device)
 - [Custom commands](#custom-commands)
 - [Theming](#theming)
+- [Translations](#translations)
 - [Platform differences](#platform-differences)
 
 ## Requirements
@@ -113,6 +114,7 @@ Optional properties:
 - **`hideAttachmentButton`** (`boolean`): Leaves the plus out of the message input, so nobody can pick a picture to send. Defaults to `false`.
 - **`hideWatermark`** (`boolean`): Leaves the "By Yalo" line out of the header. Defaults to `false`.
 - **`hideFeedbackButtons`** (`boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies, so nobody can rate them. Defaults to `false`, which shows them.
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 The config is read when the chat is shown. To change it, create a new client.
 
@@ -121,7 +123,7 @@ The config is read when the chat is shown. To change it, create a new client.
 Props:
 
 - **`client`** (`YaloChatClient`): The conversation to show.
-- **`theme`** (`ChatTheme`): Colors and shapes. See [Theming](#theming).
+- **`theme`** (`ChatTheme`): Colors and shapes. Leave it out to keep the platform default. See [Theming](doc/theming.md).
 - **`avatar`** (`ImageURISource | ImageRequireSource`): An image drawn as a circle beside the channel name. With `welcomeMessageType` set to `verticalQuickReplies`, it is also drawn centered above the welcome message, until the person sends something. Takes the same sources as `Image`, a remote URL or a bundled image. Nothing is drawn when you leave it out.
 - **`onBack`** (`() => void`): Shows a back button in the header that calls it. Leave it out when the chat is not something the person closes.
 - **`style`**: The chat fills the space it is given, `flex: 1` by default.
@@ -228,7 +230,7 @@ client.registerCommand('updateCartProduct', async ({ sku, units, subunits }) => 
 
 ## Theming
 
-Every value is optional. Anything left out keeps the platform default, which follows light and dark mode.
+The chat follows the platform colors and the device light and dark mode with no setup. Pass a `theme` to `Chat` to override only what you need. Every value is optional.
 
 ```tsx
 <Chat
@@ -242,34 +244,15 @@ Every value is optional. Anything left out keeps the platform default, which fol
 />
 ```
 
-Colors take any React Native color string or number. `PlatformColor` and `DynamicColorIOS` are not supported yet and are ignored with a warning.
+See [Theming](doc/theming.md) for every property, its default on each platform, and a full example.
 
-- `background`, `onBackground`
-- `headerBackground`, `onHeaderBackground`
-- `footerBackground`, `onFooterBackground`
-- `userMessageBackground`, `onUserMessageBackground`
-- `agentMessageBackground`, `onAgentMessageBackground`, `agentMessageBorderColor`
-- `typingIndicatorDotColor`
-- `linkColor`
-- `quickReplyBackground`, `onQuickReplyBackground`, `quickReplyBorderColor`
-- `postbackBackground`, `onPostbackBackground`, `postbackBorderColor`
-- `inputBorderColor`, `inputFieldBorderColor`, `inputBackground`
-- `sendButtonBackground`, `onSendButtonBackground`
+## Translations
 
-`agentMessagePadding` is the room in points between the box around a message the channel sent and its content. It defaults to 0.
-
-Shapes are corner radii in points. A number rounds every corner. An object rounds only the corners it names, and the rest stay square.
-
-- `inputShape`
-- `userMessageShape`
-- `agentMessageShape`
-- `imageShape`
-- `quickReplyShape`
-- `postbackShape`
+The chat ships translated into every supported language and follows the device language. See [Translations](doc/translations.md) for the list and for how to replace a string with your own copy.
 
 ## Platform differences
 
 Both platforms take the full API. Some options are not drawn on iOS yet and are ignored there until the iOS SDK supports them:
 
-- The theme colors `onBackground`, `linkColor`, `postback*` and `inputFieldBorderColor`.
+- The theme colors `onBackground`, `linkColor` and `inputFieldBorderColor`.
 - The theme shapes `imageShape` and `postbackShape`.

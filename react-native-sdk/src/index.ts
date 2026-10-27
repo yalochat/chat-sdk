@@ -18,4 +18,5 @@ export type {
   SessionMode,
   WelcomeMessageType,
   YaloChatClientConfig,
+  YaloChatTexts,
 } from './YaloChatClientConfig';
