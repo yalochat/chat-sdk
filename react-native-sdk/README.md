@@ -16,6 +16,7 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 - [Data on the device](#data-on-the-device)
 - [Custom commands](#custom-commands)
 - [Theming](#theming)
+- [Translations](#translations)
 - [Platform differences](#platform-differences)
 
 ## Requirements
@@ -113,6 +114,7 @@ Optional properties:
 - **`hideAttachmentButton`** (`boolean`): Leaves the plus out of the message input, so nobody can pick a picture to send. Defaults to `false`.
 - **`hideWatermark`** (`boolean`): Leaves the "By Yalo" line out of the header. Defaults to `false`.
 - **`hideFeedbackButtons`** (`boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies, so nobody can rate them. Defaults to `false`, which shows them.
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 The config is read when the chat is shown. To change it, create a new client.
 
@@ -253,6 +255,7 @@ Colors take any React Native color string or number. `PlatformColor` and `Dynami
 - `linkColor`
 - `quickReplyBackground`, `onQuickReplyBackground`, `quickReplyBorderColor`
 - `postbackBackground`, `onPostbackBackground`, `postbackBorderColor`
+- `selectedPostbackBackground`, `onSelectedPostbackBackground`: the button the person tapped last on a message, which stays highlighted. Links are never highlighted.
 - `inputBorderColor`, `inputFieldBorderColor`, `inputBackground`
 - `sendButtonBackground`, `onSendButtonBackground`
 
@@ -267,9 +270,13 @@ Shapes are corner radii in points. A number rounds every corner. An object round
 - `quickReplyShape`
 - `postbackShape`
 
+## Translations
+
+The chat ships translated into every supported language and follows the device language. See [Translations](doc/translations.md) for the list and for how to replace a string with your own copy.
+
 ## Platform differences
 
 Both platforms take the full API. Some options are not drawn on iOS yet and are ignored there until the iOS SDK supports them:
 
-- The theme colors `onBackground`, `linkColor`, `postback*` and `inputFieldBorderColor`.
+- The theme colors `onBackground`, `linkColor` and `inputFieldBorderColor`.
 - The theme shapes `imageShape` and `postbackShape`.

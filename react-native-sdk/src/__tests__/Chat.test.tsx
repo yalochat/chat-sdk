@@ -11,6 +11,7 @@ const client = new YaloChatClient({
   channelName: 'Support',
   sessionMode: 'perContext',
   openContext: { sku: '123' },
+  texts: { inputPlaceholder: 'Ask us anything' },
 });
 
 describe('Chat', () => {

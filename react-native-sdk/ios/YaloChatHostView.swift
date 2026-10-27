@@ -214,7 +214,8 @@ func clientConfig(
     hideWatermark: values["hideWatermark"] as? Bool ?? false,
     hideVoiceButton: values["hideVoiceButton"] as? Bool ?? false,
     hideAttachmentButton: values["hideAttachmentButton"] as? Bool ?? false,
-    hideFeedbackButtons: values["hideFeedbackButtons"] as? Bool ?? false
+    hideFeedbackButtons: values["hideFeedbackButtons"] as? Bool ?? false,
+    texts: texts(of: values["texts"] as? [String: Any])
   )
 }
 
@@ -244,6 +245,11 @@ func chatTheme(of json: String) -> ChatTheme {
     ("quickReplyBackground", \.quickReplyBackground),
     ("onQuickReplyBackground", \.onQuickReplyBackground),
     ("quickReplyBorderColor", \.quickReplyBorderColor),
+    ("postbackBackground", \.postbackBackground),
+    ("onPostbackBackground", \.onPostbackBackground),
+    ("postbackBorderColor", \.postbackBorderColor),
+    ("selectedPostbackBackground", \.selectedPostbackBackground),
+    ("onSelectedPostbackBackground", \.onSelectedPostbackBackground),
   ]
   for (key, path) in colors {
     if let argb = values[key] as? NSNumber {
@@ -265,6 +271,10 @@ func chatTheme(of json: String) -> ChatTheme {
     }
   }
   return theme
+}
+
+private func texts(of values: [String: Any]?) -> YaloChatTexts {
+  YaloChatTexts(inputPlaceholder: values?["inputPlaceholder"] as? String)
 }
 
 private func object(of json: String) -> [String: Any]? {
