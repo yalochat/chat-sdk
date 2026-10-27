@@ -4,6 +4,7 @@ import Foundation
 
 /// A tappable option the channel attached to a message. `url` only means
 /// something for a `link`, the one kind that leaves the conversation.
+/// `selected` marks the postback the person tapped last on its message.
 struct MessageButton: Equatable, Sendable, Codable {
     enum Kind: String, Equatable, Sendable, Codable {
         case reply
@@ -20,6 +21,18 @@ struct MessageButton: Equatable, Sendable, Codable {
     var text: String
     var kind: Kind = .reply
     var url: String?
+    var selected: Bool = false
+}
+
+extension MessageButton {
+    /// Buttons stored before `selected` existed read back as not selected.
+    init(from decoder: Decoder) throws {
+        let container: KeyedDecodingContainer<CodingKeys> = try decoder.container(keyedBy: CodingKeys.self)
+        text = try container.decode(String.self, forKey: .text)
+        kind = try container.decode(Kind.self, forKey: .kind)
+        url = try container.decodeIfPresent(String.self, forKey: .url)
+        selected = try container.decodeIfPresent(Bool.self, forKey: .selected) ?? false
+    }
 }
 
 extension ChatMessage {

@@ -54,7 +54,7 @@ internal fun ChatMessageItem(
     quickReplies: List<MessageButton> = emptyList(),
     isWelcome: Boolean = false,
     onQuickReply: (String) -> Unit = {},
-    onPostback: (String) -> Unit = {},
+    onPostback: (ChatMessage, MessageButton) -> Unit = { _, _ -> },
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
@@ -134,7 +134,7 @@ private fun AgentMessage(
     quickReplies: List<MessageButton>,
     isWelcome: Boolean,
     onQuickReply: (String) -> Unit,
-    onPostback: (String) -> Unit,
+    onPostback: (ChatMessage, MessageButton) -> Unit,
     modifier: Modifier,
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
@@ -174,7 +174,7 @@ private fun AgentMessage(
         if (actions.isNotEmpty()) {
             MessageButtons(
                 buttons = actions,
-                onButtonClick = onPostback,
+                onButtonClick = { button -> onPostback(message, button) },
                 modifier = Modifier.widthAtMost(AGENT_MESSAGE_WIDTH),
             )
         }

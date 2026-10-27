@@ -37,6 +37,8 @@ public struct ChatTheme: Sendable, Equatable {
     public var postbackBackground: Color
     public var onPostbackBackground: Color
     public var postbackBorderColor: Color
+    public var selectedPostbackBackground: Color
+    public var onSelectedPostbackBackground: Color
 
     public init(
         background: Color = Color(.systemBackground),
@@ -67,7 +69,9 @@ public struct ChatTheme: Sendable, Equatable {
         quickReplyShape: ChatShape = .capsule,
         postbackBackground: Color = .clear,
         onPostbackBackground: Color = Color(.label),
-        postbackBorderColor: Color = Color(.separator)
+        postbackBorderColor: Color = Color(.separator),
+        selectedPostbackBackground: Color = Color(.tertiarySystemFill),
+        onSelectedPostbackBackground: Color = Color(.label)
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -95,6 +99,8 @@ public struct ChatTheme: Sendable, Equatable {
         self.postbackBackground = postbackBackground
         self.onPostbackBackground = onPostbackBackground
         self.postbackBorderColor = postbackBorderColor
+        self.selectedPostbackBackground = selectedPostbackBackground
+        self.onSelectedPostbackBackground = onSelectedPostbackBackground
     }
 }
 

@@ -7,6 +7,7 @@ import type { AddToCart } from '@domain/models/chat-events/add-to-cart';
 import type { ChangeQuantity } from '@domain/models/chat-events/change-quantity';
 import type { ProductConfirmationClicked } from '@domain/models/chat-events/product-confirmation-clicked';
 import type { MessageFeedbackChanged } from '@domain/models/chat-events/message-feedback-changed';
+import type { MessageButtonSelected } from '@domain/models/chat-events/message-button-selected';
 import type { PageInfo } from '@domain/common/page';
 import type {
   CustomCommandRequest,
@@ -838,6 +839,45 @@ export default class YaloChatWindowController implements ReactiveController {
       await this.host.chatMessageRepository.replaceChatMessage(updated);
     if (!result.ok) {
       this.host.logger.error('Unable to persist message feedback locally', {
+        error: result.error,
+      });
+    }
+  }
+
+  // Remembers the postback button the person clicked last so it stays
+  // highlighted, also after a reload.
+  async selectMessageButton(e: CustomEvent): Promise<void> {
+    const { message, button } = e.detail as MessageButtonSelected;
+    if (message.id === undefined) {
+      return;
+    }
+    const position = message.buttons.indexOf(button);
+    const index = this.chatMessages.findIndex((m) => m.id === message.id);
+    if (position === -1 || index === -1) {
+      return;
+    }
+    const current = this.chatMessages[index];
+    const unchanged = current.buttons.every(
+      (b, i) => (b.selected === true) === (i === position)
+    );
+    if (unchanged) {
+      return;
+    }
+    const updated = new ChatMessage({
+      ...current,
+      buttons: current.buttons.map((b, i) => ({
+        ...b,
+        selected: i === position,
+      })),
+    });
+    this.chatMessages = [...this.chatMessages];
+    this.chatMessages[index] = updated;
+    this.host.requestUpdate();
+
+    const result =
+      await this.host.chatMessageRepository.replaceChatMessage(updated);
+    if (!result.ok) {
+      this.host.logger.error('Unable to persist selected button locally', {
         error: result.error,
       });
     }

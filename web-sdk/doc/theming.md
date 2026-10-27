@@ -517,6 +517,8 @@ follow `--yalo-chat-assistant-message-font-size` and
 
 Buttons attached to assistant messages, rendered below the body.
 
+When the person clicks a postback button, it stays highlighted with the selected colors below. Clicking another postback button on the same message moves the highlight to it. The highlight is kept after a reload. Link buttons are never highlighted.
+
 ```css
 :root {
   /* Border color around each button. */
@@ -542,6 +544,12 @@ Buttons attached to assistant messages, rendered below the body.
 
   /* Font size for button text. */
   --yalo-chat-buttons-font-size: 0.875rem;
+
+  /* Background color of the postback button the person clicked last. */
+  --yalo-chat-buttons-selected-background: #dde4ec;
+
+  /* Text color of the postback button the person clicked last. */
+  --yalo-chat-buttons-selected-color: #111111;
 }
 ```
 

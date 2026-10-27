@@ -598,7 +598,7 @@ class ChatViewModelTest {
         val viewModel = chatViewModel()
         yaloMessageRepository.answer(answer("Pick one", buttons = listOf(postback("Track order"))))
 
-        viewModel.onPostback("Track order")
+        viewModel.onPostback(viewModel.uiState.messages.first(), postback("Track order"))
 
         assertEquals(listOf("Track order"), yaloMessageRepository.sent.map { it.content })
         assertEquals(MessageRole.User, viewModel.uiState.messages.first().role)
@@ -609,10 +609,25 @@ class ChatViewModelTest {
         val viewModel = chatViewModel()
         yaloMessageRepository.answer(answer("Pick one", buttons = listOf(postback("Track order"))))
 
-        viewModel.onPostback("Track order")
+        viewModel.onPostback(viewModel.uiState.messages.first(), postback("Track order"))
 
         val offered = viewModel.uiState.messages.last().buttons.map { it.text }
         assertEquals(listOf("Track order"), offered)
+    }
+
+    @Test
+    fun picksOnlyTheButtonThatWasTappedLast() {
+        val viewModel = chatViewModel()
+        yaloMessageRepository.answer(
+            answer("Pick one", buttons = listOf(postback("Track order"), postback("Talk to us"))),
+        )
+
+        viewModel.onPostback(viewModel.uiState.messages.first(), postback("Track order"))
+        val offered = viewModel.uiState.messages.last()
+        viewModel.onPostback(offered, offered.buttons.last())
+
+        val picked = viewModel.uiState.messages.last().buttons.filter { it.selected }.map { it.text }
+        assertEquals(listOf("Talk to us"), picked)
     }
 
     @Test

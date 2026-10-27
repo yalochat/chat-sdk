@@ -24,6 +24,9 @@ protocol ChatMessageService: Sendable {
     /// Stores how the person rated the message of row `id`. Nil clears it.
     func setFeedback(_ feedback: ChatMessage.Feedback?, id: Int64) async throws
 
+    /// Replaces the buttons of the message of row `id`.
+    func setButtons(_ buttons: [MessageButton], id: Int64) async throws
+
     /// Forgets every message of `sessionIds`. Sessions with nothing stored are no error.
     func deleteSessions(_ sessionIds: [String]) async throws
 

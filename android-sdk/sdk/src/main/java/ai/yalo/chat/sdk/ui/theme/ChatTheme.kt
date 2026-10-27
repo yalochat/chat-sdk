@@ -51,6 +51,8 @@ public data class ChatTheme(
     public val postbackBackground: Color,
     public val onPostbackBackground: Color,
     public val postbackBorderColor: Color,
+    public val selectedPostbackBackground: Color,
+    public val onSelectedPostbackBackground: Color,
     public val inputBorderColor: Color,
     public val inputFieldBorderColor: Color,
     public val inputBackground: Color,
@@ -102,6 +104,8 @@ public data class ChatTheme(
             postbackBackground = Color.Transparent,
             onPostbackBackground = MaterialTheme.colorScheme.onSurface,
             postbackBorderColor = MaterialTheme.colorScheme.outline,
+            selectedPostbackBackground = MaterialTheme.colorScheme.secondaryContainer,
+            onSelectedPostbackBackground = MaterialTheme.colorScheme.onSecondaryContainer,
             inputBorderColor = MaterialTheme.colorScheme.outline,
             // The place text is typed and the plus beside it share the one
             // outline around them, so the field draws none of its own.

@@ -85,12 +85,14 @@ These paint the chips the person taps to answer.
 
 ### Message buttons
 
-These paint the buttons stacked under a message, both the ones that answer the channel and the links that open a page. A link also shows an arrow in the text color.
+These paint the buttons stacked under a message, both the ones that answer the channel and the links that open a page. A link also shows an arrow in the text color. The last button the person tapped on a message stays highlighted, links excluded.
 
 - **`postbackBackground`** (`Color`): Background of a button. Defaults to transparent. Set a color to fill it.
 - **`onPostbackBackground`** (`Color`): Color of the text on a button. Defaults to the Material `onSurface` color.
 - **`postbackBorderColor`** (`Color`): Color of the line around a button. Defaults to the Material `outline` color.
 - **`postbackShape`** (`Shape`): Shape of a button. Defaults to a lightly rounded shape.
+- **`selectedPostbackBackground`** (`Color`): Background of the button the person tapped. Defaults to the Material `secondaryContainer` color.
+- **`onSelectedPostbackBackground`** (`Color`): Color of the text on the button the person tapped. Defaults to the Material `onSecondaryContainer` color.
 
 ### Typing indicator
 

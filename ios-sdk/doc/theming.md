@@ -97,11 +97,13 @@ A `ChatShape` rounds each corner on its own. A radius larger than half the short
 
 ### Message buttons
 
-These paint the buttons stacked under a message, both the ones that answer the channel and the links that open a page. A link also shows an arrow in the text color.
+These paint the buttons stacked under a message, both the ones that answer the channel and the links that open a page. A link also shows an arrow in the text color. The answer the person tapped last stays highlighted.
 
 - **`postbackBackground`** (`Color`): Background of a button. Defaults to clear. Set a color to fill it.
 - **`onPostbackBackground`** (`Color`): Color of the text on a button. Defaults to the system label color.
 - **`postbackBorderColor`** (`Color`): Color of the line around a button. Defaults to the system separator color.
+- **`selectedPostbackBackground`** (`Color`): Background of the button the person tapped last on a message. Defaults to the system tertiary fill color.
+- **`onSelectedPostbackBackground`** (`Color`): Color of the text on the button the person tapped last. Defaults to the system label color.
 
 ## Light and dark
 
