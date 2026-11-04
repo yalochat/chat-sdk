@@ -6,9 +6,13 @@ import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
 import ai.yalo.chat.sdk.ui.voice.CHAT_CANCEL_RECORDING_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_RECORDING_BAR_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_RECORDING_TIMER_TAG
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -19,6 +23,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.height
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -47,6 +56,8 @@ class ChatFooterTest {
         setFooter(text = "", onTextChange = { value -> typed.add(value) })
 
         composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTextInput("Hi")
+        // What is typed is reported on the next frame, once the field settles.
+        composeRule.waitForIdle()
 
         assertEquals(listOf("Hi"), typed)
     }
@@ -210,6 +221,68 @@ class ChatFooterTest {
         composeRule.onNodeWithTag(CHAT_INPUT_BOX_TAG).assertDoesNotExist()
     }
 
+    @Test
+    fun keepsShortTextUnscrolled() {
+        val scroll = ScrollState(0)
+        setFooter(text = "Hi", inputScrollState = scroll)
+
+        composeRule.waitForIdle()
+        assertEquals(0, scroll.maxValue)
+    }
+
+    // Past the line cap the box stops growing and the text scrolls inside it,
+    // both ways, so the person can go back up to read and edit earlier lines.
+    @Test
+    fun scrollsTheInputWhenTheTextOutgrowsTheBox() {
+        val scroll = ScrollState(0)
+        val longText = (1..20).joinToString("\n") { line -> "Line $line" }
+        setFooter(text = longText, inputScrollState = scroll)
+        composeRule.waitForIdle()
+
+        assertTrue("the input never got a scroll range", scroll.maxValue > 0)
+
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTouchInput { swipeUp() }
+        composeRule.waitForIdle()
+        val scrolledDown = scroll.value
+        assertTrue("swiping up did not scroll the text", scrolledDown > 0)
+
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).performTouchInput { swipeDown() }
+        composeRule.waitForIdle()
+        assertTrue("swiping down did not scroll back up", scroll.value < scrolledDown)
+    }
+
+    @Test
+    fun capsTheInputHeightNoMatterHowMuchIsTyped() {
+        var text by mutableStateOf("Hi")
+        composeRule.setContent { ChatFooter(text = text, onTextChange = {}, onSend = {}) }
+        val oneLine = composeRule.onNodeWithTag(CHAT_INPUT_TAG).getUnclippedBoundsInRoot().height
+
+        text = (1..20).joinToString("\n") { line -> "Line $line" }
+        composeRule.waitForIdle()
+        val tall = composeRule.onNodeWithTag(CHAT_INPUT_TAG).getUnclippedBoundsInRoot().height
+
+        assertTrue("the input stayed $tall tall for a long text", tall > oneLine)
+        text = (1..60).joinToString("\n") { line -> "Line $line" }
+        composeRule.waitForIdle()
+        val taller = composeRule.onNodeWithTag(CHAT_INPUT_TAG).getUnclippedBoundsInRoot().height
+        assertEquals(tall, taller)
+    }
+
+    @Test
+    fun emptiesTheInputWhenTheCallerClearsTheText() {
+        var text by mutableStateOf("Hi")
+        composeRule.setContent {
+            ChatFooter(text = text, onTextChange = { value -> text = value }, onSend = {})
+        }
+
+        text = ""
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(CHAT_INPUT_TAG).assert(
+            SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")),
+        )
+    }
+
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)
 
@@ -226,6 +299,7 @@ class ChatFooterTest {
         recording: () -> VoiceRecording? = { null },
         onStartRecording: () -> Unit = {},
         onCancelRecording: () -> Unit = {},
+        inputScrollState: ScrollState = ScrollState(0),
     ) {
         composeRule.setContent {
             ChatFooter(
@@ -238,6 +312,7 @@ class ChatFooterTest {
                 recording = recording,
                 onStartRecording = onStartRecording,
                 onCancelRecording = onCancelRecording,
+                inputScrollState = inputScrollState,
             )
         }
     }
