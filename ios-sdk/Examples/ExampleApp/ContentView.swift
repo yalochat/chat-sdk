@@ -17,6 +17,15 @@ struct ContentView: View {
         sessionMode: .ephemeral
     ))
 
+    /// Every value has a default, so a theme names only what it changes. Here
+    /// that is the scrollbar in the message input, which shows once what is
+    /// typed runs past four lines: a wider thumb than the 3 point default, in
+    /// the accent color. Set the width to 0 to hide it; the text still scrolls.
+    private let theme: ChatTheme = ChatTheme(
+        inputScrollbarColor: .accentColor,
+        inputScrollbarWidth: 6
+    )
+
     @State private var chatIsOpen: Bool = false
 
     var body: some View {
@@ -37,7 +46,7 @@ struct ContentView: View {
             // Trailing follows the reading direction, so the chat enters from
             // the right in English and from the left in Arabic.
             if chatIsOpen {
-                Chat(client: client, onBack: {
+                Chat(client: client, theme: theme, onBack: {
                     chatIsOpen = false
                 }) {
                     ExampleAvatar()
