@@ -26,6 +26,10 @@ protocol YaloMessageRepository: AnyObject {
     /// Ends the conversation and forgets whatever was waiting to be sent.
     func close()
 
+    /// Drops the line and whatever was waiting to be sent, then opens a new
+    /// one with the token asked for now. A paused line opens on `resume()`.
+    func restart() async
+
     /// What the channel says from now on.
     func messages() -> AsyncStream<ChatMessage>
 

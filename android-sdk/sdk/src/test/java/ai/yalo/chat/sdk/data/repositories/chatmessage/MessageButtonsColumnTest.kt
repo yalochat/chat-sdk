@@ -16,7 +16,7 @@ class MessageButtonsColumnTest {
     fun readsBackEveryButtonItWasGiven() {
         val buttons = listOf(
             MessageButton(text = "Yes"),
-            MessageButton(text = "Track it", type = MessageButtonType.Postback),
+            MessageButton(text = "Track it", type = MessageButtonType.Postback, selected = true),
             MessageButton(
                 text = "Open the store",
                 type = MessageButtonType.Link,
@@ -25,6 +25,14 @@ class MessageButtonsColumnTest {
         )
 
         assertEquals(buttons, MessageButtonsColumn.decode(MessageButtonsColumn.encode(buttons)))
+    }
+
+    // Rows written before a button could be picked carry no flag.
+    @Test
+    fun readsAButtonStoredWithoutAPickAsNotPicked() {
+        val stored = """[{"text":"Track it","type":"postback"}]"""
+
+        assertEquals(false, MessageButtonsColumn.decode(stored).single().selected)
     }
 
     @Test

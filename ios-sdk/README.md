@@ -12,6 +12,9 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Configuration](#configuration)
 - [Open context](#open-context)
 - [Session modes](#session-modes)
+- [Clearing messages](#clearing-messages)
+- [Logging out](#logging-out)
+- [Data on the device](#data-on-the-device)
 - [Voice messages](#voice-messages)
 - [Image messages](#image-messages)
 - [Quick replies and buttons](#quick-replies-and-buttons)
@@ -117,6 +120,24 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off on any device. Defaults to `nil`, which keeps the conversation anonymous. An anonymous conversation still picks up where it was left on the same device, until the app is deleted.
+- **`userAuthTokenProvider`** (`(@Sendable () async throws -> String?)?`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in person is. Use it with channels set up to verify your users. The SDK calls it every time it authenticates, so return a fresh token each time. When set, the backend takes the person from the token. You must also set `userId` to the same value as the token's `sub` claim, so each signed-in person keeps their own conversation on the device. If it returns `nil` or throws, the chat does not connect. Defaults to `nil`. It is not taken into account when comparing two configs.
+  - The token should use the claim names from RFC 7519:
+    - `sub`: your own id for the user. Keep it stable and unique, and pass the same value as `userId`.
+    - `iss`: who issued the token, your backend.
+    - `aud`: who the token is for, Yalo.
+    - `exp`: when the token expires. Keep it short, a few minutes is enough, since a new one is asked for every time.
+    - `iat` (optional): when the token was issued.
+    - `jti` (recommended): a unique id for the token. With it, each token can be used only once, so a token that leaks cannot be used again.
+  - For profile details such as name, email or phone, use the standard claim names `name`, `email` and `phone_number`.
+  ```swift
+  YaloChatClientConfig(
+      channelId: "your-channel-id",
+      organizationId: "your-organization-id",
+      channelName: "Yalo",
+      userId: signedInUser.id, // same value as the token's sub
+      userAuthTokenProvider: { try await myBackend.yaloToken() }
+  )
+  ```
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `.modal`, which puts them in a bar above the message input. Set `.inline` to put them under the message that offered them. See [Quick replies and buttons](#quick-replies-and-buttons).
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `.none`, which draws it like any other message.
   - `.verticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with the avatar above it and one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the avatar leaves the conversation and it is drawn as usual.
@@ -127,6 +148,7 @@ Optional properties:
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideFeedbackButtons`** (`Bool`): Leaves the thumbs up and thumbs down out from under the channel's messages, so nobody can rate them. Defaults to `false`, which shows them once the person has sent their first message, so the welcome message has none. A picked rating stays selected, and tapping it again takes it back.
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 ## Open context
 
@@ -178,6 +200,41 @@ What to expect from `.ephemeral`:
 
 Each mode is also its own person to the channel, so a conversation scoped by context or by a single visit does not pick up what another one said.
 
+## Clearing messages
+
+Call `clearMessages()` to delete every message stored on the device.
+
+```swift
+await client.clearMessages()
+```
+
+Notes:
+
+- It deletes the messages of every conversation, whatever client or `sessionMode` they came from.
+- It works whether or not a chat is on screen. The messages are deleted by the time it returns.
+- Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- The person stays the same to the channel. To start over as a new person, use `logout()`.
+
+## Logging out
+
+Call `logout()` when the person logs out of your app.
+
+```swift
+await client.logout()
+```
+
+Notes:
+
+- It deletes every message and every session stored on the device, of every conversation.
+- It works whether or not a chat is on screen. Everything is deleted by the time it returns.
+- Every chat on screen empties and connects again as a new person, and the channel greets them.
+
+## Data on the device
+
+- Messages, pictures and voice notes are kept in the app's own storage.
+- The access and refresh tokens are kept in the Keychain, which stores them encrypted. They can only be read once the device has been unlocked after a restart, and they never leave the device, not even in a backup.
+- `clearMessages()` and `logout()` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
+
 ## Voice messages
 
 The person taps the microphone to record a voice message and the send button to send it. The first time, iOS asks them for the microphone.
@@ -206,7 +263,7 @@ The channel can attach buttons to what it says. Tapping one sends its text as if
   - `quickReplyType` decides where they are shown:
     - `.modal` (default): in a bar between the conversation and the message input.
     - `.inline`: under the message that offered them.
-- **Postback buttons** stay under the message that sent them, one per line, and can be tapped again later in the conversation.
+- **Postback buttons** stay under the message that sent them, one per line, and can be tapped again later in the conversation. The one the person tapped last stays highlighted.
 - **Link buttons** sit with the postback buttons and show an arrow. Tapping one opens its address outside the chat instead of sending anything.
 
 ```swift
@@ -268,14 +325,7 @@ What people actually said is different. Up to `.info` a line says that a message
 
 ## Translations
 
-The chat follows the language of the device. It ships with:
-
-- Arabic (`ar`)
-- Chinese (`zh`, `zh-Hans`)
-- Portuguese (`pt`, `pt-BR`)
-- Spanish (`es`, `es-MX`)
-
-Any other language falls back to English.
+The chat ships translated into every supported language and follows the device language. See [Translations](doc/translations.md) for the list and for how to replace a string with your own copy.
 
 ## Custom commands
 

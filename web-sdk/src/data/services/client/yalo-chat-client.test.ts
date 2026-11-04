@@ -4,6 +4,7 @@ import type { YaloChatWindow } from '@ui/chat/chat-window/yalo-chat-window';
 import type { ChatCommand } from '@domain/models/command/chat-command';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import YaloChatClient from './yalo-chat-client';
+import YaloChatWindowController from '@ui/chat/chat-window/yalo-chat-window-controller';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import { Ok } from '@domain/common/result';
 import type { ChatMessage } from '@domain/models/chat-message/chat-message';
@@ -305,6 +306,85 @@ describe('YaloChatClient', () => {
       );
       client.sendTextMessage('   ');
       expect(insertMessage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('clearMessages', () => {
+    const spyInsertMessage = () =>
+      vi
+        .spyOn(YaloMessageRepositoryRemote.prototype, 'insertMessage')
+        .mockImplementation((message: ChatMessage) =>
+          Promise.resolve(new Ok(message))
+        );
+
+    const shownMessages = (client: YaloChatClient): ChatMessage[] =>
+      (
+        client.chatWindowEl?.shadowRoot?.querySelector(
+          'yalo-chat-message-list'
+        ) as unknown as { chatMessages: ChatMessage[] } | null
+      )?.chatMessages ?? [];
+
+    const initWithMessage = async (client: YaloChatClient) => {
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      client.sendTextMessage('hello');
+      await vi.waitUntil(() => shownMessages(client).length > 0);
+    };
+
+    it('empties an initialized chat', async () => {
+      spyInsertMessage();
+      const client = new YaloChatClient(baseConfig);
+      await initWithMessage(client);
+
+      await client.clearMessages();
+      await client.chatWindowEl?.updateComplete;
+
+      expect(shownMessages(client)).toHaveLength(0);
+    });
+
+    it('deletes the stored messages when the chat is not initialized', async () => {
+      spyInsertMessage();
+      const client = new YaloChatClient(baseConfig);
+      await initWithMessage(client);
+      client.dispose();
+
+      await client.clearMessages();
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+      await client.chatWindowEl?.updateComplete;
+
+      expect(shownMessages(client)).toHaveLength(0);
+    });
+  });
+
+  describe('logout', () => {
+    it('wipes storage and restarts an initialized chat', async () => {
+      const logout = vi
+        .spyOn(YaloChatWindowController, 'logout')
+        .mockResolvedValue();
+      const client = new YaloChatClient(baseConfig);
+      client.init();
+      await vi.waitUntil(
+        () => client.chatWindowEl?.yaloMessageRepository != null
+      );
+
+      await client.logout();
+
+      expect(logout).toHaveBeenCalledTimes(1);
+    });
+
+    it('wipes storage when the chat is not initialized', async () => {
+      const logout = vi
+        .spyOn(YaloChatWindowController, 'logout')
+        .mockResolvedValue();
+
+      await new YaloChatClient(baseConfig).logout();
+
+      expect(logout).toHaveBeenCalledTimes(1);
     });
   });
 

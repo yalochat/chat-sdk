@@ -189,16 +189,17 @@ class ChatMessageRepositoryLocalTest {
     }
 
     @Test
-    fun forgetsOnlyTheConversationItWasAskedAbout() = runBlocking {
+    fun forgetsEveryConversationWhenAskedToDeleteAll() = runBlocking {
         val support = repository("support-session")
         val sales = repository("sales-session")
         support.insert(userMessage("Support draft"))
         sales.insert(userMessage("Sales draft"))
 
-        support.clearSession()
+        val forgotten = support.deleteAll()
 
+        assertTrue(forgotten.isSuccess)
         assertEquals(emptyList<String>(), support.messages().getOrThrow().map { it.content })
-        assertEquals(listOf("Sales draft"), sales.messages().getOrThrow().map { it.content })
+        assertEquals(emptyList<String>(), sales.messages().getOrThrow().map { it.content })
     }
 
     @Test
@@ -365,6 +366,25 @@ class ChatMessageRepositoryLocalTest {
         database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseDataSource.MESSAGE_TABLE}")
 
         assertTrue(repository.updateFeedback(1L, FeedbackRating.ThumbsUp).isFailure)
+    }
+
+    @Test
+    fun readsBackTheButtonsAMessageWasGivenLater() = runBlocking {
+        val repository = repository()
+        val stored = repository.insert(agentMessage("Pick one", wiId = "wi-1")).getOrThrow()
+        val buttons = listOf(MessageButton(text = "Track order", type = MessageButtonType.Postback, selected = true))
+
+        repository.updateButtons(stored.id!!, buttons).getOrThrow()
+
+        assertEquals(buttons, repository.messages().getOrThrow().single().buttons)
+    }
+
+    @Test
+    fun reportsButtonsStorageCouldNotKeep() = runBlocking {
+        val repository = repository()
+        database.writableDatabase.execSQL("DROP TABLE ${ChatMessageDatabaseDataSource.MESSAGE_TABLE}")
+
+        assertTrue(repository.updateButtons(1L, emptyList()).isFailure)
     }
 
     @Test

@@ -127,6 +127,23 @@ internal class YaloMessageRepositoryRemote(
         }
     }
 
+    override suspend fun reconnect() {
+        mutex.withLock {
+            if (lifecycle == Lifecycle.Closed) {
+                return
+            }
+            log.info { "reconnecting" }
+            connecting?.cancelAndJoin()
+            source.close()
+            // A paused line picks up the new token once it resumes.
+            connecting = if (lifecycle == Lifecycle.Running) {
+                scope.launch { connectUntilStopped() }
+            } else {
+                null
+            }
+        }
+    }
+
     /**
      * Opens one socket after another for as long as the chat is open.
      *

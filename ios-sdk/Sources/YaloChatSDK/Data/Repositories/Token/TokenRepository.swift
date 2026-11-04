@@ -79,16 +79,18 @@ actor TokenRepository {
     }
 
     /// Forgets the tokens of `sessionIds`, which do not have to include this
-    /// one. Sessions with nothing stored are no error.
+    /// one. Sessions with nothing stored are no error. The token in hand is
+    /// forgotten even when the stored one cannot be.
     func deleteSessions(_ sessionIds: [String]) throws {
+        if sessionIds.contains(sessionId) {
+            held = nil
+            loaded = true
+        }
         do {
             try store.delete(sessionIds: sessionIds)
         } catch {
             log.warn("the stored tokens cannot be forgotten", error: error)
             throw error
-        }
-        if sessionIds.contains(sessionId) {
-            held = nil
         }
     }
 

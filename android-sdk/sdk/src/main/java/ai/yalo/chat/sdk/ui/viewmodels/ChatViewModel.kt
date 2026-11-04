@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.ClearRequest
 import ai.yalo.chat.sdk.CommandHandler
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.SessionMode
@@ -121,6 +122,8 @@ internal class ChatViewModel(
      */
     private val sessionScope: CoroutineScope,
     hostMessages: Flow<String> = emptyFlow(),
+    /** Emits every time the host empties the storage. */
+    clearRequests: Flow<ClearRequest> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     /** The handler the host registered for a command, or null when it registered none. */
@@ -169,6 +172,9 @@ internal class ChatViewModel(
         }
         viewModelScope.launch {
             hostMessages.collect { text -> send(text) }
+        }
+        viewModelScope.launch {
+            clearRequests.collect { request -> startOver(request) }
         }
         viewModelScope.launch {
             // Each runs on its own, so a slow command never holds up the next.
@@ -301,15 +307,20 @@ internal class ChatViewModel(
     }
 
     /**
-     * Says a postback button back to the channel, as if the person had typed
-     * it.
+     * Says a postback button of [message] back to the channel, as if the
+     * person had typed it.
      *
-     * The button stays on its message afterwards, so the same one can be tapped
-     * again later in the conversation.
+     * The button stays on its message afterwards, highlighted as the one picked,
+     * so the same one can be tapped again later in the conversation.
      */
-    fun onPostback(text: String) {
+    fun onPostback(message: ChatMessage, button: MessageButton) {
         viewModelScope.launch {
-            send(text)
+            val id = message.id
+            val buttons = message.buttons.map { other -> other.copy(selected = other == button) }
+            if (id != null && buttons != message.buttons) {
+                chatMessageRepository.updateButtons(id, buttons).onSuccess { loadMessages() }
+            }
+            send(button.text)
         }
     }
 
@@ -332,6 +343,26 @@ internal class ChatViewModel(
             yaloMessageRepository.sendFeedback(wiId, next).onFailure { error ->
                 log.warn(error) { "the channel did not take the feedback on $wiId" }
                 rate(id, previous)
+            }
+        }
+    }
+
+    /**
+     * Shows the storage the host just emptied and lets the channel speak first
+     * again, as in a new chat. A chat that was already empty has been greeted,
+     * so it is not greeted twice, unless the person logged out: whoever comes
+     * next has never been greeted.
+     */
+    private suspend fun startOver(request: ClearRequest) {
+        val hadMessages = uiState.messages.isNotEmpty()
+        stopWaitingForReply()
+        if (request == ClearRequest.Logout) {
+            tokenRepository.clearSession()
+            yaloMessageRepository.reconnect()
+        }
+        loadMessages().onSuccess { stored ->
+            if (stored.isEmpty() && (hadMessages || request == ClearRequest.Logout)) {
+                openConversation()
             }
         }
     }
@@ -644,6 +675,7 @@ internal class ChatViewModel(
                     sessionFiles = dependencies.sessionFiles,
                     sessionScope = dependencies.scope,
                     hostMessages = client.outgoingTextMessages,
+                    clearRequests = client.clearRequests,
                     openContext = client.config.openContext,
                     welcomeMessageType = client.config.welcomeMessageType,
                     commandHandlers = client::commandHandler,

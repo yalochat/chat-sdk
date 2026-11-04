@@ -61,6 +61,8 @@ final class ChatViewModel: ObservableObject {
     private let welcomeMessageType: WelcomeMessageType
     /// The handler the host registered for a command, or nil when it registered none.
     private let commandHandlers: (String) -> CommandHandler?
+    /// Yields every time the host asks to clear the messages or to log out.
+    private let clearRequests: () -> AsyncStream<ChatReset>
     private let log: YaloLog
     private let now: () -> Date
     /// Seconds the loader waits before deciding no reply is coming.
@@ -89,6 +91,7 @@ final class ChatViewModel: ObservableObject {
         openContext: [String: String] = [:],
         welcomeMessageType: WelcomeMessageType = .none,
         commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil },
+        clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } },
         logLevel: LogLevel = .warn,
         now: @escaping () -> Date = { Date() },
         replyTimeout: TimeInterval = 45
@@ -106,6 +109,7 @@ final class ChatViewModel: ObservableObject {
         self.openContext = openContext
         self.welcomeMessageType = welcomeMessageType
         self.commandHandlers = commandHandlers
+        self.clearRequests = clearRequests
         self.log = YaloLog("Chat", level: logLevel)
         self.now = now
         self.replyTimeout = replyTimeout
@@ -140,6 +144,17 @@ final class ChatViewModel: ObservableObject {
         // Listening comes first, so nothing said while connecting is missed.
         let incoming: AsyncStream<ChatMessage> = yaloMessages.messages()
         let commands: AsyncStream<CommandRequest> = yaloMessages.commandRequests()
+        let clears: AsyncStream<ChatReset> = clearRequests()
+        let clearing: Task<Void, Never> = Task { [weak self] in
+            for await reset in clears {
+                switch reset {
+                case .messages:
+                    await self?.clearMessages()
+                case .logout:
+                    await self?.logout()
+                }
+            }
+        }
         let runningCommands: Task<Void, Never> = Task { [weak self] in
             for await request in commands {
                 // Each runs on its own, so a slow command never holds up the next.
@@ -158,6 +173,7 @@ final class ChatViewModel: ObservableObject {
             await receive(message)
         }
         runningCommands.cancel()
+        clearing.cancel()
         yaloMessages.close()
         voice.release()
     }
@@ -178,8 +194,28 @@ final class ChatViewModel: ObservableObject {
     }
 
     /// Says a quick reply or a postback button back to the channel, as if the
-    /// person had typed it. The draft is left alone.
-    func tap(_ button: MessageButton) async {
+    /// person had typed it. The draft is left alone. A postback tapped under
+    /// `message` stays selected there.
+    func tap(_ button: MessageButton, on message: ChatMessage? = nil) async {
+        if
+            button.kind == .postback,
+            let id = message?.id,
+            let index = messages.firstIndex(where: { stored in stored.id == id })
+        {
+            let buttons: [MessageButton] = messages[index].buttons.map { candidate in
+                var marked: MessageButton = candidate
+                marked.selected = candidate == button
+                return marked
+            }
+            if buttons != messages[index].buttons {
+                messages[index].buttons = buttons
+                do {
+                    try await chatMessages.setButtons(buttons, id: id)
+                } catch {
+                    log.error("could not keep the tapped button", error: error)
+                }
+            }
+        }
         await sendText(button.text)
     }
 
@@ -190,6 +226,46 @@ final class ChatViewModel: ObservableObject {
         }
         await loadMessages()
         await deliver(stored)
+    }
+
+    /// Forgets every message of the conversation and lets the channel speak
+    /// first again, as in a new chat. A chat that was already empty has been
+    /// greeted, so it is not greeted twice.
+    func clearMessages() async {
+        let hadMessages: Bool = !messages.isEmpty
+        do {
+            try await chatMessages.deleteSessions([sessionId])
+        } catch {
+            log.error("could not clear the messages", error: error)
+            return
+        }
+        stopWaitingForReply()
+        pictures.removeAllObjects()
+        await loadMessages()
+        if hadMessages, messages.isEmpty {
+            await openConversation()
+        }
+    }
+
+    /// Starts over as a new person: the conversation and its token are
+    /// forgotten, the line is opened again with a new token and the channel
+    /// greets them, however the chat looked before.
+    func logout() async {
+        do {
+            try await chatMessages.deleteSessions([sessionId])
+        } catch {
+            log.error("could not clear the messages", error: error)
+        }
+        do {
+            try await tokens.deleteSessions([sessionId])
+        } catch {
+            log.error("could not forget the token", error: error)
+        }
+        stopWaitingForReply()
+        pictures.removeAllObjects()
+        await loadMessages()
+        await yaloMessages.restart()
+        await openConversation()
     }
 
     /// Rates a message from the channel, or takes the rating back when the

@@ -33,6 +33,8 @@ class ThemeOverridesTest {
         postbackBackground = Color.White,
         onPostbackBackground = Color.White,
         postbackBorderColor = Color.White,
+        selectedPostbackBackground = Color.White,
+        onSelectedPostbackBackground = Color.White,
         inputBorderColor = Color.White,
         inputFieldBorderColor = Color.White,
         inputBackground = Color.White,
@@ -65,7 +67,8 @@ class ThemeOverridesTest {
             "onFooterBackground", "userMessageBackground", "onUserMessageBackground", "agentMessageBackground",
             "onAgentMessageBackground", "agentMessageBorderColor", "typingIndicatorDotColor", "linkColor", "quickReplyBackground",
             "onQuickReplyBackground", "quickReplyBorderColor", "postbackBackground", "onPostbackBackground",
-            "postbackBorderColor", "inputBorderColor", "inputFieldBorderColor",
+            "postbackBorderColor", "selectedPostbackBackground", "onSelectedPostbackBackground",
+            "inputBorderColor", "inputFieldBorderColor",
             "inputBackground", "sendButtonBackground", "onSendButtonBackground",
         )
         val json = JSONObject()
@@ -95,6 +98,8 @@ class ThemeOverridesTest {
                 postbackBackground = Color.Black,
                 onPostbackBackground = Color.Black,
                 postbackBorderColor = Color.Black,
+                selectedPostbackBackground = Color.Black,
+                onSelectedPostbackBackground = Color.Black,
                 inputBorderColor = Color.Black,
                 inputFieldBorderColor = Color.Black,
                 inputBackground = Color.Black,

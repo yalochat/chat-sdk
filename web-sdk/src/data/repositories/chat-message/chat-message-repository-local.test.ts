@@ -163,6 +163,32 @@ describe('ChatMessageRepositoryLocal', () => {
       );
     });
 
+    it('keeps the feedback and the selected button after replace', async () => {
+      const insertResult = await repo.insertChatMessage(makeMessage());
+      const inserted = (insertResult as Ok<ChatMessage>).value;
+
+      await repo.replaceChatMessage(
+        new ChatMessage({
+          ...inserted,
+          feedback: 'thumbsUp',
+          buttons: [
+            { text: 'Yes', type: 'postback', selected: true },
+            { text: 'No', type: 'postback', selected: false },
+          ],
+        })
+      );
+
+      const pageResult = await repo.getChatMessagePageDesc(null, 10);
+      const messages = (pageResult as Ok<{ data: ChatMessage[] }>).value.data;
+      expect(messages.find((m) => m.id === inserted.id)).toMatchObject({
+        feedback: 'thumbsUp',
+        buttons: [
+          { text: 'Yes', selected: true },
+          { text: 'No', selected: false },
+        ],
+      });
+    });
+
     it('returns Err when the database is closed', async () => {
       const insertResult = await repo.insertChatMessage(makeMessage());
       const inserted = (insertResult as Ok<ChatMessage>).value;

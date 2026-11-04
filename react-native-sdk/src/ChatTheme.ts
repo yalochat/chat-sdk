@@ -37,6 +37,10 @@ export type ChatTheme = {
   postbackBackground?: ColorValue;
   onPostbackBackground?: ColorValue;
   postbackBorderColor?: ColorValue;
+  /** Background of the button the person tapped last on a message. */
+  selectedPostbackBackground?: ColorValue;
+  /** Color of the text on the button the person tapped last on a message. */
+  onSelectedPostbackBackground?: ColorValue;
   inputBorderColor?: ColorValue;
   inputFieldBorderColor?: ColorValue;
   inputBackground?: ColorValue;

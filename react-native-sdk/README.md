@@ -11,8 +11,12 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [The Chat component](#the-chat-component)
+- [Clearing messages](#clearing-messages)
+- [Logging out](#logging-out)
+- [Data on the device](#data-on-the-device)
 - [Custom commands](#custom-commands)
 - [Theming](#theming)
+- [Translations](#translations)
 - [Platform differences](#platform-differences)
 
 ## Requirements
@@ -77,6 +81,27 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`string`): Your own user identifier. Leave it out to keep the conversation anonymous.
+- **`userAuthTokenProvider`** (`() => Promise<string | null | undefined>`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in person is. Use it with channels set up to verify your users. The chat calls it every time it authenticates, so return a fresh token each time. When set, the backend takes the person from the token. You must also set `userId` to the same value as the token's `sub` claim, so each signed-in person keeps their own conversation on the device. If it returns nothing or throws, the chat does not connect.
+  - The token should use the claim names from RFC 7519:
+    - `sub`: your own id for the user. Keep it stable and unique, and pass the same value as `userId`.
+    - `iss`: who issued the token, your backend.
+    - `aud`: who the token is for, Yalo.
+    - `exp`: when the token expires. Keep it short, a few minutes is enough, since a new one is asked for every time.
+    - `iat` (optional): when the token was issued.
+    - `jti` (recommended): a unique id for the token. With it, each token can be used only once, so a token that leaks cannot be used again.
+  - For profile details such as name, email or phone, use the standard claim names `name`, `email` and `phone_number`.
+  ```tsx
+  const client = new YaloChatClient({
+    channelId: 'your-channel-id',
+    organizationId: 'your-organization-id',
+    channelName: 'Yalo',
+    userId: signedInUser.id, // same value as the token's sub
+    userAuthTokenProvider: async () => {
+      const response = await fetch('https://my-backend.example.com/yalo-token');
+      return (await response.json()).token;
+    },
+  });
+  ```
 - **`logLevel`** (`'debug' | 'info' | 'warn' | 'error' | 'silent'`): How much the SDK writes to the device log. Defaults to `'warn'`.
 - **`quickReplyType`** (`'modal' | 'inline'`): Where the quick replies a message offers are shown. Defaults to `'modal'`, a bar above the message input. `'inline'` puts them under the message that offered them.
 - **`welcomeMessageType`** (`'none' | 'verticalQuickReplies'`): How the first message of a conversation is drawn. Defaults to `'none'`, like any other message. `'verticalQuickReplies'` shows it alone and centered, with one quick reply per line, until the person sends something.
@@ -89,6 +114,7 @@ Optional properties:
 - **`hideAttachmentButton`** (`boolean`): Leaves the plus out of the message input, so nobody can pick a picture to send. Defaults to `false`.
 - **`hideWatermark`** (`boolean`): Leaves the "By Yalo" line out of the header. Defaults to `false`.
 - **`hideFeedbackButtons`** (`boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies, so nobody can rate them. Defaults to `false`, which shows them.
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 The config is read when the chat is shown. To change it, create a new client.
 
@@ -97,7 +123,7 @@ The config is read when the chat is shown. To change it, create a new client.
 Props:
 
 - **`client`** (`YaloChatClient`): The conversation to show.
-- **`theme`** (`ChatTheme`): Colors and shapes. See [Theming](#theming).
+- **`theme`** (`ChatTheme`): Colors and shapes. Leave it out to keep the platform default. See [Theming](doc/theming.md).
 - **`avatar`** (`ImageURISource | ImageRequireSource`): An image drawn as a circle beside the channel name. With `welcomeMessageType` set to `verticalQuickReplies`, it is also drawn centered above the welcome message, until the person sends something. Takes the same sources as `Image`, a remote URL or a bundled image. Nothing is drawn when you leave it out.
 - **`onBack`** (`() => void`): Shows a back button in the header that calls it. Leave it out when the chat is not something the person closes.
 - **`style`**: The chat fills the space it is given, `flex: 1` by default.
@@ -117,6 +143,43 @@ A bundled image works too:
 ```tsx
 <Chat client={client} avatar={require('./logo.png')} />
 ```
+
+## Clearing messages
+
+Call `clearMessages()` to delete every message stored on the device.
+
+```tsx
+await client.clearMessages();
+```
+
+Notes:
+
+- It deletes the messages of every conversation, whatever client or `sessionMode` they came from.
+- It works whether or not a chat is on screen. The messages are deleted by the time the promise resolves.
+- Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- The person stays the same to the channel. To start over as a new person, use `logout()`.
+
+## Logging out
+
+Call `logout()` when the person logs out of your app.
+
+```tsx
+await client.logout();
+```
+
+Notes:
+
+- It deletes every message and every session stored on the device, of every conversation.
+- It works whether or not a chat is on screen. Everything is deleted by the time the promise resolves.
+- Every chat on screen empties and connects again as a new person, and the channel greets them.
+
+## Data on the device
+
+- Messages, pictures and voice notes are kept in the app's own storage.
+- The access and refresh tokens are always stored encrypted:
+  - On Android, with a key kept in the Android Keystore that never leaves the device.
+  - On iOS, in the Keychain. They can only be read once the device has been unlocked after a restart, and they never leave the device, not even in a backup.
+- `clearMessages()` and `logout()` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
 
 ## Custom commands
 
@@ -167,7 +230,7 @@ client.registerCommand('updateCartProduct', async ({ sku, units, subunits }) => 
 
 ## Theming
 
-Every value is optional. Anything left out keeps the platform default, which follows light and dark mode.
+The chat follows the platform colors and the device light and dark mode with no setup. Pass a `theme` to `Chat` to override only what you need. Every value is optional.
 
 ```tsx
 <Chat
@@ -181,34 +244,15 @@ Every value is optional. Anything left out keeps the platform default, which fol
 />
 ```
 
-Colors take any React Native color string or number. `PlatformColor` and `DynamicColorIOS` are not supported yet and are ignored with a warning.
+See [Theming](doc/theming.md) for every property, its default on each platform, and a full example.
 
-- `background`, `onBackground`
-- `headerBackground`, `onHeaderBackground`
-- `footerBackground`, `onFooterBackground`
-- `userMessageBackground`, `onUserMessageBackground`
-- `agentMessageBackground`, `onAgentMessageBackground`, `agentMessageBorderColor`
-- `typingIndicatorDotColor`
-- `linkColor`
-- `quickReplyBackground`, `onQuickReplyBackground`, `quickReplyBorderColor`
-- `postbackBackground`, `onPostbackBackground`, `postbackBorderColor`
-- `inputBorderColor`, `inputFieldBorderColor`, `inputBackground`
-- `sendButtonBackground`, `onSendButtonBackground`
+## Translations
 
-`agentMessagePadding` is the room in points between the box around a message the channel sent and its content. It defaults to 0.
-
-Shapes are corner radii in points. A number rounds every corner. An object rounds only the corners it names, and the rest stay square.
-
-- `inputShape`
-- `userMessageShape`
-- `agentMessageShape`
-- `imageShape`
-- `quickReplyShape`
-- `postbackShape`
+The chat ships translated into every supported language and follows the device language. See [Translations](doc/translations.md) for the list and for how to replace a string with your own copy.
 
 ## Platform differences
 
 Both platforms take the full API. Some options are not drawn on iOS yet and are ignored there until the iOS SDK supports them:
 
-- The theme colors `onBackground`, `linkColor`, `postback*` and `inputFieldBorderColor`.
+- The theme colors `onBackground`, `linkColor` and `inputFieldBorderColor`.
 - The theme shapes `imageShape` and `postbackShape`.

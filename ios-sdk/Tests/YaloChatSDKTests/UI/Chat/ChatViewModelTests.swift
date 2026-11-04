@@ -39,7 +39,8 @@ struct ChatViewModelTests {
         ephemeral: Bool = false,
         chatMessages: ChatMessageService? = nil,
         welcomeMessageType: WelcomeMessageType = .none,
-        commands: [String: CommandHandler] = [:]
+        commands: [String: CommandHandler] = [:],
+        clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } }
     ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages ?? storage,
@@ -55,6 +56,7 @@ struct ChatViewModelTests {
             openContext: openContext,
             welcomeMessageType: welcomeMessageType,
             commandHandlers: { command in commands[command] },
+            clearRequests: clearRequests,
             now: { Self.now },
             replyTimeout: replyTimeout
         )
@@ -327,6 +329,120 @@ struct ChatViewModelTests {
         running.cancel()
     }
 
+    @Test func clearingEmptiesTheConversationAndOpensItAgain() async throws {
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(openContext: ["sku": "37549996"])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await viewModel.clearMessages()
+
+        #expect(viewModel.messages.isEmpty)
+        #expect(try await stored("session-1") == 0)
+        #expect(channel.guidanceCardRequests == [["sku": "37549996"]])
+        #expect(viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    @Test func clearingAnEmptyConversationDoesNotGreetTwice() async {
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.guidanceCardRequests.count == 1 })
+
+        await viewModel.clearMessages()
+
+        #expect(channel.guidanceCardRequests.count == 1)
+        running.cancel()
+    }
+
+    @Test func clearingKeepsTheConversationWhenStorageFails() async throws {
+        let unreadable: URL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: unreadable, withIntermediateDirectories: true)
+        let viewModel: ChatViewModel = viewModel(chatMessages: ChatMessageDatabaseService(fileURL: unreadable))
+
+        await viewModel.clearMessages()
+
+        #expect(channel.guidanceCardRequests.isEmpty)
+    }
+
+    @Test func aRunningChatClearsWhenTheHostAsks() async throws {
+        let client: YaloChatClient = YaloChatClient(
+            config: YaloChatClientConfig(channelId: "channel", organizationId: "organization", channelName: "Support"),
+            chatMessages: storage
+        )
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(clearRequests: client.clearRequests)
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await client.clearMessages()
+
+        #expect(await eventually { viewModel.messages.isEmpty })
+        running.cancel()
+    }
+
+    @Test func loggingOutStartsOverAsANewPerson() async throws {
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        try tokenStore.save(
+            AuthToken(accessToken: "access", refreshToken: "refresh", expiresAt: .distantFuture),
+            sessionId: "session-1",
+            ephemeral: false
+        )
+        let viewModel: ChatViewModel = viewModel(openContext: ["sku": "37549996"])
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await viewModel.logout()
+
+        #expect(viewModel.messages.isEmpty)
+        #expect(try await stored("session-1") == 0)
+        #expect(tokenStore.stored("session-1") == nil)
+        #expect(channel.restarts == 1)
+        #expect(channel.guidanceCardRequests == [["sku": "37549996"]])
+        running.cancel()
+    }
+
+    @Test func loggingOutGreetsTheNewPersonEvenWhenTheChatWasEmpty() async {
+        let viewModel: ChatViewModel = viewModel()
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { channel.guidanceCardRequests.count == 1 })
+
+        await viewModel.logout()
+
+        #expect(channel.guidanceCardRequests.count == 2)
+        running.cancel()
+    }
+
+    @Test func aRunningChatStartsOverWhenTheHostLogsOut() async throws {
+        let client: YaloChatClient = YaloChatClient(
+            config: YaloChatClientConfig(channelId: "channel", organizationId: "organization", channelName: "Support"),
+            chatMessages: storage,
+            tokenStore: tokenStore
+        )
+        _ = try await storage.insert(agentMessage("Hi"), sessionId: "session-1")
+        let viewModel: ChatViewModel = viewModel(clearRequests: client.clearRequests)
+        let running: Task<Void, Never> = Task {
+            await viewModel.start()
+        }
+        #expect(await eventually { viewModel.messages.count == 1 })
+
+        await client.logout()
+
+        #expect(await eventually { channel.restarts == 1 })
+        #expect(viewModel.messages.isEmpty)
+        running.cancel()
+    }
+
     @Test func waitsForNothingWhenTheChannelRefusesToOpen() async {
         channel.sendError = YaloMessageRepositoryError.closed
         let viewModel: ChatViewModel = viewModel()
@@ -464,6 +580,70 @@ struct ChatViewModelTests {
         #expect(viewModel.quickReplies.isEmpty)
         #expect(viewModel.draft == "kept for later")
         #expect(viewModel.isWaitingForReply)
+        running.cancel()
+    }
+
+    private func postbacks(_ texts: [String], wiId: String = "wi-1") -> ChatMessage {
+        ChatMessage(
+            role: .agent,
+            type: .text,
+            timestamp: Self.now.addingTimeInterval(-60),
+            wiId: wiId,
+            content: "Pick one",
+            buttons: texts.map { text in MessageButton(text: text, kind: .postback) }
+                + [MessageButton(text: "Our site", kind: .link)]
+        )
+    }
+
+    /// The buttons of the stored message, in storage and on screen.
+    private func selected(_ viewModel: ChatViewModel) async throws -> (stored: [String], shown: [String]) {
+        let stored: ChatMessage = try #require(try await storage.messages(sessionId: "session-1", limit: 10).last)
+        let shown: ChatMessage = try #require(viewModel.messages.first)
+        return (
+            stored.buttons.filter(\.selected).map(\.text),
+            shown.buttons.filter(\.selected).map(\.text)
+        )
+    }
+
+    @Test func tappingAPostbackKeepsItSelectedAndSaysItsText() async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(postbacks(["Menu", "Help"]))
+        let message: ChatMessage = try #require(viewModel.messages.first)
+
+        await viewModel.tap(message.actions[0], on: message)
+
+        let picked: (stored: [String], shown: [String]) = try await selected(viewModel)
+        #expect(picked.stored == ["Menu"])
+        #expect(picked.shown == ["Menu"])
+        #expect(channel.sent.map(\.content) == ["Menu"])
+        running.cancel()
+    }
+
+    @Test(arguments: [(1, "Help"), (0, "Menu")])
+    func tappingAgainMovesOrKeepsTheSelection(second: Int, expected: String) async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(postbacks(["Menu", "Help"]))
+
+        let first: ChatMessage = try #require(viewModel.messages.first)
+        await viewModel.tap(first.actions[0], on: first)
+        let again: ChatMessage = try #require(viewModel.messages.first)
+        await viewModel.tap(again.actions[second], on: again)
+
+        let picked: (stored: [String], shown: [String]) = try await selected(viewModel)
+        #expect(picked.stored == [expected])
+        #expect(picked.shown == [expected])
+        #expect(channel.sent.map(\.content) == ["Menu", expected])
+        running.cancel()
+    }
+
+    @Test(arguments: [MessageButton(text: "Our site", kind: .link), MessageButton(text: "Yes")])
+    func tappingAnythingButAPostbackSelectsNothing(button: MessageButton) async throws {
+        let (viewModel, running): (ChatViewModel, Task<Void, Never>) = await ratingViewModel(postbacks(["Menu"]))
+
+        await viewModel.tap(button, on: try #require(viewModel.messages.first))
+
+        let picked: (stored: [String], shown: [String]) = try await selected(viewModel)
+        #expect(picked.stored.isEmpty)
+        #expect(picked.shown.isEmpty)
+        #expect(channel.sent.map(\.content) == [button.text])
         running.cancel()
     }
 

@@ -17,6 +17,7 @@ import com.facebook.drawee.generic.RoundingParams
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.react.uimanager.events.Event
 import kotlinx.coroutines.CompletableDeferred
 import org.json.JSONException
 import org.json.JSONObject
@@ -46,6 +47,11 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
     // Commands handed to JavaScript, waiting for it to answer.
     private val pendingCommands = ConcurrentHashMap<String, CompletableDeferred<Result<String>>>()
 
+    // One instance, so configs built from the same JSON stay equal.
+    private val userAuthTokenProvider: suspend () -> String? = {
+        askJavaScript { requestId, surfaceId -> UserAuthTokenRequestEvent(surfaceId, id, requestId) }
+    }
+
     private var layoutPending: Boolean = false
 
     init {
@@ -66,7 +72,7 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
 
     fun setConfig(value: String?) {
         val next = try {
-            clientConfigOf(JSONObject(value ?: "{}"))
+            clientConfigOf(JSONObject(value ?: "{}"), userAuthTokenProvider)
         } catch (error: JSONException) {
             Log.e(TAG, "The chat config could not be read, so the chat is not shown.", error)
             null
@@ -136,14 +142,18 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
         pendingCommands.remove(requestId)?.complete(result)
     }
 
-    private suspend fun runInJavaScript(command: String, payload: String): String {
+    private suspend fun runInJavaScript(command: String, payload: String): String =
+        askJavaScript { requestId, surfaceId -> CommandEvent(surfaceId, id, requestId, command, payload) }
+
+    /** Sends the event [request] builds and waits for JavaScript to resolve it. */
+    private suspend fun askJavaScript(request: (requestId: String, surfaceId: Int) -> Event<*>): String {
         val requestId = UUID.randomUUID().toString()
         val answer = CompletableDeferred<Result<String>>()
         pendingCommands[requestId] = answer
         try {
             val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
             UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
-                ?.dispatchEvent(CommandEvent(surfaceId, id, requestId, command, payload))
+                ?.dispatchEvent(request(requestId, surfaceId))
             return answer.await().getOrThrow()
         } finally {
             pendingCommands.remove(requestId)

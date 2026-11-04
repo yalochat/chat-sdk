@@ -116,6 +116,23 @@ struct YaloMessageWebSocketServiceTests {
         running.cancel()
     }
 
+    @Test func closeStopsSendingOnTheConnectionThatIsUp() async throws {
+        let service: YaloMessageWebSocketService = service()
+        let running: Task<Bool, Never> = Task {
+            await service.run(token: "token")
+        }
+        let socket: FakeWebSocket = try await socket()
+        socket.push(FakeWebSocket.connectionAck)
+        try await service.send(Self.message("before"))
+        #expect(await eventually { socket.sent.count == 1 })
+
+        await service.close()
+        try await service.send(Self.message("after"))
+
+        #expect(try Self.correlationIds(socket.sent) == ["before"])
+        running.cancel()
+    }
+
     @Test func deliversMessagesToEveryListenerAndSkipsEverythingElse() async throws {
         let service: YaloMessageWebSocketService = service()
         let listeners: [AsyncStream<PollMessageItem>] = [await service.messages(), await service.messages()]

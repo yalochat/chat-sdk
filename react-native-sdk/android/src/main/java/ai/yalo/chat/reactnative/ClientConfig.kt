@@ -6,14 +6,22 @@ import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClientConfig
+import ai.yalo.chat.sdk.YaloChatTexts
 import org.json.JSONObject
 
-/** The client config React Native sent, with anything left out at its SDK default. */
-internal fun clientConfigOf(config: JSONObject): YaloChatClientConfig = YaloChatClientConfig(
+/**
+ * The client config React Native sent, with anything left out at its SDK
+ * default. [userAuthTokenProvider] is only used when JavaScript has one.
+ */
+internal fun clientConfigOf(
+    config: JSONObject,
+    userAuthTokenProvider: (suspend () -> String?)? = null,
+): YaloChatClientConfig = YaloChatClientConfig(
     channelId = config.getString("channelId"),
     organizationId = config.getString("organizationId"),
     channelName = config.getString("channelName"),
     userId = if (config.isNull("userId")) null else config.getString("userId"),
+    userAuthTokenProvider = userAuthTokenProvider.takeIf { config.optBoolean("hasUserAuthTokenProvider") },
     quickReplyType = quickReplyTypeOf(config.optString("quickReplyType")),
     welcomeMessageType = welcomeMessageTypeOf(config.optString("welcomeMessageType")),
     logLevel = logLevelOf(config.optString("logLevel")),
@@ -23,6 +31,7 @@ internal fun clientConfigOf(config: JSONObject): YaloChatClientConfig = YaloChat
     hideAttachmentButton = config.optBoolean("hideAttachmentButton"),
     hideWatermark = config.optBoolean("hideWatermark"),
     hideFeedbackButtons = config.optBoolean("hideFeedbackButtons"),
+    texts = textsOf(config.optJSONObject("texts")),
 )
 
 private fun quickReplyTypeOf(value: String): QuickReplyType = when (value) {
@@ -47,6 +56,15 @@ private fun sessionModeOf(value: String): SessionMode = when (value) {
     "perContext" -> SessionMode.PerContext
     "ephemeral" -> SessionMode.Ephemeral
     else -> SessionMode.Shared
+}
+
+private fun textsOf(texts: JSONObject?): YaloChatTexts {
+    if (texts == null) {
+        return YaloChatTexts()
+    }
+    return YaloChatTexts(
+        inputPlaceholder = if (texts.isNull("inputPlaceholder")) null else texts.getString("inputPlaceholder"),
+    )
 }
 
 private fun openContextOf(context: JSONObject?): Map<String, String> {

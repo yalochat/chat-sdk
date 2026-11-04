@@ -88,6 +88,25 @@ export class TokenRepositoryLocal implements TokenRepository {
     });
   }
 
+  // Deletes every stored token, whatever session it belongs to.
+  static clearAll(db: IDBDatabase): Promise<Result<boolean>> {
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction(
+          TokenRepositoryLocal._STORE_NAME,
+          'readwrite'
+        );
+        tx.oncomplete = () => resolve(new Ok(true));
+        tx.onerror = () => {
+          resolve(new Err(tx.error ?? new Error('Unable to clear the store')));
+        };
+        tx.objectStore(TokenRepositoryLocal._STORE_NAME).clear();
+      } catch (e) {
+        resolve(new Err(e instanceof Error ? e : new Error(String(e))));
+      }
+    });
+  }
+
   // Deletes the tokens of the given sessions. Deleting a key that is already
   // gone succeeds, so callers can pass sessions the sweep may have taken.
   static clearSessions(

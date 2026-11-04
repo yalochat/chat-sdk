@@ -227,6 +227,31 @@ class TokenRepositoryLocalTest {
     }
 
     @Test
+    fun forgetsEveryStoredTokenWhenAskedToDeleteAll() = runBlocking {
+        repository(sessionId = "a").token()
+        repository(sessionId = "b-visit", ephemeral = true).token()
+
+        val forgotten = repository(sessionId = "a").deleteAll()
+
+        assertTrue(forgotten.isSuccess)
+        assertNull(storedValue(sessionId = "a"))
+        assertNull(storedValue(sessionId = "b-visit"))
+        assertEquals(emptySet<String>(), repository().ephemeralSessions())
+    }
+
+    @Test
+    fun authenticatesAgainOnceEveryTokenIsForgotten() = runBlocking {
+        dataSource.issued = AuthToken("first", "refresh", LATER)
+        val repository = repository(sessionId = "a")
+        repository.token()
+
+        repository.deleteAll()
+        dataSource.issued = AuthToken("second", "refresh", LATER)
+
+        assertEquals("second", repository.token().getOrNull())
+    }
+
+    @Test
     fun stopsHandingOutATokenItWasToldToForget() = runBlocking {
         dataSource.issued = AuthToken("first", "", LATER)
         val repository = repository(sessionId = "a")

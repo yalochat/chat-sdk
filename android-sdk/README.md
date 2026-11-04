@@ -12,6 +12,9 @@ The chat renders inside the space you give it, follows your app theme out of the
 - [Configuration](#configuration)
 - [Open context](#open-context)
 - [Session modes](#session-modes)
+- [Clearing messages](#clearing-messages)
+- [Logging out](#logging-out)
+- [Data on the device](#data-on-the-device)
 - [The Chat composable](#the-chat-composable)
   - [Sizing and window insets](#sizing-and-window-insets)
   - [Avatar](#avatar)
@@ -103,6 +106,24 @@ Required properties:
 Optional properties:
 
 - **`userId`** (`String?`): Your own user identifier. When provided, the conversation is linked to your user, so the same person picks up where they left off. Defaults to `null`, which keeps the conversation anonymous on the device.
+- **`userAuthTokenProvider`** (`(suspend () -> String?)?`): Returns a JSON Web Token (JWT) compliant with [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519), signed by your backend, that proves who the signed-in person is. Use it with channels set up to verify your users. The SDK calls it every time it authenticates, so return a fresh token each time. When set, the backend takes the person from the token. You must also set `userId` to the same value as the token's `sub` claim, so each signed-in person keeps their own conversation on the device. If it returns `null`, a blank string or throws, the chat does not connect. Defaults to `null`.
+  - The token should use the claim names from RFC 7519:
+    - `sub`: your own id for the user. Keep it stable and unique, and pass the same value as `userId`.
+    - `iss`: who issued the token, your backend.
+    - `aud`: who the token is for, Yalo.
+    - `exp`: when the token expires. Keep it short, a few minutes is enough, since a new one is asked for every time.
+    - `iat` (optional): when the token was issued.
+    - `jti` (recommended): a unique id for the token. With it, each token can be used only once, so a token that leaks cannot be used again.
+  - For profile details such as name, email or phone, use the standard claim names `name`, `email` and `phone_number`.
+  ```kotlin
+  YaloChatClientConfig(
+      channelId = "your-channel-id",
+      organizationId = "your-organization-id",
+      channelName = "Yalo",
+      userId = signedInUser.id, // same value as the token's sub
+      userAuthTokenProvider = { myBackend.yaloToken() },
+  )
+  ```
 - **`logLevel`** (`LogLevel`): How much the SDK says about itself in logcat. Defaults to `LogLevel.Warn`, which keeps it quiet outside of warnings and errors. Raise it to `LogLevel.Debug` or `LogLevel.Info` while integrating, or set `LogLevel.Silent` to turn it off entirely. See [Logging](#logging).
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `QuickReplyType.Modal`, which puts them in a bar above the message input. Set `QuickReplyType.Inline` to put them under the message that offered them.
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `WelcomeMessageType.None`, which draws it like any other message.
@@ -113,6 +134,7 @@ Optional properties:
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 - **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
+- **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 In the default `SessionMode.Shared`, two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages. The other modes narrow that further. See [Session modes](#session-modes).
 
@@ -170,6 +192,45 @@ What to expect from `Ephemeral`:
 - An ephemeral chat written inside a loop or a list needs a `key(...)` around it, so two of them are not restored as one.
 
 Each mode is also its own person to the channel, so a conversation scoped by context or by a single visit does not pick up what another one said.
+
+## Clearing messages
+
+Call `clearMessages(context)` to delete every message stored on the device. It is a `suspend` function, and any `Context` will do.
+
+```kotlin
+lifecycleScope.launch {
+    client.clearMessages(context)
+}
+```
+
+Notes:
+
+- It deletes the messages of every conversation, whatever client or `sessionMode` they came from, along with the pictures and voice notes they kept on disk.
+- It works whether or not a chat is on screen. The messages are deleted by the time it returns.
+- Every chat on screen empties and the channel greets the person again, as in a new conversation.
+- The person stays the same to the channel. To start over as a new person, use `logout(context)`.
+
+## Logging out
+
+Call `logout(context)` when the person logs out of your app. It is a `suspend` function, and any `Context` will do.
+
+```kotlin
+lifecycleScope.launch {
+    client.logout(context)
+}
+```
+
+Notes:
+
+- It deletes every message and every session stored on the device, of every conversation.
+- It works whether or not a chat is on screen. Everything is deleted by the time it returns.
+- Every chat on screen empties and connects again as a new person, and the channel greets them.
+
+## Data on the device
+
+- Messages, pictures and voice notes are kept in the app's private storage.
+- The access and refresh tokens are encrypted before they are stored, with a key kept in the Android Keystore that never leaves the device.
+- `clearMessages(context)` and `logout(context)` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
 
 ## The Chat composable
 
@@ -429,6 +490,8 @@ The chat ships translated into every supported language and follows the device l
 ## Methods
 
 - **`client.sendTextMessage(text)`**: Sends text as if the person had typed it in the input. Blank text is ignored. You can call it before the chat is on screen: the message waits until a chat opens and is then delivered once.
+- **`client.clearMessages(context)`**: See [Clearing messages](#clearing-messages).
+- **`client.logout(context)`**: See [Logging out](#logging-out).
 - **`client.registerCommand(command, handler)`**: Runs `handler` when the channel asks for `command`. See [Custom commands](#custom-commands).
 
 ## Custom commands

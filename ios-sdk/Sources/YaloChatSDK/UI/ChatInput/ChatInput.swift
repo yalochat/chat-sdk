@@ -22,6 +22,7 @@ struct ChatInput: View {
     var onCancelRecording: () -> Void = {}
     var hideAttachmentButton: Bool = false
     var onPickImage: (NSItemProvider) -> Void = { _ in }
+    var texts: YaloChatTexts = YaloChatTexts()
     @State private var isPickingImage: Bool = false
     @State private var inputHeight: CGFloat = 0
     @State private var inputScroll: InputScrollMetrics = InputScrollMetrics()
@@ -31,6 +32,8 @@ struct ChatInput: View {
         let canSend: Bool = recording != nil || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         let showsSend: Bool = canSend || hideVoiceButton
         let sendIsDisabled: Bool = showsSend && !canSend
+        let placeholder: Text = texts.inputPlaceholder.map { custom in Text(verbatim: custom) }
+            ?? Text("Type a message", bundle: .module)
         HStack(alignment: .bottom, spacing: 8) {
             if let recording {
                 VoiceRecordingBar(recording: recording, onCancel: onCancelRecording)
@@ -42,13 +45,13 @@ struct ChatInput: View {
                         metrics: $inputScroll,
                         textColor: UIColor(theme.onFooterBackground),
                         trailingInset: theme.inputScrollbarWidth > 0 ? theme.inputScrollbarWidth + inputScrollbarGap : 0,
-                        accessibilityLabel: String(localized: "Type a message", bundle: .module),
+                        accessibilityLabel: texts.inputPlaceholder ?? String(localized: "Type a message", bundle: .module),
                         onSend: onSend
                     )
                     .frame(height: inputHeight > 0 ? inputHeight : laidOutLineHeight(for: .preferredFont(forTextStyle: .body)))
                     .overlay(alignment: .topLeading) {
                         if text.isEmpty {
-                            Text("Type a message", bundle: .module)
+                            placeholder
                                 .foregroundStyle(Color(.placeholderText))
                                 .allowsHitTesting(false)
                                 .accessibilityHidden(true)

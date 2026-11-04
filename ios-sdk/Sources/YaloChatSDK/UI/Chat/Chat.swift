@@ -6,8 +6,8 @@ import SwiftUI
 ///
 /// Quick replies follow `quickReplyType` in the client config: a bar above the
 /// message input, or chips under the message that offered them. Postback and
-/// link buttons always stay under their message. A link opens its address
-/// outside the chat.
+/// link buttons always stay under their message, and the postback tapped last
+/// stays highlighted. A link opens its address outside the chat.
 ///
 /// With `welcomeMessageType` set to `.verticalQuickReplies`, the channel's
 /// first message is drawn alone and centered with one quick reply per line
@@ -47,7 +47,10 @@ public struct Chat<Avatar: View>: View {
             theme: theme,
             onBack: onBack,
             avatar: avatar(),
-            viewModel: ChatDependencies(config: client.config).chatViewModel(commandHandlers: client.commandHandler(for:))
+            viewModel: ChatDependencies(config: client.config).chatViewModel(
+                commandHandlers: client.commandHandler(for:),
+                clearRequests: client.clearRequests
+            )
         )
     }
 
@@ -83,6 +86,11 @@ public struct Chat<Avatar: View>: View {
                 onTapButton: { button in
                     Task {
                         await viewModel.tap(button)
+                    }
+                },
+                onTapAction: { message, button in
+                    Task {
+                        await viewModel.tap(button, on: message)
                     }
                 },
                 playback: viewModel.playback,
@@ -127,7 +135,8 @@ public struct Chat<Avatar: View>: View {
                     Task {
                         await viewModel.sendImage(picked)
                     }
-                }
+                },
+                texts: client.config.texts
             )
         }
         .background(theme.background)
@@ -150,7 +159,10 @@ public extension Chat where Avatar == EmptyView {
             theme: theme,
             onBack: onBack,
             avatar: nil,
-            viewModel: ChatDependencies(config: client.config).chatViewModel(commandHandlers: client.commandHandler(for:))
+            viewModel: ChatDependencies(config: client.config).chatViewModel(
+                commandHandlers: client.commandHandler(for:),
+                clearRequests: client.clearRequests
+            )
         )
     }
 }

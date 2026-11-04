@@ -106,6 +106,14 @@ final class TokenKeychainService: TokenStoreService, @unchecked Sendable {
         }
     }
 
+    func deleteAll() throws {
+        forgetEarlierInstalls()
+        let status: OSStatus = keychain.delete([kSecClass: kSecClassGenericPassword, kSecAttrService: service])
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw TokenStoreServiceError.keychainFailed(status: status)
+        }
+    }
+
     func ephemeralSessionIds() throws -> Set<String> {
         forgetEarlierInstalls()
         let query: [CFString: Any] = [

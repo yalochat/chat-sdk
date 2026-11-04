@@ -62,10 +62,10 @@ internal class ChatDependencies(
     private val applicationContext: Context = context.applicationContext
 
     /**
-     * Everything one conversation keeps on disk, under a directory of its own
+     * Everything conversations keep on disk, each under a directory of its own
      * so a session that must leave nothing behind can be deleted whole.
      */
-    private val sessionsDir: File by lazy { File(applicationContext.filesDir, SESSIONS) }
+    val sessionsDir: File by lazy { File(applicationContext.filesDir, SESSIONS) }
     private val sessionDir: File by lazy { File(sessionsDir, session.id) }
 
     /** Where any session keeps what it put on disk, so it can be forgotten whole. */

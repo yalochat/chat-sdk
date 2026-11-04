@@ -22,4 +22,17 @@ struct MessageButtonTests {
 
         #expect(try JSONDecoder().decode([MessageButton].self, from: stored) == [MessageButton(text: "Later")])
     }
+
+    @Test(arguments: [true, false])
+    func keepsWhetherAButtonIsSelected(selected: Bool) throws {
+        let button: MessageButton = MessageButton(text: "Menu", kind: .postback, selected: selected)
+
+        #expect(try JSONDecoder().decode(MessageButton.self, from: JSONEncoder().encode(button)) == button)
+    }
+
+    @Test func aButtonStoredBeforeSelectionReadsBackAsNotSelected() throws {
+        let stored: Data = Data(#"[{"text":"Menu","kind":"postback"}]"#.utf8)
+
+        #expect(try JSONDecoder().decode([MessageButton].self, from: stored) == [MessageButton(text: "Menu", kind: .postback)])
+    }
 }

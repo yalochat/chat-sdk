@@ -110,6 +110,24 @@ internal class TokenRepositoryLocal(
         }
     }
 
+    override suspend fun deleteAll(): Result<Unit> = mutex.withLock {
+        try {
+            store.edit { preferences ->
+                for (key in preferences.asMap().keys) {
+                    if (key.name.startsWith(KEY_PREFIX)) {
+                        preferences.remove(key)
+                    }
+                }
+            }
+            held = null
+            log.debug { "forgot every stored token" }
+            Result.success(Unit)
+        } catch (error: IOException) {
+            log.warn(error) { "the stored tokens cannot be forgotten" }
+            Result.failure(error)
+        }
+    }
+
     override suspend fun ephemeralSessions(): Set<String> = preferences().asMap()
         .filterKeys { key -> key.name.startsWith(KEY_PREFIX) }
         .filterValues { stored -> stored is String && stored.startsWith(EPHEMERAL) }

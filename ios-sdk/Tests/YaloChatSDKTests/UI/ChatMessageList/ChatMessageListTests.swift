@@ -53,6 +53,12 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: [rated, message(2, .user, "Hello")], showsFeedback: true)))
     }
 
+    @Test func messageListRendersTheTappedPostbackUnderItsMessage() {
+        var tapped: ChatMessage = message(1, .agent, "Pick one")
+        tapped.buttons = [MessageButton(text: "Menu", kind: .postback, selected: true), MessageButton(text: "Help", kind: .postback)]
+        #expect(renders(ChatMessageList(messages: [tapped])))
+    }
+
     @Test func messageListOnlyRatesRepliesAfterTheFirstUserMessage() {
         let messages: [ChatMessage] = [
             message(1, .agent, "Welcome"),

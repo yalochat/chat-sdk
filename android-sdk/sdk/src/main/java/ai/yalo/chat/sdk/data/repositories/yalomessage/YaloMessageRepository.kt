@@ -30,6 +30,13 @@ internal interface YaloMessageRepository {
     /** Opens the line again after a [pause], and sends whatever was held meanwhile. */
     fun resume()
 
+    /**
+     * Drops the line and whatever was waiting to be sent, and opens a new one
+     * with the token asked for then. What is sent once this returns goes out
+     * on the new line.
+     */
+    suspend fun reconnect()
+
     /** What the channel says, as it arrives. Hot, and nothing is replayed. */
     fun messages(): Flow<ChatMessage>
 

@@ -4,6 +4,7 @@ import type { LitElement } from 'lit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import './yalo-chat-window';
 import type { YaloChatWindow } from './yalo-chat-window';
+import YaloChatWindowController from './yalo-chat-window-controller';
 import { ChatMessage } from '@domain/models/chat-message/chat-message';
 import { Product } from '@domain/models/product/product';
 import { Err, Ok } from '@domain/common/result';
@@ -2566,6 +2567,307 @@ describe('YaloChatWindow guidance card on first open', () => {
   });
 });
 
+// A chat that has its repositories but never finishes connecting, because
+// reading the stored messages never answers.
+const stalledWhileConnecting = async (): Promise<YaloChatWindow> => {
+  vi.spyOn(
+    ChatMessageRepositoryLocal.prototype,
+    'getChatMessagePageDesc'
+  ).mockReturnValue(new Promise(() => {}));
+  const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+  window.config = baseConfig;
+  document.body.appendChild(window);
+  await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+  return window;
+};
+
+describe('YaloChatWindow clearing messages', () => {
+  const sessionId = 'org-1-channel-1-anonymous';
+
+  const seedMessage = async (
+    content: string,
+    session: string = sessionId
+  ): Promise<void> => {
+    const db = await openDb();
+    try {
+      await new ChatMessageRepositoryLocal(db, session).insertChatMessage(
+        ChatMessage.text({ role: 'AGENT', timestamp: new Date(), content })
+      );
+    } finally {
+      db.close();
+    }
+  };
+
+  const createWith = async (
+    open: boolean,
+    config: typeof baseConfig = baseConfig
+  ): Promise<YaloChatWindow> => {
+    const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+    window.config = config;
+    window.open = open;
+    document.body.appendChild(window);
+    await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+    return window;
+  };
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('removes the shown and the stored messages', async () => {
+    await seedMessage('old');
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await YaloChatWindowController.clearAllMessages();
+    await window.updateComplete;
+
+    expect(getMessageList(window).chatMessages).toHaveLength(0);
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('removes the messages of every session', async () => {
+    await seedMessage('mine');
+    await seedMessage('other', 'org-2-channel-2-anonymous');
+
+    await YaloChatWindowController.clearAllMessages();
+
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('empties every chat on the page', async () => {
+    await seedMessage('first');
+    await seedMessage('second', 'org-1-channel-2-anonymous');
+    const first = await createWith(false);
+    const second = await createWith(false, {
+      ...baseConfig,
+      channelId: 'channel-2',
+    });
+    await vi.waitUntil(
+      () =>
+        getMessageList(first).chatMessages.length === 1 &&
+        getMessageList(second).chatMessages.length === 1
+    );
+
+    await YaloChatWindowController.clearAllMessages();
+    await Promise.all([first.updateComplete, second.updateComplete]);
+
+    expect([
+      getMessageList(first).chatMessages,
+      getMessageList(second).chatMessages,
+    ]).toMatchObject([[], []]);
+  });
+
+  it('greets the user again when the open chat is cleared', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    await seedMessage('old');
+    const window = await createWith(true);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await YaloChatWindowController.clearAllMessages();
+
+    expect(requestSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('greets the user on the next open when a closed chat is cleared', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    await seedMessage('old');
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await YaloChatWindowController.clearAllMessages();
+    expect(requestSpy).not.toHaveBeenCalled();
+    window.open = true;
+
+    await vi.waitUntil(() => requestSpy.mock.calls.length === 1);
+  });
+
+  it('does not greet twice when the chat was already empty', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    await createWith(true);
+    await vi.waitUntil(() => requestSpy.mock.calls.length === 1);
+
+    await YaloChatWindowController.clearAllMessages();
+
+    expect(requestSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for the window to finish connecting before emptying it', async () => {
+    await seedMessage('old');
+    const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+    window.config = baseConfig;
+    document.body.appendChild(window);
+
+    await YaloChatWindowController.clearAllMessages();
+    await window.updateComplete;
+
+    expect(getMessageList(window).chatMessages).toHaveLength(0);
+    expect(await countStoredMessages()).toBe(0);
+  });
+
+  it('does not wait for a chat removed before it finished connecting', async () => {
+    const window = await stalledWhileConnecting();
+    const wiped = vi.spyOn(ChatMessageRepositoryLocal, 'clearAll');
+
+    const clearing = YaloChatWindowController.clearAllMessages();
+    await vi.waitUntil(() => wiped.mock.results.length === 1);
+    await new Promise((resolve) => setTimeout(resolve));
+    window.remove();
+
+    await expect(clearing).resolves.toBeUndefined();
+  });
+
+  it('keeps the messages and logs an error when storage fails', async () => {
+    await seedMessage('old');
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(ChatMessageRepositoryLocal, 'clearAll').mockResolvedValue(
+      new Err(new Error('storage failed'))
+    );
+
+    await YaloChatWindowController.clearAllMessages();
+
+    expect(getMessageList(window).chatMessages).toHaveLength(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Unable to clear messages',
+      expect.anything()
+    );
+  });
+});
+
+describe('YaloChatWindow logging out', () => {
+  const sessionId = 'org-1-channel-1-anonymous';
+
+  const seedSession = async (session: string = sessionId): Promise<void> => {
+    const db = await openDb();
+    try {
+      await new ChatMessageRepositoryLocal(db, session).insertChatMessage(
+        ChatMessage.text({
+          role: 'AGENT',
+          timestamp: new Date(),
+          content: 'old',
+        })
+      );
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction('session', 'readwrite');
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.objectStore('session').put(
+          {
+            accessToken: 'access',
+            refreshToken: 'refresh',
+            expiresAt: Date.now() + 60 * 60 * 1000,
+          },
+          `token:${session}`
+        );
+      });
+    } finally {
+      db.close();
+    }
+  };
+
+  const createWith = async (open: boolean): Promise<YaloChatWindow> => {
+    const window = document.createElement('yalo-chat-window') as YaloChatWindow;
+    window.config = baseConfig;
+    window.open = open;
+    document.body.appendChild(window);
+    await vi.waitUntil(() => window.yaloMessageRepository !== undefined);
+    return window;
+  };
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('does not wait for a chat removed before it finished connecting', async () => {
+    const window = await stalledWhileConnecting();
+    const wiped = vi.spyOn(TokenRepositoryLocal, 'clearAll');
+
+    const loggingOut = YaloChatWindowController.logout();
+    await vi.waitUntil(() => wiped.mock.results.length === 1);
+    await new Promise((resolve) => setTimeout(resolve));
+    window.remove();
+
+    await expect(loggingOut).resolves.toBeUndefined();
+  });
+
+  it('removes every stored message and token', async () => {
+    await seedSession();
+    await seedSession('org-2-channel-2-anonymous');
+
+    await YaloChatWindowController.logout();
+
+    expect({
+      messages: await countStoredMessages(),
+      tokens: await readStoredTokenKeys(),
+    }).toMatchObject({ messages: 0, tokens: [] });
+  });
+
+  it('empties the chat and reconnects it', async () => {
+    await seedSession();
+    const subscribeSpy = vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    );
+    const unsubscribeSpy = vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    );
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+
+    await YaloChatWindowController.logout();
+    await window.updateComplete;
+
+    expect({
+      shown: getMessageList(window).chatMessages,
+      unsubscribed: unsubscribeSpy.mock.calls.length,
+      subscribed: subscribeSpy.mock.calls.length,
+    }).toMatchObject({ shown: [], unsubscribed: 1, subscribed: 2 });
+  });
+
+  it('greets the new person even when the chat was empty', async () => {
+    const requestSpy = vi
+      .spyOn(YaloMessageRepositoryRemote.prototype, 'requestGuidanceCard')
+      .mockResolvedValue(new Ok(undefined));
+    await createWith(true);
+    await vi.waitUntil(() => requestSpy.mock.calls.length === 1);
+
+    await YaloChatWindowController.logout();
+
+    expect(requestSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the chat and logs an error when storage fails', async () => {
+    await seedSession();
+    const window = await createWith(false);
+    await vi.waitUntil(() => getMessageList(window).chatMessages.length === 1);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(TokenRepositoryLocal, 'clearAll').mockResolvedValue(
+      new Err(new Error('storage failed'))
+    );
+
+    await YaloChatWindowController.logout();
+
+    expect(getMessageList(window).chatMessages).toHaveLength(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Unable to log out',
+      expect.anything()
+    );
+  });
+});
+
 describe('YaloChatWindow logLevel config', () => {
   afterEach(async () => {
     document.body.innerHTML = '';
@@ -3056,5 +3358,146 @@ describe('YaloChatWindow message feedback', () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(send).not.toHaveBeenCalled();
+  });
+});
+
+describe('YaloChatWindow postback button selection', () => {
+  let el: YaloChatWindow;
+  let subscribeCallback: PollCallback | undefined;
+
+  const mockSubscription = (): void => {
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'subscribeToMessages'
+    ).mockImplementation(function (
+      this: YaloMessageRepositoryRemote,
+      cb: PollCallback
+    ) {
+      subscribeCallback = cb;
+    });
+    vi.spyOn(
+      YaloMessageRepositoryRemote.prototype,
+      'unsubscribeMessages'
+    ).mockReturnValue();
+  };
+
+  const agentMessage = (): ChatMessage | undefined =>
+    getMessageList(el).chatMessages.find((m) => m.wiId === 'wi-buttons');
+
+  // Texts of the buttons marked as selected, in order.
+  const selectedTexts = (message?: ChatMessage): string[] =>
+    (message?.buttons ?? [])
+      .filter((button) => button.selected === true)
+      .map((button) => button.text);
+
+  const shownSelection = (): string =>
+    selectedTexts(agentMessage()).join(',');
+
+  const clickPostback = async (text: string): Promise<void> => {
+    const list = el.shadowRoot!.querySelector(
+      'yalo-chat-message-list'
+    ) as LitElement;
+    await list.updateComplete;
+    const assistant = list.shadowRoot!.querySelector(
+      'yalo-chat-assistant-message'
+    ) as LitElement;
+    await assistant.updateComplete;
+    const button = Array.from(
+      assistant.shadowRoot!.querySelectorAll<HTMLButtonElement>(
+        '.buttons button'
+      )
+    ).find((b) => b.textContent?.trim() === text);
+    button!.click();
+  };
+
+  const storedSelection = (): Promise<unknown> =>
+    readAll('chatMessage', (store) => store.getAll()).then(
+      (records) =>
+        selectedTexts(
+          (records as ChatMessage[]).find(
+            (record) => record.wiId === 'wi-buttons'
+          )
+        ).join(',')
+    );
+
+  beforeEach(async () => {
+    subscribeCallback = undefined;
+    mockSubscription();
+    el = await createElement();
+    vi.spyOn(el.yaloMessageRepository, 'insertMessage').mockImplementation(
+      async (message) => new Ok(message)
+    );
+    subscribeCallback!([
+      ChatMessage.text({
+        role: 'AGENT',
+        timestamp: new Date(),
+        content: 'Pick one',
+        wiId: 'wi-buttons',
+        buttons: [
+          { text: 'Yes', type: 'postback' },
+          { text: 'No', type: 'postback' },
+        ],
+      }),
+    ]);
+    await vi.waitUntil(() => agentMessage() !== undefined);
+  });
+
+  afterEach(async () => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+    await clearDb();
+  });
+
+  it('selects the clicked postback, stores it and sends its text', async () => {
+    await clickPostback('Yes');
+
+    await vi.waitUntil(() => shownSelection() === 'Yes');
+    await vi.waitUntil(async () => (await storedSelection()) === 'Yes');
+    await vi.waitUntil(() =>
+      getMessageList(el).chatMessages.some(
+        (m) => m.role === 'USER' && m.content === 'Yes'
+      )
+    );
+  });
+
+  it('moves the selection when another postback is clicked', async () => {
+    await clickPostback('Yes');
+    await vi.waitUntil(() => shownSelection() === 'Yes');
+
+    await clickPostback('No');
+
+    await vi.waitUntil(() => shownSelection() === 'No');
+    await vi.waitUntil(async () => (await storedSelection()) === 'No');
+  });
+
+  it('keeps the selection after a reload', async () => {
+    await clickPostback('No');
+    await vi.waitUntil(async () => (await storedSelection()) === 'No');
+
+    document.body.innerHTML = '';
+    el = await createElement();
+
+    await vi.waitUntil(() => shownSelection() === 'No');
+  });
+
+  it('logs when the selection cannot be stored locally but still shows it', async () => {
+    const errorSpy = vi.spyOn(el.logger, 'error');
+    vi.spyOn(el.chatMessageRepository, 'replaceChatMessage').mockResolvedValue(
+      new Err(new Error('quota'))
+    );
+
+    await clickPostback('Yes');
+
+    await vi.waitUntil(() =>
+      errorSpy.mock.calls.some(
+        ([message]) => message === 'Unable to persist selected button locally'
+      )
+    );
+    expect(agentMessage()).toMatchObject({
+      buttons: [
+        { text: 'Yes', selected: true },
+        { text: 'No', selected: false },
+      ],
+    });
   });
 });

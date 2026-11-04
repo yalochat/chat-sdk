@@ -6,6 +6,7 @@ enum AuthServiceError: Error, Equatable {
     case authenticateFailed(status: Int)
     case refreshFailed(status: Int)
     case unreadableResponse
+    case missingUserAuthToken
 }
 
 /// The two calls the backend offers for getting into a conversation. Nothing

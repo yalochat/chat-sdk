@@ -322,7 +322,7 @@ class ChatLayoutTest {
                 onTextChange = {},
                 onSend = {},
                 messages = listOf(messageWithButtons("Pick one")),
-                onPostback = { text -> tapped.add(text) },
+                onPostback = { _, button -> tapped.add(button.text) },
             )
         }
 

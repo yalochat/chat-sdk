@@ -43,6 +43,9 @@ using namespace facebook::react;
     _chat.onCommand = ^(NSString *requestId, NSString *command, NSString *payload) {
       [weakSelf emitCommand:requestId command:command payload:payload];
     };
+    _chat.onUserAuthTokenRequest = ^(NSString *requestId) {
+      [weakSelf emitUserAuthTokenRequest:requestId];
+    };
     self.contentView = _chat;
   }
   return self;
@@ -97,6 +100,18 @@ using namespace facebook::react;
           .requestId = std::string([requestId UTF8String]),
           .command = std::string([command UTF8String]),
           .payload = std::string([payload UTF8String]),
+      });
+}
+
+- (void)emitUserAuthTokenRequest:(NSString *)requestId
+{
+  if (!_eventEmitter) {
+    [_chat resolveCommand:requestId succeeded:NO payload:@""];
+    return;
+  }
+  std::static_pointer_cast<YaloChatViewEventEmitter const>(_eventEmitter)
+      ->onUserAuthTokenRequest({
+          .requestId = std::string([requestId UTF8String]),
       });
 }
 

@@ -1,6 +1,9 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.messages
 
+import androidx.compose.ui.test.isNotSelected
+import androidx.compose.ui.test.isSelected
+import androidx.compose.ui.test.hasText
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageButton
@@ -201,7 +204,7 @@ class ChatMessageItemTest {
             CompositionLocalProvider(LocalUriHandler provides uriHandler { uri -> opened.add(uri) }) {
                 ChatMessageItem(
                     message = messageWithLink("Open the store", url = "https://example.com/store"),
-                    onPostback = { text -> tapped.add(text) },
+                    onPostback = { _, button -> tapped.add(button.text) },
                 )
             }
         }
@@ -237,7 +240,7 @@ class ChatMessageItemTest {
         composeRule.setContent {
             ChatMessageItem(
                 message = messageWithLink("Open the store", url = null),
-                onPostback = { text -> tapped.add(text) },
+                onPostback = { _, button -> tapped.add(button.text) },
             )
         }
 
@@ -267,13 +270,43 @@ class ChatMessageItemTest {
         composeRule.setContent {
             ChatMessageItem(
                 message = messageWithButtons("Pick one", "Track order", "Talk to us"),
-                onPostback = { text -> tapped.add(text) },
+                onPostback = { _, button -> tapped.add(button.text) },
             )
         }
 
         composeRule.onNodeWithText("Talk to us").performClick()
 
         assertEquals(listOf("Talk to us"), tapped)
+    }
+
+    @Test
+    fun highlightsTheButtonThatWasPicked() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message = messageWithButtons("Pick one", "Track order", "Talk to us").let { message ->
+                    message.copy(buttons = message.buttons.map { it.copy(selected = it.text == "Talk to us") })
+                },
+            )
+        }
+
+        composeRule.onNode(hasText("Talk to us") and isSelected()).assertIsDisplayed()
+        composeRule.onNode(hasText("Track order") and isNotSelected()).assertIsDisplayed()
+    }
+
+    @Test
+    fun saysWhichMessageTheTappedButtonBelongsTo() {
+        val message = messageWithButtons("Pick one", "Track order")
+        val tapped = mutableListOf<ChatMessage>()
+        composeRule.setContent {
+            ChatMessageItem(
+                message = message,
+                onPostback = { owner, _ -> tapped.add(owner) },
+            )
+        }
+
+        composeRule.onNodeWithText("Track order").performClick()
+
+        assertEquals(listOf(message), tapped)
     }
 
     @Test

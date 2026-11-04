@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.viewmodels
 
+import ai.yalo.chat.sdk.ClearRequest
 import ai.yalo.chat.sdk.CommandHandler
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
@@ -68,6 +69,7 @@ class ChatViewModelTest {
     @get:Rule
     val folder = TemporaryFolder()
     private val hostMessages = MutableSharedFlow<String>(extraBufferCapacity = 8)
+    private val clearRequests = MutableSharedFlow<ClearRequest>(extraBufferCapacity = 8)
 
     @Before
     fun useATestDispatcher() {
@@ -596,7 +598,7 @@ class ChatViewModelTest {
         val viewModel = chatViewModel()
         yaloMessageRepository.answer(answer("Pick one", buttons = listOf(postback("Track order"))))
 
-        viewModel.onPostback("Track order")
+        viewModel.onPostback(viewModel.uiState.messages.first(), postback("Track order"))
 
         assertEquals(listOf("Track order"), yaloMessageRepository.sent.map { it.content })
         assertEquals(MessageRole.User, viewModel.uiState.messages.first().role)
@@ -607,10 +609,25 @@ class ChatViewModelTest {
         val viewModel = chatViewModel()
         yaloMessageRepository.answer(answer("Pick one", buttons = listOf(postback("Track order"))))
 
-        viewModel.onPostback("Track order")
+        viewModel.onPostback(viewModel.uiState.messages.first(), postback("Track order"))
 
         val offered = viewModel.uiState.messages.last().buttons.map { it.text }
         assertEquals(listOf("Track order"), offered)
+    }
+
+    @Test
+    fun picksOnlyTheButtonThatWasTappedLast() {
+        val viewModel = chatViewModel()
+        yaloMessageRepository.answer(
+            answer("Pick one", buttons = listOf(postback("Track order"), postback("Talk to us"))),
+        )
+
+        viewModel.onPostback(viewModel.uiState.messages.first(), postback("Track order"))
+        val offered = viewModel.uiState.messages.last()
+        viewModel.onPostback(offered, offered.buttons.last())
+
+        val picked = viewModel.uiState.messages.last().buttons.filter { it.selected }.map { it.text }
+        assertEquals(listOf("Talk to us"), picked)
     }
 
     @Test
@@ -1195,6 +1212,80 @@ class ChatViewModelTest {
         assertEquals(listOf("c-2", "c-1"), yaloMessageRepository.commandAnswers.map { it.first })
     }
 
+    @Test
+    fun clearingEmptiesTheConversationAndOpensItAgain() {
+        alreadyStored(answer("Where were we?"))
+        val viewModel = chatViewModel(openContext = mapOf("sku" to "37549996"))
+
+        hostClears(ClearRequest.Messages)
+
+        assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
+        assertEquals(listOf(mapOf("sku" to "37549996")), yaloMessageRepository.openedWith)
+        assertTrue(viewModel.uiState.isWaitingForReply)
+    }
+
+    @Test
+    fun clearingAnEmptyConversationDoesNotGreetTwice() {
+        chatViewModel()
+
+        hostClears(ClearRequest.Messages)
+
+        assertEquals(1, yaloMessageRepository.openedWith.size)
+    }
+
+    @Test
+    fun clearingKeepsTheSameConnection() {
+        alreadyStored(answer("Where were we?"))
+        chatViewModel()
+
+        hostClears(ClearRequest.Messages)
+
+        assertEquals(0, yaloMessageRepository.reconnections)
+        assertEquals(0, tokenRepository.clears)
+    }
+
+    @Test
+    fun keepsShowingTheConversationWhenStorageCannotBeReadAfterAClear() {
+        alreadyStored(answer("Where were we?"))
+        val viewModel = chatViewModel()
+        chatMessageRepository.failure = IllegalStateException("storage is gone")
+
+        clearRequests.tryEmit(ClearRequest.Messages)
+
+        assertEquals(listOf("Where were we?"), viewModel.uiState.messages.map { it.content })
+        assertEquals(emptyList<Map<String, String>>(), yaloMessageRepository.openedWith)
+    }
+
+    @Test
+    fun loggingOutForgetsTheTokenAndReconnects() {
+        alreadyStored(answer("Where were we?"))
+        val viewModel = chatViewModel()
+
+        hostClears(ClearRequest.Logout)
+
+        assertEquals(emptyList<String>(), viewModel.uiState.messages.map { it.content })
+        assertEquals(1, tokenRepository.clears)
+        assertEquals(1, yaloMessageRepository.reconnections)
+        assertEquals(listOf(emptyMap<String, String>()), yaloMessageRepository.openedWith)
+    }
+
+    @Test
+    fun loggingOutGreetsTheNextPersonEvenWhenTheChatWasEmpty() {
+        chatViewModel()
+
+        hostClears(ClearRequest.Logout)
+
+        assertEquals(2, yaloMessageRepository.openedWith.size)
+    }
+
+    /** Empties the storage and tells the chat, the way the client does. */
+    private fun hostClears(request: ClearRequest) {
+        runBlocking {
+            chatMessageRepository.deleteAll()
+        }
+        clearRequests.tryEmit(request)
+    }
+
     private fun chatViewModel(
         title: String = "Support",
         savedState: SavedStateHandle = SavedStateHandle(),
@@ -1217,6 +1308,7 @@ class ChatViewModelTest {
         sessionFiles = { id -> File(sessionsDir, id) },
         sessionScope = sessionScope,
         hostMessages = hostMessages,
+        clearRequests = clearRequests,
         openContext = openContext,
         welcomeMessageType = welcomeMessageType,
         commandHandlers = commands::get,
@@ -1280,6 +1372,13 @@ class ChatViewModelTest {
 
         override fun resume() {
             isOpen = true
+        }
+
+        var reconnections: Int = 0
+            private set
+
+        override suspend fun reconnect() {
+            reconnections++
         }
 
         override fun messages(): Flow<ChatMessage> = incoming

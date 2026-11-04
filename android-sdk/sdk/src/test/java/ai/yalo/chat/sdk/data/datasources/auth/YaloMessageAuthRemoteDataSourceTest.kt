@@ -80,6 +80,45 @@ class YaloMessageAuthRemoteDataSourceTest {
     }
 
     @Test
+    fun presentsTheUserAuthTokenWhenAProviderIsConfigured() = runBlocking {
+        server.enqueue(tokenResponse())
+
+        dataSource(config(userAuthTokenProvider = { "signed-by-the-app" })).authenticate()
+
+        val body = JSONObject(server.takeRequest().text())
+        assertEquals("external_user", body.getString("user_type"))
+        assertEquals("signed-by-the-app", body.getString("token"))
+    }
+
+    @Test
+    fun theUserAuthTokenOutranksTheConfiguredUser() = runBlocking {
+        server.enqueue(tokenResponse())
+
+        dataSource(config(userId = "user-1", userAuthTokenProvider = { "signed-by-the-app" }))
+            .authenticate()
+
+        val body = JSONObject(server.takeRequest().text())
+        assertEquals("external_user", body.getString("user_type"))
+        assertEquals("signed-by-the-app", body.getString("token"))
+    }
+
+    @Test
+    fun reportsAFailureWhenTheProviderGivesNothing() = runBlocking {
+        val result = dataSource(config(userAuthTokenProvider = { null })).authenticate()
+
+        assertTrue(result.isFailure)
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
+    fun reportsAFailureWhenTheProviderThrows() = runBlocking {
+        val result = dataSource(config(userAuthTokenProvider = { error("not signed in") })).authenticate()
+
+        assertEquals("not signed in", result.exceptionOrNull()?.message)
+        assertEquals(0, server.requestCount)
+    }
+
+    @Test
     fun sendsTheChannelItIsAuthenticatingFor() = runBlocking {
         server.enqueue(tokenResponse())
 
@@ -188,11 +227,15 @@ class YaloMessageAuthRemoteDataSourceTest {
         logLevel = LogLevel.Debug,
     )
 
-    private fun config(userId: String? = null) = YaloChatClientConfig(
+    private fun config(
+        userId: String? = null,
+        userAuthTokenProvider: (suspend () -> String?)? = null,
+    ) = YaloChatClientConfig(
         channelId = "channel-1",
         organizationId = "org-1",
         channelName = "Support",
         userId = userId,
+        userAuthTokenProvider = userAuthTokenProvider,
     )
 
     private fun tokenResponse(

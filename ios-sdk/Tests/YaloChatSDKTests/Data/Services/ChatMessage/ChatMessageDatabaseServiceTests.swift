@@ -223,6 +223,23 @@ struct ChatMessageDatabaseServiceTests {
         #expect(stored.feedback == .thumbsUp)
     }
 
+    @Test func replacesTheButtonsOfAMessage() async throws {
+        var offering: ChatMessage = message("Pick one", role: .agent, wiId: "wi-1")
+        offering.buttons = [MessageButton(text: "Menu", kind: .postback), MessageButton(text: "Help", kind: .postback)]
+        let stored: ChatMessage = try await service.insert(offering, sessionId: "session-1")
+        let id: Int64 = try #require(stored.id)
+        let picked: [MessageButton] = [
+            MessageButton(text: "Menu", kind: .postback),
+            MessageButton(text: "Help", kind: .postback, selected: true),
+        ]
+
+        try await service.setButtons(picked, id: id)
+        #expect(try await service.messages(sessionId: "session-1", limit: 10).first?.buttons == picked)
+
+        try await service.setButtons([], id: id)
+        #expect(try await service.messages(sessionId: "session-1", limit: 10).first?.buttons == [])
+    }
+
     @Test func messagesAreLastStoredFirstAndLimited() async throws {
         _ = try await service.insert(message("question", at: 2_400), sessionId: "session-1")
         // The server rounds down to the second, so a reply can carry an earlier time.
@@ -302,6 +319,16 @@ struct ChatMessageDatabaseServiceTests {
         try await service.deleteSessions([])
 
         #expect(try await service.messages(sessionId: "session-1", limit: 10).count == 1)
+    }
+
+    @Test func deleteAllForgetsEverySession() async throws {
+        _ = try await service.insert(message("one"), sessionId: "session-1")
+        _ = try await service.insert(message("two"), sessionId: "session-2")
+
+        try await service.deleteAll()
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10).isEmpty)
+        #expect(try await service.messages(sessionId: "session-2", limit: 10).isEmpty)
     }
 
     @Test func messagesOutliveTheServiceThatStoredThem() async throws {

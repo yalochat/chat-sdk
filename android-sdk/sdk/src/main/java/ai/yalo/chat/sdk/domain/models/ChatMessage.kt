@@ -88,12 +88,14 @@ internal enum class FeedbackRating(val wireName: String) {
  * A tappable option the channel attached to a message.
  *
  * [url] is only meaningful for a [MessageButtonType.Link], which is the one
- * kind that leaves the conversation.
+ * kind that leaves the conversation. [selected] marks the postback the person
+ * tapped last on its message.
  */
 internal data class MessageButton(
     val text: String,
     val type: MessageButtonType = MessageButtonType.Reply,
     val url: String? = null,
+    val selected: Boolean = false,
 )
 
 /**

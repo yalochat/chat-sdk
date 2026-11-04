@@ -7,7 +7,7 @@ import SwiftUI
 ///
 /// A link opens its address outside the chat and carries an arrow to say so.
 /// Every other button, a link with no address included, says its text back to
-/// the channel through `onTap`.
+/// the channel through `onTap`. A selected postback is highlighted.
 struct MessageButtons: View {
     let buttons: [MessageButton]
     var onTap: (MessageButton) -> Void = { _ in }
@@ -19,6 +19,7 @@ struct MessageButtons: View {
             // Texts can repeat, so a button is told apart by where it sits.
             ForEach(Array(buttons.enumerated()), id: \.offset) { _, button in
                 let url: URL? = button.kind == .link ? button.url.flatMap(URL.init(string:)) : nil
+                let isSelected: Bool = button.kind == .postback && button.selected
                 Button {
                     if let url {
                         openURL(url)
@@ -39,13 +40,17 @@ struct MessageButtons: View {
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .foregroundStyle(theme.onPostbackBackground)
-                    .background(theme.postbackBackground, in: RoundedRectangle(cornerRadius: 8))
+                    .foregroundStyle(isSelected ? theme.onSelectedPostbackBackground : theme.onPostbackBackground)
+                    .background(
+                        isSelected ? theme.selectedPostbackBackground : theme.postbackBackground,
+                        in: RoundedRectangle(cornerRadius: 8)
+                    )
                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(theme.postbackBorderColor))
                     .contentShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("yalo-chat-message-button")
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }
     }

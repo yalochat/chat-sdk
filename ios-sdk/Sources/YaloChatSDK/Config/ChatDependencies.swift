@@ -5,6 +5,25 @@ import Foundation
 /// Everything one conversation needs, built the first time it is asked for.
 @MainActor
 final class ChatDependencies {
+    // Not the cache: the system may empty it while a sent picture or a
+    // recorded note still needs its only copy.
+    nonisolated static let storageDirectory: URL = FileManager.default
+        .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("yalo-chat", isDirectory: true)
+
+    nonisolated static let databaseURL: URL? = storageDirectory.appendingPathComponent("yalo_chat.sqlite")
+
+    private nonisolated static let images: String = "images"
+    private nonisolated static let voice: String = "voice"
+    private nonisolated static let ephemeral: String = "ephemeral"
+
+    /// Where the pictures and voice notes of every conversation are kept.
+    nonisolated static func messageFiles(in storageDirectory: URL) -> [URL] {
+        [images, voice, ephemeral].map { name in
+            storageDirectory.appendingPathComponent(name, isDirectory: true)
+        }
+    }
+
     private let config: YaloChatClientConfig
     let chatSession: ChatSession
     private let baseURL: URL
@@ -18,12 +37,8 @@ final class ChatDependencies {
         config: YaloChatClientConfig,
         baseURL: URL = YaloAPI.baseURL,
         cacheDirectory: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0],
-        databaseURL: URL? = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("yalo-chat/yalo_chat.sqlite"),
-        // Not the cache: the system may empty it while a sent picture or a
-        // recorded note still needs its only copy.
-        storageDirectory: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("yalo-chat", isDirectory: true),
+        databaseURL: URL? = ChatDependencies.databaseURL,
+        storageDirectory: URL = ChatDependencies.storageDirectory,
         session: URLSession = .shared,
         tokenStore: TokenStoreService = TokenKeychainService()
     ) {
@@ -38,7 +53,7 @@ final class ChatDependencies {
     }
 
     private var ephemeralDirectory: URL {
-        storageDirectory.appendingPathComponent("ephemeral", isDirectory: true)
+        storageDirectory.appendingPathComponent(Self.ephemeral, isDirectory: true)
     }
 
     /// An ephemeral conversation keeps its files apart, so it can be deleted whole.
@@ -60,6 +75,7 @@ final class ChatDependencies {
         channelId: config.channelId,
         organizationId: config.organizationId,
         authUserId: chatSession.authUserId,
+        userAuthTokenProvider: config.userAuthTokenProvider,
         baseURL: baseURL,
         session: urlSession,
         logLevel: config.logLevel
@@ -68,7 +84,7 @@ final class ChatDependencies {
     lazy var chatMessages: ChatMessageService = ChatMessageDatabaseService(fileURL: databaseURL, logLevel: config.logLevel)
 
     lazy var images: ImageService = ImageDeviceService(
-        directory: sessionDirectory.appendingPathComponent("images", isDirectory: true),
+        directory: sessionDirectory.appendingPathComponent(Self.images, isDirectory: true),
         logLevel: config.logLevel
     )
 
@@ -89,7 +105,7 @@ final class ChatDependencies {
     lazy var voice: VoiceRepository = VoiceRepositoryLocal(
         recorder: voiceRecorder,
         player: voicePlayer,
-        directory: sessionDirectory.appendingPathComponent("voice", isDirectory: true),
+        directory: sessionDirectory.appendingPathComponent(Self.voice, isDirectory: true),
         logLevel: config.logLevel
     )
 
@@ -105,7 +121,10 @@ final class ChatDependencies {
         logLevel: config.logLevel
     )
 
-    func chatViewModel(commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil }) -> ChatViewModel {
+    func chatViewModel(
+        commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil },
+        clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } }
+    ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages,
             yaloMessages: yaloMessages,
@@ -120,6 +139,7 @@ final class ChatDependencies {
             openContext: config.openContext,
             welcomeMessageType: config.welcomeMessageType,
             commandHandlers: commandHandlers,
+            clearRequests: clearRequests,
             logLevel: config.logLevel
         )
     }

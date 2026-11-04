@@ -4,6 +4,7 @@ package ai.yalo.chat.sdk.data.repositories.chatmessage
 import ai.yalo.chat.sdk.data.datasources.chatmessage.ChatMessageDatabaseDataSource
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
+import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
@@ -42,30 +43,15 @@ internal class ChatMessageRepositoryLocal(
         }
     }
 
-    override suspend fun updateFeedback(id: Long, feedback: FeedbackRating?): Result<Unit> = withContext(dispatcher) {
-        try {
-            val values = ContentValues().apply {
-                put(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK, feedback?.wireName)
-            }
-            database.writableDatabase.update(
-                ChatMessageDatabaseDataSource.MESSAGE_TABLE,
-                values,
-                "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ? AND ${ChatMessageDatabaseDataSource.COLUMN_ID} = ?",
-                arrayOf(sessionId, id.toString()),
-            )
-            Result.success(Unit)
-        } catch (error: SQLException) {
-            Result.failure(error)
-        }
-    }
+    override suspend fun updateFeedback(id: Long, feedback: FeedbackRating?): Result<Unit> =
+        update(id, ChatMessageDatabaseDataSource.COLUMN_FEEDBACK, feedback?.wireName)
 
-    override suspend fun clearSession(): Result<Unit> = withContext(dispatcher) {
+    override suspend fun updateButtons(id: Long, buttons: List<MessageButton>): Result<Unit> =
+        update(id, ChatMessageDatabaseDataSource.COLUMN_BUTTONS, MessageButtonsColumn.encode(buttons))
+
+    override suspend fun deleteAll(): Result<Unit> = withContext(dispatcher) {
         try {
-            database.writableDatabase.delete(
-                ChatMessageDatabaseDataSource.MESSAGE_TABLE,
-                "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ?",
-                arrayOf(sessionId),
-            )
+            database.writableDatabase.delete(ChatMessageDatabaseDataSource.MESSAGE_TABLE, null, null)
             Result.success(Unit)
         } catch (error: SQLException) {
             Result.failure(error)
@@ -82,6 +68,23 @@ internal class ChatMessageRepositoryLocal(
                     batch.toTypedArray(),
                 )
             }
+            Result.success(Unit)
+        } catch (error: SQLException) {
+            Result.failure(error)
+        }
+    }
+
+    private suspend fun update(id: Long, column: String, value: String?): Result<Unit> = withContext(dispatcher) {
+        try {
+            val values = ContentValues().apply {
+                put(column, value)
+            }
+            database.writableDatabase.update(
+                ChatMessageDatabaseDataSource.MESSAGE_TABLE,
+                values,
+                "${ChatMessageDatabaseDataSource.COLUMN_SESSION_ID} = ? AND ${ChatMessageDatabaseDataSource.COLUMN_ID} = ?",
+                arrayOf(sessionId, id.toString()),
+            )
             Result.success(Unit)
         } catch (error: SQLException) {
             Result.failure(error)

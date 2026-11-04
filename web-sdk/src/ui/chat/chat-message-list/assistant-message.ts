@@ -201,6 +201,11 @@ export class AssistantMessage extends LitElement {
       background-color: var(--yalo-chat-buttons-hover-background, #dde4ec);
     }
 
+    .buttons button[aria-pressed='true'] {
+      background: var(--yalo-chat-buttons-selected-background, #dde4ec);
+      color: var(--yalo-chat-buttons-selected-color, #111111);
+    }
+
     .chips-container {
       display: grid;
       grid-template-rows: 0fr;
@@ -407,7 +412,8 @@ export class AssistantMessage extends LitElement {
                   </a>`
                 : html`<button
                     type="button"
-                    @click=${() => this._controller.onReplyClick(button.text)}
+                    aria-pressed=${button.selected === true}
+                    @click=${() => this._controller.onPostbackClick(button)}
                   >
                     ${button.text}
                   </button>`

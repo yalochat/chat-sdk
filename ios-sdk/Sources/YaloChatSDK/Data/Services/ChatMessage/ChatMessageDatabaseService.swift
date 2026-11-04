@@ -73,6 +73,13 @@ actor ChatMessageDatabaseService: ChatMessageService {
         try run(try open(), "UPDATE chat_message SET feedback = ? WHERE id = ?", [feedback?.rawValue, id])
     }
 
+    func setButtons(_ buttons: [MessageButton], id: Int64) async throws {
+        try run(try open(), "UPDATE chat_message SET buttons = ? WHERE id = ?", [
+            buttons.isEmpty ? nil : try Self.json(buttons),
+            id,
+        ])
+    }
+
     func deleteSessions(_ sessionIds: [String]) async throws {
         let database: OpaquePointer = try open()
         // SQLite takes at most 999 bound values in one statement on older versions.
@@ -81,6 +88,10 @@ actor ChatMessageDatabaseService: ChatMessageService {
             let placeholders: String = Array(repeating: "?", count: batch.count).joined(separator: ",")
             try run(database, "DELETE FROM chat_message WHERE session_id IN (\(placeholders))", batch)
         }
+    }
+
+    func deleteAll() async throws {
+        try run(try open(), "DELETE FROM chat_message", [])
     }
 
     private static let deleteBatch: Int = 900

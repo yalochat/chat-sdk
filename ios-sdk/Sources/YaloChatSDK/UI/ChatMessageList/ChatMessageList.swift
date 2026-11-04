@@ -21,6 +21,7 @@ struct ChatMessageList: View {
     var isWelcome: Bool = false
     var avatar: AnyView?
     var onTapButton: (MessageButton) -> Void = { _ in }
+    var onTapAction: (ChatMessage, MessageButton) -> Void = { _, _ in }
     var playback: VoicePlayback?
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
     var cachedImage: (ChatMessage) -> UIImage? = { _ in nil }
@@ -112,9 +113,11 @@ struct ChatMessageList: View {
                                     .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                             }
                             if message.role == .agent, !message.actions.isEmpty {
-                                MessageButtons(buttons: message.actions, onTap: onTapButton)
-                                    .padding(.horizontal, isWelcome ? 24 : 0)
-                                    .padding(.trailing, isWelcome ? 0 : 48)
+                                MessageButtons(buttons: message.actions) { button in
+                                    onTapAction(message, button)
+                                }
+                                .padding(.horizontal, isWelcome ? 24 : 0)
+                                .padding(.trailing, isWelcome ? 0 : 48)
                             }
                             if let id = message.id, id == quickRepliesMessageId {
                                 QuickReplies(replies: message.quickReplies, onTap: onTapButton, vertical: isWelcome)
