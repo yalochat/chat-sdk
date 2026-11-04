@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
@@ -51,6 +52,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
@@ -66,7 +68,6 @@ private val INPUT_BORDER_WIDTH = 1.dp
 /** How many lines the input grows to before what is typed scrolls inside it. */
 internal const val INPUT_MAX_LINES: Int = 4
 
-private val SCROLLBAR_WIDTH = 3.dp
 private val SCROLLBAR_END_INSET = 4.dp
 private val SCROLLBAR_VERTICAL_INSET = 10.dp
 private val SCROLLBAR_MIN_THUMB = 16.dp
@@ -166,6 +167,7 @@ internal fun ChatFooter(
                                 color = theme.inputScrollbarColor.takeOrElse {
                                     theme.inputBorderColor
                                 },
+                                width = theme.inputScrollbarWidth,
                             )
                             .testTag(CHAT_INPUT_TAG),
                         placeholder = {
@@ -289,30 +291,57 @@ private fun rememberSyncedTextFieldState(
  * A thin thumb on the trailing edge showing which part of a scrolled text is in
  * view. Nothing is drawn while everything fits.
  */
-private fun Modifier.verticalScrollbar(scrollState: ScrollState, color: Color): Modifier =
+private fun Modifier.verticalScrollbar(
+    scrollState: ScrollState,
+    color: Color,
+    width: Dp,
+): Modifier =
     drawWithContent {
         drawContent()
-        val maxScroll = scrollState.maxValue
-        if (maxScroll <= 0 || maxScroll == Int.MAX_VALUE) return@drawWithContent
-        val trackTop = SCROLLBAR_VERTICAL_INSET.toPx()
-        val trackHeight = size.height - trackTop * 2
-        if (trackHeight <= 0f) return@drawWithContent
-        val visibleFraction = size.height / (size.height + maxScroll)
-        val thumbHeight = (trackHeight * visibleFraction)
-            .coerceIn(SCROLLBAR_MIN_THUMB.toPx().coerceAtMost(trackHeight), trackHeight)
-        val thumbTop = trackTop +
-            (trackHeight - thumbHeight) * (scrollState.value.toFloat() / maxScroll)
-        val width = SCROLLBAR_WIDTH.toPx()
-        val endInset = SCROLLBAR_END_INSET.toPx()
-        val thumbLeft = if (layoutDirection == LayoutDirection.Rtl) {
-            endInset
-        } else {
-            size.width - endInset - width
-        }
+        val thumb = scrollbarThumb(
+            size = size,
+            scrollValue = scrollState.value,
+            maxScroll = scrollState.maxValue,
+            width = width.toPx(),
+            endInset = SCROLLBAR_END_INSET.toPx(),
+            verticalInset = SCROLLBAR_VERTICAL_INSET.toPx(),
+            minThumbHeight = SCROLLBAR_MIN_THUMB.toPx(),
+            rtl = layoutDirection == LayoutDirection.Rtl,
+        ) ?: return@drawWithContent
         drawRoundRect(
             color = color,
-            topLeft = Offset(thumbLeft, thumbTop),
-            size = Size(width, thumbHeight),
-            cornerRadius = CornerRadius(width / 2),
+            topLeft = thumb.topLeft,
+            size = thumb.size,
+            cornerRadius = CornerRadius(thumb.width / 2),
         )
     }
+
+/**
+ * Where the scrollbar thumb goes in a box of [size], in pixels, or `null` when
+ * there is none to draw: everything fits, or the thumb is [width] zero.
+ *
+ * The thumb runs down a track inset by [verticalInset] at the top and bottom,
+ * [endInset] in from the trailing edge, which is the left one when [rtl]. Its
+ * height is the share of the text in view, never less than [minThumbHeight].
+ */
+internal fun scrollbarThumb(
+    size: Size,
+    scrollValue: Int,
+    maxScroll: Int,
+    width: Float,
+    endInset: Float,
+    verticalInset: Float,
+    minThumbHeight: Float,
+    rtl: Boolean,
+): Rect? {
+    if (maxScroll <= 0 || maxScroll == Int.MAX_VALUE || width <= 0f) return null
+    val trackHeight = size.height - verticalInset * 2
+    if (trackHeight <= 0f) return null
+    val visibleFraction = size.height / (size.height + maxScroll)
+    val thumbHeight = (trackHeight * visibleFraction)
+        .coerceIn(minThumbHeight.coerceAtMost(trackHeight), trackHeight)
+    val top = verticalInset +
+        (trackHeight - thumbHeight) * (scrollValue.coerceIn(0, maxScroll).toFloat() / maxScroll)
+    val left = if (rtl) endInset else size.width - endInset - width
+    return Rect(offset = Offset(left, top), size = Size(width, thumbHeight))
+}

@@ -10,6 +10,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -29,6 +30,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.height
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -282,6 +284,58 @@ class ChatFooterTest {
             SemanticsMatcher.expectValue(SemanticsProperties.EditableText, AnnotatedString("")),
         )
     }
+
+    @Test
+    fun drawsTheScrollbarThumbAtTheConfiguredWidth() {
+        val thumb = thumbIn(width = 12f)!!
+
+        assertEquals(12f, thumb.width)
+        // Against the trailing edge, less the inset.
+        assertEquals(100f - 4f, thumb.right)
+    }
+
+    @Test
+    fun putsTheScrollbarThumbOnTheLeftInRightToLeftLayouts() {
+        val thumb = thumbIn(width = 12f, rtl = true)!!
+
+        assertEquals(4f, thumb.left)
+        assertEquals(12f, thumb.width)
+    }
+
+    @Test
+    fun drawsNoScrollbarThumbAtZeroWidth() {
+        assertNull(thumbIn(width = 0f))
+    }
+
+    @Test
+    fun drawsNoScrollbarThumbWhileEverythingFits() {
+        assertNull(thumbIn(width = 12f, maxScroll = 0))
+    }
+
+    @Test
+    fun movesTheScrollbarThumbFromTopToBottomOfTheTrack() {
+        val atTop = thumbIn(width = 3f, scrollValue = 0)!!
+        val atBottom = thumbIn(width = 3f, scrollValue = 900)!!
+
+        assertEquals(10f, atTop.top)
+        assertEquals(100f - 10f, atBottom.bottom)
+    }
+
+    private fun thumbIn(
+        width: Float,
+        scrollValue: Int = 0,
+        maxScroll: Int = 900,
+        rtl: Boolean = false,
+    ) = scrollbarThumb(
+        size = Size(100f, 100f),
+        scrollValue = scrollValue,
+        maxScroll = maxScroll,
+        width = width,
+        endInset = 4f,
+        verticalInset = 10f,
+        minThumbHeight = 16f,
+        rtl = rtl,
+    )
 
     private fun micDescription(): String =
         RuntimeEnvironment.getApplication().getString(R.string.yalo_chat_mic_button_description)

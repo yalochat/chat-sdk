@@ -300,6 +300,22 @@ describe('ChatFooter', () => {
       expect(getComputedStyle(placeholder).color).toBe('rgb(255, 0, 0)');
     });
 
+    it('sizes the input scrollbar with the configured width variable', async () => {
+      const footer = await renderFooter();
+      footer.style.setProperty('--yalo-chat-input-scrollbar-width', '20px');
+      const input = footer.shadowRoot!.querySelector(
+        '.chat-input'
+      ) as HTMLElement;
+      input.textContent = Array.from(
+        { length: 20 },
+        (_, line) => `Line ${line + 1}`
+      ).join('\n');
+      await footer.updateComplete;
+
+      expect(input.scrollHeight).toBeGreaterThan(input.clientHeight);
+      expect(input.offsetWidth - input.clientWidth).toBe(20);
+    });
+
     it('hides the placeholder once the user types', async () => {
       const footer = await renderFooter();
       const input = footer.shadowRoot!.querySelector(

@@ -63,6 +63,7 @@ public data class ChatTheme(
     public val quickReplyShape: Shape,
     public val postbackShape: Shape,
     public val inputScrollbarColor: Color = Color.Unspecified,
+    public val inputScrollbarWidth: Dp = 3.dp,
 ) {
 
     public companion object {
@@ -124,6 +125,7 @@ public data class ChatTheme(
             // The thumb that shows the typed text runs past the input, as faint
             // as the line around the input so it reads as part of it.
             inputScrollbarColor = MaterialTheme.colorScheme.outline,
+            inputScrollbarWidth = 3.dp,
         )
     }
 }
