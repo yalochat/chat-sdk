@@ -3,34 +3,24 @@
 import SwiftUI
 import UIKit
 
-/// How many lines the input grows to before what is typed scrolls inside it.
 let inputMaxLines: Int = 4
 
-/// Room between the scrollbar thumb and the text it sits beside.
 let inputScrollbarGap: CGFloat = 4
 
-/// The shortest the scrollbar thumb gets, so a very long text still leaves
-/// something to see.
 let inputScrollbarMinThumbHeight: CGFloat = 16
 
-/// Where the input's scroll sits, as the text view reports it.
 struct InputScrollMetrics: Equatable {
     var offset: CGFloat = 0
     var contentHeight: CGFloat = 0
     var visibleHeight: CGFloat = 0
 }
 
-/// The scrollbar thumb, measured from the top of the input's visible text.
 struct ScrollbarThumb: Equatable {
     var top: CGFloat
     var height: CGFloat
 }
 
-/// Where the scrollbar thumb goes for `metrics`, or `nil` while everything fits.
-///
-/// The thumb runs down the whole visible height. It is as tall as the share of
-/// the text in view, never shorter than `minThumbHeight`, and it stays inside
-/// the track while the text bounces past either end.
+/// `nil` while everything fits.
 func scrollbarThumb(
     metrics: InputScrollMetrics,
     minThumbHeight: CGFloat = inputScrollbarMinThumbHeight
@@ -45,13 +35,7 @@ func scrollbarThumb(
     return ScrollbarThumb(top: (track - height) * progress, height: height)
 }
 
-/// The text view behind the message input.
-///
-/// A SwiftUI `TextField` cannot have its scroll indicator styled, and on
-/// iOS 15 it cannot grow past one line, so the input is a `UITextView`. It
-/// grows to `inputMaxLines` lines and then scrolls, with the system indicator
-/// off so `ChatInput` can draw one in the theme's color and width. Return sends
-/// rather than starting a new line, as the send key on the keyboard says.
+/// A `UITextView` because `TextField` cannot style its scroll indicator or grow on iOS 15.
 struct ChatInputTextView: UIViewRepresentable {
     @Binding var text: String
     @Binding var height: CGFloat
@@ -86,8 +70,7 @@ struct ChatInputTextView: UIViewRepresentable {
 
     func updateUIView(_ view: InputTextView, context: Context) {
         context.coordinator.parent = self
-        // Left alone mid composition, so a keyboard building a character out
-        // of several keys is not interrupted by its own echo.
+        // Skipped mid composition so multi key input is not interrupted.
         if view.text != text, view.markedTextRange == nil {
             view.text = text
             context.coordinator.report(view)
@@ -134,9 +117,7 @@ struct ChatInputTextView: UIViewRepresentable {
             }
         }
 
-        /// Tells `ChatInput` how tall the text view wants to be and where its
-        /// scroll sits. Deferred, because this runs during layout and SwiftUI
-        /// state must not change while a view is being updated.
+        // Deferred: runs during layout, when SwiftUI state cannot change.
         func report(_ textView: UITextView) {
             guard textView.bounds.width > 0 else {
                 return
@@ -162,8 +143,6 @@ struct ChatInputTextView: UIViewRepresentable {
     }
 }
 
-/// The height `textView` needs for what is in it, from one line up to
-/// `inputMaxLines`.
 @MainActor
 func fittingHeight(of textView: UITextView) -> CGFloat {
     let lineHeight: CGFloat = laidOutLineHeight(for: textView.font ?? .preferredFont(forTextStyle: .body))
@@ -183,8 +162,7 @@ func fittingHeight(of textView: UITextView) -> CGFloat {
     return textView
 }()
 
-/// How far apart a text view lays out lines in `font`, which is more than
-/// `font.lineHeight` once the layout rounds each line to the pixel grid.
+/// Measured, since laid out lines are taller than `font.lineHeight`.
 @MainActor
 func laidOutLineHeight(for font: UIFont) -> CGFloat {
     if let height = lineHeights[font] {
@@ -198,8 +176,6 @@ func laidOutLineHeight(for font: UIFont) -> CGFloat {
     return height
 }
 
-/// A `UITextView` that says when it lays out, which is when its content size
-/// settles after the text or the width changes.
 final class InputTextView: UITextView {
     var onLayout: ((UITextView) -> Void)?
 

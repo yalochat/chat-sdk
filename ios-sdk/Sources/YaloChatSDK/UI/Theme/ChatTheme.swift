@@ -50,8 +50,8 @@ public struct ChatTheme: Sendable, Equatable {
         onFooterBackground: Color = Color(.label),
         inputBorderColor: Color = Color(.separator),
         inputBackground: Color = .clear,
-        inputShape: ChatShape = .capsule,
-        // As faint as the web SDK's #bdbdbd, and it follows dark mode.
+        // A capsule at one line (42 points), rounded corners once taller.
+        inputShape: ChatShape = ChatShape(radius: 21),
         inputScrollbarColor: Color = Color(.systemGray3),
         inputScrollbarWidth: CGFloat = 3,
         sendButtonBackground: Color = .accentColor,

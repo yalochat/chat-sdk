@@ -17,11 +17,9 @@ struct ContentView: View {
         sessionMode: .ephemeral
     ))
 
-    /// Every value has a default, so a theme names only what it changes. Here
-    /// that is the scrollbar in the message input, which shows once what is
-    /// typed runs past four lines: a wider thumb than the 3 point default, in
-    /// the accent color. Set the width to 0 to hide it; the text still scrolls.
+    /// Only the values that differ from the defaults.
     private let theme: ChatTheme = ChatTheme(
+        inputShape: ChatShape(radius: 8),
         inputScrollbarColor: .accentColor,
         inputScrollbarWidth: 6
     )

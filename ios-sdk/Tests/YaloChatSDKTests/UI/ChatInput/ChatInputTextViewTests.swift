@@ -91,8 +91,6 @@ struct ChatInputTextViewTests {
         #expect(fittingHeight(of: three) > fittingHeight(of: one))
     }
 
-    // Exactly as many lines as the cap fit without scrolling, so the thumb only
-    // shows once there is more text than the box holds.
     @Test func fitsTheCappedNumberOfLinesWithoutScrolling() {
         let textView: UITextView = makeTextView(text: lines(inputMaxLines))
 

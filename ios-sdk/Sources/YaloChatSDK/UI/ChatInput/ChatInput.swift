@@ -9,10 +9,7 @@ import SwiftUI
 /// The plus opens the photo picker and sits inside the outline with the field,
 /// so the two read as one input. `hideAttachmentButton` leaves it out, and it
 /// goes while a recording runs because there is no input to put a picture beside.
-///
-/// The field grows with what is typed up to four lines. Past that the text
-/// scrolls inside it, and a thin thumb on its trailing edge, in the theme's
-/// `inputScrollbarColor` and `inputScrollbarWidth`, shows which part is in view.
+/// Past four lines the text scrolls, with a themed scrollbar.
 struct ChatInput: View {
     @Binding var text: String
     let onSend: () -> Void
