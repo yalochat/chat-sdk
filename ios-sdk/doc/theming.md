@@ -62,7 +62,9 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`onFooterBackground`** (`Color`): Color of the content in that bar. Defaults to the system label color.
 - **`inputBorderColor`** (`Color`): Color of the line around the message input. The recording bar follows it too. Defaults to the system separator color.
 - **`inputBackground`** (`Color`): Fill of the message input, inside its line. Defaults to clear, so the footer shows through.
-- **`inputShape`** (`ChatShape`): Shape of the message input and the recording bar. Defaults to `.capsule`.
+- **`inputShape`** (`ChatShape`): Shape of the message input and the recording bar. Defaults to `ChatShape(radius: 21)`, which looks like a capsule while the input is one line and keeps rounded corners as it grows to more lines, so the text and the plus stay clear of the line. For a squarer box, give a smaller radius, for example `ChatShape(radius: 8)`. `.capsule` rounds the ends fully at any height.
+- **`inputScrollbarColor`** (`Color`): Color of the thin thumb on the trailing edge of the message input. The input grows with what is typed up to four lines, then the text scrolls inside it, and the thumb shows which part is in view. Nothing is drawn while everything fits. Defaults to the system `systemGray3` color.
+- **`inputScrollbarWidth`** (`CGFloat`): Width of that thumb, in points. Its ends stay fully rounded at any width. Defaults to `3`. Set `0` to hide it; the text still scrolls.
 - **`sendButtonBackground`** (`Color`): Fill of the round button after the input, both while it sends and while it records. Defaults to the accent color. While there is nothing to send it is drawn faded.
 - **`onSendButtonBackground`** (`Color`): Color of the icon on that button. Defaults to white.
 

@@ -17,6 +17,12 @@ struct ContentView: View {
         sessionMode: .ephemeral
     ))
 
+    /// Only the values that differ from the defaults.
+    private let theme: ChatTheme = ChatTheme(
+        inputScrollbarColor: .accentColor,
+        inputScrollbarWidth: 6
+    )
+
     @State private var chatIsOpen: Bool = false
 
     var body: some View {
@@ -37,7 +43,7 @@ struct ContentView: View {
             // Trailing follows the reading direction, so the chat enters from
             // the right in English and from the left in Arabic.
             if chatIsOpen {
-                Chat(client: client, onBack: {
+                Chat(client: client, theme: theme, onBack: {
                     chatIsOpen = false
                 }) {
                     ExampleAvatar()

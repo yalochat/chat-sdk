@@ -9,6 +9,7 @@ import SwiftUI
 /// The plus opens the photo picker and sits inside the outline with the field,
 /// so the two read as one input. `hideAttachmentButton` leaves it out, and it
 /// goes while a recording runs because there is no input to put a picture beside.
+/// Past four lines the text scrolls, with a themed scrollbar.
 struct ChatInput: View {
     @Binding var text: String
     let onSend: () -> Void
@@ -20,6 +21,8 @@ struct ChatInput: View {
     var onPickImage: (NSItemProvider) -> Void = { _ in }
     var texts: YaloChatTexts = YaloChatTexts()
     @State private var isPickingImage: Bool = false
+    @State private var inputHeight: CGFloat = 0
+    @State private var inputScroll: InputScrollMetrics = InputScrollMetrics()
     @Environment(\.chatTheme) private var theme: ChatTheme
 
     var body: some View {
@@ -33,24 +36,37 @@ struct ChatInput: View {
                 VoiceRecordingBar(recording: recording, onCancel: onCancelRecording)
             } else {
                 HStack(alignment: .bottom, spacing: 0) {
-                    Group {
-                        if #available(iOS 16.0, *) {
-                            TextField(text: $text, axis: .vertical) {
-                                placeholder
-                            }
-                            .lineLimit(1...4)
-                        } else {
-                            TextField(text: $text) {
-                                placeholder
-                            }
+                    ChatInputTextView(
+                        text: $text,
+                        height: $inputHeight,
+                        metrics: $inputScroll,
+                        textColor: UIColor(theme.onFooterBackground),
+                        trailingInset: theme.inputScrollbarWidth > 0 ? theme.inputScrollbarWidth + inputScrollbarGap : 0,
+                        accessibilityLabel: texts.inputPlaceholder ?? String(localized: "Type a message", bundle: .module),
+                        onSend: onSend
+                    )
+                    .frame(height: inputHeight > 0 ? inputHeight : laidOutLineHeight(for: .preferredFont(forTextStyle: .body)))
+                    .overlay(alignment: .topLeading) {
+                        if text.isEmpty {
+                            placeholder
+                                .foregroundStyle(Color(.placeholderText))
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
                         }
                     }
-                    .submitLabel(.send)
-                    .onSubmit(onSend)
+                    .overlay(alignment: .topTrailing) {
+                        if theme.inputScrollbarWidth > 0, let thumb = scrollbarThumb(metrics: inputScroll) {
+                            Capsule()
+                                .fill(theme.inputScrollbarColor)
+                                .frame(width: theme.inputScrollbarWidth, height: thumb.height)
+                                .offset(y: thumb.top)
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
+                        }
+                    }
                     .padding(.leading, 16)
                     .padding(.trailing, hideAttachmentButton ? 16 : 0)
                     .padding(.vertical, 10)
-                    .accessibilityIdentifier("yalo-chat-input")
                     if !hideAttachmentButton {
                         Button {
                             isPickingImage = true

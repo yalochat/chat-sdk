@@ -19,6 +19,8 @@ public struct ChatTheme: Sendable, Equatable {
     public var inputBorderColor: Color
     public var inputBackground: Color
     public var inputShape: ChatShape
+    public var inputScrollbarColor: Color
+    public var inputScrollbarWidth: CGFloat
     public var sendButtonBackground: Color
     public var onSendButtonBackground: Color
     public var userMessageBackground: Color
@@ -48,7 +50,10 @@ public struct ChatTheme: Sendable, Equatable {
         onFooterBackground: Color = Color(.label),
         inputBorderColor: Color = Color(.separator),
         inputBackground: Color = .clear,
-        inputShape: ChatShape = .capsule,
+        // A capsule at one line (42 points), rounded corners once taller.
+        inputShape: ChatShape = ChatShape(radius: 21),
+        inputScrollbarColor: Color = Color(.systemGray3),
+        inputScrollbarWidth: CGFloat = 3,
         sendButtonBackground: Color = .accentColor,
         onSendButtonBackground: Color = .white,
         userMessageBackground: Color = Color(.secondarySystemBackground),
@@ -81,6 +86,8 @@ public struct ChatTheme: Sendable, Equatable {
         self.inputBorderColor = inputBorderColor
         self.inputBackground = inputBackground
         self.inputShape = inputShape
+        self.inputScrollbarColor = inputScrollbarColor
+        self.inputScrollbarWidth = inputScrollbarWidth
         self.sendButtonBackground = sendButtonBackground
         self.onSendButtonBackground = onSendButtonBackground
         self.userMessageBackground = userMessageBackground
