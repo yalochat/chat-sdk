@@ -300,20 +300,49 @@ describe('ChatFooter', () => {
       expect(getComputedStyle(placeholder).color).toBe('rgb(255, 0, 0)');
     });
 
+    // These read the footer's stylesheet rather than measuring a drawn
+    // scrollbar: headless Chromium is launched with --hide-scrollbars, which
+    // draws no scrollbar at all on some platforms (Linux CI among them).
     it('sizes the input scrollbar with the configured width variable', async () => {
       const footer = await renderFooter();
-      footer.style.setProperty('--yalo-chat-input-scrollbar-width', '20px');
-      const input = footer.shadowRoot!.querySelector(
-        '.chat-input'
-      ) as HTMLElement;
-      input.textContent = Array.from(
-        { length: 20 },
-        (_, line) => `Line ${line + 1}`
-      ).join('\n');
-      await footer.updateComplete;
+      const scrollbar = styleRules(footer).find(
+        (rule): rule is CSSStyleRule =>
+          rule instanceof CSSStyleRule &&
+          rule.selectorText === '.chat-input::-webkit-scrollbar'
+      );
 
-      expect(input.scrollHeight).toBeGreaterThan(input.clientHeight);
-      expect(input.offsetWidth - input.clientWidth).toBe(20);
+      expect(scrollbar?.style.width).toBe(
+        'var(--yalo-chat-input-scrollbar-width, 0.375em)'
+      );
+    });
+
+    // Chrome lets the standard scrollbar-color override every
+    // ::-webkit-scrollbar rule, width included, so it is only set where those
+    // rules are not supported.
+    it('sets the standard scrollbar color only where ::-webkit-scrollbar is unsupported', async () => {
+      const footer = await renderFooter();
+      const rules = styleRules(footer);
+      const topLevelInput = rules.filter(
+        (rule): rule is CSSStyleRule =>
+          rule instanceof CSSStyleRule && rule.selectorText === '.chat-input'
+      );
+      const fallback = rules.find(
+        (rule): rule is CSSSupportsRule =>
+          rule instanceof CSSSupportsRule &&
+          rule.conditionText === 'not selector(::-webkit-scrollbar)'
+      );
+      const fallbackInput = Array.from(fallback?.cssRules ?? []).find(
+        (rule): rule is CSSStyleRule =>
+          rule instanceof CSSStyleRule && rule.selectorText === '.chat-input'
+      );
+
+      expect(topLevelInput.length).toBeGreaterThan(0);
+      for (const rule of topLevelInput) {
+        expect(rule.style.getPropertyValue('scrollbar-color')).toBe('');
+      }
+      expect(fallbackInput?.style.getPropertyValue('scrollbar-color')).toContain(
+        '--yalo-chat-input-scrollbar-color'
+      );
     });
 
     it('hides the placeholder once the user types', async () => {
@@ -492,3 +521,9 @@ describe('ChatFooter', () => {
     });
   });
 });
+
+function styleRules(footer: ChatFooter): CSSRule[] {
+  return footer.shadowRoot!.adoptedStyleSheets.flatMap((sheet) =>
+    Array.from(sheet.cssRules)
+  );
+}
