@@ -19,7 +19,6 @@ struct ContentView: View {
 
     /// Only the values that differ from the defaults.
     private let theme: ChatTheme = ChatTheme(
-        inputShape: ChatShape(radius: 8),
         inputScrollbarColor: .accentColor,
         inputScrollbarWidth: 6
     )
