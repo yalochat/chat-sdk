@@ -71,22 +71,12 @@ export class ChatFooter extends LitElement {
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
-    }
-
-    /* Browsers without ::-webkit-scrollbar (Firefox) only take the standard
-       properties, which have no exact width, so they get a thin bar. The
-       others skip this block: in Chrome the standard properties would
-       override the ::-webkit-scrollbar rules below, width included. */
-    @supports not selector(::-webkit-scrollbar) {
-      .chat-input {
-        scrollbar-width: thin;
-        scrollbar-color: var(--yalo-chat-input-scrollbar-color, #bdbdbd)
-          var(--yalo-chat-input-scrollbar-track-color, transparent);
-      }
+      scrollbar-color: var(--yalo-chat-input-scrollbar-color, #bdbdbd)
+        var(--yalo-chat-input-scrollbar-track-color, transparent);
     }
 
     .chat-input::-webkit-scrollbar {
-      width: var(--yalo-chat-input-scrollbar-width, 0.375em);
+      width: 0.375em;
     }
 
     .chat-input::-webkit-scrollbar-track {

@@ -283,11 +283,6 @@ To replace an icon with your own SVG image instead of a font glyph, use the `ico
   /* Background color of the scrollbar track inside the message input field.
      Defaults to transparent so it blends with the input. */
   --yalo-chat-input-scrollbar-track-color: transparent;
-
-  /* Width of the scrollbar inside the message input field. Accepts any CSS
-     length. Applies in Chromium and WebKit browsers; Firefox has no exact
-     scrollbar width, so it always draws its thin scrollbar there. */
-  --yalo-chat-input-scrollbar-width: 0.375em;
 }
 ```
 
