@@ -38,6 +38,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.4.0",
     "jiti": "^2.6.1",
+    "playwright": "^1.64.1",
     "prettier": "3.8.1",
     "ts-lit-plugin": "^2.0.2",
     "typescript": "^5.9.3",
