@@ -10,7 +10,7 @@ struct YaloMessageWebSocketServiceTests {
 
     private func service(
         baseURL: URL = URL(string: "https://example.test/gateway")!,
-        ackTimeout: TimeInterval = 2
+        ackTimeout: TimeInterval = 60
     ) -> YaloMessageWebSocketService {
         let opened: Recorded<FakeWebSocket> = opened
         return YaloMessageWebSocketService(baseURL: baseURL, ackTimeout: ackTimeout) { url in

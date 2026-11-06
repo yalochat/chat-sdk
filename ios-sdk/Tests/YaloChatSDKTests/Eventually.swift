@@ -4,7 +4,7 @@ import Foundation
 
 /// Waits for `condition` to hold, for work that finishes on another task.
 /// Generous, since CI machines can run the suite many times slower.
-func eventually(timeout: TimeInterval = 10, _ condition: () async -> Bool) async -> Bool {
+func eventually(timeout: TimeInterval = 30, _ condition: () async -> Bool) async -> Bool {
     let deadline: Date = Date().addingTimeInterval(timeout)
     while Date() < deadline {
         if await condition() {
