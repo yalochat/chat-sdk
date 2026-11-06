@@ -6,19 +6,26 @@ import { serializeTheme } from '../ChatTheme';
 describe('serializeTheme', () => {
   it('sends colors as the numbers the platform reads', () => {
     const native = JSON.parse(
-      serializeTheme({ headerBackground: '#ff0000', linkColor: 'blue' })
+      serializeTheme({
+        headerBackground: '#ff0000',
+        linkColor: 'blue',
+        inputScrollbarColor: '#1e88e5',
+      })
     );
 
     expect(native).toEqual({
       headerBackground: processColor('#ff0000'),
       linkColor: processColor('blue'),
+      inputScrollbarColor: processColor('#1e88e5'),
     });
   });
 
   it('sends sizes as the points they are', () => {
-    const native = JSON.parse(serializeTheme({ agentMessagePadding: 12 }));
+    const native = JSON.parse(
+      serializeTheme({ agentMessagePadding: 12, inputScrollbarWidth: 6 })
+    );
 
-    expect(native).toEqual({ agentMessagePadding: 12 });
+    expect(native).toEqual({ agentMessagePadding: 12, inputScrollbarWidth: 6 });
   });
 
   it('rounds every corner when a shape is a number', () => {

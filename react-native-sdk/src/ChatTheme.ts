@@ -46,6 +46,10 @@ export type ChatTheme = {
   inputBackground?: ColorValue;
   sendButtonBackground?: ColorValue;
   onSendButtonBackground?: ColorValue;
+  /** Color of the thumb that shows once a long message scrolls inside the input. */
+  inputScrollbarColor?: ColorValue;
+  /** Width of that thumb, in points. `0` hides it and the text still scrolls. */
+  inputScrollbarWidth?: number;
   inputShape?: ChatShape;
   userMessageShape?: ChatShape;
   agentMessageShape?: ChatShape;
@@ -70,7 +74,10 @@ const shapeKeys = new Set<string>([
   'postbackShape',
 ]);
 
-const sizeKeys = new Set<string>(['agentMessagePadding']);
+const sizeKeys = new Set<string>([
+  'agentMessagePadding',
+  'inputScrollbarWidth',
+]);
 
 function cornersOf(shape: ChatShape): Corners {
   if (typeof shape === 'number') {

@@ -46,6 +46,8 @@ class ThemeOverridesTest {
         imageShape = RectangleShape,
         quickReplyShape = RectangleShape,
         postbackShape = RectangleShape,
+        inputScrollbarColor = Color.White,
+        inputScrollbarWidth = 0.dp,
     )
 
     @Test
@@ -69,7 +71,7 @@ class ThemeOverridesTest {
             "onQuickReplyBackground", "quickReplyBorderColor", "postbackBackground", "onPostbackBackground",
             "postbackBorderColor", "selectedPostbackBackground", "onSelectedPostbackBackground",
             "inputBorderColor", "inputFieldBorderColor",
-            "inputBackground", "sendButtonBackground", "onSendButtonBackground",
+            "inputBackground", "sendButtonBackground", "onSendButtonBackground", "inputScrollbarColor",
         )
         val json = JSONObject()
         keys.forEach { key -> json.put(key, -16777216) }
@@ -111,6 +113,8 @@ class ThemeOverridesTest {
                 imageShape = RectangleShape,
                 quickReplyShape = RectangleShape,
                 postbackShape = RectangleShape,
+                inputScrollbarColor = Color.Black,
+                inputScrollbarWidth = 0.dp,
             ),
             theme,
         )
@@ -118,9 +122,9 @@ class ThemeOverridesTest {
 
     @Test
     fun `reads sizes as points`() {
-        val theme = base.overriddenBy(JSONObject("""{"agentMessagePadding":12.5}"""))
+        val theme = base.overriddenBy(JSONObject("""{"agentMessagePadding":12.5,"inputScrollbarWidth":6}"""))
 
-        assertEquals(base.copy(agentMessagePadding = 12.5.dp), theme)
+        assertEquals(base.copy(agentMessagePadding = 12.5.dp, inputScrollbarWidth = 6.dp), theme)
     }
 
     @Test
