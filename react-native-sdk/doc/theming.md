@@ -80,10 +80,12 @@ Some values are not drawn on iOS yet. They are marked "Android only" below and a
 
 - **`footerBackground`** (color): Background of the bar holding the message input. Defaults to the Material `surfaceContainer` color on Android and the secondary system background color on iOS.
 - **`onFooterBackground`** (color): Color of the content in that bar. Defaults to the Material `onSurface` color on Android and the system label color on iOS.
-- **`inputShape`** (shape): Shape of the message input and of the recording bar that replaces it. Defaults to fully rounded ends.
+- **`inputShape`** (shape): Shape of the message input and of the recording bar that replaces it. Defaults to fully rounded ends on Android. On iOS it defaults to corners rounded by 21 points, which is a capsule while the input is one line tall and rounded corners once it grows.
 - **`inputBorderColor`** (color): Color of the line around the message input. That line goes around the place text is typed and the plus that picks a picture together, so the two read as one input. The recording bar follows it too. Defaults to the Material `outline` color on Android and the system separator color on iOS.
 - **`inputFieldBorderColor`** (color, Android only): Color of the line around the place text is typed on its own, inside the one above. Defaults to transparent, so only the outer line shows. Set a color when you want the field and the plus told apart.
 - **`inputBackground`** (color): Fill of the message input, inside its line. The recording bar follows it too. Defaults to transparent, so the footer shows through.
+- **`inputScrollbarColor`** (color): Color of the thumb in the message input. The input grows up to four lines, then the text scrolls inside it and the thumb shows which part is in view. Defaults to the Material `outline` color on Android and the system gray 3 color on iOS.
+- **`inputScrollbarWidth`** (size): Width of that thumb. Defaults to `3`. `0` hides the thumb, and the text still scrolls.
 - **`sendButtonBackground`** (color): Fill of the round button after the input, both while it sends and while it records. While there is nothing to send it is drawn faded. Defaults to the Material `primary` color on Android and the accent color on iOS.
 - **`onSendButtonBackground`** (color): Color of the icon on that button. Defaults to the Material `onPrimary` color on Android and white on iOS.
 

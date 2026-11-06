@@ -47,6 +47,8 @@ internal fun ChatTheme.overriddenBy(theme: JSONObject): ChatTheme = copy(
     imageShape = theme.shape("imageShape") ?: imageShape,
     quickReplyShape = theme.shape("quickReplyShape") ?: quickReplyShape,
     postbackShape = theme.shape("postbackShape") ?: postbackShape,
+    inputScrollbarColor = theme.color("inputScrollbarColor") ?: inputScrollbarColor,
+    inputScrollbarWidth = theme.size("inputScrollbarWidth") ?: inputScrollbarWidth,
 )
 
 private fun JSONObject.color(key: String): Color? {

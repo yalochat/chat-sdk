@@ -236,6 +236,7 @@ func chatTheme(of json: String) -> ChatTheme {
     ("inputBackground", \.inputBackground),
     ("sendButtonBackground", \.sendButtonBackground),
     ("onSendButtonBackground", \.onSendButtonBackground),
+    ("inputScrollbarColor", \.inputScrollbarColor),
     ("userMessageBackground", \.userMessageBackground),
     ("onUserMessageBackground", \.onUserMessageBackground),
     ("agentMessageBackground", \.agentMessageBackground),
@@ -258,6 +259,9 @@ func chatTheme(of json: String) -> ChatTheme {
   }
   if let padding = values["agentMessagePadding"] as? NSNumber {
     theme.agentMessagePadding = CGFloat(padding.doubleValue)
+  }
+  if let width = values["inputScrollbarWidth"] as? NSNumber {
+    theme.inputScrollbarWidth = CGFloat(width.doubleValue)
   }
   let shapes: [(String, WritableKeyPath<ChatTheme, ChatShape>)] = [
     ("inputShape", \.inputShape),
