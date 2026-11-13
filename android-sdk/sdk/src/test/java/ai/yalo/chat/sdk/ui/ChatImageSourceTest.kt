@@ -47,6 +47,16 @@ class ChatImageSourceTest {
     }
 
     @Test
+    fun opensTheFilePickerInTheFirstScreenshotFolder() {
+        val picker = openPicker(client(ImageSource.Screenshots, screenshotFolders = listOf("Download", "Pictures")))
+
+        assertEquals(
+            DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE, "primary:Download"),
+            picker.getParcelableExtra(DocumentsContract.EXTRA_INITIAL_URI),
+        )
+    }
+
+    @Test
     fun opensTheFilePickerWhenNamesAreChecked() {
         val picker = openPicker(client(ImageSource.All, allowedImageNames = listOf("SCR_.*")))
 
@@ -118,6 +128,7 @@ class ChatImageSourceTest {
         source: ImageSource,
         texts: YaloChatTexts = YaloChatTexts(),
         allowedImageNames: List<String> = emptyList(),
+        screenshotFolders: List<String> = listOf("Pictures/Screenshots"),
     ) = YaloChatClient(
         YaloChatClientConfig(
             channelId = "channel-id",
@@ -127,6 +138,7 @@ class ChatImageSourceTest {
             imageSource = source,
             texts = texts,
             allowedImageNames = allowedImageNames,
+            screenshotFolders = screenshotFolders,
         ),
     )
 

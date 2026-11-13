@@ -135,7 +135,7 @@ Optional properties:
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 - **`imageSource`** (`ImageSource`): Where the pictures a person sends may come from. Defaults to `ImageSource.All`. Set `ImageSource.Screenshots` to accept only screenshots. See [Only screenshots](#only-screenshots).
-- **`screenshotFolders`** (`List<String>`): The folder names a picture may come from when `imageSource` is `ImageSource.Screenshots`. Defaults to `listOf("Screenshots")`. See [Only screenshots](#only-screenshots).
+- **`screenshotFolders`** (`List<String>`): The folders a picture may come from when `imageSource` is `ImageSource.Screenshots`. The picker opens in the first one. Defaults to `listOf("Pictures/Screenshots", "DCIM/Screenshots")`. See [Only screenshots](#only-screenshots).
 - **`allowedImageNames`** (`List<String>`): Regular expressions a picture's file name has to match to be sent. Defaults to an empty list, which checks no name. See [Allowed image names](#allowed-image-names).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 - **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
@@ -420,18 +420,19 @@ YaloChatClient(
 
 What to expect:
 
-- The plus opens the system file picker instead of the photo picker, starting in the Screenshots folder. On Android 7 it starts wherever the system decides.
-- The person can still browse to other folders, but a picture from anywhere other than a folder named `Screenshots` is not sent. An alert says the image cannot be sent. Change its title with `imageNotAllowed` and its button with `invalidImageAlertButtonText` in [`texts`](doc/translations.md).
-- Only the folder's own name is checked, ignoring case, so `Screenshots` covers both `Pictures/Screenshots` and `DCIM/Screenshots`. If a phone keeps screenshots in a folder with another name, add it to `screenshotFolders`:
+- The plus opens the system file picker instead of the photo picker, starting in the first folder of `screenshotFolders`. On Android 7 it starts wherever the system decides.
+- The person can still browse to other folders, but a picture from anywhere else is not sent. An alert says the image cannot be sent. Change its title with `imageNotAllowed` and its button with `invalidImageAlertButtonText` in [`texts`](doc/translations.md).
+- `screenshotFolders` defaults to `Pictures/Screenshots` and `DCIM/Screenshots`, where most phones keep screenshots. Paths start at the root of the device storage and are compared ignoring case. To use other folders, list them with the one the picker should open in first:
   ```kotlin
   YaloChatClientConfig(
       channelId = "your-channel-id",
       organizationId = "your-organization-id",
       channelName = "Support",
       imageSource = ImageSource.Screenshots,
-      screenshotFolders = listOf("Screenshots", "Capturas"),
+      screenshotFolders = listOf("Pictures/MyApp", "Download"),
   )
   ```
+- A name alone, such as `Screenshots`, accepts that folder wherever it sits. The picker cannot open in it though, so put a full path first.
 - Pictures picked from apps such as Google Photos or Drive are not sent, because the chat cannot tell which folder they came from.
 - No permission is needed, the same as with the photo picker.
 

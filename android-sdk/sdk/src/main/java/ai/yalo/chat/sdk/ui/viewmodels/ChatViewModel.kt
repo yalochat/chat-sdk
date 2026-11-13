@@ -133,7 +133,7 @@ internal class ChatViewModel(
     private val openContext: Map<String, String> = emptyMap(),
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     private val imageSource: ImageSource = ImageSource.All,
-    private val screenshotFolders: List<String> = listOf("Screenshots"),
+    private val screenshotFolders: List<String> = listOf("Pictures/Screenshots", "DCIM/Screenshots"),
     private val allowedImageNames: List<String> = emptyList(),
     /** The handler the host registered for a command, or null when it registered none. */
     private val commandHandlers: (String) -> CommandHandler? = { null },
@@ -307,10 +307,12 @@ internal class ChatViewModel(
         null
     }
 
-    // Phones put the folder under Pictures or DCIM, so only its own name counts.
+    // A folder given by name alone matches wherever it sits.
     private suspend fun isScreenshot(uri: Uri): Boolean {
-        val name = imageRepository.folderOf(uri)?.substringAfterLast('/') ?: return false
-        return screenshotFolders.any { folder -> folder.equals(name, ignoreCase = true) }
+        val path = imageRepository.folderOf(uri) ?: return false
+        return screenshotFolders.map { folder -> folder.trim('/') }.any { folder ->
+            path.equals(folder, ignoreCase = true) || path.endsWith("/$folder", ignoreCase = true)
+        }
     }
 
     /**

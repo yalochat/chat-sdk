@@ -23,10 +23,12 @@ package ai.yalo.chat.sdk
  * read alike.
  * @property imageSource Where the pictures a person sends may come from.
  * Defaults to [ImageSource.All].
- * @property screenshotFolders The names of the folders a picture may come
- * from with [imageSource] set to [ImageSource.Screenshots], compared without
- * case and wherever the folder sits, so `Screenshots` covers both
- * `Pictures/Screenshots` and `DCIM/Screenshots`. Defaults to `Screenshots`.
+ * @property screenshotFolders The folders a picture may come from with
+ * [imageSource] set to [ImageSource.Screenshots], as paths from the root of
+ * the device storage such as `Pictures/Screenshots`, compared without case. A
+ * name alone, such as `Screenshots`, matches that folder wherever it sits. The
+ * file picker opens in the first one. Defaults to `Pictures/Screenshots` and
+ * `DCIM/Screenshots`.
  * @property allowedImageNames Regular expressions a picked picture's file name,
  * extension included, has to match in full to be sent. A picture that matches
  * none is turned away with a short notice. Empty, the default, checks no name.
@@ -66,7 +68,7 @@ public data class YaloChatClientConfig(
     public val hideFeedbackButtons: Boolean = false,
     public val texts: YaloChatTexts = YaloChatTexts(),
     public val imageSource: ImageSource = ImageSource.All,
-    public val screenshotFolders: List<String> = listOf("Screenshots"),
+    public val screenshotFolders: List<String> = listOf("Pictures/Screenshots", "DCIM/Screenshots"),
     public val allowedImageNames: List<String> = emptyList(),
 ) {
 

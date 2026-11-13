@@ -939,6 +939,29 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun turnsAwayAScreenshotFromAnotherPathThanTheOneNamed() {
+        imageRepository.folder = "DCIM/Screenshots"
+        val viewModel = chatViewModel(
+            imageSource = ImageSource.Screenshots,
+            screenshotFolders = listOf("Pictures/Screenshots"),
+        )
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+    }
+
+    @Test
+    fun turnsAwayAFolderThatOnlyEndsLikeTheOneNamed() {
+        imageRepository.folder = "Pictures/OldScreenshots"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+    }
+
+    @Test
     fun closingTheAlertTakesItAway() {
         imageRepository.fileName = "IMG_123.png"
         val viewModel = chatViewModel(allowedImageNames = listOf(".*\\.jpg"))

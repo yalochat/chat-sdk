@@ -116,6 +116,7 @@ public fun Chat(
     val startRecording = rememberMicrophoneRequest { viewModel.onStartRecording() }
     val pickImage = rememberImagePicker(
         source = client.config.imageSource,
+        firstFolder = client.config.screenshotFolders.firstOrNull(),
         checksNames = client.config.allowedImageNames.isNotEmpty(),
     ) { uri -> viewModel.onImagePicked(uri) }
     if (viewModel.uiState.isImageRejected) {
@@ -203,6 +204,7 @@ private fun rememberChatSession(config: YaloChatClientConfig): ChatSession {
 @Composable
 private fun rememberImagePicker(
     source: ImageSource,
+    firstFolder: String?,
     checksNames: Boolean,
     onPicked: (Uri) -> Unit,
 ): () -> Unit {
@@ -213,7 +215,8 @@ private fun rememberImagePicker(
         }
     }
     val photos = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia(), onResult)
-    val screenshots = rememberLauncherForActivityResult(OpenImage(SCREENSHOTS_FOLDER), onResult)
+    val screenshotsFolder = remember(firstFolder) { firstFolder?.let(::storageFolder) }
+    val screenshots = rememberLauncherForActivityResult(OpenImage(screenshotsFolder), onResult)
     val files = rememberLauncherForActivityResult(OpenImage(), onResult)
     return remember(source, checksNames, photos, screenshots, files) {
         {
@@ -246,9 +249,9 @@ private class OpenImage(private val initialFolder: Uri? = null) : ActivityResult
 
 private const val IMAGE_MIME_TYPES = "image/*"
 
-private val SCREENSHOTS_FOLDER: Uri = DocumentsContract.buildDocumentUri(
+private fun storageFolder(path: String): Uri = DocumentsContract.buildDocumentUri(
     "com.android.externalstorage.documents",
-    "primary:Pictures/Screenshots",
+    "primary:${path.trim('/')}",
 )
 
 /**
