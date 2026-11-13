@@ -30,7 +30,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -920,7 +919,7 @@ class ChatViewModelTest {
 
         viewModel.onImagePicked(GALLERY_URI)
 
-        viewModel.rejectedImages.first()
+        assertTrue(viewModel.uiState.isImageRejected)
         assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
         assertEquals(emptyList<Uri>(), imageRepository.stored)
     }
@@ -937,6 +936,89 @@ class ChatViewModelTest {
         viewModel.onImagePicked(GALLERY_URI)
 
         assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun closingTheAlertTakesItAway() {
+        imageRepository.fileName = "IMG_123.png"
+        val viewModel = chatViewModel(allowedImageNames = listOf(".*\\.jpg"))
+        viewModel.onImagePicked(GALLERY_URI)
+
+        viewModel.onImageRejectedDismissed()
+
+        assertFalse(viewModel.uiState.isImageRejected)
+    }
+
+    @Test
+    fun takesAPictureWhoseNameIsAllowed() {
+        imageRepository.fileName = "SCR_123.png"
+        imageRepository.picture = picked()
+        val viewModel = chatViewModel(allowedImageNames = listOf("""SCR_\d+(\.png)?"""))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun turnsAwayAPictureWhoseNameIsNotAllowed() = runBlocking {
+        imageRepository.fileName = "IMG_123.png"
+        val viewModel = chatViewModel(allowedImageNames = listOf("""SCR_\d+\.png"""))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun matchesTheWholeNameExtensionIncluded() {
+        imageRepository.fileName = "SCR_123.png"
+        val viewModel = chatViewModel(allowedImageNames = listOf("""SCR_\d+"""))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun ignoresAnAllowedNameThatIsNotAPattern() {
+        imageRepository.fileName = "SCR_123.png"
+        imageRepository.picture = picked()
+        val viewModel = chatViewModel(allowedImageNames = listOf("SCR_(", "SCR_.*"))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun turnsAwayEveryPictureWhenNoAllowedNameIsAPattern() {
+        val viewModel = chatViewModel(allowedImageNames = listOf("SCR_("))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun turnsAwayAPictureWhenTheDeviceWillNotSayItsName() {
+        imageRepository.fileName = null
+        val viewModel = chatViewModel(allowedImageNames = listOf(".*"))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun checksBothTheFolderAndTheName() {
+        imageRepository.folder = "DCIM/Camera"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots, allowedImageNames = listOf(".*"))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
     }
 
     @Test
@@ -1358,6 +1440,7 @@ class ChatViewModelTest {
         commands: Map<String, CommandHandler> = emptyMap(),
         imageSource: ImageSource = ImageSource.All,
         screenshotFolders: List<String> = listOf("Screenshots"),
+        allowedImageNames: List<String> = emptyList(),
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
@@ -1377,6 +1460,7 @@ class ChatViewModelTest {
         welcomeMessageType = welcomeMessageType,
         imageSource = imageSource,
         screenshotFolders = screenshotFolders,
+        allowedImageNames = allowedImageNames,
         commandHandlers = commands::get,
         now = { SENT_AT },
     )

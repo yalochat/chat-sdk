@@ -19,7 +19,9 @@ import SwiftUI
 /// Image messages need no permission: the plus in the message input opens the
 /// system photo picker, which hands over only what the person picked. Set
 /// `hideAttachmentButton` in the client config to leave the plus out, or
-/// `imageSource` to `.screenshots` to offer only screenshots.
+/// `imageSource` to `.screenshots` to offer only screenshots. With
+/// `allowedImageNames` set, a picture whose name matches none of them is not
+/// sent and an alert says so.
 ///
 /// Text from the channel carries a thumbs up and a thumbs down. Picking the
 /// one already picked takes the rating back. Set `hideFeedbackButtons` in the
@@ -67,6 +69,13 @@ public struct Chat<Avatar: View>: View {
         self.onBack = onBack
         self.avatar = avatar
         _viewModel = StateObject(wrappedValue: viewModel())
+    }
+
+    private var imageNotAllowedTitle: Text {
+        if let text = client.config.texts.imageNotAllowed {
+            return Text(text)
+        }
+        return Text("This image can't be sent", bundle: .module)
     }
 
     public var body: some View {
@@ -140,6 +149,16 @@ public struct Chat<Avatar: View>: View {
                 },
                 texts: client.config.texts
             )
+        }
+        .alert(imageNotAllowedTitle, isPresented: $viewModel.isImageRejected) {
+            Button(role: .cancel) {
+            } label: {
+                if let text = client.config.texts.invalidImageAlertButtonText {
+                    Text(text)
+                } else {
+                    Text("OK", bundle: .module)
+                }
+            }
         }
         .background(theme.background)
         .environment(\.chatTheme, theme)

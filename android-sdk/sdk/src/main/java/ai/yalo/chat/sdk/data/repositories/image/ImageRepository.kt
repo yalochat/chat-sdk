@@ -25,4 +25,7 @@ internal interface ImageRepository {
      * `Pictures/Screenshots`, or nothing when the device will not say.
      */
     suspend fun folderOf(uri: Uri): String?
+
+    /** The file name of what [uri] points at, or nothing when the device will not say. */
+    suspend fun fileNameOf(uri: Uri): String?
 }

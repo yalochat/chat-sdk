@@ -40,7 +40,8 @@ struct ChatViewModelTests {
         chatMessages: ChatMessageService? = nil,
         welcomeMessageType: WelcomeMessageType = .none,
         commands: [String: CommandHandler] = [:],
-        clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } }
+        clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } },
+        allowedImageNames: [String] = []
     ) -> ChatViewModel {
         ChatViewModel(
             chatMessages: chatMessages ?? storage,
@@ -55,6 +56,7 @@ struct ChatViewModelTests {
             run: run,
             openContext: openContext,
             welcomeMessageType: welcomeMessageType,
+            allowedImageNames: allowedImageNames,
             commandHandlers: { command in commands[command] },
             clearRequests: clearRequests,
             now: { Self.now },
@@ -822,11 +824,11 @@ struct ChatViewModelTests {
         #expect(await mediaService.downloads.isEmpty)
     }
 
-    private static func pickedPicture() throws -> NSItemProvider {
+    private static func pickedPicture(named name: String? = "holiday") throws -> NSItemProvider {
         let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).jpg")
         try Data("picture bytes".utf8).write(to: file)
         let provider: NSItemProvider = NSItemProvider()
-        provider.suggestedName = "holiday"
+        provider.suggestedName = name
         provider.registerFileRepresentation(forTypeIdentifier: UTType.jpeg.identifier, visibility: .all) { completion in
             completion(file, false, nil)
             return nil
@@ -864,6 +866,57 @@ struct ChatViewModelTests {
         #expect(viewModel.messages.map(\.type) == [.image])
         #expect(channel.sent.isEmpty)
         #expect(!viewModel.isWaitingForReply)
+    }
+
+    @Test func aPictureWhoseNameIsAllowedIsSent() async throws {
+        let viewModel: ChatViewModel = viewModel(allowedImageNames: [#"SCR_\d+"#])
+
+        await viewModel.sendImage(try Self.pickedPicture(named: "SCR_123"))
+
+        #expect(viewModel.messages.map(\.type) == [.image])
+        #expect(!viewModel.isImageRejected)
+    }
+
+    @Test func aPictureWhoseNameIsNotAllowedIsTurnedAwayWithAnAlert() async throws {
+        let viewModel: ChatViewModel = viewModel(allowedImageNames: [#"SCR_\d+"#])
+
+        await viewModel.sendImage(try Self.pickedPicture(named: "IMG_123"))
+
+        #expect(viewModel.messages.isEmpty)
+        #expect(await mediaService.uploads.isEmpty)
+        #expect(viewModel.isImageRejected)
+    }
+
+    @Test func theWholeNameHasToMatch() async throws {
+        let viewModel: ChatViewModel = viewModel(allowedImageNames: [#"SCR_\d+"#])
+
+        await viewModel.sendImage(try Self.pickedPicture(named: "MY_SCR_123_copy"))
+
+        #expect(viewModel.messages.isEmpty)
+    }
+
+    @Test func anAllowedNameThatIsNotAPatternIsIgnored() async throws {
+        let viewModel: ChatViewModel = viewModel(allowedImageNames: ["SCR_(", "SCR_.*"])
+
+        await viewModel.sendImage(try Self.pickedPicture(named: "SCR_123"))
+
+        #expect(viewModel.messages.map(\.type) == [.image])
+    }
+
+    @Test func everyPictureIsTurnedAwayWhenNoAllowedNameIsAPattern() async throws {
+        let viewModel: ChatViewModel = viewModel(allowedImageNames: ["SCR_("])
+
+        await viewModel.sendImage(try Self.pickedPicture(named: "SCR_123"))
+
+        #expect(viewModel.messages.isEmpty)
+    }
+
+    @Test func aPictureWithNoNameIsTurnedAwayWhenNamesAreChecked() async throws {
+        let viewModel: ChatViewModel = viewModel(allowedImageNames: [".*"])
+
+        await viewModel.sendImage(try Self.pickedPicture(named: nil))
+
+        #expect(viewModel.messages.isEmpty)
     }
 
     @Test func somethingThatIsNotAPictureIsNeitherShownNorSent() async {

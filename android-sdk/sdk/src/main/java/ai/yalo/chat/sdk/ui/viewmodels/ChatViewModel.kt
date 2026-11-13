@@ -47,9 +47,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,6 +56,7 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.regex.PatternSyntaxException
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -74,6 +73,9 @@ import kotlin.time.Duration.Companion.seconds
  *
  * [isWelcome] is true while the conversation is only the channel's first
  * message and the client config asks for it to be drawn as a welcome.
+ *
+ * [isImageRejected] is true while the alert saying a picked picture was turned
+ * away is up.
  */
 internal data class ChatUiState(
     val title: String,
@@ -84,6 +86,7 @@ internal data class ChatUiState(
     val quickReplies: List<MessageButton> = emptyList(),
     val quickRepliesMessageId: Long? = null,
     val isWelcome: Boolean = false,
+    val isImageRejected: Boolean = false,
 )
 
 /**
@@ -131,6 +134,7 @@ internal class ChatViewModel(
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     private val imageSource: ImageSource = ImageSource.All,
     private val screenshotFolders: List<String> = listOf("Screenshots"),
+    private val allowedImageNames: List<String> = emptyList(),
     /** The handler the host registered for a command, or null when it registered none. */
     private val commandHandlers: (String) -> CommandHandler? = { null },
     private val now: () -> Long = System::currentTimeMillis,
@@ -138,6 +142,8 @@ internal class ChatViewModel(
 ) : ViewModel() {
 
     private val log = YaloLog(LOG_NAME, logLevel)
+
+    private val imageNamePatterns: List<Regex> = allowedImageNames.mapNotNull { pattern -> patternOf(pattern) }
 
     var uiState: ChatUiState by mutableStateOf(
         ChatUiState(title = title, draft = savedState.get<String>(DRAFT_KEY).orEmpty()),
@@ -151,11 +157,6 @@ internal class ChatViewModel(
     /** The voice note being listened to, or null when nothing is loaded. */
     var playback: VoicePlayback? by mutableStateOf(null)
         private set
-
-    private val rejections = Channel<Unit>(Channel.CONFLATED)
-
-    /** Emits every time a picked picture is turned away for where it came from. */
-    val rejectedImages: Flow<Unit> = rejections.receiveAsFlow()
 
     private var replyDeadline: Job? = null
 
@@ -241,6 +242,11 @@ internal class ChatViewModel(
         }
     }
 
+    /** The alert saying a picture was turned away has been closed. */
+    fun onImageRejectedDismissed() {
+        uiState = uiState.copy(isImageRejected = false)
+    }
+
     /**
      * Sends the picture the person picked out of the gallery.
      *
@@ -252,9 +258,8 @@ internal class ChatViewModel(
      */
     fun onImagePicked(uri: Uri) {
         viewModelScope.launch {
-            if (imageSource == ImageSource.Screenshots && !isScreenshot(uri)) {
-                log.info { "turned away a picture from outside the Screenshots folder" }
-                rejections.trySend(Unit)
+            if (!isAllowed(uri)) {
+                uiState = uiState.copy(isImageRejected = true)
                 return@launch
             }
             val picture = imageRepository.store(uri).getOrNull() ?: return@launch
@@ -277,6 +282,29 @@ internal class ChatViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun isAllowed(uri: Uri): Boolean {
+        if (imageSource == ImageSource.Screenshots && !isScreenshot(uri)) {
+            log.info { "turned away a picture from outside the screenshot folders" }
+            return false
+        }
+        if (allowedImageNames.isEmpty()) {
+            return true
+        }
+        val name = imageRepository.fileNameOf(uri)
+        if (name == null || imageNamePatterns.none { pattern -> pattern.matches(name) }) {
+            log.info { "turned away a picture whose name is not allowed" }
+            return false
+        }
+        return true
+    }
+
+    private fun patternOf(pattern: String): Regex? = try {
+        Regex(pattern)
+    } catch (error: PatternSyntaxException) {
+        log.warn(error) { "ignoring allowed image name $pattern, it is not a valid pattern" }
+        null
     }
 
     // Phones put the folder under Pictures or DCIM, so only its own name counts.
@@ -701,6 +729,7 @@ internal class ChatViewModel(
                     welcomeMessageType = client.config.welcomeMessageType,
                     imageSource = client.config.imageSource,
                     screenshotFolders = client.config.screenshotFolders,
+                    allowedImageNames = client.config.allowedImageNames,
                     commandHandlers = client::commandHandler,
                     logLevel = client.config.logLevel,
                 )

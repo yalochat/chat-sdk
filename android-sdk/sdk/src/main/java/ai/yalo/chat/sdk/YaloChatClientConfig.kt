@@ -27,6 +27,9 @@ package ai.yalo.chat.sdk
  * from with [imageSource] set to [ImageSource.Screenshots], compared without
  * case and wherever the folder sits, so `Screenshots` covers both
  * `Pictures/Screenshots` and `DCIM/Screenshots`. Defaults to `Screenshots`.
+ * @property allowedImageNames Regular expressions a picked picture's file name,
+ * extension included, has to match in full to be sent. A picture that matches
+ * none is turned away with a short notice. Empty, the default, checks no name.
  * @property hideWatermark Whether the "By Yalo" line under the channel name is
  * left out of the header. Everything else in the header stays where it is.
  * @property welcomeMessageType How the first message of a conversation is
@@ -64,6 +67,7 @@ public data class YaloChatClientConfig(
     public val texts: YaloChatTexts = YaloChatTexts(),
     public val imageSource: ImageSource = ImageSource.All,
     public val screenshotFolders: List<String> = listOf("Screenshots"),
+    public val allowedImageNames: List<String> = emptyList(),
 ) {
 
     /**

@@ -10,7 +10,10 @@ import android.app.Activity
 import android.content.Intent
 import android.provider.DocumentsContract
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import org.junit.After
@@ -23,7 +26,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowLooper
-import org.robolectric.shadows.ShadowToast
 
 @RunWith(RobolectricTestRunner::class)
 class ChatImageSourceTest {
@@ -45,6 +47,21 @@ class ChatImageSourceTest {
     }
 
     @Test
+    fun opensTheFilePickerWhenNamesAreChecked() {
+        val picker = openPicker(client(ImageSource.All, allowedImageNames = listOf("SCR_.*")))
+
+        assertEquals(Intent.ACTION_OPEN_DOCUMENT, picker.action)
+        assertFalse(picker.hasExtra(DocumentsContract.EXTRA_INITIAL_URI))
+    }
+
+    @Test
+    fun tellsThePersonWhenAPictureNameIsNotAllowed() {
+        pick(fromFolder = "DCIM/Camera", client = client(ImageSource.All, allowedImageNames = listOf("SCR_.*")))
+
+        composeRule.onNodeWithText("This image can't be sent").assertIsDisplayed()
+    }
+
+    @Test
     fun opensThePhotoPickerByDefault() {
         val picker = openPicker(client(ImageSource.All))
 
@@ -55,26 +72,37 @@ class ChatImageSourceTest {
     fun tellsThePersonWhenAPictureIsNotAScreenshot() {
         pick(fromFolder = "DCIM/Camera", client = client(ImageSource.Screenshots))
 
-        assertEquals("Only screenshots can be sent", ShadowToast.getTextOfLatestToast())
+        composeRule.onNodeWithText("This image can't be sent").assertIsDisplayed()
     }
 
     @Test
-    fun showsTheAppsOwnTextWhenAPictureIsNotAScreenshot() {
-        val texts = YaloChatTexts(screenshotsOnly = "Solo capturas")
+    fun showsTheAppsOwnTextsWhenAPictureIsNotAScreenshot() {
+        val texts = YaloChatTexts(imageNotAllowed = "Solo capturas", invalidImageAlertButtonText = "Entendido")
 
         pick(fromFolder = "DCIM/Camera", client = client(ImageSource.Screenshots, texts))
 
-        assertEquals("Solo capturas", ShadowToast.getTextOfLatestToast())
+        composeRule.onNodeWithText("Solo capturas").assertIsDisplayed()
+        composeRule.onNodeWithText("Entendido").assertIsDisplayed()
+    }
+
+    @Test
+    fun closesTheAlertWithItsButton() {
+        pick(fromFolder = "DCIM/Camera", client = client(ImageSource.Screenshots))
+
+        composeRule.onNodeWithText("OK").performClick()
+
+        composeRule.onNodeWithText("This image can't be sent").assertDoesNotExist()
     }
 
     private fun pick(fromFolder: String, client: YaloChatClient) {
         val picker = openPicker(client)
         val picked = DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE, "primary:$fromFolder/picture.png")
         shadowOf(composeRule.activity).receiveResult(picker, Activity.RESULT_OK, Intent().setData(picked))
-        // The folder is read off the main thread, so the notice comes a moment later.
+        // The folder is read off the main thread, so the alert comes a moment later.
         composeRule.waitUntil(timeoutMillis = 5_000) {
             ShadowLooper.idleMainLooper()
-            ShadowToast.getTextOfLatestToast() != null
+            composeRule.onAllNodesWithText("OK").fetchSemanticsNodes().isNotEmpty() ||
+                composeRule.onAllNodesWithText("Entendido").fetchSemanticsNodes().isNotEmpty()
         }
     }
 
@@ -86,7 +114,11 @@ class ChatImageSourceTest {
         return shadowOf(composeRule.activity).nextStartedActivityForResult.intent
     }
 
-    private fun client(source: ImageSource, texts: YaloChatTexts = YaloChatTexts()) = YaloChatClient(
+    private fun client(
+        source: ImageSource,
+        texts: YaloChatTexts = YaloChatTexts(),
+        allowedImageNames: List<String> = emptyList(),
+    ) = YaloChatClient(
         YaloChatClientConfig(
             channelId = "channel-id",
             organizationId = "organization-id",
@@ -94,6 +126,7 @@ class ChatImageSourceTest {
             userId = "user-id",
             imageSource = source,
             texts = texts,
+            allowedImageNames = allowedImageNames,
         ),
     )
 

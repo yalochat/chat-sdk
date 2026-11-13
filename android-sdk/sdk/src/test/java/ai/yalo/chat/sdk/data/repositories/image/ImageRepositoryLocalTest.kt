@@ -43,6 +43,11 @@ class ImageRepositoryLocalTest {
     }
 
     @Test
+    fun saysWhatAPictureIsCalled() = runBlocking {
+        assertEquals(mediaContent().fileName, repository().fileNameOf(PICKED))
+    }
+
+    @Test
     fun describesWhatWasPickedAsTheDeviceNamedIt() = runBlocking {
         val picture = repository().store(PICKED).getOrThrow()
 

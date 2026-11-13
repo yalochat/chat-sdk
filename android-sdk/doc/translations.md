@@ -46,7 +46,8 @@ The value is shown exactly as given for every language. Fields left `null` keep 
 Available fields:
 
 - **`inputPlaceholder`** (`String?`): Placeholder shown in the message input while it is empty.
-- **`screenshotsOnly`** (`String?`): Notice shown when a picture from outside the Screenshots folder is turned away. Only used with `imageSource = ImageSource.Screenshots`.
+- **`imageNotAllowed`** (`String?`): Title of the alert shown when a picked picture is not sent, because it is not from a screenshot folder or its name is not in `allowedImageNames`.
+- **`invalidImageAlertButtonText`** (`String?`): Button that closes that alert.
 
 ### With string resources
 
@@ -72,7 +73,8 @@ Available strings:
 - **`yalo_chat_pause_voice_message_description`**: Accessible label for that button while the voice message is playing.
 - **`yalo_chat_attachment_button_description`**: Accessible label for the plus that picks a picture to send.
 - **`yalo_chat_image_message_description`**: Accessible label for a picture in the conversation.
-- **`yalo_chat_screenshots_only`**: Notice shown when a picture from outside the Screenshots folder is turned away.
+- **`yalo_chat_image_not_allowed`**: Title of the alert shown when a picked picture is not sent, because it is not from a screenshot folder or its name is not allowed.
+- **`yalo_chat_invalid_image_alert_button`**: Button that closes that alert.
 - **`yalo_chat_back_button_description`**: Accessible label for the header back button.
 - **`yalo_chat_unsupported_message`**: Text shown in place of a message the chat cannot display yet.
 - **`yalo_chat_watermark`**: The "By Yalo" line under the channel name. Takes the brand name as its first format argument, so each translation decides where the name sits.

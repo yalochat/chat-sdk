@@ -80,10 +80,25 @@ struct YaloChatClientConfigTests {
         #expect(config != screenshots)
     }
 
+    @Test func checksNoFileNameUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+        let withNames: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            allowedImageNames: ["SCR_.*"]
+        )
+
+        #expect(config.allowedImageNames.isEmpty)
+        #expect(config != withNames)
+    }
+
     @Test func keepsTheBuiltInTextsUnlessToldOtherwise() {
         let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
 
         #expect(config.texts.inputPlaceholder == nil)
+        #expect(config.texts.imageNotAllowed == nil)
+        #expect(config.texts.invalidImageAlertButtonText == nil)
     }
 
     @Test func comparesTheTexts() {

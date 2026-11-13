@@ -26,6 +26,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Turning voice messages off](#turning-voice-messages-off)
 - [Image messages](#image-messages)
   - [Only screenshots](#only-screenshots)
+  - [Allowed image names](#allowed-image-names)
   - [Turning image messages off](#turning-image-messages-off)
 - [Feedback buttons](#feedback-buttons)
 - [Theming](#theming)
@@ -135,6 +136,7 @@ Optional properties:
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
 - **`imageSource`** (`ImageSource`): Where the pictures a person sends may come from. Defaults to `ImageSource.All`. Set `ImageSource.Screenshots` to accept only screenshots. See [Only screenshots](#only-screenshots).
 - **`screenshotFolders`** (`List<String>`): The folder names a picture may come from when `imageSource` is `ImageSource.Screenshots`. Defaults to `listOf("Screenshots")`. See [Only screenshots](#only-screenshots).
+- **`allowedImageNames`** (`List<String>`): Regular expressions a picture's file name has to match to be sent. Defaults to an empty list, which checks no name. See [Allowed image names](#allowed-image-names).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 - **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
@@ -419,7 +421,7 @@ YaloChatClient(
 What to expect:
 
 - The plus opens the system file picker instead of the photo picker, starting in the Screenshots folder. On Android 7 it starts wherever the system decides.
-- The person can still browse to other folders, but a picture from anywhere other than a folder named `Screenshots` is not sent. A short notice says only screenshots can be sent. Change its text with `screenshotsOnly` in [`texts`](doc/translations.md).
+- The person can still browse to other folders, but a picture from anywhere other than a folder named `Screenshots` is not sent. An alert says the image cannot be sent. Change its title with `imageNotAllowed` and its button with `invalidImageAlertButtonText` in [`texts`](doc/translations.md).
 - Only the folder's own name is checked, ignoring case, so `Screenshots` covers both `Pictures/Screenshots` and `DCIM/Screenshots`. If a phone keeps screenshots in a folder with another name, add it to `screenshotFolders`:
   ```kotlin
   YaloChatClientConfig(
@@ -432,6 +434,29 @@ What to expect:
   ```
 - Pictures picked from apps such as Google Photos or Drive are not sent, because the chat cannot tell which folder they came from.
 - No permission is needed, the same as with the photo picker.
+
+### Allowed image names
+
+Set `allowedImageNames` to accept only pictures whose file name matches one of your regular expressions:
+
+```kotlin
+YaloChatClientConfig(
+    channelId = "your-channel-id",
+    organizationId = "your-organization-id",
+    channelName = "Support",
+    allowedImageNames = listOf("""SCR_\d+\.png"""),
+)
+```
+
+What to expect:
+
+- The whole file name has to match, extension included. `SCR_\d+\.png` accepts `SCR_123.png` but not `SCR_123.jpg` or `MY_SCR_123.png`.
+  - To accept a name with or without an extension, make it optional, for example `SCR_\d+(\.png)?`.
+- A picture whose name matches none of them is not sent, and an alert says the image cannot be sent. Change its title with `imageNotAllowed` and its button with `invalidImageAlertButtonText` in [`texts`](doc/translations.md).
+- With names to check, the plus opens the system file picker instead of the photo picker, because only the file picker always gives the real file name. No permission is needed.
+- A pattern that is not a valid regular expression is skipped and a warning is logged.
+- It works together with `imageSource`. With `ImageSource.Screenshots`, a picture must come from a screenshot folder and have an allowed name.
+- Anyone can rename a file, so this guides people towards the right picture but does not prove where it came from.
 
 ### Turning image messages off
 

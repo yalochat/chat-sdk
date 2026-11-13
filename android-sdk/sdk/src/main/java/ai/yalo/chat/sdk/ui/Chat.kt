@@ -28,16 +28,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.DocumentsContract
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -82,7 +83,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
  * the system photo picker, which hands the chat only what the person chose. Set
  * `hideAttachmentButton` in the client config to leave the plus out. Set
  * `imageSource` to `Screenshots` to take pictures only from the Screenshots
- * folder, through the system file picker.
+ * folder, and `allowedImageNames` to take only pictures with certain names. Both
+ * go through the system file picker, and an alert says when a picture is
+ * turned away.
  *
  * The header credits Yalo under the channel name. Set `hideWatermark` in the
  * client config to leave that line out.
@@ -111,14 +114,25 @@ public fun Chat(
         onStopOrDispose { viewModel.onScreenHidden() }
     }
     val startRecording = rememberMicrophoneRequest { viewModel.onStartRecording() }
-    val pickImage = rememberImagePicker(client.config.imageSource) { uri -> viewModel.onImagePicked(uri) }
-    val screenshotsOnly = client.config.texts.screenshotsOnly
-        ?: stringResource(R.string.yalo_chat_screenshots_only)
-    val notice by rememberUpdatedState(screenshotsOnly)
-    LaunchedEffect(viewModel) {
-        viewModel.rejectedImages.collect {
-            Toast.makeText(context, notice, Toast.LENGTH_SHORT).show()
-        }
+    val pickImage = rememberImagePicker(
+        source = client.config.imageSource,
+        checksNames = client.config.allowedImageNames.isNotEmpty(),
+    ) { uri -> viewModel.onImagePicked(uri) }
+    if (viewModel.uiState.isImageRejected) {
+        AlertDialog(
+            onDismissRequest = viewModel::onImageRejectedDismissed,
+            title = {
+                Text(client.config.texts.imageNotAllowed ?: stringResource(R.string.yalo_chat_image_not_allowed))
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::onImageRejectedDismissed) {
+                    Text(
+                        client.config.texts.invalidImageAlertButtonText
+                            ?: stringResource(R.string.yalo_chat_invalid_image_alert_button),
+                    )
+                }
+            },
+        )
     }
     // Read where the waveform is drawn rather than here, so a recording moving
     // sixteen times a second does not redraw the conversation behind it.
@@ -182,12 +196,16 @@ private fun rememberChatSession(config: YaloChatClientConfig): ChatSession {
  *
  * The picker runs outside the app and hands over the one picture the person
  * chose, so there is no gallery permission to ask for and nothing happens when
- * they back out of it. [ImageSource.Screenshots] uses the file picker instead
+ * they back out of it. Screenshots and name checks use the file picker instead
  * of the photo picker, because only the file picker can open in a folder and
- * say which folder a picture came from.
+ * reliably says which folder a picture came from and what it is called.
  */
 @Composable
-private fun rememberImagePicker(source: ImageSource, onPicked: (Uri) -> Unit): () -> Unit {
+private fun rememberImagePicker(
+    source: ImageSource,
+    checksNames: Boolean,
+    onPicked: (Uri) -> Unit,
+): () -> Unit {
     val picked by rememberUpdatedState(onPicked)
     val onResult: (Uri?) -> Unit = { uri ->
         if (uri != null) {
@@ -195,28 +213,35 @@ private fun rememberImagePicker(source: ImageSource, onPicked: (Uri) -> Unit): (
         }
     }
     val photos = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia(), onResult)
-    val screenshots = rememberLauncherForActivityResult(OpenScreenshot(), onResult)
-    return remember(source, photos, screenshots) {
+    val screenshots = rememberLauncherForActivityResult(OpenImage(SCREENSHOTS_FOLDER), onResult)
+    val files = rememberLauncherForActivityResult(OpenImage(), onResult)
+    return remember(source, checksNames, photos, screenshots, files) {
         {
-            when (source) {
-                ImageSource.All -> photos.launch(
+            when {
+                source == ImageSource.Screenshots -> screenshots.launch(arrayOf(IMAGE_MIME_TYPES))
+                checksNames -> files.launch(arrayOf(IMAGE_MIME_TYPES))
+                else -> photos.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                 )
-                ImageSource.Screenshots -> screenshots.launch(arrayOf(IMAGE_MIME_TYPES))
             }
         }
     }
 }
 
 /**
- * The file picker, opened in the Screenshots folder where the phone keeps it
- * there. Android 7 ignores the starting folder and opens wherever it likes.
+ * The file picker, opened in [initialFolder] when there is one. Android 7
+ * ignores the starting folder and opens wherever it likes.
  */
-private class OpenScreenshot : ActivityResultContracts.OpenDocument() {
+private class OpenImage(private val initialFolder: Uri? = null) : ActivityResultContracts.OpenDocument() {
 
     @SuppressLint("InlinedApi")
-    override fun createIntent(context: Context, input: Array<String>): Intent =
-        super.createIntent(context, input).putExtra(DocumentsContract.EXTRA_INITIAL_URI, SCREENSHOTS_FOLDER)
+    override fun createIntent(context: Context, input: Array<String>): Intent {
+        val intent = super.createIntent(context, input)
+        if (initialFolder != null) {
+            intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialFolder)
+        }
+        return intent
+    }
 }
 
 private const val IMAGE_MIME_TYPES = "image/*"
