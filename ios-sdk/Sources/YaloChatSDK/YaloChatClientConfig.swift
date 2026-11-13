@@ -25,6 +25,7 @@
 ///   nobody can record a voice message.
 /// - `hideAttachmentButton`: leaves the plus out of the message input, so
 ///   nobody can pick a picture to send.
+/// - `imageSource`: where the pictures a person sends may come from.
 /// - `hideFeedbackButtons`: leaves the thumbs up and thumbs down out from
 ///   under the channel's messages, so nobody can rate them.
 /// - `texts`: your own copy for strings the chat would otherwise show in its
@@ -43,6 +44,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let hideWatermark: Bool
     public let hideVoiceButton: Bool
     public let hideAttachmentButton: Bool
+    public let imageSource: ImageSource
     public let hideFeedbackButtons: Bool
     public let texts: YaloChatTexts
 
@@ -61,7 +63,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         hideVoiceButton: Bool = false,
         hideAttachmentButton: Bool = false,
         hideFeedbackButtons: Bool = false,
-        texts: YaloChatTexts = YaloChatTexts()
+        texts: YaloChatTexts = YaloChatTexts(),
+        imageSource: ImageSource = .all
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -76,6 +79,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.hideWatermark = hideWatermark
         self.hideVoiceButton = hideVoiceButton
         self.hideAttachmentButton = hideAttachmentButton
+        self.imageSource = imageSource
         self.hideFeedbackButtons = hideFeedbackButtons
         self.texts = texts
     }
@@ -93,6 +97,7 @@ public struct YaloChatClientConfig: Sendable, Equatable {
             && lhs.hideWatermark == rhs.hideWatermark
             && lhs.hideVoiceButton == rhs.hideVoiceButton
             && lhs.hideAttachmentButton == rhs.hideAttachmentButton
+            && lhs.imageSource == rhs.imageSource
             && lhs.hideFeedbackButtons == rhs.hideFeedbackButtons
             && lhs.texts == rhs.texts
     }

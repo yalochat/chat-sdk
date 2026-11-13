@@ -13,4 +13,5 @@
     <string name="yalo_chat_image_message_description">图片</string>
     <string name="yalo_chat_thumbs_up_description">回答很好</string>
     <string name="yalo_chat_thumbs_down_description">回答不好</string>
+    <string name="yalo_chat_screenshots_only">只能发送截图</string>
 </resources>

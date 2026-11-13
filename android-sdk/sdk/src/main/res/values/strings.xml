@@ -13,4 +13,5 @@
     <string name="yalo_chat_image_message_description">Image</string>
     <string name="yalo_chat_thumbs_up_description">Good response</string>
     <string name="yalo_chat_thumbs_down_description">Bad response</string>
+    <string name="yalo_chat_screenshots_only">Only screenshots can be sent</string>
 </resources>

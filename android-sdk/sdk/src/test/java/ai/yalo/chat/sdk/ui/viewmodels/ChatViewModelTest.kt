@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.ClearRequest
 import ai.yalo.chat.sdk.CommandHandler
+import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.FakeImageRepository
@@ -29,6 +30,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -900,6 +902,66 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun takesAScreenshotWhereverThePhoneKeepsTheFolder() {
+        imageRepository.folder = "DCIM/screenshots"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        imageRepository.picture = picked()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(MessageType.Image, viewModel.uiState.messages.single().type)
+    }
+
+    @Test
+    fun turnsAwayAPictureFromOutsideTheScreenshotsFolder() = runBlocking {
+        imageRepository.folder = "DCIM/Camera"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        viewModel.rejectedImages.first()
+        assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun takesAScreenshotFromAFolderTheAppNamed() {
+        imageRepository.folder = "Pictures/Capturas"
+        imageRepository.picture = picked()
+        val viewModel = chatViewModel(
+            imageSource = ImageSource.Screenshots,
+            screenshotFolders = listOf("Screenshots", "Capturas"),
+        )
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun turnsAwayAPictureWhenTheDeviceWillNotSayWhereItCameFrom() {
+        imageRepository.folder = null
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
+    }
+
+    @Test
+    fun takesAPictureFromAnyFolderByDefault() {
+        imageRepository.folder = null
+        val viewModel = chatViewModel()
+
+        imageRepository.picture = picked()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
     fun readsAPictureTheUserSentFromTheCopyKeptOnTheDevice() = runBlocking {
         alreadyStored(imageMessage(picked()))
         val viewModel = chatViewModel()
@@ -1294,6 +1356,8 @@ class ChatViewModelTest {
         ephemeral: Boolean = false,
         welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
         commands: Map<String, CommandHandler> = emptyMap(),
+        imageSource: ImageSource = ImageSource.All,
+        screenshotFolders: List<String> = listOf("Screenshots"),
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
@@ -1311,6 +1375,8 @@ class ChatViewModelTest {
         clearRequests = clearRequests,
         openContext = openContext,
         welcomeMessageType = welcomeMessageType,
+        imageSource = imageSource,
+        screenshotFolders = screenshotFolders,
         commandHandlers = commands::get,
         now = { SENT_AT },
     )

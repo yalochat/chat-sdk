@@ -25,6 +25,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [The microphone permission](#the-microphone-permission)
   - [Turning voice messages off](#turning-voice-messages-off)
 - [Image messages](#image-messages)
+  - [Only screenshots](#only-screenshots)
   - [Turning image messages off](#turning-image-messages-off)
 - [Feedback buttons](#feedback-buttons)
 - [Theming](#theming)
@@ -132,6 +133,8 @@ Optional properties:
 - **`sessionMode`** (`SessionMode`): How the conversation is scoped, and whether it is remembered between visits. Defaults to `SessionMode.Shared`, which is one conversation per person, remembered. See [Session modes](#session-modes).
 - **`hideVoiceButton`** (`Boolean`): Leaves the microphone out of the message input. Defaults to `false`. Set it to `true` and the send button is always there, and nobody can record a voice message. See [Voice messages](#voice-messages).
 - **`hideAttachmentButton`** (`Boolean`): Leaves the plus out of the message input. Defaults to `false`. Set it to `true` and nobody can pick a picture to send. Pictures the channel sends are still shown. See [Image messages](#image-messages).
+- **`imageSource`** (`ImageSource`): Where the pictures a person sends may come from. Defaults to `ImageSource.All`. Set `ImageSource.Screenshots` to accept only screenshots. See [Only screenshots](#only-screenshots).
+- **`screenshotFolders`** (`List<String>`): The folder names a picture may come from when `imageSource` is `ImageSource.Screenshots`. Defaults to `listOf("Screenshots")`. See [Only screenshots](#only-screenshots).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 - **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
@@ -397,6 +400,38 @@ Pictures the channel sends are shown the same way, with whatever text came with 
 Nothing has to be configured for any of this. The photo picker runs outside your app and hands the chat only the one picture the person chose, so there is no gallery permission to declare and none to ask for.
 
 Pictures the person sends are copied into your app's own files so they can still be shown after they have been sent. They go when the app's data does.
+
+### Only screenshots
+
+Set `imageSource` to `ImageSource.Screenshots` and only pictures from the device's Screenshots folder can be sent:
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        imageSource = ImageSource.Screenshots,
+    ),
+)
+```
+
+What to expect:
+
+- The plus opens the system file picker instead of the photo picker, starting in the Screenshots folder. On Android 7 it starts wherever the system decides.
+- The person can still browse to other folders, but a picture from anywhere other than a folder named `Screenshots` is not sent. A short notice says only screenshots can be sent. Change its text with `screenshotsOnly` in [`texts`](doc/translations.md).
+- Only the folder's own name is checked, ignoring case, so `Screenshots` covers both `Pictures/Screenshots` and `DCIM/Screenshots`. If a phone keeps screenshots in a folder with another name, add it to `screenshotFolders`:
+  ```kotlin
+  YaloChatClientConfig(
+      channelId = "your-channel-id",
+      organizationId = "your-organization-id",
+      channelName = "Support",
+      imageSource = ImageSource.Screenshots,
+      screenshotFolders = listOf("Screenshots", "Capturas"),
+  )
+  ```
+- Pictures picked from apps such as Google Photos or Drive are not sent, because the chat cannot tell which folder they came from.
+- No permission is needed, the same as with the photo picker.
 
 ### Turning image messages off
 

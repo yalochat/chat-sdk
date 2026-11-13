@@ -67,6 +67,19 @@ struct YaloChatClientConfigTests {
         #expect(config.welcomeMessageType == .none)
     }
 
+    @Test func offersAnyPictureUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+        let screenshots: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            imageSource: .screenshots
+        )
+
+        #expect(config.imageSource == .all)
+        #expect(config != screenshots)
+    }
+
     @Test func keepsTheBuiltInTextsUnlessToldOtherwise() {
         let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
 

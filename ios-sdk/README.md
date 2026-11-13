@@ -147,6 +147,7 @@ Optional properties:
 - **`hideWatermark`** (`Bool`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it.
 - **`hideVoiceButton`** (`Bool`): Leaves the microphone out of the message input, so nobody can record a voice message. Voice messages the channel sends are still shown. Defaults to `false`, which shows it.
 - **`hideAttachmentButton`** (`Bool`): Leaves the plus out of the message input, so nobody can pick a picture to send. Pictures the channel sends are still shown. Defaults to `false`, which shows it.
+- **`imageSource`** (`ImageSource`): Where the pictures a person sends may come from. Defaults to `.all`. Set `.screenshots` to offer only screenshots. See [Image messages](#image-messages).
 - **`hideFeedbackButtons`** (`Bool`): Leaves the thumbs up and thumbs down out from under the channel's messages, so nobody can rate them. Defaults to `false`, which shows them once the person has sent their first message, so the welcome message has none. A picked rating stays selected, and tapping it again takes it back.
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
@@ -251,6 +252,17 @@ iOS closes any app that asks for the microphone without it. If you do not want v
 ## Image messages
 
 The person taps the plus in the message input to pick a picture from their photo library and send it. The chat uses the system photo picker, which only hands over the picture the person picked, so your app does not need to ask for photo library access or add anything to its `Info.plist`.
+
+To accept only screenshots, set `imageSource` to `.screenshots`. The photo picker then lists only the screenshots in the library, so nothing else can be picked. No permission is needed.
+
+```swift
+YaloChatClient(config: YaloChatClientConfig(
+    channelId: "your-channel-id",
+    organizationId: "your-organization-id",
+    channelName: "Support",
+    imageSource: .screenshots
+))
+```
 
 If you do not want image messages, set `hideAttachmentButton` to `true`.
 

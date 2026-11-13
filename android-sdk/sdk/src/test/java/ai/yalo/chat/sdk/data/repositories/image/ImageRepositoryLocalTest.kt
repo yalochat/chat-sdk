@@ -38,6 +38,11 @@ class ImageRepositoryLocalTest {
     }
 
     @Test
+    fun saysWhichFolderAPictureWasPickedFrom() = runBlocking {
+        assertEquals("Pictures/Screenshots", repository().folderOf(PICKED))
+    }
+
+    @Test
     fun describesWhatWasPickedAsTheDeviceNamedIt() = runBlocking {
         val picture = repository().store(PICKED).getOrThrow()
 
@@ -126,7 +131,11 @@ class ImageRepositoryLocalTest {
 
         var answer: MediaContent? = mediaContent()
 
+        var pickedFrom: String? = "Pictures/Screenshots"
+
         override fun content(uri: Uri): MediaContent? = answer
+
+        override fun folder(uri: Uri): String? = pickedFrom
     }
 
     private companion object {

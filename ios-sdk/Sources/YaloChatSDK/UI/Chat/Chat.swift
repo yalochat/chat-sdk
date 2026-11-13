@@ -18,7 +18,8 @@ import SwiftUI
 ///
 /// Image messages need no permission: the plus in the message input opens the
 /// system photo picker, which hands over only what the person picked. Set
-/// `hideAttachmentButton` in the client config to leave the plus out.
+/// `hideAttachmentButton` in the client config to leave the plus out, or
+/// `imageSource` to `.screenshots` to offer only screenshots.
 ///
 /// Text from the channel carries a thumbs up and a thumbs down. Picking the
 /// one already picked takes the rating back. Set `hideFeedbackButtons` in the
@@ -131,6 +132,7 @@ public struct Chat<Avatar: View>: View {
                 },
                 onCancelRecording: viewModel.cancelRecording,
                 hideAttachmentButton: client.config.hideAttachmentButton,
+                imageSource: client.config.imageSource,
                 onPickImage: { picked in
                     Task {
                         await viewModel.sendImage(picked)

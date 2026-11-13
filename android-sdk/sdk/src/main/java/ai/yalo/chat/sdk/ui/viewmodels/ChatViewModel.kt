@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.ClearRequest
+import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.CommandHandler
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.SessionMode
@@ -46,7 +47,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -126,6 +129,8 @@ internal class ChatViewModel(
     clearRequests: Flow<ClearRequest> = emptyFlow(),
     private val openContext: Map<String, String> = emptyMap(),
     private val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
+    private val imageSource: ImageSource = ImageSource.All,
+    private val screenshotFolders: List<String> = listOf("Screenshots"),
     /** The handler the host registered for a command, or null when it registered none. */
     private val commandHandlers: (String) -> CommandHandler? = { null },
     private val now: () -> Long = System::currentTimeMillis,
@@ -146,6 +151,11 @@ internal class ChatViewModel(
     /** The voice note being listened to, or null when nothing is loaded. */
     var playback: VoicePlayback? by mutableStateOf(null)
         private set
+
+    private val rejections = Channel<Unit>(Channel.CONFLATED)
+
+    /** Emits every time a picked picture is turned away for where it came from. */
+    val rejectedImages: Flow<Unit> = rejections.receiveAsFlow()
 
     private var replyDeadline: Job? = null
 
@@ -242,6 +252,11 @@ internal class ChatViewModel(
      */
     fun onImagePicked(uri: Uri) {
         viewModelScope.launch {
+            if (imageSource == ImageSource.Screenshots && !isScreenshot(uri)) {
+                log.info { "turned away a picture from outside the Screenshots folder" }
+                rejections.trySend(Unit)
+                return@launch
+            }
             val picture = imageRepository.store(uri).getOrNull() ?: return@launch
             val content = contentOf(picture.fileName, picture.mediaType, picture.localPath)
                 ?: return@launch
@@ -262,6 +277,12 @@ internal class ChatViewModel(
                 }
             }
         }
+    }
+
+    // Phones put the folder under Pictures or DCIM, so only its own name counts.
+    private suspend fun isScreenshot(uri: Uri): Boolean {
+        val name = imageRepository.folderOf(uri)?.substringAfterLast('/') ?: return false
+        return screenshotFolders.any { folder -> folder.equals(name, ignoreCase = true) }
     }
 
     /**
@@ -678,6 +699,8 @@ internal class ChatViewModel(
                     clearRequests = client.clearRequests,
                     openContext = client.config.openContext,
                     welcomeMessageType = client.config.welcomeMessageType,
+                    imageSource = client.config.imageSource,
+                    screenshotFolders = client.config.screenshotFolders,
                     commandHandlers = client::commandHandler,
                     logLevel = client.config.logLevel,
                 )

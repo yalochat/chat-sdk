@@ -11,7 +11,11 @@ package ai.yalo.chat.sdk
  * translation.
  *
  * @property inputPlaceholder What the message input shows while it is empty.
+ * @property screenshotsOnly The notice shown when a picture from outside the
+ * Screenshots folder is turned away, with `imageSource` set to
+ * [ImageSource.Screenshots].
  */
 public data class YaloChatTexts(
     public val inputPlaceholder: String? = null,
+    public val screenshotsOnly: String? = null,
 )
