@@ -11,7 +11,12 @@ package ai.yalo.chat.sdk
  * translation.
  *
  * @property inputPlaceholder What the message input shows while it is empty.
+ * @property imageNotAllowed The title of the alert shown when a picked picture
+ * is turned away, because it is not a screenshot or its name is not allowed.
+ * @property invalidImageAlertButtonText The button that closes that alert.
  */
 public data class YaloChatTexts(
     public val inputPlaceholder: String? = null,
+    public val imageNotAllowed: String? = null,
+    public val invalidImageAlertButtonText: String? = null,
 )

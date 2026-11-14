@@ -10,6 +10,14 @@ struct ImagePickerTests {
         #expect(renders(ImagePicker { _ in }))
     }
 
+    @Test func offersAnyPictureByDefault() {
+        #expect(ImagePicker { _ in }.configuration.filter == .images)
+    }
+
+    @Test func offersOnlyScreenshotsWhenAsked() {
+        #expect(ImagePicker(source: .screenshots) { _ in }.configuration.filter == .screenshots)
+    }
+
     @Test func cancellingFinishesWithNothing() {
         var finished: [NSItemProvider?] = []
         let coordinator: ImagePicker.Coordinator = ImagePicker { picked in

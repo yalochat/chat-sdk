@@ -18,6 +18,7 @@ struct ChatInput: View {
     var onStartRecording: () -> Void = {}
     var onCancelRecording: () -> Void = {}
     var hideAttachmentButton: Bool = false
+    var imageSource: ImageSource = .all
     var onPickImage: (NSItemProvider) -> Void = { _ in }
     var texts: YaloChatTexts = YaloChatTexts()
     @State private var isPickingImage: Bool = false
@@ -106,7 +107,7 @@ struct ChatInput: View {
         .background(theme.footerBackground)
         .accessibilityIdentifier("yalo-chat-footer")
         .sheet(isPresented: $isPickingImage) {
-            ImagePicker { picked in
+            ImagePicker(source: imageSource) { picked in
                 isPickingImage = false
                 if let picked {
                     onPickImage(picked)

@@ -21,6 +21,17 @@ package ai.yalo.chat.sdk
  * input. With it on, nobody can pick a picture to send. Pictures the channel
  * sends are still shown. Named after the same setting in the web SDK so the two
  * read alike.
+ * @property imageSource Where the pictures a person sends may come from.
+ * Defaults to [ImageSource.All].
+ * @property screenshotFolders The folders a picture may come from with
+ * [imageSource] set to [ImageSource.Screenshots], as paths from the root of
+ * the device storage such as `Pictures/Screenshots`, compared without case. A
+ * name alone, such as `Screenshots`, matches that folder wherever it sits. The
+ * file picker opens in the first one. Defaults to `Pictures/Screenshots` and
+ * `DCIM/Screenshots`.
+ * @property allowedImageNames Regular expressions a picked picture's file name,
+ * extension included, has to match in full to be sent. A picture that matches
+ * none is turned away with a short notice. Empty, the default, checks no name.
  * @property hideWatermark Whether the "By Yalo" line under the channel name is
  * left out of the header. Everything else in the header stays where it is.
  * @property welcomeMessageType How the first message of a conversation is
@@ -56,6 +67,9 @@ public data class YaloChatClientConfig(
     public val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     public val hideFeedbackButtons: Boolean = false,
     public val texts: YaloChatTexts = YaloChatTexts(),
+    public val imageSource: ImageSource = ImageSource.All,
+    public val screenshotFolders: List<String> = listOf("Pictures/Screenshots", "DCIM/Screenshots"),
+    public val allowedImageNames: List<String> = emptyList(),
 ) {
 
     /**

@@ -25,6 +25,16 @@ internal class FakeImageRepository(
         byteCount = 4_096,
     )
 
+    /** The folder every pick says it came from. */
+    var folder: String? = "Pictures/Screenshots"
+
+    override suspend fun folderOf(uri: Uri): String? = folder
+
+    /** The file name every pick says it has. */
+    var fileName: String? = "SCR_123.png"
+
+    override suspend fun fileNameOf(uri: Uri): String? = fileName
+
     override suspend fun store(uri: Uri): Result<ImageAttachment> {
         failure?.let { error -> return Result.failure(error) }
         stored.add(uri)

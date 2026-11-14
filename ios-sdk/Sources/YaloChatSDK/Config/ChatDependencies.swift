@@ -138,6 +138,7 @@ final class ChatDependencies {
             run: ChatViewModel.run,
             openContext: config.openContext,
             welcomeMessageType: config.welcomeMessageType,
+            allowedImageNames: config.allowedImageNames,
             commandHandlers: commandHandlers,
             clearRequests: clearRequests,
             logLevel: config.logLevel

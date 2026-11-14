@@ -3,6 +3,7 @@ package ai.yalo.chat.sdk.ui.viewmodels
 
 import ai.yalo.chat.sdk.ClearRequest
 import ai.yalo.chat.sdk.CommandHandler
+import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.data.repositories.chatmessage.FakeChatMessageRepository
 import ai.yalo.chat.sdk.data.repositories.image.FakeImageRepository
@@ -900,6 +901,172 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun takesAScreenshotWhereverThePhoneKeepsTheFolder() {
+        imageRepository.folder = "DCIM/screenshots"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        imageRepository.picture = picked()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(MessageType.Image, viewModel.uiState.messages.single().type)
+    }
+
+    @Test
+    fun turnsAwayAPictureFromOutsideTheScreenshotsFolder() = runBlocking {
+        imageRepository.folder = "DCIM/Camera"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+        assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun takesAScreenshotFromAFolderTheAppNamed() {
+        imageRepository.folder = "Pictures/Capturas"
+        imageRepository.picture = picked()
+        val viewModel = chatViewModel(
+            imageSource = ImageSource.Screenshots,
+            screenshotFolders = listOf("Screenshots", "Capturas"),
+        )
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun turnsAwayAScreenshotFromAnotherPathThanTheOneNamed() {
+        imageRepository.folder = "DCIM/Screenshots"
+        val viewModel = chatViewModel(
+            imageSource = ImageSource.Screenshots,
+            screenshotFolders = listOf("Pictures/Screenshots"),
+        )
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+    }
+
+    @Test
+    fun turnsAwayAFolderThatOnlyEndsLikeTheOneNamed() {
+        imageRepository.folder = "Pictures/OldScreenshots"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+    }
+
+    @Test
+    fun closingTheAlertTakesItAway() {
+        imageRepository.fileName = "IMG_123.png"
+        val viewModel = chatViewModel(allowedImageNames = listOf(".*\\.jpg"))
+        viewModel.onImagePicked(GALLERY_URI)
+
+        viewModel.onImageRejectedDismissed()
+
+        assertFalse(viewModel.uiState.isImageRejected)
+    }
+
+    @Test
+    fun takesAPictureWhoseNameIsAllowed() {
+        imageRepository.fileName = "SCR_123.png"
+        imageRepository.picture = picked()
+        val viewModel = chatViewModel(allowedImageNames = listOf("""SCR_\d+(\.png)?"""))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun turnsAwayAPictureWhoseNameIsNotAllowed() = runBlocking {
+        imageRepository.fileName = "IMG_123.png"
+        val viewModel = chatViewModel(allowedImageNames = listOf("""SCR_\d+\.png"""))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertTrue(viewModel.uiState.isImageRejected)
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun matchesTheWholeNameExtensionIncluded() {
+        imageRepository.fileName = "SCR_123.png"
+        val viewModel = chatViewModel(allowedImageNames = listOf("""SCR_\d+"""))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun ignoresAnAllowedNameThatIsNotAPattern() {
+        imageRepository.fileName = "SCR_123.png"
+        imageRepository.picture = picked()
+        val viewModel = chatViewModel(allowedImageNames = listOf("SCR_(", "SCR_.*"))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
+    fun turnsAwayEveryPictureWhenNoAllowedNameIsAPattern() {
+        val viewModel = chatViewModel(allowedImageNames = listOf("SCR_("))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun turnsAwayAPictureWhenTheDeviceWillNotSayItsName() {
+        imageRepository.fileName = null
+        val viewModel = chatViewModel(allowedImageNames = listOf(".*"))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun checksBothTheFolderAndTheName() {
+        imageRepository.folder = "DCIM/Camera"
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots, allowedImageNames = listOf(".*"))
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<Uri>(), imageRepository.stored)
+    }
+
+    @Test
+    fun turnsAwayAPictureWhenTheDeviceWillNotSayWhereItCameFrom() {
+        imageRepository.folder = null
+        val viewModel = chatViewModel(imageSource = ImageSource.Screenshots)
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(emptyList<ChatMessage>(), viewModel.uiState.messages)
+    }
+
+    @Test
+    fun takesAPictureFromAnyFolderByDefault() {
+        imageRepository.folder = null
+        val viewModel = chatViewModel()
+
+        imageRepository.picture = picked()
+
+        viewModel.onImagePicked(GALLERY_URI)
+
+        assertEquals(1, viewModel.uiState.messages.size)
+    }
+
+    @Test
     fun readsAPictureTheUserSentFromTheCopyKeptOnTheDevice() = runBlocking {
         alreadyStored(imageMessage(picked()))
         val viewModel = chatViewModel()
@@ -1294,6 +1461,9 @@ class ChatViewModelTest {
         ephemeral: Boolean = false,
         welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
         commands: Map<String, CommandHandler> = emptyMap(),
+        imageSource: ImageSource = ImageSource.All,
+        screenshotFolders: List<String> = listOf("Screenshots"),
+        allowedImageNames: List<String> = emptyList(),
     ): ChatViewModel = ChatViewModel(
         title = title,
         chatMessageRepository = chatMessageRepository,
@@ -1311,6 +1481,9 @@ class ChatViewModelTest {
         clearRequests = clearRequests,
         openContext = openContext,
         welcomeMessageType = welcomeMessageType,
+        imageSource = imageSource,
+        screenshotFolders = screenshotFolders,
+        allowedImageNames = allowedImageNames,
         commandHandlers = commands::get,
         now = { SENT_AT },
     )

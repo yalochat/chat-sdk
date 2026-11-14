@@ -45,6 +45,9 @@ final class ChatViewModel: ObservableObject {
     @Published private(set) var recording: VoiceRecording?
     /// The voice note being listened to, or nil when nothing is loaded.
     @Published private(set) var playback: VoicePlayback?
+    /// A picked picture was turned away for its name. The alert saying so sets
+    /// it back once it is dismissed.
+    @Published var isImageRejected: Bool = false
 
     private let chatMessages: ChatMessageService
     private let yaloMessages: YaloMessageRepository
@@ -59,6 +62,8 @@ final class ChatViewModel: ObservableObject {
     private let run: Run
     private let openContext: [String: String]
     private let welcomeMessageType: WelcomeMessageType
+    /// Nil when any name goes.
+    private let imageNamePatterns: [NSRegularExpression]?
     /// The handler the host registered for a command, or nil when it registered none.
     private let commandHandlers: (String) -> CommandHandler?
     /// Yields every time the host asks to clear the messages or to log out.
@@ -90,6 +95,7 @@ final class ChatViewModel: ObservableObject {
         run: Run,
         openContext: [String: String] = [:],
         welcomeMessageType: WelcomeMessageType = .none,
+        allowedImageNames: [String] = [],
         commandHandlers: @escaping (String) -> CommandHandler? = { _ in nil },
         clearRequests: @escaping () -> AsyncStream<ChatReset> = { AsyncStream { continuation in continuation.finish() } },
         logLevel: LogLevel = .warn,
@@ -110,7 +116,16 @@ final class ChatViewModel: ObservableObject {
         self.welcomeMessageType = welcomeMessageType
         self.commandHandlers = commandHandlers
         self.clearRequests = clearRequests
-        self.log = YaloLog("Chat", level: logLevel)
+        let log: YaloLog = YaloLog("Chat", level: logLevel)
+        self.log = log
+        self.imageNamePatterns = allowedImageNames.isEmpty ? nil : allowedImageNames.compactMap { pattern in
+            do {
+                return try NSRegularExpression(pattern: pattern)
+            } catch {
+                log.warn("ignoring allowed image name \(pattern), it is not a valid pattern")
+                return nil
+            }
+        }
         self.now = now
         self.replyTimeout = replyTimeout
         voice.recording.assign(to: &$recording)
@@ -353,6 +368,11 @@ final class ChatViewModel: ObservableObject {
     /// anywhere, and the upload comes before the send for the same reason a
     /// voice note's does.
     func sendImage(_ picked: NSItemProvider) async {
+        guard isAllowed(picked.suggestedName) else {
+            log.info("turned away a picture whose name is not allowed")
+            isImageRejected = true
+            return
+        }
         guard let content = try? await images.content(picked) else {
             return
         }
@@ -374,6 +394,19 @@ final class ChatViewModel: ObservableObject {
         var sending: ChatMessage = stored
         sending.image?.mediaURL = uploaded.id
         await deliver(sending)
+    }
+
+    private func isAllowed(_ name: String?) -> Bool {
+        guard let imageNamePatterns else {
+            return true
+        }
+        guard let name else {
+            return false
+        }
+        let whole: NSRange = NSRange(name.startIndex..., in: name)
+        return imageNamePatterns.contains { pattern in
+            pattern.firstMatch(in: name, options: [.anchored], range: whole)?.range == whole
+        }
     }
 
     /// The picture of `message`, from the device for one the person sent and

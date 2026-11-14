@@ -36,6 +36,8 @@ This is per field. Fields left `nil` keep their built-in translations.
 Available fields:
 
 - **`inputPlaceholder`** (`String?`): Placeholder shown in the message input while it is empty.
+- **`imageNotAllowed`** (`String?`): Alert title shown when a picked picture is not sent because its name is not in `allowedImageNames`.
+- **`invalidImageAlertButtonText`** (`String?`): Button that closes that alert.
 
 ## Localization is your responsibility when overriding
 

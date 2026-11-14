@@ -19,4 +19,13 @@ internal interface ImageRepository {
      * [Result], and nothing is left on disk.
      */
     suspend fun store(uri: Uri): Result<ImageAttachment>
+
+    /**
+     * The path of the folder [uri] was picked from, such as
+     * `Pictures/Screenshots`, or nothing when the device will not say.
+     */
+    suspend fun folderOf(uri: Uri): String?
+
+    /** The file name of what [uri] points at, or nothing when the device will not say. */
+    suspend fun fileNameOf(uri: Uri): String?
 }

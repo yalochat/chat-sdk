@@ -13,4 +13,6 @@
     <string name="yalo_chat_image_message_description">صورة</string>
     <string name="yalo_chat_thumbs_up_description">إجابة جيدة</string>
     <string name="yalo_chat_thumbs_down_description">إجابة سيئة</string>
+    <string name="yalo_chat_image_not_allowed">لا يمكن إرسال هذه الصورة</string>
+    <string name="yalo_chat_invalid_image_alert_button">حسناً</string>
 </resources>

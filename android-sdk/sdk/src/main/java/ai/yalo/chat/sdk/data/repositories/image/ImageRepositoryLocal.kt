@@ -61,6 +61,14 @@ internal class ImageRepositoryLocal(
         )
     }
 
+    override suspend fun folderOf(uri: Uri): String? = withContext(dispatcher) {
+        source.folder(uri)
+    }
+
+    override suspend fun fileNameOf(uri: Uri): String? = withContext(dispatcher) {
+        source.content(uri)?.fileName
+    }
+
     /**
      * What the copy is called on disk, which is not what the person's own file
      * is called: two pictures picked from the same gallery can share a name,

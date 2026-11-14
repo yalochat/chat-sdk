@@ -25,6 +25,10 @@
 ///   nobody can record a voice message.
 /// - `hideAttachmentButton`: leaves the plus out of the message input, so
 ///   nobody can pick a picture to send.
+/// - `imageSource`: where the pictures a person sends may come from.
+/// - `allowedImageNames`: regular expressions a picked picture's name has to
+///   match in full to be sent. The photo picker gives the name without its
+///   extension, so `SCR_123.png` is checked as `SCR_123`. Empty checks no name.
 /// - `hideFeedbackButtons`: leaves the thumbs up and thumbs down out from
 ///   under the channel's messages, so nobody can rate them.
 /// - `texts`: your own copy for strings the chat would otherwise show in its
@@ -43,6 +47,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let hideWatermark: Bool
     public let hideVoiceButton: Bool
     public let hideAttachmentButton: Bool
+    public let imageSource: ImageSource
+    public let allowedImageNames: [String]
     public let hideFeedbackButtons: Bool
     public let texts: YaloChatTexts
 
@@ -61,7 +67,9 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         hideVoiceButton: Bool = false,
         hideAttachmentButton: Bool = false,
         hideFeedbackButtons: Bool = false,
-        texts: YaloChatTexts = YaloChatTexts()
+        texts: YaloChatTexts = YaloChatTexts(),
+        imageSource: ImageSource = .all,
+        allowedImageNames: [String] = []
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -76,6 +84,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.hideWatermark = hideWatermark
         self.hideVoiceButton = hideVoiceButton
         self.hideAttachmentButton = hideAttachmentButton
+        self.imageSource = imageSource
+        self.allowedImageNames = allowedImageNames
         self.hideFeedbackButtons = hideFeedbackButtons
         self.texts = texts
     }
@@ -93,6 +103,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
             && lhs.hideWatermark == rhs.hideWatermark
             && lhs.hideVoiceButton == rhs.hideVoiceButton
             && lhs.hideAttachmentButton == rhs.hideAttachmentButton
+            && lhs.imageSource == rhs.imageSource
+            && lhs.allowedImageNames == rhs.allowedImageNames
             && lhs.hideFeedbackButtons == rhs.hideFeedbackButtons
             && lhs.texts == rhs.texts
     }
