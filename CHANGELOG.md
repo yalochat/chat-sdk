@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Release android-sdk 1.5.0 [\#396](https://github.com/yalochat/chat-sdk/pull/396) ([yalo-release-assistant[bot]](https://github.com/apps/yalo-release-assistant))
 - feat\(android-sdk,ios-sdk\): Adds imageSources, screenshotFolders and allowedImageNames [\#394](https://github.com/yalochat/chat-sdk/pull/394) ([rodrigocusto](https://github.com/rodrigocusto))
 
 ## [react-native-sdk/v0.8.0](https://github.com/yalochat/chat-sdk/tree/react-native-sdk/v0.8.0) (2026-11-06)
