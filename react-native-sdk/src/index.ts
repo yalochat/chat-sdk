@@ -13,6 +13,7 @@ export {
   type UpdateCartProductRequest,
 } from './YaloChatClient';
 export type {
+  ImageSource,
   LogLevel,
   QuickReplyType,
   SessionMode,

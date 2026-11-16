@@ -215,7 +215,9 @@ func clientConfig(
     hideVoiceButton: values["hideVoiceButton"] as? Bool ?? false,
     hideAttachmentButton: values["hideAttachmentButton"] as? Bool ?? false,
     hideFeedbackButtons: values["hideFeedbackButtons"] as? Bool ?? false,
-    texts: texts(of: values["texts"] as? [String: Any])
+    texts: texts(of: values["texts"] as? [String: Any]),
+    imageSource: imageSource(of: values["imageSource"] as? String),
+    allowedImageNames: values["allowedImageNames"] as? [String] ?? []
   )
 }
 
@@ -278,7 +280,11 @@ func chatTheme(of json: String) -> ChatTheme {
 }
 
 private func texts(of values: [String: Any]?) -> YaloChatTexts {
-  YaloChatTexts(inputPlaceholder: values?["inputPlaceholder"] as? String)
+  YaloChatTexts(
+    inputPlaceholder: values?["inputPlaceholder"] as? String,
+    imageNotAllowed: values?["imageNotAllowed"] as? String,
+    invalidImageAlertButtonText: values?["invalidImageAlertButtonText"] as? String
+  )
 }
 
 private func object(of json: String) -> [String: Any]? {
@@ -338,6 +344,15 @@ private func logLevel(of value: String?) -> LogLevel {
     return .silent
   default:
     return .warn
+  }
+}
+
+private func imageSource(of value: String?) -> ImageSource {
+  switch value {
+  case "screenshots":
+    return .screenshots
+  default:
+    return .all
   }
 }
 

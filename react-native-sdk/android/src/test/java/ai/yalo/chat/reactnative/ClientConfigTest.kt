@@ -1,6 +1,7 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.reactnative
 
+import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
@@ -40,7 +41,12 @@ class ClientConfigTest {
                  "hideAttachmentButton":true,
                  "hideWatermark":true,
                  "hideFeedbackButtons":true,
-                 "texts":{"inputPlaceholder":"Ask us anything"}}
+                 "texts":{"inputPlaceholder":"Ask us anything",
+                          "imageNotAllowed":"Only screenshots",
+                          "invalidImageAlertButtonText":"Got it"},
+                 "imageSource":"screenshots",
+                 "screenshotFolders":["Download"],
+                 "allowedImageNames":["SCR_\\d+\\.png"]}
                 """,
             ),
         )
@@ -60,7 +66,14 @@ class ClientConfigTest {
                 hideAttachmentButton = true,
                 hideWatermark = true,
                 hideFeedbackButtons = true,
-                texts = YaloChatTexts(inputPlaceholder = "Ask us anything"),
+                texts = YaloChatTexts(
+                    inputPlaceholder = "Ask us anything",
+                    imageNotAllowed = "Only screenshots",
+                    invalidImageAlertButtonText = "Got it",
+                ),
+                imageSource = ImageSource.Screenshots,
+                screenshotFolders = listOf("Download"),
+                allowedImageNames = listOf("SCR_\\d+\\.png"),
             ),
             config,
         )

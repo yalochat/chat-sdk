@@ -36,6 +36,8 @@ This is per field. Fields left out keep their built-in translations.
 Available fields:
 
 - **`inputPlaceholder`** (`string`): Placeholder shown in the message input while it is empty.
+- **`imageNotAllowed`** (`string`): Title of the alert shown when a picked picture is turned away by `imageSource` or `allowedImageNames`.
+- **`invalidImageAlertButtonText`** (`string`): Button that closes that alert.
 
 ## Localization is your responsibility when overriding
 
