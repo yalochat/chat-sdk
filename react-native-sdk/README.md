@@ -15,6 +15,7 @@ The chat is the native Yalo chat: the Android SDK on Android and the iOS SDK on 
 - [Logging out](#logging-out)
 - [Data on the device](#data-on-the-device)
 - [Custom commands](#custom-commands)
+- [Limiting the images people send](#limiting-the-images-people-send)
 - [Theming](#theming)
 - [Translations](#translations)
 - [Platform differences](#platform-differences)
@@ -115,6 +116,9 @@ Optional properties:
 - **`hideWatermark`** (`boolean`): Leaves the "By Yalo" line out of the header. Defaults to `false`.
 - **`hideFeedbackButtons`** (`boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies, so nobody can rate them. Defaults to `false`, which shows them.
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
+- **`imageSource`** (`'all' | 'screenshots'`): Where the pictures a person sends may come from. Defaults to `'all'`. See [Limiting the images people send](#limiting-the-images-people-send).
+- **`screenshotFolders`** (`string[]`): Android only. The folders a picture may come from when `imageSource` is `'screenshots'`. Defaults to `['Pictures/Screenshots', 'DCIM/Screenshots']`.
+- **`allowedImageNames`** (`string[]`): Regular expressions a picture's file name has to match in full to be sent. Defaults to none, which checks no name.
 
 The config is read when the chat is shown. To change it, create a new client.
 
@@ -228,6 +232,34 @@ client.registerCommand('updateCartProduct', async ({ sku, units, subunits }) => 
 - `updateCartProduct` receives `{ sku, units, subunits? }`. `units` and `subunits` are the totals after the change.
 - If either handler throws or rejects, the SDK replies with an error status.
 
+## Limiting the images people send
+
+Use `imageSource` to accept only screenshots, and `allowedImageNames` to accept only pictures with certain names. They work together: with both set, a picture has to pass both checks.
+
+```tsx
+const client = new YaloChatClient({
+  channelId: 'your-channel-id',
+  organizationId: 'your-organization-id',
+  channelName: 'Support',
+  imageSource: 'screenshots',
+  allowedImageNames: ['SCR_\\d+(\\.png)?'],
+});
+```
+
+When a picture is turned away, an alert says the image cannot be sent. Change its title with `imageNotAllowed` and its button with `invalidImageAlertButtonText` in [`texts`](doc/translations.md).
+
+How each platform checks:
+
+- Android:
+  - The plus opens the system file picker instead of the photo picker, starting in the first folder of `screenshotFolders`.
+  - With `'screenshots'`, a picture from any folder outside `screenshotFolders` is turned away. Folders are paths from the root of the device storage, such as `Download`, compared ignoring case.
+  - The name is checked with its extension, such as `SCR_123.png`.
+- iOS:
+  - With `'screenshots'`, the photo picker shows only screenshots. `screenshotFolders` is ignored.
+  - The name is checked without its extension, such as `SCR_123`.
+
+Since one list of names goes to both platforms, make the extension optional, as in the example above.
+
 ## Theming
 
 The chat follows the platform colors and the device light and dark mode with no setup. Pass a `theme` to `Chat` to override only what you need. Every value is optional.
@@ -256,3 +288,5 @@ Both platforms take the full API. Some options are not drawn on iOS yet and are 
 
 - The theme colors `onBackground`, `linkColor` and `inputFieldBorderColor`.
 - The theme shapes `imageShape` and `postbackShape`.
+
+`screenshotFolders` is Android only, and image names are checked with their extension on Android and without it on iOS. See [Limiting the images people send](#limiting-the-images-people-send).

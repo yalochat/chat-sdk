@@ -12,6 +12,9 @@ export type QuickReplyType = 'modal' | 'inline';
 /** How the first message of a conversation is drawn. */
 export type WelcomeMessageType = 'none' | 'verticalQuickReplies';
 
+/** Where the pictures a person sends may come from. */
+export type ImageSource = 'all' | 'screenshots';
+
 /**
  * Your own copy for strings the chat would otherwise show in its built-in
  * translations. A string given here is shown as given whatever the device
@@ -20,6 +23,10 @@ export type WelcomeMessageType = 'none' | 'verticalQuickReplies';
 export type YaloChatTexts = {
   /** What the message input shows while it is empty. */
   inputPlaceholder?: string;
+  /** The title of the alert shown when a picked picture is turned away. */
+  imageNotAllowed?: string;
+  /** The button that closes that alert. */
+  invalidImageAlertButtonText?: string;
 };
 
 /** The details of one conversation. */
@@ -46,4 +53,12 @@ export type YaloChatClientConfig = {
   hideAttachmentButton?: boolean;
   hideFeedbackButtons?: boolean;
   texts?: YaloChatTexts;
+  imageSource?: ImageSource;
+  /** Android only. The folders a picture may come from with `imageSource` set to `'screenshots'`. */
+  screenshotFolders?: string[];
+  /**
+   * Regular expressions a picked picture's file name has to match in full.
+   * Android checks the name with its extension, iOS without it.
+   */
+  allowedImageNames?: string[];
 };
