@@ -111,6 +111,8 @@ public struct Chat<Avatar: View>: View {
                 },
                 cachedImage: viewModel.cachedImage(of:),
                 loadImage: viewModel.image(of:),
+                cachedVideo: viewModel.cachedVideo(of:),
+                loadVideo: viewModel.video(of:),
                 showsFeedback: !client.config.hideFeedbackButtons,
                 onRate: { message, feedback in
                     Task {

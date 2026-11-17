@@ -671,6 +671,51 @@ struct YaloMessageRepositoryRemoteTests {
         ))
     }
 
+    @Test func turnsVideosFromTheChannelIntoAgentMessages() async {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        var request: Yalo_ExternalChannel_InApp_Sdk_V2_VideoMessageRequest = .init()
+        request.content.text = "How to set it up"
+        request.content.mediaURL = "https://cdn/setup.mp4"
+        request.content.mediaType = "video/mp4"
+        request.content.fileName = "setup.mp4"
+        request.content.byteCount = 8_192
+        request.content.duration = 42.5
+        request.footer = "Footer"
+        var button: Yalo_ExternalChannel_InApp_Sdk_V2_Button = .init()
+        button.text = "Thanks"
+        button.buttonType = .reply
+        request.buttons = [button]
+        var item: PollMessageItem = PollMessageItem()
+        item.id = "wi-11"
+        item.status = "DELIVERED"
+        item.date = Google_Protobuf_Timestamp(date: Self.now)
+        item.message.payload = .videoMessageRequest(request)
+
+        let messages: AsyncStream<ChatMessage> = repository.messages()
+        #expect(await eventually { await service.listenerCount == 1 })
+        await service.emit(item)
+
+        var iterator: AsyncStream<ChatMessage>.Iterator = messages.makeAsyncIterator()
+        #expect(await iterator.next() == ChatMessage(
+            role: .agent,
+            type: .video,
+            timestamp: Self.now,
+            wiId: "wi-11",
+            content: "How to set it up",
+            status: .delivered,
+            footer: "Footer",
+            buttons: [MessageButton(text: "Thanks")],
+            video: VideoAttachment(
+                mediaURL: "https://cdn/setup.mp4",
+                mimeType: "video/mp4",
+                fileName: "setup.mp4",
+                byteCount: 8_192,
+                duration: 42.5
+            )
+        ))
+    }
+
     @Test func turnsTheButtonsFromTheChannelIntoMessageButtons() async {
         let service: FakeYaloMessageService = FakeYaloMessageService()
         let repository: YaloMessageRepositoryRemote = repository(service)
@@ -752,12 +797,12 @@ struct YaloMessageRepositoryRemoteTests {
     @Test func turnsTextFromTheChannelIntoAgentMessages() async {
         let service: FakeYaloMessageService = FakeYaloMessageService()
         let repository: YaloMessageRepositoryRemote = repository(service)
-        var video: PollMessageItem = PollMessageItem()
-        video.message.payload = .videoMessageRequest(.init())
+        var attachment: PollMessageItem = PollMessageItem()
+        attachment.message.payload = .attachmentMessageRequest(.init())
 
         let messages: AsyncStream<ChatMessage> = repository.messages()
         #expect(await eventually { await service.listenerCount == 1 })
-        await service.emit(video)
+        await service.emit(attachment)
         await service.emit(Self.textItem())
         await service.emit(Self.textItem(id: "wi-2", date: nil, status: ""))
 

@@ -99,6 +99,28 @@ struct ChatMessageDatabaseServiceTests {
         #expect(stored.image == original.image)
     }
 
+    @Test func readsBackAVideo() async throws {
+        let original: ChatMessage = ChatMessage(
+            role: .agent,
+            type: .video,
+            timestamp: Date(timeIntervalSince1970: 1_700_000_000),
+            wiId: "wi-1",
+            content: "How to set it up",
+            video: VideoAttachment(
+                mediaURL: "https://cdn/setup.mp4",
+                mimeType: "video/mp4",
+                fileName: "setup.mp4",
+                byteCount: 8_192,
+                duration: 42.5
+            )
+        )
+
+        let stored: ChatMessage = try await service.insert(original, sessionId: "session-1")
+
+        #expect(try await service.messages(sessionId: "session-1", limit: 10) == [stored])
+        #expect(stored.video == original.video)
+    }
+
     @Test func readsBackButtons() async throws {
         let original: ChatMessage = ChatMessage(
             role: .agent,
@@ -145,6 +167,66 @@ struct ChatMessageDatabaseServiceTests {
 
         #expect(read.map(\.content) == ["Hello"])
         #expect(read.first?.image == nil)
+    }
+
+    @Test func aVideoThisVersionCannotReadIsLeftOut() async throws {
+        let file: URL = Self.temporaryFile()
+        _ = try await ChatMessageDatabaseService(fileURL: file).insert(message("Hello"), sessionId: "session-1")
+        var database: OpaquePointer?
+        sqlite3_open(file.path, &database)
+        sqlite3_exec(database, "UPDATE chat_message SET video = 'not json'", nil, nil, nil)
+        sqlite3_close(database)
+
+        let read: [ChatMessage] = try await ChatMessageDatabaseService(fileURL: file).messages(sessionId: "session-1", limit: 10)
+
+        #expect(read.map(\.content) == ["Hello"])
+        #expect(read.first?.video == nil)
+    }
+
+    @Test func aFileFromVersionFiveKeepsItsMessagesAndTakesVideos() async throws {
+        let file: URL = Self.temporaryFile()
+        try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+        var database: OpaquePointer?
+        sqlite3_open(file.path, &database)
+        sqlite3_exec(database, """
+            CREATE TABLE chat_message (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                wi_id TEXT,
+                role TEXT NOT NULL,
+                content TEXT NOT NULL DEFAULT '',
+                type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                header TEXT,
+                footer TEXT,
+                voice TEXT,
+                image TEXT,
+                buttons TEXT,
+                feedback TEXT
+            );
+            CREATE UNIQUE INDEX index_chat_message_session_wi_id ON chat_message (session_id, wi_id);
+            INSERT INTO chat_message (session_id, role, content, type, status, timestamp, feedback)
+            VALUES ('session-1', 'AGENT', 'Before', 'text', 'DELIVERED', 1000, 'THUMBS_UP');
+            PRAGMA user_version = 5;
+            """, nil, nil, nil)
+        sqlite3_close(database)
+        let service: ChatMessageDatabaseService = ChatMessageDatabaseService(fileURL: file)
+
+        _ = try await service.insert(
+            ChatMessage(
+                role: .agent,
+                type: .video,
+                timestamp: Date(timeIntervalSince1970: 2),
+                video: VideoAttachment(mediaURL: "https://cdn/setup.mp4")
+            ),
+            sessionId: "session-1"
+        )
+
+        let read: [ChatMessage] = try await service.messages(sessionId: "session-1", limit: 10)
+        #expect(read.map(\.video) == [VideoAttachment(mediaURL: "https://cdn/setup.mp4"), nil])
+        #expect(read.last?.content == "Before")
+        #expect(read.last?.feedback == .thumbsUp)
     }
 
     @Test func aVoiceNoteThisVersionCannotReadIsLeftOut() async throws {

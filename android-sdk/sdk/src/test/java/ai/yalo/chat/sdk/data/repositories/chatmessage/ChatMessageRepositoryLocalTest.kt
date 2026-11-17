@@ -10,6 +10,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VideoAttachment
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -327,6 +328,40 @@ class ChatMessageRepositoryLocalTest {
         repository.insert(userMessage("Hello"))
 
         assertNull(repository.messages().getOrThrow().single().image)
+    }
+
+    @Test
+    fun readsBackTheVideoAVideoMessageCarries() = runBlocking {
+        val repository = repository()
+        val video = VideoAttachment(
+            mediaUrl = "https://yalo.com/setup.mp4",
+            mediaType = "video/mp4",
+            fileName = "setup.mp4",
+            byteCount = 1_048_576,
+            durationMillis = 42_500,
+        )
+        repository.insert(
+            ChatMessage(
+                role = MessageRole.Agent,
+                type = MessageType.Video,
+                timestamp = 1_000L,
+                wiId = "wi-1",
+                content = "How to set it up",
+                video = video,
+            ),
+        )
+
+        val read = repository.messages().getOrThrow().single()
+        assertEquals(video, read.video)
+        assertEquals(MessageType.Video, read.type)
+    }
+
+    @Test
+    fun leavesTheVideoOffAMessageThatIsNotAVideoMessage() = runBlocking {
+        val repository = repository()
+        repository.insert(userMessage("Hello"))
+
+        assertNull(repository.messages().getOrThrow().single().video)
     }
 
     @Test

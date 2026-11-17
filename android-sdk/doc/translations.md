@@ -75,6 +75,9 @@ Available strings:
 - **`yalo_chat_image_message_description`**: Accessible label for a picture in the conversation.
 - **`yalo_chat_image_not_allowed`**: Title of the alert shown when a picked picture is not sent, because it is not from a screenshot folder or its name is not allowed.
 - **`yalo_chat_invalid_image_alert_button`**: Button that closes that alert.
+- **`yalo_chat_play_video_description`**: Accessible label for a video in the conversation, which plays it when tapped.
+- **`yalo_chat_video_unavailable`**: Text shown in place of a video that cannot be downloaded or read.
+- **`yalo_chat_close_video_description`**: Accessible label for the button that closes the full-screen video player.
 - **`yalo_chat_back_button_description`**: Accessible label for the header back button.
 - **`yalo_chat_unsupported_message`**: Text shown in place of a message the chat cannot display yet.
 - **`yalo_chat_watermark`**: The "By Yalo" line under the channel name. Takes the brand name as its first format argument, so each translation decides where the name sits.

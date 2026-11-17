@@ -73,6 +73,42 @@ struct ImageDeviceServiceTests {
         #expect(await service.image(at: directory.appendingPathComponent("missing.jpg")) == nil)
     }
 
+    @Test func readsTheFirstFrameAndLengthOfAVideo() async throws {
+        let file: URL = try await videoFile()
+
+        let preview: VideoPreview = try #require(await service.preview(of: VideoAttachment(), at: file))
+
+        #expect(preview.file == file)
+        #expect(preview.poster.size == CGSize(width: 64, height: 48))
+        #expect(abs(preview.duration - 2) < 0.1)
+    }
+
+    @Test func aDownloadWithoutExtensionIsPlayedThroughALinkThatHasOne() async throws {
+        let file: URL = try await videoFile(named: "downloaded")
+
+        let preview: VideoPreview? = await service.preview(of: VideoAttachment(mimeType: "video/quicktime"), at: file)
+        let again: VideoPreview? = await service.preview(of: VideoAttachment(mimeType: "video/quicktime"), at: file)
+
+        #expect(preview?.file == file.appendingPathExtension("mov"))
+        #expect(again?.file == preview?.file)
+    }
+
+    @Test func theExtensionComesFromTheFileNameWhenTheTypeIsUnknown() async throws {
+        let named: URL = try await videoFile(named: "named")
+        let unnamed: URL = try await videoFile(named: "unnamed")
+
+        let fromName: VideoPreview? = await service.preview(of: VideoAttachment(fileName: "setup.m4v"), at: named)
+        let fallback: VideoPreview? = await service.preview(of: VideoAttachment(), at: unnamed)
+
+        #expect(fromName?.file.pathExtension == "m4v")
+        #expect(fallback?.file.pathExtension == "mp4")
+    }
+
+    @Test func somethingThatIsNotAVideoHasNoPreview() async throws {
+        #expect(await service.preview(of: VideoAttachment(), at: try Self.picture("setup.mp4")) == nil)
+        #expect(await service.preview(of: VideoAttachment(), at: directory.appendingPathComponent("missing")) == nil)
+    }
+
     @Test func theCopyOutlivesThePickedFile() async throws {
         let picked: URL = try Self.picture("holiday.jpg")
 

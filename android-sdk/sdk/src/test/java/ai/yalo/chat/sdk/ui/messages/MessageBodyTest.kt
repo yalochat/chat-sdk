@@ -5,8 +5,10 @@ import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VideoAttachment
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.ui.images.CHAT_IMAGE_MESSAGE_TAG
+import ai.yalo.chat.sdk.ui.videos.CHAT_VIDEO_MESSAGE_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_MESSAGE_TAG
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap
@@ -94,9 +96,26 @@ class MessageBodyTest {
     }
 
     @Test
+    fun showsAVideoTheAgentSent() {
+        val video = ChatMessage(
+            role = MessageRole.Agent,
+            type = MessageType.Video,
+            timestamp = 1_000L,
+            id = 1L,
+            video = VideoAttachment(mediaUrl = "https://media.example.com/setup.mp4"),
+        )
+
+        composeRule.setContent {
+            AgentMessageBody(video, loadVideo = { null })
+        }
+
+        composeRule.onNodeWithTag(CHAT_VIDEO_MESSAGE_TAG).assertIsDisplayed()
+    }
+
+    @Test
     fun standsInForAKindTheAgentSentThatCannotBeShownYet() {
         composeRule.setContent {
-            AgentMessageBody(message(MessageRole.Agent, MessageType.Video))
+            AgentMessageBody(message(MessageRole.Agent, MessageType.Attachment))
         }
 
         composeRule.onNodeWithTag(CHAT_UNSUPPORTED_MESSAGE_TAG).assertIsDisplayed()

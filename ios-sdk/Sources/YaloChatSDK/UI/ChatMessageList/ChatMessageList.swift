@@ -26,6 +26,8 @@ struct ChatMessageList: View {
     var onToggleVoiceMessage: (ChatMessage) -> Void = { _ in }
     var cachedImage: (ChatMessage) -> UIImage? = { _ in nil }
     var loadImage: (ChatMessage) async -> UIImage? = { _ in nil }
+    var cachedVideo: (ChatMessage) -> VideoPreview? = { _ in nil }
+    var loadVideo: (ChatMessage) async -> VideoPreview? = { _ in nil }
     var showsFeedback: Bool = false
     var onRate: (ChatMessage, ChatMessage.Feedback) -> Void = { _, _ in }
     @Environment(\.chatTheme) private var theme: ChatTheme
@@ -63,6 +65,16 @@ struct ChatMessageList: View {
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                             case (.agent, .image, _):
                                 ImageMessage(message: message, cached: cachedImage(message), load: loadImage) {
+                                    if showsEnd {
+                                        proxy.scrollTo(Self.bottomId, anchor: .bottom)
+                                    }
+                                }
+                                .foregroundStyle(theme.onAgentMessageBackground)
+                                .accessibilityIdentifier("yalo-chat-agent-message")
+                                .padding(.trailing, isWelcome ? 0 : 48)
+                                .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
+                            case (.agent, .video, _):
+                                VideoMessage(message: message, cached: cachedVideo(message), load: loadVideo) {
                                     if showsEnd {
                                         proxy.scrollTo(Self.bottomId, anchor: .bottom)
                                     }

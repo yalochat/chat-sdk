@@ -19,7 +19,10 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VideoAttachment
 import ai.yalo.chat.sdk.domain.models.VoiceNote
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelStore
@@ -47,6 +50,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.rules.TemporaryFolder
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowMediaMetadataRetriever
 import java.io.File
 import java.io.IOException
 import kotlin.time.Duration.Companion.seconds
@@ -80,6 +84,11 @@ class ChatViewModelTest {
     @After
     fun releaseTheTestDispatcher() {
         Dispatchers.resetMain()
+    }
+
+    @After
+    fun forgetTheVideos() {
+        ShadowMediaMetadataRetriever.reset()
     }
 
     @Test
@@ -1107,6 +1116,52 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun fetchesAVideoTheChannelSentAndReadsItsFirstFrame() = runBlocking {
+        mediaRepository.downloadedFile = playableVideo(durationMillis = "9000")
+        alreadyStored(videoMessage(VideoAttachment(mediaUrl = "https://media.example.com/setup.mp4", durationMillis = 42_500)))
+        val viewModel = chatViewModel()
+
+        val preview = viewModel.videoOf(viewModel.uiState.messages.single())
+
+        assertNotNull(preview?.poster)
+        assertEquals(42_500L, preview?.durationMillis)
+        assertEquals(listOf("https://media.example.com/setup.mp4"), mediaRepository.downloaded)
+    }
+
+    @Test
+    fun takesTheLengthFromTheVideoWhenTheChannelDidNotSayIt() = runBlocking {
+        mediaRepository.downloadedFile = playableVideo(durationMillis = "9000")
+        alreadyStored(videoMessage(VideoAttachment(mediaUrl = "https://media.example.com/setup.mp4")))
+        val viewModel = chatViewModel()
+
+        assertEquals(9_000L, viewModel.videoOf(viewModel.uiState.messages.single())?.durationMillis)
+    }
+
+    @Test
+    fun readsNoVideoWhenTheDownloadIsNotOne() = runBlocking {
+        mediaRepository.downloadedFile = folder.newFile("not-a-video.mp4")
+        alreadyStored(videoMessage(VideoAttachment(mediaUrl = "https://media.example.com/setup.mp4")))
+        val viewModel = chatViewModel()
+
+        assertNull(viewModel.videoOf(viewModel.uiState.messages.single()))
+    }
+
+    @Test
+    fun readsNoVideoWhenThereIsNowhereToReadItFrom() = runBlocking {
+        alreadyStored(videoMessage(VideoAttachment()))
+        val viewModel = chatViewModel()
+
+        assertNull(viewModel.videoOf(viewModel.uiState.messages.single()))
+    }
+
+    @Test
+    fun readsNoVideoForAMessageThatCarriesNone() = runBlocking {
+        val viewModel = chatViewModel()
+
+        assertNull(viewModel.videoOf(answer("On its way")))
+    }
+
+    @Test
     fun stopsTheMicrophoneAndTheSpeakerWhenTheChatLeavesTheScreen() {
         val viewModel = chatViewModel()
         viewModel.onStartRecording()
@@ -1157,6 +1212,21 @@ class ChatViewModelTest {
         wiId = if (role == MessageRole.Agent) "wi-image" else null,
         image = picture,
     )
+
+    private fun videoMessage(video: VideoAttachment): ChatMessage = ChatMessage(
+        role = MessageRole.Agent,
+        type = MessageType.Video,
+        timestamp = SENT_AT,
+        wiId = "wi-video",
+        video = video,
+    )
+
+    private fun playableVideo(durationMillis: String): File {
+        val file = folder.newFile("setup.mp4")
+        ShadowMediaMetadataRetriever.addFrame(file.absolutePath, 0, Bitmap.createBitmap(64, 36, Bitmap.Config.ARGB_8888))
+        ShadowMediaMetadataRetriever.addMetadata(file.absolutePath, MediaMetadataRetriever.METADATA_KEY_DURATION, durationMillis)
+        return file
+    }
 
     private fun voiceMessage(
         note: VoiceNote,

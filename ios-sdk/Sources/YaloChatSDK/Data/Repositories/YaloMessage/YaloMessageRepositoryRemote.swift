@@ -374,7 +374,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         return envelope
     }
 
-    /// Text, voice and images so far. Anything else is left out rather than shown empty.
+    /// Text, voice, images and videos so far. Anything else is left out rather than shown empty.
     private static func chatMessage(from item: PollMessageItem, now: Date) -> ChatMessage? {
         let timestamp: Date = item.hasDate ? item.date.date : now
         let status: ChatMessage.Status = ChatMessage.Status(rawValue: item.status) ?? .delivered
@@ -428,6 +428,25 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
                     mimeType: request.content.mediaType,
                     fileName: request.content.fileName,
                     byteCount: request.content.byteCount
+                )
+            )
+        case .videoMessageRequest(let request):
+            return ChatMessage(
+                role: .agent,
+                type: .video,
+                timestamp: timestamp,
+                wiId: item.id,
+                content: request.content.text,
+                status: status,
+                header: request.hasHeader ? request.header : nil,
+                footer: request.hasFooter ? request.footer : nil,
+                buttons: request.buttons.map(Self.button),
+                video: VideoAttachment(
+                    mediaURL: request.content.mediaURL,
+                    mimeType: request.content.mediaType,
+                    fileName: request.content.fileName,
+                    byteCount: request.content.byteCount,
+                    duration: request.content.duration
                 )
             )
         default:

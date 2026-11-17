@@ -10,6 +10,7 @@ import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
 import ai.yalo.chat.sdk.ui.messages.TypingIndicator
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import ai.yalo.chat.sdk.ui.videos.VideoPreview
 import android.view.View
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -72,6 +73,7 @@ internal fun ChatMessageList(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    loadVideo: suspend (ChatMessage) -> VideoPreview? = { null },
     onFeedback: ((ChatMessage, FeedbackRating) -> Unit)? = null,
     listState: LazyListState = rememberLazyListState(),
 ) {
@@ -134,6 +136,7 @@ internal fun ChatMessageList(
                     playback = playback,
                     onVoiceMessageToggled = onVoiceMessageToggled,
                     loadImage = loadImage,
+                    loadVideo = loadVideo,
                     onFeedback = onFeedback.takeIf { index < firstUserMessageIndex },
                 )
             }

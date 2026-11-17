@@ -15,4 +15,7 @@
     <string name="yalo_chat_thumbs_down_description">إجابة سيئة</string>
     <string name="yalo_chat_image_not_allowed">لا يمكن إرسال هذه الصورة</string>
     <string name="yalo_chat_invalid_image_alert_button">حسناً</string>
+    <string name="yalo_chat_play_video_description">تشغيل الفيديو</string>
+    <string name="yalo_chat_video_unavailable">لا يمكن تشغيل هذا الفيديو</string>
+    <string name="yalo_chat_close_video_description">إغلاق</string>
 </resources>

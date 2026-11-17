@@ -127,6 +127,7 @@ internal data class ChatMessage(
     val buttons: List<MessageButton> = emptyList(),
     val voice: VoiceNote? = null,
     val image: ImageAttachment? = null,
+    val video: VideoAttachment? = null,
     val feedback: FeedbackRating? = null,
 )
 

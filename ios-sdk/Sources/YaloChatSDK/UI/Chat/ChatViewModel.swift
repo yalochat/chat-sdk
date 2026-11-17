@@ -81,6 +81,12 @@ final class ChatViewModel: ObservableObject {
         cache.totalCostLimit = 100 * 1_024 * 1_024
         return cache
     }()
+    /// Videos already read, by message id, for the same reason as `pictures`.
+    private let videos: NSCache<NSNumber, VideoPreview> = {
+        let cache: NSCache<NSNumber, VideoPreview> = NSCache()
+        cache.totalCostLimit = 50 * 1_024 * 1_024
+        return cache
+    }()
 
     init(
         chatMessages: ChatMessageService,
@@ -436,6 +442,34 @@ final class ChatViewModel: ObservableObject {
     func cachedImage(of message: ChatMessage) -> UIImage? {
         message.id.flatMap { id in
             pictures.object(forKey: NSNumber(value: id))
+        }
+    }
+
+    /// The video of `message` downloaded and ready to play, or nil when it cannot be.
+    func video(of message: ChatMessage) async -> VideoPreview? {
+        if let cached = cachedVideo(of: message) {
+            return cached
+        }
+        guard let video = message.video, !video.mediaURL.isEmpty,
+              let file = try? await media.download(video.mediaURL),
+              let read = await images.preview(of: video, at: file)
+        else {
+            return nil
+        }
+        let preview: VideoPreview = video.duration > 0
+            ? VideoPreview(file: read.file, poster: read.poster, duration: video.duration)
+            : read
+        if let id = message.id {
+            let bytes: Int = preview.poster.cgImage.map { image in image.bytesPerRow * image.height } ?? 0
+            videos.setObject(preview, forKey: NSNumber(value: id), cost: bytes)
+        }
+        return preview
+    }
+
+    /// The video of `message` when it has already been read, without waiting.
+    func cachedVideo(of message: ChatMessage) -> VideoPreview? {
+        message.id.flatMap { id in
+            videos.object(forKey: NSNumber(value: id))
         }
     }
 

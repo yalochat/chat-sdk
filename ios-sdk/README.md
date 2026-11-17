@@ -17,6 +17,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Data on the device](#data-on-the-device)
 - [Voice messages](#voice-messages)
 - [Image messages](#image-messages)
+- [Video messages](#video-messages)
 - [Quick replies and buttons](#quick-replies-and-buttons)
 - [Theming](#theming)
 - [Logging](#logging)
@@ -233,7 +234,7 @@ Notes:
 
 ## Data on the device
 
-- Messages, pictures and voice notes are kept in the app's own storage.
+- Messages, pictures and voice notes are kept in the app's own storage. Videos the channel sends are kept in the app's cache, which iOS can empty when it needs the room.
 - The access and refresh tokens are kept in the Keychain, which stores them encrypted. They can only be read once the device has been unlocked after a restart, and they never leave the device, not even in a backup.
 - `clearMessages()` and `logout()` delete them. See [Clearing messages](#clearing-messages) and [Logging out](#logging-out).
 
@@ -288,6 +289,16 @@ What to expect:
 - Anyone can rename a file, so this guides people towards the right picture but does not prove where it came from.
 
 If you do not want image messages, set `hideAttachmentButton` to `true`.
+
+## Video messages
+
+The chat shows the videos the channel sends. People cannot send videos.
+
+- The message shows the video's first frame with a play button, its length and its caption.
+- Tapping it plays the video full screen with the system controls. The close button above the video takes the person back to the chat.
+- The video plays with sound even when the phone is in silent mode, the same as voice messages. Other audio, like music, pauses while it plays and carries on once the player is closed.
+- A video that cannot be downloaded or played shows "This video can't be played" instead.
+- Nothing has to be added to your app's `Info.plist`.
 
 ## Quick replies and buttons
 

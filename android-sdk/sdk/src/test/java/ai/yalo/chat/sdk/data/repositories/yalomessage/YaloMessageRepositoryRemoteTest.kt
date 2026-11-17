@@ -16,7 +16,9 @@ import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageStatus
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VideoAttachment
 import ai.yalo.chat.sdk.domain.models.VoiceNote
+import ai.yalo.chat.sdk.internal.proto.v2.AttachmentMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.Button
 import ai.yalo.chat.sdk.internal.proto.v2.ButtonType
 import ai.yalo.chat.sdk.internal.proto.v2.ChatStatusRequest
@@ -32,6 +34,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.TextMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.UpdateCartProductRequest
 import ai.yalo.chat.sdk.internal.proto.v2.VoiceMessage
+import ai.yalo.chat.sdk.internal.proto.v2.VideoMessage
 import ai.yalo.chat.sdk.internal.proto.v2.VideoMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.VoiceNoteMessageRequest
 import kotlinx.coroutines.CompletableDeferred
@@ -318,6 +321,44 @@ class YaloMessageRepositoryRemoteTest {
 
         assertEquals("Support", received.single().header)
         assertEquals("Powered by Yalo", received.single().footer)
+    }
+
+    @Test
+    fun readsAVideoTheChannelSent() = runTest(scheduler) {
+        val received = received(pollItem(videoMessage()))
+
+        val video = received.single().video
+        assertEquals(MessageType.Video, received.single().type)
+        assertEquals("https://yalo.com/setup.mp4", video?.mediaUrl)
+        assertEquals("video/mp4", video?.mediaType)
+        assertEquals("setup.mp4", video?.fileName)
+        assertEquals(1_048_576L, video?.byteCount)
+        assertEquals(42_500L, video?.durationMillis)
+    }
+
+    @Test
+    fun readsTheCaptionAndLinesAroundAVideoTheChannelSent() = runTest(scheduler) {
+        val received = received(
+            pollItem(videoMessage(caption = "How to set it up", header = "Support", footer = "Powered by Yalo")),
+        )
+
+        assertEquals("How to set it up", received.single().content)
+        assertEquals("Support", received.single().header)
+        assertEquals("Powered by Yalo", received.single().footer)
+    }
+
+    @Test
+    fun readsAVideoThatArrivedWithoutItsFileAsAnEmptyOne() = runTest(scheduler) {
+        val received = received(pollItem(SdkMessage(video_message_request = VideoMessageRequest())))
+
+        assertEquals(VideoAttachment(), received.single().video)
+    }
+
+    @Test
+    fun leavesTheVideoOffAMessageThatIsNotAVideo() = runTest(scheduler) {
+        val received = received(pollItem(textMessage()))
+
+        assertNull(received.single().video)
     }
 
     @Test
@@ -784,9 +825,9 @@ class YaloMessageRepositoryRemoteTest {
     // A kind the chat cannot draw yet still has to show up as something.
     @Test
     fun readsAKindItCannotDrawYetAsThatKind() = runTest(scheduler) {
-        val received = received(pollItem(videoMessage()))
+        val received = received(pollItem(SdkMessage(attachment_message_request = AttachmentMessageRequest())))
 
-        assertEquals(MessageType.Video, received.single().type)
+        assertEquals(MessageType.Attachment, received.single().type)
     }
 
     @Test
@@ -1018,8 +1059,6 @@ class YaloMessageRepositoryRemoteTest {
         ),
     )
 
-    private fun videoMessage(): SdkMessage = SdkMessage(video_message_request = VideoMessageRequest())
-
     private fun picked(mediaUrl: String = "media-1"): ImageAttachment = ImageAttachment(
         mediaUrl = mediaUrl,
         mediaType = "image/jpeg",
@@ -1058,6 +1097,26 @@ class YaloMessageRepositoryRemoteTest {
             header_ = header,
             footer = footer,
             buttons = buttons,
+        ),
+    )
+
+    private fun videoMessage(
+        caption: String? = null,
+        header: String? = null,
+        footer: String? = null,
+    ): SdkMessage = SdkMessage(
+        video_message_request = VideoMessageRequest(
+            content = VideoMessage(
+                text = caption,
+                media_url = "https://yalo.com/setup.mp4",
+                media_type = "video/mp4",
+                file_name = "setup.mp4",
+                byte_count = 1_048_576,
+                duration = 42.5,
+                role = WireRole.MESSAGE_ROLE_AGENT,
+            ),
+            header_ = header,
+            footer = footer,
         ),
     )
 
