@@ -28,6 +28,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Only screenshots](#only-screenshots)
   - [Allowed image names](#allowed-image-names)
   - [Turning image messages off](#turning-image-messages-off)
+- [Video messages](#video-messages)
 - [Feedback buttons](#feedback-buttons)
 - [Theming](#theming)
 - [Logging](#logging)
@@ -475,6 +476,16 @@ YaloChatClient(
 ```
 
 Pictures the channel sends are still shown, because showing one picks nothing.
+
+## Video messages
+
+The chat shows videos the channel sends:
+
+- The message shows the video's first frame with a play button, how long it runs, and the caption under it.
+- Tapping it plays the video full screen with the system controls. The close button or back goes back to the conversation.
+- The video is downloaded the first time it is shown. If it cannot be downloaded or read, the message says the video can't be played.
+
+People cannot send videos from the chat. No permission is needed.
 
 ## Feedback buttons
 

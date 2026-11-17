@@ -6,6 +6,8 @@ import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.ui.images.ImageMessageBody
 import ai.yalo.chat.sdk.ui.messages.markdown.MarkdownText
+import ai.yalo.chat.sdk.ui.videos.VideoMessageBody
+import ai.yalo.chat.sdk.ui.videos.VideoPreview
 import ai.yalo.chat.sdk.ui.voice.VoiceMessageBody
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,6 +28,7 @@ internal fun AgentMessageBody(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: () -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    loadVideo: suspend (ChatMessage) -> VideoPreview? = { null },
     textAlign: TextAlign = TextAlign.Unspecified,
 ) {
     when (message.type) {
@@ -41,6 +44,12 @@ internal fun AgentMessageBody(
         MessageType.Image -> ImageMessageBody(
             message = message,
             loadImage = loadImage,
+            modifier = modifier,
+        )
+
+        MessageType.Video -> VideoMessageBody(
+            message = message,
+            loadVideo = loadVideo,
             modifier = modifier,
         )
 

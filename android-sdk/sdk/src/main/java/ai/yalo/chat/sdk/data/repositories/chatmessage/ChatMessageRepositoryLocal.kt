@@ -112,6 +112,7 @@ internal class ChatMessageRepositoryLocal(
             put(ChatMessageDatabaseDataSource.COLUMN_VOICE, VoiceNoteColumn.encode(message.voice))
             put(ChatMessageDatabaseDataSource.COLUMN_IMAGE, ImageAttachmentColumn.encode(message.image))
             put(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK, message.feedback?.wireName)
+            put(ChatMessageDatabaseDataSource.COLUMN_VIDEO, VideoAttachmentColumn.encode(message.video))
         }
         val id = database.writableDatabase.insertOrThrow(ChatMessageDatabaseDataSource.MESSAGE_TABLE, null, values)
         return message.copy(id = id)
@@ -167,6 +168,7 @@ internal class ChatMessageRepositoryLocal(
         voice = VoiceNoteColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_VOICE)),
         image = ImageAttachmentColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_IMAGE)),
         feedback = FeedbackRating.of(optionalText(ChatMessageDatabaseDataSource.COLUMN_FEEDBACK)),
+        video = VideoAttachmentColumn.decode(optionalText(ChatMessageDatabaseDataSource.COLUMN_VIDEO)),
     )
 
     private fun Cursor.text(column: String): String = getString(getColumnIndexOrThrow(column))

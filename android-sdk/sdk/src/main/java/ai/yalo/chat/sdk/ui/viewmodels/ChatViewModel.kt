@@ -10,6 +10,7 @@ import ai.yalo.chat.sdk.WelcomeMessageType
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.config.ChatDependencies
 import ai.yalo.chat.sdk.common.images.decodeImage
+import ai.yalo.chat.sdk.common.videos.decodeVideo
 import ai.yalo.chat.sdk.common.session.ChatSession
 import ai.yalo.chat.sdk.data.datasources.media.MediaContent
 import ai.yalo.chat.sdk.data.repositories.chatmessage.ChatMessageRepository
@@ -27,8 +28,10 @@ import ai.yalo.chat.sdk.domain.models.ImageAttachment
 import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VideoAttachment
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.log.YaloLog
+import ai.yalo.chat.sdk.ui.videos.VideoPreview
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -327,6 +330,21 @@ internal class ChatViewModel(
         val picture: ImageAttachment = message.image ?: return null
         val file: File = fileOf(picture.localPath, picture.mediaUrl).getOrNull() ?: return null
         return withContext(Dispatchers.Default) { decodeImage(file)?.asImageBitmap() }
+    }
+
+    /**
+     * The video of [message], downloaded, with its first frame to show before
+     * it is played, or nothing when it cannot be fetched or read.
+     */
+    suspend fun videoOf(message: ChatMessage): VideoPreview? {
+        val video: VideoAttachment = message.video ?: return null
+        val file: File = fileOf(null, video.mediaUrl).getOrNull() ?: return null
+        val frame = withContext(Dispatchers.Default) { decodeVideo(file) } ?: return null
+        return VideoPreview(
+            file = file,
+            poster = frame.poster.asImageBitmap(),
+            durationMillis = video.durationMillis.takeIf { millis -> millis > 0 } ?: frame.durationMillis,
+        )
     }
 
     /**

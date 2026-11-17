@@ -15,4 +15,7 @@
     <string name="yalo_chat_thumbs_down_description">Resposta ruim</string>
     <string name="yalo_chat_image_not_allowed">Não é possível enviar esta imagem</string>
     <string name="yalo_chat_invalid_image_alert_button">OK</string>
+    <string name="yalo_chat_play_video_description">Reproduzir vídeo</string>
+    <string name="yalo_chat_video_unavailable">Não é possível reproduzir este vídeo</string>
+    <string name="yalo_chat_close_video_description">Fechar</string>
 </resources>

@@ -1003,6 +1003,60 @@ struct ChatViewModelTests {
         #expect(await mediaService.downloads.isEmpty)
     }
 
+    private func videoMessage(duration: TimeInterval = 0, mediaURL: String = "https://cdn/setup") -> ChatMessage {
+        ChatMessage(
+            role: .agent,
+            type: .video,
+            timestamp: Self.now,
+            id: 7,
+            video: VideoAttachment(mediaURL: mediaURL, mimeType: "video/mp4", duration: duration)
+        )
+    }
+
+    @Test func aVideoFromTheChannelIsDownloadedWithItsFirstFrame() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.serveDownloads(from: try await videoFile(named: "downloaded"))
+
+        let preview: VideoPreview = try #require(await viewModel.video(of: videoMessage(duration: 42)))
+
+        #expect(preview.duration == 42)
+        #expect(preview.file.pathExtension == "mp4")
+        #expect(preview.poster.size == CGSize(width: 64, height: 48))
+        #expect(await mediaService.downloads == ["https://cdn/setup"])
+    }
+
+    @Test func aVideoTheChannelGaveNoLengthTakesItsOwn() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.serveDownloads(from: try await videoFile(named: "downloaded"))
+
+        let preview: VideoPreview = try #require(await viewModel.video(of: videoMessage()))
+
+        #expect(abs(preview.duration - 2) < 0.1)
+    }
+
+    @Test func aVideoIsReadOnceAndThenKept() async throws {
+        let viewModel: ChatViewModel = viewModel()
+        await mediaService.serveDownloads(from: try await videoFile(named: "downloaded"))
+        #expect(viewModel.cachedVideo(of: videoMessage()) == nil)
+
+        let first: VideoPreview? = await viewModel.video(of: videoMessage())
+        let second: VideoPreview? = await viewModel.video(of: videoMessage())
+
+        #expect(first != nil)
+        #expect(second === first)
+        #expect(viewModel.cachedVideo(of: videoMessage()) === first)
+        #expect(await mediaService.downloads == ["https://cdn/setup"])
+    }
+
+    @Test func aVideoThatCannotBeDownloadedReadsAsNothing() async {
+        let viewModel: ChatViewModel = viewModel()
+
+        #expect(await viewModel.video(of: videoMessage()) == nil)
+        #expect(await viewModel.video(of: videoMessage(mediaURL: "")) == nil)
+        #expect(await viewModel.video(of: agentMessage("Not a video")) == nil)
+        #expect(await mediaService.downloads == ["https://cdn/setup"])
+    }
+
     @Test func goingToTheBackgroundStopsTheMicrophoneAndTheSpeaker() async throws {
         let viewModel: ChatViewModel = viewModel()
         let file: URL = FileManager.default.temporaryDirectory.appendingPathComponent("\(UUID().uuidString).m4a")

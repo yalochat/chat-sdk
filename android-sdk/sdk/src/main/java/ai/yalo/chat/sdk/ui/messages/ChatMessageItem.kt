@@ -9,6 +9,7 @@ import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import ai.yalo.chat.sdk.domain.models.actions
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import ai.yalo.chat.sdk.ui.videos.VideoPreview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -42,7 +43,8 @@ internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
  *
  * [playback] is a lambda so that a voice note being listened to redraws its own
  * waveform rather than the conversation around it. [loadImage] hands back the
- * file a picture is in, and is asked only for the messages that carry one.
+ * file a picture is in, and [loadVideo] a video with its first frame. Each is
+ * asked only for the messages that carry one.
  *
  * [onFeedback] adds the thumbs up and thumbs down under an agent text message
  * the channel knows, and is null when the chat leaves them out.
@@ -58,6 +60,7 @@ internal fun ChatMessageItem(
     playback: () -> VoicePlayback? = { null },
     onVoiceMessageToggled: (ChatMessage) -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    loadVideo: suspend (ChatMessage) -> VideoPreview? = { null },
     onFeedback: ((ChatMessage, FeedbackRating) -> Unit)? = null,
 ) {
     when (message.role) {
@@ -79,6 +82,7 @@ internal fun ChatMessageItem(
             playback = playback,
             onVoiceMessageToggled = onVoiceMessageToggled,
             loadImage = loadImage,
+            loadVideo = loadVideo,
             onFeedback = onFeedback,
         )
     }
@@ -139,6 +143,7 @@ private fun AgentMessage(
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
     loadImage: suspend (ChatMessage) -> ImageBitmap?,
+    loadVideo: suspend (ChatMessage) -> VideoPreview?,
     onFeedback: ((ChatMessage, FeedbackRating) -> Unit)?,
 ) {
     val theme = currentChatTheme
@@ -166,6 +171,7 @@ private fun AgentMessage(
                     playback = playback,
                     onVoiceMessageToggled = { onVoiceMessageToggled(message) },
                     loadImage = loadImage,
+                    loadVideo = loadVideo,
                     textAlign = if (isWelcome) TextAlign.Center else TextAlign.Unspecified,
                 )
             }

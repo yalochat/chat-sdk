@@ -69,6 +69,23 @@ class ChatMessageDatabaseDataSourceTest {
         database.close()
     }
 
+    @Test
+    fun givesAnOlderConversationSomewhereToKeepItsVideos() {
+        val database = versionOneDatabase()
+
+        dataSource.onUpgrade(database, 1, ChatMessageDatabaseDataSource.VERSION)
+
+        database.insertOrThrow(
+            ChatMessageDatabaseDataSource.MESSAGE_TABLE,
+            null,
+            row("A video").apply {
+                put(ChatMessageDatabaseDataSource.COLUMN_VIDEO, """{"mediaUrl":"media-1"}""")
+            },
+        )
+        assertEquals(listOf("Hello", "A video"), storedContent(database))
+        database.close()
+    }
+
     /** The schema as it was before messages could carry buttons. */
     private fun versionOneDatabase(): SQLiteDatabase = SQLiteDatabase.create(null).apply {
         execSQL(

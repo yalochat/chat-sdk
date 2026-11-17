@@ -6,7 +6,7 @@ import SQLite3
 /// Keeps messages in a SQLite file. The file is opened, and its schema built
 /// or migrated, on the first call. A nil `fileURL` keeps them in memory.
 actor ChatMessageDatabaseService: ChatMessageService {
-    static let version: Int32 = 5
+    static let version: Int32 = 6
 
     private let fileURL: URL?
     private let log: YaloLog
@@ -28,8 +28,8 @@ actor ChatMessageDatabaseService: ChatMessageService {
         // Nulls are distinct, so a message with no backend id is always stored.
         try run(database, """
             INSERT INTO chat_message
-            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice, image, buttons, feedback)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (session_id, wi_id, role, content, type, status, timestamp, header, footer, voice, image, video, buttons, feedback)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (session_id, wi_id) DO NOTHING
             """, [
                 sessionId,
@@ -43,6 +43,7 @@ actor ChatMessageDatabaseService: ChatMessageService {
                 message.footer,
                 try message.voice.map(Self.json),
                 try message.image.map(Self.json),
+                try message.video.map(Self.json),
                 message.buttons.isEmpty ? nil : try Self.json(message.buttons),
                 message.feedback?.rawValue,
             ])
@@ -176,6 +177,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
             if found < 5 {
                 try run(database, "ALTER TABLE chat_message ADD COLUMN feedback TEXT", [])
             }
+            if found < 6 {
+                try run(database, "ALTER TABLE chat_message ADD COLUMN video TEXT", [])
+            }
             try run(database, "PRAGMA user_version = \(Self.version)", [])
             try run(database, "COMMIT", [])
         } catch {
@@ -285,6 +289,9 @@ actor ChatMessageDatabaseService: ChatMessageService {
             },
             image: text("image").flatMap { stored in
                 try? JSONDecoder().decode(ImageAttachment.self, from: Data(stored.utf8))
+            },
+            video: text("video").flatMap { stored in
+                try? JSONDecoder().decode(VideoAttachment.self, from: Data(stored.utf8))
             },
             feedback: text("feedback").flatMap(ChatMessage.Feedback.init(rawValue:))
         )

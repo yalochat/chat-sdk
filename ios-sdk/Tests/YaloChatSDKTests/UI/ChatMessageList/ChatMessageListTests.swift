@@ -114,6 +114,14 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, loadImage: { _ in nil })))
     }
 
+    @Test func messageListRendersVideoMessages() {
+        let messages: [ChatMessage] = [
+            ChatMessage(role: .agent, type: .video, timestamp: Date(), id: 1, content: "**Watch**", video: VideoAttachment()),
+        ]
+
+        #expect(renders(ChatMessageList(messages: messages, loadVideo: { _ in nil })))
+    }
+
     @Test(arguments: [false, true])
     func messageListRendersTheWelcomeAvatar(isWelcome: Bool) {
         let messages: [ChatMessage] = [message(1, .agent, "Hi")]

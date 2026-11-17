@@ -20,6 +20,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import ai.yalo.chat.sdk.ui.theme.ProvideChatTheme
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
+import ai.yalo.chat.sdk.ui.videos.VideoPreview
 import ai.yalo.chat.sdk.ui.viewmodels.ChatViewModel
 import android.Manifest
 import android.annotation.SuppressLint
@@ -167,6 +168,7 @@ public fun Chat(
             hideWatermark = client.config.hideWatermark,
             onPickImage = pickImage,
             loadImage = viewModel::imageOf,
+            loadVideo = viewModel::videoOf,
             hideFeedbackButtons = client.config.hideFeedbackButtons,
             onFeedback = viewModel::onFeedback,
             texts = client.config.texts,
@@ -313,6 +315,7 @@ internal fun ChatLayout(
     hideWatermark: Boolean = false,
     onPickImage: () -> Unit = {},
     loadImage: suspend (ChatMessage) -> ImageBitmap? = { null },
+    loadVideo: suspend (ChatMessage) -> VideoPreview? = { null },
     hideFeedbackButtons: Boolean = false,
     onFeedback: (ChatMessage, FeedbackRating) -> Unit = { _, _ -> },
     texts: YaloChatTexts = YaloChatTexts(),
@@ -341,6 +344,7 @@ internal fun ChatLayout(
                 playback = playback,
                 onVoiceMessageToggled = onVoiceMessageToggled,
                 loadImage = loadImage,
+                loadVideo = loadVideo,
                 onFeedback = onFeedback.takeUnless { hideFeedbackButtons },
                 modifier = Modifier
                     .weight(1f)

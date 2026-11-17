@@ -16,6 +16,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
+import ai.yalo.chat.sdk.domain.models.VideoAttachment
 import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.log.YaloLog
 import ai.yalo.chat.sdk.internal.proto.v2.CustomCommandResponse
@@ -32,6 +33,7 @@ import ai.yalo.chat.sdk.internal.proto.v2.TextMessage
 import ai.yalo.chat.sdk.internal.proto.v2.TextMessageRequest
 import ai.yalo.chat.sdk.internal.proto.v2.Timestamp
 import ai.yalo.chat.sdk.internal.proto.v2.UpdateCartProductResponse
+import ai.yalo.chat.sdk.internal.proto.v2.VideoMessage
 import ai.yalo.chat.sdk.internal.proto.v2.VoiceMessage
 import ai.yalo.chat.sdk.internal.proto.v2.VoiceNoteMessageRequest
 import kotlinx.coroutines.CoroutineScope
@@ -357,6 +359,7 @@ internal class YaloMessageRepositoryRemote(
             content = when (type) {
                 MessageType.Text -> message.text_message_request?.content?.text.orEmpty()
                 MessageType.Image -> message.image_message_request?.content?.text.orEmpty()
+                MessageType.Video -> message.video_message_request?.content?.text.orEmpty()
                 else -> ""
             },
             status = ChatStatus.of(item.status, ChatStatus.Delivered),
@@ -367,6 +370,8 @@ internal class YaloMessageRepositoryRemote(
                 ?.let { request -> voiceNoteOf(request.content ?: VoiceMessage()) },
             image = message.image_message_request
                 ?.let { request -> imageOf(request.content ?: ImageMessage()) },
+            video = message.video_message_request
+                ?.let { request -> videoOf(request.content ?: VideoMessage()) },
         )
     }
 
@@ -379,10 +384,12 @@ internal class YaloMessageRepositoryRemote(
     private fun headerOf(message: SdkMessage): String? = message.text_message_request?.header_
         ?: message.image_message_request?.header_
         ?: message.voice_note_message_request?.header_
+        ?: message.video_message_request?.header_
 
     private fun footerOf(message: SdkMessage): String? = message.text_message_request?.footer
         ?: message.image_message_request?.footer
         ?: message.voice_note_message_request?.footer
+        ?: message.video_message_request?.footer
 
     /**
      * The recording the channel sent, which is an address to download rather
@@ -406,6 +413,15 @@ internal class YaloMessageRepositoryRemote(
         mediaType = content.media_type,
         fileName = content.file_name,
         byteCount = content.byte_count,
+    )
+
+    /** The video the channel sent, an address to download the same way. */
+    private fun videoOf(content: VideoMessage): VideoAttachment = VideoAttachment(
+        mediaUrl = content.media_url,
+        mediaType = content.media_type,
+        fileName = content.file_name,
+        byteCount = content.byte_count,
+        durationMillis = (content.duration * MILLIS_PER_SECOND).toLong(),
     )
 
     /**
