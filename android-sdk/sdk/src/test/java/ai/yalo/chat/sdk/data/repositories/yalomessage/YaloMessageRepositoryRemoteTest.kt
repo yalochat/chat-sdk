@@ -427,10 +427,20 @@ class YaloMessageRepositoryRemoteTest {
     }
 
     @Test
-    fun takesARatingBackByLeavingItUnspecified() = runTest(scheduler) {
+    fun takesARatingBackByClearingIt() = runTest(scheduler) {
         connected().sendFeedback("wi-1", null)
 
-        assertEquals(WireRating.FEEDBACK_RATING_UNSPECIFIED, source.sent.single().message_feedback_request!!.rating)
+        assertEquals(WireRating.FEEDBACK_RATING_CLEARED, source.sent.single().message_feedback_request!!.rating)
+    }
+
+    @Test
+    fun neverSendsAnUnspecifiedRating() = runTest(scheduler) {
+        val repository = connected()
+
+        (FeedbackRating.entries + null).forEach { repository.sendFeedback("wi-1", it) }
+
+        assertTrue(source.sent.isNotEmpty())
+        assertTrue(source.sent.none { it.message_feedback_request!!.rating == WireRating.FEEDBACK_RATING_UNSPECIFIED })
     }
 
     @Test

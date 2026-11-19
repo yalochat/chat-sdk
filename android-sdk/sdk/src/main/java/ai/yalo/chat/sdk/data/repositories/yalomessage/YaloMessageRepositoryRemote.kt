@@ -237,7 +237,7 @@ internal class YaloMessageRepositoryRemote(
     private fun wireRatingOf(rating: FeedbackRating?): WireRating = when (rating) {
         FeedbackRating.ThumbsUp -> WireRating.FEEDBACK_RATING_THUMBS_UP
         FeedbackRating.ThumbsDown -> WireRating.FEEDBACK_RATING_THUMBS_DOWN
-        null -> WireRating.FEEDBACK_RATING_UNSPECIFIED
+        null -> WireRating.FEEDBACK_RATING_CLEARED
     }
 
     override fun commandRequests(): Flow<CommandRequest> = source.messages
