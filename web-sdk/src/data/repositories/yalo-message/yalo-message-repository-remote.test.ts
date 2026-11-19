@@ -426,7 +426,7 @@ describe('YaloMessageRepositoryRemote', () => {
     it.each([
       ['thumbsUp', FeedbackRating.FEEDBACK_RATING_THUMBS_UP],
       ['thumbsDown', FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN],
-      [undefined, FeedbackRating.FEEDBACK_RATING_UNSPECIFIED],
+      [undefined, FeedbackRating.FEEDBACK_RATING_CLEARED],
     ] as const)(
       'sends a messageFeedbackRequest for %s feedback',
       async (feedback, rating) => {
@@ -446,6 +446,22 @@ describe('YaloMessageRepositoryRemote', () => {
             timestamp: expect.any(Date),
           },
         });
+      }
+    );
+
+    it.each(['thumbsUp', 'thumbsDown', undefined] as const)(
+      'never sends FEEDBACK_RATING_UNSPECIFIED for %s feedback',
+      async (feedback) => {
+        const { service } = okService();
+        const repo = new YaloMessageRepositoryRemote(service, okMedia());
+
+        await repo.sendMessageFeedback('wi-1', feedback);
+
+        const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+          .calls[0][0];
+        expect(sent.messageFeedbackRequest.rating).not.toBe(
+          FeedbackRating.FEEDBACK_RATING_UNSPECIFIED
+        );
       }
     );
 

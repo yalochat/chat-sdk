@@ -134,9 +134,10 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
       correlationId: `message-feedback-${messageId}-${Date.now()}`,
       messageFeedbackRequest: {
         messageId,
-        rating: feedback
-          ? FEEDBACK_RATINGS[feedback]
-          : FeedbackRating.FEEDBACK_RATING_UNSPECIFIED,
+        rating:
+          feedback === undefined
+            ? FeedbackRating.FEEDBACK_RATING_CLEARED
+            : FEEDBACK_RATINGS[feedback],
         timestamp,
       },
       timestamp,
