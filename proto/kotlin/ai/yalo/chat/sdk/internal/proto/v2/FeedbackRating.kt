@@ -28,6 +28,10 @@ public enum class FeedbackRating(
   FEEDBACK_RATING_UNSPECIFIED(0),
   FEEDBACK_RATING_THUMBS_UP(1),
   FEEDBACK_RATING_THUMBS_DOWN(2),
+  /**
+   * The user removed a previous rating.
+   */
+  FEEDBACK_RATING_CLEARED(3),
   ;
 
   public companion object {
@@ -45,6 +49,7 @@ public enum class FeedbackRating(
       0 -> FEEDBACK_RATING_UNSPECIFIED
       1 -> FEEDBACK_RATING_THUMBS_UP
       2 -> FEEDBACK_RATING_THUMBS_DOWN
+      3 -> FEEDBACK_RATING_CLEARED
       else -> null
     }
   }

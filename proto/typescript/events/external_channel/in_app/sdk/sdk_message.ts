@@ -291,6 +291,8 @@ export const FeedbackRating = {
   FEEDBACK_RATING_UNSPECIFIED: 0,
   FEEDBACK_RATING_THUMBS_UP: 1,
   FEEDBACK_RATING_THUMBS_DOWN: 2,
+  /** FEEDBACK_RATING_CLEARED - The user removed a previous rating. */
+  FEEDBACK_RATING_CLEARED: 3,
   UNRECOGNIZED: -1,
 } as const;
 
@@ -300,6 +302,7 @@ export namespace FeedbackRating {
   export type FEEDBACK_RATING_UNSPECIFIED = typeof FeedbackRating.FEEDBACK_RATING_UNSPECIFIED;
   export type FEEDBACK_RATING_THUMBS_UP = typeof FeedbackRating.FEEDBACK_RATING_THUMBS_UP;
   export type FEEDBACK_RATING_THUMBS_DOWN = typeof FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN;
+  export type FEEDBACK_RATING_CLEARED = typeof FeedbackRating.FEEDBACK_RATING_CLEARED;
   export type UNRECOGNIZED = typeof FeedbackRating.UNRECOGNIZED;
 }
 
@@ -314,6 +317,9 @@ export function feedbackRatingFromJSON(object: any): FeedbackRating {
     case 2:
     case "FEEDBACK_RATING_THUMBS_DOWN":
       return FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN;
+    case 3:
+    case "FEEDBACK_RATING_CLEARED":
+      return FeedbackRating.FEEDBACK_RATING_CLEARED;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -329,6 +335,8 @@ export function feedbackRatingToJSON(object: FeedbackRating): string {
       return "FEEDBACK_RATING_THUMBS_UP";
     case FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN:
       return "FEEDBACK_RATING_THUMBS_DOWN";
+    case FeedbackRating.FEEDBACK_RATING_CLEARED:
+      return "FEEDBACK_RATING_CLEARED";
     case FeedbackRating.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -774,6 +782,9 @@ export interface GuidanceCardResponse {
  * agent message to the channel. The server confirms it with an SdkMessageAck.
  * If the user changes their rating, the client sends a new request for the
  * same message_id and the channel keeps the one with the latest timestamp.
+ * To clear a rating, the client sends a new request for the same message_id
+ * with FEEDBACK_RATING_CLEARED. Clients never send FEEDBACK_RATING_UNSPECIFIED
+ * on purpose; legacy SDKs did, and the channel treats it as cleared.
  */
 export interface MessageFeedbackRequest {
   /** Identifier of the agent message being rated. */

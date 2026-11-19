@@ -136,7 +136,7 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
         messageId,
         rating: feedback
           ? FEEDBACK_RATINGS[feedback]
-          : FeedbackRating.FEEDBACK_RATING_UNSPECIFIED,
+          : FeedbackRating.FEEDBACK_RATING_CLEARED,
         timestamp,
       },
       timestamp,

@@ -254,7 +254,7 @@ struct YaloMessageRepositoryRemoteTests {
     @Test(arguments: [
         (ChatMessage.Feedback.thumbsUp, Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating.thumbsUp),
         (.thumbsDown, .thumbsDown),
-        (nil, .unspecified),
+        (nil, .cleared),
     ] as [(ChatMessage.Feedback?, Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating)])
     func sendsTheRatingOfAMessage(feedback: ChatMessage.Feedback?, rating: Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating) async throws {
         let service: FakeYaloMessageService = FakeYaloMessageService()
@@ -272,6 +272,23 @@ struct YaloMessageRepositoryRemoteTests {
         #expect(request.rating == rating)
         #expect(request.timestamp.date == Self.now)
         #expect(!sent.correlationID.isEmpty)
+        repository.close()
+    }
+
+    @Test(arguments: [ChatMessage.Feedback.thumbsUp, .thumbsDown, nil] as [ChatMessage.Feedback?])
+    func neverSendsAnUnspecifiedRating(feedback: ChatMessage.Feedback?) async throws {
+        let service: FakeYaloMessageService = FakeYaloMessageService()
+        let repository: YaloMessageRepositoryRemote = repository(service)
+        repository.connect()
+
+        try await repository.sendFeedback(feedback, wiId: "wi-1")
+
+        let sent: SdkMessage = try #require(await service.sent.first)
+        guard case .messageFeedbackRequest(let request) = sent.payload else {
+            Issue.record("expected a message feedback request")
+            return
+        }
+        #expect(request.rating != .unspecified)
         repository.close()
     }
 

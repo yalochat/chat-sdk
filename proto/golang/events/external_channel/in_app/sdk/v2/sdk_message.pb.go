@@ -292,6 +292,8 @@ const (
 	FeedbackRating_FEEDBACK_RATING_UNSPECIFIED FeedbackRating = 0
 	FeedbackRating_FEEDBACK_RATING_THUMBS_UP   FeedbackRating = 1
 	FeedbackRating_FEEDBACK_RATING_THUMBS_DOWN FeedbackRating = 2
+	// The user removed a previous rating.
+	FeedbackRating_FEEDBACK_RATING_CLEARED FeedbackRating = 3
 )
 
 // Enum value maps for FeedbackRating.
@@ -300,11 +302,13 @@ var (
 		0: "FEEDBACK_RATING_UNSPECIFIED",
 		1: "FEEDBACK_RATING_THUMBS_UP",
 		2: "FEEDBACK_RATING_THUMBS_DOWN",
+		3: "FEEDBACK_RATING_CLEARED",
 	}
 	FeedbackRating_value = map[string]int32{
 		"FEEDBACK_RATING_UNSPECIFIED": 0,
 		"FEEDBACK_RATING_THUMBS_UP":   1,
 		"FEEDBACK_RATING_THUMBS_DOWN": 2,
+		"FEEDBACK_RATING_CLEARED":     3,
 	}
 )
 
@@ -2912,6 +2916,9 @@ func (x *GuidanceCardResponse) GetGuidanceCards() []string {
 // agent message to the channel. The server confirms it with an SdkMessageAck.
 // If the user changes their rating, the client sends a new request for the
 // same message_id and the channel keeps the one with the latest timestamp.
+// To clear a rating, the client sends a new request for the same message_id
+// with FEEDBACK_RATING_CLEARED. Clients never send FEEDBACK_RATING_UNSPECIFIED
+// on purpose; legacy SDKs did, and the channel treats it as cleared.
 type MessageFeedbackRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Identifier of the agent message being rated.
@@ -4641,11 +4648,12 @@ const file_events_external_channel_in_app_sdk_sdk_message_proto_rawDesc = "" +
 	"ButtonType\x12\x15\n" +
 	"\x11BUTTON_TYPE_REPLY\x10\x00\x12\x18\n" +
 	"\x14BUTTON_TYPE_POSTBACK\x10\x01\x12\x14\n" +
-	"\x10BUTTON_TYPE_LINK\x10\x02*q\n" +
+	"\x10BUTTON_TYPE_LINK\x10\x02*\x8e\x01\n" +
 	"\x0eFeedbackRating\x12\x1f\n" +
 	"\x1bFEEDBACK_RATING_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19FEEDBACK_RATING_THUMBS_UP\x10\x01\x12\x1f\n" +
-	"\x1bFEEDBACK_RATING_THUMBS_DOWN\x10\x02*`\n" +
+	"\x1bFEEDBACK_RATING_THUMBS_DOWN\x10\x02\x12\x1b\n" +
+	"\x17FEEDBACK_RATING_CLEARED\x10\x03*`\n" +
 	"\x11ConnectionAckType\x12#\n" +
 	"\x1fCONNECTION_ACK_TYPE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"CONNECTION_ACK_TYPE_CONNECTION_ACK\x10\x01*_\n" +

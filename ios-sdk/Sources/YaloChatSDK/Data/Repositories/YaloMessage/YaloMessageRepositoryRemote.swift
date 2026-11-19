@@ -261,7 +261,7 @@ final class YaloMessageRepositoryRemote: YaloMessageRepository {
         request.rating = switch feedback {
         case .thumbsUp: .thumbsUp
         case .thumbsDown: .thumbsDown
-        case nil: .unspecified
+        case nil: .cleared
         }
         request.timestamp = ratedAt
         var envelope: SdkMessage = SdkMessage()

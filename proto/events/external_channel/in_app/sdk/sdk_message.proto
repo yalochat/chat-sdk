@@ -399,12 +399,17 @@ enum FeedbackRating {
   FEEDBACK_RATING_UNSPECIFIED = 0;
   FEEDBACK_RATING_THUMBS_UP = 1;
   FEEDBACK_RATING_THUMBS_DOWN = 2;
+  // The user removed a previous rating.
+  FEEDBACK_RATING_CLEARED = 3;
 }
 
 // MessageFeedbackRequest sends the user's thumbs up or thumbs down for an
 // agent message to the channel. The server confirms it with an SdkMessageAck.
 // If the user changes their rating, the client sends a new request for the
 // same message_id and the channel keeps the one with the latest timestamp.
+// To clear a rating, the client sends a new request for the same message_id
+// with FEEDBACK_RATING_CLEARED. Clients never send FEEDBACK_RATING_UNSPECIFIED
+// on purpose; legacy SDKs did, and the channel treats it as cleared.
 message MessageFeedbackRequest {
   // Identifier of the agent message being rated.
   string message_id = 1;
