@@ -427,6 +427,7 @@ describe('YaloMessageRepositoryRemote', () => {
       ['thumbsUp', FeedbackRating.FEEDBACK_RATING_THUMBS_UP],
       ['thumbsDown', FeedbackRating.FEEDBACK_RATING_THUMBS_DOWN],
       [undefined, FeedbackRating.FEEDBACK_RATING_CLEARED],
+      [null as unknown as undefined, FeedbackRating.FEEDBACK_RATING_CLEARED],
     ] as const)(
       'sends a messageFeedbackRequest for %s feedback',
       async (feedback, rating) => {
@@ -449,7 +450,12 @@ describe('YaloMessageRepositoryRemote', () => {
       }
     );
 
-    it.each(['thumbsUp', 'thumbsDown', undefined] as const)(
+    it.each([
+      'thumbsUp',
+      'thumbsDown',
+      undefined,
+      null as unknown as undefined,
+    ] as const)(
       'never sends FEEDBACK_RATING_UNSPECIFIED for %s feedback',
       async (feedback) => {
         const { service } = okService();
