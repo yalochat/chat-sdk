@@ -238,6 +238,9 @@ package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: Swift
   case unspecified // = 0
   case thumbsUp // = 1
   case thumbsDown // = 2
+
+  /// The user removed a previous rating.
+  case cleared // = 3
   case UNRECOGNIZED(Int)
 
   package init() {
@@ -249,6 +252,7 @@ package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: Swift
     case 0: self = .unspecified
     case 1: self = .thumbsUp
     case 2: self = .thumbsDown
+    case 3: self = .cleared
     default: self = .UNRECOGNIZED(rawValue)
     }
   }
@@ -258,6 +262,7 @@ package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: Swift
     case .unspecified: return 0
     case .thumbsUp: return 1
     case .thumbsDown: return 2
+    case .cleared: return 3
     case .UNRECOGNIZED(let i): return i
     }
   }
@@ -267,6 +272,7 @@ package nonisolated enum Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: Swift
     .unspecified,
     .thumbsUp,
     .thumbsDown,
+    .cleared,
   ]
 
 }
@@ -1672,6 +1678,9 @@ package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_GuidanceCardRespons
 /// agent message to the channel. The server confirms it with an SdkMessageAck.
 /// If the user changes their rating, the client sends a new request for the
 /// same message_id and the channel keeps the one with the latest timestamp.
+/// To clear a rating, the client sends a new request for the same message_id
+/// with FEEDBACK_RATING_CLEARED. Clients never send FEEDBACK_RATING_UNSPECIFIED
+/// on purpose; legacy SDKs did, and the channel treats it as cleared.
 package nonisolated struct Yalo_ExternalChannel_InApp_Sdk_V2_MessageFeedbackRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -2325,7 +2334,7 @@ nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_ButtonType: SwiftProtobu
 }
 
 nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_FeedbackRating: SwiftProtobuf._ProtoNameProviding {
-  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0FEEDBACK_RATING_UNSPECIFIED\0\u{1}FEEDBACK_RATING_THUMBS_UP\0\u{1}FEEDBACK_RATING_THUMBS_DOWN\0")
+  package static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0FEEDBACK_RATING_UNSPECIFIED\0\u{1}FEEDBACK_RATING_THUMBS_UP\0\u{1}FEEDBACK_RATING_THUMBS_DOWN\0\u{1}FEEDBACK_RATING_CLEARED\0")
 }
 
 nonisolated extension Yalo_ExternalChannel_InApp_Sdk_V2_ConnectionAckType: SwiftProtobuf._ProtoNameProviding {

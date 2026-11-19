@@ -3448,6 +3448,9 @@ class GuidanceCardResponse extends $pb.GeneratedMessage {
 /// agent message to the channel. The server confirms it with an SdkMessageAck.
 /// If the user changes their rating, the client sends a new request for the
 /// same message_id and the channel keeps the one with the latest timestamp.
+/// To clear a rating, the client sends a new request for the same message_id
+/// with FEEDBACK_RATING_CLEARED. Clients never send FEEDBACK_RATING_UNSPECIFIED
+/// on purpose; legacy SDKs did, and the channel treats it as cleared.
 class MessageFeedbackRequest extends $pb.GeneratedMessage {
   factory MessageFeedbackRequest({
     $core.String? messageId,

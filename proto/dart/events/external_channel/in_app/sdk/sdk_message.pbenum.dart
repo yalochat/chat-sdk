@@ -151,14 +151,19 @@ class FeedbackRating extends $pb.ProtobufEnum {
   static const FeedbackRating FEEDBACK_RATING_THUMBS_DOWN =
       FeedbackRating._(2, _omitEnumNames ? '' : 'FEEDBACK_RATING_THUMBS_DOWN');
 
+  /// The user removed a previous rating.
+  static const FeedbackRating FEEDBACK_RATING_CLEARED =
+      FeedbackRating._(3, _omitEnumNames ? '' : 'FEEDBACK_RATING_CLEARED');
+
   static const $core.List<FeedbackRating> values = <FeedbackRating>[
     FEEDBACK_RATING_UNSPECIFIED,
     FEEDBACK_RATING_THUMBS_UP,
     FEEDBACK_RATING_THUMBS_DOWN,
+    FEEDBACK_RATING_CLEARED,
   ];
 
   static final $core.List<FeedbackRating?> _byValue =
-      $pb.ProtobufEnum.$_initByValueList(values, 2);
+      $pb.ProtobufEnum.$_initByValueList(values, 3);
   static FeedbackRating? valueOf($core.int value) =>
       value < 0 || value >= _byValue.length ? null : _byValue[value];
 

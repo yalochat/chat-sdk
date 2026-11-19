@@ -103,6 +103,7 @@ const FeedbackRating$json = {
     {'1': 'FEEDBACK_RATING_UNSPECIFIED', '2': 0},
     {'1': 'FEEDBACK_RATING_THUMBS_UP', '2': 1},
     {'1': 'FEEDBACK_RATING_THUMBS_DOWN', '2': 2},
+    {'1': 'FEEDBACK_RATING_CLEARED', '2': 3},
   ],
 };
 
@@ -110,7 +111,7 @@ const FeedbackRating$json = {
 final $typed_data.Uint8List feedbackRatingDescriptor = $convert.base64Decode(
     'Cg5GZWVkYmFja1JhdGluZxIfChtGRUVEQkFDS19SQVRJTkdfVU5TUEVDSUZJRUQQABIdChlGRU'
     'VEQkFDS19SQVRJTkdfVEhVTUJTX1VQEAESHwobRkVFREJBQ0tfUkFUSU5HX1RIVU1CU19ET1dO'
-    'EAI=');
+    'EAISGwoXRkVFREJBQ0tfUkFUSU5HX0NMRUFSRUQQAw==');
 
 @$core.Deprecated('Use connectionAckTypeDescriptor instead')
 const ConnectionAckType$json = {
