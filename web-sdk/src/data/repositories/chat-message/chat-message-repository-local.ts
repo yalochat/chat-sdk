@@ -116,10 +116,7 @@ export class ChatMessageRepositoryLocal implements ChatMessageRepository {
         const results: ChatMessage[] = [];
         let seeked = cursor === null;
 
-        const request = index.openCursor(
-          IDBKeyRange.only(sessionId),
-          'prev'
-        );
+        const request = index.openCursor(IDBKeyRange.only(sessionId), 'prev');
 
         request.onsuccess = () => {
           const idbCursor = request.result;

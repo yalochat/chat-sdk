@@ -42,7 +42,9 @@ export class TokenRepositoryLocal implements TokenRepository {
   // Lists ephemeral sessions left by builds that predate the flag. Their
   // records are invisible to listEphemeralSessions, so without this pass they
   // would sit in storage forever holding a usable refresh token.
-  static listLegacyEphemeralSessions(db: IDBDatabase): Promise<Result<string[]>> {
+  static listLegacyEphemeralSessions(
+    db: IDBDatabase
+  ): Promise<Result<string[]>> {
     return TokenRepositoryLocal._listSessions(
       db,
       (stored, sessionId) =>
@@ -119,7 +121,10 @@ export class TokenRepositoryLocal implements TokenRepository {
         return;
       }
       try {
-        const tx = db.transaction(TokenRepositoryLocal._STORE_NAME, 'readwrite');
+        const tx = db.transaction(
+          TokenRepositoryLocal._STORE_NAME,
+          'readwrite'
+        );
         const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
         tx.oncomplete = () => resolve(new Ok(true));
         tx.onerror = () => {
@@ -196,17 +201,28 @@ export class TokenRepositoryLocal implements TokenRepository {
 
   private _read(): Promise<StoredToken | null> {
     return new Promise((resolve, reject) => {
-      const tx = this._db.transaction(TokenRepositoryLocal._STORE_NAME, 'readonly');
+      const tx = this._db.transaction(
+        TokenRepositoryLocal._STORE_NAME,
+        'readonly'
+      );
       const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
       const request = store.get(this._key);
-      request.onsuccess = () => resolve((request.result as StoredToken) ?? null);
+      request.onsuccess = () =>
+        resolve((request.result as StoredToken) ?? null);
       request.onerror = () => reject(request.error);
     });
   }
 
-  private _write(data: { accessToken: string; refreshToken: string; expiresIn: number }): Promise<void> {
+  private _write(data: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  }): Promise<void> {
     return new Promise((resolve, reject) => {
-      const tx = this._db.transaction(TokenRepositoryLocal._STORE_NAME, 'readwrite');
+      const tx = this._db.transaction(
+        TokenRepositoryLocal._STORE_NAME,
+        'readwrite'
+      );
       const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
       const record: StoredToken = {
         accessToken: data.accessToken,
@@ -222,7 +238,10 @@ export class TokenRepositoryLocal implements TokenRepository {
 
   private _clear(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const tx = this._db.transaction(TokenRepositoryLocal._STORE_NAME, 'readwrite');
+      const tx = this._db.transaction(
+        TokenRepositoryLocal._STORE_NAME,
+        'readwrite'
+      );
       const store = tx.objectStore(TokenRepositoryLocal._STORE_NAME);
       const request = store.delete(this._key);
       request.onsuccess = () => resolve();

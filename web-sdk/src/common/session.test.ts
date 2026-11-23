@@ -2,10 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
-import {
-  computeEffectiveAuthUserId,
-  computeSessionId,
-} from '@common/session';
+import { computeEffectiveAuthUserId, computeSessionId } from '@common/session';
 
 const baseConfig: YaloChatClientConfig = {
   channelId: 'ch-1',
@@ -105,10 +102,7 @@ describe('computeSessionId', () => {
 
   it('appends the ephemeral token to the anonymous base when sessionMode is ephemeral', () => {
     expect(
-      computeSessionId(
-        { ...baseConfig, sessionMode: 'ephemeral' },
-        'token-abc'
-      )
+      computeSessionId({ ...baseConfig, sessionMode: 'ephemeral' }, 'token-abc')
     ).toBe('org-1-ch-1-anonymous-token-abc');
   });
 
@@ -147,9 +141,9 @@ describe('computeEffectiveAuthUserId', () => {
   });
 
   it('returns the original userId unchanged when no openContext is provided', () => {
-    expect(
-      computeEffectiveAuthUserId({ ...baseConfig, userId: 'u1' })
-    ).toBe('u1');
+    expect(computeEffectiveAuthUserId({ ...baseConfig, userId: 'u1' })).toBe(
+      'u1'
+    );
   });
 
   it('returns the original userId unchanged when sessionMode is unset', () => {

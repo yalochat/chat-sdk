@@ -1,6 +1,8 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui
 
+import ai.yalo.chat.sdk.AvatarDisplay
+import ai.yalo.chat.sdk.YaloChatMessageAvatar
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
@@ -59,6 +61,9 @@ private const val MESSAGE_FADE_MILLIS = 220
  * [avatar] centered above them. [onFeedback] is null when the chat leaves the
  * thumbs up and thumbs down out. Only replies after the person's first message
  * can be rated, so the welcome message never is.
+ *
+ * [userAvatar] and [assistantAvatar] are drawn beside the messages of their
+ * side, on the messages [avatarDisplay] picks.
  */
 @Composable
 internal fun ChatMessageList(
@@ -76,6 +81,9 @@ internal fun ChatMessageList(
     loadVideo: suspend (ChatMessage) -> VideoPreview? = { null },
     onFeedback: ((ChatMessage, FeedbackRating) -> Unit)? = null,
     listState: LazyListState = rememberLazyListState(),
+    userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
+    assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
+    avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
 ) {
     val theme = currentChatTheme
     val view = LocalView.current
@@ -138,6 +146,10 @@ internal fun ChatMessageList(
                     loadImage = loadImage,
                     loadVideo = loadVideo,
                     onFeedback = onFeedback.takeIf { index < firstUserMessageIndex },
+                    userAvatar = userAvatar,
+                    assistantAvatar = assistantAvatar,
+                    showsAvatar = avatarDisplay == AvatarDisplay.EveryMessage ||
+                        messages.getOrNull(index - 1)?.role != message.role,
                 )
             }
             // Last in a reversed list, so it sits above the welcome message.

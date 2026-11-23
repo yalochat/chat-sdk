@@ -31,6 +31,15 @@ export default class ChatMessageListController implements ReactiveController {
 
   hostConnected() {}
 
+  // Messages are newest first, so the one before is the next one said.
+  showsAvatar(index: number): boolean {
+    if (this.host.config.avatarDisplay === 'everyMessage') {
+      return true;
+    }
+    const messages = this.host.chatMessages;
+    return index === 0 || messages[index - 1].role !== messages[index].role;
+  }
+
   hostUpdate(): void {
     const messageList = this.host.messageList;
     if (!messageList) {

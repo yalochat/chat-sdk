@@ -4,13 +4,14 @@ import type { ChatMessage } from '@domain/models/chat-message/chat-message';
 import type { YaloChatClientConfig } from '@domain/config/chat-config';
 import { yaloChatClientConfigContext } from '@domain/config/chat-config-context';
 import { consume } from '@lit/context';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { localized, msg } from '@lit/localize';
 import UserMessageController from './user-message-controller';
 import './image-message';
 import './voice-message';
 import './attachment-message';
+import './message-avatar';
 
 @localized()
 @customElement('yalo-chat-user-message')
@@ -19,8 +20,14 @@ export class UserMessage extends LitElement {
     :host {
       display: flex;
       justify-content: flex-end;
+      align-items: flex-end;
+      gap: 0.5rem;
       margin: 0.25rem 0.5rem;
       width: 100%;
+    }
+
+    yalo-chat-message-avatar.hidden {
+      visibility: hidden;
     }
 
     .error-wrapper {
@@ -110,7 +117,6 @@ export class UserMessage extends LitElement {
       background: var(--yalo-chat-user-message-background, #f9fafc);
       color: var(--yalo-chat-user-message-color, #181818);
     }
-
   `;
 
   private _controller = new UserMessageController(this);
@@ -121,19 +127,28 @@ export class UserMessage extends LitElement {
   @property({ attribute: false })
   message!: ChatMessage;
 
+  @property({ type: Boolean })
+  showAvatar = false;
+
   private _renderBubble() {
     switch (this.message.type) {
       case 'voice':
         return html`<div class="voice-bubble">
-          <yalo-chat-voice-message .message=${this.message}></yalo-chat-voice-message>
+          <yalo-chat-voice-message
+            .message=${this.message}
+          ></yalo-chat-voice-message>
         </div>`;
       case 'image':
         return html`<div class="image-bubble">
-          <yalo-chat-image-message .message=${this.message}></yalo-chat-image-message>
+          <yalo-chat-image-message
+            .message=${this.message}
+          ></yalo-chat-image-message>
         </div>`;
       case 'attachment':
         return html`<span class="bubble">
-          <yalo-chat-attachment-message .message=${this.message}></yalo-chat-attachment-message>
+          <yalo-chat-attachment-message
+            .message=${this.message}
+          ></yalo-chat-attachment-message>
         </span>`;
       case 'text':
       default:
@@ -142,34 +157,39 @@ export class UserMessage extends LitElement {
   }
 
   render() {
-    if (this._controller.isError) {
-      return html`
-        <div
-          class="error-wrapper"
-          role="button"
-          tabindex="0"
-          @click=${() => this._controller.retryMessage()}
-        >
-          <div class="error-row">
-            <span class="error-icon" aria-hidden="true">
-              ${this.config?.icons?.error
-                ? html`<img
-                    class="yalo-icon-img"
-                    src=${this.config.icons.error}
-                    alt=""
-                  />`
-                : html`<span class="yalo-icon" data-icon="error"></span>`}
+    const avatar = this.config?.userMessageAvatar;
+    return html`${this._controller.isError
+      ? html`
+          <div
+            class="error-wrapper"
+            role="button"
+            tabindex="0"
+            @click=${() => this._controller.retryMessage()}
+          >
+            <div class="error-row">
+              <span class="error-icon" aria-hidden="true">
+                ${this.config?.icons?.error
+                  ? html`<img
+                      class="yalo-icon-img"
+                      src=${this.config.icons.error}
+                      alt=""
+                    />`
+                  : html`<span class="yalo-icon" data-icon="error"></span>`}
+              </span>
+              ${this._renderBubble()}
+            </div>
+            <span class="error-label">
+              ${msg('Not delivered.')}
+              <span class="retry">${msg('Retry')}</span>
             </span>
-            ${this._renderBubble()}
           </div>
-          <span class="error-label">
-            ${msg('Not delivered.')}
-            <span class="retry">${msg('Retry')}</span>
-          </span>
-        </div>
-      `;
-    }
-
-    return this._renderBubble();
+        `
+      : this._renderBubble()}${avatar && avatar.type !== 'none'
+      ? html`<yalo-chat-message-avatar
+          class=${this.showAvatar ? '' : 'hidden'}
+          sender="user"
+          .avatar=${avatar}
+        ></yalo-chat-message-avatar>`
+      : nothing}`;
   }
 }

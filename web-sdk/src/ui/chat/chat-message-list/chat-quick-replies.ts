@@ -41,7 +41,10 @@ export default class ChatQuickReplies extends LitElement {
       padding: var(--yalo-chat-quick-replies-chip-padding, 0.5rem 0.75rem);
       border: 1px solid
         var(--yalo-chat-quick-replies-chip-border-color, #9db1c8);
-      border-radius: var(--yalo-chat-quick-replies-chip-border-radius, 1.125rem);
+      border-radius: var(
+        --yalo-chat-quick-replies-chip-border-radius,
+        1.125rem
+      );
       background: var(--yalo-chat-quick-replies-chip-background, transparent);
       color: var(--yalo-chat-quick-replies-chip-color, #111111);
       font-size: var(--yalo-chat-quick-replies-chip-font-size, 0.875rem);
@@ -71,12 +74,13 @@ export default class ChatQuickReplies extends LitElement {
           ${isOpen
             ? html`<div class="chips">
                 ${this.replies.map(
-                  (reply) => html`<button
-                    type="button"
-                    @click=${() => this._controller.onReplyClick(reply.text)}
-                  >
-                    ${reply.text}
-                  </button>`
+                  (reply) =>
+                    html`<button
+                      type="button"
+                      @click=${() => this._controller.onReplyClick(reply.text)}
+                    >
+                      ${reply.text}
+                    </button>`
                 )}
               </div>`
             : nothing}

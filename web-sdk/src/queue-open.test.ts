@@ -94,7 +94,9 @@ describe('installYaloOpenQueue', () => {
     const onClose = vi.fn();
     installYaloOpenQueue();
     (
-      window.yaloOpen as { push: (c: typeof baseConfig & { onClose: () => void }) => void }
+      window.yaloOpen as {
+        push: (c: typeof baseConfig & { onClose: () => void }) => void;
+      }
     ).push({ ...baseConfig, onClose });
     await waitForChatWindow();
     getChatWindow().dispatchEvent(new CustomEvent('yalo-chat-close'));
@@ -129,7 +131,9 @@ describe('installYaloOpenQueue', () => {
     (
       window.yaloOpen as {
         push: (
-          c: typeof baseConfig & { registerCommands: Record<string, () => void> }
+          c: typeof baseConfig & {
+            registerCommands: Record<string, () => void>;
+          }
         ) => void;
       }
     ).push({ ...baseConfig, registerCommands: { getCart } });

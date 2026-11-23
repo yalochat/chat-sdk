@@ -18,6 +18,14 @@ export const YALO_WATERMARK_POSITIONS = [
 ] as const;
 export type YaloWatermarkPosition = (typeof YALO_WATERMARK_POSITIONS)[number];
 
+export const AVATAR_DISPLAYS = ['lastInGroup', 'everyMessage'] as const;
+export type AvatarDisplay = (typeof AVATAR_DISPLAYS)[number];
+
+export type YaloChatMessageAvatar =
+  | { type: 'none' }
+  | { type: 'text'; text: string }
+  | { type: 'image'; url: string };
+
 export interface YaloChatTexts {
   inputPlaceholder?: string;
 }
@@ -68,4 +76,7 @@ export interface YaloChatClientConfig {
   quickReplyType?: QuickReplyType;
   texts?: YaloChatTexts;
   icons?: YaloChatIcons;
+  userMessageAvatar?: YaloChatMessageAvatar;
+  assistantMessageAvatar?: YaloChatMessageAvatar;
+  avatarDisplay?: AvatarDisplay;
 }

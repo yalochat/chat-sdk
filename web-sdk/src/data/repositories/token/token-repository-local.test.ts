@@ -30,10 +30,7 @@ function deleteDb(): Promise<void> {
 }
 
 // Writes a record in the shape builds before the ephemeral flag produced.
-const seedLegacyToken = (
-  db: IDBDatabase,
-  sessionId: string
-): Promise<void> =>
+const seedLegacyToken = (db: IDBDatabase, sessionId: string): Promise<void> =>
   new Promise((resolve, reject) => {
     const tx = db.transaction('session', 'readwrite');
     tx.oncomplete = () => resolve();
@@ -48,11 +45,13 @@ const seedLegacyToken = (
     );
   });
 
-const makeAuthResponse = (overrides: Partial<{
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
-}> = {}) => ({
+const makeAuthResponse = (
+  overrides: Partial<{
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  }> = {}
+) => ({
   accessToken: 'access-token',
   refreshToken: 'refresh-token',
   expiresIn: 3600,
@@ -61,7 +60,9 @@ const makeAuthResponse = (overrides: Partial<{
   ...overrides,
 });
 
-const makeAuthService = (overrides: Partial<YaloMessageAuthService> = {}): YaloMessageAuthService => ({
+const makeAuthService = (
+  overrides: Partial<YaloMessageAuthService> = {}
+): YaloMessageAuthService => ({
   fetchToken: vi.fn().mockResolvedValue(new Ok(makeAuthResponse())),
   refreshToken: vi.fn().mockResolvedValue(new Ok(makeAuthResponse())),
   ...overrides,
@@ -123,9 +124,11 @@ describe('TokenRepositoryLocal', () => {
 
     it('uses refresh token when access token is expired', async () => {
       const authService = makeAuthService({
-        refreshToken: vi.fn().mockResolvedValue(
-          new Ok(makeAuthResponse({ accessToken: 'refreshed-token' }))
-        ),
+        refreshToken: vi
+          .fn()
+          .mockResolvedValue(
+            new Ok(makeAuthResponse({ accessToken: 'refreshed-token' }))
+          ),
       });
       const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
@@ -142,9 +145,16 @@ describe('TokenRepositoryLocal', () => {
 
     it('updates IndexedDB after refresh', async () => {
       const authService = makeAuthService({
-        refreshToken: vi.fn().mockResolvedValue(
-          new Ok(makeAuthResponse({ accessToken: 'refreshed-token', refreshToken: 'new-refresh' }))
-        ),
+        refreshToken: vi
+          .fn()
+          .mockResolvedValue(
+            new Ok(
+              makeAuthResponse({
+                accessToken: 'refreshed-token',
+                refreshToken: 'new-refresh',
+              })
+            )
+          ),
       });
       const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
@@ -154,7 +164,11 @@ describe('TokenRepositoryLocal', () => {
 
       // Verify updated token is persisted by reading with a new instance
       const freshAuthService = makeAuthService();
-      const result = await new TokenRepositoryLocal(db, SESSION_ID, freshAuthService).getToken();
+      const result = await new TokenRepositoryLocal(
+        db,
+        SESSION_ID,
+        freshAuthService
+      ).getToken();
 
       expect(result.ok).toBe(true);
       if (result.ok) expect(result.value).toBe('refreshed-token');
@@ -163,8 +177,14 @@ describe('TokenRepositoryLocal', () => {
 
     it('falls back to fetchToken when refresh fails', async () => {
       const authService = makeAuthService({
-        refreshToken: vi.fn().mockResolvedValue(new Err(new Error('Refresh failed: 403'))),
-        fetchToken: vi.fn().mockResolvedValue(new Ok(makeAuthResponse({ accessToken: 'fresh-token' }))),
+        refreshToken: vi
+          .fn()
+          .mockResolvedValue(new Err(new Error('Refresh failed: 403'))),
+        fetchToken: vi
+          .fn()
+          .mockResolvedValue(
+            new Ok(makeAuthResponse({ accessToken: 'fresh-token' }))
+          ),
       });
       const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
@@ -181,7 +201,9 @@ describe('TokenRepositoryLocal', () => {
 
     it('clears stored token when refresh fails', async () => {
       const authService = makeAuthService({
-        refreshToken: vi.fn().mockResolvedValue(new Err(new Error('Refresh failed: 403'))),
+        refreshToken: vi
+          .fn()
+          .mockResolvedValue(new Err(new Error('Refresh failed: 403'))),
       });
       const repo = new TokenRepositoryLocal(db, SESSION_ID, authService);
 
@@ -229,7 +251,9 @@ describe('TokenRepositoryLocal', () => {
       const theirsAuth = makeAuthService({
         fetchToken: vi
           .fn()
-          .mockResolvedValue(new Ok(makeAuthResponse({ accessToken: 'theirs' }))),
+          .mockResolvedValue(
+            new Ok(makeAuthResponse({ accessToken: 'theirs' }))
+          ),
       });
       const mine = new TokenRepositoryLocal(db, SESSION_ID, mineAuth);
       const theirs = new TokenRepositoryLocal(db, 'other-session', theirsAuth);
@@ -264,7 +288,11 @@ describe('TokenRepositoryLocal', () => {
     });
 
     it('leaves sessions of any other mode out of the listing', async () => {
-      await new TokenRepositoryLocal(db, SESSION_ID, makeAuthService()).getToken();
+      await new TokenRepositoryLocal(
+        db,
+        SESSION_ID,
+        makeAuthService()
+      ).getToken();
 
       const listed = await TokenRepositoryLocal.listEphemeralSessions(db);
 

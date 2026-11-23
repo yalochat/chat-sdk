@@ -4,5 +4,6 @@ import { createContext } from '@lit/context';
 import type { YaloMediaService } from './yalo-media-service';
 
 export type { YaloMediaService };
-export const yaloMediaServiceContext =
-  createContext<YaloMediaService>(Symbol('YaloMediaService'));
+export const yaloMediaServiceContext = createContext<YaloMediaService>(
+  Symbol('YaloMediaService')
+);

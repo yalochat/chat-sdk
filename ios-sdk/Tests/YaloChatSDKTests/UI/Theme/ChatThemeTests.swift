@@ -30,4 +30,12 @@ struct ChatThemeTests {
     @Test func chatUsesTheDefaultThemeWhenNoneIsProvided() {
         #expect(EnvironmentValues().chatTheme == ChatTheme())
     }
+
+    @Test func avatarsAreFilledByDefault() {
+        let theme: ChatTheme = ChatTheme()
+
+        #expect(theme.userAvatarBackground == Color(.systemGray5))
+        #expect(theme.assistantAvatarBackground == .accentColor)
+        #expect(ChatTheme(userAvatarBackground: .indigo) != theme)
+    }
 }

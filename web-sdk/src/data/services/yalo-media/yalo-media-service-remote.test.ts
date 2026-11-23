@@ -90,10 +90,7 @@ describe('YaloMediaServiceRemote', () => {
     });
 
     it('returns Err on non-201 status', async () => {
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({ status: 400 })
-      );
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 400 }));
 
       const service = new YaloMediaServiceRemote(
         'api.example.com',
@@ -109,16 +106,11 @@ describe('YaloMediaServiceRemote', () => {
 
     it('returns Err when token fetch fails', async () => {
       const tokenRepo: TokenRepository = {
-        getToken: vi
-          .fn()
-          .mockResolvedValue(new Err(new Error('auth failed'))),
+        getToken: vi.fn().mockResolvedValue(new Err(new Error('auth failed'))),
         clearSession: vi.fn().mockResolvedValue(new Ok(true)),
       };
 
-      const service = new YaloMediaServiceRemote(
-        'api.example.com',
-        tokenRepo
-      );
+      const service = new YaloMediaServiceRemote('api.example.com', tokenRepo);
       const file = new File(['data'], 'photo.jpeg', { type: 'image/jpeg' });
       const result = await service.uploadMedia(file);
 

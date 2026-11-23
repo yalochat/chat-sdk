@@ -4,6 +4,7 @@ package ai.yalo.chat.sdk.ui.messages
 import androidx.compose.ui.test.isNotSelected
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.hasText
+import ai.yalo.chat.sdk.YaloChatMessageAvatar
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
 import ai.yalo.chat.sdk.domain.models.MessageButton
@@ -27,6 +28,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import android.graphics.Bitmap
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -457,6 +459,83 @@ class ChatMessageItemTest {
     }
 
     private fun rateable() = message(role = MessageRole.Agent, content = "How can I help?").copy(id = 1L, wiId = "wi-1")
+
+    @Test
+    fun showsTheUserAvatarInitialsBesideTheirMessage() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message(role = MessageRole.User, content = "Hello"),
+                userAvatar = YaloChatMessageAvatar.Text("JR"),
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_USER_AVATAR_TAG).assertIsDisplayed()
+        composeRule.onNodeWithText("JR").assertIsDisplayed()
+    }
+
+    @Test
+    fun showsAtMostTwoCharactersOfTheInitials() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message(role = MessageRole.Agent, content = "Hi"),
+                assistantAvatar = YaloChatMessageAvatar.Text("ABC"),
+            )
+        }
+
+        composeRule.onNodeWithText("AB").assertIsDisplayed()
+    }
+
+    @Test
+    fun showsTheAvatarImage() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message(role = MessageRole.Agent, content = "Hi"),
+                assistantAvatar = YaloChatMessageAvatar.Image(Bitmap.createBitmap(4, 4, Bitmap.Config.ARGB_8888)),
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_ASSISTANT_AVATAR_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun drawsOnlyTheAvatarOfTheSenderSide() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message(role = MessageRole.Agent, content = "Hi"),
+                userAvatar = YaloChatMessageAvatar.Text("JR"),
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_USER_AVATAR_TAG).assertDoesNotExist()
+        composeRule.onNodeWithTag(CHAT_ASSISTANT_AVATAR_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun leavesTheAvatarOutWhenItIsNotThisMessagesTurn() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message(role = MessageRole.User, content = "Hello"),
+                userAvatar = YaloChatMessageAvatar.Text("JR"),
+                showsAvatar = false,
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_USER_AVATAR_TAG).assertDoesNotExist()
+        composeRule.onNodeWithText("Hello").assertIsDisplayed()
+    }
+
+    @Test
+    fun leavesTheAssistantAvatarOutOfTheWelcomeMessage() {
+        composeRule.setContent {
+            ChatMessageItem(
+                message(role = MessageRole.Agent, content = "Welcome"),
+                isWelcome = true,
+                assistantAvatar = YaloChatMessageAvatar.Text("YA"),
+            )
+        }
+
+        composeRule.onNodeWithTag(CHAT_ASSISTANT_AVATAR_TAG).assertDoesNotExist()
+    }
 
     private fun messageWithButtons(content: String, vararg buttons: String) =
         message(role = MessageRole.Agent, content = content).copy(

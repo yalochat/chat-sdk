@@ -96,6 +96,15 @@ These paint the buttons stacked under a message, both the ones that answer the c
 - **`selectedPostbackBackground`** (`Color`): Background of the button the person tapped. Defaults to the Material `secondaryContainer` color.
 - **`onSelectedPostbackBackground`** (`Color`): Color of the text on the button the person tapped. Defaults to the Material `onSecondaryContainer` color.
 
+### Avatars
+
+These paint the round avatars beside the messages when they show text. See [Message avatars](../README.md#message-avatars).
+
+- **`userAvatarBackground`** (`Color`): Background of the person's avatar. Defaults to the Material `secondaryContainer` color.
+- **`onUserAvatarBackground`** (`Color`): Color of the text on it. Defaults to the Material `onSecondaryContainer` color.
+- **`assistantAvatarBackground`** (`Color`): Background of the channel's avatar. Defaults to the Material `primaryContainer` color.
+- **`onAssistantAvatarBackground`** (`Color`): Color of the text on it. Defaults to the Material `onPrimaryContainer` color.
+
 ### Typing indicator
 
 - **`typingIndicatorDotColor`** (`Color`): Color of the animated dots shown while the chat waits for a reply. Defaults to the Material `onSurfaceVariant` color.

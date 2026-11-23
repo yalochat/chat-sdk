@@ -163,8 +163,7 @@ const distanceFromListTop = (list: ChatMessageList): number => {
   const messageList = getMessageList(list);
   const newest = messageList.querySelector('.chat-message')!;
   return Math.abs(
-    newest.getBoundingClientRect().top -
-      messageList.getBoundingClientRect().top
+    newest.getBoundingClientRect().top - messageList.getBoundingClientRect().top
   );
 };
 
@@ -1770,7 +1769,9 @@ describe('ChatMessageList', () => {
         { quickReplyType: 'inline' }
       );
 
-      expect(list.shadowRoot!.querySelector('yalo-chat-quick-replies')).toBeNull();
+      expect(
+        list.shadowRoot!.querySelector('yalo-chat-quick-replies')
+      ).toBeNull();
 
       const assistant = list.shadowRoot!.querySelector(
         'yalo-chat-assistant-message'
@@ -1859,9 +1860,8 @@ describe('ChatMessageList', () => {
         'yalo-chat-assistant-message'
       )!;
       await (assistant as LitElement).updateComplete;
-      const container = assistant.shadowRoot!.querySelector(
-        '.chips-container'
-      )!;
+      const container =
+        assistant.shadowRoot!.querySelector('.chips-container')!;
       expect(container.classList.contains('open')).toBe(false);
       expect(container.getAttribute('aria-hidden')).toBe('true');
     });
@@ -1919,7 +1919,9 @@ describe('ChatMessageList', () => {
         'yalo-chat-assistant-message'
       )!;
       await (assistant as LitElement).updateComplete;
-      expect(assistant.shadowRoot!.querySelector('.chips-container')).toBeNull();
+      expect(
+        assistant.shadowRoot!.querySelector('.chips-container')
+      ).toBeNull();
     });
 
     it('keeps replies out of the modal component even when there are none inline', async () => {
@@ -1935,7 +1937,9 @@ describe('ChatMessageList', () => {
         { quickReplyType: 'inline' }
       );
 
-      expect(list.shadowRoot!.querySelector('yalo-chat-quick-replies')).toBeNull();
+      expect(
+        list.shadowRoot!.querySelector('yalo-chat-quick-replies')
+      ).toBeNull();
     });
   });
 
@@ -2134,6 +2138,110 @@ describe('ChatMessageList', () => {
       expect(
         list.shadowRoot!.querySelectorAll('yalo-chat-assistant-message')
       ).toHaveLength(2);
+    });
+  });
+
+  describe('avatars', () => {
+    const message = (id: number, role: 'USER' | 'AGENT') =>
+      ChatMessage.text({ id, role, timestamp, content: `Message ${id}` });
+
+    // Newest first: two replies after two messages from the person.
+    const conversation = () => [
+      message(4, 'AGENT'),
+      message(3, 'AGENT'),
+      message(2, 'USER'),
+      message(1, 'USER'),
+    ];
+
+    const avatarsOf = async (list: ChatMessageList) => {
+      const messages = Array.from(
+        list.shadowRoot!.querySelectorAll(
+          'yalo-chat-user-message, yalo-chat-assistant-message'
+        )
+      ) as LitElement[];
+      await Promise.all(messages.map((m) => m.updateComplete));
+      return Promise.all(
+        messages.map(async (m) => {
+          const avatar = m.shadowRoot!.querySelector(
+            'yalo-chat-message-avatar'
+          ) as LitElement | null;
+          if (!avatar) {
+            return null;
+          }
+          await avatar.updateComplete;
+          return {
+            sender: avatar.getAttribute('sender'),
+            visible: !avatar.classList.contains('hidden'),
+            text: avatar.shadowRoot!.textContent!.trim(),
+            image:
+              avatar.shadowRoot!.querySelector('img')?.getAttribute('src') ??
+              null,
+          };
+        })
+      );
+    };
+
+    it('renders no avatars when none are configured', async () => {
+      const list = await renderList(conversation());
+
+      expect(await avatarsOf(list)).toEqual([null, null, null, null]);
+    });
+
+    it('shows the avatar only on the newest message of each run by default', async () => {
+      const list = await renderList(conversation(), {
+        userMessageAvatar: { type: 'text', text: 'JR' },
+        assistantMessageAvatar: {
+          type: 'image',
+          url: 'https://example.com/bot.png',
+        },
+      });
+
+      expect(await avatarsOf(list)).toMatchObject([
+        {
+          sender: 'assistant',
+          visible: true,
+          image: 'https://example.com/bot.png',
+        },
+        { sender: 'assistant', visible: false },
+        { sender: 'user', visible: true, text: 'JR', image: null },
+        { sender: 'user', visible: false },
+      ]);
+    });
+
+    it('shows the avatar on every message with everyMessage', async () => {
+      const list = await renderList(conversation(), {
+        userMessageAvatar: { type: 'text', text: 'JR' },
+        assistantMessageAvatar: { type: 'text', text: 'YA' },
+        avatarDisplay: 'everyMessage',
+      });
+
+      const avatars = await avatarsOf(list);
+      expect(avatars.map((a) => a?.visible)).toEqual([true, true, true, true]);
+    });
+
+    it('shows at most two characters of the text', async () => {
+      const list = await renderList([message(1, 'USER')], {
+        userMessageAvatar: { type: 'text', text: 'Jose' },
+      });
+
+      expect(await avatarsOf(list)).toMatchObject([{ text: 'Jo' }]);
+    });
+
+    it('renders no avatar when set to none', async () => {
+      const list = await renderList([message(1, 'USER')], {
+        userMessageAvatar: { type: 'none' },
+      });
+
+      expect(await avatarsOf(list)).toEqual([null]);
+    });
+
+    it('leaves the avatar out of the centered welcome message', async () => {
+      const list = await renderList([message(1, 'AGENT')], {
+        assistantMessageAvatar: { type: 'text', text: 'YA' },
+        welcomeMessageType: 'verticalQuickReplies',
+      });
+
+      expect(await avatarsOf(list)).toEqual([null]);
     });
   });
 

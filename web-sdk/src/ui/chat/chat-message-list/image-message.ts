@@ -74,7 +74,7 @@ export class ImageMessage extends LitElement {
   render() {
     const src = this.message.blob
       ? URL.createObjectURL(this.message.blob)
-      : this.message.fileName ?? '';
+      : (this.message.fileName ?? '');
 
     return html`
       <div class="image-bubble">
@@ -85,8 +85,13 @@ export class ImageMessage extends LitElement {
           class=${this._loaded ? '' : 'loading'}
           src=${src}
           alt="Image message"
-          @load=${() => { this._loaded = true; }}
-          @error=${() => { this._error = true; this._loaded = true; }}
+          @load=${() => {
+            this._loaded = true;
+          }}
+          @error=${() => {
+            this._error = true;
+            this._loaded = true;
+          }}
         />
         ${this.message.content
           ? html`<div class="image-caption">${this.message.content}</div>`

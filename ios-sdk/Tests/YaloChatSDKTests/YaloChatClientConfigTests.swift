@@ -112,4 +112,37 @@ struct YaloChatClientConfigTests {
 
         #expect(config != withTexts)
     }
+
+    @Test func drawsNoAvatarsUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.userMessageAvatar == .none)
+        #expect(config.assistantMessageAvatar == .none)
+        #expect(config.avatarDisplay == .lastInGroup)
+    }
+
+    @Test func comparesTheAvatars() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            userMessageAvatar: .text("JR")
+        )
+        let otherInitials: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            userMessageAvatar: .text("AB")
+        )
+        let everyMessage: YaloChatClientConfig = YaloChatClientConfig(
+            channelId: "channel-1",
+            organizationId: "org-1",
+            channelName: "Yalo",
+            userMessageAvatar: .text("JR"),
+            avatarDisplay: .everyMessage
+        )
+
+        #expect(config != otherInitials)
+        #expect(config != everyMessage)
+    }
 }

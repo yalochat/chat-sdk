@@ -69,7 +69,7 @@ export class VideoMessage extends LitElement {
   render() {
     const src = this.message.blob
       ? URL.createObjectURL(this.message.blob)
-      : this.message.fileName ?? '';
+      : (this.message.fileName ?? '');
 
     return html`
       <div class="video-bubble">

@@ -66,6 +66,10 @@ public data class ChatTheme(
     public val postbackShape: Shape,
     public val inputScrollbarColor: Color = Color.Unspecified,
     public val inputScrollbarWidth: Dp = 3.dp,
+    public val userAvatarBackground: Color = Color.Unspecified,
+    public val onUserAvatarBackground: Color = Color.Unspecified,
+    public val assistantAvatarBackground: Color = Color.Unspecified,
+    public val onAssistantAvatarBackground: Color = Color.Unspecified,
 ) {
 
     public companion object {
@@ -130,6 +134,10 @@ public data class ChatTheme(
             // as the line around the input so it reads as part of it.
             inputScrollbarColor = MaterialTheme.colorScheme.outline,
             inputScrollbarWidth = 3.dp,
+            userAvatarBackground = MaterialTheme.colorScheme.secondaryContainer,
+            onUserAvatarBackground = MaterialTheme.colorScheme.onSecondaryContainer,
+            assistantAvatarBackground = MaterialTheme.colorScheme.primaryContainer,
+            onAssistantAvatarBackground = MaterialTheme.colorScheme.onPrimaryContainer,
         )
     }
 }

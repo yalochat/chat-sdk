@@ -33,6 +33,11 @@
 ///   under the channel's messages, so nobody can rate them.
 /// - `texts`: your own copy for strings the chat would otherwise show in its
 ///   built-in translations. See `YaloChatTexts`.
+/// - `userMessageAvatar`: drawn beside the person's messages. `.none` draws
+///   nothing.
+/// - `assistantMessageAvatar`: drawn beside the channel's messages. `.none`
+///   draws nothing.
+/// - `avatarDisplay`: which messages carry their avatar.
 public struct YaloChatClientConfig: Sendable, Equatable {
     public let channelId: String
     public let organizationId: String
@@ -51,6 +56,9 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let allowedImageNames: [String]
     public let hideFeedbackButtons: Bool
     public let texts: YaloChatTexts
+    public let userMessageAvatar: YaloChatMessageAvatar
+    public let assistantMessageAvatar: YaloChatMessageAvatar
+    public let avatarDisplay: AvatarDisplay
 
     public init(
         channelId: String,
@@ -69,7 +77,10 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         hideFeedbackButtons: Bool = false,
         texts: YaloChatTexts = YaloChatTexts(),
         imageSource: ImageSource = .all,
-        allowedImageNames: [String] = []
+        allowedImageNames: [String] = [],
+        userMessageAvatar: YaloChatMessageAvatar = .none,
+        assistantMessageAvatar: YaloChatMessageAvatar = .none,
+        avatarDisplay: AvatarDisplay = .lastInGroup
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -88,6 +99,9 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.allowedImageNames = allowedImageNames
         self.hideFeedbackButtons = hideFeedbackButtons
         self.texts = texts
+        self.userMessageAvatar = userMessageAvatar
+        self.assistantMessageAvatar = assistantMessageAvatar
+        self.avatarDisplay = avatarDisplay
     }
 
     public static func == (lhs: YaloChatClientConfig, rhs: YaloChatClientConfig) -> Bool {
@@ -107,6 +121,9 @@ public struct YaloChatClientConfig: Sendable, Equatable {
             && lhs.allowedImageNames == rhs.allowedImageNames
             && lhs.hideFeedbackButtons == rhs.hideFeedbackButtons
             && lhs.texts == rhs.texts
+            && lhs.userMessageAvatar == rhs.userMessageAvatar
+            && lhs.assistantMessageAvatar == rhs.assistantMessageAvatar
+            && lhs.avatarDisplay == rhs.avatarDisplay
     }
 
     /// The conversation before `sessionMode` has had its say: the whole

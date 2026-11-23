@@ -36,7 +36,8 @@ export class ProductMessage extends LitElement {
 
     .item {
       background: var(--yalo-chat-product-message-card-background, #ffffff);
-      border: 1px solid var(--yalo-chat-product-message-card-border-color, #dde4ec);
+      border: 1px solid
+        var(--yalo-chat-product-message-card-border-color, #dde4ec);
       border-radius: var(--yalo-chat-product-message-card-radius, 1rem);
       padding: var(--yalo-chat-product-message-card-padding, 1rem);
       box-sizing: border-box;

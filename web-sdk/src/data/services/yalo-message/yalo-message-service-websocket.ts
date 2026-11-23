@@ -69,10 +69,7 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
     } catch (e) {
       return new Err(e instanceof Error ? e : new Error(String(e)));
     }
-    if (
-      !this._connectionAcked ||
-      this._socket?.readyState !== WebSocket.OPEN
-    ) {
+    if (!this._connectionAcked || this._socket?.readyState !== WebSocket.OPEN) {
       this._pendingFrames.push(frame);
       return new Ok(undefined);
     }
@@ -141,7 +138,9 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
       try {
         if (!this._connectionAcked) {
           const ack = ConnectionAck.fromJSON(parsed);
-          if (ack.type === ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK) {
+          if (
+            ack.type === ConnectionAckType.CONNECTION_ACK_TYPE_CONNECTION_ACK
+          ) {
             this._connectionAcked = true;
             this._clearAckTimeout();
             this._flushPending();
@@ -149,7 +148,9 @@ export class YaloMessageServiceWebSocket implements YaloMessageService {
           return;
         }
         const messageAck = SdkMessageAck.fromJSON(parsed);
-        if (messageAck.type === SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK) {
+        if (
+          messageAck.type === SdkMessageAckType.SDK_MESSAGE_ACK_TYPE_MESSAGE_ACK
+        ) {
           this._callback?.(messageAck);
           return;
         }
