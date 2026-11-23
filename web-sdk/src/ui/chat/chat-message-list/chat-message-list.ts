@@ -254,6 +254,9 @@ export default class ChatMessageList extends LitElement {
                 ${isUser
                   ? html`<yalo-chat-user-message
                       .message=${chatMessage}
+                      .showAvatar=${this._chatMessageListController.showsAvatar(
+                        index
+                      )}
                     ></yalo-chat-user-message>`
                   : html`<yalo-chat-assistant-message
                       .message=${chatMessage}
@@ -261,6 +264,9 @@ export default class ChatMessageList extends LitElement {
                       chatMessage.id === latestReplyMessageId}
                       .centered=${showWelcomeOnly}
                       .showFeedback=${index < firstUserMessageIndex}
+                      .showAvatar=${this._chatMessageListController.showsAvatar(
+                        index
+                      )}
                     ></yalo-chat-assistant-message>`}
               </li>
             `;

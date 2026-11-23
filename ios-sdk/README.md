@@ -10,6 +10,7 @@ The SDK is in early development. The chat screen shows its layout, and sending a
 - [Installation](#installation)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
+- [Message avatars](#message-avatars)
 - [Open context](#open-context)
 - [Session modes](#session-modes)
 - [Clearing messages](#clearing-messages)
@@ -152,6 +153,33 @@ Optional properties:
 - **`allowedImageNames`** (`[String]`): Regular expressions a picture's name has to match to be sent. Defaults to an empty list, which checks no name. See [Image messages](#image-messages).
 - **`hideFeedbackButtons`** (`Bool`): Leaves the thumbs up and thumbs down out from under the channel's messages, so nobody can rate them. Defaults to `false`, which shows them once the person has sent their first message, so the welcome message has none. A picked rating stays selected, and tapping it again takes it back.
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
+- **`userMessageAvatar`** (`YaloChatMessageAvatar`): A small circle drawn beside the person's messages, so each bubble looks like it comes from it. Defaults to `.none`, which draws nothing. See [Message avatars](#message-avatars).
+- **`assistantMessageAvatar`** (`YaloChatMessageAvatar`): The same circle beside the channel's messages. Defaults to `.none`. See [Message avatars](#message-avatars).
+- **`avatarDisplay`** (`AvatarDisplay`): Which messages carry their avatar. Defaults to `.lastInGroup`. See [Message avatars](#message-avatars).
+
+## Message avatars
+
+Each side of the conversation can have its own avatar, drawn at the bottom of its bubbles: the person's on the trailing side and the channel's on the leading side.
+
+```swift
+YaloChatClientConfig(
+    channelId: "your-channel-id",
+    organizationId: "your-organization-id",
+    channelName: "Support",
+    userMessageAvatar: .text("JR"),
+    assistantMessageAvatar: .image(UIImage(named: "Logo")!)
+)
+```
+
+- `YaloChatMessageAvatar` takes one of:
+  - `.none`: nothing is drawn. This is the default.
+  - `.text("JR")`: letters centered in the circle, for example initials. Only the first 2 characters are shown.
+  - `.image(UIImage)`: a picture filling the circle.
+- `avatarDisplay` picks which messages carry it:
+  - `.lastInGroup`: only the newest message of a run sent by the same side, like most messaging apps. The other messages of the run keep the same room, so they stay lined up. This is the default.
+  - `.everyMessage`: every message.
+- The welcome message drawn by `welcomeMessageType` has no avatar.
+- The colors of the circle are set in the theme. See [Theming](doc/theming.md).
 
 ## Open context
 

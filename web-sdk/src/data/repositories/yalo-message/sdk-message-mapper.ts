@@ -256,9 +256,7 @@ export function pollMessageItemToChatMessage(
   return null;
 }
 
-function toMessageButtons(
-  buttons: ProtoButton[] | undefined
-): MessageButton[] {
+function toMessageButtons(buttons: ProtoButton[] | undefined): MessageButton[] {
   return buttons?.map(toMessageButton) ?? [];
 }
 

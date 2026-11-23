@@ -5,9 +5,7 @@ import type {
   PageInfo,
   Product,
 } from '@domain/models/events/external_channel/in_app/sdk/sdk_message';
-import type {
-  ChatCommandCallback,
-} from '@domain/models/command/chat-command';
+import type { ChatCommandCallback } from '@domain/models/command/chat-command';
 
 // Command id the channel sends in a CustomCommandRequest. Any string is
 // accepted; the listed ids are surfaced as editor autocomplete hints. The

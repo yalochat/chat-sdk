@@ -284,6 +284,13 @@ Optional properties:
 - **`yaloWatermark`** (`"header-left" | "header-right" | "none"`): Controls the "by Yalo" watermark shown under the channel name in the chat header. Defaults to `"header-left"`, which left aligns it under the title. Set to `"header-right"` to right align it under the title, or `"none"` to hide it. The watermark text follows the active `locale`, and its look can be tuned with the `--yalo-chat-header-watermark-*` CSS variables.
 - **`texts`** (`object`): Overrides for built-in text strings. See [Translations](doc/translations.md).
 - **`icons`** (`object`): Replace built-in icons with your own SVGs. See [Icons](doc/icons.md).
+- **`userMessageAvatar`** (`object`): Avatar drawn beside the user's messages, so each bubble looks like it comes from it. Defaults to `{ type: 'none' }`, which shows no avatar.
+  - `{ type: 'text', text: 'JR' }`: shows a short text, such as initials. Only the first 2 characters are shown.
+  - `{ type: 'image', url: 'https://...' }`: shows the image at `url`.
+- **`assistantMessageAvatar`** (`object`): Avatar drawn beside the assistant's messages. Takes the same values as `userMessageAvatar`. It is not drawn on the centered welcome message.
+- **`avatarDisplay`** (`"lastInGroup" | "everyMessage"`): Controls which messages show the avatar. Colors and size can be changed with the `--yalo-chat-*-avatar-*` CSS variables, see [Theming](doc/theming.md#message-avatars).
+  - `"lastInGroup"` (default): when several messages in a row come from the same side, only the last one shows the avatar, the way most messaging apps do.
+  - `"everyMessage"`: every message shows the avatar.
 
 ## Theming
 

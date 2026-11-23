@@ -44,7 +44,8 @@ declare global {
 }
 
 function openClient(config: YaloOpenConfig): YaloChatClient {
-  const { onOpen, onClose, onReady, registerCommands, ...clientConfig } = config;
+  const { onOpen, onClose, onReady, registerCommands, ...clientConfig } =
+    config;
   const client = new YaloChatClient(clientConfig);
   if (registerCommands) {
     for (const [command, handler] of Object.entries(registerCommands)) {

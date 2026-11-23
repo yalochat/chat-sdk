@@ -114,6 +114,9 @@ public struct Chat<Avatar: View>: View {
                 cachedVideo: viewModel.cachedVideo(of:),
                 loadVideo: viewModel.video(of:),
                 showsFeedback: !client.config.hideFeedbackButtons,
+                userMessageAvatar: client.config.userMessageAvatar,
+                assistantMessageAvatar: client.config.assistantMessageAvatar,
+                avatarDisplay: client.config.avatarDisplay,
                 onRate: { message, feedback in
                     Task {
                         await viewModel.rate(message, feedback)

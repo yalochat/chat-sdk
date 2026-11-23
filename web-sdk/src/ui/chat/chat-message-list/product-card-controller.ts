@@ -19,10 +19,9 @@ export default class ProductCardController implements ReactiveController {
 
   formatUnit(amount: number, pattern: string): string {
     try {
-      return new IntlMessageFormat(
-        pattern,
-        this.host.config?.locale
-      ).format({ amount }) as string;
+      return new IntlMessageFormat(pattern, this.host.config?.locale).format({
+        amount,
+      }) as string;
     } catch {
       return pattern;
     }

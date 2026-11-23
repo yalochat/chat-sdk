@@ -1,10 +1,12 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui
 
+import ai.yalo.chat.sdk.AvatarDisplay
 import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.R
 import ai.yalo.chat.sdk.SessionMode
+import ai.yalo.chat.sdk.YaloChatMessageAvatar
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.YaloChatTexts
@@ -172,6 +174,9 @@ public fun Chat(
             hideFeedbackButtons = client.config.hideFeedbackButtons,
             onFeedback = viewModel::onFeedback,
             texts = client.config.texts,
+            userAvatar = client.config.userMessageAvatar,
+            assistantAvatar = client.config.assistantMessageAvatar,
+            avatarDisplay = client.config.avatarDisplay,
         )
     }
 }
@@ -319,6 +324,9 @@ internal fun ChatLayout(
     hideFeedbackButtons: Boolean = false,
     onFeedback: (ChatMessage, FeedbackRating) -> Unit = { _, _ -> },
     texts: YaloChatTexts = YaloChatTexts(),
+    userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
+    assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
+    avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
 ) {
     val inline = quickReplyType == QuickReplyType.Inline || isWelcome
     Surface(
@@ -346,6 +354,9 @@ internal fun ChatLayout(
                 loadImage = loadImage,
                 loadVideo = loadVideo,
                 onFeedback = onFeedback.takeUnless { hideFeedbackButtons },
+                userAvatar = userAvatar,
+                assistantAvatar = assistantAvatar,
+                avatarDisplay = avatarDisplay,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),

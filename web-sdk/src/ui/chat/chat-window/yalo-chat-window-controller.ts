@@ -22,10 +22,7 @@ import type {
   GetCartHandler,
   GetCartResult,
 } from '@domain/models/command/channel-command';
-import {
-  computeEffectiveAuthUserId,
-  computeSessionId,
-} from '@common/session';
+import { computeEffectiveAuthUserId, computeSessionId } from '@common/session';
 import { ChatMessageRepositoryLocal } from '@data/repositories/chat-message/chat-message-repository-local';
 import { YaloMessageRepositoryRemote } from '@data/repositories/yalo-message/yalo-message-repository-remote';
 import { YaloMessageAuthServiceRemote } from '@data/services/yalo-message/yalo-message-auth-service-remote';
@@ -212,7 +209,9 @@ export default class YaloChatWindowController implements ReactiveController {
     );
     await this._clearSessions(
       db,
-      ownership.filter((entry) => entry.abandoned).map((entry) => entry.sessionId)
+      ownership
+        .filter((entry) => entry.abandoned)
+        .map((entry) => entry.sessionId)
     );
   }
 
@@ -266,9 +265,10 @@ export default class YaloChatWindowController implements ReactiveController {
     // explicitly. Whatever this teardown fails to delete becomes reclaimable.
     this._releaseEphemeralLock?.();
     this._releaseEphemeralLock = undefined;
-    Promise.all([messageRepo.clearSession(), tokenRepo?.clearSession()]).finally(
-      () => messageRepo.dispose()
-    );
+    Promise.all([
+      messageRepo.clearSession(),
+      tokenRepo?.clearSession(),
+    ]).finally(() => messageRepo.dispose());
   }
 
   private _handleVisibilityChange = () => {
@@ -1136,13 +1136,12 @@ export default class YaloChatWindowController implements ReactiveController {
     status: 'success' | 'error',
     result?: GetCartResult
   ): Promise<void> {
-    const response =
-      await this.host.yaloMessageRepository.sendGetCartResponse(
-        correlationId,
-        status,
-        result?.products ?? [],
-        result?.pageInfo
-      );
+    const response = await this.host.yaloMessageRepository.sendGetCartResponse(
+      correlationId,
+      status,
+      result?.products ?? [],
+      result?.pageInfo
+    );
     if (!response.ok) {
       this.host.logger.error('Unable to send get cart response', {
         error: response.error,

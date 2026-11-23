@@ -50,6 +50,15 @@ package ai.yalo.chat.sdk
  * on the device. Null, the default, keeps the anonymous behaviour.
  * @property texts Your own copy for strings the chat would otherwise show in
  * its built-in translations. See [YaloChatTexts].
+ * @property userMessageAvatar Drawn beside the person's messages. Defaults to
+ * [YaloChatMessageAvatar.None], which draws none. Named after the same setting
+ * in the web SDK so the two read alike.
+ * @property assistantMessageAvatar Drawn beside the channel's messages.
+ * Defaults to [YaloChatMessageAvatar.None], which draws none. Named after the
+ * same setting in the web SDK so the two read alike.
+ * @property avatarDisplay Which messages get an avatar. Defaults to
+ * [AvatarDisplay.LastInGroup]. Named after the same setting in the web SDK so
+ * the two read alike.
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -70,6 +79,9 @@ public data class YaloChatClientConfig(
     public val imageSource: ImageSource = ImageSource.All,
     public val screenshotFolders: List<String> = listOf("Pictures/Screenshots", "DCIM/Screenshots"),
     public val allowedImageNames: List<String> = emptyList(),
+    public val userMessageAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
+    public val assistantMessageAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
+    public val avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
 ) {
 
     /**

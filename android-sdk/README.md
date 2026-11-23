@@ -30,6 +30,7 @@ The chat renders inside the space you give it, follows your app theme out of the
   - [Turning image messages off](#turning-image-messages-off)
 - [Video messages](#video-messages)
 - [Feedback buttons](#feedback-buttons)
+- [Message avatars](#message-avatars)
 - [Theming](#theming)
 - [Logging](#logging)
 - [Translations](#translations)
@@ -140,6 +141,9 @@ Optional properties:
 - **`allowedImageNames`** (`List<String>`): Regular expressions a picture's file name has to match to be sent. Defaults to an empty list, which checks no name. See [Allowed image names](#allowed-image-names).
 - **`hideWatermark`** (`Boolean`): Leaves the "By Yalo" line under the channel name out of the header. Defaults to `false`, which shows it. Everything else in the header stays where it is.
 - **`hideFeedbackButtons`** (`Boolean`): Leaves the thumbs up and thumbs down out from under the channel's replies. Defaults to `false`, which shows them. See [Feedback buttons](#feedback-buttons).
+- **`userMessageAvatar`** (`YaloChatMessageAvatar`): A round picture or short text drawn beside the person's messages. Defaults to `YaloChatMessageAvatar.None`, which draws none. See [Message avatars](#message-avatars).
+- **`assistantMessageAvatar`** (`YaloChatMessageAvatar`): A round picture or short text drawn beside the channel's messages. Defaults to `YaloChatMessageAvatar.None`, which draws none. See [Message avatars](#message-avatars).
+- **`avatarDisplay`** (`AvatarDisplay`): Which messages get an avatar. Defaults to `AvatarDisplay.LastInGroup`. See [Message avatars](#message-avatars).
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
 
 In the default `SessionMode.Shared`, two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages. The other modes narrow that further. See [Session modes](#session-modes).
@@ -511,6 +515,37 @@ YaloChatClient(
     ),
 )
 ```
+
+## Message avatars
+
+Each side of the conversation can have a small round avatar beside its messages, so every bubble looks like it comes from it. The person's avatar sits after their bubbles and the channel's sits before its own.
+
+Set `userMessageAvatar` and `assistantMessageAvatar` to one of these `YaloChatMessageAvatar` values:
+
+- `YaloChatMessageAvatar.None`, the default: no avatar.
+- `YaloChatMessageAvatar.Text(text)`: short text in a circle, for example `"JR"` for Jose Rodrigo. Only the first 2 characters are shown.
+- `YaloChatMessageAvatar.Image(image)`: a `Bitmap` cropped to a circle.
+
+`avatarDisplay` picks which messages get it:
+
+- `AvatarDisplay.LastInGroup`, the default: only the newest message of a run sent by the same side, like most messaging apps. The other bubbles of the run stay lined up with it.
+- `AvatarDisplay.EveryMessage`: every message.
+
+```kotlin
+YaloChatClient(
+    YaloChatClientConfig(
+        channelId = "your-channel-id",
+        organizationId = "your-organization-id",
+        channelName = "Support",
+        userMessageAvatar = YaloChatMessageAvatar.Text("JR"),
+        assistantMessageAvatar = YaloChatMessageAvatar.Image(
+            BitmapFactory.decodeResource(resources, R.drawable.support_logo),
+        ),
+    ),
+)
+```
+
+The centered welcome message has no avatar. The colors of a text avatar come from the theme. See [Avatars](doc/theming.md#avatars).
 
 ## Theming
 

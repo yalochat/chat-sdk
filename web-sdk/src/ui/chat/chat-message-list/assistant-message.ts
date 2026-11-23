@@ -11,6 +11,7 @@ import AssistantMessageController from './assistant-message-controller';
 import { renderMarkdown } from './render-markdown';
 import './attachment-message';
 import './image-message';
+import './message-avatar';
 import './product-confirmation-message';
 import './product-message';
 import './video-message';
@@ -79,6 +80,21 @@ export class AssistantMessage extends LitElement {
     .product-bubble {
       width: 100%;
       max-width: 100%;
+    }
+
+    .message-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+    }
+
+    .message-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    yalo-chat-message-avatar.hidden {
+      visibility: hidden;
     }
 
     .header {
@@ -183,10 +199,7 @@ export class AssistantMessage extends LitElement {
     }
 
     .feedback button.image[aria-pressed='true'] {
-      background: var(
-        --yalo-chat-feedback-button-selected-background,
-        #dde4ec
-      );
+      background: var(--yalo-chat-feedback-button-selected-background, #dde4ec);
     }
 
     .yalo-icon-img {
@@ -238,7 +251,10 @@ export class AssistantMessage extends LitElement {
       padding: var(--yalo-chat-quick-replies-chip-padding, 0.5rem 0.75rem);
       border: 1px solid
         var(--yalo-chat-quick-replies-chip-border-color, #9db1c8);
-      border-radius: var(--yalo-chat-quick-replies-chip-border-radius, 1.125rem);
+      border-radius: var(
+        --yalo-chat-quick-replies-chip-border-radius,
+        1.125rem
+      );
       background: var(--yalo-chat-quick-replies-chip-background, transparent);
       color: var(--yalo-chat-quick-replies-chip-color, #111111);
       font-size: var(--yalo-chat-quick-replies-chip-font-size, 0.875rem);
@@ -272,7 +288,10 @@ export class AssistantMessage extends LitElement {
 
     :host([centered]) .bubble {
       width: 100%;
-      padding: var(--yalo-chat-vertical-quick-replies-message-bubble-padding, 0);
+      padding: var(
+        --yalo-chat-vertical-quick-replies-message-bubble-padding,
+        0
+      );
       background: var(
         --yalo-chat-vertical-quick-replies-message-background,
         transparent
@@ -317,27 +336,38 @@ export class AssistantMessage extends LitElement {
   @property({ type: Boolean })
   showFeedback = false;
 
+  @property({ type: Boolean })
+  showAvatar = false;
+
   render() {
     let body;
     switch (this.message.type) {
       case 'voice':
         body = html`<div class="voice-bubble">
-          <yalo-chat-voice-message .message=${this.message}></yalo-chat-voice-message>
+          <yalo-chat-voice-message
+            .message=${this.message}
+          ></yalo-chat-voice-message>
         </div>`;
         break;
       case 'image':
         body = html`<div class="image-bubble">
-          <yalo-chat-image-message .message=${this.message}></yalo-chat-image-message>
+          <yalo-chat-image-message
+            .message=${this.message}
+          ></yalo-chat-image-message>
         </div>`;
         break;
       case 'video':
         body = html`<div class="video-bubble">
-          <yalo-chat-video-message .message=${this.message}></yalo-chat-video-message>
+          <yalo-chat-video-message
+            .message=${this.message}
+          ></yalo-chat-video-message>
         </div>`;
         break;
       case 'attachment':
         body = html`<div class="attachment-bubble">
-          <yalo-chat-attachment-message .message=${this.message}></yalo-chat-attachment-message>
+          <yalo-chat-attachment-message
+            .message=${this.message}
+          ></yalo-chat-attachment-message>
         </div>`;
         break;
       case 'product':
@@ -374,8 +404,10 @@ export class AssistantMessage extends LitElement {
       ? this.message.buttons.filter((button) => button.type === 'reply')
       : [];
     const showReplies = this.showInlineReplies && replies.length > 0;
-
-    return html`
+    const avatar = this.centered
+      ? undefined
+      : this.config?.assistantMessageAvatar;
+    const content = html`
       <div class="bubble">
         ${this.message.header
           ? html`<div class="header">${this.message.header}</div>`
@@ -428,12 +460,13 @@ export class AssistantMessage extends LitElement {
             <div class="chips-inner">
               <div class="chips">
                 ${replies.map(
-                  (reply) => html`<button
-                    type="button"
-                    @click=${() => this._controller.onReplyClick(reply.text)}
-                  >
-                    ${reply.text}
-                  </button>`
+                  (reply) =>
+                    html`<button
+                      type="button"
+                      @click=${() => this._controller.onReplyClick(reply.text)}
+                    >
+                      ${reply.text}
+                    </button>`
                 )}
               </div>
             </div>
@@ -491,5 +524,16 @@ export class AssistantMessage extends LitElement {
           </div>`
         : null}
     `;
+
+    return avatar && avatar.type !== 'none'
+      ? html`<div class="message-row">
+          <yalo-chat-message-avatar
+            class=${this.showAvatar ? '' : 'hidden'}
+            sender="assistant"
+            .avatar=${avatar}
+          ></yalo-chat-message-avatar>
+          <div class="message-content">${content}</div>
+        </div>`
+      : content;
   }
 }

@@ -20,6 +20,7 @@ The Webchat SDK exposes CSS custom properties (variables) that let you customize
   - [Assistant messages](#assistant-messages)
   - [Message buttons](#message-buttons)
   - [Feedback buttons](#feedback-buttons)
+  - [Message avatars](#message-avatars)
   - [Quick replies](#quick-replies)
   - [Product messages](#product-messages)
   - [Product cards](#product-cards)
@@ -571,6 +572,29 @@ Thumbs up and thumbs down buttons rendered under assistant text messages. Hide t
   /* Background color of the selected feedback button when its icon is
      replaced with an image through the icons config. */
   --yalo-chat-feedback-button-selected-background: #dde4ec;
+}
+```
+
+### Message avatars
+
+Avatars drawn beside the user and assistant messages. Set them with the `userMessageAvatar` and `assistantMessageAvatar` config options. The colors only show for text avatars.
+
+```css
+:root {
+  /* Width and height of the avatar circle. */
+  --yalo-chat-avatar-size: 2rem;
+
+  /* Font size and weight of the text. */
+  --yalo-chat-avatar-font-size: 0.875rem;
+  --yalo-chat-avatar-font-weight: 600;
+
+  /* Background and text color of the user avatar. */
+  --yalo-chat-user-avatar-background: #dde4ec;
+  --yalo-chat-user-avatar-color: #181818;
+
+  /* Background and text color of the assistant avatar. */
+  --yalo-chat-assistant-avatar-background: #2207f1;
+  --yalo-chat-assistant-avatar-color: #ffffff;
 }
 ```
 

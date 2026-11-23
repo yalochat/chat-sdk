@@ -236,7 +236,9 @@ export class YaloMessageRepositoryRemote implements YaloMessageRepository {
     this._clearChatStatusTimer();
     if (message.type === 'chat-status' && message.content.length > 0) {
       this._chatStatusTimer = setTimeout(() => {
-        callback([ChatMessage.chatStatus({ timestamp: new Date(), content: '' })]);
+        callback([
+          ChatMessage.chatStatus({ timestamp: new Date(), content: '' }),
+        ]);
         this._chatStatusTimer = undefined;
       }, this._chatStatusTimeoutMs);
     }

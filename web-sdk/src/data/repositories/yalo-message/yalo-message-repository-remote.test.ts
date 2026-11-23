@@ -164,7 +164,9 @@ describe('YaloMessageRepositoryRemote', () => {
       expect(result.ok).toBe(true);
       if (result.ok) expect(result.value).toBe(msg);
       expect(service.sendMessage).toHaveBeenCalledOnce();
-      expect((service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({
+      expect(
+        (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0]
+      ).toMatchObject({
         correlationId: '7',
         textMessageRequest: { content: { text: 'test content' } },
       });
@@ -198,7 +200,8 @@ describe('YaloMessageRepositoryRemote', () => {
       await repo.insertMessage(msg);
 
       expect(media.uploadMedia).toHaveBeenCalledOnce();
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent).toMatchObject({
         videoMessageRequest: {
           content: {
@@ -248,7 +251,8 @@ describe('YaloMessageRepositoryRemote', () => {
       await repo.insertMessage(msg);
 
       expect(media.uploadMedia).not.toHaveBeenCalled();
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent).toMatchObject({
         imageMessageRequest: { content: { mediaUrl: 'remote.png' } },
       });
@@ -270,7 +274,10 @@ describe('YaloMessageRepositoryRemote', () => {
 
     it('sends a voice message with amplitudes and duration', async () => {
       const { service } = okService();
-      const repo = new YaloMessageRepositoryRemote(service, okMedia('voice-id'));
+      const repo = new YaloMessageRepositoryRemote(
+        service,
+        okMedia('voice-id')
+      );
       const msg = makeMessage({
         type: 'voice',
         fileName: 'note.ogg',
@@ -283,7 +290,8 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await repo.insertMessage(msg);
 
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent).toMatchObject({
         voiceNoteMessageRequest: {
           content: {
@@ -300,7 +308,10 @@ describe('YaloMessageRepositoryRemote', () => {
 
     it('sends an attachment message with file metadata', async () => {
       const { service } = okService();
-      const repo = new YaloMessageRepositoryRemote(service, okMedia('attach-id'));
+      const repo = new YaloMessageRepositoryRemote(
+        service,
+        okMedia('attach-id')
+      );
       const msg = makeMessage({
         type: 'attachment',
         fileName: 'doc.pdf',
@@ -312,7 +323,8 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await repo.insertMessage(msg);
 
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent).toMatchObject({
         attachmentMessageRequest: {
           content: {
@@ -332,7 +344,8 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await repo.insertMessage(makeMessage({ id: undefined }));
 
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent.correlationId).toBe('');
     });
 
@@ -384,7 +397,8 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await repo.clearCart();
 
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent.clearCartRequest).toBeDefined();
       expect(sent.clearCartRequest.timestamp).toBeInstanceOf(Date);
     });
@@ -485,7 +499,8 @@ describe('YaloMessageRepositoryRemote', () => {
 
       await repo.addPromotion('PROMO-1');
 
-      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock.calls[0][0];
+      const sent = (service.sendMessage as ReturnType<typeof vi.fn>).mock
+        .calls[0][0];
       expect(sent).toMatchObject({
         addPromotionRequest: { promotionId: 'PROMO-1' },
       });

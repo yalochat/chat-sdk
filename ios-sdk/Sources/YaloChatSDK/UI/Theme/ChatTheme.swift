@@ -41,6 +41,10 @@ public struct ChatTheme: Sendable, Equatable {
     public var postbackBorderColor: Color
     public var selectedPostbackBackground: Color
     public var onSelectedPostbackBackground: Color
+    public var userAvatarBackground: Color
+    public var onUserAvatarBackground: Color
+    public var assistantAvatarBackground: Color
+    public var onAssistantAvatarBackground: Color
 
     public init(
         background: Color = Color(.systemBackground),
@@ -76,7 +80,11 @@ public struct ChatTheme: Sendable, Equatable {
         onPostbackBackground: Color = Color(.label),
         postbackBorderColor: Color = Color(.separator),
         selectedPostbackBackground: Color = Color(.tertiarySystemFill),
-        onSelectedPostbackBackground: Color = Color(.label)
+        onSelectedPostbackBackground: Color = Color(.label),
+        userAvatarBackground: Color = Color(.systemGray5),
+        onUserAvatarBackground: Color = Color(.label),
+        assistantAvatarBackground: Color = .accentColor,
+        onAssistantAvatarBackground: Color = .white
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -108,6 +116,10 @@ public struct ChatTheme: Sendable, Equatable {
         self.postbackBorderColor = postbackBorderColor
         self.selectedPostbackBackground = selectedPostbackBackground
         self.onSelectedPostbackBackground = onSelectedPostbackBackground
+        self.userAvatarBackground = userAvatarBackground
+        self.onUserAvatarBackground = onUserAvatarBackground
+        self.assistantAvatarBackground = assistantAvatarBackground
+        self.onAssistantAvatarBackground = onAssistantAvatarBackground
     }
 }
 

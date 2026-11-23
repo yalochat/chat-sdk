@@ -114,7 +114,10 @@ export class ProductCard extends LitElement {
     }
 
     .cart-button.in-cart {
-      background: var(--yalo-chat-product-card-button-background-clicked, #0b996d);
+      background: var(
+        --yalo-chat-product-card-button-background-clicked,
+        #0b996d
+      );
       color: var(--yalo-chat-product-card-button-color-clicked, #ffffff);
     }
 

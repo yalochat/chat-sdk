@@ -239,4 +239,43 @@ struct ChatMessageListTests {
             return list.contentSize.height > list.bounds.height * 2 && abs(gap) < 1
         }, "content \(list.contentSize.height), offset \(list.contentOffset.y), bounds \(list.bounds.height), gap \(Self.gapBelow(list))")
     }
+
+    @Test func avatarsShowOnlyOnTheNewestMessageOfEachRunByDefault() {
+        let list: ChatMessageList = ChatMessageList(messages: [
+            message(1, .agent, "Hi"),
+            message(2, .agent, "How can I help?"),
+            message(3, .user, "Hello"),
+            message(4, .user, "An order"),
+            message(5, .agent, "Sure"),
+        ])
+
+        #expect(list.hiddenAvatarIds == [1, 3])
+    }
+
+    @Test func avatarsShowOnEveryMessageWhenAsked() {
+        let list: ChatMessageList = ChatMessageList(
+            messages: [message(1, .agent, "Hi"), message(2, .agent, "How can I help?")],
+            avatarDisplay: .everyMessage
+        )
+
+        #expect(list.hiddenAvatarIds.isEmpty)
+    }
+
+    @Test(arguments: [
+        YaloChatMessageAvatar.text("JR"),
+        .image(UIImage(systemName: "person")!),
+        .none,
+    ])
+    func messageListRendersAvatarsBesideBothSides(avatar: YaloChatMessageAvatar) {
+        let messages: [ChatMessage] = [
+            message(1, .agent, "Hi"),
+            message(2, .user, "Hello"),
+            message(3, .user, "An order"),
+        ]
+        #expect(renders(ChatMessageList(messages: messages, userMessageAvatar: avatar, assistantMessageAvatar: avatar)))
+    }
+
+    @Test func messageAvatarRendersLongText() {
+        #expect(renders(MessageAvatar(avatar: .text("Jose Rodrigo"), background: .gray, foreground: .white)))
+    }
 }

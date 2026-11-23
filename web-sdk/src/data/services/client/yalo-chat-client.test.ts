@@ -449,9 +449,8 @@ describe('YaloChatClient', () => {
     });
 
     it('unsubscribes the message stream', async () => {
-      const { YaloMessageRepositoryRemote } = await import(
-        '@data/repositories/yalo-message/yalo-message-repository-remote'
-      );
+      const { YaloMessageRepositoryRemote } =
+        await import('@data/repositories/yalo-message/yalo-message-repository-remote');
       const unsubscribeSpy = vi.spyOn(
         YaloMessageRepositoryRemote.prototype,
         'unsubscribeMessages'

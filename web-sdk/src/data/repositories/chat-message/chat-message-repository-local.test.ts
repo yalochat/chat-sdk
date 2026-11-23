@@ -330,7 +330,10 @@ describe('ChatMessageRepositoryLocal', () => {
 
   describe('session isolation', () => {
     it('only returns messages for the configured session', async () => {
-      const other = new ChatMessageRepositoryLocal(db, 'org-2-channel-2-user-2');
+      const other = new ChatMessageRepositoryLocal(
+        db,
+        'org-2-channel-2-user-2'
+      );
       await repo.insertChatMessage(makeMessage({ content: 'mine' }));
       await other.insertChatMessage(makeMessage({ content: 'theirs' }));
 
@@ -342,7 +345,10 @@ describe('ChatMessageRepositoryLocal', () => {
     });
 
     it('treats the same wiId as distinct across sessions', async () => {
-      const other = new ChatMessageRepositoryLocal(db, 'org-2-channel-2-user-2');
+      const other = new ChatMessageRepositoryLocal(
+        db,
+        'org-2-channel-2-user-2'
+      );
       const first = await repo.insertChatMessage(
         makeMessage({ wiId: 'wi-1', content: 'mine' })
       );
@@ -356,7 +362,10 @@ describe('ChatMessageRepositoryLocal', () => {
     });
 
     it('clearSession removes only the configured session messages', async () => {
-      const other = new ChatMessageRepositoryLocal(db, 'org-2-channel-2-user-2');
+      const other = new ChatMessageRepositoryLocal(
+        db,
+        'org-2-channel-2-user-2'
+      );
       await repo.insertChatMessage(makeMessage({ content: 'mine' }));
       await other.insertChatMessage(makeMessage({ content: 'theirs' }));
 
@@ -365,7 +374,9 @@ describe('ChatMessageRepositoryLocal', () => {
       const mine = await repo.getChatMessagePageDesc(null, 10);
       const theirs = await other.getChatMessagePageDesc(null, 10);
       expect((mine as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(0);
-      expect((theirs as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(1);
+      expect((theirs as Ok<{ data: ChatMessage[] }>).value.data).toHaveLength(
+        1
+      );
     });
 
     it('clearSession returns Err when the database is closed', async () => {

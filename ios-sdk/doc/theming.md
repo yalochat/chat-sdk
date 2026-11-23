@@ -80,6 +80,15 @@ Each color pair works the same way: the `background` value paints a surface and 
 - **`agentMessagePadding`** (`CGFloat`): Room between that box and what is inside it. Defaults to 0, so the text lines up with the conversation while there is no box.
 - **`typingIndicatorDotColor`** (`Color`): Color of the three dots shown while the chat waits for a reply. Defaults to the secondary system label color.
 
+### Message avatars
+
+These paint the circles set with `userMessageAvatar` and `assistantMessageAvatar` in the client config.
+
+- **`userAvatarBackground`** (`Color`): Fill of the circle beside the person's messages. Defaults to the system `systemGray5` color.
+- **`onUserAvatarBackground`** (`Color`): Color of the letters in that circle. Defaults to the system label color.
+- **`assistantAvatarBackground`** (`Color`): Fill of the circle beside the channel's messages. Defaults to the accent color.
+- **`onAssistantAvatarBackground`** (`Color`): Color of the letters in that circle. Defaults to white.
+
 ### Quick replies
 
 These paint the chips the person taps to answer.

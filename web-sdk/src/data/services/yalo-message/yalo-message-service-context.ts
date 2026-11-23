@@ -4,5 +4,6 @@ import { createContext } from '@lit/context';
 import type { YaloMessageService } from './yalo-message-service';
 
 export type { YaloMessageService };
-export const yaloMessageServiceContext =
-  createContext<YaloMessageService>(Symbol('YaloMessageService'));
+export const yaloMessageServiceContext = createContext<YaloMessageService>(
+  Symbol('YaloMessageService')
+);
