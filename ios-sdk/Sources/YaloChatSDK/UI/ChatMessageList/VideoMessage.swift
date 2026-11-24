@@ -7,6 +7,7 @@ import SwiftUI
 /// screen. `cached` is the video when it has already been read, otherwise
 /// `load` is asked, and `onLoaded` is called once it has grown the row.
 struct VideoMessage: View {
+    @Environment(\.chatTheme) private var theme: ChatTheme
     private static let placeholderSize: CGFloat = 72
     private static let maxWidth: CGFloat = 260
     private static let minAspectRatio: CGFloat = 0.75
@@ -64,7 +65,7 @@ struct VideoMessage: View {
                 .accessibilityIdentifier("yalo-chat-video-failed")
             }
             if !message.content.isEmpty {
-                Text(markdown(message.content))
+                Text(markdown(message.content, theme: theme))
             }
         }
         .accessibilityIdentifier("yalo-chat-video-message")
@@ -102,7 +103,7 @@ struct VideoMessage: View {
                 )
                 .overlay(
                     Image(systemName: "play.fill")
-                        .font(.title2)
+                        .font(theme.font(.title2))
                         .foregroundStyle(.white)
                         .frame(width: 52, height: 52)
                         .background(Color.black.opacity(0.5), in: Circle())
@@ -110,7 +111,7 @@ struct VideoMessage: View {
                 .overlay(alignment: .bottomTrailing) {
                     if preview.duration > 0 {
                         Text(verbatim: Self.length(preview.duration))
-                            .font(.caption.monospacedDigit())
+                            .font(theme.font(.caption).monospacedDigit())
                             .foregroundStyle(.white)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)

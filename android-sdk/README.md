@@ -549,7 +549,7 @@ The centered welcome message has no avatar. The colors of a text avatar come fro
 
 ## Theming
 
-The chat derives its colors and shapes from your `MaterialTheme`, so it follows your light and dark schemes with no setup. Override only what you need. See the [Theming API](doc/theming.md) for the full list of properties.
+The chat derives its colors, shapes and fonts from your `MaterialTheme`, so it follows your light and dark schemes with no setup. Override only what you need, including the font, with `fontFamily`. See the [Theming API](doc/theming.md) for the full list of properties.
 
 ## Logging
 

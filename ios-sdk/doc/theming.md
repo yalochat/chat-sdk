@@ -9,6 +9,7 @@ Every value defaults to a system color, so a chat dropped into an app already fo
 - [Usage](#usage)
 - [Properties reference](#properties-reference)
   - [Window](#window)
+  - [Font](#font)
   - [Header](#header)
   - [Footer and input](#footer-and-input)
   - [Messages](#messages)
@@ -50,6 +51,20 @@ Each color pair works the same way: the `background` value paints a surface and 
 ### Window
 
 - **`background`** (`Color`): Background of the conversation area. Defaults to the system background color.
+
+### Font
+
+- **`fontFamily`** (`String?`): Family name of the font used for all the text in the chat. Defaults to `nil`, which keeps the system font. Sizes, weights and Dynamic Type scaling stay the same, and code inside a message stays monospaced.
+
+Add the font files to your app and list them under `UIAppFonts` (Fonts provided by application) in your `Info.plist`, then pass the family name:
+
+```swift
+Chat(client: client, theme: ChatTheme(fontFamily: "Brand Sans"))
+```
+
+- Use the family name, not the name of a single file. You can print the registered names with `UIFont.familyNames`.
+- Include every weight you want to see. The chat draws some text in medium, semibold and bold, and the system fakes a weight your font does not include.
+- If the family is not registered, the chat keeps the system font.
 
 ### Header
 

@@ -7,7 +7,7 @@ import SwiftUI
 /// `Text` draws emphasis, strikethrough, inline code and links on its own but
 /// ignores blocks, so headings, lists, quotes and code blocks are written out
 /// here. Text that cannot be parsed is shown as it was written.
-func markdown(_ source: String) -> AttributedString {
+func markdown(_ source: String, theme: ChatTheme = ChatTheme()) -> AttributedString {
     let options: AttributedString.MarkdownParsingOptions = AttributedString.MarkdownParsingOptions(
         interpretedSyntax: .full,
         failurePolicy: .returnPartiallyParsedIfPossible
@@ -34,7 +34,7 @@ func markdown(_ source: String) -> AttributedString {
         for component in intent?.components ?? [] {
             switch component.kind {
             case .header(let level):
-                piece.font = level == 1 ? .title2.bold() : level == 2 ? .title3.bold() : .headline
+                piece.font = level == 1 ? theme.font(.title2).bold() : level == 2 ? theme.font(.title3).bold() : theme.font(.headline)
             case .codeBlock:
                 piece.font = .system(.body, design: .monospaced)
                 while piece.characters.last?.isNewline == true {

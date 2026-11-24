@@ -4,6 +4,7 @@ import SwiftUI
 
 /// The circle beside a message, with a picture or a couple of letters in it.
 struct MessageAvatar: View {
+    @Environment(\.chatTheme) private var theme: ChatTheme
     let avatar: YaloChatMessageAvatar
     let background: Color
     let foreground: Color
@@ -18,7 +19,7 @@ struct MessageAvatar: View {
                     .scaledToFill()
             case .text(let text):
                 Text(verbatim: String(text.prefix(2)))
-                    .font(.caption.weight(.semibold))
+                    .font(theme.font(.caption).weight(.semibold))
                     .foregroundStyle(foreground)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)

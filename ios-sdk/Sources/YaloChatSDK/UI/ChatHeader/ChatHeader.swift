@@ -15,7 +15,7 @@ struct ChatHeader: View {
             if let onBack {
                 Button(action: onBack) {
                     Image(systemName: "chevron.backward")
-                        .font(.title3)
+                        .font(theme.font(.title3))
                 }
                 .accessibilityLabel(Text("Back", bundle: .module))
                 .accessibilityIdentifier("yalo-chat-back-button")
@@ -25,18 +25,18 @@ struct ChatHeader: View {
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.headline)
+                    .font(theme.font(.headline))
                     .lineLimit(1)
                     .accessibilityAddTraits(.isHeader)
                 if let status {
                     Text(status)
-                        .font(.caption)
+                        .font(theme.font(.caption))
                         .lineLimit(1)
                         .accessibilityIdentifier("yalo-chat-status")
                 }
                 if !hideWatermark {
                     Text("By \(Text(verbatim: "Yalo").bold())", bundle: .module)
-                        .font(.caption2)
+                        .font(theme.font(.caption2))
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier("yalo-chat-watermark")
                 }

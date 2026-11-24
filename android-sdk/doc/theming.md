@@ -9,6 +9,7 @@ Every value defaults to your app `MaterialTheme`, so a chat dropped into an app 
 - [Usage](#usage)
 - [Properties reference](#properties-reference)
   - [Window](#window)
+  - [Font](#font)
   - [Header](#header)
   - [Footer and input](#footer-and-input)
   - [Messages](#messages)
@@ -43,6 +44,31 @@ Each color pair works the same way: the `background` value paints a surface and 
 
 - **`background`** (`Color`): Background of the conversation area. Defaults to the Material `surface` color.
 - **`onBackground`** (`Color`): Color used for content drawn on the conversation background. Defaults to the Material `onSurface` color.
+
+### Font
+
+- **`fontFamily`** (`FontFamily?`): Font used for all the text in the chat. Defaults to `null`, so the chat keeps the typography of your `MaterialTheme`. Sizes and weights stay the same, and code inside a message stays monospaced.
+
+Add the font files to your app under `res/font`, then pass them in. Include every weight you want to see, since the chat draws some text in medium, semibold and bold:
+
+```kotlin
+val brandFont = FontFamily(
+    Font(R.font.brand_regular, FontWeight.Normal),
+    Font(R.font.brand_medium, FontWeight.Medium),
+    Font(R.font.brand_bold, FontWeight.Bold),
+)
+
+Chat(
+    client = client,
+    theme = ChatTheme.default().copy(fontFamily = brandFont),
+)
+```
+
+With `ChatView`, set it the same way:
+
+```kotlin
+chatView.theme = { default -> default.copy(fontFamily = brandFont) }
+```
 
 ### Header
 

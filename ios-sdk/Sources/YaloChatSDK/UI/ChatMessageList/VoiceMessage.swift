@@ -5,6 +5,7 @@ import SwiftUI
 /// A voice note in the conversation: play or pause it, its shape, and how long
 /// it runs. While it plays the time says how far in it is.
 struct VoiceMessage: View {
+    @Environment(\.chatTheme) private var theme: ChatTheme
     let note: VoiceNote
     /// Only when it is this note's.
     let playback: VoicePlayback?
@@ -25,7 +26,7 @@ struct VoiceMessage: View {
             VoiceWaveform(amplitudes: note.amplitudes, progress: duration > 0 ? position / duration : 0)
                 .frame(width: 140, height: 24)
             Text(verbatim: VoiceWaveform.duration(isPlaying ? position : duration))
-                .font(.caption)
+                .font(theme.font(.caption))
                 .monospacedDigit()
         }
         .accessibilityIdentifier("yalo-chat-voice-message")
