@@ -48,6 +48,12 @@ package ai.yalo.chat.sdk
  * verifies the token and takes the user's identity from it. Set [userId] to
  * the token's `sub` as well, since it keeps each person's conversation apart
  * on the device. Null, the default, keeps the anonymous behaviour.
+ * @property typingIndicatorType What the chat shows while a reply is being
+ * written. Defaults to [TypingIndicatorType.ThreeDots]. Named after the same
+ * setting in the web SDK so the two read alike.
+ * @property typingIndicatorAvatarPosition Where the [assistantMessageAvatar]
+ * sits beside the typing indicator. Defaults to
+ * [TypingIndicatorAvatarPosition.Center].
  * @property texts Your own copy for strings the chat would otherwise show in
  * its built-in translations. See [YaloChatTexts].
  * @property userMessageAvatar Drawn beside the person's messages. Defaults to
@@ -76,12 +82,14 @@ public data class YaloChatClientConfig(
     public val welcomeMessageType: WelcomeMessageType = WelcomeMessageType.None,
     public val hideFeedbackButtons: Boolean = false,
     public val texts: YaloChatTexts = YaloChatTexts(),
+    public val typingIndicatorType: TypingIndicatorType = TypingIndicatorType.ThreeDots,
     public val imageSource: ImageSource = ImageSource.All,
     public val screenshotFolders: List<String> = listOf("Pictures/Screenshots", "DCIM/Screenshots"),
     public val allowedImageNames: List<String> = emptyList(),
     public val userMessageAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     public val assistantMessageAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     public val avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
+    public val typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = TypingIndicatorAvatarPosition.Center,
 ) {
 
     /**

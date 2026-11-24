@@ -48,6 +48,7 @@ Available fields:
 - **`inputPlaceholder`** (`String?`): Placeholder shown in the message input while it is empty.
 - **`imageNotAllowed`** (`String?`): Title of the alert shown when a picked picture is not sent, because it is not from a screenshot folder or its name is not in `allowedImageNames`.
 - **`invalidImageAlertButtonText`** (`String?`): Button that closes that alert.
+- **`writingIndicator`** (`String?`): Text shown at the bottom of the conversation while a reply is being written, with `typingIndicatorType` set to `TypingIndicatorType.Text`. Defaults to `Writing...`.
 
 ### With string resources
 

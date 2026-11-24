@@ -6,6 +6,7 @@ import { consume } from '@lit/context';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
+import { localized, msg } from '@lit/localize';
 import { loggerContext, type Logger } from '@log/logger-context';
 import type {
   ChatMessage,
@@ -15,8 +16,10 @@ import ChatMessageListController from './chat-message-list-controller';
 import './user-message';
 import './assistant-message';
 import './chat-quick-replies';
+import './message-avatar';
 
 @customElement('yalo-chat-message-list')
+@localized()
 export default class ChatMessageList extends LitElement {
   static styles = css`
     :host {
@@ -117,8 +120,77 @@ export default class ChatMessageList extends LitElement {
 
     .writing-loader {
       display: flex;
+      align-items: center;
+      gap: 0.5rem;
       padding-left: 1rem;
       margin: var(--yalo-chat-writing-loader-margin, 0);
+    }
+
+    /* Drawn like an assistant message bubble, so a theme that styles
+       those styles the typing indicator too. */
+    .writing-bubble {
+      display: flex;
+      align-items: center;
+      padding: var(--yalo-chat-assistant-message-bubble-padding, 0);
+      background: var(--yalo-chat-assistant-message-background, transparent);
+      border: var(--yalo-chat-assistant-message-border, none);
+      border-radius: var(--yalo-chat-assistant-message-border-radius, 0);
+    }
+
+    .writing-loader.with-avatar {
+      padding-left: 0.5rem;
+    }
+
+    .writing-loader.avatar-below {
+      align-items: flex-end;
+    }
+
+    .writing-loader.avatar-below > :last-child {
+      margin-bottom: var(--yalo-chat-avatar-size, 2rem);
+    }
+
+    .writing-loader.leaving {
+      animation: writing-fade-out 220ms ease-out forwards;
+    }
+
+    .writing-text {
+      color: var(--yalo-chat-dot-color, #2207f1);
+      font-size: 0.875rem;
+    }
+
+    .writing-token {
+      opacity: 0;
+      animation: writing-token-fade-in 180ms ease-out forwards;
+      animation-delay: calc(var(--_token-index) * 25ms);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    @keyframes writing-token-fade-in {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes writing-fade-out {
+      to {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .writing-loader.leaving,
+      .writing-token {
+        animation: none;
+        opacity: 1;
+      }
     }
 
     .dot-loader {
@@ -228,11 +300,46 @@ export default class ChatMessageList extends LitElement {
       }
     }
 
+    const writingAvatar = this._chatMessageListController.writingAvatar;
+    const writingText =
+      this.config.texts?.writingIndicator ?? msg('Writing...');
+
     return html`
       <ul class="message-list">
-        ${this.isWriting
-          ? html` <li class="writing-loader">
-              <span class="dot-loader"></span>
+        ${this.isWriting || this._chatMessageListController.isWritingLeaving
+          ? html` <li
+              class="writing-loader ${this.isWriting
+                ? ''
+                : 'leaving'} ${writingAvatar
+                ? 'with-avatar'
+                : ''} ${writingAvatar &&
+              this.config.typingIndicatorAvatarPosition === 'below'
+                ? 'avatar-below'
+                : ''}"
+              role="status"
+            >
+              ${writingAvatar
+                ? html`<yalo-chat-message-avatar
+                    sender="assistant"
+                    .avatar=${writingAvatar}
+                  ></yalo-chat-message-avatar>`
+                : nothing}
+              <div class="writing-bubble">
+                ${this.config.typingIndicatorType === 'text'
+                  ? html`<span class="writing-text"
+                      ><span class="visually-hidden">${writingText}</span
+                      >${Array.from(writingText).map(
+                        (token, index) =>
+                          html`<span
+                            class="writing-token"
+                            aria-hidden="true"
+                            style="--_token-index: ${index}"
+                            >${token}</span
+                          >`
+                      )}</span
+                    >`
+                  : html`<span class="dot-loader"></span>`}
+              </div>
             </li>`
           : nothing}
         ${repeat(

@@ -1,7 +1,11 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 
 import type { PropertyValues, ReactiveController } from 'lit';
+import type { YaloChatMessageAvatar } from '@domain/config/chat-config';
 import type ChatMessageList from './chat-message-list';
+
+// Matches the writing-leaving animation in chat-message-list.
+export const WRITING_FADE_OUT_MS = 220;
 
 export default class ChatMessageListController implements ReactiveController {
   host: ChatMessageList;
@@ -24,6 +28,14 @@ export default class ChatMessageListController implements ReactiveController {
 
   private _resizeObserver?: ResizeObserver;
 
+  // Kept on screen while the writing indicator fades out, since Lit removes
+  // an element as soon as it stops being rendered.
+  isWritingLeaving = false;
+
+  private _wasWriting = false;
+
+  private _writingLeaveTimeout?: ReturnType<typeof setTimeout>;
+
   constructor(host: ChatMessageList) {
     this.host = host;
     this.host.addController(this);
@@ -31,16 +43,32 @@ export default class ChatMessageListController implements ReactiveController {
 
   hostConnected() {}
 
-  // Messages are newest first, so the one before is the next one said.
+  // The writing indicator carries the assistant avatar when there is one.
+  get writingAvatar(): YaloChatMessageAvatar | undefined {
+    const avatar = this.host.config.assistantMessageAvatar;
+    return avatar && avatar.type !== 'none' ? avatar : undefined;
+  }
+
+  // Messages are newest first, so the one before is the next one said. The
+  // writing indicator sits under the newest one, so it ends that group when
+  // it shows the assistant avatar.
   showsAvatar(index: number): boolean {
     if (this.host.config.avatarDisplay === 'everyMessage') {
       return true;
     }
     const messages = this.host.chatMessages;
-    return index === 0 || messages[index - 1].role !== messages[index].role;
+    if (index === 0) {
+      const writingEndsGroup =
+        (this.host.isWriting || this.isWritingLeaving) &&
+        this.writingAvatar !== undefined &&
+        messages[0].role !== 'USER';
+      return !writingEndsGroup;
+    }
+    return messages[index - 1].role !== messages[index].role;
   }
 
   hostUpdate(): void {
+    this._trackWriting();
     const messageList = this.host.messageList;
     if (!messageList) {
       return;
@@ -115,6 +143,7 @@ export default class ChatMessageListController implements ReactiveController {
   }
 
   hostDisconnected() {
+    clearTimeout(this._writingLeaveTimeout);
     this.intersectionObserver?.disconnect();
     this.host.messageList?.removeEventListener('scroll', this._onScroll);
     this._stopTrackingNewest();
@@ -154,6 +183,21 @@ export default class ChatMessageListController implements ReactiveController {
 
     messageList.scrollTop = messageList.scrollTop + offset;
     this._anchoredScrollTop = messageList.scrollTop;
+  }
+
+  private _trackWriting(): void {
+    const isWriting = this.host.isWriting;
+    if (isWriting) {
+      clearTimeout(this._writingLeaveTimeout);
+      this.isWritingLeaving = false;
+    } else if (this._wasWriting) {
+      this.isWritingLeaving = true;
+      this._writingLeaveTimeout = setTimeout(() => {
+        this.isWritingLeaving = false;
+        this.host.requestUpdate();
+      }, WRITING_FADE_OUT_MS);
+    }
+    this._wasWriting = isWriting;
   }
 
   private _onScroll = (): void => {

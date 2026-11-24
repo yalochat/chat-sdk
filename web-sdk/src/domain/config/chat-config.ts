@@ -11,6 +11,13 @@ export type WelcomeMessageType = (typeof WELCOME_MESSAGE_TYPES)[number];
 export const QUICK_REPLY_TYPES = ['modal', 'inline'] as const;
 export type QuickReplyType = (typeof QUICK_REPLY_TYPES)[number];
 
+export const TYPING_INDICATOR_TYPES = ['three-dots', 'text'] as const;
+export type TypingIndicatorType = (typeof TYPING_INDICATOR_TYPES)[number];
+
+export const TYPING_INDICATOR_AVATAR_POSITIONS = ['center', 'below'] as const;
+export type TypingIndicatorAvatarPosition =
+  (typeof TYPING_INDICATOR_AVATAR_POSITIONS)[number];
+
 export const YALO_WATERMARK_POSITIONS = [
   'none',
   'header-left',
@@ -28,6 +35,7 @@ export type YaloChatMessageAvatar =
 
 export interface YaloChatTexts {
   inputPlaceholder?: string;
+  writingIndicator?: string;
 }
 
 export interface YaloChatIcons {
@@ -74,9 +82,11 @@ export interface YaloChatClientConfig {
   logLevel?: LogLevel;
   welcomeMessageType?: WelcomeMessageType;
   quickReplyType?: QuickReplyType;
+  typingIndicatorType?: TypingIndicatorType;
   texts?: YaloChatTexts;
   icons?: YaloChatIcons;
   userMessageAvatar?: YaloChatMessageAvatar;
   assistantMessageAvatar?: YaloChatMessageAvatar;
   avatarDisplay?: AvatarDisplay;
+  typingIndicatorAvatarPosition?: TypingIndicatorAvatarPosition;
 }

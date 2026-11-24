@@ -141,6 +141,7 @@ Optional properties:
   )
   ```
 - **`quickReplyType`** (`QuickReplyType`): Where the answers a message offers are shown. Defaults to `.modal`, which puts them in a bar above the message input. Set `.inline` to put them under the message that offered them. See [Quick replies and buttons](#quick-replies-and-buttons).
+- **`typingIndicatorType`** (`TypingIndicatorType`): What is shown while a reply is being written. Defaults to `.threeDots`, which shows three animated dots. Set `.text` to show the text `Writing...` instead. The text follows the device language and can be changed with `writingIndicator` in [`texts`](doc/translations.md).
 - **`welcomeMessageType`** (`WelcomeMessageType`): How the first message of a conversation is drawn. Defaults to `.none`, which draws it like any other message.
   - `.verticalQuickReplies`: while the person has not sent anything yet and the channel has said only one thing, that message is shown centered, with the avatar above it and one quick reply per line under it, whatever `quickReplyType` says. Once the person sends a message, the avatar leaves the conversation and it is drawn as usual.
 - **`logLevel`** (`LogLevel`): How much the SDK writes to the system log. Defaults to `.warn`, which keeps it quiet outside of warnings and errors. See [Logging](#logging).
@@ -156,6 +157,7 @@ Optional properties:
 - **`userMessageAvatar`** (`YaloChatMessageAvatar`): A small circle drawn beside the person's messages, so each bubble looks like it comes from it. Defaults to `.none`, which draws nothing. See [Message avatars](#message-avatars).
 - **`assistantMessageAvatar`** (`YaloChatMessageAvatar`): The same circle beside the channel's messages. Defaults to `.none`. See [Message avatars](#message-avatars).
 - **`avatarDisplay`** (`AvatarDisplay`): Which messages carry their avatar. Defaults to `.lastInGroup`. See [Message avatars](#message-avatars).
+- **`typingIndicatorAvatarPosition`** (`TypingIndicatorAvatarPosition`): Where the `assistantMessageAvatar` sits beside the typing indicator. Defaults to `.center`, which centers it next to the indicator. Set `.below` to place it below the indicator, like it sits beside an assistant message.
 
 ## Message avatars
 

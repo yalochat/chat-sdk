@@ -121,6 +121,12 @@ struct YaloChatClientConfigTests {
         #expect(config.avatarDisplay == .lastInGroup)
     }
 
+    @Test func showsThreeDotsWhileWritingUnlessToldOtherwise() {
+        let config: YaloChatClientConfig = YaloChatClientConfig(channelId: "channel-1", organizationId: "org-1", channelName: "Yalo")
+
+        #expect(config.typingIndicatorType == .threeDots)
+    }
+
     @Test func comparesTheAvatars() {
         let config: YaloChatClientConfig = YaloChatClientConfig(
             channelId: "channel-1",

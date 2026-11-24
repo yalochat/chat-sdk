@@ -14,9 +14,13 @@ package ai.yalo.chat.sdk
  * @property imageNotAllowed The title of the alert shown when a picked picture
  * is turned away, because it is not a screenshot or its name is not allowed.
  * @property invalidImageAlertButtonText The button that closes that alert.
+ * @property writingIndicator The text shown while a reply is being written,
+ * with [YaloChatClientConfig.typingIndicatorType] set to
+ * [TypingIndicatorType.Text]. Defaults to "Writing...".
  */
 public data class YaloChatTexts(
     public val inputPlaceholder: String? = null,
     public val imageNotAllowed: String? = null,
     public val invalidImageAlertButtonText: String? = null,
+    public val writingIndicator: String? = null,
 )

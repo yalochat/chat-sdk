@@ -46,6 +46,11 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: messages, isWaitingForReply: isWaitingForReply)))
     }
 
+    @Test(arguments: [TypingIndicatorType.threeDots, .text])
+    func messageListRendersEachTypingIndicator(type: TypingIndicatorType) {
+        #expect(renders(ChatMessageList(messages: [message(1, .user, "Hello")], isWaitingForReply: true, typingIndicatorType: type)))
+    }
+
     @Test func messageListRendersFeedbackUnderTextFromTheChannel() {
         var rated: ChatMessage = message(1, .agent, "Hi")
         rated.wiId = "wi-1"
@@ -250,6 +255,40 @@ struct ChatMessageListTests {
         ])
 
         #expect(list.hiddenAvatarIds == [1, 3])
+    }
+
+    @Test func typingIndicatorTakesTheAvatarFromTheNewestAssistantMessage() {
+        let list: ChatMessageList = ChatMessageList(
+            messages: [message(1, .user, "Hello"), message(2, .agent, "Hi")],
+            isWaitingForReply: true,
+            assistantMessageAvatar: .text("YA")
+        )
+
+        #expect(list.showsWritingAvatar)
+        #expect(list.hiddenAvatarIds == [2])
+    }
+
+    @Test func typingIndicatorHasNoAvatarWhenNoneIsSet() {
+        let list: ChatMessageList = ChatMessageList(
+            messages: [message(1, .user, "Hello"), message(2, .agent, "Hi")],
+            isWaitingForReply: true
+        )
+
+        #expect(!list.showsWritingAvatar)
+        #expect(list.hiddenAvatarIds.isEmpty)
+    }
+
+    @Test(arguments: [TypingIndicatorType.threeDots, .text], [TypingIndicatorAvatarPosition.center, .below])
+    func messageListRendersTheTypingIndicatorWithAnAvatar(type: TypingIndicatorType, position: TypingIndicatorAvatarPosition) {
+        let list: ChatMessageList = ChatMessageList(
+            messages: [message(1, .user, "Hello")],
+            isWaitingForReply: true,
+            assistantMessageAvatar: .text("YA"),
+            typingIndicatorType: type,
+            typingIndicatorAvatarPosition: position
+        )
+
+        #expect(renders(list))
     }
 
     @Test func avatarsShowOnEveryMessageWhenAsked() {

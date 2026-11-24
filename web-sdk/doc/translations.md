@@ -28,6 +28,7 @@ const client = new YaloChatClient({
 Available fields:
 
 - **`inputPlaceholder`** (`string`): Placeholder shown in the message input while it is empty. Also used as the input accessible label.
+- **`writingIndicator`** (`string`): Text shown at the bottom of the conversation while the assistant is writing a reply, when `typingIndicatorType` is `"text"`. Defaults to `Writing...`.
 
 ## Localization is your responsibility when overriding
 

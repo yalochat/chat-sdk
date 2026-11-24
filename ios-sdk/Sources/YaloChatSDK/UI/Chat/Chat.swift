@@ -117,6 +117,9 @@ public struct Chat<Avatar: View>: View {
                 userMessageAvatar: client.config.userMessageAvatar,
                 assistantMessageAvatar: client.config.assistantMessageAvatar,
                 avatarDisplay: client.config.avatarDisplay,
+                typingIndicatorType: client.config.typingIndicatorType,
+                writingIndicatorText: client.config.texts.writingIndicator,
+                typingIndicatorAvatarPosition: client.config.typingIndicatorAvatarPosition,
                 onRate: { message, feedback in
                     Task {
                         await viewModel.rate(message, feedback)

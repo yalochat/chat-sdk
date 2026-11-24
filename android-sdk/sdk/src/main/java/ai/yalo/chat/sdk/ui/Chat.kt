@@ -6,6 +6,8 @@ import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.R
 import ai.yalo.chat.sdk.SessionMode
+import ai.yalo.chat.sdk.TypingIndicatorAvatarPosition
+import ai.yalo.chat.sdk.TypingIndicatorType
 import ai.yalo.chat.sdk.YaloChatMessageAvatar
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
@@ -174,6 +176,8 @@ public fun Chat(
             hideFeedbackButtons = client.config.hideFeedbackButtons,
             onFeedback = viewModel::onFeedback,
             texts = client.config.texts,
+            typingIndicatorType = client.config.typingIndicatorType,
+            typingIndicatorAvatarPosition = client.config.typingIndicatorAvatarPosition,
             userAvatar = client.config.userMessageAvatar,
             assistantAvatar = client.config.assistantMessageAvatar,
             avatarDisplay = client.config.avatarDisplay,
@@ -324,6 +328,8 @@ internal fun ChatLayout(
     hideFeedbackButtons: Boolean = false,
     onFeedback: (ChatMessage, FeedbackRating) -> Unit = { _, _ -> },
     texts: YaloChatTexts = YaloChatTexts(),
+    typingIndicatorType: TypingIndicatorType = TypingIndicatorType.ThreeDots,
+    typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = TypingIndicatorAvatarPosition.Center,
     userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
@@ -357,6 +363,9 @@ internal fun ChatLayout(
                 userAvatar = userAvatar,
                 assistantAvatar = assistantAvatar,
                 avatarDisplay = avatarDisplay,
+                typingIndicatorType = typingIndicatorType,
+                typingIndicatorAvatarPosition = typingIndicatorAvatarPosition,
+                writingIndicatorText = texts.writingIndicator,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),

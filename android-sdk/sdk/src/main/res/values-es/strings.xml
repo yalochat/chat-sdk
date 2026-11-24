@@ -18,4 +18,5 @@
     <string name="yalo_chat_play_video_description">Reproducir video</string>
     <string name="yalo_chat_video_unavailable">No se puede reproducir este video</string>
     <string name="yalo_chat_close_video_description">Cerrar</string>
+    <string name="yalo_chat_writing_indicator">Escribiendo…</string>
 </resources>

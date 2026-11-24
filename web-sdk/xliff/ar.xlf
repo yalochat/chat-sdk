@@ -60,6 +60,10 @@
   <source>Bad response</source>
   <target>إجابة سيئة</target>
 </trans-unit>
+<trans-unit id="s81fa1b2717db9feb">
+  <source>Writing...</source>
+  <target>يكتب...</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

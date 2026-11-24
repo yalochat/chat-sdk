@@ -254,6 +254,50 @@ private fun AgentMessage(
 }
 
 /**
+ * What shows while a reply is being written, in the same bubble as an
+ * assistant message, with the assistant avatar beside it so it reads as the
+ * assistant writing. With [avatarBelow] the avatar sits below the bubble, the
+ * way it does beside a message. With no avatar only the bubble is drawn.
+ */
+@Composable
+internal fun AssistantWriting(
+    avatar: YaloChatMessageAvatar,
+    avatarBelow: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val theme = currentChatTheme
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(AVATAR_GAP),
+        verticalAlignment = if (avatarBelow) Alignment.Bottom else Alignment.CenterVertically,
+    ) {
+        MessageAvatar(
+            avatar = avatar,
+            visible = true,
+            background = theme.assistantAvatarBackground,
+            contentColor = theme.onAssistantAvatarBackground,
+            modifier = Modifier.testTag(CHAT_ASSISTANT_AVATAR_TAG),
+        )
+        Surface(
+            modifier = if (avatarBelow && avatar != YaloChatMessageAvatar.None) {
+                Modifier.padding(bottom = AVATAR_SIZE)
+            } else {
+                Modifier
+            },
+            shape = theme.agentMessageShape,
+            color = theme.agentMessageBackground,
+            contentColor = theme.onAgentMessageBackground,
+            border = BorderStroke(1.dp, theme.agentMessageBorderColor),
+        ) {
+            Box(modifier = Modifier.padding(theme.agentMessagePadding)) {
+                content()
+            }
+        }
+    }
+}
+
+/**
  * The round picture a bubble comes from. Decorative, so screen readers skip it.
  * [YaloChatMessageAvatar.None] draws nothing, and when not [visible] only its
  * room is kept.

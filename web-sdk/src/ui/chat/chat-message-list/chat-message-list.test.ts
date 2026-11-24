@@ -2243,6 +2243,89 @@ describe('ChatMessageList', () => {
 
       expect(await avatarsOf(list)).toEqual([null]);
     });
+
+    const writingAvatarOf = async (
+      list: ChatMessageList
+    ): Promise<string | null> => {
+      const avatar = list.shadowRoot!.querySelector(
+        '.writing-loader yalo-chat-message-avatar'
+      ) as LitElement | null;
+      await avatar?.updateComplete;
+      return avatar?.shadowRoot!.textContent!.trim() ?? null;
+    };
+
+    it.each(['three-dots', 'text'] as const)(
+      'shows the assistant avatar beside the %s writing indicator',
+      async (typingIndicatorType) => {
+        const list = await renderList(conversation(), {
+          assistantMessageAvatar: { type: 'text', text: 'YA' },
+          typingIndicatorType,
+        });
+        list.isWriting = true;
+        await list.updateComplete;
+
+        expect(await writingAvatarOf(list)).toBe('YA');
+      }
+    );
+
+    it.each([
+      [undefined, false],
+      ['center', false],
+      ['below', true],
+    ] as const)(
+      'places the writing indicator avatar for position %s',
+      async (typingIndicatorAvatarPosition, below) => {
+        const list = await renderList(conversation(), {
+          assistantMessageAvatar: { type: 'text', text: 'YA' },
+          typingIndicatorAvatarPosition,
+        });
+        list.isWriting = true;
+        await list.updateComplete;
+
+        expect(
+          list
+            .shadowRoot!.querySelector('.writing-loader')!
+            .classList.contains('avatar-below')
+        ).toBe(below);
+      }
+    );
+
+    it('draws the writing indicator in the assistant message bubble', async () => {
+      const list = await renderList([], { typingIndicatorType: 'text' });
+      list.style.setProperty(
+        '--yalo-chat-assistant-message-background',
+        'rgb(1, 2, 3)'
+      );
+      list.isWriting = true;
+      await list.updateComplete;
+
+      const bubble = list.shadowRoot!.querySelector('.writing-bubble')!;
+      expect(getComputedStyle(bubble).backgroundColor).toBe('rgb(1, 2, 3)');
+    });
+
+    it('leaves the avatar out of the writing indicator when none is configured', async () => {
+      const list = await renderList(conversation());
+      list.isWriting = true;
+      await list.updateComplete;
+
+      expect(await writingAvatarOf(list)).toBeNull();
+    });
+
+    it('moves the avatar from the newest assistant message to the writing indicator', async () => {
+      const list = await renderList(conversation(), {
+        assistantMessageAvatar: { type: 'text', text: 'YA' },
+      });
+      list.isWriting = true;
+      await list.updateComplete;
+
+      const avatars = await avatarsOf(list);
+      expect(avatars.map((a) => a?.visible)).toEqual([
+        false,
+        false,
+        undefined,
+        undefined,
+      ]);
+    });
   });
 
   describe('user messages', () => {
@@ -3249,6 +3332,75 @@ describe('ChatMessageList', () => {
       const users = list.shadowRoot!.querySelectorAll('yalo-chat-user-message');
       expect(assistants).toHaveLength(1);
       expect(users).toHaveLength(1);
+    });
+  });
+
+  describe('writing indicator', () => {
+    const writingText = async (
+      configOverrides: Partial<YaloChatClientConfig> = {}
+    ): Promise<string | undefined> => {
+      const list = await renderList([], configOverrides);
+      list.isWriting = true;
+      await list.updateComplete;
+      return list.shadowRoot!.querySelector('.writing-text .visually-hidden')
+        ?.textContent;
+    };
+
+    it('shows the three dots by default', async () => {
+      const list = await renderList([]);
+      list.isWriting = true;
+      await list.updateComplete;
+      expect(list.shadowRoot!.querySelector('.dot-loader')).not.toBeNull();
+    });
+
+    it('shows "Writing..." when the typing indicator type is text', async () => {
+      expect(await writingText({ typingIndicatorType: 'text' })).toBe(
+        'Writing...'
+      );
+    });
+
+    it('shows the text from the texts config when given', async () => {
+      expect(
+        await writingText({
+          typingIndicatorType: 'text',
+          texts: { writingIndicator: 'Thinking' },
+        })
+      ).toBe('Thinking');
+    });
+
+    it('fades each character in, one after the other', async () => {
+      const list = await renderList([], { typingIndicatorType: 'text' });
+      list.isWriting = true;
+      await list.updateComplete;
+      const tokens = Array.from(
+        list.shadowRoot!.querySelectorAll<HTMLElement>('.writing-token')
+      );
+      expect(tokens.map((token) => token.textContent).join('')).toBe(
+        'Writing...'
+      );
+      expect(tokens[2].style.getPropertyValue('--_token-index')).toBe('2');
+    });
+
+    it('fades the indicator out before removing it', async () => {
+      const list = await renderList([], { typingIndicatorType: 'text' });
+      list.isWriting = true;
+      await list.updateComplete;
+      list.isWriting = false;
+      await list.updateComplete;
+      expect(
+        list.shadowRoot!.querySelector('.writing-loader.leaving')
+      ).not.toBeNull();
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 300);
+      });
+      await list.updateComplete;
+      expect(list.shadowRoot!.querySelector('.writing-loader')).toBeNull();
+    });
+
+    it('shows nothing when the assistant is not writing', async () => {
+      const list = await renderList([]);
+      expect(list.shadowRoot!.querySelector('.writing-loader')).toBeNull();
     });
   });
 });
