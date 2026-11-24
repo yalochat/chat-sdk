@@ -2,6 +2,8 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.AvatarDisplay
+import ai.yalo.chat.sdk.TypingIndicatorAvatarPosition
+import ai.yalo.chat.sdk.TypingIndicatorType
 import ai.yalo.chat.sdk.YaloChatMessageAvatar
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
@@ -10,7 +12,9 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.quickReplies
 import ai.yalo.chat.sdk.ui.messages.ChatMessageItem
+import ai.yalo.chat.sdk.ui.messages.AssistantWriting
 import ai.yalo.chat.sdk.ui.messages.TypingIndicator
+import ai.yalo.chat.sdk.ui.messages.TypingText
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import ai.yalo.chat.sdk.ui.videos.VideoPreview
 import android.view.View
@@ -84,6 +88,9 @@ internal fun ChatMessageList(
     userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
+    typingIndicatorType: TypingIndicatorType = TypingIndicatorType.ThreeDots,
+    writingIndicatorText: String? = null,
+    typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = TypingIndicatorAvatarPosition.Center,
 ) {
     val theme = currentChatTheme
     val view = LocalView.current
@@ -93,6 +100,9 @@ internal fun ChatMessageList(
     // not on every recomposition.
     val newest: Long? = messages.firstOrNull()?.id
     val firstUserMessageIndex = messages.indexOfLast { it.role == MessageRole.User }
+    // The writing indicator sits under the newest message and carries the
+    // assistant avatar, so it ends that message's group.
+    val writingEndsGroup = isWaitingForReply && assistantAvatar != YaloChatMessageAvatar.None
     LaunchedEffect(newest) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(0)
@@ -117,7 +127,24 @@ internal fun ChatMessageList(
         ) {
             if (isWaitingForReply) {
                 item(key = TYPING_INDICATOR_KEY) {
-                    TypingIndicator()
+                    // Fades out when the reply lands. Coming in, the text
+                    // animates itself and the dots appear at once.
+                    val leaving = Modifier.animateItem(
+                        fadeInSpec = null,
+                        placementSpec = null,
+                        fadeOutSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
+                    )
+                    AssistantWriting(
+                        avatar = assistantAvatar,
+                        avatarBelow = typingIndicatorAvatarPosition == TypingIndicatorAvatarPosition.Below,
+                        modifier = leaving,
+                    ) {
+                        if (typingIndicatorType == TypingIndicatorType.Text) {
+                            TypingText(text = writingIndicatorText)
+                        } else {
+                            TypingIndicator()
+                        }
+                    }
                 }
             }
             itemsIndexed(
@@ -149,7 +176,11 @@ internal fun ChatMessageList(
                     userAvatar = userAvatar,
                     assistantAvatar = assistantAvatar,
                     showsAvatar = avatarDisplay == AvatarDisplay.EveryMessage ||
-                        messages.getOrNull(index - 1)?.role != message.role,
+                        if (index == 0) {
+                            !writingEndsGroup || message.role == MessageRole.User
+                        } else {
+                            messages[index - 1].role != message.role
+                        },
                 )
             }
             // Last in a reversed list, so it sits above the welcome message.

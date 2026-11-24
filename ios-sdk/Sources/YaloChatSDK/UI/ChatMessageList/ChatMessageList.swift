@@ -32,6 +32,9 @@ struct ChatMessageList: View {
     var userMessageAvatar: YaloChatMessageAvatar = .none
     var assistantMessageAvatar: YaloChatMessageAvatar = .none
     var avatarDisplay: AvatarDisplay = .lastInGroup
+    var typingIndicatorType: TypingIndicatorType = .threeDots
+    var writingIndicatorText: String?
+    var typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = .center
     var onRate: (ChatMessage, ChatMessage.Feedback) -> Void = { _, _ in }
     @Environment(\.chatTheme) private var theme: ChatTheme
     /// Whether the end of the conversation is on screen. A picture that loads
@@ -45,13 +48,23 @@ struct ChatMessageList: View {
 
     /// The messages that keep the room of their avatar without drawing it:
     /// with `.lastInGroup`, all but the newest of each run sent by the same side.
+    /// The typing indicator carries the assistant avatar, so it ends the run of
+    /// the newest message when that one is the assistant's.
     var hiddenAvatarIds: Set<Int64> {
         guard avatarDisplay == .lastInGroup else {
             return []
         }
-        return Set(zip(messages, messages.dropFirst()).filter { message, next in
+        var hidden: Set<Int64> = Set(zip(messages, messages.dropFirst()).filter { message, next in
             message.role == next.role
         }.compactMap { message, _ in message.id })
+        if showsWritingAvatar, let newest = messages.last, newest.role == .agent, let id = newest.id {
+            hidden.insert(id)
+        }
+        return hidden
+    }
+
+    var showsWritingAvatar: Bool {
+        isWaitingForReply && !isWelcome && assistantMessageAvatar != .none
     }
 
     var body: some View {
@@ -184,8 +197,29 @@ struct ChatMessageList: View {
                     }
                     .transition(.opacity)
                     if isWaitingForReply {
-                        TypingIndicator()
-                            .transition(.opacity)
+                        // In the same box as a message, so a theme that boxes
+                        // messages boxes the indicator too.
+                        HStack(alignment: typingIndicatorAvatarPosition == .below ? .bottom : .center, spacing: 8) {
+                            if showsWritingAvatar {
+                                MessageAvatar(
+                                    avatar: assistantMessageAvatar,
+                                    background: theme.assistantAvatarBackground,
+                                    foreground: theme.onAssistantAvatarBackground
+                                )
+                                .accessibilityIdentifier("yalo-chat-assistant-avatar")
+                            }
+                            Group {
+                                if typingIndicatorType == .text {
+                                    TypingText(text: writingIndicatorText)
+                                } else {
+                                    TypingIndicator()
+                                }
+                            }
+                            .agentMessageBox(theme)
+                            .padding(.bottom, showsWritingAvatar && typingIndicatorAvatarPosition == .below ? 32 : 0)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .transition(.opacity)
                     }
                     // The bottom margin, as a row of its own so it is measured
                     // with the messages. With the spacing above it, 12 points.

@@ -281,6 +281,7 @@ Optional properties:
 - **`welcomeMessageType`** (`"none" | "verticalQuickReplies"`): Customizes how the first message in the chat renders. Defaults to `"none"`.
   - `"verticalQuickReplies"`: while the user has not sent a message yet, only the first message is shown, with the channel `image` above it, its header, body and quick replies centered, and one quick reply per line. Once the user sends a message, the full conversation renders normally.
 - **`quickReplyType`** (`"modal" | "inline"`): Controls how quick replies are presented. Defaults to `"modal"`, which shows them in a modal over the chat footer. Set to `"inline"` to show them inline instead.
+- **`typingIndicatorType`** (`"three-dots" | "text"`): Controls what is shown while the assistant is writing a reply. Defaults to `"three-dots"`, which shows an animated three dot indicator. Set to `"text"` to show the text `Writing...` instead. The text follows the active `locale` and can be changed with `writingIndicator` in [`texts`](doc/translations.md).
 - **`yaloWatermark`** (`"header-left" | "header-right" | "none"`): Controls the "by Yalo" watermark shown under the channel name in the chat header. Defaults to `"header-left"`, which left aligns it under the title. Set to `"header-right"` to right align it under the title, or `"none"` to hide it. The watermark text follows the active `locale`, and its look can be tuned with the `--yalo-chat-header-watermark-*` CSS variables.
 - **`texts`** (`object`): Overrides for built-in text strings. See [Translations](doc/translations.md).
 - **`icons`** (`object`): Replace built-in icons with your own SVGs. See [Icons](doc/icons.md).
@@ -289,6 +290,7 @@ Optional properties:
   - `{ type: 'image', url: 'https://...' }`: shows the image at `url`.
 - **`assistantMessageAvatar`** (`object`): Avatar drawn beside the assistant's messages. Takes the same values as `userMessageAvatar`. It is not drawn on the centered welcome message.
 - **`avatarDisplay`** (`"lastInGroup" | "everyMessage"`): Controls which messages show the avatar. Colors and size can be changed with the `--yalo-chat-*-avatar-*` CSS variables, see [Theming](doc/theming.md#message-avatars).
+- **`typingIndicatorAvatarPosition`** (`"center" | "below"`): Where the `assistantMessageAvatar` sits beside the typing indicator. Defaults to `"center"`, which centers it next to the indicator. Set to `"below"` to place it below the indicator, like it sits beside an assistant message.
   - `"lastInGroup"` (default): when several messages in a row come from the same side, only the last one shows the avatar, the way most messaging apps do.
   - `"everyMessage"`: every message shows the avatar.
 

@@ -38,6 +38,7 @@ Available fields:
 - **`inputPlaceholder`** (`String?`): Placeholder shown in the message input while it is empty.
 - **`imageNotAllowed`** (`String?`): Alert title shown when a picked picture is not sent because its name is not in `allowedImageNames`.
 - **`invalidImageAlertButtonText`** (`String?`): Button that closes that alert.
+- **`writingIndicator`** (`String?`): Text shown at the bottom of the conversation while a reply is being written, with `typingIndicatorType` set to `.text`. Defaults to `Writing...`.
 
 ## Localization is your responsibility when overriding
 

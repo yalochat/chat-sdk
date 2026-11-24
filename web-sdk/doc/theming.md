@@ -369,8 +369,9 @@ To replace an icon with your own SVG image instead of a font glyph, use the `ico
      (messages, images, videos) is being fetched. */
   --yalo-chat-spinner-color: #2207f1;
 
-  /* Color of the animated dots displayed as a typing indicator
-     when the assistant is composing a response. */
+  /* Color of the typing indicator shown while the assistant is
+     composing a response: the animated dots, or the "Writing..."
+     text when typingIndicatorType is "text". */
   --yalo-chat-dot-color: #2207f1;
 
   /* Margin around the history spinner shown while older messages are
@@ -491,6 +492,9 @@ follow `--yalo-chat-assistant-message-font-size` and
   /* Padding inside the assistant text message bubble. Accepts any valid CSS
      `padding` shorthand. Defaults to `0`. */
   --yalo-chat-assistant-message-bubble-padding: 0;
+
+  /* The four bubble variables above also draw the bubble around the typing
+     indicator, so it looks like the assistant message it turns into. */
 
   /* Color of links and link buttons inside assistant messages. */
   --yalo-chat-link-button-color: #2207f1;

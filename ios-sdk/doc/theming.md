@@ -93,7 +93,8 @@ Chat(client: client, theme: ChatTheme(fontFamily: "Brand Sans"))
 - **`agentMessageShape`** (`ChatShape`): Shape of the box around those messages. Defaults to square corners, which is invisible while the background is clear. Set it along with `agentMessageBackground` when you want those messages boxed.
 - **`agentMessageBorderColor`** (`Color`): Color of the line around that box. Defaults to clear.
 - **`agentMessagePadding`** (`CGFloat`): Room between that box and what is inside it. Defaults to 0, so the text lines up with the conversation while there is no box.
-- **`typingIndicatorDotColor`** (`Color`): Color of the three dots shown while the chat waits for a reply. Defaults to the secondary system label color.
+- The `agentMessage*` box values above also draw the box around the typing indicator, so it looks like the message it turns into.
+- **`typingIndicatorDotColor`** (`Color`): Color of the typing indicator shown while the chat waits for a reply: the animated dots, or the "Writing..." text. Defaults to the secondary system label color.
 
 ### Message avatars
 

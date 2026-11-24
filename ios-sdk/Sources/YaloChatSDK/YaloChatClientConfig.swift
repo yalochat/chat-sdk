@@ -31,6 +31,9 @@
 ///   extension, so `SCR_123.png` is checked as `SCR_123`. Empty checks no name.
 /// - `hideFeedbackButtons`: leaves the thumbs up and thumbs down out from
 ///   under the channel's messages, so nobody can rate them.
+/// - `typingIndicatorType`: what is shown while a reply is being written.
+/// - `typingIndicatorAvatarPosition`: where `assistantMessageAvatar` sits
+///   beside the typing indicator.
 /// - `texts`: your own copy for strings the chat would otherwise show in its
 ///   built-in translations. See `YaloChatTexts`.
 /// - `userMessageAvatar`: drawn beside the person's messages. `.none` draws
@@ -56,6 +59,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let allowedImageNames: [String]
     public let hideFeedbackButtons: Bool
     public let texts: YaloChatTexts
+    public let typingIndicatorType: TypingIndicatorType
+    public let typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition
     public let userMessageAvatar: YaloChatMessageAvatar
     public let assistantMessageAvatar: YaloChatMessageAvatar
     public let avatarDisplay: AvatarDisplay
@@ -80,7 +85,9 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         allowedImageNames: [String] = [],
         userMessageAvatar: YaloChatMessageAvatar = .none,
         assistantMessageAvatar: YaloChatMessageAvatar = .none,
-        avatarDisplay: AvatarDisplay = .lastInGroup
+        avatarDisplay: AvatarDisplay = .lastInGroup,
+        typingIndicatorType: TypingIndicatorType = .threeDots,
+        typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = .center
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -99,6 +106,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.allowedImageNames = allowedImageNames
         self.hideFeedbackButtons = hideFeedbackButtons
         self.texts = texts
+        self.typingIndicatorType = typingIndicatorType
+        self.typingIndicatorAvatarPosition = typingIndicatorAvatarPosition
         self.userMessageAvatar = userMessageAvatar
         self.assistantMessageAvatar = assistantMessageAvatar
         self.avatarDisplay = avatarDisplay
@@ -121,6 +130,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
             && lhs.allowedImageNames == rhs.allowedImageNames
             && lhs.hideFeedbackButtons == rhs.hideFeedbackButtons
             && lhs.texts == rhs.texts
+            && lhs.typingIndicatorType == rhs.typingIndicatorType
+            && lhs.typingIndicatorAvatarPosition == rhs.typingIndicatorAvatarPosition
             && lhs.userMessageAvatar == rhs.userMessageAvatar
             && lhs.assistantMessageAvatar == rhs.assistantMessageAvatar
             && lhs.avatarDisplay == rhs.avatarDisplay

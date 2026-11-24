@@ -18,4 +18,5 @@
     <string name="yalo_chat_play_video_description">Play video</string>
     <string name="yalo_chat_video_unavailable">This video can\'t be played</string>
     <string name="yalo_chat_close_video_description">Close</string>
+    <string name="yalo_chat_writing_indicator">Writing…</string>
 </resources>

@@ -18,4 +18,5 @@
     <string name="yalo_chat_play_video_description">تشغيل الفيديو</string>
     <string name="yalo_chat_video_unavailable">لا يمكن تشغيل هذا الفيديو</string>
     <string name="yalo_chat_close_video_description">إغلاق</string>
+    <string name="yalo_chat_writing_indicator">يكتب…</string>
 </resources>

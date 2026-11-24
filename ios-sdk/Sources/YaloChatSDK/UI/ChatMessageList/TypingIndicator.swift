@@ -37,11 +37,49 @@ struct TypingIndicator: View {
         }
         .padding(.horizontal, 4)
         .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityIdentifier("yalo-chat-typing-indicator")
+    }
+}
+
+/// The "Writing..." text at the foot of the conversation while a reply is
+/// expected. `text` replaces the built-in translation when given.
+///
+/// Each character fades in a little after the one before it, the way a reply
+/// streams in token by token. The list fades it out when the reply lands.
+struct TypingText: View {
+    private static let tokenStagger: TimeInterval = 0.025
+    private static let tokenFade: TimeInterval = 0.18
+
+    var text: String?
+
+    @Environment(\.chatTheme) private var theme: ChatTheme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion: Bool
+    @State private var start: Date = Date()
+
+    var body: some View {
+        let shown: String = text ?? String(localized: "Writing...", bundle: .module)
+        TimelineView(.animation) { timeline in
+            let elapsed: TimeInterval = reduceMotion ? .infinity : timeline.date.timeIntervalSince(start)
+            Array(shown).enumerated().reduce(Text(verbatim: "")) { tokens, item in
+                let opacity: Double = min(max((elapsed - Double(item.offset) * Self.tokenStagger) / Self.tokenFade, 0), 1)
+                return tokens + Text(verbatim: String(item.element))
+                    .foregroundColor(theme.typingIndicatorDotColor.opacity(opacity))
+            }
+        }
+        .font(theme.font(.subheadline))
+        .padding(.horizontal, 4)
+        .padding(.vertical, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: shown))
+        .accessibilityAddTraits(.updatesFrequently)
         .accessibilityIdentifier("yalo-chat-typing-indicator")
     }
 }
 
 #Preview {
     TypingIndicator()
+}
+
+#Preview {
+    TypingText()
 }

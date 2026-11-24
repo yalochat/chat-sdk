@@ -54,6 +54,10 @@
   <source>Bad response</source>
   <target>Mala respuesta</target>
 </trans-unit>
+<trans-unit id="s81fa1b2717db9feb">
+  <source>Writing...</source>
+  <target>Escribiendo...</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

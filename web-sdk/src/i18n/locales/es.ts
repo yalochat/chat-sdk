@@ -14,6 +14,7 @@ export const templates = {
   s317b6c4a03e34c5d: `En el carrito`,
   s32bad8884f0b1be7: `Cerrar chat`,
   s510df80ecd8f51a7: `Buena respuesta`,
+  s81fa1b2717db9feb: `Escribiendo...`,
   sa50a6326530d8a0d: `Mostrar menos`,
   sb2c57b2d347203dd: `Mostrar más`,
   sc876da507d6d97c4: `No entregado.`,

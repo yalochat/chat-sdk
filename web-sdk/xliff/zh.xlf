@@ -56,6 +56,10 @@
   <source>Bad response</source>
   <target>不好的回答</target>
 </trans-unit>
+<trans-unit id="s81fa1b2717db9feb">
+  <source>Writing...</source>
+  <target>正在输入...</target>
+</trans-unit>
 </body>
 </file>
 </xliff>
