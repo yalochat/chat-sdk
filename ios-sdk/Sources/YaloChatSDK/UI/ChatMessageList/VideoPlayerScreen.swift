@@ -6,6 +6,7 @@ import SwiftUI
 /// Plays `file` full screen with the system controls, from the start, and
 /// lets it go once closed.
 struct VideoPlayerScreen: View {
+    @Environment(\.chatTheme) private var theme: ChatTheme
     @Environment(\.dismiss) private var dismiss: DismissAction
     @StateObject private var model: VideoPlayerModel
 
@@ -20,7 +21,7 @@ struct VideoPlayerScreen: View {
                 dismiss()
             } label: {
                 Image(systemName: "xmark")
-                    .font(.body.weight(.semibold))
+                    .font(theme.font(.body).weight(.semibold))
                     .foregroundStyle(.white)
                     .frame(width: 44, height: 44)
             }

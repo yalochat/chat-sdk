@@ -38,4 +38,33 @@ struct ChatThemeTests {
         #expect(theme.assistantAvatarBackground == .accentColor)
         #expect(ChatTheme(userAvatarBackground: .indigo) != theme)
     }
+
+    @Test func textUsesTheSystemFontWhenNoFamilyIsSet() {
+        #expect(ChatTheme().font(.body) == .body)
+        #expect(ChatTheme().font(.caption) == .caption)
+        #expect(ChatTheme().uiFont(.body) == .preferredFont(forTextStyle: .body))
+    }
+
+    @Test func textUsesTheFamilyTheHostRegistered() {
+        let theme: ChatTheme = ChatTheme(fontFamily: "Georgia")
+
+        #expect(theme.font(.body) != .body)
+        #expect(theme.uiFont(.body).familyName == "Georgia")
+    }
+
+    @Test func inputKeepsItsSizeInTheHostFamily() {
+        let font: UIFont = ChatTheme(fontFamily: "Georgia").uiFont(.body)
+
+        #expect(font.pointSize == UIFont.preferredFont(forTextStyle: .body).pointSize)
+    }
+
+    @Test func inputFallsBackToTheSystemFontForAnUnknownFamily() {
+        #expect(ChatTheme(fontFamily: "Not A Font").uiFont(.body) == .preferredFont(forTextStyle: .body))
+    }
+
+    @Test func markdownHeadingsUseTheThemeFont() {
+        let theme: ChatTheme = ChatTheme(fontFamily: "Georgia")
+
+        #expect(markdown("# Title", theme: theme).runs.first?.font == theme.font(.title2).bold())
+    }
 }

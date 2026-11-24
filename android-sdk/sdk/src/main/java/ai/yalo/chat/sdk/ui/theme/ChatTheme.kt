@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
  *     theme = ChatTheme.default().copy(
  *         headerBackground = Color.Red,
  *         inputShape = RoundedCornerShape(8.dp),
+ *         fontFamily = FontFamily(Font(R.font.brand_regular)),
  *     ),
  * )
  * ```
@@ -70,6 +72,7 @@ public data class ChatTheme(
     public val onUserAvatarBackground: Color = Color.Unspecified,
     public val assistantAvatarBackground: Color = Color.Unspecified,
     public val onAssistantAvatarBackground: Color = Color.Unspecified,
+    public val fontFamily: FontFamily? = null,
 ) {
 
     public companion object {
@@ -80,7 +83,10 @@ public data class ChatTheme(
         private val CHIP_CORNER = 18.dp
         private val BUTTON_CORNER = 8.dp
 
-        /** The theme derived from the host `MaterialTheme`. */
+        /**
+         * The theme derived from the host `MaterialTheme`. Its [fontFamily] is
+         * null, so text keeps the host typography.
+         */
         @Composable
         @ReadOnlyComposable
         public fun default(): ChatTheme = ChatTheme(

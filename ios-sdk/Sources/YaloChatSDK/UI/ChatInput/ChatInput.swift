@@ -42,11 +42,12 @@ struct ChatInput: View {
                         height: $inputHeight,
                         metrics: $inputScroll,
                         textColor: UIColor(theme.onFooterBackground),
+                        font: theme.uiFont(.body),
                         trailingInset: theme.inputScrollbarWidth > 0 ? theme.inputScrollbarWidth + inputScrollbarGap : 0,
                         accessibilityLabel: texts.inputPlaceholder ?? String(localized: "Type a message", bundle: .module),
                         onSend: onSend
                     )
-                    .frame(height: inputHeight > 0 ? inputHeight : laidOutLineHeight(for: .preferredFont(forTextStyle: .body)))
+                    .frame(height: inputHeight > 0 ? inputHeight : laidOutLineHeight(for: theme.uiFont(.body)))
                     .overlay(alignment: .topLeading) {
                         if text.isEmpty {
                             placeholder

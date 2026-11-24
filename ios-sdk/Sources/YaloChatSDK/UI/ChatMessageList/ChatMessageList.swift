@@ -145,7 +145,7 @@ struct ChatMessageList: View {
                                             .padding(.leading, 48)
                                             .frame(maxWidth: .infinity, alignment: .trailing)
                                     case (.agent, _, nil):
-                                        Text(markdown(message.content))
+                                        Text(markdown(message.content, theme: theme))
                                             .multilineTextAlignment(isWelcome ? .center : .leading)
                                             .foregroundStyle(theme.onAgentMessageBackground)
                                             .agentMessageBox(theme)

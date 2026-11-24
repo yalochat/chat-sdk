@@ -41,6 +41,7 @@ struct ChatInputTextView: UIViewRepresentable {
     @Binding var height: CGFloat
     @Binding var metrics: InputScrollMetrics
     var textColor: UIColor
+    var font: UIFont = .preferredFont(forTextStyle: .body)
     var trailingInset: CGFloat
     var accessibilityLabel: String
     let onSend: () -> Void
@@ -48,7 +49,7 @@ struct ChatInputTextView: UIViewRepresentable {
     func makeUIView(context: Context) -> InputTextView {
         let view: InputTextView = InputTextView()
         view.delegate = context.coordinator
-        view.font = .preferredFont(forTextStyle: .body)
+        view.font = font
         view.adjustsFontForContentSizeCategory = true
         view.backgroundColor = .clear
         view.textContainerInset = .zero
@@ -76,6 +77,10 @@ struct ChatInputTextView: UIViewRepresentable {
             context.coordinator.report(view)
         }
         view.textColor = textColor
+        if view.font != font {
+            view.font = font
+            context.coordinator.report(view)
+        }
         view.accessibilityLabel = accessibilityLabel
         if view.textContainerInset.right != trailingInset {
             view.textContainerInset.right = trailingInset

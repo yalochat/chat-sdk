@@ -39,7 +39,7 @@ struct QuickReplies: View {
                 onTap(reply)
             } label: {
                 Text(verbatim: reply.text)
-                    .font(.subheadline.weight(.medium))
+                    .font(theme.font(.subheadline).weight(.medium))
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: vertical ? .infinity : nil)
                     .padding(.horizontal, 12)

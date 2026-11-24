@@ -7,6 +7,7 @@ import SwiftUI
 /// rebuilt after scrolling away is drawn at once. Otherwise `load` is asked,
 /// and `onLoaded` is called once the picture it answered with has grown the row.
 struct ImageMessage: View {
+    @Environment(\.chatTheme) private var theme: ChatTheme
     /// Room for the spinner while a picture is on its way.
     private static let placeholderSize: CGFloat = 72
     private static let maxWidth: CGFloat = 260
@@ -70,7 +71,7 @@ struct ImageMessage: View {
                 case .user:
                     Text(verbatim: message.content)
                 case .agent:
-                    Text(markdown(message.content))
+                    Text(markdown(message.content, theme: theme))
                 }
             }
         }

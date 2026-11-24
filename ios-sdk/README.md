@@ -353,7 +353,7 @@ See [Theming](doc/theming.md#quick-replies) to change their colors.
 
 ## Theming
 
-Pass a `ChatTheme` to change the colors of the chat. Every value you leave out keeps following the system light and dark colors:
+Pass a `ChatTheme` to change the colors and the font of the chat. Every value you leave out keeps following the system light and dark colors and the system font:
 
 ```swift
 Chat(

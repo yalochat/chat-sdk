@@ -36,7 +36,7 @@ struct MessageButtons: View {
                                 .accessibilityIdentifier("yalo-chat-link-icon")
                         }
                     }
-                    .font(.subheadline.weight(.medium))
+                    .font(theme.font(.subheadline).weight(.medium))
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)

@@ -10,6 +10,9 @@ import SwiftUI
 /// ```swift
 /// Chat(client: client, theme: ChatTheme(headerBackground: .indigo, onHeaderBackground: .white))
 /// ```
+///
+/// `fontFamily` is the family name of a font your app registered. Text keeps
+/// its size, weight and Dynamic Type scaling.
 public struct ChatTheme: Sendable, Equatable {
     public var background: Color
     public var headerBackground: Color
@@ -45,6 +48,7 @@ public struct ChatTheme: Sendable, Equatable {
     public var onUserAvatarBackground: Color
     public var assistantAvatarBackground: Color
     public var onAssistantAvatarBackground: Color
+    public var fontFamily: String?
 
     public init(
         background: Color = Color(.systemBackground),
@@ -84,7 +88,8 @@ public struct ChatTheme: Sendable, Equatable {
         userAvatarBackground: Color = Color(.systemGray5),
         onUserAvatarBackground: Color = Color(.label),
         assistantAvatarBackground: Color = .accentColor,
-        onAssistantAvatarBackground: Color = .white
+        onAssistantAvatarBackground: Color = .white,
+        fontFamily: String? = nil
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -120,6 +125,94 @@ public struct ChatTheme: Sendable, Equatable {
         self.onUserAvatarBackground = onUserAvatarBackground
         self.assistantAvatarBackground = assistantAvatarBackground
         self.onAssistantAvatarBackground = onAssistantAvatarBackground
+        self.fontFamily = fontFamily
+    }
+}
+
+extension ChatTheme {
+    /// The text style in `fontFamily`, or the system font when there is none.
+    func font(_ style: Font.TextStyle) -> Font {
+        guard let fontFamily else {
+            return style.systemFont
+        }
+        let custom: Font = .custom(fontFamily, size: Self.defaultSize(of: style.uiTextStyle), relativeTo: style)
+        // The system draws headlines in semibold, so the custom one matches.
+        if style == .headline {
+            return custom.weight(.semibold)
+        }
+        return custom
+    }
+
+    /// The text style in `fontFamily` for UIKit views, or the system font when that family is not registered.
+    func uiFont(_ style: UIFont.TextStyle) -> UIFont {
+        guard let fontFamily, UIFont.familyNames.contains(fontFamily) else {
+            return .preferredFont(forTextStyle: style)
+        }
+        let descriptor: UIFontDescriptor = UIFontDescriptor(fontAttributes: [.family: fontFamily])
+        let base: UIFont = UIFont(descriptor: descriptor, size: Self.defaultSize(of: style))
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: base)
+    }
+
+    /// The size the system gives the style before Dynamic Type scales it.
+    private static func defaultSize(of style: UIFont.TextStyle) -> CGFloat {
+        let traits: UITraitCollection = UITraitCollection(preferredContentSizeCategory: .large)
+        return UIFont.preferredFont(forTextStyle: style, compatibleWith: traits).pointSize
+    }
+}
+
+private extension Font.TextStyle {
+    var systemFont: Font {
+        switch self {
+        case .largeTitle:
+            return .largeTitle
+        case .title:
+            return .title
+        case .title2:
+            return .title2
+        case .title3:
+            return .title3
+        case .headline:
+            return .headline
+        case .subheadline:
+            return .subheadline
+        case .callout:
+            return .callout
+        case .footnote:
+            return .footnote
+        case .caption:
+            return .caption
+        case .caption2:
+            return .caption2
+        default:
+            return .body
+        }
+    }
+
+    var uiTextStyle: UIFont.TextStyle {
+        switch self {
+        case .largeTitle:
+            return .largeTitle
+        case .title:
+            return .title1
+        case .title2:
+            return .title2
+        case .title3:
+            return .title3
+        case .headline:
+            return .headline
+        case .subheadline:
+            return .subheadline
+        case .callout:
+            return .callout
+        case .footnote:
+            return .footnote
+        case .caption:
+            return .caption1
+        case .caption2:
+            return .caption2
+        default:
+            return .body
+        }
     }
 }
 

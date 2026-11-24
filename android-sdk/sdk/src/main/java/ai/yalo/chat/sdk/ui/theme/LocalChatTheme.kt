@@ -1,10 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.sdk.ui.theme
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.font.FontFamily
 
 /**
  * The [ChatTheme] the host provided, if any.
@@ -30,5 +33,32 @@ internal fun ProvideChatTheme(
     theme: ChatTheme = ChatTheme.default(),
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(LocalChatTheme provides theme, content = content)
+    val fontFamily = theme.fontFamily
+    if (fontFamily == null) {
+        CompositionLocalProvider(LocalChatTheme provides theme, content = content)
+        return
+    }
+    // Every text in the chat reads the Material typography, so swapping the
+    // family there reaches all of it at once.
+    MaterialTheme(typography = MaterialTheme.typography.withFontFamily(fontFamily)) {
+        CompositionLocalProvider(LocalChatTheme provides theme, content = content)
+    }
 }
+
+private fun Typography.withFontFamily(fontFamily: FontFamily): Typography = copy(
+    displayLarge = displayLarge.copy(fontFamily = fontFamily),
+    displayMedium = displayMedium.copy(fontFamily = fontFamily),
+    displaySmall = displaySmall.copy(fontFamily = fontFamily),
+    headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
+    headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
+    headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
+    titleLarge = titleLarge.copy(fontFamily = fontFamily),
+    titleMedium = titleMedium.copy(fontFamily = fontFamily),
+    titleSmall = titleSmall.copy(fontFamily = fontFamily),
+    bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
+    bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
+    bodySmall = bodySmall.copy(fontFamily = fontFamily),
+    labelLarge = labelLarge.copy(fontFamily = fontFamily),
+    labelMedium = labelMedium.copy(fontFamily = fontFamily),
+    labelSmall = labelSmall.copy(fontFamily = fontFamily),
+)

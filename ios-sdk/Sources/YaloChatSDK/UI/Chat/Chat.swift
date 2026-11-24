@@ -166,6 +166,7 @@ public struct Chat<Avatar: View>: View {
             }
         }
         .background(theme.background)
+        .font(theme.font(.body))
         .environment(\.chatTheme, theme)
         .task {
             await viewModel.start()
