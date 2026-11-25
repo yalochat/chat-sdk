@@ -58,6 +58,13 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: [rated, message(2, .user, "Hello")], showsFeedback: true)))
     }
 
+    @Test func messageListRendersFeedbackInTheThemeColor() {
+        var rated: ChatMessage = message(1, .agent, "Hi")
+        rated.wiId = "wi-1"
+        let list: ChatMessageList = ChatMessageList(messages: [message(2, .user, "Hello"), rated], showsFeedback: true)
+        #expect(renders(list.environment(\.chatTheme, ChatTheme(feedbackButtonColor: .gray))))
+    }
+
     @Test func messageListRendersTheTappedPostbackUnderItsMessage() {
         var tapped: ChatMessage = message(1, .agent, "Pick one")
         tapped.buttons = [MessageButton(text: "Menu", kind: .postback, selected: true), MessageButton(text: "Help", kind: .postback)]

@@ -103,6 +103,7 @@ Chat(client: client, theme: ChatTheme(fontFamily: "Brand Sans"))
 - **`assistantMessagePadding`** (`EdgeInsets`): Room between that box and what is inside it. Defaults to no room, so the text lines up with the conversation while there is no box.
 - The `assistantMessage*` box values above also draw the box around the typing indicator, so it looks like the message it turns into.
 - **`messageTailSize`** (`CGSize`): Size of a triangle under the bubble that shows the avatar, pointing down at it, like a speech bubble. Its straight side sits where the rounding of the bottom corner ends. Defaults to `.zero`, which draws none. The typing indicator bubble gets it too while its avatar sits below it, with `typingIndicatorAvatarPosition` set to below. For example `CGSize(width: 48, height: 24)`.
+- **`feedbackButtonColor`** (`Color?`): Color of the thumbs up and thumbs down under the channel's replies. The one picked is drawn filled. Defaults to `nil`, which draws them in `onAssistantMessageBackground`, faded until one is picked.
 - **`timestampColor`** (`Color`): Color of the time shown inside each message with `showTimestamps` on in the client config, and of the day shown above the first message of each day. Defaults to the secondary system label color.
 - **`typingIndicatorDotColor`** (`Color`): Color of the typing indicator shown while the chat waits for a reply: the animated dots, or the "Writing..." text. Defaults to the secondary system label color.
 

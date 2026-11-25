@@ -110,6 +110,7 @@ chatView.theme = { default -> default.copy(fontFamily = brandFont) }
 - **`assistantMessageShape`** (`Shape`): Shape of the channel's bubbles. Defaults to a rectangle, which is invisible while the background is transparent. Set it along with `assistantMessageBackground` when you want those messages bubbled.
 - The `assistantMessage*` bubble values above also draw the bubble around the typing indicator, so it looks like the message it turns into.
 - **`messageTailSize`** (`DpSize`): Size of a triangle under the bubble that shows the avatar, pointing down at it, like a speech bubble. Its straight side sits where the rounding of the bottom corner ends. Defaults to `DpSize.Zero`, which draws none. The typing indicator bubble gets it too while its avatar sits below it, with `typingIndicatorAvatarPosition` set to below. For example `DpSize(48.dp, 24.dp)`.
+- **`feedbackButtonColor`** (`Color`): Color of the thumbs up and thumbs down under the channel's replies. The one picked is drawn filled. Defaults to `Color.Unspecified`, which follows `onBackground`.
 - **`timestampColor`** (`Color`): Color of the time shown inside each message with `showTimestamps` on in the client config, and of the day shown above the first message of each day. Defaults to the Material `onSurfaceVariant` color.
 - **`imageShape`** (`Shape`): Shape a picture is cut to inside a message. Defaults to a rounded shape. See [Image messages](../README.md#image-messages).
 

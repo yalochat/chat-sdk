@@ -57,6 +57,7 @@ public struct ChatTheme: Sendable, Equatable {
     public var inputPlaceholderColor: Color
     public var userMessagePadding: EdgeInsets
     public var assistantMessagePadding: EdgeInsets
+    public var feedbackButtonColor: Color?
 
     public init(
         background: Color = Color(.systemBackground),
@@ -105,7 +106,8 @@ public struct ChatTheme: Sendable, Equatable {
         onDisabledSendButtonBackground: Color? = nil,
         inputPlaceholderColor: Color = Color(.placeholderText),
         userMessagePadding: EdgeInsets = EdgeInsets(top: 10, leading: 14, bottom: 10, trailing: 14),
-        assistantMessagePadding: EdgeInsets = EdgeInsets()
+        assistantMessagePadding: EdgeInsets = EdgeInsets(),
+        feedbackButtonColor: Color? = nil
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -150,6 +152,7 @@ public struct ChatTheme: Sendable, Equatable {
         self.inputPlaceholderColor = inputPlaceholderColor
         self.userMessagePadding = userMessagePadding
         self.assistantMessagePadding = assistantMessagePadding
+        self.feedbackButtonColor = feedbackButtonColor
     }
 }
 

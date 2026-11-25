@@ -82,6 +82,7 @@ public data class ChatTheme(
     public val inputPlaceholderColor: Color = Color.Unspecified,
     public val userMessagePadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
     public val assistantMessagePadding: PaddingValues = PaddingValues(0.dp),
+    public val feedbackButtonColor: Color = Color.Unspecified,
 ) {
 
     @Deprecated("Use assistantMessageBackground.", ReplaceWith("assistantMessageBackground"))
