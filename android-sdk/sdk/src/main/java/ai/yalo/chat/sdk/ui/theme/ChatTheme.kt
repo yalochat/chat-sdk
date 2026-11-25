@@ -80,7 +80,7 @@ public data class ChatTheme(
     public val disabledSendButtonBackground: Color = Color.Unspecified,
     public val onDisabledSendButtonBackground: Color = Color.Unspecified,
     public val inputPlaceholderColor: Color = Color.Unspecified,
-    public val userMessagePadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+    public val userMessagePadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     public val assistantMessagePadding: PaddingValues = PaddingValues(0.dp),
     public val feedbackButtonColor: Color = Color.Unspecified,
 ) {

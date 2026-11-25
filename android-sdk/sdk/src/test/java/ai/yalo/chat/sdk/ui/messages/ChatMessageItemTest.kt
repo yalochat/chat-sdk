@@ -651,7 +651,7 @@ class ChatMessageItemTest {
         val bubbles = composeRule.onAllNodesWithTag(CHAT_USER_MESSAGE_TAG)
         val byDefault = bubbles[0].getBoundsInRoot().let { it.bottom - it.top }
         val padded = bubbles[1].getBoundsInRoot().let { it.bottom - it.top }
-        assertEquals(24f, (padded - byDefault).value, 0.5f)
+        assertEquals(16f, (padded - byDefault).value, 0.5f)
     }
 
     @Test

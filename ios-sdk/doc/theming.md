@@ -90,7 +90,7 @@ Chat(client: client, theme: ChatTheme(fontFamily: "Brand Sans"))
 
 - **`userMessageBackground`** (`Color`): Bubble background for messages the person sent. Defaults to the secondary system background color.
 - **`onUserMessageBackground`** (`Color`): Text color inside those bubbles. Defaults to the system label color.
-- **`userMessagePadding`** (`EdgeInsets`): Room between the person's bubble and what is inside it. Defaults to 14 on the sides and 10 above and below.
+- **`userMessagePadding`** (`EdgeInsets`): Room between the person's bubble and what is inside it. Defaults to 16 on the sides and 12 above and below.
 - **`userMessageShape`** (`ChatShape`): Shape of the person's bubbles. Defaults to every corner rounded by 18 points.
 - **`assistantMessageBackground`** (`Color`): Background for messages the channel sent. Defaults to clear, so what the channel says reads as the conversation itself rather than as a reply. Set a color to put them in a box.
 - **`onAssistantMessageBackground`** (`Color`): Text color for those messages. Defaults to the system label color.

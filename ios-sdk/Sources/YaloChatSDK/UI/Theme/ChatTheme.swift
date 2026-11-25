@@ -105,7 +105,7 @@ public struct ChatTheme: Sendable, Equatable {
         disabledSendButtonBackground: Color? = nil,
         onDisabledSendButtonBackground: Color? = nil,
         inputPlaceholderColor: Color = Color(.placeholderText),
-        userMessagePadding: EdgeInsets = EdgeInsets(top: 10, leading: 14, bottom: 10, trailing: 14),
+        userMessagePadding: EdgeInsets = EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
         assistantMessagePadding: EdgeInsets = EdgeInsets(),
         feedbackButtonColor: Color? = nil
     ) {
