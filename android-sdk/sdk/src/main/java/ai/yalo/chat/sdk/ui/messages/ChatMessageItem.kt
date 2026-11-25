@@ -2,6 +2,22 @@
 package ai.yalo.chat.sdk.ui.messages
 
 import ai.yalo.chat.sdk.YaloChatMessageAvatar
+import ai.yalo.chat.sdk.MessageButtonsPosition
+import ai.yalo.chat.sdk.ui.theme.ChatTheme
+import android.text.format.DateFormat
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.LayoutDirection
+import java.util.Date
 import ai.yalo.chat.sdk.data.repositories.voice.VoicePlayback
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
@@ -48,6 +64,8 @@ internal const val CHAT_USER_MESSAGE_TAG: String = "yalo-chat-user-message"
 internal const val CHAT_AGENT_MESSAGE_TAG: String = "yalo-chat-agent-message"
 internal const val CHAT_USER_AVATAR_TAG: String = "yalo-chat-user-avatar"
 internal const val CHAT_ASSISTANT_AVATAR_TAG: String = "yalo-chat-assistant-avatar"
+internal const val CHAT_MESSAGE_TIMESTAMP_TAG: String = "yalo-chat-message-timestamp"
+internal const val CHAT_WRITING_BUBBLE_TAG: String = "yalo-chat-writing-bubble"
 
 /**
  * One message in the conversation, drawn for whoever sent it.
@@ -70,7 +88,12 @@ internal const val CHAT_ASSISTANT_AVATAR_TAG: String = "yalo-chat-assistant-avat
  *
  * [userAvatar] and [assistantAvatar] are drawn beside the bubble of their side.
  * Without [showsAvatar] the room is kept but nothing is drawn, so the bubbles of
- * a run stay lined up.
+ * a run stay lined up. The bubble that shows the avatar also carries the theme
+ * tail, if any, pointing at it.
+ *
+ * [showTimestamp] adds the time the message was sent inside its bubble, and
+ * [messageButtonsPosition] says whether the buttons a message keeps go inside
+ * its bubble or under it.
  */
 @Composable
 internal fun ChatMessageItem(
@@ -88,6 +111,8 @@ internal fun ChatMessageItem(
     userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     showsAvatar: Boolean = true,
+    showTimestamp: Boolean = false,
+    messageButtonsPosition: MessageButtonsPosition = MessageButtonsPosition.BelowMessage,
 ) {
     when (message.role) {
         MessageRole.User -> UserMessage(
@@ -95,6 +120,7 @@ internal fun ChatMessageItem(
             modifier = modifier,
             avatar = userAvatar,
             showsAvatar = showsAvatar,
+            showTimestamp = showTimestamp,
             playback = playback,
             onVoiceMessageToggled = onVoiceMessageToggled,
             loadImage = loadImage,
@@ -114,6 +140,8 @@ internal fun ChatMessageItem(
             onFeedback = onFeedback,
             avatar = if (isWelcome) YaloChatMessageAvatar.None else assistantAvatar,
             showsAvatar = showsAvatar,
+            showTimestamp = showTimestamp,
+            messageButtonsPosition = messageButtonsPosition,
         )
     }
 }
@@ -130,11 +158,13 @@ private fun UserMessage(
     modifier: Modifier,
     avatar: YaloChatMessageAvatar,
     showsAvatar: Boolean,
+    showTimestamp: Boolean,
     playback: () -> VoicePlayback?,
     onVoiceMessageToggled: (ChatMessage) -> Unit,
     loadImage: suspend (ChatMessage) -> ImageBitmap?,
 ) {
     val theme = currentChatTheme
+    val tail = tailOf(theme, showsAvatar)
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AVATAR_GAP, Alignment.End),
@@ -144,17 +174,26 @@ private fun UserMessage(
             modifier = Modifier
                 .widthAtMost(USER_MESSAGE_WIDTH)
                 .testTag(CHAT_USER_MESSAGE_TAG),
-            shape = theme.userMessageShape,
+            shape = bubbleShape(theme.userMessageShape, tail, atEnd = true),
             color = theme.userMessageBackground,
             contentColor = theme.onUserMessageBackground,
         ) {
-            UserMessageBody(
-                message = message,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                playback = playback,
-                onVoiceMessageToggled = { onVoiceMessageToggled(message) },
-                loadImage = loadImage,
-            )
+            Column(
+                modifier = Modifier
+                    .padding(bottom = tail?.height ?: 0.dp)
+                    .padding(theme.userMessagePadding),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                UserMessageBody(
+                    message = message,
+                    playback = playback,
+                    onVoiceMessageToggled = { onVoiceMessageToggled(message) },
+                    loadImage = loadImage,
+                )
+                if (showTimestamp) {
+                    MessageTimestamp(message = message, modifier = Modifier.align(Alignment.End))
+                }
+            }
         }
         MessageAvatar(
             avatar = avatar,
@@ -187,8 +226,13 @@ private fun AgentMessage(
     onFeedback: ((ChatMessage, FeedbackRating) -> Unit)?,
     avatar: YaloChatMessageAvatar,
     showsAvatar: Boolean,
+    showTimestamp: Boolean,
+    messageButtonsPosition: MessageButtonsPosition,
 ) {
     val theme = currentChatTheme
+    val tail = tailOf(theme, showsAvatar && !isWelcome)
+    val actions: List<MessageButton> = message.actions
+    val buttonsInside = messageButtonsPosition == MessageButtonsPosition.InsideMessage
     // The avatar sits beside the whole message, level with whatever comes last
     // under it: the bubble, its buttons, its quick replies or its rating.
     Row(
@@ -216,24 +260,40 @@ private fun AgentMessage(
                     modifier = Modifier
                         .widthAtMost(AGENT_MESSAGE_WIDTH)
                         .testTag(CHAT_AGENT_MESSAGE_TAG),
-                    shape = theme.agentMessageShape,
-                    color = theme.agentMessageBackground,
-                    contentColor = theme.onAgentMessageBackground,
-                    border = BorderStroke(1.dp, theme.agentMessageBorderColor),
+                    shape = bubbleShape(theme.assistantMessageShape, tail, atEnd = false),
+                    color = theme.assistantMessageBackground,
+                    contentColor = theme.onAssistantMessageBackground,
+                    border = BorderStroke(1.dp, theme.assistantMessageBorderColor),
                 ) {
-                    AgentMessageBody(
-                        message = message,
-                        modifier = Modifier.padding(theme.agentMessagePadding),
-                        playback = playback,
-                        onVoiceMessageToggled = { onVoiceMessageToggled(message) },
-                        loadImage = loadImage,
-                        loadVideo = loadVideo,
-                        textAlign = if (isWelcome) TextAlign.Center else TextAlign.Unspecified,
-                    )
+                    Column(
+                        modifier = Modifier
+                            .padding(bottom = tail?.height ?: 0.dp)
+                            .padding(theme.assistantMessagePadding),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = if (isWelcome) Alignment.CenterHorizontally else Alignment.Start,
+                    ) {
+                        AgentMessageBody(
+                            message = message,
+                            playback = playback,
+                            onVoiceMessageToggled = { onVoiceMessageToggled(message) },
+                            loadImage = loadImage,
+                            loadVideo = loadVideo,
+                            textAlign = if (isWelcome) TextAlign.Center else TextAlign.Unspecified,
+                        )
+                        if (buttonsInside && actions.isNotEmpty()) {
+                            MessageButtons(
+                                buttons = actions,
+                                onButtonClick = { button -> onPostback(message, button) },
+                                fillWidth = false,
+                            )
+                        }
+                        if (showTimestamp) {
+                            MessageTimestamp(message = message, modifier = Modifier.align(Alignment.End))
+                        }
+                    }
                 }
             }
-            val actions: List<MessageButton> = message.actions
-            if (actions.isNotEmpty()) {
+            if (!buttonsInside && actions.isNotEmpty()) {
                 MessageButtons(
                     buttons = actions,
                     onButtonClick = { button -> onPostback(message, button) },
@@ -257,7 +317,8 @@ private fun AgentMessage(
  * What shows while a reply is being written, in the same bubble as an
  * assistant message, with the assistant avatar beside it so it reads as the
  * assistant writing. With [avatarBelow] the avatar sits below the bubble, the
- * way it does beside a message. With no avatar only the bubble is drawn.
+ * way it does beside a message, and the bubble carries the theme tail, if any,
+ * pointing at it. With no avatar only the bubble is drawn.
  */
 @Composable
 internal fun AssistantWriting(
@@ -267,6 +328,8 @@ internal fun AssistantWriting(
     content: @Composable () -> Unit,
 ) {
     val theme = currentChatTheme
+    val hasAvatar = avatar != YaloChatMessageAvatar.None
+    val tail = tailOf(theme, showsAvatar = avatarBelow || !hasAvatar)
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(AVATAR_GAP),
@@ -280,17 +343,22 @@ internal fun AssistantWriting(
             modifier = Modifier.testTag(CHAT_ASSISTANT_AVATAR_TAG),
         )
         Surface(
-            modifier = if (avatarBelow && avatar != YaloChatMessageAvatar.None) {
+            // The tail already lifts the bubble off the avatar, the way it does on a message.
+            modifier = if (avatarBelow && hasAvatar && tail == null) {
                 Modifier.padding(bottom = AVATAR_SIZE)
             } else {
                 Modifier
-            },
-            shape = theme.agentMessageShape,
-            color = theme.agentMessageBackground,
-            contentColor = theme.onAgentMessageBackground,
-            border = BorderStroke(1.dp, theme.agentMessageBorderColor),
+            }.testTag(CHAT_WRITING_BUBBLE_TAG),
+            shape = bubbleShape(theme.assistantMessageShape, tail, atEnd = false),
+            color = theme.assistantMessageBackground,
+            contentColor = theme.onAssistantMessageBackground,
+            border = BorderStroke(1.dp, theme.assistantMessageBorderColor),
         ) {
-            Box(modifier = Modifier.padding(theme.agentMessagePadding)) {
+            Box(
+                modifier = Modifier
+                    .padding(bottom = tail?.height ?: 0.dp)
+                    .padding(theme.assistantMessagePadding),
+            ) {
                 content()
             }
         }
@@ -346,6 +414,69 @@ private fun MessageAvatar(
             }
             YaloChatMessageAvatar.None -> {}
         }
+    }
+}
+
+/** When the message was sent, in the device time format. */
+@Composable
+private fun MessageTimestamp(message: ChatMessage, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val time = remember(message.timestamp) {
+        DateFormat.getTimeFormat(context).format(Date(message.timestamp))
+    }
+    Text(
+        text = time,
+        modifier = modifier.testTag(CHAT_MESSAGE_TIMESTAMP_TAG),
+        color = currentChatTheme.timestampColor,
+        style = MaterialTheme.typography.bodySmall,
+    )
+}
+
+/** The theme tail for a bubble that [showsAvatar], or null when it gets none. */
+private fun tailOf(theme: ChatTheme, showsAvatar: Boolean): DpSize? =
+    theme.messageTailSize.takeIf { showsAvatar && it.width > 0.dp && it.height > 0.dp }
+
+private fun bubbleShape(base: Shape, tail: DpSize?, atEnd: Boolean): Shape =
+    if (tail == null) {
+        base
+    } else {
+        TailedShape(base, tail, atEnd)
+    }
+
+/**
+ * [base] with a triangle under its bottom edge, on the end side when [atEnd],
+ * pointing down at the avatar. The bottom [tail] height of the size it is given
+ * is left for the triangle. The straight side of the triangle sits where the
+ * rounding of the base corner ends, and it is never wider than the straight
+ * part of the bottom edge.
+ */
+internal class TailedShape(
+    private val base: Shape,
+    private val tail: DpSize,
+    private val atEnd: Boolean,
+) : Shape {
+
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val tailWidth = with(density) { tail.width.toPx() }
+        val tailHeight = with(density) { tail.height.toPx() }
+        val body = Size(size.width, (size.height - tailHeight).coerceAtLeast(0f))
+        val corners = base as? CornerBasedShape
+        val corner = corners?.let { if (atEnd) it.bottomEnd else it.bottomStart }?.toPx(body, density) ?: 0f
+        val otherCorner = corners?.let { if (atEnd) it.bottomStart else it.bottomEnd }?.toPx(body, density) ?: 0f
+        // A short bubble gets a narrower tail, never wider than its straight bottom edge.
+        val width = tailWidth.coerceAtMost((size.width - corner - otherCorner).coerceAtLeast(0f))
+        val onRight = atEnd == (layoutDirection == LayoutDirection.Ltr)
+        val edge = if (onRight) size.width - corner else corner
+        val inner = if (onRight) edge - width else edge + width
+        // Starts a pixel inside the body so no seam shows where the two meet.
+        val triangle = Path().apply {
+            moveTo(inner, body.height - 1f)
+            lineTo(edge, body.height - 1f)
+            lineTo(edge, size.height)
+            close()
+        }
+        val bubble = Path().apply { addOutline(base.createOutline(body, layoutDirection, density)) }
+        return Outline.Generic(Path.combine(PathOperation.Union, bubble, triangle))
     }
 }
 

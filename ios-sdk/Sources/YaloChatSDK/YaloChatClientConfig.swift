@@ -41,6 +41,10 @@
 /// - `assistantMessageAvatar`: drawn beside the channel's messages. `.none`
 ///   draws nothing.
 /// - `avatarDisplay`: which messages carry their avatar.
+/// - `showTimestamps`: whether each message shows the time it was sent inside
+///   its bubble, in the device time format.
+/// - `messageButtonsPosition`: where the buttons a channel message keeps are
+///   drawn.
 public struct YaloChatClientConfig: Sendable, Equatable {
     public let channelId: String
     public let organizationId: String
@@ -64,6 +68,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
     public let userMessageAvatar: YaloChatMessageAvatar
     public let assistantMessageAvatar: YaloChatMessageAvatar
     public let avatarDisplay: AvatarDisplay
+    public let showTimestamps: Bool
+    public let messageButtonsPosition: MessageButtonsPosition
 
     public init(
         channelId: String,
@@ -87,7 +93,9 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         assistantMessageAvatar: YaloChatMessageAvatar = .none,
         avatarDisplay: AvatarDisplay = .lastInGroup,
         typingIndicatorType: TypingIndicatorType = .threeDots,
-        typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = .center
+        typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = .center,
+        showTimestamps: Bool = false,
+        messageButtonsPosition: MessageButtonsPosition = .belowMessage
     ) {
         self.channelId = channelId
         self.organizationId = organizationId
@@ -111,6 +119,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
         self.userMessageAvatar = userMessageAvatar
         self.assistantMessageAvatar = assistantMessageAvatar
         self.avatarDisplay = avatarDisplay
+        self.showTimestamps = showTimestamps
+        self.messageButtonsPosition = messageButtonsPosition
     }
 
     public static func == (lhs: YaloChatClientConfig, rhs: YaloChatClientConfig) -> Bool {
@@ -135,6 +145,8 @@ public struct YaloChatClientConfig: Sendable, Equatable {
             && lhs.userMessageAvatar == rhs.userMessageAvatar
             && lhs.assistantMessageAvatar == rhs.assistantMessageAvatar
             && lhs.avatarDisplay == rhs.avatarDisplay
+            && lhs.showTimestamps == rhs.showTimestamps
+            && lhs.messageButtonsPosition == rhs.messageButtonsPosition
     }
 
     /// The conversation before `sessionMode` has had its say: the whole

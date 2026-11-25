@@ -13,6 +13,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,6 +68,7 @@ private fun FeedbackButton(
     tag: String,
 ) {
     val theme = currentChatTheme
+    val color = theme.feedbackButtonColor.takeOrElse { theme.onBackground }
     val checked = rating == selected
     IconToggleButton(
         checked = checked,
@@ -75,8 +77,8 @@ private fun FeedbackButton(
             .size(36.dp)
             .testTag(tag),
         colors = IconButtonDefaults.iconToggleButtonColors(
-            contentColor = theme.onBackground,
-            checkedContentColor = theme.onBackground,
+            contentColor = color,
+            checkedContentColor = color,
         ),
     ) {
         Icon(

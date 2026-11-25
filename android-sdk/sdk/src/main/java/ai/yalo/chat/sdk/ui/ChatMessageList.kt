@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.AvatarDisplay
+import ai.yalo.chat.sdk.MessageButtonsPosition
 import ai.yalo.chat.sdk.TypingIndicatorAvatarPosition
 import ai.yalo.chat.sdk.TypingIndicatorType
 import ai.yalo.chat.sdk.YaloChatMessageAvatar
@@ -17,7 +18,17 @@ import ai.yalo.chat.sdk.ui.messages.TypingIndicator
 import ai.yalo.chat.sdk.ui.messages.TypingText
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import ai.yalo.chat.sdk.ui.videos.VideoPreview
+import android.content.Context
+import android.text.format.DateUtils
+import androidx.compose.ui.platform.LocalContext
 import android.view.View
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
+import androidx.compose.ui.text.style.TextAlign
+import java.util.Calendar
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -44,6 +55,7 @@ import androidx.compose.ui.unit.dp
 
 internal const val CHAT_MESSAGE_LIST_TAG: String = "yalo-chat-message-list"
 internal const val CHAT_WELCOME_AVATAR_TAG: String = "yalo-chat-welcome-avatar"
+internal const val CHAT_DAY_SEPARATOR_TAG: String = "yalo-chat-day-separator"
 
 private const val TYPING_INDICATOR_KEY = "yalo-chat-typing-indicator-item"
 private const val WELCOME_AVATAR_KEY = "yalo-chat-welcome-avatar-item"
@@ -88,6 +100,8 @@ internal fun ChatMessageList(
     userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
+    showTimestamps: Boolean = false,
+    messageButtonsPosition: MessageButtonsPosition = MessageButtonsPosition.BelowMessage,
     typingIndicatorType: TypingIndicatorType = TypingIndicatorType.ThreeDots,
     writingIndicatorText: String? = null,
     typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = TypingIndicatorAvatarPosition.Center,
@@ -151,8 +165,10 @@ internal fun ChatMessageList(
                 items = messages,
                 key = { _, message -> message.id ?: message.timestamp },
             ) { index, message ->
-                ChatMessageItem(
-                    message = message,
+                // The oldest message of each day starts with the day, above it.
+                val startsDay = showTimestamps &&
+                    (index == messages.lastIndex || !sameDay(messages[index + 1].timestamp, message.timestamp))
+                Column(
                     // A message fades in where it lands. Rows do not slide: in a
                     // reversed list pinned to the top, a row that grows, such as
                     // a picture that finished loading, would slide down from above.
@@ -160,28 +176,38 @@ internal fun ChatMessageList(
                         fadeInSpec = tween(durationMillis = MESSAGE_FADE_MILLIS),
                         placementSpec = null,
                     ),
-                    quickReplies = if (quickRepliesMessageId != null && message.id == quickRepliesMessageId) {
-                        message.quickReplies
-                    } else {
-                        emptyList()
-                    },
-                    isWelcome = isWelcome,
-                    onQuickReply = onQuickReply,
-                    onPostback = onPostback,
-                    playback = playback,
-                    onVoiceMessageToggled = onVoiceMessageToggled,
-                    loadImage = loadImage,
-                    loadVideo = loadVideo,
-                    onFeedback = onFeedback.takeIf { index < firstUserMessageIndex },
-                    userAvatar = userAvatar,
-                    assistantAvatar = assistantAvatar,
-                    showsAvatar = avatarDisplay == AvatarDisplay.EveryMessage ||
-                        if (index == 0) {
-                            !writingEndsGroup || message.role == MessageRole.User
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (startsDay) {
+                        DaySeparator(timestamp = message.timestamp)
+                    }
+                    ChatMessageItem(
+                        message = message,
+                        quickReplies = if (quickRepliesMessageId != null && message.id == quickRepliesMessageId) {
+                            message.quickReplies
                         } else {
-                            messages[index - 1].role != message.role
+                            emptyList()
                         },
-                )
+                        isWelcome = isWelcome,
+                        onQuickReply = onQuickReply,
+                        onPostback = onPostback,
+                        playback = playback,
+                        onVoiceMessageToggled = onVoiceMessageToggled,
+                        loadImage = loadImage,
+                        loadVideo = loadVideo,
+                        onFeedback = onFeedback.takeIf { index < firstUserMessageIndex },
+                        userAvatar = userAvatar,
+                        assistantAvatar = assistantAvatar,
+                        showTimestamp = showTimestamps,
+                        messageButtonsPosition = messageButtonsPosition,
+                        showsAvatar = avatarDisplay == AvatarDisplay.EveryMessage ||
+                            if (index == 0) {
+                                !writingEndsGroup || message.role == MessageRole.User
+                            } else {
+                                messages[index - 1].role != message.role
+                            },
+                    )
+                }
             }
             // Last in a reversed list, so it sits above the welcome message.
             if (isWelcome && avatar != null) {
@@ -202,6 +228,48 @@ internal fun ChatMessageList(
             }
         }
     }
+}
+
+/** The day the messages under it were sent, as [dayLabelOf] words it. */
+@Composable
+private fun DaySeparator(timestamp: Long) {
+    val context = LocalContext.current
+    val label = remember(timestamp) { dayLabelOf(context, timestamp, System.currentTimeMillis()) }
+    Text(
+        text = label,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .testTag(CHAT_DAY_SEPARATOR_TAG),
+        color = currentChatTheme.timestampColor,
+        style = MaterialTheme.typography.labelMedium,
+        textAlign = TextAlign.Center,
+    )
+}
+
+/**
+ * "Today", "Yesterday" or the short date such as "Nov 22", in the device
+ * language. The year is added only for a past year.
+ */
+internal fun dayLabelOf(context: Context, timestamp: Long, now: Long): String {
+    if (sameDay(timestamp, now) || sameDay(timestamp, now - DateUtils.DAY_IN_MILLIS)) {
+        return DateUtils.getRelativeTimeSpanString(timestamp, now, DateUtils.DAY_IN_MILLIS).toString()
+    }
+    val year = Calendar.getInstance().apply { timeInMillis = timestamp }.get(Calendar.YEAR)
+    val thisYear = Calendar.getInstance().apply { timeInMillis = now }.get(Calendar.YEAR)
+    val yearFlag = if (year == thisYear) DateUtils.FORMAT_NO_YEAR else DateUtils.FORMAT_SHOW_YEAR
+    return DateUtils.formatDateTime(
+        context,
+        timestamp,
+        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_MONTH or yearFlag,
+    )
+}
+
+private fun sameDay(first: Long, second: Long): Boolean {
+    val one = Calendar.getInstance().apply { timeInMillis = first }
+    val other = Calendar.getInstance().apply { timeInMillis = second }
+    return one.get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
+        one.get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
 }
 
 /**

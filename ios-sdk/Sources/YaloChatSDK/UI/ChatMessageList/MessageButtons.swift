@@ -2,20 +2,22 @@
 
 import SwiftUI
 
-/// The buttons a message keeps, stacked under it one per line, so a long text
-/// is never cut short.
+/// The buttons a message keeps, stacked one per line. With `fillsWidth` each is
+/// the full width of the message, so a long text is never cut short, and
+/// without it each is as wide as its text.
 ///
 /// A link opens its address outside the chat and carries an arrow to say so.
 /// Every other button, a link with no address included, says its text back to
 /// the channel through `onTap`. A selected postback is highlighted.
 struct MessageButtons: View {
     let buttons: [MessageButton]
+    var fillsWidth: Bool = true
     var onTap: (MessageButton) -> Void = { _ in }
     @Environment(\.chatTheme) private var theme: ChatTheme
     @Environment(\.openURL) private var openURL: OpenURLAction
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             // Texts can repeat, so a button is told apart by where it sits.
             ForEach(Array(buttons.enumerated()), id: \.offset) { _, button in
                 let url: URL? = button.kind == .link ? button.url.flatMap(URL.init(string:)) : nil
@@ -37,16 +39,22 @@ struct MessageButtons: View {
                         }
                     }
                     .font(theme.font(.subheadline).weight(.medium))
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: fillsWidth ? .infinity : nil)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .foregroundStyle(isSelected ? theme.onSelectedPostbackBackground : theme.onPostbackBackground)
                     .background(
                         isSelected ? theme.selectedPostbackBackground : theme.postbackBackground,
-                        in: RoundedRectangle(cornerRadius: 8)
+                        in: theme.postbackShape
                     )
-                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(theme.postbackBorderColor))
-                    .contentShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        theme.postbackShape.strokeBorder(
+                            isSelected
+                                ? theme.selectedPostbackBorderColor ?? theme.postbackBorderColor
+                                : theme.postbackBorderColor
+                        )
+                    )
+                    .contentShape(theme.postbackShape)
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("yalo-chat-message-button")

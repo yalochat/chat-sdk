@@ -82,18 +82,29 @@ Chat(client: client, theme: ChatTheme(fontFamily: "Brand Sans"))
 - **`inputScrollbarWidth`** (`CGFloat`): Width of that thumb, in points. Its ends stay fully rounded at any width. Defaults to `3`. Set `0` to hide it; the text still scrolls.
 - **`sendButtonBackground`** (`Color`): Fill of the round button after the input, both while it sends and while it records. Defaults to the accent color. While there is nothing to send it is drawn faded.
 - **`onSendButtonBackground`** (`Color`): Color of the icon on that button. Defaults to white.
+- **`disabledSendButtonBackground`** (`Color?`): Fill of that button while there is nothing to send. Defaults to `nil`, which draws it faded.
+- **`onDisabledSendButtonBackground`** (`Color?`): Color of its icon while there is nothing to send. Defaults to `nil`, which draws it faded.
+- **`inputPlaceholderColor`** (`Color`): Color of the text the message input shows while it is empty. Defaults to the system placeholder text color.
 
 ### Messages
 
 - **`userMessageBackground`** (`Color`): Bubble background for messages the person sent. Defaults to the secondary system background color.
 - **`onUserMessageBackground`** (`Color`): Text color inside those bubbles. Defaults to the system label color.
+- **`userMessagePadding`** (`EdgeInsets`): Room between the person's bubble and what is inside it. Defaults to 16 on the sides and 12 above and below.
 - **`userMessageShape`** (`ChatShape`): Shape of the person's bubbles. Defaults to every corner rounded by 18 points.
-- **`agentMessageBackground`** (`Color`): Background for messages the channel sent. Defaults to clear, so what the channel says reads as the conversation itself rather than as a reply. Set a color to put them in a box.
-- **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the system label color.
-- **`agentMessageShape`** (`ChatShape`): Shape of the box around those messages. Defaults to square corners, which is invisible while the background is clear. Set it along with `agentMessageBackground` when you want those messages boxed.
-- **`agentMessageBorderColor`** (`Color`): Color of the line around that box. Defaults to clear.
-- **`agentMessagePadding`** (`CGFloat`): Room between that box and what is inside it. Defaults to 0, so the text lines up with the conversation while there is no box.
-- The `agentMessage*` box values above also draw the box around the typing indicator, so it looks like the message it turns into.
+- **`assistantMessageBackground`** (`Color`): Background for messages the channel sent. Defaults to clear, so what the channel says reads as the conversation itself rather than as a reply. Set a color to put them in a box.
+- **`onAssistantMessageBackground`** (`Color`): Text color for those messages. Defaults to the system label color.
+- **`assistantMessageShape`** (`ChatShape`): Shape of the box around those messages. Defaults to square corners, which is invisible while the background is clear. Set it along with `assistantMessageBackground` when you want those messages boxed.
+- **`assistantMessageBorderColor`** (`Color`): Color of the line around that box. Defaults to clear.
+- **`agentMessageBackground`**: Deprecated, use `assistantMessageBackground`.
+- **`onAgentMessageBackground`**: Deprecated, use `onAssistantMessageBackground`.
+- **`agentMessageShape`**: Deprecated, use `assistantMessageShape`.
+- **`agentMessageBorderColor`**: Deprecated, use `assistantMessageBorderColor`.
+- **`assistantMessagePadding`** (`EdgeInsets`): Room between that box and what is inside it. Defaults to no room, so the text lines up with the conversation while there is no box.
+- The `assistantMessage*` box values above also draw the box around the typing indicator, so it looks like the message it turns into.
+- **`messageTailSize`** (`CGSize`): Size of a triangle under the bubble that shows the avatar, pointing down at it, like a speech bubble. Its straight side sits where the rounding of the bottom corner ends. Defaults to `.zero`, which draws none. The typing indicator bubble gets it too while its avatar sits below it, with `typingIndicatorAvatarPosition` set to below. For example `CGSize(width: 48, height: 24)`.
+- **`feedbackButtonColor`** (`Color?`): Color of the thumbs up and thumbs down under the channel's replies. The one picked is drawn filled. Defaults to `nil`, which draws them in `onAssistantMessageBackground`, faded until one is picked.
+- **`timestampColor`** (`Color`): Color of the time shown inside each message with `showTimestamps` on in the client config, and of the day shown above the first message of each day. Defaults to the secondary system label color.
 - **`typingIndicatorDotColor`** (`Color`): Color of the typing indicator shown while the chat waits for a reply: the animated dots, or the "Writing..." text. Defaults to the secondary system label color.
 
 ### Message avatars
@@ -131,6 +142,8 @@ These paint the buttons stacked under a message, both the ones that answer the c
 - **`postbackBorderColor`** (`Color`): Color of the line around a button. Defaults to the system separator color.
 - **`selectedPostbackBackground`** (`Color`): Background of the button the person tapped last on a message. Defaults to the system tertiary fill color.
 - **`onSelectedPostbackBackground`** (`Color`): Color of the text on the button the person tapped last. Defaults to the system label color.
+- **`selectedPostbackBorderColor`** (`Color?`): Color of the line around the button the person tapped last. Defaults to `nil`, which keeps `postbackBorderColor`.
+- **`postbackShape`** (`ChatShape`): Shape of a button. Defaults to every corner rounded by 8 points. `.capsule` gives pill shaped buttons.
 
 ## Light and dark
 
@@ -173,8 +186,8 @@ struct BrandedChat: View {
                 onSendButtonBackground: .white,
                 userMessageBackground: brand,
                 onUserMessageBackground: .white,
-                agentMessageBackground: .clear,
-                onAgentMessageBackground: Color(.label),
+                assistantMessageBackground: .clear,
+                onAssistantMessageBackground: Color(.label),
                 typingIndicatorDotColor: brand,
                 quickReplyBackground: .clear,
                 onQuickReplyBackground: brand,

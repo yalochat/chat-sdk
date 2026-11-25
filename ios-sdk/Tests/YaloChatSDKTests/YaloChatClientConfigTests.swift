@@ -40,6 +40,8 @@ struct YaloChatClientConfigTests {
         #expect(!config.hideVoiceButton)
         #expect(!config.hideAttachmentButton)
         #expect(!config.hideFeedbackButtons)
+        #expect(!config.showTimestamps)
+        #expect(config.messageButtonsPosition == .belowMessage)
     }
 
     @Test func warnsAndOpensWithNoContextUnlessToldOtherwise() {

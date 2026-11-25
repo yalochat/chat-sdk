@@ -147,6 +147,8 @@ Optional properties:
 - **`avatarDisplay`** (`AvatarDisplay`): Which messages get an avatar. Defaults to `AvatarDisplay.LastInGroup`. See [Message avatars](#message-avatars).
 - **`typingIndicatorAvatarPosition`** (`TypingIndicatorAvatarPosition`): Where the `assistantMessageAvatar` sits beside the typing indicator. Defaults to `TypingIndicatorAvatarPosition.Center`, which centers it next to the indicator. Set `TypingIndicatorAvatarPosition.Below` to place it below the indicator, like it sits beside an assistant message.
 - **`texts`** (`YaloChatTexts`): Your own copy for built-in strings, such as `inputPlaceholder`. Defaults to none, which keeps the built-in translations. See [Translations](doc/translations.md).
+- **`showTimestamps`** (`Boolean`): Shows the time each message was sent in the bottom corner of its bubble, in the device time format. A line with the day sits above the first message of each day: "Today", "Yesterday", or the short date such as "Nov 22", with the year only for a past year. Defaults to `false`. Its color is `timestampColor` in the [theme](doc/theming.md).
+- **`messageButtonsPosition`** (`MessageButtonsPosition`): Where the buttons a channel message keeps are drawn. Defaults to `MessageButtonsPosition.BelowMessage`, which stacks them under the bubble, each the full width of the message. Set `MessageButtonsPosition.InsideMessage` to draw them inside the bubble, under the text, each as wide as its text.
 
 In the default `SessionMode.Shared`, two chats built from the same `channelId`, `organizationId` and `userId` are the same conversation and show the same messages. The other modes narrow that further. See [Session modes](#session-modes).
 

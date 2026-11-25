@@ -58,6 +58,13 @@ struct ChatMessageListTests {
         #expect(renders(ChatMessageList(messages: [rated, message(2, .user, "Hello")], showsFeedback: true)))
     }
 
+    @Test func messageListRendersFeedbackInTheThemeColor() {
+        var rated: ChatMessage = message(1, .agent, "Hi")
+        rated.wiId = "wi-1"
+        let list: ChatMessageList = ChatMessageList(messages: [message(2, .user, "Hello"), rated], showsFeedback: true)
+        #expect(renders(list.environment(\.chatTheme, ChatTheme(feedbackButtonColor: .gray))))
+    }
+
     @Test func messageListRendersTheTappedPostbackUnderItsMessage() {
         var tapped: ChatMessage = message(1, .agent, "Pick one")
         tapped.buttons = [MessageButton(text: "Menu", kind: .postback, selected: true), MessageButton(text: "Help", kind: .postback)]
@@ -82,10 +89,10 @@ struct ChatMessageListTests {
     @Test func messageListRendersThemedMessageBoxes() {
         let theme: ChatTheme = ChatTheme(
             userMessageShape: ChatShape(topLeading: 16, topTrailing: 16, bottomLeading: 16),
-            agentMessageBackground: .white,
-            agentMessageShape: ChatShape(radius: 8),
-            agentMessageBorderColor: .gray,
-            agentMessagePadding: 12
+            assistantMessageBackground: .white,
+            assistantMessageShape: ChatShape(radius: 8),
+            assistantMessageBorderColor: .gray,
+            assistantMessagePadding: EdgeInsets(top: 12, leading: 12, bottom: 12, trailing: 12)
         )
         let note: VoiceNote = VoiceNote(duration: 3, amplitudes: [0.2, 0.8])
         let messages: [ChatMessage] = [
@@ -316,5 +323,58 @@ struct ChatMessageListTests {
 
     @Test func messageAvatarRendersLongText() {
         #expect(renders(MessageAvatar(avatar: .text("Jose Rodrigo"), background: .gray, foreground: .white)))
+    }
+
+    @Test func messageListRendersTailsTimestampsAndButtonsInsideTheBubble() {
+        var question: ChatMessage = message(2, .agent, "How do you want to look up your ticket?")
+        question.buttons = [MessageButton(text: "Ticket", kind: .postback, selected: true), MessageButton(text: "Payroll", kind: .postback)]
+        let theme: ChatTheme = ChatTheme(
+            postbackShape: .capsule,
+            messageTailSize: CGSize(width: 48, height: 24),
+            selectedPostbackBorderColor: .pink,
+            userMessagePadding: EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20)
+        )
+        let list: ChatMessageList = ChatMessageList(
+            messages: [message(1, .user, "Hi"), question],
+            userMessageAvatar: .text("JL"),
+            assistantMessageAvatar: .text("YA"),
+            showTimestamps: true,
+            messageButtonsPosition: .insideMessage
+        )
+
+        #expect(renders(list.environment(\.chatTheme, theme)))
+    }
+
+    @Test func noBubbleGetsATailUnlessTheThemeSetsOne() {
+        let list: ChatMessageList = ChatMessageList(messages: [message(1, .user, "Hi")])
+
+        #expect(list.tail(showsAvatar: true) == nil)
+    }
+
+    @Test(arguments: [TypingIndicatorAvatarPosition.center, .below])
+    func messageListRendersTheTypingIndicatorWithATail(position: TypingIndicatorAvatarPosition) {
+        let list: ChatMessageList = ChatMessageList(
+            messages: [message(1, .user, "Hello")],
+            isWaitingForReply: true,
+            assistantMessageAvatar: .text("YA"),
+            typingIndicatorType: .text,
+            typingIndicatorAvatarPosition: position
+        )
+
+        #expect(renders(list.environment(\.chatTheme, ChatTheme(messageTailSize: CGSize(width: 48, height: 24)))))
+    }
+
+    @Test func eachDayStartsWithItsDayWhenTimestampsAreOn() {
+        let today: Date = Date()
+        let yesterday: Date = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+        let messages: [ChatMessage] = [
+            ChatMessage(role: .agent, type: .text, timestamp: yesterday, id: 1, content: "Hi"),
+            ChatMessage(role: .user, type: .text, timestamp: yesterday, id: 2, content: "Hello"),
+            ChatMessage(role: .agent, type: .text, timestamp: today, id: 3, content: "Welcome back"),
+        ]
+
+        #expect(ChatMessageList(messages: messages, showTimestamps: true).startsDayIds == [1, 3])
+        #expect(ChatMessageList(messages: messages).startsDayIds.isEmpty)
+        #expect(renders(ChatMessageList(messages: messages, showTimestamps: true)))
     }
 }

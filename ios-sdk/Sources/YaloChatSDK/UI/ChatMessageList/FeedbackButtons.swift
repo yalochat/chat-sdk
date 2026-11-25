@@ -28,7 +28,7 @@ struct FeedbackButtons: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(theme.onAgentMessageBackground.opacity(picked ? 1 : 0.6))
+                .foregroundStyle(theme.feedbackButtonColor ?? theme.onAssistantMessageBackground.opacity(picked ? 1 : 0.6))
                 .accessibilityLabel(label)
                 .accessibilityAddTraits(picked ? .isSelected : [])
                 .accessibilityIdentifier(identifier)

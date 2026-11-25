@@ -4,6 +4,14 @@ package ai.yalo.chat.sdk.ui.messages
 import androidx.compose.ui.test.isNotSelected
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import ai.yalo.chat.sdk.MessageButtonsPosition
+import ai.yalo.chat.sdk.ui.theme.ChatTheme
+import ai.yalo.chat.sdk.ui.theme.ProvideChatTheme
 import ai.yalo.chat.sdk.YaloChatMessageAvatar
 import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.FeedbackRating
@@ -15,6 +23,8 @@ import ai.yalo.chat.sdk.domain.models.VoiceNote
 import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_MESSAGE_TAG
 import ai.yalo.chat.sdk.ui.voice.CHAT_VOICE_PLAY_BUTTON_TAG
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -535,6 +545,130 @@ class ChatMessageItemTest {
         }
 
         composeRule.onNodeWithTag(CHAT_ASSISTANT_AVATAR_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun showsWhenEachMessageWasSentWhenAsked() {
+        composeRule.setContent {
+            Column {
+                ChatMessageItem(message(role = MessageRole.User, content = "Hi"), showTimestamp = true)
+                ChatMessageItem(message(role = MessageRole.Agent, content = "Hello"), showTimestamp = true)
+            }
+        }
+
+        composeRule.onNode(
+            hasTestTag(CHAT_MESSAGE_TIMESTAMP_TAG) and hasAnyAncestor(hasTestTag(CHAT_USER_MESSAGE_TAG)),
+        ).assertIsDisplayed()
+        composeRule.onNode(
+            hasTestTag(CHAT_MESSAGE_TIMESTAMP_TAG) and hasAnyAncestor(hasTestTag(CHAT_AGENT_MESSAGE_TAG)),
+        ).assertIsDisplayed()
+    }
+
+    @Test
+    fun leavesWhenEachMessageWasSentOutByDefault() {
+        composeRule.setContent {
+            ChatMessageItem(message(role = MessageRole.Agent, content = "Hello"))
+        }
+
+        composeRule.onNodeWithTag(CHAT_MESSAGE_TIMESTAMP_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun drawsTheButtonsInsideTheBubbleWhenAsked() {
+        composeRule.setContent {
+            ChatMessageItem(
+                messageWithButtons("Pick one", "Ticket"),
+                messageButtonsPosition = MessageButtonsPosition.InsideMessage,
+            )
+        }
+
+        composeRule.onNode(
+            hasText("Ticket") and hasAnyAncestor(hasTestTag(CHAT_AGENT_MESSAGE_TAG)),
+        ).assertIsDisplayed()
+    }
+
+    @Test
+    fun drawsTheButtonsUnderTheBubbleByDefault() {
+        composeRule.setContent {
+            ChatMessageItem(messageWithButtons("Pick one", "Ticket"))
+        }
+
+        composeRule.onNodeWithText("Ticket").assertIsDisplayed()
+        composeRule.onNode(
+            hasText("Ticket") and hasAnyAncestor(hasTestTag(CHAT_AGENT_MESSAGE_TAG)),
+        ).assertDoesNotExist()
+    }
+
+    @Test
+    fun givesATailOnlyToTheBubbleThatShowsTheAvatar() {
+        composeRule.setContent {
+            ProvideChatTheme(ChatTheme.default().copy(messageTailSize = DpSize(48.dp, 24.dp))) {
+                Column {
+                    ChatMessageItem(message(role = MessageRole.User, content = "Hi"), showsAvatar = false)
+                    ChatMessageItem(message(role = MessageRole.User, content = "Hi"), showsAvatar = true)
+                }
+            }
+        }
+
+        val bubbles = composeRule.onAllNodesWithTag(CHAT_USER_MESSAGE_TAG)
+        val withoutTail = bubbles[0].getBoundsInRoot().let { it.bottom - it.top }
+        val withTail = bubbles[1].getBoundsInRoot().let { it.bottom - it.top }
+        assertEquals(24f, (withTail - withoutTail).value, 0.5f)
+    }
+
+    @Test
+    fun givesTheWritingBubbleATailWhenTheAvatarSitsBelowIt() {
+        composeRule.setContent {
+            ProvideChatTheme(ChatTheme.default().copy(messageTailSize = DpSize(48.dp, 24.dp))) {
+                Column {
+                    AssistantWriting(avatar = YaloChatMessageAvatar.Text("Y"), avatarBelow = false) {
+                        Text("Writing...")
+                    }
+                    AssistantWriting(avatar = YaloChatMessageAvatar.Text("Y"), avatarBelow = true) {
+                        Text("Writing...")
+                    }
+                }
+            }
+        }
+
+        val bubbles = composeRule.onAllNodesWithTag(CHAT_WRITING_BUBBLE_TAG)
+        val beside = bubbles[0].getBoundsInRoot().let { it.bottom - it.top }
+        val above = bubbles[1].getBoundsInRoot().let { it.bottom - it.top }
+        assertEquals(24f, (above - beside).value, 0.5f)
+    }
+
+    @Test
+    fun padsThePersonsBubbleWithTheThemePadding() {
+        composeRule.setContent {
+            Column {
+                ChatMessageItem(message(role = MessageRole.User, content = "Hi"))
+                ProvideChatTheme(ChatTheme.default().copy(userMessagePadding = PaddingValues(20.dp))) {
+                    ChatMessageItem(message(role = MessageRole.User, content = "Hi"))
+                }
+            }
+        }
+
+        val bubbles = composeRule.onAllNodesWithTag(CHAT_USER_MESSAGE_TAG)
+        val byDefault = bubbles[0].getBoundsInRoot().let { it.bottom - it.top }
+        val padded = bubbles[1].getBoundsInRoot().let { it.bottom - it.top }
+        assertEquals(16f, (padded - byDefault).value, 0.5f)
+    }
+
+    @Test
+    fun padsTheAssistantBubbleWithTheThemePadding() {
+        composeRule.setContent {
+            Column {
+                ChatMessageItem(message(role = MessageRole.Agent, content = "Hi"))
+                ProvideChatTheme(ChatTheme.default().copy(assistantMessagePadding = PaddingValues(20.dp))) {
+                    ChatMessageItem(message(role = MessageRole.Agent, content = "Hi"))
+                }
+            }
+        }
+
+        val bubbles = composeRule.onAllNodesWithTag(CHAT_AGENT_MESSAGE_TAG)
+        val byDefault = bubbles[0].getBoundsInRoot().let { it.bottom - it.top }
+        val padded = bubbles[1].getBoundsInRoot().let { it.bottom - it.top }
+        assertEquals(40f, (padded - byDefault).value, 0.5f)
     }
 
     private fun messageWithButtons(content: String, vararg buttons: String) =

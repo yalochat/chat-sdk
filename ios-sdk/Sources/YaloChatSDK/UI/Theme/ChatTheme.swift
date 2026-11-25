@@ -29,11 +29,10 @@ public struct ChatTheme: Sendable, Equatable {
     public var userMessageBackground: Color
     public var onUserMessageBackground: Color
     public var userMessageShape: ChatShape
-    public var agentMessageBackground: Color
-    public var onAgentMessageBackground: Color
-    public var agentMessageShape: ChatShape
-    public var agentMessageBorderColor: Color
-    public var agentMessagePadding: CGFloat
+    public var assistantMessageBackground: Color
+    public var onAssistantMessageBackground: Color
+    public var assistantMessageShape: ChatShape
+    public var assistantMessageBorderColor: Color
     public var typingIndicatorDotColor: Color
     public var quickReplyBackground: Color
     public var onQuickReplyBackground: Color
@@ -49,6 +48,16 @@ public struct ChatTheme: Sendable, Equatable {
     public var assistantAvatarBackground: Color
     public var onAssistantAvatarBackground: Color
     public var fontFamily: String?
+    public var postbackShape: ChatShape
+    public var messageTailSize: CGSize
+    public var timestampColor: Color
+    public var selectedPostbackBorderColor: Color?
+    public var disabledSendButtonBackground: Color?
+    public var onDisabledSendButtonBackground: Color?
+    public var inputPlaceholderColor: Color
+    public var userMessagePadding: EdgeInsets
+    public var assistantMessagePadding: EdgeInsets
+    public var feedbackButtonColor: Color?
 
     public init(
         background: Color = Color(.systemBackground),
@@ -68,11 +77,10 @@ public struct ChatTheme: Sendable, Equatable {
         onUserMessageBackground: Color = Color(.label),
         userMessageShape: ChatShape = ChatShape(radius: 18),
         // Unbubbled, like the web SDK, so it reads as the conversation itself.
-        agentMessageBackground: Color = .clear,
-        onAgentMessageBackground: Color = Color(.label),
-        agentMessageShape: ChatShape = ChatShape(radius: 0),
-        agentMessageBorderColor: Color = .clear,
-        agentMessagePadding: CGFloat = 0,
+        assistantMessageBackground: Color = .clear,
+        onAssistantMessageBackground: Color = Color(.label),
+        assistantMessageShape: ChatShape = ChatShape(radius: 0),
+        assistantMessageBorderColor: Color = .clear,
         typingIndicatorDotColor: Color = Color(.secondaryLabel),
         // Outlined rather than filled, like the web SDK, so a quick reply reads
         // as an offer rather than as something said.
@@ -89,7 +97,17 @@ public struct ChatTheme: Sendable, Equatable {
         onUserAvatarBackground: Color = Color(.label),
         assistantAvatarBackground: Color = .accentColor,
         onAssistantAvatarBackground: Color = .white,
-        fontFamily: String? = nil
+        fontFamily: String? = nil,
+        postbackShape: ChatShape = ChatShape(radius: 8),
+        messageTailSize: CGSize = .zero,
+        timestampColor: Color = Color(.secondaryLabel),
+        selectedPostbackBorderColor: Color? = nil,
+        disabledSendButtonBackground: Color? = nil,
+        onDisabledSendButtonBackground: Color? = nil,
+        inputPlaceholderColor: Color = Color(.placeholderText),
+        userMessagePadding: EdgeInsets = EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16),
+        assistantMessagePadding: EdgeInsets = EdgeInsets(),
+        feedbackButtonColor: Color? = nil
     ) {
         self.background = background
         self.headerBackground = headerBackground
@@ -106,11 +124,10 @@ public struct ChatTheme: Sendable, Equatable {
         self.userMessageBackground = userMessageBackground
         self.onUserMessageBackground = onUserMessageBackground
         self.userMessageShape = userMessageShape
-        self.agentMessageBackground = agentMessageBackground
-        self.onAgentMessageBackground = onAgentMessageBackground
-        self.agentMessageShape = agentMessageShape
-        self.agentMessageBorderColor = agentMessageBorderColor
-        self.agentMessagePadding = agentMessagePadding
+        self.assistantMessageBackground = assistantMessageBackground
+        self.onAssistantMessageBackground = onAssistantMessageBackground
+        self.assistantMessageShape = assistantMessageShape
+        self.assistantMessageBorderColor = assistantMessageBorderColor
         self.typingIndicatorDotColor = typingIndicatorDotColor
         self.quickReplyBackground = quickReplyBackground
         self.onQuickReplyBackground = onQuickReplyBackground
@@ -126,10 +143,44 @@ public struct ChatTheme: Sendable, Equatable {
         self.assistantAvatarBackground = assistantAvatarBackground
         self.onAssistantAvatarBackground = onAssistantAvatarBackground
         self.fontFamily = fontFamily
+        self.postbackShape = postbackShape
+        self.messageTailSize = messageTailSize
+        self.timestampColor = timestampColor
+        self.selectedPostbackBorderColor = selectedPostbackBorderColor
+        self.disabledSendButtonBackground = disabledSendButtonBackground
+        self.onDisabledSendButtonBackground = onDisabledSendButtonBackground
+        self.inputPlaceholderColor = inputPlaceholderColor
+        self.userMessagePadding = userMessagePadding
+        self.assistantMessagePadding = assistantMessagePadding
+        self.feedbackButtonColor = feedbackButtonColor
     }
 }
 
 extension ChatTheme {
+    @available(*, deprecated, renamed: "assistantMessageBackground")
+    public var agentMessageBackground: Color {
+        get { assistantMessageBackground }
+        set { assistantMessageBackground = newValue }
+    }
+
+    @available(*, deprecated, renamed: "onAssistantMessageBackground")
+    public var onAgentMessageBackground: Color {
+        get { onAssistantMessageBackground }
+        set { onAssistantMessageBackground = newValue }
+    }
+
+    @available(*, deprecated, renamed: "assistantMessageShape")
+    public var agentMessageShape: ChatShape {
+        get { assistantMessageShape }
+        set { assistantMessageShape = newValue }
+    }
+
+    @available(*, deprecated, renamed: "assistantMessageBorderColor")
+    public var agentMessageBorderColor: Color {
+        get { assistantMessageBorderColor }
+        set { assistantMessageBorderColor = newValue }
+    }
+
     /// The text style in `fontFamily`, or the system font when there is none.
     func font(_ style: Font.TextStyle) -> Font {
         guard let fontFamily else {

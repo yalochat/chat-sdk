@@ -35,6 +35,8 @@ struct ChatMessageList: View {
     var typingIndicatorType: TypingIndicatorType = .threeDots
     var writingIndicatorText: String?
     var typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = .center
+    var showTimestamps: Bool = false
+    var messageButtonsPosition: MessageButtonsPosition = .belowMessage
     var onRate: (ChatMessage, ChatMessage.Feedback) -> Void = { _, _ in }
     @Environment(\.chatTheme) private var theme: ChatTheme
     /// Whether the end of the conversation is on screen. A picture that loads
@@ -63,12 +65,49 @@ struct ChatMessageList: View {
         return hidden
     }
 
+    /// The messages that start a day, so the day is drawn above them. Only with `showTimestamps`.
+    var startsDayIds: Set<Int64> {
+        guard showTimestamps else {
+            return []
+        }
+        let calendar: Calendar = .current
+        return Set(messages.enumerated().filter { index, message in
+            index == 0 || !calendar.isDate(messages[index - 1].timestamp, inSameDayAs: message.timestamp)
+        }.compactMap { _, message in message.id })
+    }
+
     var showsWritingAvatar: Bool {
         isWaitingForReply && !isWelcome && assistantMessageAvatar != .none
     }
 
+    /// The theme tail for a bubble that shows its avatar, or nil when it gets none.
+    func tail(showsAvatar: Bool) -> CGSize? {
+        let size: CGSize = theme.messageTailSize
+        guard showsAvatar, size.width > 0, size.height > 0 else {
+            return nil
+        }
+        return size
+    }
+
+    /// The tail of the typing indicator bubble: there when the avatar sits below it or there is no avatar.
+    var writingTail: CGSize? {
+        tail(showsAvatar: typingIndicatorAvatarPosition == .below || !showsWritingAvatar)
+    }
+
+    /// The buttons of `message` drawn inside its bubble, each as wide as its text.
+    private func insideButtons(of message: ChatMessage) -> some View {
+        Group {
+            if message.role == .agent, !message.actions.isEmpty {
+                MessageButtons(buttons: message.actions, fillsWidth: false) { button in
+                    onTapAction(message, button)
+                }
+            }
+        }
+    }
+
     var body: some View {
         let hiddenAvatars: Set<Int64> = hiddenAvatarIds
+        let startsDay: Set<Int64> = startsDayIds
         let rateable: Set<Int64> = showsFeedback ? rateableIds : []
         ScrollViewReader { proxy in
             ScrollView {
@@ -80,6 +119,15 @@ struct ChatMessageList: View {
                             .transition(.opacity)
                     }
                     ForEach(messages) { message in
+                        let showsAvatar: Bool = message.id.map(hiddenAvatars.contains) != true
+                        let tail: CGSize? = tail(showsAvatar: showsAvatar && !(message.role == .agent && isWelcome))
+                        let timestamp: Date? = showTimestamps ? message.timestamp : nil
+                        let buttonsInside: Bool = messageButtonsPosition == .insideMessage
+                            && message.type != .image
+                            && message.type != .video
+                        if let id = message.id, startsDay.contains(id) {
+                            DaySeparator(date: message.timestamp)
+                        }
                         // The reply's avatar sits level with whatever comes last under
                         // it: the bubble, its buttons, its quick replies or its rating.
                         HStack(alignment: .bottom, spacing: 8) {
@@ -89,7 +137,7 @@ struct ChatMessageList: View {
                                     background: theme.assistantAvatarBackground,
                                     foreground: theme.onAssistantAvatarBackground
                                 )
-                                .opacity(message.id.map(hiddenAvatars.contains) == true ? 0 : 1)
+                                .opacity(showsAvatar ? 1 : 0)
                                 .accessibilityIdentifier("yalo-chat-assistant-avatar")
                             }
                             VStack(alignment: isWelcome ? .center : .leading, spacing: 8) {
@@ -110,7 +158,7 @@ struct ChatMessageList: View {
                                                 proxy.scrollTo(Self.bottomId, anchor: .bottom)
                                             }
                                         }
-                                        .foregroundStyle(theme.onAgentMessageBackground)
+                                        .foregroundStyle(theme.onAssistantMessageBackground)
                                         .accessibilityIdentifier("yalo-chat-agent-message")
                                         .padding(.trailing, isWelcome ? 0 : 48)
                                         .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
@@ -120,7 +168,7 @@ struct ChatMessageList: View {
                                                 proxy.scrollTo(Self.bottomId, anchor: .bottom)
                                             }
                                         }
-                                        .foregroundStyle(theme.onAgentMessageBackground)
+                                        .foregroundStyle(theme.onAssistantMessageBackground)
                                         .accessibilityIdentifier("yalo-chat-agent-message")
                                         .padding(.trailing, isWelcome ? 0 : 48)
                                         .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
@@ -130,10 +178,7 @@ struct ChatMessageList: View {
                                             playback: playback?.messageId == message.id ? playback : nil,
                                             onToggle: { onToggleVoiceMessage(message) }
                                         )
-                                        .padding(.horizontal, 14)
-                                        .padding(.vertical, 10)
-                                        .foregroundStyle(theme.onUserMessageBackground)
-                                        .background(theme.userMessageBackground, in: theme.userMessageShape)
+                                        .userMessageBox(theme, tail: tail, timestamp: timestamp)
                                         .accessibilityIdentifier("yalo-chat-user-message")
                                         .padding(.leading, 48)
                                         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -143,25 +188,30 @@ struct ChatMessageList: View {
                                             playback: playback?.messageId == message.id ? playback : nil,
                                             onToggle: { onToggleVoiceMessage(message) }
                                         )
-                                        .foregroundStyle(theme.onAgentMessageBackground)
-                                        .agentMessageBox(theme)
+                                        .foregroundStyle(theme.onAssistantMessageBackground)
+                                        .assistantMessageBox(theme, tail: tail, timestamp: timestamp) {
+                                            if buttonsInside {
+                                                insideButtons(of: message)
+                                            }
+                                        }
                                         .accessibilityIdentifier("yalo-chat-agent-message")
                                         .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                                     case (.user, _, nil):
                                         // Verbatim: asterisks the person typed are asterisks they meant.
                                         Text(verbatim: message.content)
-                                            .padding(.horizontal, 14)
-                                            .padding(.vertical, 10)
-                                            .foregroundStyle(theme.onUserMessageBackground)
-                                            .background(theme.userMessageBackground, in: theme.userMessageShape)
+                                            .userMessageBox(theme, tail: tail, timestamp: timestamp)
                                             .accessibilityIdentifier("yalo-chat-user-message")
                                             .padding(.leading, 48)
                                             .frame(maxWidth: .infinity, alignment: .trailing)
                                     case (.agent, _, nil):
                                         Text(markdown(message.content, theme: theme))
                                             .multilineTextAlignment(isWelcome ? .center : .leading)
-                                            .foregroundStyle(theme.onAgentMessageBackground)
-                                            .agentMessageBox(theme)
+                                            .foregroundStyle(theme.onAssistantMessageBackground)
+                                            .assistantMessageBox(theme, tail: tail, timestamp: timestamp) {
+                                                if buttonsInside {
+                                                    insideButtons(of: message)
+                                                }
+                                            }
                                             .accessibilityIdentifier("yalo-chat-agent-message")
                                             .frame(maxWidth: .infinity, alignment: isWelcome ? .center : .leading)
                                     }
@@ -171,11 +221,11 @@ struct ChatMessageList: View {
                                             background: theme.userAvatarBackground,
                                             foreground: theme.onUserAvatarBackground
                                         )
-                                        .opacity(message.id.map(hiddenAvatars.contains) == true ? 0 : 1)
+                                        .opacity(showsAvatar ? 1 : 0)
                                         .accessibilityIdentifier("yalo-chat-user-avatar")
                                     }
                                 }
-                                if message.role == .agent, !message.actions.isEmpty {
+                                if message.role == .agent, !message.actions.isEmpty, !buttonsInside {
                                     MessageButtons(buttons: message.actions) { button in
                                         onTapAction(message, button)
                                     }
@@ -215,8 +265,14 @@ struct ChatMessageList: View {
                                     TypingIndicator()
                                 }
                             }
-                            .agentMessageBox(theme)
-                            .padding(.bottom, showsWritingAvatar && typingIndicatorAvatarPosition == .below ? 32 : 0)
+                            .assistantMessageBox(theme, tail: writingTail, timestamp: nil) {
+                                EmptyView()
+                            }
+                            // The tail already lifts the bubble off the avatar, the way it does on a message.
+                            .padding(
+                                .bottom,
+                                showsWritingAvatar && typingIndicatorAvatarPosition == .below && writingTail == nil ? 32 : 0
+                            )
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .transition(.opacity)
@@ -285,9 +341,58 @@ struct ChatMessageList: View {
 }
 
 private extension View {
-    func agentMessageBox(_ theme: ChatTheme) -> some View {
-        padding(theme.agentMessagePadding)
-            .background(theme.agentMessageBackground, in: theme.agentMessageShape)
-            .overlay(theme.agentMessageShape.strokeBorder(theme.agentMessageBorderColor))
+    /// The channel's bubble, with `buttons` under the content and `timestamp` in its bottom trailing corner.
+    func assistantMessageBox(
+        _ theme: ChatTheme,
+        tail: CGSize?,
+        timestamp: Date?,
+        @ViewBuilder buttons: () -> some View
+    ) -> some View {
+        let shape: ChatShape = theme.assistantMessageShape.withTail(tail ?? .zero, atTrailing: false)
+        return VStack(alignment: .leading, spacing: 12) {
+            self
+            buttons()
+            timestampRoom(timestamp)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if let timestamp {
+                MessageTimestamp(date: timestamp)
+            }
+        }
+        .padding(theme.assistantMessagePadding)
+        .padding(.bottom, tail?.height ?? 0)
+        .background(theme.assistantMessageBackground, in: shape)
+        .overlay(shape.strokeBorder(theme.assistantMessageBorderColor))
+    }
+
+    /// The person's bubble, with `timestamp` in its bottom trailing corner.
+    func userMessageBox(_ theme: ChatTheme, tail: CGSize?, timestamp: Date?) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            self
+            timestampRoom(timestamp)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if let timestamp {
+                MessageTimestamp(date: timestamp)
+            }
+        }
+        .padding(theme.userMessagePadding)
+        .padding(.bottom, tail?.height ?? 0)
+        .foregroundStyle(theme.onUserMessageBackground)
+        .background(
+            theme.userMessageBackground,
+            in: theme.userMessageShape.withTail(tail ?? .zero, atTrailing: true)
+        )
+    }
+}
+
+/// Keeps the room of the timestamp drawn over it, so the content stays leading
+/// while the time sits in the trailing corner.
+@ViewBuilder
+private func timestampRoom(_ timestamp: Date?) -> some View {
+    if let timestamp {
+        MessageTimestamp(date: timestamp)
+            .hidden()
+            .accessibilityHidden(true)
     }
 }
