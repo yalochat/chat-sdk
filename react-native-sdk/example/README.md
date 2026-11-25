@@ -4,9 +4,11 @@ A host app with a button that opens the chat. It builds against the android-sdk 
 
 Fill in your channel details in `src/App.tsx` first.
 
+Use the Node version in `react-native-sdk/.nvmrc` (`nvm use`). Older versions fail to load `metro.config.js` with `require() of ES Module ... not supported`.
+
 ## Android
 
-1. Publish the local android-sdk once, and again after changing it:
+1. Publish the local android-sdk once, and again whenever it changes, including after pulling. Otherwise the build fails with `Unresolved reference` errors in `react-native-sdk/android`, or runs old SDK code:
 
    ```sh
    cd ../../android-sdk
