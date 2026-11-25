@@ -36,4 +36,29 @@ struct ChatShapeTests {
 
         #expect(path.boundingRect == rect.insetBy(dx: 2, dy: 2))
     }
+
+    @Test func aTrailingTailHangsUnderTheBottomTrailingCorner() {
+        let tall: CGRect = CGRect(x: 0, y: 0, width: 200, height: 64)
+        let path: Path = ChatShape(radius: 16).withTail(CGSize(width: 48, height: 24), atTrailing: true).path(in: tall)
+
+        #expect(path.contains(CGPoint(x: 182, y: 60)))
+        #expect(!path.contains(CGPoint(x: 18, y: 60)))
+        #expect(path.contains(CGPoint(x: 100, y: 30)))
+    }
+
+    @Test func aLeadingTailHangsUnderTheBottomLeadingCorner() {
+        let tall: CGRect = CGRect(x: 0, y: 0, width: 200, height: 64)
+        let path: Path = ChatShape(radius: 16).withTail(CGSize(width: 48, height: 24), atTrailing: false).path(in: tall)
+
+        #expect(path.contains(CGPoint(x: 18, y: 60)))
+        #expect(!path.contains(CGPoint(x: 182, y: 60)))
+    }
+
+    @Test func aTailIsNeverWiderThanTheStraightBottomEdge() {
+        let narrow: CGRect = CGRect(x: 0, y: 0, width: 60, height: 64)
+        let path: Path = ChatShape(radius: 16).withTail(CGSize(width: 48, height: 24), atTrailing: true).path(in: narrow)
+
+        #expect(path.boundingRect.minX == 0)
+        #expect(!path.contains(CGPoint(x: 15, y: 41)))
+    }
 }

@@ -158,6 +158,8 @@ Optional properties:
 - **`assistantMessageAvatar`** (`YaloChatMessageAvatar`): The same circle beside the channel's messages. Defaults to `.none`. See [Message avatars](#message-avatars).
 - **`avatarDisplay`** (`AvatarDisplay`): Which messages carry their avatar. Defaults to `.lastInGroup`. See [Message avatars](#message-avatars).
 - **`typingIndicatorAvatarPosition`** (`TypingIndicatorAvatarPosition`): Where the `assistantMessageAvatar` sits beside the typing indicator. Defaults to `.center`, which centers it next to the indicator. Set `.below` to place it below the indicator, like it sits beside an assistant message.
+- **`showTimestamps`** (`Bool`): Shows the time each message was sent in the bottom corner of its bubble, in the device time format. A line with the day sits above the first message of each day: "Today", "Yesterday", or the short date such as "Nov 22", with the year only for a past year. Defaults to `false`. Its color is `timestampColor` in the [theme](doc/theming.md).
+- **`messageButtonsPosition`** (`MessageButtonsPosition`): Where the buttons a channel message keeps are drawn. Defaults to `.belowMessage`, which stacks them under the bubble, each the full width of the message. Set `.insideMessage` to draw them inside the bubble, under the text, each as wide as its text.
 
 ## Message avatars
 

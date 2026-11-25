@@ -6,6 +6,7 @@ import ai.yalo.chat.sdk.domain.models.MessageButton
 import ai.yalo.chat.sdk.domain.models.MessageButtonType
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,8 +34,9 @@ internal const val CHAT_LINK_ICON_TAG: String = "yalo-chat-link-icon"
 /**
  * The buttons a message keeps, stacked under it.
  *
- * One per line and the full width of the message, because the channel writes
- * them and a button whose text does not fit would otherwise be cut short.
+ * One per line and, with [fillWidth], the full width of the message, because
+ * the channel writes them and a button whose text does not fit would otherwise
+ * be cut short. Without it each button is as wide as its text.
  *
  * A link opens its address outside the chat and carries an arrow to say so.
  * Every other button, a link with no address included, says its text back to
@@ -46,6 +48,7 @@ internal fun MessageButtons(
     buttons: List<MessageButton>,
     onButtonClick: (MessageButton) -> Unit,
     modifier: Modifier = Modifier,
+    fillWidth: Boolean = true,
 ) {
     val theme = currentChatTheme
     val uriHandler = LocalUriHandler.current
@@ -69,13 +72,20 @@ internal fun MessageButtons(
                     }
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier)
                     .semantics { this.selected = isSelected }
                     .testTag(CHAT_MESSAGE_BUTTON_TAG),
                 shape = theme.postbackShape,
                 color = if (isSelected) theme.selectedPostbackBackground else theme.postbackBackground,
                 contentColor = if (isSelected) theme.onSelectedPostbackBackground else theme.onPostbackBackground,
-                border = BorderStroke(1.dp, theme.postbackBorderColor),
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = if (isSelected) {
+                        theme.selectedPostbackBorderColor.takeOrElse { theme.postbackBorderColor }
+                    } else {
+                        theme.postbackBorderColor
+                    },
+                ),
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

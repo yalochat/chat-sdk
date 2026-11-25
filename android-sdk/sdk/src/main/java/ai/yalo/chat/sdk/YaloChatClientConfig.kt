@@ -65,6 +65,10 @@ package ai.yalo.chat.sdk
  * @property avatarDisplay Which messages get an avatar. Defaults to
  * [AvatarDisplay.LastInGroup]. Named after the same setting in the web SDK so
  * the two read alike.
+ * @property showTimestamps Whether each message shows the time it was sent
+ * inside its bubble, in the device time format. Defaults to false.
+ * @property messageButtonsPosition Where the buttons a channel message keeps
+ * are drawn. Defaults to [MessageButtonsPosition.BelowMessage].
  */
 public data class YaloChatClientConfig(
     public val channelId: String,
@@ -90,6 +94,8 @@ public data class YaloChatClientConfig(
     public val assistantMessageAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     public val avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
     public val typingIndicatorAvatarPosition: TypingIndicatorAvatarPosition = TypingIndicatorAvatarPosition.Center,
+    public val showTimestamps: Boolean = false,
+    public val messageButtonsPosition: MessageButtonsPosition = MessageButtonsPosition.BelowMessage,
 ) {
 
     /**

@@ -4,6 +4,7 @@ package ai.yalo.chat.sdk.ui
 import ai.yalo.chat.sdk.R
 import ai.yalo.chat.sdk.YaloChatTexts
 import ai.yalo.chat.sdk.data.repositories.voice.VoiceRecording
+import ai.yalo.chat.sdk.ui.theme.ChatTheme
 import ai.yalo.chat.sdk.ui.theme.currentChatTheme
 import ai.yalo.chat.sdk.ui.voice.VoiceRecordingBar
 import androidx.compose.animation.AnimatedContent
@@ -28,6 +29,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -176,6 +178,7 @@ internal fun ChatFooter(
                             Text(
                                 text = texts.inputPlaceholder
                                     ?: stringResource(R.string.yalo_chat_input_placeholder),
+                                color = theme.inputPlaceholderColor,
                             )
                         },
                         lineLimits = TextFieldLineLimits.MultiLine(
@@ -226,10 +229,7 @@ internal fun ChatFooter(
                     .padding(bottom = 4.dp)
                     .testTag(CHAT_SEND_BUTTON_TAG),
                 enabled = canSend || !showsSend,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = theme.sendButtonBackground,
-                    contentColor = theme.onSendButtonBackground,
-                ),
+                colors = sendButtonColors(theme),
             ) {
                 // The button offers to record until there is something to send,
                 // then turns into the send button.
@@ -349,4 +349,22 @@ internal fun scrollbarThumb(
         (trackHeight - thumbHeight) * (scrollValue.coerceIn(0, maxScroll).toFloat() / maxScroll)
     val left = if (rtl) endInset else size.width - endInset - width
     return Rect(offset = Offset(left, top), size = Size(width, thumbHeight))
+}
+
+/**
+ * The send button in the theme colors. While there is nothing to send it takes
+ * the disabled theme colors, or is drawn faded when those are left unspecified.
+ */
+@Composable
+private fun sendButtonColors(theme: ChatTheme): IconButtonColors {
+    val faded = IconButtonDefaults.filledIconButtonColors(
+        containerColor = theme.sendButtonBackground,
+        contentColor = theme.onSendButtonBackground,
+    )
+    return IconButtonDefaults.filledIconButtonColors(
+        containerColor = theme.sendButtonBackground,
+        contentColor = theme.onSendButtonBackground,
+        disabledContainerColor = theme.disabledSendButtonBackground.takeOrElse { faded.disabledContainerColor },
+        disabledContentColor = theme.onDisabledSendButtonBackground.takeOrElse { faded.disabledContentColor },
+    )
 }

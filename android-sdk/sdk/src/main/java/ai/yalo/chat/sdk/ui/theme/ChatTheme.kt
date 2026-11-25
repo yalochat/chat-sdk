@@ -5,12 +5,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
 /**
@@ -41,10 +43,9 @@ public data class ChatTheme(
     public val onFooterBackground: Color,
     public val userMessageBackground: Color,
     public val onUserMessageBackground: Color,
-    public val agentMessageBackground: Color,
-    public val onAgentMessageBackground: Color,
-    public val agentMessageBorderColor: Color,
-    public val agentMessagePadding: Dp,
+    public val assistantMessageBackground: Color,
+    public val onAssistantMessageBackground: Color,
+    public val assistantMessageBorderColor: Color,
     public val typingIndicatorDotColor: Color,
     public val linkColor: Color,
     public val quickReplyBackground: Color,
@@ -62,7 +63,7 @@ public data class ChatTheme(
     public val onSendButtonBackground: Color,
     public val inputShape: Shape,
     public val userMessageShape: Shape,
-    public val agentMessageShape: Shape,
+    public val assistantMessageShape: Shape,
     public val imageShape: Shape,
     public val quickReplyShape: Shape,
     public val postbackShape: Shape,
@@ -73,7 +74,31 @@ public data class ChatTheme(
     public val assistantAvatarBackground: Color = Color.Unspecified,
     public val onAssistantAvatarBackground: Color = Color.Unspecified,
     public val fontFamily: FontFamily? = null,
+    public val messageTailSize: DpSize = DpSize.Zero,
+    public val timestampColor: Color = Color.Unspecified,
+    public val selectedPostbackBorderColor: Color = Color.Unspecified,
+    public val disabledSendButtonBackground: Color = Color.Unspecified,
+    public val onDisabledSendButtonBackground: Color = Color.Unspecified,
+    public val inputPlaceholderColor: Color = Color.Unspecified,
+    public val userMessagePadding: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+    public val assistantMessagePadding: PaddingValues = PaddingValues(0.dp),
 ) {
+
+    @Deprecated("Use assistantMessageBackground.", ReplaceWith("assistantMessageBackground"))
+    public val agentMessageBackground: Color
+        get() = assistantMessageBackground
+
+    @Deprecated("Use onAssistantMessageBackground.", ReplaceWith("onAssistantMessageBackground"))
+    public val onAgentMessageBackground: Color
+        get() = onAssistantMessageBackground
+
+    @Deprecated("Use assistantMessageShape.", ReplaceWith("assistantMessageShape"))
+    public val agentMessageShape: Shape
+        get() = assistantMessageShape
+
+    @Deprecated("Use assistantMessageBorderColor.", ReplaceWith("assistantMessageBorderColor"))
+    public val agentMessageBorderColor: Color
+        get() = assistantMessageBorderColor
 
     public companion object {
 
@@ -100,10 +125,9 @@ public data class ChatTheme(
             onUserMessageBackground = MaterialTheme.colorScheme.onSurface,
             // The web SDK leaves what the agent says unbubbled, so it reads as
             // the conversation itself rather than as a reply.
-            agentMessageBackground = Color.Transparent,
-            onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
-            agentMessageBorderColor = Color.Transparent,
-            agentMessagePadding = 0.dp,
+            assistantMessageBackground = Color.Transparent,
+            onAssistantMessageBackground = MaterialTheme.colorScheme.onSurface,
+            assistantMessageBorderColor = Color.Transparent,
             typingIndicatorDotColor = MaterialTheme.colorScheme.onSurfaceVariant,
             linkColor = MaterialTheme.colorScheme.primary,
             // Outlined rather than filled, the way the web SDK draws them, so a
@@ -132,7 +156,7 @@ public data class ChatTheme(
                 bottomEnd = BUBBLE_TAIL_CORNER,
                 bottomStart = BUBBLE_CORNER,
             ),
-            agentMessageShape = RectangleShape,
+            assistantMessageShape = RectangleShape,
             imageShape = RoundedCornerShape(IMAGE_CORNER),
             quickReplyShape = RoundedCornerShape(CHIP_CORNER),
             postbackShape = RoundedCornerShape(BUTTON_CORNER),
@@ -144,6 +168,9 @@ public data class ChatTheme(
             onUserAvatarBackground = MaterialTheme.colorScheme.onSecondaryContainer,
             assistantAvatarBackground = MaterialTheme.colorScheme.primaryContainer,
             onAssistantAvatarBackground = MaterialTheme.colorScheme.onPrimaryContainer,
+            timestampColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            inputPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
+

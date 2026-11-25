@@ -51,7 +51,7 @@ struct ChatInput: View {
                     .overlay(alignment: .topLeading) {
                         if text.isEmpty {
                             placeholder
-                                .foregroundStyle(Color(.placeholderText))
+                                .foregroundStyle(theme.inputPlaceholderColor)
                                 .allowsHitTesting(false)
                                 .accessibilityHidden(true)
                         }
@@ -91,8 +91,17 @@ struct ChatInput: View {
                     .frame(width: 20, height: 20)
                     .padding(10)
                     // Faded the way a disabled Material button is, so it reads as off.
-                    .foregroundStyle(sendIsDisabled ? theme.onFooterBackground.opacity(0.38) : theme.onSendButtonBackground)
-                    .background(sendIsDisabled ? theme.onFooterBackground.opacity(0.12) : theme.sendButtonBackground, in: Circle())
+                    .foregroundStyle(
+                        sendIsDisabled
+                            ? theme.onDisabledSendButtonBackground ?? theme.onFooterBackground.opacity(0.38)
+                            : theme.onSendButtonBackground
+                    )
+                    .background(
+                        sendIsDisabled
+                            ? theme.disabledSendButtonBackground ?? theme.onFooterBackground.opacity(0.12)
+                            : theme.sendButtonBackground,
+                        in: Circle()
+                    )
                     .transition(.scale.combined(with: .opacity))
                     .id(showsSend)
             }

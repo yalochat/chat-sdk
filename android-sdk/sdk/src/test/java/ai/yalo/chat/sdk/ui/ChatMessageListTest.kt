@@ -9,6 +9,7 @@ import ai.yalo.chat.sdk.domain.models.ChatMessage
 import ai.yalo.chat.sdk.domain.models.MessageRole
 import ai.yalo.chat.sdk.domain.models.MessageType
 import android.content.Context
+import android.text.format.DateUtils
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
@@ -205,6 +206,33 @@ class ChatMessageListTest {
         composeRule.waitForIdle()
 
         assertEquals(true, avatarIsBelow())
+    }
+
+    @Test
+    fun startsEachDayWithItsDayWhenTimestampsAreOn() {
+        val today = System.currentTimeMillis()
+        val yesterday = today - DateUtils.DAY_IN_MILLIS
+        composeRule.setContent {
+            ChatMessageList(
+                messages = listOf(
+                    message(id = 3L).copy(timestamp = today),
+                    message(id = 2L).copy(timestamp = yesterday),
+                    message(id = 1L).copy(timestamp = yesterday),
+                ),
+                showTimestamps = true,
+            )
+        }
+
+        composeRule.onAllNodesWithTag(CHAT_DAY_SEPARATOR_TAG).assertCountEquals(2)
+    }
+
+    @Test
+    fun leavesTheDaysOutWhenTimestampsAreOff() {
+        composeRule.setContent {
+            ChatMessageList(messages = conversation())
+        }
+
+        composeRule.onAllNodesWithTag(CHAT_DAY_SEPARATOR_TAG).assertCountEquals(0)
     }
 
     private fun showConversation(display: AvatarDisplay) {

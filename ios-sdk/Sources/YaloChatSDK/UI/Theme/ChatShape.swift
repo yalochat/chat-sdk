@@ -10,6 +10,8 @@ public struct ChatShape: InsettableShape, Sendable, Equatable {
     public var bottomTrailing: CGFloat
     public var bottomLeading: CGFloat
     private var inset: CGFloat = 0
+    private var tail: CGSize = .zero
+    private var tailAtTrailing: Bool = false
 
     /// Fully rounded ends, whatever the height.
     public static let capsule: ChatShape = ChatShape(radius: .infinity)
@@ -31,7 +33,13 @@ public struct ChatShape: InsettableShape, Sendable, Equatable {
     }
 
     public func path(in rect: CGRect) -> Path {
-        let frame: CGRect = rect.insetBy(dx: inset, dy: inset)
+        let outer: CGRect = rect.insetBy(dx: inset, dy: inset)
+        let frame: CGRect = CGRect(
+            x: outer.minX,
+            y: outer.minY,
+            width: outer.width,
+            height: max(outer.height - tail.height, 0)
+        )
         let limit: CGFloat = max(min(frame.width, frame.height) / 2, 0)
         let radius: (CGFloat) -> CGFloat = { corner in
             min(max(corner - inset, 0), limit)
@@ -58,6 +66,21 @@ public struct ChatShape: InsettableShape, Sendable, Equatable {
             endAngle: .degrees(90),
             clockwise: false
         )
+        // The tail hangs under the bottom edge where the rounding of its corner ends.
+        if tail.width > 0, tail.height > 0 {
+            // A short bubble gets a narrower tail, never wider than its straight bottom edge.
+            let width: CGFloat = min(tail.width, max(frame.width - bottomLeft - bottomRight, 0))
+            if tailAtTrailing {
+                let edge: CGFloat = frame.maxX - bottomRight
+                path.addLine(to: CGPoint(x: edge, y: outer.maxY))
+                path.addLine(to: CGPoint(x: edge - width, y: frame.maxY))
+            } else {
+                let edge: CGFloat = frame.minX + bottomLeft
+                path.addLine(to: CGPoint(x: edge + width, y: frame.maxY))
+                path.addLine(to: CGPoint(x: edge, y: outer.maxY))
+                path.addLine(to: CGPoint(x: edge, y: frame.maxY))
+            }
+        }
         path.addLine(to: CGPoint(x: frame.minX + bottomLeft, y: frame.maxY))
         path.addArc(
             center: CGPoint(x: frame.minX + bottomLeft, y: frame.maxY - bottomLeft),
@@ -76,6 +99,15 @@ public struct ChatShape: InsettableShape, Sendable, Equatable {
         )
         path.closeSubpath()
         return path
+    }
+
+    /// This shape with a triangle of `size` under its bottom edge, on the trailing side when `atTrailing`.
+    /// The bottom `size.height` of the rect it is drawn in is left for the triangle.
+    func withTail(_ size: CGSize, atTrailing: Bool) -> ChatShape {
+        var shape: ChatShape = self
+        shape.tail = size
+        shape.tailAtTrailing = atTrailing
+        return shape
     }
 
     public func inset(by amount: CGFloat) -> ChatShape {

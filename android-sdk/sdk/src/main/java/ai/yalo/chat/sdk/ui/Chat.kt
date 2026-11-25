@@ -2,6 +2,7 @@
 package ai.yalo.chat.sdk.ui
 
 import ai.yalo.chat.sdk.AvatarDisplay
+import ai.yalo.chat.sdk.MessageButtonsPosition
 import ai.yalo.chat.sdk.ImageSource
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.R
@@ -181,6 +182,8 @@ public fun Chat(
             userAvatar = client.config.userMessageAvatar,
             assistantAvatar = client.config.assistantMessageAvatar,
             avatarDisplay = client.config.avatarDisplay,
+            showTimestamps = client.config.showTimestamps,
+            messageButtonsPosition = client.config.messageButtonsPosition,
         )
     }
 }
@@ -333,6 +336,8 @@ internal fun ChatLayout(
     userAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     assistantAvatar: YaloChatMessageAvatar = YaloChatMessageAvatar.None,
     avatarDisplay: AvatarDisplay = AvatarDisplay.LastInGroup,
+    showTimestamps: Boolean = false,
+    messageButtonsPosition: MessageButtonsPosition = MessageButtonsPosition.BelowMessage,
 ) {
     val inline = quickReplyType == QuickReplyType.Inline || isWelcome
     Surface(
@@ -363,6 +368,8 @@ internal fun ChatLayout(
                 userAvatar = userAvatar,
                 assistantAvatar = assistantAvatar,
                 avatarDisplay = avatarDisplay,
+                showTimestamps = showTimestamps,
+                messageButtonsPosition = messageButtonsPosition,
                 typingIndicatorType = typingIndicatorType,
                 typingIndicatorAvatarPosition = typingIndicatorAvatarPosition,
                 writingIndicatorText = texts.writingIndicator,

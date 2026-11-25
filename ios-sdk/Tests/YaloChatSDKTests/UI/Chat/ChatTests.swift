@@ -76,7 +76,7 @@ struct ChatTests {
             background: .black,
             headerBackground: .indigo,
             onHeaderBackground: .white,
-            agentMessageBackground: .gray
+            assistantMessageBackground: .gray
         )
 
         #expect(renders(chat(theme: theme)))

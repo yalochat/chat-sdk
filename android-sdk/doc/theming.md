@@ -87,20 +87,30 @@ chatView.theme = { default -> default.copy(fontFamily = brandFont) }
 - **`inputBackground`** (`Color`): Fill of the message input, inside its line. The recording bar follows it too. Defaults to transparent, so the footer shows through.
 - **`sendButtonBackground`** (`Color`): Fill of the round button after the input, both while it sends and while it records. Defaults to the Material `primary` color. While there is nothing to send it is drawn faded, the way a disabled Material button is.
 - **`onSendButtonBackground`** (`Color`): Color of the icon on that button. Defaults to the Material `onPrimary` color.
+- **`disabledSendButtonBackground`** (`Color`): Fill of that button while there is nothing to send. Defaults to `Color.Unspecified`, which draws it faded.
+- **`onDisabledSendButtonBackground`** (`Color`): Color of its icon while there is nothing to send. Defaults to `Color.Unspecified`, which draws it faded.
+- **`inputPlaceholderColor`** (`Color`): Color of the text the message input shows while it is empty. Defaults to the Material `onSurfaceVariant` color.
 
 ### Messages
 
 - **`userMessageBackground`** (`Color`): Bubble background for messages the person sent. Defaults to the Material `surfaceContainerHigh` color.
 - **`onUserMessageBackground`** (`Color`): Text color inside those bubbles. Defaults to the Material `onSurface` color.
-- **`agentMessageBackground`** (`Color`): Bubble background for messages the channel sent. Defaults to transparent, so what the channel says reads as the conversation itself rather than as a reply. Set a color to give it a bubble.
-- **`onAgentMessageBackground`** (`Color`): Text color for those messages. Defaults to the Material `onSurface` color.
-- **`agentMessageBorderColor`** (`Color`): Color of the line around those messages. Defaults to transparent.
-- **`agentMessagePadding`** (`Dp`): Room between that bubble and what is inside it. Defaults to `0.dp`, so the text lines up with the conversation while there is no bubble.
+- **`assistantMessageBackground`** (`Color`): Bubble background for messages the channel sent. Defaults to transparent, so what the channel says reads as the conversation itself rather than as a reply. Set a color to give it a bubble.
+- **`onAssistantMessageBackground`** (`Color`): Text color for those messages. Defaults to the Material `onSurface` color.
+- **`assistantMessageBorderColor`** (`Color`): Color of the line around those messages. Defaults to transparent.
+- **`agentMessageBackground`**: Deprecated, use `assistantMessageBackground`.
+- **`onAgentMessageBackground`**: Deprecated, use `onAssistantMessageBackground`.
+- **`agentMessageShape`**: Deprecated, use `assistantMessageShape`.
+- **`agentMessageBorderColor`**: Deprecated, use `assistantMessageBorderColor`.
+- **`assistantMessagePadding`** (`PaddingValues`): Room between that bubble and what is inside it. Defaults to `PaddingValues(0.dp)`, so the text lines up with the conversation while there is no bubble. For the same room on every side, pass one value, for example `PaddingValues(20.dp)`.
 - **`linkColor`** (`Color`): Color of the links inside a message the channel sent. Defaults to the Material `primary` color. See [Message formatting](../README.md#message-formatting) for what else a message can contain.
+- **`userMessagePadding`** (`PaddingValues`): Room between the person's bubble and what is inside it. Defaults to `PaddingValues(horizontal = 12.dp, vertical = 8.dp)`. For the same room on every side, pass one value, for example `PaddingValues(20.dp)`.
 - **`userMessageShape`** (`Shape`): Shape of the person's bubbles. Defaults to a rounded shape with a squared off bottom corner on the side the bubble sits.
-- **`voiceWaveform`**: Not a property. A voice message draws its waveform in the text color of whatever it sits on, so it follows `onUserMessageBackground` in the person's bubbles, `onAgentMessageBackground` in the channel's, and `onFooterBackground` while a recording is being made. The part of a note that has not been played yet is the same color, faded.
-- **`agentMessageShape`** (`Shape`): Shape of the channel's bubbles. Defaults to a rectangle, which is invisible while the background is transparent. Set it along with `agentMessageBackground` when you want those messages bubbled.
-- The `agentMessage*` bubble values above also draw the bubble around the typing indicator, so it looks like the message it turns into.
+- **`voiceWaveform`**: Not a property. A voice message draws its waveform in the text color of whatever it sits on, so it follows `onUserMessageBackground` in the person's bubbles, `onAssistantMessageBackground` in the channel's, and `onFooterBackground` while a recording is being made. The part of a note that has not been played yet is the same color, faded.
+- **`assistantMessageShape`** (`Shape`): Shape of the channel's bubbles. Defaults to a rectangle, which is invisible while the background is transparent. Set it along with `assistantMessageBackground` when you want those messages bubbled.
+- The `assistantMessage*` bubble values above also draw the bubble around the typing indicator, so it looks like the message it turns into.
+- **`messageTailSize`** (`DpSize`): Size of a triangle under the bubble that shows the avatar, pointing down at it, like a speech bubble. Its straight side sits where the rounding of the bottom corner ends. Defaults to `DpSize.Zero`, which draws none. The typing indicator bubble gets it too while its avatar sits below it, with `typingIndicatorAvatarPosition` set to below. For example `DpSize(48.dp, 24.dp)`.
+- **`timestampColor`** (`Color`): Color of the time shown inside each message with `showTimestamps` on in the client config, and of the day shown above the first message of each day. Defaults to the Material `onSurfaceVariant` color.
 - **`imageShape`** (`Shape`): Shape a picture is cut to inside a message. Defaults to a rounded shape. See [Image messages](../README.md#image-messages).
 
 ### Quick replies
@@ -122,6 +132,7 @@ These paint the buttons stacked under a message, both the ones that answer the c
 - **`postbackShape`** (`Shape`): Shape of a button. Defaults to a lightly rounded shape.
 - **`selectedPostbackBackground`** (`Color`): Background of the button the person tapped. Defaults to the Material `secondaryContainer` color.
 - **`onSelectedPostbackBackground`** (`Color`): Color of the text on the button the person tapped. Defaults to the Material `onSecondaryContainer` color.
+- **`selectedPostbackBorderColor`** (`Color`): Color of the line around the button the person tapped. Defaults to `Color.Unspecified`, which keeps `postbackBorderColor`.
 
 ### Avatars
 
@@ -172,8 +183,8 @@ fun BrandedChat(client: YaloChatClient) {
             onFooterBackground = MaterialTheme.colorScheme.onSurface,
             userMessageBackground = brand,
             onUserMessageBackground = Color.White,
-            agentMessageBackground = MaterialTheme.colorScheme.surfaceContainer,
-            onAgentMessageBackground = MaterialTheme.colorScheme.onSurface,
+            assistantMessageBackground = MaterialTheme.colorScheme.surfaceContainer,
+            onAssistantMessageBackground = MaterialTheme.colorScheme.onSurface,
             typingIndicatorDotColor = brand,
             linkColor = brand,
             quickReplyBackground = Color.Transparent,
@@ -188,7 +199,7 @@ fun BrandedChat(client: YaloChatClient) {
             sendButtonBackground = brand,
             onSendButtonBackground = Color.White,
             userMessageShape = RoundedCornerShape(16.dp),
-            agentMessageShape = RoundedCornerShape(16.dp),
+            assistantMessageShape = RoundedCornerShape(16.dp),
             imageShape = RoundedCornerShape(8.dp),
             quickReplyShape = RoundedCornerShape(16.dp),
             postbackShape = RoundedCornerShape(8.dp),

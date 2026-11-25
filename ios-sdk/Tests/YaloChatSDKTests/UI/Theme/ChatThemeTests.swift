@@ -67,4 +67,19 @@ struct ChatThemeTests {
 
         #expect(markdown("# Title", theme: theme).runs.first?.font == theme.font(.title2).bold())
     }
+
+    @Test func oldAgentNamesReadAndWriteTheAssistantValues() {
+        var theme: ChatTheme = ChatTheme()
+
+        theme.agentMessageBackground = .white
+        theme.onAgentMessageBackground = .black
+        theme.agentMessageShape = ChatShape(radius: 16)
+        theme.agentMessageBorderColor = .gray
+
+        #expect(theme.assistantMessageBackground == .white)
+        #expect(theme.onAssistantMessageBackground == .black)
+        #expect(theme.assistantMessageShape == ChatShape(radius: 16))
+        #expect(theme.assistantMessageBorderColor == .gray)
+        #expect(theme.agentMessageBackground == .white)
+    }
 }
