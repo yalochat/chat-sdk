@@ -20,6 +20,9 @@ public final class YaloChatHostView: UIView {
   private var theme: ChatTheme = ChatTheme()
   private var showsBackButton: Bool = false
   private var avatar: URL?
+  private var avatarLoad: Task<Void, Never>?
+  // Kept between configs, so the same picture makes an equal config.
+  private var avatarImages: [String: UIImage] = [:]
   private let host: UIHostingController<AnyView> = UIHostingController(rootView: AnyView(EmptyView()))
 
   override public init(frame: CGRect) {
@@ -35,11 +38,37 @@ public final class YaloChatHostView: UIView {
   }
 
   @objc public func setConfig(_ json: String) {
+    avatarLoad?.cancel()
+    let missing: [String] = avatarImageURIs(of: json).filter { avatarImages[$0] == nil }
+    guard !missing.isEmpty else {
+      apply(json)
+      return
+    }
+    // The client is built once the avatar pictures are in, so it is built only once.
+    avatarLoad = Task { [weak self] in
+      for uri in missing {
+        guard let url = avatarURL(of: uri),
+              let (data, _) = try? await URLSession.shared.data(from: url),
+              let image = UIImage(data: data)
+        else {
+          continue
+        }
+        self?.avatarImages[uri] = image
+      }
+      guard !Task.isCancelled else {
+        return
+      }
+      self?.apply(json)
+    }
+  }
+
+  private func apply(_ json: String) {
     configKey = json
     let provider: @Sendable () async throws -> String? = { [weak self] in
       try await self?.requestUserAuthToken()
     }
-    client = clientConfig(of: json, userAuthTokenProvider: provider).map { config in YaloChatClient(config: config) }
+    client = clientConfig(of: json, userAuthTokenProvider: provider, avatarImages: avatarImages)
+      .map { config in YaloChatClient(config: config) }
     registerCommands()
     render()
   }
@@ -186,9 +215,13 @@ struct CommandFailedError: Error {}
 
 /// The client config React Native sent, with anything left out at its SDK
 /// default. `userAuthTokenProvider` is only used when JavaScript has one.
+/// `avatarImages` are the loaded pictures of the image avatars, by the URI
+/// `avatarImageURIs(of:)` lists. An image avatar whose picture is not there is
+/// left out.
 func clientConfig(
   of json: String,
-  userAuthTokenProvider: (@Sendable () async throws -> String?)? = nil
+  userAuthTokenProvider: (@Sendable () async throws -> String?)? = nil,
+  avatarImages: [String: UIImage] = [:]
 ) -> YaloChatClientConfig? {
   guard let values = object(of: json),
         let channelId = values["channelId"] as? String,
@@ -217,8 +250,35 @@ func clientConfig(
     hideFeedbackButtons: values["hideFeedbackButtons"] as? Bool ?? false,
     texts: texts(of: values["texts"] as? [String: Any]),
     imageSource: imageSource(of: values["imageSource"] as? String),
-    allowedImageNames: values["allowedImageNames"] as? [String] ?? []
+    allowedImageNames: values["allowedImageNames"] as? [String] ?? [],
+    userMessageAvatar: messageAvatar(of: values["userMessageAvatar"] as? [String: String], images: avatarImages),
+    assistantMessageAvatar: messageAvatar(of: values["assistantMessageAvatar"] as? [String: String], images: avatarImages),
+    avatarDisplay: values["avatarDisplay"] as? String == "everyMessage" ? .everyMessage : .lastInGroup,
+    typingIndicatorType: values["typingIndicatorType"] as? String == "text" ? .text : .threeDots,
+    typingIndicatorAvatarPosition: values["typingIndicatorAvatarPosition"] as? String == "below" ? .below : .center,
+    showTimestamps: values["showTimestamps"] as? Bool ?? false,
+    messageButtonsPosition: values["messageButtonsPosition"] as? String == "insideMessage" ? .insideMessage : .belowMessage
   )
+}
+
+/// The URIs of the image avatars in the config, to load before building it.
+func avatarImageURIs(of json: String) -> [String] {
+  guard let values = object(of: json) else {
+    return []
+  }
+  return ["userMessageAvatar", "assistantMessageAvatar"].compactMap { key in
+    (values[key] as? [String: String])?["image"]
+  }
+}
+
+private func messageAvatar(of values: [String: String]?, images: [String: UIImage]) -> YaloChatMessageAvatar {
+  if let text = values?["text"] {
+    return .text(text)
+  }
+  guard let uri = values?["image"], let image = images[uri] else {
+    return .none
+  }
+  return .image(image)
 }
 
 /// The default theme with whatever React Native set laid over it. Colors and
@@ -241,9 +301,9 @@ func chatTheme(of json: String) -> ChatTheme {
     ("inputScrollbarColor", \.inputScrollbarColor),
     ("userMessageBackground", \.userMessageBackground),
     ("onUserMessageBackground", \.onUserMessageBackground),
-    ("agentMessageBackground", \.agentMessageBackground),
-    ("onAgentMessageBackground", \.onAgentMessageBackground),
-    ("agentMessageBorderColor", \.agentMessageBorderColor),
+    ("assistantMessageBackground", \.assistantMessageBackground),
+    ("onAssistantMessageBackground", \.onAssistantMessageBackground),
+    ("assistantMessageBorderColor", \.assistantMessageBorderColor),
     ("typingIndicatorDotColor", \.typingIndicatorDotColor),
     ("quickReplyBackground", \.quickReplyBackground),
     ("onQuickReplyBackground", \.onQuickReplyBackground),
@@ -253,14 +313,45 @@ func chatTheme(of json: String) -> ChatTheme {
     ("postbackBorderColor", \.postbackBorderColor),
     ("selectedPostbackBackground", \.selectedPostbackBackground),
     ("onSelectedPostbackBackground", \.onSelectedPostbackBackground),
+    ("inputPlaceholderColor", \.inputPlaceholderColor),
+    ("timestampColor", \.timestampColor),
+    ("userAvatarBackground", \.userAvatarBackground),
+    ("onUserAvatarBackground", \.onUserAvatarBackground),
+    ("assistantAvatarBackground", \.assistantAvatarBackground),
+    ("onAssistantAvatarBackground", \.onAssistantAvatarBackground),
   ]
+  let optionalColors: [(String, WritableKeyPath<ChatTheme, Color?>)] = [
+    ("selectedPostbackBorderColor", \.selectedPostbackBorderColor),
+    ("disabledSendButtonBackground", \.disabledSendButtonBackground),
+    ("feedbackButtonColor", \.feedbackButtonColor),
+    ("onDisabledSendButtonBackground", \.onDisabledSendButtonBackground),
+  ]
+  for (key, path) in optionalColors {
+    if let argb = values[key] as? NSNumber {
+      theme[keyPath: path] = color(of: argb)
+    }
+  }
+  if let tail = values["messageTailSize"] as? [String: NSNumber] {
+    theme.messageTailSize = CGSize(
+      width: CGFloat(tail["width"]?.doubleValue ?? 0),
+      height: CGFloat(tail["height"]?.doubleValue ?? 0)
+    )
+  }
+  if let fontFamily = values["fontFamily"] as? String {
+    theme.fontFamily = fontFamily
+  }
   for (key, path) in colors {
     if let argb = values[key] as? NSNumber {
       theme[keyPath: path] = color(of: argb)
     }
   }
-  if let padding = values["agentMessagePadding"] as? NSNumber {
-    theme.agentMessagePadding = CGFloat(padding.doubleValue)
+  if let padding = values["assistantMessagePadding"] as? NSNumber {
+    let all: CGFloat = CGFloat(padding.doubleValue)
+    theme.assistantMessagePadding = EdgeInsets(top: all, leading: all, bottom: all, trailing: all)
+  }
+  if let padding = values["userMessagePadding"] as? NSNumber {
+    let all: CGFloat = CGFloat(padding.doubleValue)
+    theme.userMessagePadding = EdgeInsets(top: all, leading: all, bottom: all, trailing: all)
   }
   if let width = values["inputScrollbarWidth"] as? NSNumber {
     theme.inputScrollbarWidth = CGFloat(width.doubleValue)
@@ -269,7 +360,8 @@ func chatTheme(of json: String) -> ChatTheme {
     ("inputShape", \.inputShape),
     ("quickReplyShape", \.quickReplyShape),
     ("userMessageShape", \.userMessageShape),
-    ("agentMessageShape", \.agentMessageShape),
+    ("assistantMessageShape", \.assistantMessageShape),
+    ("postbackShape", \.postbackShape),
   ]
   for (key, path) in shapes {
     if let corners = values[key] as? [String: NSNumber] {
@@ -283,7 +375,8 @@ private func texts(of values: [String: Any]?) -> YaloChatTexts {
   YaloChatTexts(
     inputPlaceholder: values?["inputPlaceholder"] as? String,
     imageNotAllowed: values?["imageNotAllowed"] as? String,
-    invalidImageAlertButtonText: values?["invalidImageAlertButtonText"] as? String
+    invalidImageAlertButtonText: values?["invalidImageAlertButtonText"] as? String,
+    writingIndicator: values?["writingIndicator"] as? String
   )
 }
 

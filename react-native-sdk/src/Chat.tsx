@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { serializeTheme, type ChatTheme } from './ChatTheme';
 import type { YaloChatClient } from './YaloChatClient';
+import type { YaloChatMessageAvatar } from './YaloChatClientConfig';
 import YaloChatView, {
   Commands,
   type CommandEvent,
@@ -124,11 +125,36 @@ export function Chat({
 // The provider stays in JavaScript, so the native chat is only told there is
 // one and asks for a token when it needs it.
 function nativeConfigOf(client: YaloChatClient): string {
-  const { userAuthTokenProvider, ...config } = client.config;
-  if (!userAuthTokenProvider) {
-    return JSON.stringify(config);
+  const {
+    userAuthTokenProvider,
+    userMessageAvatar,
+    assistantMessageAvatar,
+    ...config
+  } = client.config;
+  return JSON.stringify({
+    ...config,
+    // JSON leaves out what is undefined, so an avatar not set is not sent.
+    userMessageAvatar: nativeMessageAvatarOf(userMessageAvatar),
+    assistantMessageAvatar: nativeMessageAvatarOf(assistantMessageAvatar),
+    hasUserAuthTokenProvider: userAuthTokenProvider ? true : undefined,
+  });
+}
+
+/** The avatar as the native side reads it, with an image as its URI. */
+function nativeMessageAvatarOf(
+  avatar: YaloChatMessageAvatar | undefined
+): { text: string } | { image: string } | undefined {
+  if (avatar === undefined) {
+    return undefined;
   }
-  return JSON.stringify({ ...config, hasUserAuthTokenProvider: true });
+  if ('text' in avatar) {
+    return { text: avatar.text };
+  }
+  const uri = Image.resolveAssetSource(avatar.image)?.uri;
+  if (!uri) {
+    return undefined;
+  }
+  return { image: uri };
 }
 
 // Bundled images resolve to a URL in development and to an app asset in a

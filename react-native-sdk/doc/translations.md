@@ -38,6 +38,7 @@ Available fields:
 - **`inputPlaceholder`** (`string`): Placeholder shown in the message input while it is empty.
 - **`imageNotAllowed`** (`string`): Title of the alert shown when a picked picture is turned away by `imageSource` or `allowedImageNames`.
 - **`invalidImageAlertButtonText`** (`string`): Button that closes that alert.
+- **`writingIndicator`** (`string`): Shown while a reply is being written, with `typingIndicatorType` set to `'text'`. Defaults to "Writing...".
 
 ## Localization is your responsibility when overriding
 

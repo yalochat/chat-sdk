@@ -1,4 +1,5 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
+import type { ImageRequireSource, ImageURISource } from 'react-native';
 
 /** How a conversation is scoped, and whether it is remembered. */
 export type SessionMode = 'shared' | 'perContext' | 'ephemeral';
@@ -27,7 +28,28 @@ export type YaloChatTexts = {
   imageNotAllowed?: string;
   /** The button that closes that alert. */
   invalidImageAlertButtonText?: string;
+  /** What `typingIndicatorType: 'text'` shows while a reply is being written. */
+  writingIndicator?: string;
 };
+
+/** What the chat shows while a reply is being written. */
+export type TypingIndicatorType = 'threeDots' | 'text';
+
+/** Where the assistant avatar sits beside the typing indicator. */
+export type TypingIndicatorAvatarPosition = 'center' | 'below';
+
+/** Which messages get the avatar of their side. */
+export type AvatarDisplay = 'lastInGroup' | 'everyMessage';
+
+/** Where the buttons a channel message keeps are drawn. */
+export type MessageButtonsPosition = 'belowMessage' | 'insideMessage';
+
+/**
+ * The small round picture drawn beside the messages of one side. Either up to
+ * two characters of text, or an image the chat shows once it has loaded.
+ */
+export type YaloChatMessageAvatar =
+  { text: string } | { image: ImageURISource | ImageRequireSource };
 
 /** The details of one conversation. */
 export type YaloChatClientConfig = {
@@ -61,4 +83,14 @@ export type YaloChatClientConfig = {
    * Android checks the name with its extension, iOS without it.
    */
   allowedImageNames?: string[];
+  typingIndicatorType?: TypingIndicatorType;
+  typingIndicatorAvatarPosition?: TypingIndicatorAvatarPosition;
+  /** Drawn beside the person's messages. Left out, none is drawn. */
+  userMessageAvatar?: YaloChatMessageAvatar;
+  /** Drawn beside the channel's messages. Left out, none is drawn. */
+  assistantMessageAvatar?: YaloChatMessageAvatar;
+  avatarDisplay?: AvatarDisplay;
+  /** Whether each message shows the time it was sent inside its bubble. */
+  showTimestamps?: boolean;
+  messageButtonsPosition?: MessageButtonsPosition;
 };

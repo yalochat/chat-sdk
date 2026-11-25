@@ -4,25 +4,41 @@ package ai.yalo.chat.reactnative
 import ai.yalo.chat.sdk.YaloChatClient
 import ai.yalo.chat.sdk.YaloChatClientConfig
 import ai.yalo.chat.sdk.ui.ChatView
+import android.graphics.Bitmap
+import android.graphics.Typeface
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.facebook.common.executors.CallerThreadExecutor
+import com.facebook.common.references.CloseableReference
+import com.facebook.datasource.DataSource
+import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ScalingUtils
 import com.facebook.drawee.generic.RoundingParams
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.datasource.BaseBitmapDataSubscriber
+import com.facebook.imagepipeline.image.CloseableImage
+import com.facebook.imagepipeline.request.ImageRequest
+import com.facebook.react.common.assets.ReactFontManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.resume
 
 /** Hosts the Android SDK chat inside a React Native view. */
 internal class YaloChatView(private val reactContext: ThemedReactContext) : FrameLayout(reactContext) {
@@ -30,6 +46,10 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
     private val chat = ChatView(reactContext)
     private var config: YaloChatClientConfig? = null
     private var client: YaloChatClient? = null
+    private val scope = MainScope()
+    private var avatarLoad: Job? = null
+    // Kept between configs, so the same picture makes an equal config.
+    private val avatarImages = mutableMapOf<String, Bitmap>()
 
     var showsBackButton: Boolean = false
         set(value) {
@@ -71,12 +91,33 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
     }
 
     fun setConfig(value: String?) {
-        val next = try {
-            clientConfigOf(JSONObject(value ?: "{}"), userAuthTokenProvider)
+        val json = try {
+            JSONObject(value ?: "{}")
         } catch (error: JSONException) {
             Log.e(TAG, "The chat config could not be read, so the chat is not shown.", error)
             null
         }
+        avatarLoad?.cancel()
+        if (json == null) {
+            apply(null)
+            return
+        }
+        val missing = avatarImageUrisOf(json).filterNot(avatarImages::containsKey)
+        if (missing.isEmpty()) {
+            apply(json)
+            return
+        }
+        // The client is built once the avatar pictures are in, so it is built only once.
+        avatarLoad = scope.launch {
+            for (uri in missing) {
+                bitmapOf(avatarUriOf(uri))?.let { bitmap -> avatarImages[uri] = bitmap }
+            }
+            apply(json)
+        }
+    }
+
+    private fun apply(json: JSONObject?) {
+        val next = json?.let { clientConfigOf(it, userAuthTokenProvider, avatarImages) }
         if (next == config) {
             return
         }
@@ -84,6 +125,30 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
         client = next?.let { YaloChatClient(it) }
         registerCommands()
         chat.client = client
+    }
+
+    /** The picture at [uri], or null when it cannot be loaded. */
+    private suspend fun bitmapOf(uri: Uri): Bitmap? = suspendCancellableCoroutine { continuation ->
+        val source = Fresco.getImagePipeline().fetchDecodedImage(ImageRequest.fromUri(uri), null)
+        source.subscribe(
+            object : BaseBitmapDataSubscriber() {
+                override fun onNewResultImpl(bitmap: Bitmap?) {
+                    if (continuation.isActive) {
+                        // Fresco reuses its bitmap once this returns, so the chat keeps a copy.
+                        continuation.resume(bitmap?.copy(Bitmap.Config.ARGB_8888, false))
+                    }
+                }
+
+                override fun onFailureImpl(dataSource: DataSource<CloseableReference<CloseableImage>>) {
+                    Log.w(TAG, "The avatar at $uri could not be loaded, so it is left out.", dataSource.failureCause)
+                    if (continuation.isActive) {
+                        continuation.resume(null)
+                    }
+                }
+            },
+            CallerThreadExecutor.getInstance(),
+        )
+        continuation.invokeOnCancellation { source.close() }
     }
 
     /** Draws the image at [value] as the avatar, or none when it is empty. */
@@ -122,7 +187,15 @@ internal class YaloChatView(private val reactContext: ThemedReactContext) : Fram
             Log.e(TAG, "The chat theme could not be read, so the default is used.", error)
             JSONObject()
         }
-        chat.theme = { default -> default.overriddenBy(overrides) }
+        chat.theme = { default -> default.overriddenBy(overrides, ::fontFamilyOf) }
+    }
+
+    /** The font React Native finds under [name] in `assets/fonts`, or null when there is none. */
+    private fun fontFamilyOf(name: String): FontFamily? = try {
+        FontFamily(ReactFontManager.getInstance().getTypeface(name, Typeface.NORMAL, context.assets))
+    } catch (error: RuntimeException) {
+        Log.w(TAG, "The font $name could not be found, so the default is used.", error)
+        null
     }
 
     private fun registerCommands() {

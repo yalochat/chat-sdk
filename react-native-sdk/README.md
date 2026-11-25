@@ -119,6 +119,13 @@ Optional properties:
 - **`imageSource`** (`'all' | 'screenshots'`): Where the pictures a person sends may come from. Defaults to `'all'`. See [Limiting the images people send](#limiting-the-images-people-send).
 - **`screenshotFolders`** (`string[]`): Android only. The folders a picture may come from when `imageSource` is `'screenshots'`. Defaults to `['Pictures/Screenshots', 'DCIM/Screenshots']`.
 - **`allowedImageNames`** (`string[]`): Regular expressions a picture's file name has to match in full to be sent. Defaults to none, which checks no name.
+- **`userMessageAvatar`** (`YaloChatMessageAvatar`): A small circle drawn beside the person's messages. Either `{ text: 'JL' }`, which shows up to 2 characters, or `{ image: require('./me.png') }` or `{ image: { uri } }`. Defaults to none. The chat opens once an image has loaded, and an image that fails to load is left out.
+- **`assistantMessageAvatar`** (`YaloChatMessageAvatar`): The same circle beside the channel's messages. Defaults to none.
+- **`avatarDisplay`** (`'lastInGroup' | 'everyMessage'`): Which messages carry their avatar. Defaults to `'lastInGroup'`, only the newest of each run sent by the same side.
+- **`typingIndicatorType`** (`'threeDots' | 'text'`): What shows while a reply is being written. Defaults to `'threeDots'`. `'text'` shows "Writing...", which `writingIndicator` in `texts` can replace.
+- **`typingIndicatorAvatarPosition`** (`'center' | 'below'`): Where the assistant avatar sits beside the typing indicator. Defaults to `'center'`.
+- **`showTimestamps`** (`boolean`): Shows the time each message was sent in the bottom corner of its bubble, in the device time format. A line with the day sits above the first message of each day: "Today", "Yesterday", or the short date such as "Nov 22", with the year only for a past year. Defaults to `false`.
+- **`messageButtonsPosition`** (`'belowMessage' | 'insideMessage'`): Where the buttons a channel message keeps are drawn. Defaults to `'belowMessage'`, under the bubble and full width. `'insideMessage'` draws them inside the bubble, each as wide as its text.
 
 The config is read when the chat is shown. To change it, create a new client.
 
