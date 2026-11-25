@@ -1,7 +1,13 @@
 // Copyright (c) Yalochat, Inc. All rights reserved.
 package ai.yalo.chat.reactnative
 
+import ai.yalo.chat.sdk.AvatarDisplay
 import ai.yalo.chat.sdk.ImageSource
+import ai.yalo.chat.sdk.MessageButtonsPosition
+import ai.yalo.chat.sdk.TypingIndicatorAvatarPosition
+import ai.yalo.chat.sdk.TypingIndicatorType
+import ai.yalo.chat.sdk.YaloChatMessageAvatar
+import android.graphics.Bitmap
 import ai.yalo.chat.sdk.LogLevel
 import ai.yalo.chat.sdk.QuickReplyType
 import ai.yalo.chat.sdk.SessionMode
@@ -14,10 +20,14 @@ import org.json.JSONObject
 /**
  * The client config React Native sent, with anything left out at its SDK
  * default. [userAuthTokenProvider] is only used when JavaScript has one.
+ * [avatarImages] are the loaded pictures of the image avatars, by the URI
+ * [avatarImageUrisOf] lists. An image avatar whose picture is not there is
+ * left out.
  */
 internal fun clientConfigOf(
     config: JSONObject,
     userAuthTokenProvider: (suspend () -> String?)? = null,
+    avatarImages: Map<String, Bitmap> = emptyMap(),
 ): YaloChatClientConfig = YaloChatClientConfig(
     channelId = config.getString("channelId"),
     organizationId = config.getString("organizationId"),
@@ -36,12 +46,56 @@ internal fun clientConfigOf(
     texts = textsOf(config.optJSONObject("texts")),
     imageSource = imageSourceOf(config.optString("imageSource")),
     allowedImageNames = stringsOf(config.optJSONArray("allowedImageNames")),
+    typingIndicatorType = typingIndicatorTypeOf(config.optString("typingIndicatorType")),
+    typingIndicatorAvatarPosition = typingIndicatorAvatarPositionOf(config.optString("typingIndicatorAvatarPosition")),
+    userMessageAvatar = messageAvatarOf(config.optJSONObject("userMessageAvatar"), avatarImages),
+    assistantMessageAvatar = messageAvatarOf(config.optJSONObject("assistantMessageAvatar"), avatarImages),
+    avatarDisplay = avatarDisplayOf(config.optString("avatarDisplay")),
+    showTimestamps = config.optBoolean("showTimestamps"),
+    messageButtonsPosition = messageButtonsPositionOf(config.optString("messageButtonsPosition")),
 ).run {
     if (config.has("screenshotFolders")) {
         copy(screenshotFolders = stringsOf(config.optJSONArray("screenshotFolders")))
     } else {
         this
     }
+}
+
+/** The URIs of the image avatars in [config], to load before building it. */
+internal fun avatarImageUrisOf(config: JSONObject): List<String> =
+    listOf("userMessageAvatar", "assistantMessageAvatar").mapNotNull { key ->
+        config.optJSONObject(key)?.optString("image")?.takeIf { it.isNotEmpty() }
+    }
+
+private fun messageAvatarOf(avatar: JSONObject?, images: Map<String, Bitmap>): YaloChatMessageAvatar {
+    if (avatar == null) {
+        return YaloChatMessageAvatar.None
+    }
+    if (avatar.has("text")) {
+        return YaloChatMessageAvatar.Text(avatar.getString("text"))
+    }
+    val image = images[avatar.optString("image")] ?: return YaloChatMessageAvatar.None
+    return YaloChatMessageAvatar.Image(image)
+}
+
+private fun typingIndicatorTypeOf(value: String): TypingIndicatorType = when (value) {
+    "text" -> TypingIndicatorType.Text
+    else -> TypingIndicatorType.ThreeDots
+}
+
+private fun typingIndicatorAvatarPositionOf(value: String): TypingIndicatorAvatarPosition = when (value) {
+    "below" -> TypingIndicatorAvatarPosition.Below
+    else -> TypingIndicatorAvatarPosition.Center
+}
+
+private fun avatarDisplayOf(value: String): AvatarDisplay = when (value) {
+    "everyMessage" -> AvatarDisplay.EveryMessage
+    else -> AvatarDisplay.LastInGroup
+}
+
+private fun messageButtonsPositionOf(value: String): MessageButtonsPosition = when (value) {
+    "insideMessage" -> MessageButtonsPosition.InsideMessage
+    else -> MessageButtonsPosition.BelowMessage
 }
 
 private fun quickReplyTypeOf(value: String): QuickReplyType = when (value) {
@@ -88,6 +142,7 @@ private fun textsOf(texts: JSONObject?): YaloChatTexts {
         inputPlaceholder = textOf(texts, "inputPlaceholder"),
         imageNotAllowed = textOf(texts, "imageNotAllowed"),
         invalidImageAlertButtonText = textOf(texts, "invalidImageAlertButtonText"),
+        writingIndicator = textOf(texts, "writingIndicator"),
     )
 }
 

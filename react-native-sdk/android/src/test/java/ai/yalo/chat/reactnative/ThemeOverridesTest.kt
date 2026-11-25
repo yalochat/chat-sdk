@@ -2,9 +2,12 @@
 package ai.yalo.chat.reactnative
 
 import ai.yalo.chat.sdk.ui.theme.ChatTheme
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -21,10 +24,9 @@ class ThemeOverridesTest {
         onFooterBackground = Color.White,
         userMessageBackground = Color.White,
         onUserMessageBackground = Color.White,
-        agentMessageBackground = Color.White,
-        onAgentMessageBackground = Color.White,
-        agentMessageBorderColor = Color.White,
-        agentMessagePadding = 0.dp,
+        assistantMessageBackground = Color.White,
+        onAssistantMessageBackground = Color.White,
+        assistantMessageBorderColor = Color.White,
         typingIndicatorDotColor = Color.White,
         linkColor = Color.White,
         quickReplyBackground = Color.White,
@@ -42,7 +44,7 @@ class ThemeOverridesTest {
         onSendButtonBackground = Color.White,
         inputShape = RectangleShape,
         userMessageShape = RectangleShape,
-        agentMessageShape = RectangleShape,
+        assistantMessageShape = RectangleShape,
         imageShape = RectangleShape,
         quickReplyShape = RectangleShape,
         postbackShape = RectangleShape,
@@ -66,8 +68,8 @@ class ThemeOverridesTest {
     fun `reads every color`() {
         val keys = listOf(
             "background", "onBackground", "headerBackground", "onHeaderBackground", "footerBackground",
-            "onFooterBackground", "userMessageBackground", "onUserMessageBackground", "agentMessageBackground",
-            "onAgentMessageBackground", "agentMessageBorderColor", "typingIndicatorDotColor", "linkColor", "quickReplyBackground",
+            "onFooterBackground", "userMessageBackground", "onUserMessageBackground", "assistantMessageBackground",
+            "onAssistantMessageBackground", "assistantMessageBorderColor", "typingIndicatorDotColor", "linkColor", "quickReplyBackground",
             "onQuickReplyBackground", "quickReplyBorderColor", "postbackBackground", "onPostbackBackground",
             "postbackBorderColor", "selectedPostbackBackground", "onSelectedPostbackBackground",
             "inputBorderColor", "inputFieldBorderColor",
@@ -88,10 +90,9 @@ class ThemeOverridesTest {
                 onFooterBackground = Color.Black,
                 userMessageBackground = Color.Black,
                 onUserMessageBackground = Color.Black,
-                agentMessageBackground = Color.Black,
-                onAgentMessageBackground = Color.Black,
-                agentMessageBorderColor = Color.Black,
-                agentMessagePadding = 0.dp,
+                assistantMessageBackground = Color.Black,
+                onAssistantMessageBackground = Color.Black,
+                assistantMessageBorderColor = Color.Black,
                 typingIndicatorDotColor = Color.Black,
                 linkColor = Color.Black,
                 quickReplyBackground = Color.Black,
@@ -109,7 +110,7 @@ class ThemeOverridesTest {
                 onSendButtonBackground = Color.Black,
                 inputShape = RectangleShape,
                 userMessageShape = RectangleShape,
-                agentMessageShape = RectangleShape,
+                assistantMessageShape = RectangleShape,
                 imageShape = RectangleShape,
                 quickReplyShape = RectangleShape,
                 postbackShape = RectangleShape,
@@ -122,15 +123,22 @@ class ThemeOverridesTest {
 
     @Test
     fun `reads sizes as points`() {
-        val theme = base.overriddenBy(JSONObject("""{"agentMessagePadding":12.5,"inputScrollbarWidth":6}"""))
+        val theme = base.overriddenBy(
+            JSONObject("""{"userMessagePadding":20,"assistantMessagePadding":16,"inputScrollbarWidth":6}"""),
+        )
 
-        assertEquals(base.copy(agentMessagePadding = 12.5.dp, inputScrollbarWidth = 6.dp), theme)
+        assertEquals(
+            base.copy(userMessagePadding = PaddingValues(20.dp),
+                assistantMessagePadding = PaddingValues(16.dp),
+                inputScrollbarWidth = 6.dp),
+            theme,
+        )
     }
 
     @Test
     fun `reads every shape as four corners`() {
         val keys = listOf(
-            "inputShape", "userMessageShape", "agentMessageShape", "imageShape", "quickReplyShape", "postbackShape",
+            "inputShape", "userMessageShape", "assistantMessageShape", "imageShape", "quickReplyShape", "postbackShape",
         )
         val json = JSONObject()
         keys.forEach { key ->
@@ -144,12 +152,66 @@ class ThemeOverridesTest {
             base.copy(
                 inputShape = shape,
                 userMessageShape = shape,
-                agentMessageShape = shape,
+                assistantMessageShape = shape,
                 imageShape = shape,
                 quickReplyShape = shape,
                 postbackShape = shape,
             ),
             theme,
         )
+    }
+
+    @Test
+    fun `reads the avatar, timestamp, send button and selected button colors`() {
+        val keys = listOf(
+            "selectedPostbackBorderColor", "disabledSendButtonBackground", "onDisabledSendButtonBackground",
+            "inputPlaceholderColor", "timestampColor", "userAvatarBackground", "onUserAvatarBackground",
+            "assistantAvatarBackground", "onAssistantAvatarBackground", "feedbackButtonColor",
+        )
+        val json = JSONObject()
+        keys.forEach { key -> json.put(key, -16777216) }
+
+        val theme = base.overriddenBy(json)
+
+        assertEquals(
+            base.copy(
+                selectedPostbackBorderColor = Color.Black,
+                disabledSendButtonBackground = Color.Black,
+                onDisabledSendButtonBackground = Color.Black,
+                inputPlaceholderColor = Color.Black,
+                timestampColor = Color.Black,
+                userAvatarBackground = Color.Black,
+                onUserAvatarBackground = Color.Black,
+                assistantAvatarBackground = Color.Black,
+                onAssistantAvatarBackground = Color.Black,
+                feedbackButtonColor = Color.Black,
+            ),
+            theme,
+        )
+    }
+
+    @Test
+    fun `reads the tail size as points`() {
+        val theme = base.overriddenBy(JSONObject("""{"messageTailSize":{"width":48,"height":24}}"""))
+
+        assertEquals(DpSize(48.dp, 24.dp), theme.messageTailSize)
+    }
+
+    @Test
+    fun `uses the font found under the family name`() {
+        val font = FontFamily.Serif
+
+        val theme = base.overriddenBy(JSONObject("""{"fontFamily":"Inter"}""")) { name ->
+            font.takeIf { name == "Inter" }
+        }
+
+        assertEquals(font, theme.fontFamily)
+    }
+
+    @Test
+    fun `keeps the base font when the family is not found`() {
+        val theme = base.overriddenBy(JSONObject("""{"fontFamily":"Missing"}"""))
+
+        assertEquals(base.fontFamily, theme.fontFamily)
     }
 }

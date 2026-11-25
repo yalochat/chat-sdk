@@ -14,6 +14,9 @@ export type ChatShape =
       bottomStart?: number;
     };
 
+/** A width and a height in density independent points. */
+export type ChatSize = { width: number; height: number };
+
 /** How the chat paints itself. Anything left out keeps the platform default. */
 export type ChatTheme = {
   background?: ColorValue;
@@ -24,11 +27,13 @@ export type ChatTheme = {
   onFooterBackground?: ColorValue;
   userMessageBackground?: ColorValue;
   onUserMessageBackground?: ColorValue;
-  agentMessageBackground?: ColorValue;
-  onAgentMessageBackground?: ColorValue;
-  agentMessageBorderColor?: ColorValue;
-  /** Room between the box around a message the channel sent and its content, in points. */
-  agentMessagePadding?: number;
+  assistantMessageBackground?: ColorValue;
+  onAssistantMessageBackground?: ColorValue;
+  assistantMessageBorderColor?: ColorValue;
+  /** Room between the bubble of a message the channel sent and its content, in points. */
+  assistantMessagePadding?: number;
+  /** Room between the bubble of a message the person sent and its content, in points. */
+  userMessagePadding?: number;
   typingIndicatorDotColor?: ColorValue;
   linkColor?: ColorValue;
   quickReplyBackground?: ColorValue;
@@ -52,10 +57,37 @@ export type ChatTheme = {
   inputScrollbarWidth?: number;
   inputShape?: ChatShape;
   userMessageShape?: ChatShape;
-  agentMessageShape?: ChatShape;
+  assistantMessageShape?: ChatShape;
   imageShape?: ChatShape;
   quickReplyShape?: ChatShape;
   postbackShape?: ChatShape;
+  /** Border of the button the person tapped last on a message. Left out, it keeps `postbackBorderColor`. */
+  selectedPostbackBorderColor?: ColorValue;
+  /** Fill of the send button while there is nothing to send. Left out, it is drawn faded. */
+  disabledSendButtonBackground?: ColorValue;
+  /** Icon color of the send button while there is nothing to send. */
+  onDisabledSendButtonBackground?: ColorValue;
+  /** Color of the text the message input shows while it is empty. */
+  inputPlaceholderColor?: ColorValue;
+  /** Color of the thumbs up and thumbs down under the channel's replies. */
+  feedbackButtonColor?: ColorValue;
+  /** Color of the time shown inside each message with `showTimestamps` on. */
+  timestampColor?: ColorValue;
+  userAvatarBackground?: ColorValue;
+  onUserAvatarBackground?: ColorValue;
+  assistantAvatarBackground?: ColorValue;
+  onAssistantAvatarBackground?: ColorValue;
+  /**
+   * A triangle under the bubble that shows the avatar, pointing at it. Left
+   * out, bubbles have none.
+   */
+  messageTailSize?: ChatSize;
+  /**
+   * Font family for all the text in the chat. On iOS the family name of a
+   * font the app registered, on Android the name of a font file in
+   * `assets/fonts`, the way React Native finds fonts.
+   */
+  fontFamily?: string;
 };
 
 type Corners = {
@@ -68,16 +100,19 @@ type Corners = {
 const shapeKeys = new Set<string>([
   'inputShape',
   'userMessageShape',
-  'agentMessageShape',
+  'assistantMessageShape',
   'imageShape',
   'quickReplyShape',
   'postbackShape',
 ]);
 
 const sizeKeys = new Set<string>([
-  'agentMessagePadding',
+  'assistantMessagePadding',
+  'userMessagePadding',
   'inputScrollbarWidth',
 ]);
+
+const passedAsIsKeys = new Set<string>(['messageTailSize', 'fontFamily']);
 
 function cornersOf(shape: ChatShape): Corners {
   if (typeof shape === 'number') {
@@ -98,7 +133,7 @@ function cornersOf(shape: ChatShape): Corners {
 
 /** The theme as the native side reads it: colors as ARGB numbers, shapes as four corners, sizes as points. */
 export function serializeTheme(theme: ChatTheme): string {
-  const native: Record<string, number | Corners> = {};
+  const native: Record<string, number | string | Corners | ChatSize> = {};
   for (const [key, value] of Object.entries(theme)) {
     if (value === undefined || value === null) {
       continue;
@@ -109,6 +144,10 @@ export function serializeTheme(theme: ChatTheme): string {
     }
     if (sizeKeys.has(key)) {
       native[key] = value as number;
+      continue;
+    }
+    if (passedAsIsKeys.has(key)) {
+      native[key] = value as string | ChatSize;
       continue;
     }
     const color = processColor(value as ColorValue);

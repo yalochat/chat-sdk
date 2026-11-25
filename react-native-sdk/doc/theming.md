@@ -88,21 +88,28 @@ Some values are not drawn on iOS yet. They are marked "Android only" below and a
 - **`inputScrollbarWidth`** (size): Width of that thumb. Defaults to `3`. `0` hides the thumb, and the text still scrolls.
 - **`sendButtonBackground`** (color): Fill of the round button after the input, both while it sends and while it records. While there is nothing to send it is drawn faded. Defaults to the Material `primary` color on Android and the accent color on iOS.
 - **`onSendButtonBackground`** (color): Color of the icon on that button. Defaults to the Material `onPrimary` color on Android and white on iOS.
+- **`disabledSendButtonBackground`** (color): Fill of that button while there is nothing to send. Left out, it is drawn faded.
+- **`onDisabledSendButtonBackground`** (color): Color of its icon while there is nothing to send. Left out, it is drawn faded.
+- **`inputPlaceholderColor`** (color): Color of the text the message input shows while it is empty. Defaults to the Material `onSurfaceVariant` color on Android and the system placeholder text color on iOS.
 
 ### Messages
 
 - **`userMessageBackground`** (color): Bubble background for messages the person sent. Defaults to the Material `surfaceContainerHigh` color on Android and the secondary system background color on iOS.
 - **`onUserMessageBackground`** (color): Text color inside those bubbles. Defaults to the Material `onSurface` color on Android and the system label color on iOS.
+- **`userMessagePadding`** (size): Room between the person's bubble and what is inside it, on every side. Left out, it is 16 on the sides and 12 above and below.
 - **`userMessageShape`** (shape): Shape of the person's bubbles. Defaults to a rounded shape with a squared off bottom corner on the side the bubble sits on Android, and every corner rounded by 18 points on iOS.
-- **`agentMessageBackground`** (color): Background for messages the channel sent. Defaults to transparent, so what the channel says reads as the conversation itself rather than as a reply. Set a color to put them in a bubble.
-- **`onAgentMessageBackground`** (color): Text color for those messages. Defaults to the Material `onSurface` color on Android and the system label color on iOS.
-- **`agentMessageShape`** (shape): Shape of the bubble around those messages. Defaults to square corners, which is invisible while the background is transparent. Set it along with `agentMessageBackground` when you want those messages bubbled.
-- **`agentMessageBorderColor`** (color): Color of the line around that bubble. Defaults to transparent.
-- **`agentMessagePadding`** (size): Room between that bubble and what is inside it. Defaults to `0`, so the text lines up with the conversation while there is no bubble.
+- **`assistantMessageBackground`** (color): Background for messages the channel sent. Defaults to transparent, so what the channel says reads as the conversation itself rather than as a reply. Set a color to put them in a bubble.
+- **`onAssistantMessageBackground`** (color): Text color for those messages. Defaults to the Material `onSurface` color on Android and the system label color on iOS.
+- **`assistantMessageShape`** (shape): Shape of the bubble around those messages. Defaults to square corners, which is invisible while the background is transparent. Set it along with `assistantMessageBackground` when you want those messages bubbled.
+- **`assistantMessageBorderColor`** (color): Color of the line around that bubble. Defaults to transparent.
+- **`assistantMessagePadding`** (size): Room between that bubble and what is inside it, on every side. Defaults to `0`, so the text lines up with the conversation while there is no bubble.
 - **`linkColor`** (color, Android only): Color of the links inside a message the channel sent. Defaults to the Material `primary` color.
 - **`imageShape`** (shape, Android only): Shape a picture is cut to inside a message. Defaults to a rounded shape.
+- **`messageTailSize`** (`{ width, height }` in points): Size of a triangle under the bubble that shows the avatar, pointing down at it, like a speech bubble. Left out, bubbles have none. The typing indicator bubble gets it too while its avatar sits below it, with `typingIndicatorAvatarPosition` set to below. For example `{ width: 48, height: 24 }`.
+- **`feedbackButtonColor`** (color): Color of the thumbs up and thumbs down under the channel's replies. The one picked is drawn filled. Left out, they keep the platform default.
+- **`timestampColor`** (color): Color of the time shown inside each message with `showTimestamps` on in the client config, and of the day shown above the first message of each day. Defaults to the Material `onSurfaceVariant` color on Android and the secondary system label color on iOS.
 
-A voice message has no color of its own. It draws its waveform in the text color of whatever it sits on, so it follows `onUserMessageBackground` in the person's bubbles, `onAgentMessageBackground` in the channel's, and `onFooterBackground` while a recording is being made.
+A voice message has no color of its own. It draws its waveform in the text color of whatever it sits on, so it follows `onUserMessageBackground` in the person's bubbles, `onAssistantMessageBackground` in the channel's, and `onFooterBackground` while a recording is being made.
 
 ### Quick replies
 
@@ -120,9 +127,25 @@ These paint the buttons stacked under a message, both the ones that answer the c
 - **`postbackBackground`** (color): Background of a button. Defaults to transparent. Set a color to fill it.
 - **`onPostbackBackground`** (color): Color of the text on a button. Defaults to the Material `onSurface` color on Android and the system label color on iOS.
 - **`postbackBorderColor`** (color): Color of the line around a button. Defaults to the Material `outline` color on Android and the system separator color on iOS.
-- **`postbackShape`** (shape, Android only): Shape of a button. Defaults to a lightly rounded shape.
+- **`postbackShape`** (shape): Shape of a button. Defaults to corners rounded by 8 points.
 - **`selectedPostbackBackground`** (color): Background of the button the person tapped last. Defaults to the Material `secondaryContainer` color on Android and the system tertiary fill color on iOS.
 - **`onSelectedPostbackBackground`** (color): Color of the text on the button the person tapped last. Defaults to the Material `onSecondaryContainer` color on Android and the system label color on iOS.
+- **`selectedPostbackBorderColor`** (color): Color of the line around the button the person tapped last. Left out, it keeps `postbackBorderColor`.
+
+### Message avatars
+
+These paint the circles set with `userMessageAvatar` and `assistantMessageAvatar` in the client config.
+
+- **`userAvatarBackground`** (color): Fill of the circle beside the person's messages.
+- **`onUserAvatarBackground`** (color): Color of the letters in that circle.
+- **`assistantAvatarBackground`** (color): Fill of the circle beside the channel's messages.
+- **`onAssistantAvatarBackground`** (color): Color of the letters in that circle.
+
+### Font
+
+- **`fontFamily`** (string): Font for all the text in the chat. Sizes and weights stay the same.
+  - On iOS, the family name of a font your app registered.
+  - On Android, the name of a font file in `android/app/src/main/assets/fonts`, the same way React Native finds fonts for `Text`.
 
 ### Typing indicator
 
@@ -167,9 +190,9 @@ const theme: ChatTheme = {
   onFooterBackground: '#1c1b1f',
   userMessageBackground: brand,
   onUserMessageBackground: 'white',
-  agentMessageBackground: '#f3edf7',
-  onAgentMessageBackground: '#1c1b1f',
-  agentMessagePadding: 12,
+  assistantMessageBackground: '#f3edf7',
+  onAssistantMessageBackground: '#1c1b1f',
+  assistantMessagePadding: 12,
   typingIndicatorDotColor: brand,
   linkColor: brand,
   quickReplyBackground: 'transparent',
@@ -186,7 +209,7 @@ const theme: ChatTheme = {
   sendButtonBackground: brand,
   onSendButtonBackground: 'white',
   userMessageShape: 16,
-  agentMessageShape: 16,
+  assistantMessageShape: 16,
   imageShape: 8,
   quickReplyShape: 16,
   postbackShape: 8,

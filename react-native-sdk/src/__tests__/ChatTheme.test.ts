@@ -22,10 +22,32 @@ describe('serializeTheme', () => {
 
   it('sends sizes as the points they are', () => {
     const native = JSON.parse(
-      serializeTheme({ agentMessagePadding: 12, inputScrollbarWidth: 6 })
+      serializeTheme({
+        assistantMessagePadding: 12,
+        userMessagePadding: 20,
+        inputScrollbarWidth: 6,
+      })
     );
 
-    expect(native).toEqual({ agentMessagePadding: 12, inputScrollbarWidth: 6 });
+    expect(native).toEqual({
+      assistantMessagePadding: 12,
+      userMessagePadding: 20,
+      inputScrollbarWidth: 6,
+    });
+  });
+
+  it('sends the tail size and the font family as they are', () => {
+    const native = JSON.parse(
+      serializeTheme({
+        messageTailSize: { width: 48, height: 24 },
+        fontFamily: 'Inter',
+      })
+    );
+
+    expect(native).toEqual({
+      messageTailSize: { width: 48, height: 24 },
+      fontFamily: 'Inter',
+    });
   });
 
   it('rounds every corner when a shape is a number', () => {

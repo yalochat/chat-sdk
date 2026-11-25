@@ -33,6 +33,37 @@ describe('Chat', () => {
     });
   });
 
+  it('hands text and image message avatars to the native chat', async () => {
+    const withAvatars = new YaloChatClient({
+      ...client.config,
+      userMessageAvatar: { text: 'JL' },
+      assistantMessageAvatar: {
+        image: { uri: 'https://example.com/bot.png' },
+      },
+    });
+    await render(<Chat client={withAvatars} testID="chat" />);
+
+    const config = JSON.parse(screen.getByTestId('chat').props.config);
+    expect(config.userMessageAvatar).toEqual({ text: 'JL' });
+    expect(config.assistantMessageAvatar).toEqual({
+      image: 'https://example.com/bot.png',
+    });
+  });
+
+  it('leaves out an image avatar that does not resolve', async () => {
+    jest
+      .spyOn(Image, 'resolveAssetSource')
+      .mockReturnValueOnce(undefined as never);
+    const withAvatar = new YaloChatClient({
+      ...client.config,
+      assistantMessageAvatar: { image: 7 },
+    });
+    await render(<Chat client={withAvatar} testID="chat" />);
+
+    const config = JSON.parse(screen.getByTestId('chat').props.config);
+    expect(config).not.toHaveProperty('assistantMessageAvatar');
+  });
+
   it('hands a remote avatar to the native chat', async () => {
     await render(
       <Chat
