@@ -12,6 +12,7 @@ on:
       - 'ios-sdk/**'
       - 'proto/swift/**'
       - 'Package.swift'
+      - 'Package.resolved'
       - '.github/workflows/ios-ci-cd.yml'
 
   pull_request:
@@ -19,6 +20,7 @@ on:
       - 'ios-sdk/**'
       - 'proto/swift/**'
       - 'Package.swift'
+      - 'Package.resolved'
       - '.github/workflows/ios-ci-cd.yml'
 
 concurrency:
@@ -38,18 +40,28 @@ jobs:
   quality-gate:
     # Package.swift needs Swift 6.4, which only the Xcode 27 image ships.
     runs-on: xcode-27
+    # A warm run takes a few minutes; a hung package fetch should not hold a macOS runner.
+    timeout-minutes: 45
     env:
       XCODE_VERSION: "27.0"
-      PACKAGES_DIR: ${{ github.workspace }}/.build/SourcePackages
+      # Every xcodebuild call shares one build folder, kept inside Xcode's default
+      # DerivedData root so the cache below also carries the SDK modules Xcode
+      # precompiles there (minutes of work on a cold runner).
+      DERIVED_DATA: /Users/runner/Library/Developer/Xcode/DerivedData/YaloChatSDK-CI
       RESULT_BUNDLE: ${{ github.workspace }}/.build/YaloChatSDK.xcresult
 
     steps:
       - uses: actions/checkout@v6
 
       - name: Select Xcode
+        id: xcode
         run: |
           sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app"
           xcodebuild -version
+          echo "build=$(xcodebuild -version | awk '/Build version/ {print $3}')" >> "$GITHUB_OUTPUT"
+          # A fresh checkout gives every file a new inode. Without this, Xcode
+          # treats every restored build product as stale and rebuilds it.
+          defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
 
       - name: Pick iPhone simulator
         id: simulator
@@ -67,7 +79,35 @@ jobs:
           fi
           echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
-      - name: Boot simulator
+      - name: Start booting simulator
+        # Boots in the background while the tests compile; "Wait for simulator"
+        # blocks on it before they run, and retries the boot if this one failed.
+        run: xcrun simctl boot "${{ steps.simulator.outputs.udid }}" || true
+
+      - name: Restore build cache
+        # Only main saves the cache (see "Save build cache"); pull requests and
+        # tags restore main's latest.
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.DERIVED_DATA }}
+          key: ios-derived-data-${{ steps.xcode.outputs.build }}-${{ hashFiles('Package.resolved', 'ios-sdk/YaloChatSDK.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ github.sha }}
+          restore-keys: |
+            ios-derived-data-${{ steps.xcode.outputs.build }}-${{ hashFiles('Package.resolved', 'ios-sdk/YaloChatSDK.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-
+            ios-derived-data-${{ steps.xcode.outputs.build }}-
+
+      - name: Build tests with coverage
+        # Package versions come from the committed Package.resolved, so a
+        # restored cache never goes to GitHub for them.
+        run: |
+          xcodebuild build-for-testing \
+            -scheme YaloChatSDK \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -disableAutomaticPackageResolution \
+            -enableCodeCoverage YES \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Wait for simulator
         # Waits for the first boot to settle, so its background work does not
         # stall the tests that wait on a deadline.
         run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
@@ -75,11 +115,12 @@ jobs:
       - name: Unit tests with coverage
         # A failure would otherwise collect a sysdiagnose, which takes minutes on a runner.
         run: |
-          xcodebuild test \
+          xcodebuild test-without-building \
             -collect-test-diagnostics never \
             -scheme YaloChatSDK \
             -destination "id=${{ steps.simulator.outputs.udid }}" \
-            -clonedSourcePackagesDirPath "$PACKAGES_DIR" \
+            -derivedDataPath "$DERIVED_DATA" \
+            -disableAutomaticPackageResolution \
             -enableCodeCoverage YES \
             -resultBundlePath "$RESULT_BUNDLE"
 
@@ -111,7 +152,9 @@ jobs:
             -scheme YaloChatSDK \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -clonedSourcePackagesDirPath "$PACKAGES_DIR"
+            -derivedDataPath "$DERIVED_DATA" \
+            -disableAutomaticPackageResolution \
+            COMPILER_INDEX_STORE_ENABLE=NO
 
       - name: Build example app
         run: |
@@ -119,7 +162,16 @@ jobs:
             -workspace ios-sdk/YaloChatSDK.xcworkspace \
             -scheme ExampleApp \
             -destination 'generic/platform=iOS Simulator' \
-            -clonedSourcePackagesDirPath "$PACKAGES_DIR"
+            -derivedDataPath "$DERIVED_DATA" \
+            -disableAutomaticPackageResolution \
+            COMPILER_INDEX_STORE_ENABLE=NO
+
+      - name: Save build cache
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.DERIVED_DATA }}
+          key: ios-derived-data-${{ steps.xcode.outputs.build }}-${{ hashFiles('Package.resolved', 'ios-sdk/YaloChatSDK.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}-${{ github.sha }}
 
   # SwiftPM only resolves plain semver tags, so the ios-sdk/vX.Y.Z tag from YRK
   # gets a matching X.Y.Z tag on the same commit.
